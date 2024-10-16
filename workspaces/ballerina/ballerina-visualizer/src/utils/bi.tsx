@@ -24,7 +24,8 @@ import {
     Flow,
     Branch,
     LineRange,
-    ExpressionCompletionItem
+    ExpressionCompletionItem,
+    SignatureHelpResponse
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -267,5 +268,23 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         description,
         kind,
         sortText
+    }
+}
+
+export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
+    const fnText = signatureHelp.signatures[0].label;
+    const fnRegex = /^(?<label>[a-zA-Z0-9_']+)\((?<args>.*)\)$/;
+    const fnMatch = fnText.match(fnRegex);
+
+    if (!fnMatch) {
+        return undefined;
+    }
+    const label = fnMatch.groups?.label;
+    const args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+
+    return {
+        label,
+        args,
+        currentArgIndex: signatureHelp.activeParameter
     }
 }

@@ -33,7 +33,9 @@ import {
     AddComponentView,
     ServiceForm,
     PopupMessage,
-    MainForm} from "./views/BI";
+    MainForm,
+    FunctionForm
+} from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
@@ -215,6 +217,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
+                        break;
+                    case MACHINE_VIEW.BIFunctionForm:
+                        setViewComponent(<FunctionForm />);
                         break;
                     default:
                         setNavActive(false);

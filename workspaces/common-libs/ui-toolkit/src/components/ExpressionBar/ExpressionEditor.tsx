@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, getExpressionInfo, getIcon, setCursor } from './utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
@@ -38,12 +38,13 @@ type DropdownItemProps = {
     onClick: () => void;
 };
 
-type SyntaxProps = {
-    item: CompletionItem;
+type FnSignatureProps = {
+    label: string;
+    args: string[];
     currentArgIndex: number;
 };
 
-type SyntaxElProps = StyleBase & SyntaxProps;
+type FnSignatureElProps = StyleBase & FnSignatureProps;
 
 // Styles
 const Container = styled.div`
@@ -152,8 +153,11 @@ const KeyContainer = styled.div`
 const SyntaxBody = styled.div`
     display: flex;
     align-items: center;
-    padding-inline: 16px;
-    margin: 0;
+    margin: 0 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
 `;
 
 const SelectedArg = styled(Typography)`
@@ -284,23 +288,30 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
 });
 Dropdown.displayName = 'Dropdown';
 
-const SyntaxEl = (props: SyntaxElProps) => {
-    const { item, currentArgIndex, sx } = props;
+const FnSignatureEl = (props: FnSignatureElProps) => {
+    const { label, args, currentArgIndex, sx } = props;
+    const selectedArgRef = useRef<HTMLParagraphElement>(null);
+
+    useEffect(() => {
+        if (selectedArgRef.current) {
+            selectedArgRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, [currentArgIndex]);
 
     return (
         <>
-            {item && (
+            {label && (
                 <DropdownBody sx={sx}>
                     <SyntaxBody>
                         <Typography variant="body3" sx={{ fontWeight: 600 }}>
-                            {`${item.label}(`}
+                            {`${label}(`}
                         </Typography>
-                        {item.args?.map((arg, index) => {
-                            const lastArg = index === item.args.length - 1;
+                        {args?.map((arg, index) => {
+                            const lastArg = index === args.length - 1;
                             if (index === currentArgIndex) {
                                 return (
                                     <Fragment key={`arg-${index}`}>
-                                        <SelectedArg>{arg}</SelectedArg>
+                                        <SelectedArg ref={selectedArgRef}>{arg}</SelectedArg>
                                         {!lastArg && <Typography variant="body3">{`, `}</Typography>}
                                     </Fragment>
                                 );
@@ -329,6 +340,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onSave,
         onCancel,
         onCompletionSelect,
+        extractArgsFromFunction,
         useTransaction,
         onFocus,
         onBlur,
@@ -340,14 +352,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const listBoxRef = useRef<HTMLDivElement>(null);
     const skipFocusCallback = useRef<boolean>(false);
     const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
-    const [selectedCompletion, setSelectedCompletion] = useState<CompletionItem | undefined>();
-    const [syntax, setSyntax] = useState<SyntaxProps | undefined>();
+    const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
     };
 
-    const isDropdownOpen = completions?.length > 0 || !!syntax?.item;
+    const isDropdownOpen = completions?.length > 0 || !!fnSignature;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
@@ -370,39 +381,28 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleClose = () => {
         onCancel();
-        setSyntax(undefined);
+        setFnSignature(undefined);
     };
 
-    const updateSyntax = (currentFnContent: string, newSelectedItem?: CompletionItem) => {
-        if (newSelectedItem) {
-            setSelectedCompletion(newSelectedItem);
-        }
-        const item = newSelectedItem ?? selectedCompletion;
-        const inputArgsCount = currentFnContent.trim().split(',').length;
-        if (item?.args) {
-            if (inputArgsCount <= item.args.length) {
-                setSyntax({ item: item, currentArgIndex: inputArgsCount - 1 });
-                return;
-            }
-            // Multiple arguments (ex: ...numbers)
-            const isMultiArgFn = item.args[item.args.length - 1].match(/^\.{3}\w+$/);
-            if (isMultiArgFn) {
-                setSyntax({ item: item, currentArgIndex: item.args.length - 1 });
-                return;
-            }
-        }
+    // This allows us to update the Function Signature UI
+    const updateFnSignature = async (value: string, cursorPosition: number) => {
+        const fnSignature = await extractArgsFromFunction(value, cursorPosition);
+        setFnSignature(fnSignature);
     };
 
-    const handleChange = async (text: string, cursorPosition?: number, selectedItem?: CompletionItem) => {
+    const handleChange = async (text: string, cursorPosition?: number) => {
         const updatedCursorPosition =
             cursorPosition ?? inputRef.current.shadowRoot.querySelector('input').selectionStart;
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
-        // Update selected argument if the cursor is inside a function
-        const { isCursorInFunction, currentFnContent } = getExpressionInfo(text, cursorPosition);
-        if (isCursorInFunction) {
-            updateSyntax(currentFnContent, selectedItem);
+        const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
+        if (cursorInFunction) {
+            // Update function signature if the cursor is inside a function
+            await updateFnSignature(text, updatedCursorPosition);
+        } else if (fnSignature) {
+            // Clear the function signature if the cursor is not in a function
+            setFnSignature(undefined);
         }
     };
 
@@ -416,7 +416,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         const newCursorPosition = prefix.length + item.value.length;
         const newTextValue = prefix + item.value + suffix;
 
-        await handleChange(newTextValue, newCursorPosition, item);
+        await handleChange(newTextValue, newCursorPosition);
         onCompletionSelect && await onCompletionSelect(newTextValue);
 
         return { newTextValue, newCursorPosition };
@@ -641,7 +641,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 items={completions}
                                 onCompletionSelect={handleCompletionSelectMutation}
                             />
-                            <SyntaxEl item={syntax?.item} currentArgIndex={syntax?.currentArgIndex ?? 0} />
+                            <FnSignatureEl
+                                label={fnSignature?.label}
+                                args={fnSignature?.args}
+                                currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                            />
                         </Transition>
                     </DropdownContainer>,
                     document.body

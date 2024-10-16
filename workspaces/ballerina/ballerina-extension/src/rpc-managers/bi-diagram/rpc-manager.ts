@@ -31,7 +31,7 @@ import {
     BISuggestedFlowModelRequest,
     ComponentsRequest,
     ComponentsResponse,
-    CreateComponentRequest,
+    ComponentRequest,
     CreateComponentResponse,
     DIRECTORY_MAP,
     ExpressionCompletionsRequest,
@@ -43,6 +43,8 @@ import {
     ReadmeContentRequest,
     ReadmeContentResponse,
     STModification,
+    SignatureHelpRequest,
+    SignatureHelpResponse,
     SyntaxTree,
     WorkspaceFolder,
     WorkspacesResponse,
@@ -54,7 +56,7 @@ import * as path from 'path';
 import { Uri, ViewColumn, commands, window, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIProjectPure, createBIService, createBIAutomation, handleServiceCreation, sanitizeName, createBIFunction } from "../../utils/bi";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -175,7 +177,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
                 if (isConnector) {
                     await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString }
+                        documentIdentifier: { uri: fileUriString },
                     });
                     // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
                     await StateMachine.langClient().didOpen({
@@ -243,7 +245,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async createComponent(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+    async createComponent(params: ComponentRequest): Promise<CreateComponentResponse> {
         return new Promise(async (resolve) => {
             let res: CreateComponentResponse;
             switch (params.type) {
@@ -251,7 +253,10 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     res = await createBIService(params);
                     break;
                 case DIRECTORY_MAP.AUTOMATION:
-                    res = await createBITask(params);
+                    res = await createBIAutomation(params);
+                    break;
+                case DIRECTORY_MAP.FUNCTIONS:
+                    res = await createBIFunction(params);
                     break;
                 default:
                     break;
@@ -301,10 +306,13 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             const { filePath, position, isOverview } = params;
             if (isOverview) {
-                const readmeContent = fs.readFileSync(path.join(StateMachine.context().projectUri, README_FILE), 'utf8');
+                const readmeContent = fs.readFileSync(
+                    path.join(StateMachine.context().projectUri, README_FILE),
+                    "utf8"
+                );
                 console.log(">>> readme content", readmeContent);
                 const payload = {
-                    projectDescription: readmeContent
+                    projectDescription: readmeContent,
                 };
                 const requestOptions = {
                     method: "POST",
@@ -428,7 +436,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 if (!fs.existsSync(readmePath)) {
                     resolve({ content: "" });
                 } else {
-                    const content = fs.readFileSync(readmePath, 'utf8');
+                    const content = fs.readFileSync(readmePath, "utf8");
                     console.log(">>> Read content:", content);
                     resolve({ content });
                 }
@@ -448,17 +456,17 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             try {
                 // Create the entry point services
-                params.overviewFlow.entryPoints.forEach(async entry => {
+                params.overviewFlow.entryPoints.forEach(async (entry) => {
                     if (entry.status === "insert") {
                         switch (entry.type) {
                             case "service":
-                                const req: CreateComponentRequest = {
+                                const req: ComponentRequest = {
                                     serviceType: {
                                         name: sanitizeName(entry.name),
                                         path: "/",
                                         port: "9090",
                                     },
-                                    type: DIRECTORY_MAP.SERVICES
+                                    type: DIRECTORY_MAP.SERVICES,
                                 };
                                 await handleServiceCreation(req);
                                 break;
@@ -471,7 +479,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 const importStatements: string[] = [];
                 const connectionLines: string[] = [];
                 const uniqueImports = new Set<string>(); // Track unique import statements
-                params.overviewFlow.connections.forEach(async connection => {
+                params.overviewFlow.connections.forEach(async (connection) => {
                     if (connection.status === "insert") {
                         // Create import statement
                         const importStatement = `import ${connection.org}/${connection.package};`;
@@ -480,7 +488,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                             importStatements.push(importStatement); // Add to array
                         }
                         // Create connection line
-                        const connectionLine = `${connection.package}:${connection.client} ${sanitizeName(connection.name)} = check new ({});`;
+                        const connectionLine = `${connection.package}:${connection.client} ${sanitizeName(
+                            connection.name
+                        )} = check new ({});`;
                         connectionLines.push(connectionLine);
                     }
                 });
@@ -489,13 +499,13 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 console.log("Import Statements:", importStatements);
                 console.log("Connection Lines:", connectionLines);
 
-                const connectionsBalPath = path.join(StateMachine.context().projectUri, 'connections.bal');
+                const connectionsBalPath = path.join(StateMachine.context().projectUri, "connections.bal");
                 // Write the generated import statements to connections.bal
-                fs.writeFileSync(connectionsBalPath, importStatements.join('\n'));
+                fs.writeFileSync(connectionsBalPath, importStatements.join("\n"));
                 // Append the generated connection lines to connections.bal
-                fs.appendFileSync(connectionsBalPath, `\n\n${connectionLines.join('\n')}`);
-                console.log('Generated import statements and connection lines written to connections.bal');
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                fs.appendFileSync(connectionsBalPath, `\n\n${connectionLines.join("\n")}`);
+                console.log("Generated import statements and connection lines written to connections.bal");
+                await new Promise((resolve) => setTimeout(resolve, 3000));
                 resolve({ response: true });
             } catch (error) {
                 resolve({ response: false });
@@ -540,22 +550,22 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise((resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
             if (!workspaceFolders || workspaceFolders.length === 0) {
-                resolve({ content: '' });
+                resolve({ content: "" });
                 return;
             }
 
             const projectRoot = workspaceFolders[0].uri.fsPath;
-            const readmePath = path.join(projectRoot, 'README.md');
+            const readmePath = path.join(projectRoot, "README.md");
 
             if (!fs.existsSync(readmePath)) {
-                resolve({ content: '' });
+                resolve({ content: "" });
                 return;
             }
 
-            fs.readFile(readmePath, 'utf8', (err, data) => {
+            fs.readFile(readmePath, "utf8", (err, data) => {
                 if (err) {
-                    console.error('Error reading README.md:', err);
-                    resolve({ content: '' });
+                    console.error("Error reading README.md:", err);
+                    resolve({ content: "" });
                 } else {
                     resolve({ content: data });
                 }
@@ -566,20 +576,20 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     openReadme(): void {
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders || workspaceFolders.length === 0) {
-            window.showErrorMessage('No workspace folder is open.');
+            window.showErrorMessage("No workspace folder is open.");
             return;
         }
 
         const projectRoot = workspaceFolders[0].uri.fsPath;
-        const readmePath = path.join(projectRoot, 'README.md');
+        const readmePath = path.join(projectRoot, "README.md");
 
         if (!fs.existsSync(readmePath)) {
             // Create README.md if it doesn't exist
-            fs.writeFileSync(readmePath, '# Project Overview\n\nAdd your project description here.');
+            fs.writeFileSync(readmePath, "# Project Overview\n\nAdd your project description here.");
         }
 
         // Open README.md in the editor
-        workspace.openTextDocument(readmePath).then(doc => {
+        workspace.openTextDocument(readmePath).then((doc) => {
             window.showTextDocument(doc, ViewColumn.Beside);
         });
     }
@@ -589,8 +599,8 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             initialValues: {
                 name,
                 type,
-                buildPackLang: "ballerina"
-            }
+                buildPackLang: "ballerina",
+            },
         };
 
         await commands.executeCommand("wso2.choreo.create.component", params);
@@ -598,51 +608,56 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     deployProject(): void {
         // Show a quick pick to select deployment option
-        window.showQuickPick([
-            {
-                label: "$(package) Deploy with an executable",
-                detail: "Create a standalone executable for your Ballerina Integrator project"
-            },
-            {
-                label: "$(package) Deploy with Docker",
-                detail: "Containerize your Ballerina Integrator project using Docker"
-            },
-            {
-                label: "$(cloud) Deploy on Choreo",
-                detail: "Deploy your project to Choreo cloud platform",
-                key: "deploy-on-choreo"
-            }
-        ].map(item => ({
-            ...item,
-        })), {
-            placeHolder: "Select deployment option"
-        }).then(selection => {
-            if (!selection) {
-                return; // User cancelled the selection
-            }
+        window
+            .showQuickPick(
+                [
+                    {
+                        label: "$(package) Deploy with an executable",
+                        detail: "Create a standalone executable for your Ballerina Integrator project",
+                    },
+                    {
+                        label: "$(package) Deploy with Docker",
+                        detail: "Containerize your Ballerina Integrator project using Docker",
+                    },
+                    {
+                        label: "$(cloud) Deploy on Choreo",
+                        detail: "Deploy your project to Choreo cloud platform",
+                        key: "deploy-on-choreo",
+                    },
+                ].map((item) => ({
+                    ...item,
+                })),
+                {
+                    placeHolder: "Select deployment option",
+                }
+            )
+            .then((selection) => {
+                if (!selection) {
+                    return; // User cancelled the selection
+                }
 
-            switch (selection.label) {
-                case "Deploy with an executable":
-                    // Logic for deploying with an executable
-                    console.log("Deploying with an executable");
-                    // TODO: Implement executable deployment
-                    break;
-                case "Deploy with Docker":
-                    // Logic for deploying with Docker
-                    console.log("Deploying with Docker");
-                    // TODO: Implement Docker deployment
-                    break;
-                case "$(cloud) Deploy on Choreo":
-                    this.createChoreoComponent("test", "service");
-                    break;
-                default:
-                    window.showErrorMessage("Invalid deployment option selected");
-            }
-        });
+                switch (selection.label) {
+                    case "Deploy with an executable":
+                        // Logic for deploying with an executable
+                        console.log("Deploying with an executable");
+                        // TODO: Implement executable deployment
+                        break;
+                    case "Deploy with Docker":
+                        // Logic for deploying with Docker
+                        console.log("Deploying with Docker");
+                        // TODO: Implement Docker deployment
+                        break;
+                    case "$(cloud) Deploy on Choreo":
+                        this.createChoreoComponent("test", "service");
+                        break;
+                    default:
+                        window.showErrorMessage("Invalid deployment option selected");
+                }
+            });
     }
 
     openAIChat(params: AIChatRequest): void {
-        commands.executeCommand('ballerina.open.ai.panel');
+        commands.executeCommand("ballerina.open.ai.panel");
     }
 
     async getModuleNodes(): Promise<BIModuleNodesResponse> {
@@ -671,6 +686,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getSignatureHelp(params)
+                .then((signatureHelp) => {
+                    resolve(signatureHelp);
+                })
+                .catch((error) => {
+                    reject("Error fetching signature help from ls");
                 });
         });
     }
