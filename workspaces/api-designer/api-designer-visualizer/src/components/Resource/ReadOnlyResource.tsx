@@ -14,7 +14,7 @@ import { getColorByMethod } from '@wso2-enterprise/service-designer';
 import { resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ContentType, ContentTypeWrapper } from './Response';
+import { ContentTypeWrapper } from './Response';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 
 const TitleWrapper = styled.div`
@@ -261,62 +261,64 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                 <>
                     <Typography sx={{ margin: 0 }} variant='h3'> Responses </Typography>
                     <ContentWrapper>
-                        <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange} childrenSx={{ gap: 15 }}>
-                            {responseStatus.map((status: string) => (
-                                <div id={status}>
-                                    <ResponseTabContainer>
-                                        {selectedResponse?.description && (
-                                            <Typography sx={{ margin: '10px 0 0 0', fontWeight: "lighter" }} variant='body2'> {selectedResponse.description} </Typography>
-                                        )}
-                                        {selectedResponseHeaders && Object.keys(selectedResponseHeaders).length > 0 && (
-                                            <>
-                                                <Typography sx={{ margin: 0 }} variant='h4'> Headers </Typography>
-                                                <ContentWrapper>
-                                                    {Object.entries(selectedResponseHeaders).map(([header, schema]) => (
-                                                        <ParamContainer>
-                                                            <ParamWrapper>
-                                                                <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {header} </Typography>
-                                                                <Typography
-                                                                    sx={{ margin: 0, fontWeight: "lighter" }}
-                                                                    variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`}
-                                                                </Typography>
-                                                            </ParamWrapper>
-                                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
-                                                        </ParamContainer>
-                                                    ))}
-                                                </ContentWrapper>
-                                            </>
-                                        )}
-                                        {responseMediaTypes && responseMediaTypesViewItems && (
-                                            <>
-                                                <Typography sx={{ margin: 0 }} variant='h4'> Body </Typography>
-                                                <ContentWrapper>
-                                                    {responseMediaTypesViewItems && (
-                                                        <Tabs views={responseMediaTypesViewItems} currentViewId={selectedResposeMediaType} onViewChange={(viewId) => setSelectedResposeMediaType(viewId)}>
-                                                            {responseMediaTypesViewItems?.map((type) => (
-                                                                <div id={type.name}>
+                        {statusTabViewItems?.length > 0 && (
+                            <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange} childrenSx={{ gap: 15 }}>
+                                {responseStatus.map((status: string) => (
+                                    <div id={status}>
+                                        <ResponseTabContainer>
+                                            {selectedResponse?.description && (
+                                                <Typography sx={{ margin: '10px 0 0 0', fontWeight: "lighter" }} variant='body2'> {selectedResponse.description} </Typography>
+                                            )}
+                                            {selectedResponseHeaders && Object.keys(selectedResponseHeaders).length > 0 && (
+                                                <>
+                                                    <Typography sx={{ margin: 0 }} variant='h4'> Headers </Typography>
+                                                    <ContentWrapper>
+                                                        {Object.entries(selectedResponseHeaders).map(([header, schema]) => (
+                                                            <ParamContainer>
+                                                                <ParamWrapper>
+                                                                    <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {header} </Typography>
                                                                     <Typography
                                                                         sx={{ margin: 0, fontWeight: "lighter" }}
-                                                                        variant='body2'> {
-                                                                            responseBody?.schema?.type === "array" ?
-                                                                                (responseBody?.schema?.items?.type === "object" ?
-                                                                                    responseBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                                                                    responseBody?.schema?.items?.type
-                                                                                ) : (responseBody?.schema?.type ?
-                                                                                    responseBody?.schema?.type : (responseBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                                                        }
+                                                                        variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`}
                                                                     </Typography>
-                                                                </div>
-                                                            ))}
-                                                        </Tabs>
-                                                    )}
-                                                </ContentWrapper>
-                                            </>
-                                        )}
-                                    </ResponseTabContainer>
-                                </div>
-                            ))}
-                        </Tabs>
+                                                                </ParamWrapper>
+                                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
+                                                            </ParamContainer>
+                                                        ))}
+                                                    </ContentWrapper>
+                                                </>
+                                            )}
+                                            {responseMediaTypes && responseMediaTypesViewItems && (
+                                                <>
+                                                    <Typography sx={{ margin: 0 }} variant='h4'> Body </Typography>
+                                                    <ContentWrapper>
+                                                        {responseMediaTypesViewItems && (
+                                                            <Tabs views={responseMediaTypesViewItems} currentViewId={selectedResposeMediaType} onViewChange={(viewId) => setSelectedResposeMediaType(viewId)}>
+                                                                {responseMediaTypesViewItems?.map((type) => (
+                                                                    <div id={type.name}>
+                                                                        <Typography
+                                                                            sx={{ margin: 0, fontWeight: "lighter" }}
+                                                                            variant='body2'> {
+                                                                                responseBody?.schema?.type === "array" ?
+                                                                                    (responseBody?.schema?.items?.type === "object" ?
+                                                                                        responseBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                                                                        responseBody?.schema?.items?.type
+                                                                                    ) : (responseBody?.schema?.type ?
+                                                                                        responseBody?.schema?.type : (responseBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                                                            }
+                                                                        </Typography>
+                                                                    </div>
+                                                                ))}
+                                                            </Tabs>
+                                                        )}
+                                                    </ContentWrapper>
+                                                </>
+                                            )}
+                                        </ResponseTabContainer>
+                                    </div>
+                                ))}
+                            </Tabs>
+                        )}
                     </ContentWrapper>
                 </>
 

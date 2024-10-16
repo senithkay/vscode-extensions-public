@@ -94,7 +94,8 @@ export function Response(props: ReadOnlyResourceProps) {
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' &&
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties &&
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
-    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema;
+    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && 
+        selectedContentFromResponseMediaType?.content[selectedMediaType] && selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema;
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
     const headers: Header[] = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
