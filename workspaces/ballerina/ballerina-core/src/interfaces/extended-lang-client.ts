@@ -589,6 +589,39 @@ export interface ExpressionCompletionItem {
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
+export interface SignatureHelpRequest {
+    filePath: string;
+    expression: string;
+    startLine: LinePosition;
+    offset: number;
+    context: {
+        isRetrigger: boolean;
+        triggerCharacter?: TriggerCharacter;
+        triggerKind: number;
+    }
+}
+
+export interface SignatureInfo {
+    label: string;
+    documentation: {
+        kind: string;
+        value: string;
+    };
+    parameters: {
+        label: number[];
+        documentation: {
+            kind: string;
+            value: string;
+        }
+    }[];
+}
+
+export interface SignatureHelpResponse {
+    signatures: SignatureInfo[];
+    activeSignature: number;
+    activeParameter: number;
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -611,6 +644,7 @@ export interface BIInterface extends BaseLangClientInterface {
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
+    getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

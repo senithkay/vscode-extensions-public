@@ -21,6 +21,7 @@ import {
     ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
+    SignatureHelpRequest,
     createComponent,
     createComponents,
     createProject,
@@ -36,6 +37,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getSignatureHelp,
     getSourceCode,
     getWorkspaces,
     handleReadmeContent,
@@ -67,4 +69,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
     messenger.onNotification(deployProject, () => rpcManger.deployProject());
     messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
+    messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
 }
