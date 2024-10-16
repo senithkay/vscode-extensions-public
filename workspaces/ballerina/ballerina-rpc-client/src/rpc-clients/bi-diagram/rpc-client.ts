@@ -9,10 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    ComponentRequest,
-    CreateComponentResponse,
+    AIChatRequest,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -27,6 +24,10 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    ComponentsRequest,
+    ComponentsResponse,
+    ComponentRequest,
+    CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ProjectComponentsResponse,
@@ -39,6 +40,7 @@ import {
     createComponents,
     createProject,
     deleteFlowNode,
+    deployProject,
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
@@ -48,9 +50,12 @@ import {
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
+    getReadmeContent,
     getSourceCode,
     getWorkspaces,
-    handleReadmeContent
+    handleReadmeContent,
+    openAIChat,
+    openReadme
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -124,5 +129,21 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getReadmeContent(): Promise<ReadmeContentResponse> {
+        return this._messenger.sendRequest(getReadmeContent, HOST_EXTENSION);
+    }
+
+    openReadme(): void {
+        return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
+    }
+
+    deployProject(): void {
+        return this._messenger.sendNotification(deployProject, HOST_EXTENSION);
+    }
+
+    openAIChat(params: AIChatRequest): void {
+        return this._messenger.sendNotification(openAIChat, HOST_EXTENSION, params);
     }
 }

@@ -53,6 +53,7 @@ import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
+import { Overview as OverviewBI } from "./views/BI/Overview/index";
 
 const globalStyles = css`
     *,
@@ -150,13 +151,15 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-                            setViewComponent(<ComponentDiagramV1 stateUpdated />);
+                            // setViewComponent(<ComponentDiagram stateUpdated />);
+                            setViewComponent(<OverviewBI />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
                         break;
                     case MACHINE_VIEW.OverviewV2:
-                        setViewComponent(<ComponentDiagramV2 />);
+                        setViewComponent(<OverviewBI />);
+                        // setViewComponent(<ComponentDiagramV2 stateUpdated />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
