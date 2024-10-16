@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, FormGroup, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, FormGroup, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Header, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
@@ -342,7 +342,7 @@ export function Response(props: ReadOnlyResourceProps) {
                                     <Tabs views={respMediaTypeTabViewItems} currentViewId={selectedMediaType} onViewChange={setSelectedMediaType}>
                                         <div id={selectedMediaType}>
                                             <ResponseTypeWrapper>
-                                                <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} />
+                                                {/* <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
                                                 {!isInlinedObjectResponse && selectedMediaType && (
                                                     <HorizontalFieldWrapper>
                                                         <TextField

@@ -11,10 +11,11 @@ import styled from "@emotion/styled";
 import { Operation } from '../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Overview/Overview';
 import { getColorByMethod } from '@wso2-enterprise/service-designer';
-import { resolveResonseColor, resolveResonseHoverColor, resolveResponseType, resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
+import { resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ContentType, ContentTypeWrapper } from './Response';
+import { Tabs, ViewItem } from '../Tabs/Tabs';
 
 const TitleWrapper = styled.div`
     display: flex;
@@ -79,6 +80,11 @@ const PathWrapper = styled.div`
     flex-direction: row;
     gap: 10px;
 `;
+const ResponseTabContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+`;
 
 interface MarkdownRendererProps {
     markdownContent: string;
@@ -95,13 +101,13 @@ interface ReadOnlyResourceProps {
 
 export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path } = props;
-    const [ selectedStatus, setSelectedStatus ] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
-    const [ selectedResposeMediaType, setSelectedResposeMediaType ] = useState<string | undefined>(
-        (resourceOperation?.responses && resourceOperation.responses[selectedStatus]?.content) ? 
+    const [selectedStatus, setSelectedStatus] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
+    const [selectedResposeMediaType, setSelectedResposeMediaType] = useState<string | undefined>(
+        (resourceOperation?.responses && resourceOperation.responses[selectedStatus]?.content) ?
             Object.keys(resourceOperation.responses[selectedStatus].content)[0] : undefined
     );
-    const [ selectedRequestMediaType, setSelectedRequestMediaType ] = useState<string | undefined>(
-        (resourceOperation?.requestBody && resourceOperation.requestBody.content) ? 
+    const [selectedRequestMediaType, setSelectedRequestMediaType] = useState<string | undefined>(
+        (resourceOperation?.requestBody && resourceOperation.requestBody.content) ?
             Object.keys(resourceOperation.requestBody.content)[0] : undefined
     );
 
@@ -115,16 +121,19 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     const queryParamaters = parameters?.filter((parameter) => parameter.in === "query");
     const pathParamaters = parameters?.filter((parameter) => parameter.in === "path");
     const headerParamaters = parameters?.filter((parameter) => parameter.in === "header");
-    const responseContent = resourceOperation?.responses ? Object.entries(responses).map(([status, response]) => {
-        return [status, resolveResponseType(response)];
-    }) : [];
+    const responseStatus = resourceOperation?.responses ? Object.keys(resourceOperation?.responses) : [];
     const selectedResponse = responses ? responses[selectedStatus] : undefined;
     const selectedResponseHeaders = selectedResponse?.headers;
     const responseMediaTypes = selectedResponse?.content && Object.keys(selectedResponse.content);
     const responseBody = selectedResponse?.content && selectedResponse?.content[selectedResposeMediaType];
     const requestMediaTypes = resourceOperation?.requestBody?.content && Object.keys(resourceOperation.requestBody.content);
     const requestBody = resourceOperation?.requestBody?.content && resourceOperation.requestBody.content[selectedRequestMediaType];
+    const statusCodes = resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => ({ status }));
+    const statusTabViewItems: ViewItem[] = statusCodes?.map((status) => ({ id: status.status, name: status.status }));
+    const responseMediaTypesViewItems: ViewItem[] = responseMediaTypes?.map((type) => ({ id: type, name: type }));
+    const requestMediaTypesViewItems: ViewItem[] = requestMediaTypes?.map((type) => ({ id: type, name: type }));
 
+    console.log("selectedResponse", selectedResponse);
     const handleResponseCodeChange = (status: string) => {
         setSelectedStatus(status);
         if (responses && responses[status]?.content) {
@@ -140,7 +149,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
         <>
             <PanelBody>
                 <PathWrapper>
-                <MethodWrapper color={getColorByMethod(method)}>
+                    <MethodWrapper color={getColorByMethod(method)}>
                         <Typography
                             variant="h2"
                             sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
@@ -160,7 +169,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
                         <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>
-                            <MarkdownRenderer key="description" markdownContent={resourceOperation.description} /> 
+                            <MarkdownRenderer key="description" markdownContent={resourceOperation.description} />
                         </Typography>
                     </>
                 )}
@@ -212,8 +221,8 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                         </FormGroup>
                     )}
                     {requestMediaTypes && (
-                        <FormGroup key="Request Body" title='Body' isCollapsed={!requestBody}>
-                            <ContentTypeWrapper>
+                        <FormGroup key="Request Body" title='Body' disableCollapse>
+                            {/* <ContentTypeWrapper>
                                 {requestMediaTypes.map((type: string) => (
                                     <ContentType
                                         key={type}
@@ -225,83 +234,90 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                         {type}
                                     </ContentType>
                                 ))}
-                            </ContentTypeWrapper>
-                            <Typography 
+                            </ContentTypeWrapper> */}
+                            {requestMediaTypesViewItems && (
+                                <Tabs views={requestMediaTypesViewItems} currentViewId={selectedRequestMediaType} onViewChange={(viewId) => setSelectedRequestMediaType(viewId)}>
+                                    <div id={selectedRequestMediaType}>
+                                        <Typography
+                                            sx={{ margin: 0, fontWeight: "lighter" }}
+                                            variant='body2'> {
+                                                requestBody?.schema?.type === "array" ?
+                                                    (requestBody?.schema?.items?.type === "object" ?
+                                                        requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                                        requestBody?.schema?.items?.type
+                                                    ) : (requestBody?.schema?.type ?
+                                                        requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                            }
+                                        </Typography>
+                                    </div>
+                                </Tabs>
+                            )}
+                            {/* <Typography
                                 sx={{ margin: 0, fontWeight: "lighter" }}
                                 variant='body2'> {
-                                    requestBody?.schema?.type === "array" ? 
-                                    (requestBody?.schema?.items?.type === "object" ? 
-                                        requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") : 
-                                        requestBody?.schema?.items?.type 
-                                    ) : (requestBody?.schema?.type ? 
-                                    requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                    requestBody?.schema?.type === "array" ?
+                                        (requestBody?.schema?.items?.type === "object" ?
+                                            requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                            requestBody?.schema?.items?.type
+                                        ) : (requestBody?.schema?.type ?
+                                            requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
                                 }
-                            </Typography>
+                            </Typography> */}
                         </FormGroup>
                     )}
                 </FormGroup>
 
-                <FormGroup key="Response" title='Response' isCollapsed={responseContent.length === 0}>
-                    <ResponseCodeWrapper>
-                        {responseContent.map(([status, response]) => (
-                            <ResponseCode
-                                key={status}
-                                color={resolveResonseColor(status)}
-                                hoverBackground={resolveResonseHoverColor(status)}
-                                selected={selectedStatus === status}
-                                onClick={() => handleResponseCodeChange(status)}
-                            >
-                                {status} 
-                            </ResponseCode>
+                <FormGroup key="Response" title='Response' isCollapsed={responseStatus.length === 0}>
+                    <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange}>
+                        {responseStatus.map((status: string) => (
+                            <div id={status}>
+                                <ResponseTabContainer>
+                                    {selectedResponse?.description && (
+                                        <Typography sx={{ margin: '10px 0 0 0', fontWeight: "lighter" }} variant='body2'> {selectedResponse.description} </Typography>
+                                    )}
+                                    {selectedResponseHeaders && Object.keys(selectedResponseHeaders).length > 0 && (
+                                        <FormGroup key="Headers" title='Headers' disableCollapse>
+                                            {Object.entries(selectedResponseHeaders).map(([header, schema]) => (
+                                                <ParamContainer>
+                                                    <ParamWrapper>
+                                                        <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body1'> {header} </Typography>
+                                                        <Typography
+                                                            sx={{ margin: `2px 0 0 0`, fontWeight: "lighter" }}
+                                                            variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`}
+                                                        </Typography>
+                                                    </ParamWrapper>
+                                                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
+                                                </ParamContainer>
+                                            ))}
+                                        </FormGroup>
+                                    )}
+                                    {responseMediaTypes && (
+                                        <FormGroup key="Response Body" title='Body' disableCollapse>
+                                            {requestMediaTypesViewItems && (
+                                                <Tabs views={responseMediaTypesViewItems} currentViewId={selectedResposeMediaType} onViewChange={(viewId) => setSelectedResposeMediaType(viewId)}>
+                                                    {responseMediaTypes?.map((type: string) => (
+                                                        <div id={type}>
+                                                            <Typography
+                                                                sx={{ margin: 0, fontWeight: "lighter" }}
+                                                                variant='body2'> {
+                                                                    responseBody?.schema?.type === "array" ?
+                                                                        (responseBody?.schema?.items?.type === "object" ?
+                                                                            responseBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                                                            responseBody?.schema?.items?.type
+                                                                        ) : (responseBody?.schema?.type ?
+                                                                            responseBody?.schema?.type : (responseBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                                                }
+                                                            </Typography>
+                                                        </div>
+                                                    ))}
+                                                </Tabs>
+                                            )}
+                                        </FormGroup>
+                                    )}
+                                </ResponseTabContainer>
+                            </div>
                         ))}
-                    </ResponseCodeWrapper>
-                    {selectedResponse?.description && (
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {selectedResponse.description} </Typography>
-                    )}
-                    {selectedResponseHeaders && Object.keys(selectedResponseHeaders).length > 0 && (
-                        <FormGroup key="Headers" title='Headers' isCollapsed={!selectedResponseHeaders || Object.keys(selectedResponseHeaders).length === 0}>
-                            {Object.entries(selectedResponseHeaders).map(([header, schema]) => (
-                                <ParamContainer>
-                                    <ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body1'> {header} </Typography>
-                                        <Typography 
-                                            sx={{ margin: `2px 0 0 0`, fontWeight: "lighter" }}
-                                            variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`} 
-                                        </Typography>
-                                    </ParamWrapper>
-                                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
-                                </ParamContainer>
-                            ))}
-                        </FormGroup>
-                    )}
-                    {responseMediaTypes && (
-                        <FormGroup key="Response Body" title='Body' isCollapsed={!responseBody}>
-                            <ContentTypeWrapper>
-                                {responseMediaTypes.map((type: string) => (
-                                    <ContentType
-                                        key={type}
-                                        color={'var(--vscode-symbolIcon-variableForeground)'}
-                                        hoverBackground={'var(--vscode-minimap-selectionHighlight)'}
-                                        selected={selectedResposeMediaType === type}
-                                        onClick={() => setSelectedResposeMediaType(type)}
-                                    >
-                                        {type}
-                                    </ContentType>
-                                ))}
-                            </ContentTypeWrapper>
-                            <Typography 
-                                sx={{ margin: 0, fontWeight: "lighter" }}
-                                variant='body2'> {
-                                    requestBody?.schema?.type === "array" ? 
-                                    (requestBody?.schema?.items?.type === "object" ? 
-                                        requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") : 
-                                        requestBody?.schema?.items?.type 
-                                    ) : (requestBody?.schema?.type ? 
-                                    requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                }
-                            </Typography>
-                        </FormGroup>
-                    )}
+                    </Tabs>
                 </FormGroup>
 
             </PanelBody>

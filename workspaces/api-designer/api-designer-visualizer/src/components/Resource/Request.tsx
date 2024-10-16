@@ -247,7 +247,7 @@ export function Request(props: ReadOnlyResourceProps) {
                             {requestContents.map(([key, value], index) => (
                                 <div key={index} id={key}>
                                     <RequestTypeWrapper>
-                                        <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} />
+                                        {/* <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
                                         {!isInlinedObject && (
                                             <HorizontalFieldWrapper>
                                                 <TextField

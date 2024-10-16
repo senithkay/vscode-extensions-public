@@ -7,8 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { initial } from "lodash";
-
 export interface OpenAPI {
     openapi: string;
     info: Info;
@@ -26,18 +24,21 @@ export interface Info {
     contact?: Contact;
     license?: License;
     summary?: string;
+    [key: string]: any;
 }
 
 export interface Contact {
     name?: string;
     url?: string;
     email?: string;
+    [key: string]: any;
 }
 
 export interface License {
     name: string;
     url?: string;
     identifier?: string;
+    [key: string]: any;
 }
 
 export interface Paths {
@@ -66,12 +67,14 @@ export interface Parameter {
     required?: boolean;
     deprecated?: boolean;
     schema?: Schema;
+    [key: string]: any;
 }
 
 export interface RequestBody {
     description?: string;
     content: Content;
     required?: boolean;
+    [key: string]: any;
 }
 
 export interface Content {
@@ -83,6 +86,7 @@ export interface MediaType {
     example?: any;
     examples?: { [exampleName: string]: Example };
     encoding?: Encoding;
+    [key: string]: any;
 }
 
 export interface Responses {
@@ -94,6 +98,7 @@ export interface Response {
     headers?: Headers;
     content?: Content;
     links?: Links;
+    [key: string]: any;
 }
 
 export interface Headers {
@@ -113,6 +118,7 @@ export interface Link {
     requestBody?: any;
     description?: string;
     server?: Server;
+    [key: string]: any;
 }
 
 export interface Schema {
@@ -136,6 +142,7 @@ export interface Components {
     securitySchemes?: { [securitySchemeName: string]: SecurityScheme };
     links?: { [linkName: string]: Link };
     callbacks?: { [callbackName: string]: Callback };
+    [key: string]: any;
 }
 
 export interface Example {
@@ -143,6 +150,7 @@ export interface Example {
     description?: string;
     value?: any;
     externalValue?: string;
+    [key: string]: any;
 }
 
 export interface Encoding {
@@ -155,6 +163,7 @@ export interface EncodingProperty {
     style?: string;
     explode?: boolean;
     allowReserved?: boolean;
+    [key: string]: any;
 }
 
 export interface SecurityScheme {
@@ -166,6 +175,7 @@ export interface SecurityScheme {
     bearerFormat?: string;
     flows?: OAuthFlows;
     openIdConnectUrl?: string;
+    [key: string]: any;
 }
 
 export interface OAuthFlows {
@@ -173,6 +183,7 @@ export interface OAuthFlows {
     password?: OAuthFlow;
     clientCredentials?: OAuthFlow;
     authorizationCode?: OAuthFlow;
+    [key: string]: any;
 }
 
 export interface OAuthFlow {
@@ -180,6 +191,7 @@ export interface OAuthFlow {
     tokenUrl?: string;
     refreshUrl?: string;
     scopes: { [scopeName: string]: string };
+    [key: string]: any;
 }
 
 export interface Callback {
@@ -190,12 +202,14 @@ export interface Server {
     url: string;
     description?: string;
     variables?: { [variableName: string]: ServerVariable };
+    [key: string]: any;
 }
 
 export interface ServerVariable {
     enum?: string[];
     default: string;
     description?: string;
+    [key: string]: any;
 }
 
 export type Param = {
@@ -204,6 +218,7 @@ export type Param = {
     defaultValue?: string;
     isRequired?: boolean;
     isArray?: boolean;
+    [key: string]: any;
 };
 
 export type Path = {
@@ -212,4 +227,5 @@ export type Path = {
     initialMethod: string;
     initialPath: string;
     initialOperation: Operation;
+    [key: string]: any;
 };
