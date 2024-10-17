@@ -6,8 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Paths } from "../../Definitions/ServiceDefinitions";
-import { Button, Codicon, ContextMenu, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Components, Paths } from "../../Definitions/ServiceDefinitions";
+import { Button, Codicon, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { getBackgroundColorByMethod, getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
 import { TreeView } from "../Treeview/TreeView";
@@ -16,8 +16,9 @@ import { useEffect, useRef, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
-interface OpenAPIDefinitionProps {
+interface PathsNavigatorProps {
     paths: Paths;
+    components: Components;
     selectedPathID?: string;
     onAddPath: () => void;
     onAddResources?: (path: string, methods: string[]) => void;
@@ -105,6 +106,18 @@ export const PathItemWrapper = styled.div`
     padding: 0px 0;
     cursor: pointer;
 `;
+
+const SchemaItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    width: 100%;
+    padding: 2px 0;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-top: 5px;
+`;
+
 export const PathSummary = styled.div`
     display: flex;
     width: 100%;
@@ -121,14 +134,15 @@ const APIResources = [
     "get","post","put","delete","patch","head","options","trace"
 ];
 
-export function PathsNavigator(props: OpenAPIDefinitionProps) {
-    const { paths, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename } = props;
+export function PathsNavigator(props: PathsNavigatorProps) {
+    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename } = props;
     const { rpcClient } = useVisualizerContext();
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
     const [, setSelPathID] = useState<string | undefined>(selectedPathID);
     const [pathEditIndex, setPathEditIndex] = useState<number>(-1);
     const pathsArray = paths ? Object.keys(paths) : [];
+    const schemaArray = components?.schemas ? Object.keys(components?.schemas) : [];
     // Get PathItems from paths
     const pathItems = paths ? Object.values(paths) : [];
     const handleOverviewClick = () => {
@@ -275,6 +289,40 @@ export function PathsNavigator(props: OpenAPIDefinitionProps) {
                     );
                 })}
                 <AddNewLink onClick={handleAddPath}>Add Path</AddNewLink>
+            </TreeView>
+            <TreeView
+                sx={{ paddingBottom: 2 }}
+                rootTreeView
+                id="Schemas"
+                content={
+                    <PathContainer>
+                        <LeftPathContainer>
+                            <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Schemas</Typography>
+                        </LeftPathContainer>
+                    </PathContainer>
+                }
+                selectedId={selectedPathID}
+                onSelect={onPathChange}
+            >
+                {schemaArray.map((schema: string) => {
+                    return (
+                        <TreeViewItem id={schema}>
+                            <SchemaItemWrapper>
+                                <Typography 
+                                    sx={{
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        margin: "0 0 0 2px",
+                                        fontWeight: 300
+                                    }}
+                                    variant="h4">
+                                    {schema}
+                                </Typography>
+                            </SchemaItemWrapper>
+                        </TreeViewItem>
+                    );
+                })}
             </TreeView>
         </PathsContainer>
     )

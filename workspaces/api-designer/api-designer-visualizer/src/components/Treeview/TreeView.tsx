@@ -17,14 +17,17 @@ export interface TreeViewProps {
     rootTreeView?: boolean;
     selectedId?: string;
     disableClick?: boolean;
+    sx?: any;
     onSelect?: (id: string) => void;
 }
 
 interface TreeContainerProps {
     isRootTreeView: boolean;
+    sx?: any;
 }
 const TreeContainer = styled.div<TreeContainerProps>`
     padding-left: ${(props: TreeContainerProps) => props.isRootTreeView ? 0 : "20px"};
+    ${(props: TreeContainerProps) => props.sx}
 `;
 
 interface IconContainerProps {
@@ -44,7 +47,7 @@ const IconContainer = styled.div<IconContainerProps>`
 `;
 
 export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
-    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false } = props
+    const { id, content, children, rootTreeView: isRootTreeView, onSelect, selectedId, disableClick = false, sx } = props
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleExpand = (sId: string) => {
@@ -81,7 +84,7 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
     }, [selectedId, id, children]);
 
     return (
-        <TreeContainer isRootTreeView={isRootTreeView}>
+        <TreeContainer isRootTreeView={isRootTreeView} sx={sx}>
             <div onClick={() => toggleExpand(id)}>
                 <IconContainer isCollapsed={!isExpanded} isSelected={selectedId === id}>
                     <Codicon name={isExpanded ? 'chevron-down' : 'chevron-right'} />
