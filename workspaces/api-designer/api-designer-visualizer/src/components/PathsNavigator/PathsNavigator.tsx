@@ -15,6 +15,7 @@ import { TreeViewItem } from "../Treeview/TreeViewItem";
 import { useEffect, useRef, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { APIResources } from "../../constants";
 
 interface PathsNavigatorProps {
     paths: Paths;
@@ -25,6 +26,7 @@ interface PathsNavigatorProps {
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
     onPathRename?: (path: string, index: number) => void;
+    onDeleteMethod?: (path: string, method: string) => void;
 }
 
 const PathsContainer = styled.div`
@@ -74,12 +76,17 @@ const RightPathContainerButtons = styled.div`
     opacity: 0;
     align-items: center;
     transition: opacity 0.2s ease;
+    position: absolute;
+    right: 0;
+    z-index: 10;
+    background: var(--vscode-editor-background);
 `
 const PathContainer = styled.div`
     display: flex;
     flex-direction: row;
     flex: 1;
     align-items: center;
+    position: relative;
 
     &:hover div.buttons-container {
         opacity: 1;
@@ -105,6 +112,11 @@ export const PathItemWrapper = styled.div`
     width: 100%;
     padding: 0px 0;
     cursor: pointer;
+    position: relative;;
+
+    &:hover div.buttons-container {
+        opacity: 1;
+    }
 `;
 
 const SchemaItemWrapper = styled.div`
@@ -130,12 +142,8 @@ const AddNewLink = styled(VSCodeLink)`
     color:  var(--vscode-editor-foreground);
 `;
 
-const APIResources = [
-    "get","post","put","delete","patch","head","options","trace"
-];
-
 export function PathsNavigator(props: PathsNavigatorProps) {
-    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename } = props;
+    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename, onDeleteMethod } = props;
     const { rpcClient } = useVisualizerContext();
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
@@ -148,10 +156,6 @@ export function PathsNavigator(props: PathsNavigatorProps) {
     const handleOverviewClick = () => {
         onPathChange && onPathChange(undefined);
     };
-    const handleAddPath = (evt: React.MouseEvent) => {
-        evt.stopPropagation();
-        onAddPath && onAddPath();
-    }
     const handleDeletePath = (evt: React.MouseEvent, path: string) => {
         evt.stopPropagation();
         if(onDeletePath){
@@ -160,6 +164,12 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                     onDeletePath(path)
                 }
             })
+        }       
+    }
+    const handleDeleteMethod = (evt: React.MouseEvent, path: string, method: string) => {
+        evt.stopPropagation();
+        if(onDeleteMethod){
+            onDeleteMethod(path, method)
         }       
     }
 
@@ -281,14 +291,17 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                                                     <Typography variant="h5" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "flex-start", width: 45, fontWeight: 300 }}>{operation.toUpperCase()}</Typography>
                                                 </Operation>
                                             </Tooltip>
-                                        </PathItemWrapper>
+                                            <RightPathContainerButtons className="buttons-container">
+                                                <Button tooltip="Delete Method" appearance="icon" onClick={(e)=>handleDeleteMethod(e, path, operation)}><Codicon name="trash"/></Button>
+                                            </RightPathContainerButtons>   
+                                        </PathItemWrapper>                                                                      
                                     </TreeViewItem>
                                 );
                             })}
                         </TreeView>
                     );
                 })}
-                <AddNewLink onClick={handleAddPath}>Add Path</AddNewLink>
+                <AddNewLink onClick={onAddPath}>Add Path</AddNewLink>
             </TreeView>
             <TreeView
                 sx={{ paddingBottom: 2 }}

@@ -133,3 +133,7 @@ export const BaseTypes = [
     "boolean",
     "any",
 ];
+
+export const APIResources = [
+    "get","post","put","delete","patch","head","options","trace"
+];

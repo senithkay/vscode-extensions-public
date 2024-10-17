@@ -42,7 +42,6 @@ interface ResourceProps {
     openAPI: OpenAPI;
     onPathChange: (pathObject: Path) => void;
     onOperationChange: (path: string, method: string, operation: Operation) => void;
-    onDelete: (path: string, method: string) => void;
 }
 
 type InputsFields = {
@@ -58,7 +57,7 @@ type InputsFields = {
 const moreOptions = ["Summary", "Description", "OperationId"];
 
 export function Resource(props: ResourceProps) {
-    const { resourceOperation, openAPI, method, path, onPathChange, onOperationChange, onDelete } = props;
+    const { resourceOperation, openAPI, method, path, onPathChange, onOperationChange } = props;
     const [initailPath, setInitailPath] = useState<string>(path);
     const [initialMethod, setInitialMethod] = useState<string>(method);
     let selOpt: string[] = [];
@@ -255,10 +254,6 @@ export function Resource(props: ResourceProps) {
         onOperationChange(path, method, newOperation);
     };
 
-    const handleDeleteResource = () => {
-        onDelete(path, method);
-    };
-
     // Dropdown items which are not in openAPI
     const availableItems: OptionProps[] = [];
     openAPI.paths[path] && Object.keys(openAPI.paths[path]).forEach((m) => {
@@ -284,7 +279,7 @@ export function Resource(props: ResourceProps) {
     return (
         <>
             <PanelBody>
-                <OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} onDeleteResource={handleDeleteResource} />
+                <OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} />
                 <HorizontalFieldWrapper>
                     <Dropdown
                         id="method"
