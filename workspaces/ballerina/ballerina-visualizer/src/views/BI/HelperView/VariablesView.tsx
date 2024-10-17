@@ -146,7 +146,7 @@ export function VariablesView(props: VariablesViewProps) {
                 />
             </SearchWrapper>
             {!isSearching &&
-                <div style={{ height: "calc(100vh - 100px)", overflow: "scroll" }}>
+                <div style={{ height: "calc(100vh - 100px)", width: "380px", overflow: "scroll" }}>
                     <ScopeVariables
                         categories={variableTypes}
                         handleOnSelection={handleOnSelection}

@@ -358,7 +358,7 @@ export function LibrariesView(props: LibrariesViewProps) {
                 </S.PanelBody>
             )}
             {!isSearching && categories.length > 0 && (
-                <div style={{ height: "calc(100vh - 100px)", overflow: "scroll" }}>{getCategoryContainer(categories)}</div>
+                <div style={{ height: "calc(100vh - 100px)", width: "380px", overflow: "scroll" }}>{getCategoryContainer(categories)}</div>
             )}
         </PanelBody>
 
