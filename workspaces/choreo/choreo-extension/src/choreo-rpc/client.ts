@@ -189,7 +189,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 			throw new Error("RPC client is not initialized");
 		}
 		const response = await this.client.sendRequest<{ components: ComponentKind[] }>("component/getList", params);
-		return response.components;
+		return response.components || [];
 	}
 
 	async getBuildPacks(params: BuildPackReq) {
