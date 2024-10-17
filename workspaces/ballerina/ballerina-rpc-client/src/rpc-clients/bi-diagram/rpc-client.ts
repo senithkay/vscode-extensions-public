@@ -31,7 +31,6 @@ import {
     ComponentsResponse,
     ComponentRequest,
     CreateComponentResponse,
-    CreateComponentRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ProjectComponentsResponse,

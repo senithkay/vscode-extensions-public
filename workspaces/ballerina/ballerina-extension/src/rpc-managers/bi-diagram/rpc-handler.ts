@@ -19,7 +19,6 @@ import {
     BISourceCodeRequest,
     ComponentRequest,
     ComponentsRequest,
-    CreateComponentRequest,
     ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
