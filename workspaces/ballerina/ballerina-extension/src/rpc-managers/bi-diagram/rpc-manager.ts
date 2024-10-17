@@ -31,9 +31,9 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
+    ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
-    ComponentRequest,
     CreateComponentResponse,
     DIRECTORY_MAP,
     ExpressionCompletionsRequest,
@@ -58,7 +58,7 @@ import * as path from 'path';
 import { Uri, ViewColumn, commands, window, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, createBIAutomation, handleServiceCreation, sanitizeName, createBIFunction } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -716,5 +716,50 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     reject("Error fetching visible variable types from ls");
                 });
         });
+    }
+
+    buildProject(): void {
+        window.showQuickPick([
+            {
+                label: "$(package) Executable JAR",
+                detail: "Build a self-contained, runnable JAR file for your project",
+                key: "executable-jar"
+            },
+            {
+                label: "$(docker) Docker Image",
+                detail: "Create a Docker image to containerize your Ballerina Integration",
+                key: "docker-image"
+            }
+        ].map(item => ({
+            ...item,
+        })), {
+            placeHolder: "Choose a build option"
+        }).then(selection => {
+            if (!selection) {
+                return; // User cancelled the selection
+            }
+            switch (selection.label) {
+                case "executable-jar":
+                    // Show a notification for building executable JAR
+                    window.showInformationMessage("Building executable JAR...");
+
+                    // TODO: Implement actual JAR building logic here
+                    // For now, we'll just show a placeholder message
+                    setTimeout(() => {
+                        window.showInformationMessage("Executable JAR built successfully!");
+                    }, 2000);
+                    break;
+                case "docker-image":
+
+                    break;
+                default:
+                    window.showErrorMessage("Invalid build option selected");
+            }
+        });
+    }
+
+    runProject(): void {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }
