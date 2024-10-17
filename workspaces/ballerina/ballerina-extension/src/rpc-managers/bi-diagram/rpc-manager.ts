@@ -9,11 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    CreateComponentRequest,
-    CreateComponentResponse,
-    DIRECTORY_MAP,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -26,14 +21,21 @@ import {
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
-    OverviewFlow,
+    ComponentsRequest,
+    ComponentsResponse,
+    CreateComponentRequest,
+    CreateComponentResponse,
+    DIRECTORY_MAP,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    OverviewFlow,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -48,7 +50,7 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { commands, Uri, workspace } from "vscode";
+import { Uri, commands, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
@@ -529,6 +531,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 })
                 .catch((error) => {
                     reject("Error fetching expression completions from ls");
+                });
+        });
+    }
+
+    async getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getVisibleVariableTypes(params)
+                .then((types) => {
+                    resolve(types as BIGetVisibleVariableTypesResponse);
+                })
+                .catch((error) => {
+                    reject("Error fetching visible variable types from ls");
                 });
         });
     }

@@ -619,6 +619,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         position={subPanel.props.sidePanelData.range}
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
+                        onClosePanel={handleSubPanel}
                        
                     />
                 );

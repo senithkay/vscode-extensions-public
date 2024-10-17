@@ -127,10 +127,9 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
 
     return (
         <Ex.Container id={id}>
-            <Button appearance="icon" onClick={handleHelperPaneOpen}>
+            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip='Open Helper View'> 
                 <Icon name="function-icon" />
             </Button>
-            {/* <Icon name="function-icon" /> */}
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>

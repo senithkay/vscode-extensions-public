@@ -9,10 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    CreateComponentRequest,
-    CreateComponentResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -23,10 +19,16 @@ import {
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    ComponentsRequest,
+    ComponentsResponse,
+    CreateComponentRequest,
+    CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ProjectComponentsResponse,
@@ -49,6 +51,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getSourceCode,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent
 } from "@wso2-enterprise/ballerina-core";
@@ -120,6 +123,10 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
         return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
+    }
+
+    getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
+        return this._messenger.sendRequest(getVisibleVariableTypes, HOST_EXTENSION, params);
     }
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {

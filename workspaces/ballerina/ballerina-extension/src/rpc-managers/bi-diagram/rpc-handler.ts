@@ -9,17 +9,18 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    CreateComponentRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
     BIGetFunctionsRequest,
+    BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    ComponentsRequest,
+    CreateComponentRequest,
+    ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
-    ExpressionCompletionsRequest,
     createComponent,
     createComponents,
     createProject,
@@ -34,6 +35,7 @@ import {
     getProjectComponents,
     getProjectStructure,
     getSourceCode,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent
 } from "@wso2-enterprise/ballerina-core";
@@ -57,5 +59,6 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
+    messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }

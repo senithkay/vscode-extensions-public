@@ -26,6 +26,8 @@ import {
     BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse } from "./interfaces";
 
@@ -45,5 +47,6 @@ export interface BIDiagramAPI {
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
+    getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
 }
