@@ -26,7 +26,7 @@ export const ParamEditorStory = () => {
     }
     return (
         <Container>
-            <ParamEditor params={[]} type="Query" onParamsChange={handleParamChange}/>
+            <ParamEditor title="Query Parameters" params={[]} type="Query" onParamsChange={handleParamChange} />
         </Container>
     );
 };
