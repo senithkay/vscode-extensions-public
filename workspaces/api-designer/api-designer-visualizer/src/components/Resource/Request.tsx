@@ -20,6 +20,7 @@ import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor'
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper } from '../Overview/Overview';
+import SectionHeader from './SectionHeader';
 
 const RequestTypeWrapper = styled.div`
     display: flex;
@@ -225,6 +226,17 @@ export function Request(props: ReadOnlyResourceProps) {
         onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
     };
 
+    const getContentTypeOptionSelect = () => {
+        return (
+            <PullUpButton options={MediaTypes} selectedOptions={mediaTypes} onOptionChange={handleOptionChange}>
+                <Button appearance="icon">
+                    <Codicon sx={{ marginRight: 5 }} name="add" />
+                    Add
+                </Button>
+            </PullUpButton>
+        )
+    }
+
     return (
         <>
             <Typography variant="h3" sx={{ margin: 0 }}>Requests Body</Typography>
@@ -234,17 +246,11 @@ export function Request(props: ReadOnlyResourceProps) {
                     label='Description'
                     value={resourceOperation?.requestBody?.description}
                     onChange={(evt) => handleDescriptionChange(evt.target.value)}
-                    resize="vertical" 
-                    growRange={{ start: 2, offset: 10 }} 
+                    resize="vertical"
+                    growRange={{ start: 2, offset: 10 }}
                 />
-                <Typography variant="h4" sx={{ margin: 0 }}>Content Type</Typography>
                 <ContentWrapper>
-                    <PullUpButton options={MediaTypes} selectedOptions={mediaTypes} onOptionChange={handleOptionChange}>
-                        <Button appearance="primary">
-                            Add Content Type
-                            <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
-                        </Button>
-                    </PullUpButton>
+                    <SectionHeader title="Content Type" variant='h4' actionButtons={getContentTypeOptionSelect()} />
                     {requestContentTabViewItems.length > 0 && (
                         <Tabs
                             views={requestContentTabViewItems}

@@ -42,6 +42,7 @@ export function ReadOnlyOverview(props: OverviewProps) {
     return (
         <>
             <PanelBody>
+                <Typography sx={{ margin: 0, marginTop: 4 }} variant="h2">Overview</Typography>
                 {openAPIDefinition?.info?.title && (
                     <>
                         <Typography sx={{ margin: 0 }} variant="h3">Title</Typography>
@@ -64,7 +65,7 @@ export function ReadOnlyOverview(props: OverviewProps) {
                     <DescriptionWrapper>
                         <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
                         <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>
-                            <MarkdownRenderer key="description" markdownContent={openAPIDefinition?.info?.description} /> 
+                            <MarkdownRenderer key="description" markdownContent={openAPIDefinition?.info?.description} />
                         </Typography>
                     </DescriptionWrapper>
                 )}
@@ -88,18 +89,18 @@ export function ReadOnlyOverview(props: OverviewProps) {
                             headers={["Property", "Value"]}
                             content={[
                                 ["Name", openAPIDefinition.info?.license?.name],
-                                openAPIDefinition.info?.license?.url ? 
-                                [   "URL",
-                                    openAPIDefinition.info?.license?.url
-                                ] : 
-                                [
-                                    "Identifier",
-                                    openAPIDefinition.info?.license?.identifier,
-                                ],
+                                openAPIDefinition.info?.license?.url ?
+                                    ["URL",
+                                        openAPIDefinition.info?.license?.url
+                                    ] :
+                                    [
+                                        "Identifier",
+                                        openAPIDefinition.info?.license?.identifier,
+                                    ],
                             ]}
-                        /> 
+                        />
                     </ContentWrapper>
-                )}        
+                )}
             </PanelBody>
         </>
     )

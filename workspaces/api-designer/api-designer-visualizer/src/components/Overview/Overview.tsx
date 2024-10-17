@@ -43,7 +43,7 @@ const moreOptions = ["Summary", "Description", "Contact", "License"];
 // Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition } = props;
-    const [ description, setDescription ] = useState<string>(openAPIDefinition?.info?.description || "");
+    const [description, setDescription] = useState<string>(openAPIDefinition?.info?.description || "");
     let selectedOptions: string[] = [];
     if (openAPIDefinition?.info?.summary || openAPIDefinition?.info?.summary === "") {
         selectedOptions.push("Summary");
@@ -156,7 +156,12 @@ export function Overview(props: OverviewProps) {
     return (
         <>
             <PanelBody>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} />
+                <HorizontalFieldWrapper>
+                    <Typography sx={{ margin: 0, marginTop: 0 }} variant="h2">Overview</Typography>
+                    <div style={{ marginLeft: 'auto' }}>
+                        <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} />
+                    </div>
+                </HorizontalFieldWrapper>
                 <HorizontalFieldWrapper>
                     <TextField
                         label="Title"
@@ -189,7 +194,7 @@ export function Overview(props: OverviewProps) {
                         value={description}
                         onChange={(evt) => handleDescriptionChange(evt.target.value)}
                         resize="vertical"
-                        growRange={{ start: 5, offset: 10 }} 
+                        growRange={{ start: 5, offset: 10 }}
                     />
                 )}
                 {openAPIDefinition?.info?.contact && (
