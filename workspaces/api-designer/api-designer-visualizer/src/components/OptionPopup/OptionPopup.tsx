@@ -8,7 +8,6 @@
  */
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import React from 'react';
 import { PullUpButton } from '../PullUpButton/PullUPButton';
 
 const ButtonWrapper = styled.div`
@@ -27,17 +26,13 @@ interface OptionPopupProps {
 }
 
 export function OptionPopup(props: OptionPopupProps) {
-    const { options, selectedOptions, onOptionChange, onSwiychToReadOnly } = props;
+    const { options, selectedOptions, onOptionChange } = props;
 
-
-    const handleSwitchToView = () => {
-        onSwiychToReadOnly();
-    };
 
     return (
         <>
             <ButtonWrapper>
-                <PullUpButton options={options} selectedOptions={selectedOptions} onOptionChange={onOptionChange}>
+                <PullUpButton closeOnSelect={false} options={options} selectedOptions={selectedOptions} onOptionChange={onOptionChange}>
                     <Button appearance="icon">
                         <Codicon sx={{ marginRight: 5 }} name="add" />
                         Add

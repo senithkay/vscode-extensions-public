@@ -43,7 +43,7 @@ export const CodeTextArea = forwardRef<HTMLTextAreaElement, CodeTextAreaProps>((
 
     const growTextArea = (text: string) => {
         const { start, offset } = growRange;
-        const lineCount = text.split("\n").length;
+        const lineCount = text ? (text.split("\n").length) : (props.rows || growRange?.start || 1)
         const newRows = Math.max(start, Math.min(start + offset, lineCount));
         setRows(newRows);
     };

@@ -82,7 +82,8 @@ export interface Content {
 }
 
 export interface MediaType {
-    schema?: Schema;
+    // schema?: Schema;
+    schema?: any; // TODO: Fix this to use Schema
     example?: any;
     examples?: { [exampleName: string]: Example };
     encoding?: Encoding;

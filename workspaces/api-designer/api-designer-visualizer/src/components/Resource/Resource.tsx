@@ -324,7 +324,9 @@ export function Resource(props: ResourceProps) {
                 <ContentWrapper>
                     <ParamEditor title="Header Parameters" params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
                 </ContentWrapper>
-                <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+                {method !== "get" && 
+                    <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+                }
                 <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
             </PanelBody >
         </>

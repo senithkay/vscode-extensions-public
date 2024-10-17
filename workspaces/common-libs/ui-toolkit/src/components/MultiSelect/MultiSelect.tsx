@@ -98,11 +98,13 @@ export interface MultiSelectProps {
     addHoverEffect?: boolean;
     closeOnSelect?: boolean;
     onChange?: (values: string[]) => void;
+    onClosed?: (values: string[]) => void;
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps) => {
-    const { id, className, values, placeholder, displayValue, options, sx, dropdownSx, closeOnSelect, addHoverEffect = false } = props;
+    const { id, className, values: v , placeholder, displayValue, options, sx, dropdownSx, closeOnSelect, addHoverEffect = false, onClosed } = props;
     const [isComponentOpen, setIsComponentOpen] = React.useState(false);
+    const [values, setValues] = React.useState<string[]>( v || []);
     const [valueContainerPosition, setValueContainerPosition] = React.useState<DOMRect | null>(null);
     const containerRef = useRef<HTMLDivElement>(null); // Reference to the container
     const valueContainerRef = useRef<HTMLDivElement>(null); // Reference to the value container
@@ -127,10 +129,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
         if (closeOnSelect) {
             setIsComponentOpen(false);
         }
+        setValues(newValues);
     };
 
     const handleCloseComponent = () => {
         setIsComponentOpen(false);
+        if (!closeOnSelect) {
+            onClosed && onClosed(values || []);
+        }
     };
 
     return (

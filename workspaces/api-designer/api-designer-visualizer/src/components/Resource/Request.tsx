@@ -243,6 +243,7 @@ export function Request(props: ReadOnlyResourceProps) {
             <ContentWrapper>
                 <CodeTextArea
                     id="description"
+                    label='Description'
                     value={resourceOperation?.requestBody?.description}
                     onChange={(evt) => handleDescriptionChange(evt.target.value)}
                     resize="vertical"
