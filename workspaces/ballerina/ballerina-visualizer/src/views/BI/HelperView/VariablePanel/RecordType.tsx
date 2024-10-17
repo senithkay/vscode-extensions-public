@@ -24,10 +24,9 @@ interface RecordTypeTreeProps {
 
 namespace VariableStyles {
     export const SubList = styled.div`
-        margin-top: 8px;
         margin-left: 20px;
         margin-bottom: 8px;
-        padding-left: 16px;
+        padding-left: 20px;
         flex-direction: column;
     `;
 }
@@ -62,6 +61,9 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                                 alignItems: 'center',
                             }}>
                                 <VariableComponent onClick={() => handleFieldClick(`${fullPath}`)}>
+                                    <IconContainer>
+                                        <Codicon name="symbol-field" iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                                    </IconContainer>
                                     <VariableName>
                                         {field.name}
                                     </VariableName>
@@ -92,7 +94,13 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                     {!parentValue &&
                         <IconContainer>
                             <VarIcon />
-                        </IconContainer>}
+                        </IconContainer>
+                    }
+                    {parentValue &&
+                        <IconContainer>
+                            <Codicon name="symbol-field" iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                        </IconContainer>
+                    }
                     <VariableName>
                         {variable.name}
                     </VariableName>
