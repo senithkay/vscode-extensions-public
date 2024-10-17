@@ -26,6 +26,8 @@ import {
     ExpressionCompletionsResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -46,6 +48,7 @@ export const createComponent: RequestType<ComponentRequest, CreateComponentRespo
 export const getBIConnectors: RequestType<BIConnectorsRequest, BIConnectorsResponse> = { method: `${_preFix}/getBIConnectors` };
 export const handleReadmeContent: RequestType<ReadmeContentRequest, ReadmeContentResponse> = { method: `${_preFix}/handleReadmeContent` };
 export const createComponents: RequestType<ComponentsRequest, ComponentsResponse> = { method: `${_preFix}/createComponents` };
+export const getVisibleVariableTypes: RequestType<BIGetVisibleVariableTypesRequest, BIGetVisibleVariableTypesResponse> = { method: `${_preFix}/getVisibleVariableTypes` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };

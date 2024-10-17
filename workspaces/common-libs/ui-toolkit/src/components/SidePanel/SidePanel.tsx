@@ -50,6 +50,8 @@ const SubPanelContainer = styled.div<SidePanelProps>`
     width: ${(props: SidePanelProps) => `${props.subPanelWidth}px`};
     height: 100%;
     box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     z-index: 1999;
     opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
     transform: translateX(${(props: SidePanelProps) => props.alignment === 'left' 

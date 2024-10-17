@@ -9,7 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, NodeList, Category as PanelCategory } from "@wso2-enterprise/ballerina-side-panel";
+import { PanelContainer, NodeList, Category as PanelCategory, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { Diagram } from "@wso2-enterprise/bi-diagram";
 import {
@@ -52,8 +52,9 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import { Colors } from "../../../resources/constants";
+import { HelperView } from "../HelperView";
 
 const Container = styled.div`
     width: 100%;
@@ -103,6 +104,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
+    const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
 
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const selectedNodeRef = useRef<FlowNode>();
@@ -609,6 +611,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setSubPanel(subPanel);
     };
 
+    const updateExpressionField = (data: ExpressionFormField) => {
+        setUpdatedExpressionField(data);
+    }
+
     const findSubPanelComponent = (subPanel: SubPanel) => {
         switch (subPanel.view) {
             case SubPanelView.INLINE_DATA_MAPPER:
@@ -616,6 +622,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     <InlineDataMapper
                         filePath={subPanel.props?.inlineDataMapper?.filePath}
                         range={subPanel.props?.inlineDataMapper?.range}
+                    />
+                );
+            case SubPanelView.HELPER_PANEL:
+                return (
+                    <HelperView
+                        filePath={subPanel.props.sidePanelData.filePath}
+                        position={subPanel.props.sidePanelData.range}
+                        updateFormField={updateExpressionField}
+                        editorKey={subPanel.props.sidePanelData.editorKey}
+                        onClosePanel={handleSubPanel}
+                       
                     />
                 );
             default:
@@ -649,6 +666,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
 
         return convertToFnSignature(signatureHelp);
+    }
+
+    const handleResetUpdatedExpressionField = () => {
+        setUpdatedExpressionField(undefined);
     }
 
     const handleExpressionEditorCancel = () => {
@@ -718,7 +739,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         ? handleOnFormBack
                         : undefined
                 }
-                subPanelWidth={800}
+                subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                 subPanel={findSubPanelComponent(subPanel)}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
@@ -762,6 +783,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onCancel: handleExpressionEditorCancel,
                             onBlur: handleExpressionEditorBlur,
                         }}
+                        updatedExpressionField={updatedExpressionField}
+                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                     />
                 )}
             </PanelContainer>

@@ -21,6 +21,8 @@ import {
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
     BIModuleNodesResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
@@ -57,6 +59,7 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
@@ -130,6 +133,10 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     createComponents(params: ComponentsRequest): Promise<ComponentsResponse> {
         return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
+    }
+
+    getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
+        return this._messenger.sendRequest(getVisibleVariableTypes, HOST_EXTENSION, params);
     }
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {

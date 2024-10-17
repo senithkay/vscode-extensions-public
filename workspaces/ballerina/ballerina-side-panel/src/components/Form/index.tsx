@@ -18,11 +18,11 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { FormField, FormValues } from "./types";
+import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { LineRange, NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 
 namespace S {
@@ -151,6 +151,8 @@ namespace S {
 }
 export interface FormProps {
     formFields: FormField[];
+    targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
+    fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
     onSubmit?: (data: FormValues) => void;
@@ -176,6 +178,8 @@ export interface FormProps {
         onBlur?: () => void | Promise<void>;
         onCancel: () => void;
     };
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
 }
 
 export function Form(props: FormProps) {
@@ -188,8 +192,12 @@ export function Form(props: FormProps) {
         openView,
         openSubPanel,
         expressionEditor,
+        targetLineRange,
+        fileName,
+        updatedExpressionField,
+        resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch } = useForm<FormValues>();
+    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -206,6 +214,16 @@ export function Form(props: FormProps) {
         });
         reset(defaultValues);
     }, [formFields, reset]);
+
+    useEffect(() => {
+        if (updatedExpressionField) {
+            const currentValue = getValues(updatedExpressionField.key);
+            if(currentValue !== undefined){
+                setValue(updatedExpressionField.key, currentValue + updatedExpressionField.value);
+                resetUpdatedExpressionField && resetUpdatedExpressionField();
+            }
+        }
+    }, [updatedExpressionField]);
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
@@ -278,6 +296,8 @@ export function Form(props: FormProps) {
             register,
         },
         expressionEditor,
+        targetLineRange,
+        fileName
     };
 
     // TODO: support multiple type fields

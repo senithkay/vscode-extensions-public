@@ -477,6 +477,15 @@ export type BIAvailableNodesResponse = {
     categories: Category[];
 };
 
+export interface BIGetVisibleVariableTypesRequest {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface BIGetVisibleVariableTypesResponse {
+    categories: VisibleType[];
+};
+
 export interface BINodeTemplateRequest {
     position: LinePosition;
     filePath: string;

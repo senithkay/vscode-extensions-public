@@ -24,6 +24,8 @@ import {
     BIGetFunctionsResponse,
     BIModuleNodesRequest,
     BIModuleNodesResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
@@ -699,6 +701,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 })
                 .catch((error) => {
                     reject("Error fetching signature help from ls");
+                });
+        });
+    }
+
+    async getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getVisibleVariableTypes(params)
+                .then((types) => {
+                    resolve(types as BIGetVisibleVariableTypesResponse);
+                })
+                .catch((error) => {
+                    reject("Error fetching visible variable types from ls");
                 });
         });
     }
