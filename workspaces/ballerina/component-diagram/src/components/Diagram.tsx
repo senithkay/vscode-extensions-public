@@ -156,7 +156,7 @@ export function Diagram(props: DiagramProps) {
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
-        registerListeners(diagramEngine);
+        // registerListeners(diagramEngine);
 
         diagramEngine.setModel(newDiagramModel);
         // remove loader overlay layer
