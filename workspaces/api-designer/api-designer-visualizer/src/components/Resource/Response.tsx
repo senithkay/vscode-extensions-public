@@ -403,7 +403,7 @@ export function Response(props: ReadOnlyResourceProps) {
                                                             sx={{ width: "100%" }}
                                                             onChange={(e) => updateSchemaType(e.target.value)}
                                                         /> */}
-                                                        <CodeTextArea
+                                                        {/* <CodeTextArea
                                                             label='Schema'
                                                             id="Schema"
                                                             value={selectedSchema}
@@ -418,7 +418,7 @@ export function Response(props: ReadOnlyResourceProps) {
                                                             onChange={(evt) => handleExampleChange(evt.target.value)}
                                                             resize="vertical" 
                                                             growRange={{ start: 2, offset: 10 }} 
-                                                        />
+                                                        /> */}
                                                         {/* <ButtonWrapper>
                                                             <Codicon iconSx={{ background: isResponseSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
                                                             <Codicon name="trash" onClick={() => removeType()} />
