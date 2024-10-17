@@ -21,7 +21,6 @@ export default {
 };
 
 const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
-const apiDefinitionServiceDesModel = convertOpenAPItoService(apiDefinition);
 
 const onOpenAPIDefinitionChange = (openAPIDefinition: OpenAPI) => {
     console.log(openAPIDefinition);
@@ -32,19 +31,18 @@ export const APIDesignerStory = () => {
         <OpenAPIDefinition
             openAPIDefinition={apiDefinition}
             onOpenApiDefinitionChange={onOpenAPIDefinitionChange}
-            serviceDesModel={apiDefinitionServiceDesModel}
+            serviceDesModel={null}
         />
     );
 };
 
 // Write a new Story for the Coffeeshop component
 const coffeeshopJSON = coffeshop as unknown as OpenAPI;
-const coffeeshopServiceDesModel = convertOpenAPItoService(coffeeshopJSON);
 export const CoffeeshopStory = () => {
     return (
         <OpenAPIDefinition
             openAPIDefinition={coffeeshopJSON}
-            serviceDesModel={coffeeshopServiceDesModel}
+            serviceDesModel={null}
             onOpenApiDefinitionChange={onOpenAPIDefinitionChange}
         />
     );
