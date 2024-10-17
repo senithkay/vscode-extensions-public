@@ -9,9 +9,9 @@
 
 import React, { useRef } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { ComponentTriggerType } from "@wso2-enterprise/ballerina-core";
+import { ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
 
@@ -40,7 +40,7 @@ interface TriggerConfigViewProps {
     name: string;
     listenerFields: FormField[];
     serviceFields: FormField[];
-    functionFields: Record<string, FormField[]>;
+    functionFields: Record<string, FunctionField>;
     onSubmit: (data: ComponentTriggerType) => void;
     onBack: () => void;
 }
@@ -68,15 +68,15 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
         })
     };
 
-    const handleFunctionsSubmit = async (data: FormValues, key?: string) => {
-        if (functionFields[key]) {
-            functionFields[key].forEach(val => {
-                if (data[val.key]) {
-                    val.value = data[val.key]
-                }
-            })
-        }
-    };
+    // const handleFunctionsSubmit = async (data: FormValues, key?: string) => {
+    //     if (functionFields[key]) {
+    //         functionFields[key].fields.forEach(val => {
+    //             if (data[val.key]) {
+    //                 val.value = data[val.key]
+    //             }
+    //         })
+    //     }
+    // };
 
     const handleTriggerSave = async () => {
         if (listenerFieldsRef.current) {
@@ -135,9 +135,20 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                         functionFieldsRefs[functionName] = React.createRef<{ triggerSave: () => void }>();
                     }
                     return (
-                        <FormGroup key={functionName} title={functionName} isCollapsed={false}>
-                            <Form refKey={functionName} ref={functionFieldsRefs[functionName]} hideSave={true} formFields={functionFields[functionName]} onSubmit={handleFunctionsSubmit} />
-                        </FormGroup>
+                        <>
+                            <CheckBox
+                                checked={functionFields[functionName].required}
+                                disabled={functionFields[functionName].required}
+                                label={functionName}
+                                onChange={(checked) => {
+                                    functionFields[functionName].checked = checked
+                                }}
+                                value={functionName}
+                            />
+                            {/* <FormGroup key={functionName} title={functionName} isCollapsed={false}>
+                                <Form refKey={functionName} ref={functionFieldsRefs[functionName]} hideSave={true} formFields={functionFields[functionName].fields} onSubmit={handleFunctionsSubmit} />
+                            </FormGroup> */}
+                        </>
                     )
                 })}
             </FormGroup>

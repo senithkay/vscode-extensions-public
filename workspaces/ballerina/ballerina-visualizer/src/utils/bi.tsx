@@ -25,7 +25,8 @@ import {
     Branch,
     LineRange,
     ExpressionCompletionItem,
-    TriggerModel
+    TriggerModel,
+    FunctionField
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -284,7 +285,7 @@ export function convertTriggerListenerConfig(trigger: TriggerModel): FormField[]
                 optional: !expression.required,
                 type: expression.type,
                 editable: true,
-                value: ""
+                value: expression.value
             }
             formFields.push(formField);
         }
@@ -302,7 +303,7 @@ export function convertTriggerServiceConfig(trigger: TriggerModel): FormField[] 
         optional: false,
         type: "string",
         editable: true,
-        value: ""
+        value: trigger.service.basePath.value
     }
     if (trigger.service.basePath.required) {
         formFields.push(formField);
@@ -310,8 +311,8 @@ export function convertTriggerServiceConfig(trigger: TriggerModel): FormField[] 
     return formFields;
 }
 
-export function convertTriggerFunctionsConfig(trigger: TriggerModel): Record<string, FormField[]> {
-    const response: Record<string, FormField[]> = {};
+export function convertTriggerFunctionsConfig(trigger: TriggerModel): Record<string, FunctionField> {
+    const response: Record<string, FunctionField> = {};
     for (const key in trigger.service.functions) {
         const triggerFunction = trigger.service.functions[key];
         const formFields: FormField[] = [];
@@ -325,12 +326,12 @@ export function convertTriggerFunctionsConfig(trigger: TriggerModel): Record<str
                     optional: !expression?.required,
                     type: expression?.type,
                     editable: true,
-                    value: ""
+                    value: expression.value
                 }
                 formFields.push(formField);
             }
         }
-        response[key] = formFields;
+        response[key] = { checked: triggerFunction.required, required: triggerFunction.required, fields: formFields };
     }
     console.log("xxx", response);
     return response;

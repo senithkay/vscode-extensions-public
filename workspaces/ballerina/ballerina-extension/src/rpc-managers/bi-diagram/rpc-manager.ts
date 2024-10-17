@@ -672,6 +672,7 @@ function getTriggersHardcoded() {
             bootstrapServers: {
                 required: true,
                 type: "string",
+                value: "kafka:DEFAULT_URL",
                 description: "List of remote server endpoints of Kafka brokers"
             },
             config: {
@@ -691,6 +692,7 @@ function getTriggersHardcoded() {
                         records: {
                             type: "array",
                             required: true,
+                            value: "anydata[]",
                             description: "Consumer records"
                         },
                         caller: {

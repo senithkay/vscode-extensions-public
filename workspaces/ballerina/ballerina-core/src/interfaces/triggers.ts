@@ -18,6 +18,7 @@ export interface TriggerModel {
 export interface ListenerConfiguration {
     required: boolean;
     type: string;
+    value?: string;
     record?: boolean;
     description?: string;
 }
@@ -25,6 +26,7 @@ export interface ListenerConfiguration {
 export interface TriggerProperty {
     required: boolean;
     type: string;
+    value?: string;
     description?: string;
 }
 
@@ -37,6 +39,7 @@ export interface ServiceConfiguration {
 
 export interface BasePath {
     required: boolean;
+    value?: string;
     description?: string;
 }
 
@@ -49,6 +52,7 @@ export interface FunctionDetail {
 
 export interface FunctionParam {
     type: string;
+    value?: string;
     required: boolean;
     description?: string;
 }

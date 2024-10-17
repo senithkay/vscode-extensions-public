@@ -180,12 +180,14 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     `,
     KAFKA: `
 service on new kafka:Listener({{{ ENDPOINT }}}) {
-    remote function onConsumerRecord({{{ TYPE }}} {{{ NAME }}}) returns error? {
+    {{#each FUNCTIONS}}
+    remote function {{{ NAME }}}({{#each PARAMS}}{{#if @first}}{{/if}}{{{ TYPE }}} {{{ NAME }}}{{#unless @last}}, {{/unless}}{{/each}}) returns error? {
         do {
         } on fail error e {
             return e;
         }
     }
+    {{/each}}
 }`
 };
 

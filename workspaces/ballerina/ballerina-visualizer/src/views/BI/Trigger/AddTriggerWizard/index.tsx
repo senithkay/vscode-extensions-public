@@ -9,7 +9,7 @@
 
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { TriggerModel, FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
+import { TriggerModel, FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import TriggerView from "../TriggerView";
 import TriggerConfigView from "../TriggerConfigView";
@@ -49,7 +49,7 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.TRIGGER_LIST);
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const [functionFields, setFunctionFields] = useState<Record<string, FormField[]>>({});
+    const [functionFields, setFunctionFields] = useState<Record<string, FunctionField>>({});
     const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
     const selectedConnectorRef = useRef<TriggerModel>();
 

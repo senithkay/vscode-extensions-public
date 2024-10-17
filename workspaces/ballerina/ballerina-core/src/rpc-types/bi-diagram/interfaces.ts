@@ -51,7 +51,13 @@ export interface ComponentTriggerType {
     name: string;
     listener: TriggerFormField[];
     service: TriggerFormField[];
-    functions: Record<string, TriggerFormField[]>;
+    functions: Record<string, FunctionField>;
+}
+
+export interface FunctionField {
+    required: boolean;
+    checked: boolean;
+    fields: TriggerFormField[];
 }
 
 export interface FunctionParameters {

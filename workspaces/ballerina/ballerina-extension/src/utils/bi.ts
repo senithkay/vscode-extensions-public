@@ -320,23 +320,35 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
     const modifications: STModification[] = [];
 
     let endpoint = "";
-    let type = "";
-    let name = "";
     triggerInfo.listener.forEach(val => {
         if (!val.optional && val.value) {
             endpoint = val.value;
         }
     });
 
+    interface FunctionParam {
+        NAME: string;
+        TYPE: string;
+    }
+    interface FunctionDetail {
+        NAME: string;
+        PARAMS: FunctionParam[];
+    }
 
+    const functionsConfig: FunctionDetail[] = [];
     for (const key in functionsList) {
-        if (functionsList[key]) {
-            functionsList[key].forEach(val => {
+        if (functionsList[key] && functionsList[key].checked) {
+            const parameters: FunctionParam[] = [];
+            let paramName = "param";
+            functionsList[key].fields.forEach((val, index) => {
                 if (!val.optional && val.value) {
-                    type = val.value;
-                    name = "param";
+                    parameters.push({
+                        NAME: `${paramName}${index}`,
+                        TYPE: val.value
+                    })
                 }
             });
+            functionsConfig.push({ NAME: key, PARAMS: parameters })
         }
     }
 
@@ -355,8 +367,7 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
             type: "KAFKA",
             config: {
                 ENDPOINT: endpoint,
-                TYPE: type,
-                NAME: name
+                FUNCTIONS: functionsConfig
             },
         }
     );
