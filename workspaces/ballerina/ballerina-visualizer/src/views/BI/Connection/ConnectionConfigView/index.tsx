@@ -39,7 +39,7 @@ interface ConnectionConfigViewProps {
     name: string;
     fields: FormField[];
     onSubmit: (data: FormValues) => void;
-    onBack: () => void;
+    onBack?: () => void;
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
@@ -48,9 +48,11 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
     return (
         <Container>
             <Row>
-                <Button appearance="icon" onClick={onBack}>
-                    <Codicon name="arrow-left" />
-                </Button>
+                {onBack && (
+                    <Button appearance="icon" onClick={onBack}>
+                        <Codicon name="arrow-left" />
+                    </Button>
+                )}
                 <Typography variant="h2">Configure {name} Connector</Typography>
             </Row>
             <BodyText>

@@ -477,6 +477,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
+    const handleOnEditConnection = (connectionName: string) => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EditConnectionWizard,
+                identifier: connectionName,
+            },
+            isPopup: true,
+        });
+    };
+
     const handleOnGoToSource = (node: FlowNode) => {
         const targetPosition: NodePosition = {
             startLine: node.codedata.lineRange.startLine.line,
@@ -684,6 +695,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onDeleteNode={handleOnDeleteNode}
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
+                                onConnectionSelect={handleOnEditConnection}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
                                 suggestions={{

@@ -26,8 +26,7 @@ import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
-import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NEW_COMPONENT, NodeTypes } from "../resources/constants";
-import { ButtonNodeModel } from "./nodes/ButtonNode/ButtonNodeModel";
+import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NodeTypes } from "../resources/constants";
 
 export interface DiagramProps {
     project: Project;
@@ -49,6 +48,19 @@ export function Diagram(props: DiagramProps) {
             autoDistribute(diagramEngine);
         }
     }, [project]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (diagramEngine && diagramModel) {
+                diagramEngine.zoomToFit();
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [diagramEngine, diagramModel]);
 
     const getDiagramData = () => {
         // generate diagram nodes and links
@@ -156,9 +168,13 @@ export function Diagram(props: DiagramProps) {
             diagramEngine.getModel().removeLayer(overlayLayer);
         }
 
-        diagramEngine.repaintCanvas();
-        // update the diagram model state
-        setDiagramModel(newDiagramModel);
+        // diagram paint with timeout
+        setTimeout(() => {
+            if (diagramEngine && newDiagramModel) {
+                diagramEngine.zoomToFit();
+            }
+            diagramEngine.repaintCanvas();
+        }, 200);
     };
 
     const context: DiagramContextState = {

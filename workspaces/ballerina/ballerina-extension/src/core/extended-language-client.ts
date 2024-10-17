@@ -100,6 +100,8 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    BIModuleNodesRequest,
+    BIModuleNodesResponse,
     ComponentsFromContent,
     SignatureHelpRequest,
     SignatureHelpResponse
@@ -168,6 +170,7 @@ enum EXTENDED_APIS {
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
+    BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
@@ -608,6 +611,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ExpressionCompletionsResponse>(EXTENDED_APIS.BI_EXPRESSION_COMPLETIONS, params);
     }
 
+    async getModuleNodes(params: BIModuleNodesRequest): Promise<BIModuleNodesResponse> {
+        return this.sendRequest<BIModuleNodesResponse>(EXTENDED_APIS.BI_MODULE_NODES, params);
+    }
+    
     async getComponentsFromContent(params: ComponentsFromContent): Promise<BallerinaProjectComponents> {
         return this.sendRequest<BallerinaProjectComponents>(EXTENDED_APIS.BI_GET_COMPONENTS_FROM_CONTENT, params);
     }

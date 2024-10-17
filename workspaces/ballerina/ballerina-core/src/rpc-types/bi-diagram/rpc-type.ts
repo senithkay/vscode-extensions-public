@@ -21,6 +21,7 @@ import {
     BISourceCodeResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     SignatureHelpRequest,
@@ -46,6 +47,7 @@ export const getBIConnectors: RequestType<BIConnectorsRequest, BIConnectorsRespo
 export const handleReadmeContent: RequestType<ReadmeContentRequest, ReadmeContentResponse> = { method: `${_preFix}/handleReadmeContent` };
 export const createComponents: RequestType<ComponentsRequest, ComponentsResponse> = { method: `${_preFix}/createComponents` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
+export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
 export const deployProject: NotificationType<void> = { method: `${_preFix}/deployProject` };

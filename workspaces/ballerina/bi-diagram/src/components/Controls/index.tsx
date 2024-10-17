@@ -8,10 +8,11 @@
  */
 
 import React from "react";
-import { ApiIcon, FitScreenIcon, MinusIcon, PlusIcon } from "../../resources";
+import { FitScreenIcon, MinusIcon, PlusIcon } from "../../resources";
 import styled from "@emotion/styled";
 import { Colors, NodeTypes } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { saveDiagramZoomAndPosition } from "../../utils/diagram";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -26,17 +27,50 @@ export namespace ControlsStyles {
         z-index: 1000;
     `;
 
+    export const GroupContainer = styled.div`
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0;
+
+        & > *:not(:last-child) {
+            border-bottom: 1px solid ${Colors.OUTLINE_VARIANT};
+        }
+
+        & > *:first-child {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        & > *:last-child {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        & > *:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+    `;
+
     export const Button = styled.div`
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 8px;
-        border-radius: 2px;
+        border-radius: 4px;
         background-color: ${Colors.SURFACE};
-        color: ${Colors.ON_SURFACE};
+        fill: ${Colors.ON_SURFACE};
         width: 32px;
         height: 32px;
         cursor: pointer;
+
+        &:hover {
+            background-color: ${Colors.SURFACE_CONTAINER};
+        }
+
+        &:active {
+            background-color: ${Colors.SURFACE_CONTAINER};
+        }
     `;
 }
 
@@ -54,6 +88,9 @@ export function Controls(props: ControlsProps) {
         if (!nodes || nodes.length === 0) {
             return;
         }
+        if(!engine.getCanvas().getBoundingClientRect()){
+            return;
+        }
 
         const startNode = nodes.find((node) => node.getType() === NodeTypes.START_NODE);
         if (startNode) {
@@ -63,6 +100,7 @@ export function Controls(props: ControlsProps) {
         } else {
             engine.zoomToFitNodes({ margin: 0, maxZoom: 1 });
         }
+        saveDiagramZoomAndPosition(engine.getModel());
     };
 
     const onZoom = (zoomIn: boolean) => {
@@ -76,12 +114,14 @@ export function Controls(props: ControlsProps) {
             <ControlsStyles.Button onClick={handleZoomToFit}>
                 <FitScreenIcon />
             </ControlsStyles.Button>
-            <ControlsStyles.Button onClick={() => onZoom(true)}>
-                <PlusIcon />
-            </ControlsStyles.Button>
-            <ControlsStyles.Button onClick={() => onZoom(false)}>
-                <MinusIcon />
-            </ControlsStyles.Button>
+            <ControlsStyles.GroupContainer>
+                <ControlsStyles.Button onClick={() => onZoom(true)}>
+                    <PlusIcon />
+                </ControlsStyles.Button>
+                <ControlsStyles.Button onClick={() => onZoom(false)}>
+                    <MinusIcon />
+                </ControlsStyles.Button>
+            </ControlsStyles.GroupContainer>
         </ControlsStyles.Container>
     );
 }

@@ -24,6 +24,7 @@ import {
     BISourceCodeResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     SignatureHelpRequest,
@@ -48,6 +49,7 @@ export interface BIDiagramAPI {
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent:() => Promise<ReadmeContentResponse>;
     openReadme:() => void;
     deployProject: () => void;
