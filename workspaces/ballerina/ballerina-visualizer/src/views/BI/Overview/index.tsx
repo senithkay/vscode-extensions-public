@@ -388,7 +388,7 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handleBuild = () => {
-        //rpcClient.getBIDiagramRpcClient().buildProject();
+        rpcClient.getBIDiagramRpcClient().buildProject();
     };
 
 

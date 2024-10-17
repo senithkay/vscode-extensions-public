@@ -55,10 +55,14 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { Uri, ViewColumn, commands, window, workspace } from "vscode";
+import {
+    Uri, ViewColumn, commands, window, workspace, tasks, Task,
+    TaskDefinition, ShellExecution
+} from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { title } from "process";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -718,44 +722,62 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async runBallerinaBuildTask(docker: boolean): Promise<void> {
+        const taskDefinition: TaskDefinition = {
+            type: 'shell',
+            task: 'run'
+        };
+
+        const buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+        const execution = new ShellExecution(buildCommand);
+
+        const task = new Task(
+            taskDefinition,
+            workspace.workspaceFolders![0], // Assumes at least one workspace folder is open
+            'Ballerina Build',
+            'ballerina',
+            execution
+        );
+
+        try {
+            await tasks.executeTask(task);
+        } catch (error) {
+            window.showErrorMessage(`Failed to build Ballerina package: ${error}`);
+        }
+    }
+
     buildProject(): void {
         window.showQuickPick([
             {
                 label: "$(package) Executable JAR",
                 detail: "Build a self-contained, runnable JAR file for your project",
-                key: "executable-jar"
             },
             {
                 label: "$(docker) Docker Image",
                 detail: "Create a Docker image to containerize your Ballerina Integration",
-                key: "docker-image"
             }
         ].map(item => ({
             ...item,
         })), {
             placeHolder: "Choose a build option"
-        }).then(selection => {
-            if (!selection) {
-                return; // User cancelled the selection
-            }
-            switch (selection.label) {
-                case "executable-jar":
-                    // Show a notification for building executable JAR
-                    window.showInformationMessage("Building executable JAR...");
+        })
+            .then((selection) => {
+                if (!selection) {
+                    return; // User cancelled the selection
+                }
 
-                    // TODO: Implement actual JAR building logic here
-                    // For now, we'll just show a placeholder message
-                    setTimeout(() => {
-                        window.showInformationMessage("Executable JAR built successfully!");
-                    }, 2000);
-                    break;
-                case "docker-image":
-
-                    break;
-                default:
-                    window.showErrorMessage("Invalid build option selected");
-            }
-        });
+                switch (selection.label) {
+                    case "$(package) Executable JAR":
+                        console.log(selection);
+                        this.runBallerinaBuildTask(false);
+                        break;
+                    case "$(docker) Docker Image":
+                        this.runBallerinaBuildTask(true);
+                        break;
+                    default:
+                        window.showErrorMessage("Invalid deployment option selected");
+                }
+            });
     }
 
     runProject(): void {
