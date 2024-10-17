@@ -22,6 +22,7 @@ import { ContentWrapper, PanelBody } from '../Overview/Overview';
 import { Request } from './Request';
 import { Response } from './Response';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
+import ResourceHeader from './ResourceHeader';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -279,67 +280,53 @@ export function Resource(props: ResourceProps) {
     return (
         <>
             <PanelBody>
-                <OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} />
-                <HorizontalFieldWrapper>
-                    <Dropdown
-                        id="method"
-                        containerSx={{ width: "20%", gap: 0 }}
-                        dropdownContainerSx={{ gap: 0 }}
-                        items={dropDownItems}
-                        value={values?.method.toLowerCase()}
-                        onValueChange={handleMethodChange}
-                    />
-                    <TextField
-                        id="path"
-                        sx={{ width: "80%" }}
-                        autoFocus
-                        onTextChange={handlePathChange}
-                        value={values?.path}
-                    />
-                </HorizontalFieldWrapper>
-                {defaultOptions.includes("Summary") && (
-                    <TextField
-                        id="summary"
-                        label="Summary"
-                        value={values?.summary}
-                        onTextChange={handleSummaryChange}
-                    />
-                )}
-                {defaultOptions.includes("Description") && (
-                    <DescriptionWrapper>
-                        <CodeTextArea
-                            id="description"
-                            label='Decription'
-                            value={values?.description}
-                            onChange={(evt) => handleDescriptionChange(evt.target.value)}
-                            resize="vertical" 
-                            growRange={{ start: 5, offset: 10 }} 
+                <ResourceHeader method={method} path={path} actionButtons={<OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} />} />
+                {
+                    defaultOptions.includes("Summary") && (
+                        <TextField
+                            id="summary"
+                            label="Summary"
+                            value={values?.summary}
+                            onTextChange={handleSummaryChange}
                         />
-                    </DescriptionWrapper>
-                )}
-                {defaultOptions.includes("OperationId") && (
-                    <TextField
-                        id="operationId"
-                        label="Operation ID"
-                        value={resourceOperation.operationId}
-                        onTextChange={handleOperationIdChange}
-                    />
-                )}
-                <Typography sx={{ margin: 0 }} variant="h3">Path Parameters</Typography>
+                    )
+                }
+                {
+                    defaultOptions.includes("Description") && (
+                        <DescriptionWrapper>
+                            <CodeTextArea
+                                id="description"
+                                label='Decription'
+                                value={values?.description}
+                                onChange={(evt) => handleDescriptionChange(evt.target.value)}
+                                resize="vertical"
+                                growRange={{ start: 5, offset: 10 }}
+                            />
+                        </DescriptionWrapper>
+                    )
+                }
+                {
+                    defaultOptions.includes("OperationId") && (
+                        <TextField
+                            id="operationId"
+                            label="Operation ID"
+                            value={resourceOperation.operationId}
+                            onTextChange={handleOperationIdChange}
+                        />
+                    )
+                }
                 <ContentWrapper>
-                    <ParamEditor params={values?.pathParams} hideTitle type="Path" onParamsChange={handleOnPathParamsChange} />
+                    <ParamEditor title="Path Parameters" params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
                 </ContentWrapper>
-                <Typography sx={{ margin: 0 }} variant="h3">Query Parameters</Typography>
                 <ContentWrapper>
-                    <ParamEditor params={values?.queryParams} hideTitle type="Query" onParamsChange={handleOnQueryParamsChange} />
+                    <ParamEditor title="Query Parameters" params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
                 </ContentWrapper>
-                <Typography sx={{ margin: 0 }} variant="h3">Header Parameters</Typography>
                 <ContentWrapper>
-                    <ParamEditor params={values?.headerParams} hideTitle type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                    <ParamEditor title="Header Parameters" params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
                 </ContentWrapper>
                 <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
                 <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
-            </PanelBody>
+            </PanelBody >
         </>
     )
 }
