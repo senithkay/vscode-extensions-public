@@ -26,7 +26,7 @@ interface OptionPopupProps {
 }
 
 export function OptionPopup(props: OptionPopupProps) {
-    const { options, selectedOptions, onOptionChange, onSwiychToReadOnly } = props;
+    const { options, selectedOptions, onOptionChange } = props;
 
 
     return (
