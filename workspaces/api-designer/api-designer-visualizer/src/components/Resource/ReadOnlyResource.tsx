@@ -233,7 +233,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                 </ContentWrapper>
                             </>
                         )}
-                        {requestMediaTypes && (
+                        {requestMediaTypes && method !== "get" && (
                             <>
                                 <Typography sx={{ margin: 0 }} variant='h4'> Request Body </Typography>
                                 <ContentWrapper>

@@ -21,9 +21,9 @@ import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper } from '../Overview/Overview';
 
-const ParamWrapper = styled.div`
+export const VerticalFieldWrapper = styled.div`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 10px;
 `;
 
@@ -109,6 +109,12 @@ export function Response(props: ReadOnlyResourceProps) {
         return `${status.status}: ${statusValue}`;
     });
 
+    // selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema is type of string
+    
+    // Get selected Schema
+    const selectedSchema =  selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema as string;
+    const selectedExample = selectedContentFromResponseMediaType?.content[selectedMediaType]?.example;
+
     const handleOptionChange = (options: string[]) => {
         const colnedMediaTypes = [...responseContents];
         let currentMediaType = selectedMediaType;
@@ -190,24 +196,40 @@ export function Response(props: ReadOnlyResourceProps) {
     const handleInlineOptionChange = (evt: any) => {
         // TODO: Implement inline object change
     };
-    const updateSchemaType = (type: string) => {
-        let clonedSchema = { ...responseSchema };
-        // If type is not a BaseType, set it as a type else delete the type
-        if (BaseTypes.includes(type)) {
-            clonedSchema.type = type;
-            delete clonedSchema.$ref;
-            delete clonedSchema.items;
-        } else {
-            delete clonedSchema.type;
-            // If it is an array, set the type as array
-            if (isResponseSchemaArray) {
-                clonedSchema.type = "array";
-                clonedSchema.items = { $ref: `#/components/schemas/${type}` };
-            } else {
-                clonedSchema = { $ref: `#/components/schemas/${type}` };
-                delete clonedSchema.type
-            }
-        }
+    // const updateSchemaType = (type: string) => {
+    //     let clonedSchema = { ...responseSchema };
+    //     // If type is not a BaseType, set it as a type else delete the type
+    //     if (BaseTypes.includes(type)) {
+    //         clonedSchema.type = type;
+    //         delete clonedSchema.$ref;
+    //         delete clonedSchema.items;
+    //     } else {
+    //         delete clonedSchema.type;
+    //         // If it is an array, set the type as array
+    //         if (isResponseSchemaArray) {
+    //             clonedSchema.type = "array";
+    //             clonedSchema.items = { $ref: `#/components/schemas/${type}` };
+    //         } else {
+    //             clonedSchema = { $ref: `#/components/schemas/${type}` };
+    //             delete clonedSchema.type
+    //         }
+    //     }
+    //     const newResponseBody: Responses = {
+    //         ...resourceOperation.responses,
+    //         [selectedResponseType]: {
+    //             ...resourceOperation.responses[selectedResponseType],
+    //             content: {
+    //                 ...selectedContentFromResponseMediaType.content,
+    //                 [selectedMediaType]: {
+    //                     ...selectedContentFromResponseMediaType.content[selectedMediaType],
+    //                     schema: clonedSchema
+    //                 }
+    //             }
+    //         }
+    //     };
+    //     onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
+    // };
+    const handleSchemaChange = (type: string) => {
         const newResponseBody: Responses = {
             ...resourceOperation.responses,
             [selectedResponseType]: {
@@ -216,13 +238,31 @@ export function Response(props: ReadOnlyResourceProps) {
                     ...selectedContentFromResponseMediaType.content,
                     [selectedMediaType]: {
                         ...selectedContentFromResponseMediaType.content[selectedMediaType],
-                        schema: clonedSchema
+                        schema: type
                     }
                 }
             }
         };
         onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     };
+    const handleExampleChange = (example: string) => {
+        // Update the newResponseBody with Response example
+        const newResponseBody: Responses = {
+            ...resourceOperation.responses,
+            [selectedResponseType]: {
+                ...resourceOperation.responses[selectedResponseType],
+                content: {
+                    ...selectedContentFromResponseMediaType.content,
+                    [selectedMediaType]: {
+                        ...selectedContentFromResponseMediaType.content[selectedMediaType],
+                        example
+                    }
+                }
+            }
+        };
+        onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
+    };
+
     const updateArray = () => {
         let clonedSchema = { ...responseSchema };
         if (isResponseSchemaArray && clonedSchema.type) {
@@ -318,6 +358,7 @@ export function Response(props: ReadOnlyResourceProps) {
                             <div id={status} style={{ display: "flex", flexDirection: "column", gap: 15 }}>
                                 <CodeTextArea
                                     key="responseBody-description-${path}-${method}-${status}"
+                                    label='Description'
                                     value={resourceOperation?.responses[status]?.description}
                                     onChange={(evt) => handleDescriptionChange(evt.target.value)}
                                     resize="vertical"
@@ -343,18 +384,34 @@ export function Response(props: ReadOnlyResourceProps) {
                                             <ResponseTypeWrapper>
                                                 {/* <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
                                                 {!isInlinedObjectResponse && selectedMediaType && (
-                                                    <HorizontalFieldWrapper>
-                                                        <TextField
+                                                    <VerticalFieldWrapper>
+                                                        {/* <TextField
                                                             placeholder="Default Value"
                                                             value={responseMediaType}
                                                             sx={{ width: "100%" }}
                                                             onChange={(e) => updateSchemaType(e.target.value)}
+                                                        /> */}
+                                                        <CodeTextArea
+                                                            label='Schema'
+                                                            id="Schema"
+                                                            value={selectedSchema}
+                                                            onChange={(evt) => handleSchemaChange(evt.target.value)}
+                                                            resize="vertical"
+                                                            growRange={{ start: 1, offset: 10 }} 
                                                         />
-                                                        <ButtonWrapper>
+                                                        <CodeTextArea
+                                                            label='Example'
+                                                            id="Example"
+                                                            value={selectedExample}
+                                                            onChange={(evt) => handleExampleChange(evt.target.value)}
+                                                            resize="vertical" 
+                                                            growRange={{ start: 2, offset: 10 }} 
+                                                        />
+                                                        {/* <ButtonWrapper>
                                                             <Codicon iconSx={{ background: isResponseSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
                                                             <Codicon name="trash" onClick={() => removeType()} />
-                                                        </ButtonWrapper>
-                                                    </HorizontalFieldWrapper>
+                                                        </ButtonWrapper> */}
+                                                    </VerticalFieldWrapper>
                                                 )}
                                             </ResponseTypeWrapper>
                                         </div>
