@@ -20,6 +20,7 @@ import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper } from '../Overview/Overview';
+import SectionHeader from './SectionHeader';
 
 const ParamWrapper = styled.div`
     display: flex;
@@ -302,16 +303,32 @@ export function Response(props: ReadOnlyResourceProps) {
         }
     }, [resourceOperation?.responses && Object.keys(resourceOperation.responses)[0]]);
 
+    const getStatusCodeOptionSelect = () => {
+        return (
+            <PullUpButton options={statusCodeList} selectedOptions={selectedStatusCode || []} onOptionChange={handleStatusCodeChange}>
+                <Button appearance="icon">
+                    <Codicon sx={{ marginRight: 5 }} name="add" />
+                    Add
+                </Button>
+            </PullUpButton>
+        )
+    }
+
+    const getContentTypeOptionSelect = () => {
+        return (
+            <PullUpButton options={MediaTypes} selectedOptions={responseMediaTypes} onOptionChange={handleOptionChange}>
+                <Button appearance="icon">
+                    <Codicon sx={{ marginRight: 5 }} name="add" />
+                    Add
+                </Button>
+            </PullUpButton>
+        )
+    }
+
     return (
         <>
-            <Typography variant="h2" sx={{ margin: 0 }}>Responses</Typography>
+            <SectionHeader title="Responses" variant='h2' actionButtons={getStatusCodeOptionSelect()} />
             <ContentWrapper>
-                <PullUpButton options={statusCodeList} selectedOptions={selectedStatusCode || []} onOptionChange={handleStatusCodeChange}>
-                    <Button appearance="primary">
-                        Add Status
-                        <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
-                    </Button>
-                </PullUpButton>
                 {statusTabViewItems?.length > 0 && (
                     <Tabs views={statusTabViewItems} currentViewId={selectedResponseType} onViewChange={setSelectedResponseType}>
                         {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
@@ -331,13 +348,8 @@ export function Response(props: ReadOnlyResourceProps) {
                                     onParamsChange={handleOnHeaderParamsChange}
                                 />
                                 <Typography variant="h3" sx={{ margin: 0 }}>Content</Typography>
+                                <SectionHeader title="Content" variant='h4' actionButtons={getContentTypeOptionSelect()} />
                                 <ContentWrapper>
-                                    <PullUpButton options={MediaTypes} selectedOptions={responseMediaTypes} onOptionChange={handleOptionChange}>
-                                        <Button appearance="primary">
-                                            Add Media Type
-                                            <Codicon sx={{ marginLeft: 5, marginTop: 1 }} name="chevron-down" />
-                                        </Button>
-                                    </PullUpButton>
                                     <Tabs views={respMediaTypeTabViewItems} currentViewId={selectedMediaType} onViewChange={setSelectedMediaType}>
                                         <div id={selectedMediaType}>
                                             <ResponseTypeWrapper>

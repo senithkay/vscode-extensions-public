@@ -16,12 +16,13 @@ const ActionButtonsWrapper = styled.div`
 interface SectionHeaderProps {
     title: string;
     actionButtons?: ReactNode;
+    variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "subtitle1" | "subtitle2";
 }
 
-const SectionHeader: React.FC<SectionHeaderProps> = ({ title, actionButtons }) => {
+const SectionHeader: React.FC<SectionHeaderProps> = ({ title, actionButtons, variant = 'h3' }) => {
     return (
         <HeaderWrapper>
-            <Typography sx={{ margin: 0 }} variant="h3">{title}</Typography>
+            <Typography sx={{ margin: 0 }} variant={variant}>{title}</Typography>
             {actionButtons && (
                 <ActionButtonsWrapper>
                     {actionButtons}
