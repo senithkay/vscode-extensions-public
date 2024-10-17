@@ -31,7 +31,6 @@ export const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding: 0 15px;
 `;
 
 interface OverviewProps {

@@ -182,84 +182,87 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                     </>
                 )}
 
-                <Typography sx={{ margin: 0 }} variant='h3'> Request </Typography>
-                <ContentWrapper>
-                    {pathParamaters?.length > 0 && (
-                        <>
-                            <Typography sx={{ margin: 0 }} variant='h4'> Path Parameters </Typography>
-                            <ContentTypeWrapper>
-                                {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
-                                    <ParamContainer>
-                                        <ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                        </ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                    </ParamContainer>
-                                ))}
-                            </ContentTypeWrapper>
-                        </>
-                    )}
-                    {queryParamaters?.length > 0 && (
-                        <>
-                            <Typography sx={{ margin: 0 }} variant='h4'> Query Parameters </Typography>
-                            <ContentWrapper>
-                                {queryParamaters.length > 0 && queryParamaters.map((parameter) => (
-                                    <ParamContainer>
-                                        <ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                        </ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                    </ParamContainer>
-                                ))}
-                            </ContentWrapper>
-                        </>
-                    )}
-                    {headerParamaters?.length > 0 && (
-                        <>
-                            <Typography sx={{ margin: 0 }} variant='h4'> Header Parameters </Typography>
-                            <ContentWrapper>
-                                {headerParamaters.length > 0 && headerParamaters.map((parameter) => (
-                                    <ParamContainer>
-                                        <ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                        </ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                    </ParamContainer>
-                                ))}
-                            </ContentWrapper>
-                        </>
-                    )}
-                    {requestMediaTypes && (
-                        <>
-                            <Typography sx={{ margin: 0 }} variant='h4'> Request Body </Typography>
-                            <ContentWrapper>
-                                {requestMediaTypesViewItems && (
-                                    <Tabs views={requestMediaTypesViewItems} currentViewId={selectedRequestMediaType} onViewChange={(viewId) => setSelectedRequestMediaType(viewId)}>
-                                        <div id={selectedRequestMediaType}>
-                                            <Typography
-                                                sx={{ margin: 0, fontWeight: "lighter" }}
-                                                variant='body2'> {
-                                                    requestBody?.schema?.type === "array" ?
-                                                        (requestBody?.schema?.items?.type === "object" ?
-                                                            requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                                            requestBody?.schema?.items?.type
-                                                        ) : (requestBody?.schema?.type ?
-                                                            requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                                }
-                                            </Typography>
-                                        </div>
-                                    </Tabs>
-                                )}
-                            </ContentWrapper>
-                        </>
-                    )}
-                </ContentWrapper>
+                {(pathParamaters?.length > 0 || queryParamaters?.length > 0 || headerParamaters?.length > 0  || !!requestMediaTypes) && <>
+                    <Typography sx={{ margin: 0 }} variant='h2'> Request </Typography>
+                    <ContentWrapper>
+                        {pathParamaters?.length > 0 && (
+                            <>
+                                <Typography sx={{ margin: 0 }} variant='h4'> Path Parameters </Typography>
+                                <ContentTypeWrapper>
+                                    {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
+                                        <ParamContainer>
+                                            <ParamWrapper>
+                                                <Typography sx={{ margin: 0 }} variant='body2'> {parameter.name} </Typography>
+                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
+                                            </ParamWrapper>
+                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
+                                        </ParamContainer>
+                                    ))}
+                                </ContentTypeWrapper>
+                            </>
+                        )}
+                        {queryParamaters?.length > 0 && (
+                            <>
+                                <Typography sx={{ margin: 0 }} variant='h4'> Query Parameters </Typography>
+                                <ContentWrapper>
+                                    {queryParamaters.length > 0 && queryParamaters.map((parameter) => (
+                                        <ParamContainer>
+                                            <ParamWrapper>
+                                                <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
+                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
+                                            </ParamWrapper>
+                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
+                                        </ParamContainer>
+                                    ))}
+                                </ContentWrapper>
+                            </>
+                        )}
+                        {headerParamaters?.length > 0 && (
+                            <>
+                                <Typography sx={{ margin: 0 }} variant='h4'> Header Parameters </Typography>
+                                <ContentWrapper>
+                                    {headerParamaters.length > 0 && headerParamaters.map((parameter) => (
+                                        <ParamContainer>
+                                            <ParamWrapper>
+                                                <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
+                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
+                                            </ParamWrapper>
+                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
+                                        </ParamContainer>
+                                    ))}
+                                </ContentWrapper>
+                            </>
+                        )}
+                        {requestMediaTypes && (
+                            <>
+                                <Typography sx={{ margin: 0 }} variant='h4'> Request Body </Typography>
+                                <ContentWrapper>
+                                    {requestMediaTypesViewItems && (
+                                        <Tabs views={requestMediaTypesViewItems} currentViewId={selectedRequestMediaType} onViewChange={(viewId) => setSelectedRequestMediaType(viewId)}>
+                                            <div id={selectedRequestMediaType}>
+                                                <Typography
+                                                    sx={{ margin: 0, fontWeight: "lighter" }}
+                                                    variant='body2'> {
+                                                        requestBody?.schema?.type === "array" ?
+                                                            (requestBody?.schema?.items?.type === "object" ?
+                                                                requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                                                requestBody?.schema?.items?.type
+                                                            ) : (requestBody?.schema?.type ?
+                                                                requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                                    }
+                                                </Typography>
+                                            </div>
+                                        </Tabs>
+                                    )}
+                                </ContentWrapper>
+                            </>
+                        )}
+                    </ContentWrapper>
+                </>}
+                
 
                 <>
-                    <Typography sx={{ margin: 0 }} variant='h3'> Responses </Typography>
+                    <Typography sx={{ margin: 0 }} variant='h2'> Responses </Typography>
                     <ContentWrapper>
                         {statusTabViewItems?.length > 0 && (
                             <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange} childrenSx={{ gap: 15 }}>
