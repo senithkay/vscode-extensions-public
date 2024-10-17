@@ -6,9 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FormGroup, LinkButton, TextField, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { FormGroup, LinkButton, TextField, Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
+import SectionHeader from '../Resource/SectionHeader';
 
 export const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -26,17 +27,16 @@ export const ButtonWrapper = styled.div`
 interface OverviewProps {
     params: Param[];
     type: string;
-    title?: string;
+    title: string;
     addButtonText?: string;
-    hideTitle?: boolean;
     disableCollapse?: boolean;
     onParamsChange: (params: Param[]) => void;
 }
 
 export function ParamEditor(props: OverviewProps) {
-    const { params, type, title, hideTitle = false, addButtonText, disableCollapse, onParamsChange } = props;
+    const { params, type, title, addButtonText, disableCollapse, onParamsChange } = props;
 
-    const updateParentComponent = ( row: number, param: string, value: string) => {
+    const updateParentComponent = (row: number, param: string, value: string) => {
         // Copy params array
         const paramsCopy: Param[] = [...params];
         paramsCopy[row] = {
@@ -85,73 +85,49 @@ export function ParamEditor(props: OverviewProps) {
         onParamsChange(paramsCopy);
     }
 
+    const getAddButton = () => (
+        <Button appearance="icon" onClick={addNewParam}>
+            <Codicon sx={{ marginRight: 5 }} name="add" />
+            Add
+        </Button>
+    );
+
     return (
         <>
-            {hideTitle ? (
-                <>
-                    <LinkButton onClick={addNewParam}> {title ? title : `Add ${type} Parameter` } </LinkButton>
-                    {params?.map((param, index) => (
-                        <HorizontalFieldWrapper key={index}>
-                            <TextField
-                                placeholder="Name"
-                                name={`params[${index}].name`}
-                                value={param.name || ""}
-                                sx={{ width: "33%" }}
-                                onChange={(e) => updateParentComponent(index, "name", e.target.value)}
-                            />
-                            <TextField
-                                placeholder="Type"
-                                value={param.type || ""}
-                                sx={{ width: "33%" }}
-                                onChange={(e) => updateParentComponent(index, "type", e.target.value)}
-                            />
-                            <TextField
-                                placeholder="Default Value"
-                                value={param.defaultValue || ""}
-                                sx={{ width: "33%" }}
-                                onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
-                            />
-                            <ButtonWrapper>
-                                <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
-                                <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
-                                <Codicon name="trash" onClick={() => removeParam(index)} />
-                            </ButtonWrapper>
-                        </HorizontalFieldWrapper>
-                    ))}
-                </>
+            <SectionHeader title={title} actionButtons={getAddButton()} />
+            {params && params.length > 0 ? (
+                params.map((param, index) => (
+                    <HorizontalFieldWrapper key={index}>
+                        <TextField
+                            placeholder="Name"
+                            name={`params[${index}].name`}
+                            value={param.name || ""}
+                            sx={{ width: "33%" }}
+                            onChange={(e) => updateParentComponent(index, "name", e.target.value)}
+                        />
+                        <TextField
+                            placeholder="Type"
+                            value={param.type || ""}
+                            sx={{ width: "33%" }}
+                            onChange={(e) => updateParentComponent(index, "type", e.target.value)}
+                        />
+                        <TextField
+                            placeholder="Default Value"
+                            value={param.defaultValue || ""}
+                            sx={{ width: "33%" }}
+                            onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
+                        />
+                        <ButtonWrapper>
+                            <Codicon iconSx={{ background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
+                            <Codicon iconSx={{ background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none" }} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
+                            <Codicon name="trash" onClick={() => removeParam(index)} />
+                        </ButtonWrapper>
+                    </HorizontalFieldWrapper>
+                ))
             ) : (
-                <FormGroup title={title ? title : `${type} Parameters`} isCollapsed={false} disableCollapse={disableCollapse}>
-                    <LinkButton onClick={addNewParam}> {addButtonText ? addButtonText : `Add ${type} Parameter`} </LinkButton>
-                    {params?.map((param, index) => (
-                        <HorizontalFieldWrapper key={index}>
-                            <TextField
-                                placeholder="Name"
-                                name={`params[${index}].name`}
-                                value={param.name || ""}
-                                sx={{ width: "33%" }}
-                                onChange={(e) => updateParentComponent(index, "name", e.target.value)}
-                            />
-                            <TextField
-                                placeholder="Type"
-                                value={param.type || ""}
-                                sx={{ width: "33%" }}
-                                onChange={(e) => updateParentComponent(index, "type", e.target.value)}
-                            />
-                            <TextField
-                                placeholder="Default Value"
-                                value={param.defaultValue || ""}
-                                sx={{ width: "33%" }}
-                                onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
-                            />
-                            <ButtonWrapper>
-                                <Codicon iconSx={{background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none"}} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
-                                <Codicon iconSx={{background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none"}} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
-                                <Codicon name="trash" onClick={() => removeParam(index)} />
-                            </ButtonWrapper>
-                        </HorizontalFieldWrapper>
-                    ))}
-                </FormGroup>
+                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No parameters.</Typography>
             )}
         </>
+
     )
 }

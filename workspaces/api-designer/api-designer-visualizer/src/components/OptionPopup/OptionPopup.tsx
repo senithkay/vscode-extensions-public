@@ -33,9 +33,9 @@ export function OptionPopup(props: OptionPopupProps) {
         <>
             <ButtonWrapper>
                 <PullUpButton closeOnSelect={false} options={options} selectedOptions={selectedOptions} onOptionChange={onOptionChange}>
-                    <Button appearance="primary">
-                        More Options
-                        <Codicon sx={{marginLeft: 5, marginTop: 1}} name="chevron-down" />
+                    <Button appearance="icon">
+                        <Codicon sx={{ marginRight: 5 }} name="add" />
+                        Add
                     </Button>
                 </PullUpButton>
             </ButtonWrapper>

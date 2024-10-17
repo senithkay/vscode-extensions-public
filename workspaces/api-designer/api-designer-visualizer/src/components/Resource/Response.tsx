@@ -94,7 +94,7 @@ export function Response(props: ReadOnlyResourceProps) {
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' &&
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties &&
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
-    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType && 
+    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType &&
         selectedContentFromResponseMediaType?.content[selectedMediaType] && selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema;
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
@@ -315,17 +315,16 @@ export function Response(props: ReadOnlyResourceProps) {
                 {statusTabViewItems?.length > 0 && (
                     <Tabs views={statusTabViewItems} currentViewId={selectedResponseType} onViewChange={setSelectedResponseType}>
                         {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
-                            <div id={status} style={{display: "flex", flexDirection: "column", gap: 15}}>
+                            <div id={status} style={{ display: "flex", flexDirection: "column", gap: 15 }}>
                                 <CodeTextArea
                                     key="responseBody-description-${path}-${method}-${status}"
                                     value={resourceOperation?.responses[status]?.description}
                                     onChange={(evt) => handleDescriptionChange(evt.target.value)}
-                                    resize="vertical" 
-                                    growRange={{ start: 2, offset: 10 }} 
+                                    resize="vertical"
+                                    growRange={{ start: 2, offset: 10 }}
                                 />
-                                <Typography variant="h3" sx={{ margin: 0 }}>Headers</Typography>
                                 <ParamEditor
-                                    hideTitle
+                                    title="Response Headers"
                                     params={headerParams}
                                     addButtonText='Add Header'
                                     type="Header" disableCollapse
