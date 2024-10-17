@@ -102,8 +102,6 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
 
     const { targetLineRange, fileName } = useFormContext();
 
-    const [subPanelView, setSubPanelView] = useState<SubPanelView>(SubPanelView.UNDEFINED);
-
     const exprRef = useRef<ExpressionBarRef>(null);
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
@@ -142,11 +140,9 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     };
 
     const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
-        const newView = subPanelView === SubPanelView.UNDEFINED ? view : SubPanelView.UNDEFINED;
-        setSubPanelView(newView);
         openSubPanel({
-            view: newView,
-            props: newView === SubPanelView.UNDEFINED ? undefined : subPanelInfo
+            view: view,
+            props: view === SubPanelView.UNDEFINED ? undefined : subPanelInfo
         });
     };
 
