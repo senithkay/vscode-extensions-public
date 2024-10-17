@@ -21,20 +21,13 @@ const ButtonWrapper = styled.div`
 interface OptionPopupProps {
     options: string[];
     selectedOptions: string[];
-    hideDelete?: boolean;
     onOptionChange: (options: string[]) => void;
-    onDeleteResource?: () => void;
     onSwiychToReadOnly?: () => void;
 }
 
 export function OptionPopup(props: OptionPopupProps) {
-    const { options, selectedOptions, onOptionChange, hideDelete } = props;
+    const { options, selectedOptions, onOptionChange, onSwiychToReadOnly } = props;
 
-    const handleOnDelete = () => {
-        if (props.onDeleteResource) {
-            props.onDeleteResource();
-        }
-    };
 
     return (
         <>
@@ -45,11 +38,6 @@ export function OptionPopup(props: OptionPopupProps) {
                         <Codicon sx={{marginLeft: 5, marginTop: 1}} name="chevron-down" />
                     </Button>
                 </PullUpButton>
-                {!hideDelete && 
-                    <Button sx={{ marginTop: 2 }} appearance="icon" onClick={handleOnDelete} tooltip='Delete Operation'>
-                        <Codicon iconSx={{ color: "var(--vscode-inputValidation-errorBorder)" }} name="trash"/>
-                    </Button>
-                }
             </ButtonWrapper>
         </>
     );

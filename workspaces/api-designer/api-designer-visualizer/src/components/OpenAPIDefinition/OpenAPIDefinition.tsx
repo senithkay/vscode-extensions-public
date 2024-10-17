@@ -21,6 +21,8 @@ import { Service } from "@wso2-enterprise/service-designer";
 import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
 import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
 import { Tabs } from "../Tabs/Tabs";
+import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
+import { APIResources } from "../../constants";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -76,6 +78,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
     const [currentView, setCurrentView] = useState<Views>(Views.READ_ONLY);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
+    const { rpcClient } = useVisualizerContext();
 
     const {
         reset,
@@ -174,22 +177,44 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         if (openAPIDefinition.paths === undefined) {
             openAPIDefinition.paths = {};
         }
-        // If Genetrate a new path with "path" prefix and 1,2,3 ... suffix if the path already exists
-        const newPath = Object.keys(openAPIDefinition.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPIDefinition.paths).length + 1}` : "/path";
-        const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
-            paths: {
-                ...openAPIDefinition.paths,
-                [newPath]: {
-                    get: {
-                        parameters: []
-                    }
+        const newPathVal = Object.keys(openAPIDefinition.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPIDefinition.paths).length + 1}` : "/path";
+        rpcClient.showInputBox({
+            title: "Add New Path",
+            placeholder: "/path",
+            value: newPathVal,
+        }).then(newPath=>{
+            if(newPath){
+                if(Object.keys(openAPIDefinition.paths).includes(newPath)){
+                    rpcClient.showErrorNotification(`Path ${newPath} already exists in the OpenAPI schema`)
+                    return
                 }
+                rpcClient.selectQuickPickItems({title:`Select methods of path ${newPath}`,items: APIResources.map(item=>({
+                    label: item,
+                    picked: item === "get"
+                }))}).then(methodSelection=>{
+                    if(!methodSelection || methodSelection.length<1){
+                        rpcClient.showErrorNotification("Need to select at least one method for the path")
+                    }else{
+                        const pathObj: PathItem = {};
+                        methodSelection.forEach(method=>{
+                            pathObj[method.label]={parameters:[]}
+                        })
+                        const updatedOpenAPIDefinition: OpenAPI = {
+                            ...openAPIDefinition,
+                            paths: {
+                                ...openAPIDefinition.paths,
+                                [newPath]: pathObj
+                            }
+                        };
+                        setOpenAPIDefinition(updatedOpenAPIDefinition);
+                        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+                        if(methodSelection.length === 1){
+                            setSelectedPathID(getResourceID(newPath, methodSelection[0]?.label));
+                        }
+                    }
+                })
             }
-        };
-        setSelectedPathID(getResourceID(newPath, "get"));
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        })
     };
 
     const handleAddResources = (path: string, methods: string[] = []) => {
@@ -224,17 +249,22 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const onDeleteResource = (p: string, method: string) => {
-        // If p with path and method exists, delete the perticular method
-        if (openAPIDefinition.paths[p][method]) {
-            delete openAPIDefinition.paths[p][method];
-        }
-        // If no more methods are available for the path, delete the path
-        if (Object.keys(openAPIDefinition.paths[p]).length === 0) {
-            delete openAPIDefinition.paths[p];
-        }
-        setSelectedPathID(undefined);
-        setOpenAPIDefinition({ ...openAPIDefinition });
-        onOpenApiDefinitionChange(openAPIDefinition);
+        const methodCount = Object.keys(openAPIDefinition.paths[p]).length;
+        rpcClient.showConfirmMessage({buttonText:"Delete", message:`Are you sure you want to delete this method '${method}' ${methodCount === 1 ? `and the path '${p}'?`: "?" }`}).then(res=>{
+            if(res){
+                // If p with path and method exists, delete the perticular method
+                if (openAPIDefinition.paths[p][method]) {
+                    delete openAPIDefinition.paths[p][method];
+                }
+                // If no more methods are available for the path, delete the path
+                if (Object.keys(openAPIDefinition.paths[p]).length === 0) {
+                    delete openAPIDefinition.paths[p];
+                }
+                setSelectedPathID(undefined);
+                setOpenAPIDefinition({ ...openAPIDefinition });
+                onOpenApiDefinitionChange(openAPIDefinition);
+            }
+        })
     };
 
     const onDeletePath = (p: string) => {
@@ -318,6 +348,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             onAddResources={handleAddResources}
                             onDeletePath={onDeletePath}
                             onPathRename={handleRenamePath}
+                            onDeleteMethod={onDeleteResource}
                         />
                     }
                 </NavigationPanelContainer>
@@ -353,7 +384,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                                 path={selectedPath}
                                 onPathChange={handlePathChange}
                                 onOperationChange={handleOperationChange}
-                                onDelete={onDeleteResource}
                             />
                         )}
                     </div>
