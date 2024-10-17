@@ -9,7 +9,8 @@
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor,
+    ConfigurationTarget
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -46,6 +47,11 @@ import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
 import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import os, { platform } from "os";
+import axios from "axios";
+import AdmZip from 'adm-zip';
+import fs from 'fs';
+import path from 'path';
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -129,12 +135,26 @@ export class BallerinaExtension {
     private perfForecastContext: PerformanceForecastContext;
     private ballerinaConfigPath: string;
     private isOpenedOnce: boolean;
+    private ballerinaUserHome: string;
+    private ballerinaUserHomeName; string;
+    private ballerinaLatestVersion: string;
+    private ballerinaLatestReleaseUrl: string;
+    private ballerinaQualaVersion: string;
+    private ballerinaQualaReleaseUrl: string;
+    private ballerinaHomeCustomDirName: string;
 
     constructor() {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
         this.isPersist = false;
+        this.ballerinaUserHomeName = '.ballerina';
+        this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
+        this.ballerinaLatestVersion = "2201.10.1";
+        this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
+        this.ballerinaQualaVersion = "2201.10.2";
+        this.ballerinaQualaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/tags/v" + this.ballerinaQualaVersion;
+        this.ballerinaHomeCustomDirName = "ballerina-home";
         this.showStatusBarItem();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -276,6 +296,215 @@ export class BallerinaExtension {
             }
             return Promise.reject(msg);
         }
+    }
+
+    async installBallerina() {
+        try {
+            console.log('Downloading and setting up Ballerina');
+
+            // Get the latest release installer url
+            const installerUrl = this.getInstallerUrl();
+            const parts = installerUrl.split("/");
+            const installerName = parts[parts.length - 1];
+
+            // Create ballerina user home directory if it doesn't exist
+            if (!fs.existsSync(this.getBallerinaUserHome())) {
+                fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
+            }
+
+            // Define the path to save the downloaded zip file
+            const installerFilePath = path.join(this.getBallerinaUserHome(), installerName);
+            
+            // Download the installer
+            const response = await axios({
+                url: installerUrl,
+                method: 'GET',
+                responseType: 'arraybuffer',
+            });
+    
+            // Save the downloaded artifact
+            await fs.writeFileSync(installerFilePath, response.data);
+
+            // Install Ballerina
+            var command = '';
+            const platform = os.platform();
+            if (platform === 'win32') {
+                command = `msiexec /i ${installerFilePath}`;
+            } else if (platform === 'linux') {
+                command = `sudo dpkg -i ${installerFilePath}`;
+            } else if (platform === 'darwin') {
+                command = `sudo installer -pkg ${installerFilePath} -target /Library`;
+            }
+            const terminal = window.createTerminal('Install Ballerina');
+            terminal.sendText(command);
+            terminal.show();
+
+            // Cleanup: Remove the downloaded zip file
+            fs.rmSync(installerFilePath);
+
+            console.log('Ballerina home has been set successfully.');
+            window.showInformationMessage("Ballerina has been set up successfully.");
+        } catch (error) {
+            console.error('Error downloading or installing Ballerina:', error);
+            window.showErrorMessage('Error downloading or installing Ballerina:', error);
+        }
+    }
+
+    async setupBallerinaQualaVersion() {
+        try {
+            window.showInformationMessage(`Setting up Ballerina Quala version ${this.ballerinaQualaVersion}`);
+
+            const qualaReleaseResponse = await axios.get(this.ballerinaQualaReleaseUrl);
+            const qualaRelease = qualaReleaseResponse.data;
+            console.log(`Release found: ${qualaRelease.name}`);
+
+
+            const platform = os.platform();
+            const asset = qualaRelease.assets.find((asset: any) => {
+                        if (platform === 'win32') {
+                            return asset.name.endsWith('windows.zip');
+                        } else if (platform === 'linux') {
+                            return asset.name.endsWith('linux.zip');
+                        } else if (platform === 'darwin') {
+                            if (os.arch() === 'arm64') {
+                                return asset.name.endsWith('macos-arm.zip');
+                            } else {
+                                return asset.name.endsWith('macos.zip');
+                            }
+                        }
+                    });
+
+            if (!asset) {
+                throw new Error('No artifact found in the release ' + this.ballerinaQualaVersion);
+            }
+
+            const artifactUrl = asset.browser_download_url;
+            console.log(`Downloading artifact from ${artifactUrl}`);
+
+            // Download the artifact
+            const response = await axios({
+                url: artifactUrl,
+                method: 'GET',
+                responseType: 'arraybuffer',
+            });
+
+            console.log(`Got the response`);
+
+            // Create destination folder if it doesn't exist
+            if (!fs.existsSync(this.getBallerinaUserHome())) {
+                fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
+            }
+
+            // Define the path to save the downloaded zip file
+            const zipFilePath = path.join(this.getBallerinaUserHome(), asset.name);
+
+            // Save the downloaded artifact
+            await fs.writeFileSync(zipFilePath, response.data);
+
+            console.log(`Downloaded artifact to ${zipFilePath}`);
+
+            // Unzip the artifact
+            const zip = new AdmZip(zipFilePath);
+            zip.extractAllTo(this.getBallerinaUserHome(), true);
+
+            console.log(`Unzipped artifact to ${this.getBallerinaUserHome()}`);
+
+            // Cleanup: Remove the downloaded zip file
+            fs.rmSync(zipFilePath);
+
+            const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
+            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
+
+            // Rename the root folder to the new name
+            fs.renameSync(tempRootPath, destinationPath);
+
+            console.log('Cleanup complete.');
+
+            let exeExtension = "";
+            if (isWindows()) {
+                exeExtension = ".bat";
+            }
+
+            // Set the Ballerina Home and Command
+            this.ballerinaHome = destinationPath;
+            this.ballerinaCmd = join(this.ballerinaHome, "bin") + sep + "bal" + exeExtension;
+
+            // Update the configuration with the new Ballerina Home
+            workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
+
+            this.setExecutablePermissions();
+
+            console.log('Ballerina home has been set successfully for Quala version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
+        } catch (error) {
+            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+        }
+    }
+
+    private async setExecutablePermissions() {
+        try {
+            await fs.promises.chmod(this.getBallerinaCmd(), 0o755);
+
+            const javaExecFile = this.findFileInDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 'java');
+            if (javaExecFile) {
+                console.log('Found java executable:', javaExecFile);
+                await fs.promises.chmod(javaExecFile, 0o755);
+            }
+
+            let exeExtension = "";
+            if (isWindows()) {
+                exeExtension = ".bat";
+            }
+            await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaQualaVersion, 'bin', 'bal' + exeExtension), 0o755);
+
+            console.log('Command files are now executable.');
+        } catch (error) {
+            console.error('Failed to set executable permissions:', error);
+        }
+    }
+
+    private findFileInDirectory(directory: string, fileName: string): string | null {
+        const files = fs.readdirSync(directory);
+
+        for (const file of files) {
+            const fullPath = path.join(directory, file);
+
+            if (fs.statSync(fullPath).isDirectory()) {
+                const found = this.findFileInDirectory(fullPath, fileName);
+                if (found) {
+                    return found;
+                }
+            } else if (file === fileName) {
+                return fullPath;
+            }
+        }
+
+        return null;
+    }
+
+    private getInstallerUrl(): string {
+        const platform = os.platform();
+        if (platform === 'win32') {
+            return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-windows-x64.msi";
+        } else if (platform === 'linux') {
+            return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-linux-x64.deb";
+        } else if (platform === 'darwin') {
+            if (os.arch() === 'arm') {
+                return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-macos-arm-x64.pkg";
+            } else {
+                return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-macos-x64.pkg";
+            }
+        }
+        return null;
+    }
+
+    private getUserHomeDirectory(): string {
+        return os.homedir();
+    }
+
+    getBallerinaUserHome(): string {
+        return this.ballerinaUserHome;
     }
 
     showStatusBarItem() {
