@@ -14,7 +14,7 @@ import { convertOpenAPIStringToObject, convertOpenAPIStringToOpenAPI, convertOpe
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 
 interface ServiceDesignerProps {
     fileUri: string;

@@ -67,25 +67,26 @@ export function Overview(props: OverviewProps) {
     // }
 
     const handleOptionChange = (options: string[]) => {
+        const clonedApiDefinition = { ...openAPIDefinition };
         if (options.includes("Summary") && !openAPIDefinition.info?.summary) {
-            openAPIDefinition.info.summary = "";
+            clonedApiDefinition.info.summary = "";
         } else if (!options.includes("Summary") && (openAPIDefinition.info?.summary || openAPIDefinition.info?.summary === "")) {
-            delete openAPIDefinition.info.summary;
+            delete clonedApiDefinition.info.summary;
         }
         if (options.includes("License") && !openAPIDefinition.info?.license) {
-            openAPIDefinition.info.license = { name: "", url: "" };
+            clonedApiDefinition.info.license = { name: "", url: "" };
         } else if (!options.includes("License") && openAPIDefinition.info?.license) {
-            delete openAPIDefinition.info.license;
+            delete clonedApiDefinition.info.license;
         }
         if (options.includes("Contact") && !openAPIDefinition.info?.contact) {
-            openAPIDefinition.info.contact = { name: "", url: "", email: "" };
+            clonedApiDefinition.info.contact = { name: "", url: "", email: "" };
         } else if (!options.includes("Contact") && openAPIDefinition.info?.contact) {
-            delete openAPIDefinition.info.contact;
+            delete clonedApiDefinition.info.contact;
         }
         if (options.includes("Description") && !openAPIDefinition.info?.description) {
-            openAPIDefinition.info.description = "";
+            clonedApiDefinition.info.description = "";
         } else if (!options.includes("Description") && (openAPIDefinition.info?.description || openAPIDefinition.info?.description === "")) {
-            delete openAPIDefinition.info.description;
+            delete clonedApiDefinition.info.description;
         }
         // TODO: Implement the same for other fields
         // if (options.includes("Servers") && !openAPIDefinition.servers) {
@@ -98,7 +99,7 @@ export function Overview(props: OverviewProps) {
         // } else if (!options.includes("Security") && openAPIDefinition.security) {
         //     delete openAPIDefinition.security;
         // }
-        props.onOpenApiDefinitionChange(openAPIDefinition);
+        props.onOpenApiDefinitionChange(clonedApiDefinition);
     };
 
     const handleTitleChange = (title: string) => {
