@@ -156,7 +156,7 @@ export function Overview(props: OverviewProps) {
     return (
         <>
             <PanelBody>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} hideDelete />
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} />
                 <HorizontalFieldWrapper>
                     <TextField
                         label="Title"
