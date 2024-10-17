@@ -311,6 +311,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     {openAPIDefinition &&
                         <PathsNavigator
                             paths={openAPIDefinition.paths}
+                            components={openAPIDefinition.components}
                             selectedPathID={selectedPathID}
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}

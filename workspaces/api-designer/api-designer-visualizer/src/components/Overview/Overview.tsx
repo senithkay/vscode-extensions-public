@@ -6,13 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Dropdown, FormGroup, SidePanelTitleContainer, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { useState } from 'react';
-import { ReadOnlyOverview } from './ReadOnlyOverview';
-import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
+import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -24,14 +23,15 @@ export const PanelBody = styled.div`
     height: calc(100% - 87px);
     overflow-y: auto;
     padding: 16px;
-    gap: 20px;
+    gap: 15px;
     display: flex;
     flex-direction: column;
 `;
-const DescriptionWrapper = styled.div`
+export const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 15px;
+    padding: 0 15px;
 `;
 
 interface OverviewProps {
@@ -44,7 +44,7 @@ const moreOptions = ["Summary", "Description", "Contact", "License"];
 // Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition } = props;
-    const [isReadOnly, setIsReadOnly] = useState(true);
+    const [ description, setDescription ] = useState<string>(openAPIDefinition?.info?.description || "");
     let selectedOptions: string[] = [];
     if (openAPIDefinition?.info?.summary || openAPIDefinition?.info?.summary === "") {
         selectedOptions.push("Summary");
@@ -109,9 +109,9 @@ export function Overview(props: OverviewProps) {
         openAPIDefinition.info.summary = summary;
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
-    // Make handleDescriptionChange debounced
     const handleDescriptionChange = (description: string) => {
         openAPIDefinition.info.description = description;
+        setDescription(description);
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
     const handleContactNameChange = (contactName: string) => {
@@ -152,14 +152,11 @@ export function Overview(props: OverviewProps) {
         openAPIDefinition.info.version = version;
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
-    const hadleSwitchToReadOnly = () => {
-        setIsReadOnly(true);
-    };
 
     return (
         <>
             <PanelBody>
-                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onSwiychToReadOnly={hadleSwitchToReadOnly} onOptionChange={handleOptionChange} hideDelete />
+                <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} hideDelete />
                 <HorizontalFieldWrapper>
                     <TextField
                         label="Title"
@@ -187,45 +184,47 @@ export function Overview(props: OverviewProps) {
                     />
                 )}
                 {selectedOptions.includes("Description") && (
-                    <DescriptionWrapper>
-                        <label htmlFor="description">Description</label>
-                        <MarkDownEditor
-                            key={`Description-${openAPIDefinition?.info?.title}-${openAPIDefinition?.info?.version}`}
-                            value={openAPIDefinition?.info?.description}
-                            onChange={(markdown: string) => handleDescriptionChange(markdown)}
-                            sx={{ maxHeight: 200, minHeight: 100, overflowY: "auto", zIndex: 0 }}
-                        />
-                    </DescriptionWrapper>
+                    <CodeTextArea
+                        label='Decription'
+                        value={description}
+                        onChange={(evt) => handleDescriptionChange(evt.target.value)}
+                        resize="vertical"
+                        growRange={{ start: 5, offset: 10 }} 
+                    />
                 )}
                 {openAPIDefinition?.info?.contact && (
-                    <FormGroup title="Contact" isCollapsed={false}>
-                        <HorizontalFieldWrapper>
-                            <TextField
-                                placeholder="Name"
-                                id="contactName"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.contact.name}
-                                onTextChange={handleContactNameChange}
-                            />
-                            <TextField
-                                placeholder='URL'
-                                id="contactURL"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.contact.url}
-                                onTextChange={handleContactURLChange}
-                            />
-                            <TextField
-                                placeholder='Email'
-                                id="contactEmail"
-                                sx={{ width: "33%" }}
-                                value={openAPIDefinition?.info?.contact.email}
-                                onTextChange={handleContactEmailChange}
-                            />
-                        </HorizontalFieldWrapper>
-                    </FormGroup>
+                    <>
+                        <Typography sx={{ margin: 0 }} variant="h3">Contact</Typography>
+                        <ContentWrapper>
+                            <HorizontalFieldWrapper>
+                                <TextField
+                                    placeholder="Name"
+                                    id="contactName"
+                                    sx={{ width: "33%" }}
+                                    value={openAPIDefinition?.info?.contact.name}
+                                    onTextChange={handleContactNameChange}
+                                />
+                                <TextField
+                                    placeholder='URL'
+                                    id="contactURL"
+                                    sx={{ width: "33%" }}
+                                    value={openAPIDefinition?.info?.contact.url}
+                                    onTextChange={handleContactURLChange}
+                                />
+                                <TextField
+                                    placeholder='Email'
+                                    id="contactEmail"
+                                    sx={{ width: "33%" }}
+                                    value={openAPIDefinition?.info?.contact.email}
+                                    onTextChange={handleContactEmailChange}
+                                />
+                            </HorizontalFieldWrapper>
+                        </ContentWrapper>
+                    </>
                 )}
                 {openAPIDefinition?.info?.license && (
-                    <FormGroup title="License" isCollapsed={false}>
+                    <ContentWrapper>
+                        <Typography sx={{ margin: 0 }} variant="h3">License</Typography>
                         <HorizontalFieldWrapper>
                             <TextField
                                 placeholder="Name"
@@ -263,7 +262,7 @@ export function Overview(props: OverviewProps) {
                                 />
                             )}
                         </HorizontalFieldWrapper>
-                    </FormGroup>
+                    </ContentWrapper>
                 )}
             </PanelBody>
         </>

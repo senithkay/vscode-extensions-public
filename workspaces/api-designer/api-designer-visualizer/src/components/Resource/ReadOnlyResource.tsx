@@ -9,12 +9,12 @@
 import { FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation } from '../../Definitions/ServiceDefinitions';
-import { PanelBody } from '../Overview/Overview';
+import { ContentWrapper, PanelBody } from '../Overview/Overview';
 import { getColorByMethod } from '@wso2-enterprise/service-designer';
 import { resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ContentType, ContentTypeWrapper } from './Response';
+import { ContentTypeWrapper } from './Response';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 
 const TitleWrapper = styled.div`
@@ -145,30 +145,32 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
         setSelectedStatus(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
     }, [path, method]);
 
+    console.log(">>>", responseMediaTypesViewItems);
+
     return (
         <>
             <PanelBody>
                 <PathWrapper>
                     <MethodWrapper color={getColorByMethod(method)}>
                         <Typography
-                            variant="h2"
+                            variant="h3"
                             sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
                         >
                             {method.toUpperCase()}
                         </Typography>
                     </MethodWrapper>
-                    <Typography sx={{ margin: 0, marginTop: 4 }} variant="h2">{path}</Typography>
+                    <Typography sx={{ margin: 0, marginTop: 4 }} variant="h3">{path}</Typography>
                 </PathWrapper>
                 {resourceOperation.summary && (
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Summary </Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {resourceOperation.summary} </Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {resourceOperation.summary} </Typography>
                     </>
                 )}
                 {resourceOperation.description && (
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>
                             <MarkdownRenderer key="description" markdownContent={resourceOperation.description} />
                         </Typography>
                     </>
@@ -176,149 +178,149 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                 {resourceOperation.operationId && (
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Operation ID </Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {resourceOperation.operationId} </Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {resourceOperation.operationId} </Typography>
                     </>
                 )}
 
-                <FormGroup key="Request" title='Request' isCollapsed={pathParamaters?.length === 0 && queryParamaters?.length === 0 && headerParamaters?.length === 0}>
+                <Typography sx={{ margin: 0 }} variant='h3'> Request </Typography>
+                <ContentWrapper>
                     {pathParamaters?.length > 0 && (
-                        <FormGroup key="Path Parameters" title='Path Parameters' isCollapsed={pathParamaters.length === 0}>
-                            {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
-                                <ParamContainer>
-                                    <ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body1'> {parameter.name} </Typography>
-                                        <Typography sx={{ margin: `2px 0 0 0`, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                    </ParamWrapper>
-                                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {parameter.description} </Typography>
-                                </ParamContainer>
-                            ))}
-                        </FormGroup>
+                        <>
+                            <Typography sx={{ margin: 0 }} variant='h4'> Path Parameters </Typography>
+                            <ContentTypeWrapper>
+                                {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
+                                    <ParamContainer>
+                                        <ParamWrapper>
+                                            <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
+                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
+                                        </ParamWrapper>
+                                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
+                                    </ParamContainer>
+                                ))}
+                            </ContentTypeWrapper>
+                        </>
                     )}
                     {queryParamaters?.length > 0 && (
-                        <FormGroup key="Query Parameters" title='Query Parameters' isCollapsed={queryParamaters?.length === 0}>
-                            {queryParamaters.length > 0 && queryParamaters.map((parameter) => (
-                                <ParamContainer>
-                                    <ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body1'> {parameter.name} </Typography>
-                                        <Typography sx={{ margin: `2px 0 0 0`, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                    </ParamWrapper>
-                                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {parameter.description} </Typography>
-                                </ParamContainer>
-                            ))}
-                        </FormGroup>
+                        <>
+                            <Typography sx={{ margin: 0 }} variant='h4'> Query Parameters </Typography>
+                            <ContentWrapper>
+                                {queryParamaters.length > 0 && queryParamaters.map((parameter) => (
+                                    <ParamContainer>
+                                        <ParamWrapper>
+                                            <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
+                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
+                                        </ParamWrapper>
+                                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
+                                    </ParamContainer>
+                                ))}
+                            </ContentWrapper>
+                        </>
                     )}
                     {headerParamaters?.length > 0 && (
-                        <FormGroup key="Header Parameters" title='Header Parameters' isCollapsed={headerParamaters?.length === 0}>
-                            {headerParamaters.length > 0 && headerParamaters.map((parameter) => (
-                                <ParamContainer>
-                                    <ParamWrapper>
-                                        <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body1'> {parameter.name} </Typography>
-                                        <Typography sx={{ margin: `2px 0 0 0`, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                    </ParamWrapper>
-                                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {parameter.description} </Typography>
-                                </ParamContainer>
-                            ))}
-                        </FormGroup>
+                        <>
+                            <Typography sx={{ margin: 0 }} variant='h4'> Header Parameters </Typography>
+                            <ContentWrapper>
+                                {headerParamaters.length > 0 && headerParamaters.map((parameter) => (
+                                    <ParamContainer>
+                                        <ParamWrapper>
+                                            <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
+                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
+                                        </ParamWrapper>
+                                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
+                                    </ParamContainer>
+                                ))}
+                            </ContentWrapper>
+                        </>
                     )}
                     {requestMediaTypes && (
-                        <FormGroup key="Request Body" title='Body' disableCollapse>
-                            {/* <ContentTypeWrapper>
-                                {requestMediaTypes.map((type: string) => (
-                                    <ContentType
-                                        key={type}
-                                        color={'var(--vscode-symbolIcon-variableForeground)'}
-                                        hoverBackground={'var(--vscode-minimap-selectionHighlight)'}
-                                        selected={selectedRequestMediaType === type}
-                                        onClick={() => setSelectedRequestMediaType(type)}
-                                    >
-                                        {type}
-                                    </ContentType>
-                                ))}
-                            </ContentTypeWrapper> */}
-                            {requestMediaTypesViewItems && (
-                                <Tabs views={requestMediaTypesViewItems} currentViewId={selectedRequestMediaType} onViewChange={(viewId) => setSelectedRequestMediaType(viewId)}>
-                                    <div id={selectedRequestMediaType}>
-                                        <Typography
-                                            sx={{ margin: 0, fontWeight: "lighter" }}
-                                            variant='body2'> {
-                                                requestBody?.schema?.type === "array" ?
-                                                    (requestBody?.schema?.items?.type === "object" ?
-                                                        requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                                        requestBody?.schema?.items?.type
-                                                    ) : (requestBody?.schema?.type ?
-                                                        requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                            }
-                                        </Typography>
-                                    </div>
-                                </Tabs>
-                            )}
-                            {/* <Typography
-                                sx={{ margin: 0, fontWeight: "lighter" }}
-                                variant='body2'> {
-                                    requestBody?.schema?.type === "array" ?
-                                        (requestBody?.schema?.items?.type === "object" ?
-                                            requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                            requestBody?.schema?.items?.type
-                                        ) : (requestBody?.schema?.type ?
-                                            requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                }
-                            </Typography> */}
-                        </FormGroup>
+                        <>
+                            <Typography sx={{ margin: 0 }} variant='h4'> Request Body </Typography>
+                            <ContentWrapper>
+                                {requestMediaTypesViewItems && (
+                                    <Tabs views={requestMediaTypesViewItems} currentViewId={selectedRequestMediaType} onViewChange={(viewId) => setSelectedRequestMediaType(viewId)}>
+                                        <div id={selectedRequestMediaType}>
+                                            <Typography
+                                                sx={{ margin: 0, fontWeight: "lighter" }}
+                                                variant='body2'> {
+                                                    requestBody?.schema?.type === "array" ?
+                                                        (requestBody?.schema?.items?.type === "object" ?
+                                                            requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                                            requestBody?.schema?.items?.type
+                                                        ) : (requestBody?.schema?.type ?
+                                                            requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                                }
+                                            </Typography>
+                                        </div>
+                                    </Tabs>
+                                )}
+                            </ContentWrapper>
+                        </>
                     )}
-                </FormGroup>
+                </ContentWrapper>
 
-                <FormGroup key="Response" title='Response' isCollapsed={responseStatus.length === 0}>
-                    <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange}>
-                        {responseStatus.map((status: string) => (
-                            <div id={status}>
-                                <ResponseTabContainer>
-                                    {selectedResponse?.description && (
-                                        <Typography sx={{ margin: '10px 0 0 0', fontWeight: "lighter" }} variant='body2'> {selectedResponse.description} </Typography>
-                                    )}
-                                    {selectedResponseHeaders && Object.keys(selectedResponseHeaders).length > 0 && (
-                                        <FormGroup key="Headers" title='Headers' disableCollapse>
-                                            {Object.entries(selectedResponseHeaders).map(([header, schema]) => (
-                                                <ParamContainer>
-                                                    <ParamWrapper>
-                                                        <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body1'> {header} </Typography>
-                                                        <Typography
-                                                            sx={{ margin: `2px 0 0 0`, fontWeight: "lighter" }}
-                                                            variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`}
-                                                        </Typography>
-                                                    </ParamWrapper>
-                                                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
-                                                </ParamContainer>
-                                            ))}
-                                        </FormGroup>
-                                    )}
-                                    {responseMediaTypes && (
-                                        <FormGroup key="Response Body" title='Body' disableCollapse>
-                                            {requestMediaTypesViewItems && (
-                                                <Tabs views={responseMediaTypesViewItems} currentViewId={selectedResposeMediaType} onViewChange={(viewId) => setSelectedResposeMediaType(viewId)}>
-                                                    {responseMediaTypes?.map((type: string) => (
-                                                        <div id={type}>
-                                                            <Typography
-                                                                sx={{ margin: 0, fontWeight: "lighter" }}
-                                                                variant='body2'> {
-                                                                    responseBody?.schema?.type === "array" ?
-                                                                        (responseBody?.schema?.items?.type === "object" ?
-                                                                            responseBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                                                            responseBody?.schema?.items?.type
-                                                                        ) : (responseBody?.schema?.type ?
-                                                                            responseBody?.schema?.type : (responseBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                                                }
-                                                            </Typography>
-                                                        </div>
-                                                    ))}
-                                                </Tabs>
+                <>
+                    <Typography sx={{ margin: 0 }} variant='h3'> Responses </Typography>
+                    <ContentWrapper>
+                        {statusTabViewItems?.length > 0 && (
+                            <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange} childrenSx={{ gap: 15 }}>
+                                {responseStatus.map((status: string) => (
+                                    <div id={status}>
+                                        <ResponseTabContainer>
+                                            {selectedResponse?.description && (
+                                                <Typography sx={{ margin: '10px 0 0 0', fontWeight: "lighter" }} variant='body2'> {selectedResponse.description} </Typography>
                                             )}
-                                        </FormGroup>
-                                    )}
-                                </ResponseTabContainer>
-                            </div>
-                        ))}
-                    </Tabs>
-                </FormGroup>
+                                            {selectedResponseHeaders && Object.keys(selectedResponseHeaders).length > 0 && (
+                                                <>
+                                                    <Typography sx={{ margin: 0 }} variant='h4'> Headers </Typography>
+                                                    <ContentWrapper>
+                                                        {Object.entries(selectedResponseHeaders).map(([header, schema]) => (
+                                                            <ParamContainer>
+                                                                <ParamWrapper>
+                                                                    <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {header} </Typography>
+                                                                    <Typography
+                                                                        sx={{ margin: 0, fontWeight: "lighter" }}
+                                                                        variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`}
+                                                                    </Typography>
+                                                                </ParamWrapper>
+                                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
+                                                            </ParamContainer>
+                                                        ))}
+                                                    </ContentWrapper>
+                                                </>
+                                            )}
+                                            {responseMediaTypes && responseMediaTypesViewItems && (
+                                                <>
+                                                    <Typography sx={{ margin: 0 }} variant='h4'> Body </Typography>
+                                                    <ContentWrapper>
+                                                        {responseMediaTypesViewItems && (
+                                                            <Tabs views={responseMediaTypesViewItems} currentViewId={selectedResposeMediaType} onViewChange={(viewId) => setSelectedResposeMediaType(viewId)}>
+                                                                {responseMediaTypesViewItems?.map((type) => (
+                                                                    <div id={type.name}>
+                                                                        <Typography
+                                                                            sx={{ margin: 0, fontWeight: "lighter" }}
+                                                                            variant='body2'> {
+                                                                                responseBody?.schema?.type === "array" ?
+                                                                                    (responseBody?.schema?.items?.type === "object" ?
+                                                                                        responseBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
+                                                                                        responseBody?.schema?.items?.type
+                                                                                    ) : (responseBody?.schema?.type ?
+                                                                                        responseBody?.schema?.type : (responseBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
+                                                                            }
+                                                                        </Typography>
+                                                                    </div>
+                                                                ))}
+                                                            </Tabs>
+                                                        )}
+                                                    </ContentWrapper>
+                                                </>
+                                            )}
+                                        </ResponseTabContainer>
+                                    </div>
+                                ))}
+                            </Tabs>
+                        )}
+                    </ContentWrapper>
+                </>
 
             </PanelBody>
         </>

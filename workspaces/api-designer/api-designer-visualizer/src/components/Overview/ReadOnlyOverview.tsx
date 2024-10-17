@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, FormGroup, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 import { DataGrid } from '../DataGrid/DataGrid';
@@ -20,16 +20,14 @@ export const PanelBody = styled.div`
     display: flex;
     flex-direction: column;
 `;
-const ButtonWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    justify-content: flex-end;
-    flex-grow: 1;
-`;
 const DescriptionWrapper = styled.div`
     display: flex;
     flex-direction: column;
+`;
+const ContentWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 `;
 
 interface OverviewProps {
@@ -47,31 +45,32 @@ export function ReadOnlyOverview(props: OverviewProps) {
                 {openAPIDefinition?.info?.title && (
                     <>
                         <Typography sx={{ margin: 0 }} variant="h3">Title</Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.title}</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>{openAPIDefinition?.info?.title}</Typography>
                     </>
                 )}
                 {openAPIDefinition?.info?.version && (
                     <>
                         <Typography sx={{ margin: 0 }} variant="h3">Version</Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.version}</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>{openAPIDefinition?.info?.version}</Typography>
                     </>
                 )}
                 {openAPIDefinition?.info?.summary && (
                     <>
                         <Typography sx={{ margin: 0 }} variant="h3">Summary</Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>{openAPIDefinition?.info?.summary}</Typography>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>{openAPIDefinition?.info?.summary}</Typography>
                     </>
                 )}
                 {openAPIDefinition?.info?.description && (
                     <DescriptionWrapper>
                         <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
-                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'>
+                        <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>
                             <MarkdownRenderer key="description" markdownContent={openAPIDefinition?.info?.description} /> 
                         </Typography>
                     </DescriptionWrapper>
                 )}
                 {openAPIDefinition?.info?.contact && (
-                    <FormGroup title="Contact" isCollapsed={!openAPIDefinition?.info?.contact}>
+                    <ContentWrapper>
+                        <Typography sx={{ margin: 0 }} variant="h3">Contact</Typography>
                         <DataGrid
                             headers={["Property", "Value"]}
                             content={[
@@ -80,10 +79,11 @@ export function ReadOnlyOverview(props: OverviewProps) {
                                 ["Email", openAPIDefinition.info?.contact?.email],
                             ]}
                         />
-                    </FormGroup>
+                    </ContentWrapper>
                 )}
                 {openAPIDefinition?.info?.license && (
-                    <FormGroup title="License" isCollapsed={!openAPIDefinition?.info?.license}>
+                    <ContentWrapper>
+                        <Typography sx={{ margin: 0 }} variant="h3">License</Typography>
                         <DataGrid
                             headers={["Property", "Value"]}
                             content={[
@@ -98,7 +98,7 @@ export function ReadOnlyOverview(props: OverviewProps) {
                                 ],
                             ]}
                         /> 
-                    </FormGroup>
+                    </ContentWrapper>
                 )}        
             </PanelBody>
         </>
