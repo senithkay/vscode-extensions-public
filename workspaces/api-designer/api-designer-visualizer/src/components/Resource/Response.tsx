@@ -304,7 +304,7 @@ export function Response(props: ReadOnlyResourceProps) {
 
     return (
         <>
-            <Typography variant="h3" sx={{ margin: 0 }}>Responses</Typography>
+            <Typography variant="h2" sx={{ margin: 0 }}>Responses</Typography>
             <ContentWrapper>
                 <PullUpButton options={statusCodeList} selectedOptions={selectedStatusCode || []} onOptionChange={handleStatusCodeChange}>
                     <Button appearance="primary">
