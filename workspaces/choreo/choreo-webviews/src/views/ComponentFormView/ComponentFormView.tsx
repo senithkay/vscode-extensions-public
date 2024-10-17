@@ -112,10 +112,10 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	// // TODO: uri.parse expects path & file read/write expects fsPath. Need to updated and check on windows
 	// todo: check path on windows
 	// for fspath use path.join, for uri path use vscode.Uri.joinPath
-	// const { data: compFsPath = directoryFsPath } = useQuery({
-	// 	queryKey: ["comp-create-fs-path", { directoryFsPath, subPath }],
-	// 	queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]),
-	// });
+	const { data: compFsPath = directoryFsPath } = useQuery({
+		queryKey: ["comp-create-fs-path", { directoryFsPath, subPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]),
+	});
 
 	useQuery({
 		queryKey: ["service-dir-endpoints", { compPath, type }],
@@ -193,7 +193,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 
 	const { mutate: submitEndpoints, isLoading: isSubmittingEndpoints } = useMutation({
 		mutationFn: (endpoints: Endpoint[] = []) => {
-			return ChoreoWebViewAPI.getInstance().createLocalEndpointsConfig({ componentDir: compPath, endpoints });
+			return ChoreoWebViewAPI.getInstance().createLocalEndpointsConfig({ componentDir: compFsPath, endpoints });
 		},
 		onSuccess: () => setStepIndex(stepIndex + 1),
 	});
@@ -201,7 +201,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const { mutate: submitProxyConfig, isLoading: isSubmittingProxyConfig } = useMutation({
 		mutationFn: (data: ComponentFormGitProxyType) => {
 			return ChoreoWebViewAPI.getInstance().createLocalProxyConfig({
-				componentDir: compPath,
+				componentDir: compFsPath,
 				proxy: {
 					type: data.componentConfig?.type,
 					schemaFilePath: data.componentConfig?.schemaFilePath,
