@@ -113,8 +113,8 @@ export function Response(props: ReadOnlyResourceProps) {
     // selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema is type of string
     
     // Get selected Schema
-    const selectedSchema =  selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema as string;
-    const selectedExample = selectedContentFromResponseMediaType?.content[selectedMediaType]?.example;
+    // const selectedSchema =  selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema as string;
+    // const selectedExample = selectedContentFromResponseMediaType?.content[selectedMediaType]?.example;
 
     const handleOptionChange = (options: string[]) => {
         const colnedMediaTypes = [...responseContents];
