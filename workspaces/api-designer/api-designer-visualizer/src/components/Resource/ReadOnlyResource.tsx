@@ -182,7 +182,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                     </>
                 )}
 
-                {!!pathParamaters?.length || queryParamaters?.length > 0 || !!headerParamaters?.length  || !!requestMediaTypes?.length && <>
+                {(pathParamaters?.length > 0 || queryParamaters?.length > 0 || headerParamaters?.length > 0  || !!requestMediaTypes) && <>
                     <Typography sx={{ margin: 0 }} variant='h2'> Request </Typography>
                     <ContentWrapper>
                         {pathParamaters?.length > 0 && (
@@ -192,7 +192,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                     {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
                                         <ParamContainer>
                                             <ParamWrapper>
-                                                <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
+                                                <Typography sx={{ margin: 0 }} variant='body2'> {parameter.name} </Typography>
                                                 <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
                                             </ParamWrapper>
                                             <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
