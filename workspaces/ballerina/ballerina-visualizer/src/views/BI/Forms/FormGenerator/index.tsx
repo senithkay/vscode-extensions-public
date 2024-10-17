@@ -36,7 +36,17 @@ interface FormProps {
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
-        onRetrieveCompletions: (value: string, offset: number) => any;
+        retrieveCompletions: (
+            value: string,
+            offset: number,
+            triggerCharacter?: string,
+            onlyVariables?: boolean
+        ) => Promise<void>;
+        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        }>;
         onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
         onBlur: () => void;

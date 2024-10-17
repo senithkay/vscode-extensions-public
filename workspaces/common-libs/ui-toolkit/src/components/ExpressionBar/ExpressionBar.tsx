@@ -75,16 +75,28 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
-    completions: CompletionItem[];
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
-    onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
+    
+    // Completion item props
+    // - The list of completions to be displayed
+    completions: CompletionItem[];
+    // - The function to be called when a completion is selected
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+
+    // Function signature props
+    // - Returns information about the function that is currently being edited
+    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    }>;
     handleHelperPaneOpen?: () => void;
 };
 

@@ -17,6 +17,7 @@ export enum SHARED_COMMANDS {
 
 
 export const BI_COMMANDS = {
+    BI_RUN_PROJECT: 'BI.project.run',
     REFRESH_COMMAND: 'BI.project-explorer.refresh',
     FOCUS_PROJECT_EXPLORER: 'BI.project-explorer.focus',
     PROJECT_EXPLORER: 'BI.project-explorer',

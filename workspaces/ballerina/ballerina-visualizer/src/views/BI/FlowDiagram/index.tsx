@@ -36,6 +36,7 @@ import {
     convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
+    convertToFnSignature,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -478,6 +479,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
+    const handleOnEditConnection = (connectionName: string) => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EditConnectionWizard,
+                identifier: connectionName,
+            },
+            isPopup: true,
+        });
+    };
+
     const handleOnGoToSource = (node: FlowNode) => {
         const targetPosition: NodePosition = {
             startLine: node.codedata.lineRange.startLine.line,
@@ -641,6 +653,21 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: model.fileName,
+            expression: value,
+            startLine: targetRef.current.startLine,
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            }
+        });
+
+        return convertToFnSignature(signatureHelp);
+    }
+
     const handleResetUpdatedExpressionField = () => {
         setUpdatedExpressionField(undefined);
     }
@@ -689,6 +716,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onDeleteNode={handleOnDeleteNode}
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
+                                onConnectionSelect={handleOnEditConnection}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
                                 suggestions={{
@@ -749,7 +777,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         expressionEditor={{
                             completions: filteredCompletions,
                             triggerCharacters: TRIGGER_CHARACTERS,
-                            onRetrieveCompletions: handleGetCompletions,
+                            retrieveCompletions: handleGetCompletions,
+                            extractArgsFromFunction: extractArgsFromFunction,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
                             onBlur: handleExpressionEditorBlur,

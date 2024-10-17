@@ -16,3 +16,4 @@ export { ComponentDiagramV1 } from "./ComponentDiagramV1";
 export { ComponentDiagramV2 } from "./ComponentDiagramV2";
 export { PopupMessage } from "./PopupMessage";
 export { MainForm } from "./AutomationForm";
+export { FunctionForm } from "./FunctionForm";

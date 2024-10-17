@@ -40,6 +40,7 @@ export interface DiagramProps {
     onDeleteNode: (node: FlowNode) => void;
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
+    onConnectionSelect: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     // ai suggestions callbacks
@@ -58,6 +59,7 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode,
         onAddComment,
         onNodeSelect,
+        onConnectionSelect,
         goToSource,
         openView,
         suggestions,
@@ -132,8 +134,6 @@ export function Diagram(props: DiagramProps) {
         newDiagramModel.addAll(...codeBlockNodes);
         newDiagramModel.addAll(...otherNodes, ...links );
 
-        console.log(">>> diagram model", newDiagramModel);
-
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
         registerListeners(diagramEngine);
@@ -182,6 +182,7 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
+        onConnectionSelect: onConnectionSelect,
         goToSource: goToSource,
         openView: openView,
         suggestions: suggestions,

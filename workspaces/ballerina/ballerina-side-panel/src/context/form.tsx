@@ -21,12 +21,17 @@ export interface FormContext {
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
-        onRetrieveCompletions: (
+        retrieveCompletions: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
-        ) => any;
+        ) => Promise<void>;
+        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        }>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
         onCompletionSelect?: (value: string) => void | Promise<void>;
