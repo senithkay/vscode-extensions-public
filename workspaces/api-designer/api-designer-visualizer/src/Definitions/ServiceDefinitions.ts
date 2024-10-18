@@ -42,11 +42,27 @@ export interface License {
 }
 
 export interface Paths {
-    [path: string]: PathItem;
+    [path: string]: PathItem | string | Parameter[] | undefined;
+    description?: string; // Description of the path item
+    summary?: string; // Summary of the path item
+    parameters?: Parameter[]; // Parameters defined at the PathItem level
 }
 
 export interface PathItem {
-    [method: string]: Operation; // GET, POST, etc.
+    description?: string; // Description of the path item
+    summary?: string; // Summary of the path item
+    parameters?: Parameter[]; // Parameters defined at the PathItem level
+    get?: Operation; // GET operation for the path
+    put?: Operation; // PUT operation for the path
+    post?: Operation; // POST operation for the path
+    delete?: Operation; // DELETE operation for the path
+    options?: Operation; // OPTIONS operation for the path
+    head?: Operation; // HEAD operation for the path
+    patch?: Operation; // PATCH operation for the path
+    trace?: Operation; // TRACE operation for the path
+    servers?: Server[]; // Servers for the path
+    // Add other HTTP methods as needed
+    [method: string]: Operation | string | Parameter[] | undefined; // Allow for other methods and properties
 }
 
 export interface Operation {

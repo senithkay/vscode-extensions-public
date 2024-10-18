@@ -8,9 +8,9 @@
  */
 
 import { useEffect, useState } from "react";
-import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
+import { Service } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { convertOpenAPIStringToObject, convertOpenAPIStringToOpenAPI, convertOpenAPItoService } from "../../components/Utils/OpenAPIUtils";
+import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
