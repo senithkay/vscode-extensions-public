@@ -57,7 +57,7 @@ const Link = styled.a`
 export function FunctionForm() {
     const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
-    const [returnType, setReturnType] = useState("void");
+    const [returnType, setReturnType] = useState("");
     const [params, setParams] = useState(parameterConfig);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -116,7 +116,7 @@ export function FunctionForm() {
                             <Dropdown
                                 id="return"
                                 label="Return Type"
-                                items={[{ value: "void" }, { value: "string" }, { value: "int" }]}
+                                items={[{ value: "" }, { value: "string" }, { value: "int" }]}
                                 onChange={(value) => setReturnType(value.target.value)}
                                 value={returnType}
                             />

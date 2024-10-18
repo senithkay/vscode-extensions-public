@@ -276,7 +276,7 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
         .map((item) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ''}`)
         .join(",");
 
-    const returnTypeStr = `returns ${params.functionType.returnType === "void" ? 'error?' : `${params.functionType.returnType}|error?`}`;
+    const returnTypeStr = `returns ${!params.functionType.returnType ? 'error?' : `${params.functionType.returnType}|error?`}`;
 
     const expBody = `{
     do {
