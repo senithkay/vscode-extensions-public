@@ -10,9 +10,9 @@
 import React from "react";
 import { FitScreenIcon, MinusIcon, PlusIcon } from "../../resources";
 import styled from "@emotion/styled";
-import { Colors, NodeTypes } from "../../resources/constants";
+import { Colors } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { saveDiagramZoomAndPosition } from "../../utils/diagram";
+import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -82,25 +82,9 @@ export function Controls(props: ControlsProps) {
     const { engine } = props;
 
     const handleZoomToFit = () => {
-        console.log(">>> zoom to start node");
-        // zoom to start node
-        const nodes = engine.getModel().getNodes();
-        if (!nodes || nodes.length === 0) {
-            return;
-        }
-        if(!engine.getCanvas().getBoundingClientRect()){
-            return;
-        }
-
-        const startNode = nodes.find((node) => node.getType() === NodeTypes.START_NODE);
-        if (startNode) {
-            startNode.setSelected(true);
-            engine.zoomToFitSelectedNodes({ margin: 0, maxZoom: 1 });
-            startNode.setSelected(false);
-        } else {
-            engine.zoomToFitNodes({ margin: 0, maxZoom: 1 });
-        }
-        saveDiagramZoomAndPosition(engine.getModel());
+        resetDiagramZoomAndPosition();
+        loadDiagramZoomAndPosition(engine);
+        engine.repaintCanvas();
     };
 
     const onZoom = (zoomIn: boolean) => {

@@ -56,7 +56,6 @@ const PopupPanel = (props: PopupPanelProps) => {
 
     const fetchContext = () => {
         rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
-            console.log(">>> getPopupVisualizerState", { machineSate });
             switch (machineSate?.view) {
                 case MACHINE_VIEW.AddConnectionWizard:
                     setViewComponent(<AddConnectionWizard onClose={onClose} />);
