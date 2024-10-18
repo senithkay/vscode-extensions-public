@@ -31,9 +31,9 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
+    ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
-    ComponentRequest,
     CreateComponentResponse,
     DIRECTORY_MAP,
     ExpressionCompletionsRequest,
@@ -55,10 +55,14 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { Uri, ViewColumn, commands, window, workspace } from "vscode";
+import {
+    Uri, ViewColumn, commands, window, workspace, tasks, Task,
+    TaskDefinition, ShellExecution
+} from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIProjectPure, createBIService, createBIAutomation, handleServiceCreation, sanitizeName, createBIFunction } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { title } from "process";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
     async getFlowModel(): Promise<BIFlowModelResponse> {
@@ -716,5 +720,68 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     reject("Error fetching visible variable types from ls");
                 });
         });
+    }
+
+    async runBallerinaBuildTask(docker: boolean): Promise<void> {
+        const taskDefinition: TaskDefinition = {
+            type: 'shell',
+            task: 'run'
+        };
+
+        const buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+        const execution = new ShellExecution(buildCommand);
+
+        const task = new Task(
+            taskDefinition,
+            workspace.workspaceFolders![0], // Assumes at least one workspace folder is open
+            'Ballerina Build',
+            'ballerina',
+            execution
+        );
+
+        try {
+            await tasks.executeTask(task);
+        } catch (error) {
+            window.showErrorMessage(`Failed to build Ballerina package: ${error}`);
+        }
+    }
+
+    buildProject(): void {
+        window.showQuickPick([
+            {
+                label: "$(package) Executable JAR",
+                detail: "Build a self-contained, runnable JAR file for your project",
+            },
+            {
+                label: "$(docker) Docker Image",
+                detail: "Create a Docker image to containerize your Ballerina Integration",
+            }
+        ].map(item => ({
+            ...item,
+        })), {
+            placeHolder: "Choose a build option"
+        })
+            .then((selection) => {
+                if (!selection) {
+                    return; // User cancelled the selection
+                }
+
+                switch (selection.label) {
+                    case "$(package) Executable JAR":
+                        console.log(selection);
+                        this.runBallerinaBuildTask(false);
+                        break;
+                    case "$(docker) Docker Image":
+                        this.runBallerinaBuildTask(true);
+                        break;
+                    default:
+                        window.showErrorMessage("Invalid deployment option selected");
+                }
+            });
+    }
+
+    runProject(): void {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

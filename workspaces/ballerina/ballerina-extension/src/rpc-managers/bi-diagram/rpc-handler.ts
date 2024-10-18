@@ -23,6 +23,7 @@ import {
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
+    buildProject,
     createComponent,
     createComponents,
     createProject,
@@ -45,7 +46,8 @@ import {
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
-    openReadme
+    openReadme,
+    runProject,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BIDiagramRpcManager } from "./rpc-manager";
@@ -75,4 +77,6 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(deployProject, () => rpcManger.deployProject());
     messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
+    messenger.onNotification(buildProject, () => rpcManger.buildProject());
+    messenger.onNotification(runProject, () => rpcManger.runProject());
 }

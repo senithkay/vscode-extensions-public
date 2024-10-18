@@ -56,3 +56,5 @@ export const openReadme: NotificationType<void> = { method: `${_preFix}/openRead
 export const deployProject: NotificationType<void> = { method: `${_preFix}/deployProject` };
 export const openAIChat: NotificationType<AIChatRequest> = { method: `${_preFix}/openAIChat` };
 export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpResponse> = { method: `${_preFix}/getSignatureHelp` };
+export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
+export const runProject: NotificationType<void> = { method: `${_preFix}/runProject` };
