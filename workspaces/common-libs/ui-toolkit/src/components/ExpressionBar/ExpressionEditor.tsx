@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { TextField } from '../TextField/TextField';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
@@ -28,14 +28,21 @@ type StyleBase = {
 
 type DropdownProps = StyleBase & {
     items: CompletionItem[];
+    defaultCompletion?: ReactNode;
     isSavable: boolean;
-    onCompletionSelect: (item: CompletionItem) => Promise<void>;
+    onCompletionSelect: (item: CompletionItem) => void | Promise<void>;
+    onDefaultCompletionSelect: () => void | Promise<void>;
 };
+
+type DefaultCompletionItemProps = {
+    defaultCompletion: ReactNode;
+    onClick: () => void |Promise<void>;
+}
 
 type DropdownItemProps = {
     item: CompletionItem;
     firstItem?: boolean;
-    onClick: () => void;
+    onClick: () => void | Promise<void>;
 };
 
 type FnSignatureProps = {
@@ -85,6 +92,18 @@ const DropdownBody = styled.div<StyleBase>`
 const DropdownItemBody = styled.div`
     max-height: 249px;
     overflow-y: scroll;
+    position: relative;
+`;
+
+const DefaultCompletionContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 8px;
+    font-family: monospace;
+    cursor: pointer;
+    position: sticky;
+    top: 0;
 `;
 
 const DropdownItemContainer = styled.div`
@@ -190,6 +209,30 @@ const ANIMATION = {
     }),
 };
 
+const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
+    const { defaultCompletion,onClick } = props;
+    const itemRef = useRef<HTMLDivElement>(null);
+
+    const handleMouseEnter = () => {
+        const parentEl = itemRef.current.parentElement;
+        const hoveredEl = parentEl.querySelector('.hovered');
+        if (hoveredEl) {
+            hoveredEl.classList.remove('hovered');
+        }
+    }
+
+    return (
+        <DefaultCompletionContainer
+            ref={itemRef}
+            id="default-completion"
+            onMouseEnter={handleMouseEnter}
+            onClick={onClick}
+        >
+            {defaultCompletion}
+        </DefaultCompletionContainer>
+    );
+}
+
 const DropdownItem = (props: DropdownItemProps) => {
     const { item, firstItem, onClick } = props;
     const itemRef = useRef<HTMLDivElement>(null);
@@ -225,7 +268,7 @@ const DropdownItem = (props: DropdownItemProps) => {
 };
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, onCompletionSelect, isSavable, sx } = props;
+    const { items, defaultCompletion, onCompletionSelect, onDefaultCompletionSelect, isSavable, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
@@ -233,6 +276,12 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
     return (
         <DropdownBody sx={sx}>
             <DropdownItemBody ref={listBoxRef}>
+                {defaultCompletion && (
+                    <DefaultCompletionItem
+                        defaultCompletion={defaultCompletion}
+                        onClick={async () => await onDefaultCompletionSelect()}
+                    />
+                )}
                 {items.map((item, index) => {
                     return (
                         <DropdownItem
@@ -336,10 +385,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         disabled,
         sx,
         completions,
+        defaultCompletion,
         onChange,
         onSave,
         onCancel,
         onCompletionSelect,
+        onDefaultCompletionSelect,
         extractArgsFromFunction,
         useTransaction,
         onFocus,
@@ -514,22 +565,30 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 case 'Tab':
                     e.preventDefault();
                     if (hoveredEl) {
-                        const item = completions.find(
-                            (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                        );
-                        if (item) {
-                            await handleCompletionSelectMutation(item);
+                        if (hoveredEl.id === 'default-completion') {
+                            onDefaultCompletionSelect?.();
+                        } else {
+                            const item = completions.find(
+                                (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                            );
+                            if (item) {
+                                await handleCompletionSelectMutation(item);
+                            }
                         }
                     }
                     return;
                 case 'Enter':
                     e.preventDefault();
                     if (hoveredEl) {
-                        const item = completions.find(
-                            (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                        );
-                        if (item) {
-                            await handleCompletionSelectMutation(item);
+                        if (hoveredEl.id === 'default-completion') {
+                            onDefaultCompletionSelect?.();
+                        } else {
+                            const item = completions.find(
+                                (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                            );
+                            if (item) {
+                                await handleCompletionSelectMutation(item);
+                            }
                         }
                     }
                     return;
@@ -639,7 +698,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 ref={listBoxRef}
                                 isSavable={!!onSave}
                                 items={completions}
+                                defaultCompletion={defaultCompletion}
                                 onCompletionSelect={handleCompletionSelectMutation}
+                                onDefaultCompletionSelect={onDefaultCompletionSelect}
                             />
                             <FnSignatureEl
                                 label={fnSignature?.label}

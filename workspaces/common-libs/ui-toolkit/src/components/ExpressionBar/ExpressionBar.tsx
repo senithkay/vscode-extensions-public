@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, ReactNode } from 'react';
 import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
@@ -88,12 +88,16 @@ export type ExpressionBarBaseProps = {
     // Completion item props
     // - The list of completions to be displayed
     completions: CompletionItem[];
+    // Sticky completion item to be displayed at the top of the completion list
+    defaultCompletion?: ReactNode;
     // - The function to be called when a completion is selected
     onCompletionSelect?: (value: string) => void | Promise<void>;
+    // - The function to be called when the default completion is selected
+    onDefaultCompletionSelect?: () => void | Promise<void>;
 
     // Function signature props
     // - Returns information about the function that is currently being edited
-    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;
