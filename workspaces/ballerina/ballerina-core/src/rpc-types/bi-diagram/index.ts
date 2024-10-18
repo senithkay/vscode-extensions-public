@@ -53,9 +53,11 @@ export interface BIDiagramAPI {
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
-    getReadmeContent:() => Promise<ReadmeContentResponse>;
-    openReadme:() => void;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
+    buildProject: () => void;
+    runProject: () => void;
 }

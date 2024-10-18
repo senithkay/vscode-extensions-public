@@ -251,7 +251,7 @@ export function LibrariesView(props: LibrariesViewProps) {
     function handleAddFunction(node: Node): void {
         console.log("====== Add Function", node);
         // TODO: Pass codedata and get the function signature
-        const functionSignature = node?.metadata?.codedata?.module ? `${node.metadata.codedata.module}:${node.metadata.codedata.symbol}` : node?.label;
+        const functionSignature = node?.metadata?.codedata?.module ? `${node.metadata.codedata.module}:${node.metadata.codedata.symbol}` : node.metadata?.codedata?.symbol;
         const updateData: ExpressionFormField = {
             value: functionSignature + "(",
             key: editorKey

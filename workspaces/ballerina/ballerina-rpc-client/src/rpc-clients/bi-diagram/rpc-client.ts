@@ -27,9 +27,9 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
-    ComponentRequest,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -41,6 +41,7 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     WorkspacesResponse,
+    buildProject,
     createComponent,
     createComponents,
     createProject,
@@ -63,7 +64,8 @@ import {
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
-    openReadme
+    openReadme,
+    runProject
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -165,5 +167,13 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
         return this._messenger.sendRequest(getSignatureHelp, HOST_EXTENSION, params);
+    }
+
+    buildProject(): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    }
+
+    runProject(): void {
+        return this._messenger.sendNotification(runProject, HOST_EXTENSION);
     }
 }
