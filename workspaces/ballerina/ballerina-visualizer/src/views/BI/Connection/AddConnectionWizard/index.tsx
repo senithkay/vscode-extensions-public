@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, FlowNode, LineRange } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";

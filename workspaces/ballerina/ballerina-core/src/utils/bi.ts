@@ -90,7 +90,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
             fileEntry.name = "automation"
         }
         if (dtype === DIRECTORY_MAP.CONNECTIONS) {
-            if (stNode.syntaxTree.typeData?.isEndpoint) {
+            if (stNode.syntaxTree?.typeData?.isEndpoint) {
                 entries.push(fileEntry);
             }
         } else {
