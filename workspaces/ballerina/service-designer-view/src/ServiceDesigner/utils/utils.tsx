@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
+import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification, TriggerModel } from '@wso2-enterprise/ballerina-core';
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
@@ -258,10 +258,10 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
 
 export async function getFunction(resource: ObjectMethodDefinition, rpcClient: any, isBI?: boolean): Promise<Resource> {
     const pathConfig = resource.functionName.value;
-    const queryParams: ParameterConfig[] = [];
+    const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = null;
     const advanceParams: Map<string, ParameterConfig> = null;
-    const response: ResponseConfig[] = null;
+    const response: ResponseConfig[] = await getResponseConfig(resource, rpcClient);
     const position = {
         ...resource.position
     };
@@ -292,7 +292,7 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
     };
 }
 
-export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isBI?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isBI?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>, triggerModel?: TriggerModel): Promise<Service> {
     const serviceData: ServiceData = await getServiceData(serviceDecl);
     let canEdit = true;
     if (serviceDecl?.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
@@ -339,6 +339,7 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
     }
     return {
         ...serviceData,
+        triggerModel: triggerModel,
         resources: resources,
         position: getServicePosition(serviceDecl)
     }
@@ -432,7 +433,7 @@ export function getResourcePath(resource: ResourceAccessorDefinition): PathConfi
     return { path: resourcePath, resources: pathParams };
 }
 
-export function getQueryParams(resource: ResourceAccessorDefinition): ParameterConfig[] {
+export function getQueryParams(resource: ResourceAccessorDefinition | ObjectMethodDefinition): ParameterConfig[] {
     const queryParams: ParameterConfig[] = [];
     let index = 0;
     resource.functionSignature?.parameters?.forEach((queryParam) => {

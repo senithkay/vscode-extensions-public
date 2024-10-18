@@ -73,4 +73,5 @@ export interface Service {
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;
+    triggerModel?: any;
 }

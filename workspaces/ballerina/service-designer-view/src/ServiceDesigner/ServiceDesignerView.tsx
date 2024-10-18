@@ -10,11 +10,12 @@
 
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm/ResourceForm";
+import { FunctionForm } from "./components/FunctionForm/FunctionForm";
 import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceDesignerAPI, CommonRPCAPI, STModification } from "@wso2-enterprise/ballerina-core";
+import { ServiceDesignerAPI, CommonRPCAPI, STModification, TriggerModel } from "@wso2-enterprise/ballerina-core";
 import { ContextProvider } from "./ContextProvider";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon, View, ViewHeader, ViewContent, Typography } from "@wso2-enterprise/ui-toolkit";
@@ -114,9 +115,399 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         }
     };
 
+    function getTriggersHardcoded() {
+        const response: TriggerModel[] = [];
+        const kafkaTriggerModel: TriggerModel = {
+            name: "Kafka",
+            listener: {
+                bootstrapServers: {
+                    required: true,
+                    type: "string",
+                    value: "kafka:DEFAULT_URL",
+                    description: "List of remote server endpoints of Kafka brokers"
+                },
+                config: {
+                    required: false,
+                    type: "kafka:ConsumerConfiguration",
+                    record: true
+                }
+            },
+            service: {
+                basePath: {
+                    required: false
+                },
+                functions: {
+                    onConsumerRecord: {
+                        required: true,
+                        params: {
+                            records: {
+                                type: "array",
+                                required: true,
+                                value: "anydata[]",
+                                description: "Consumer records"
+                            },
+                            caller: {
+                                type: "kafka:Caller",
+                                required: false,
+                                description: "Caller object"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "error?"
+                        },
+                        description: "Trigger function that processes consumer records"
+                    },
+                    onError: {
+                        required: false,
+                        params: {
+                            err: {
+                                type: "kafka:Error",
+                                required: true,
+                                description: "error"
+                            }
+                        },
+                        returns: {
+                            type: "error?",
+                            description: "Optional error return type",
+                            error: true,
+                            nilable: true
+                        },
+                        description: "Handles errors encountered during consumption"
+                    }
+                }
+            }
+        };
+        const rabbitmqTriggerModel: TriggerModel = {
+            name: "RabbitMQ",
+            listener: {
+                host: {
+                    type: "string",
+                    required: true,
+                    description: "The host used for establishing the connection"
+                },
+                port: {
+                    type: "int",
+                    required: true,
+                    description: "The port used for establishing the connection"
+                },
+                qosSettings: {
+                    type: "rabbitmq:QosSettings",
+                    required: false,
+                    description: "The consumer prefetch settings"
+                },
+                connectionData: {
+                    type: "rabbitmq:ConnectionData",
+                    required: false,
+                    description: "The connection data"
+                }
+            },
+            service: {
+                basePath: {
+                    required: true,
+                    description: "The queue name"
+                },
+                functions: {
+                    onMessage: {
+                        required: true,
+                        params: {
+                            message: {
+                                type: "rabbitmq:AnydataMessage",
+                                required: true,
+                                description: "The message"
+                            },
+                            caller: {
+                                type: "rabbitmq:Caller",
+                                required: false,
+                                description: "Caller object"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "error?"
+                        },
+                        description: "Trigger function that processes messages"
+                    },
+                    onRequest: {
+                        required: false,
+                        params: {
+                            message: {
+                                type: "rabbitmq:AnydataMessage",
+                                required: true,
+                                description: "The message"
+                            },
+                            caller: {
+                                type: "rabbitmq:Caller",
+                                required: false,
+                                description: "Caller object"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "anydata|error?"
+                        },
+                        description: "Trigger function that processes requests"
+                    },
+                    onError: {
+                        required: false,
+                        params: {
+                            message: {
+                                type: "rabbitmq:AnydataMessage",
+                                required: true,
+                                description: "The message"
+                            },
+                            err: {
+                                type: "rabbitmq:Error",
+                                required: true,
+                                description: "error"
+                            }
+                        },
+                        returns: {
+                            type: "error?",
+                            error: true,
+                            nilable: true
+                        },
+                        description: "Handles errors encountered during consumption"
+                    }
+                }
+            }
+        };
+        const natsTriggerModel: TriggerModel = {
+            name: "NATS",
+            listener: {
+                url: {
+                    type: "string|string[]",
+                    required: true,
+                    description: "The NATS broker URL. For a clustered use case, provide the URLs as a string array"
+                },
+                config: {
+                    type: "nats:ConnectionConfiguration",
+                    required: false,
+                    description: "The connection configurations"
+                }
+            },
+            service: {
+                basePath: {
+                    required: true,
+                    description: "The subject name"
+                },
+                functions: {
+                    onMessage: {
+                        required: true,
+                        params: {
+                            message: {
+                                type: "nats:AnydataMessage",
+                                required: true,
+                                description: "The message"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "error?"
+                        },
+                        description: "Trigger function that processes messages"
+                    },
+                    onRequest: {
+                        required: false,
+                        params: {
+                            "message": {
+                                type: "nats:AnydataMessage",
+                                required: true,
+                                description: "The message"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "anydata|error?"
+                        },
+                        description: "Trigger function that processes requests"
+                    },
+                    onError: {
+                        required: false,
+                        params: {
+                            "message": {
+                                type: "nats:AnydataMessage",
+                                required: true,
+                                description: "The message"
+                            },
+                            "err": {
+                                type: "nats:Error",
+                                required: true,
+                                description: "error"
+                            }
+                        },
+                        returns: {
+                            type: "error?",
+                            error: true,
+                            nilable: true
+                        },
+                        description: "Handles errors encountered during consumption"
+                    }
+                }
+            }
+        };
+        const mqttTriggerModel: TriggerModel = {
+            name: "MQTT",
+            listener: {
+                serverUri: {
+                    type: "string",
+                    required: true,
+                    description: "The URI of the remote MQTT server"
+                },
+                clientId: {
+                    type: "string",
+                    required: true,
+                    description: "The unique client ID to identify the listener"
+                },
+                subscriptions: {
+                    type: "string|string[]|mqtt:Subscription|mqtt:Subscription[]",
+                    required: true,
+                    description: "The topics to be subscribed to"
+                },
+                config: {
+                    type: "mqtt:ListenerConfiguration",
+                    required: false,
+                    description: "The listener configurations"
+                }
+            },
+            service: {
+                basePath: {
+                    required: false
+                },
+                functions: {
+                    onMessage: {
+                        required: true,
+                        params: {
+                            message: {
+                                type: "mqtt:Message",
+                                required: true,
+                                description: "The message"
+                            },
+                            caller: {
+                                type: "mqtt:Caller",
+                                required: false,
+                                description: "Caller object"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "error?"
+                        },
+                        description: "Trigger function that processes messages"
+                    },
+                    onError: {
+                        required: false,
+                        params: {
+                            err: {
+                                type: "mqtt:Error",
+                                required: true,
+                                description: "error"
+                            }
+                        },
+                        returns: {
+                            type: "error?",
+                            error: true,
+                            nilable: true
+                        },
+                        description: "Handles errors encountered during consumption"
+                    },
+                    onComplete: {
+                        required: false,
+                        params: {
+                            token: {
+                                type: "mqtt:DeliveryToken",
+                                required: true,
+                                description: "The delivery token"
+                            }
+                        },
+                        returns: {
+                            type: "error?",
+                            error: true,
+                            nilable: true
+                        },
+                        description: "Trigger function on message delivery completion"
+                    }
+                }
+            }
+        };
+        const jmsTriggerModel: TriggerModel = {
+            name: "JMS",
+            listener: {
+                listenerConfig: {
+                    type: "jms:MessageListenerConfigurations",
+                    required: true,
+                    description: "Message listener configurations"
+                }
+            },
+            service: {
+                basePath: {
+                    required: false
+                },
+                functions: {
+                    onMessage: {
+                        required: true,
+                        params: {
+                            message: {
+                                type: "jms:Message",
+                                required: true,
+                                description: "The message"
+                            },
+                            caller: {
+                                type: "jms:Caller",
+                                required: false,
+                                description: "Caller object"
+                            }
+                        },
+                        returns: {
+                            error: true,
+                            nilable: true,
+                            type: "error?"
+                        },
+                        description: "Trigger function that processes messages"
+                    },
+                    onError: {
+                        required: false,
+                        params: {
+                            err: {
+                                type: "jms:Error",
+                                required: true,
+                                description: "error"
+                            }
+                        },
+                        returns: {
+                            type: "error?",
+                            error: true,
+                            nilable: true
+                        },
+                        description: "Handles errors encountered during consumption"
+                    }
+                }
+            }
+        };
+        response.push(kafkaTriggerModel);
+        response.push(rabbitmqTriggerModel);
+        response.push(natsTriggerModel);
+        response.push(mqttTriggerModel);
+        response.push(jmsTriggerModel);
+        return response;
+    }
+
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isBI, handleResourceEdit, handleResourceDelete));
+            const res = getTriggersHardcoded();
+            let selectedTrigger;
+            res.forEach(val => {
+                if (model.source.toLowerCase().includes(val.name.toLowerCase())) {
+                    selectedTrigger = val;
+                }
+            })
+            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isBI, handleResourceEdit, handleResourceDelete, selectedTrigger));
         };
         fetchService();
     }, [model]);
@@ -138,19 +529,22 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         serviceDesignerRpcClient.exportOASFile({});
     };
 
+    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel.name} Trigger` : `Service ${serviceConfig?.path}`;
+
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
             <div data-testid="service-design-view">
                 <View>
-                    <ViewHeader title={`Service ${serviceConfig?.path}`} codicon="globe" onEdit={!isEditingDisabled && handleServiceEdit}>
+                    <ViewHeader title={title} codicon="globe" onEdit={!isEditingDisabled && !serviceConfig?.triggerModel && handleServiceEdit}>
                         {!isEditingDisabled &&
-                            <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
-                                <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                            <VSCodeButton appearance="primary" title="Add Resource" onClick={handleResourceFormOpen}>
+                                <Codicon name="add" sx={{ marginRight: 5 }} /> {serviceConfig?.triggerModel ? `Function` : 'Resource'}
                             </VSCodeButton>
                         }
-                        <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
+                        {!serviceConfig?.triggerModel && <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
                             <Codicon name="export" sx={{ marginRight: 5 }} /> Export OAS
                         </VSCodeButton>
+                        }
                     </ViewHeader>
                     <ServiceHeader>
                         {isEditingDisabled && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">This is generated from {serviceConfig?.path} contract</Typography>}
@@ -159,14 +553,27 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     </ServiceHeader>
                     <ViewContent padding>
                         <ServiceDesigner
+                            customTitle={serviceConfig?.triggerModel ? `Available functions` : 'Available resources'}
                             model={serviceConfig}
                             onResourceClick={handleGoToSource}
                             disableServiceHeader={props.isBI}
                         />
                     </ViewContent>
                 </View>
-                {isResourceFormOpen &&
+                {isResourceFormOpen && !serviceConfig?.triggerModel &&
                     <ResourceForm
+                        isOpen={isResourceFormOpen}
+                        isBallerniaExt={isParentBallerinaExt}
+                        resourceConfig={serviceConfig.resources.length > 0 ? editingResource : undefined}
+                        onSave={handleResourceFormSave}
+                        onClose={handleResourceFormClose}
+                        addNameRecord={addNameRecord}
+                        commonRpcClient={commonRpcClient}
+                        applyModifications={applyModifications}
+                    />
+                }
+                {isResourceFormOpen && serviceConfig?.triggerModel &&
+                    <FunctionForm
                         isOpen={isResourceFormOpen}
                         isBallerniaExt={isParentBallerinaExt}
                         resourceConfig={serviceConfig.resources.length > 0 ? editingResource : undefined}
