@@ -40,6 +40,8 @@ import {
     ReadmeContentResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
     WorkspacesResponse,
     buildProject,
     createComponent,
@@ -61,6 +63,7 @@ import {
     getSignatureHelp,
     getSourceCode,
     getVisibleVariableTypes,
+    getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
@@ -175,5 +178,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     runProject(): void {
         return this._messenger.sendNotification(runProject, HOST_EXTENSION);
+    }
+
+    getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
+        return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
     }
 }
