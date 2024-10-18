@@ -88,8 +88,10 @@ export type ExpressionBarBaseProps = {
     // Completion item props
     // - The list of completions to be displayed
     completions: CompletionItem[];
-    // Sticky completion item to be displayed at the top of the completion list
-    defaultCompletion?: ReactNode;
+    // - Should display the default completion item at the top of the completion list
+    showDefaultCompletion?: boolean;
+    // - Get default completion item to be displayed at the top of the completion list
+    getDefaultCompletion?: () => ReactNode;
     // - The function to be called when a completion is selected
     onCompletionSelect?: (value: string) => void | Promise<void>;
     // - The function to be called when the default completion is selected
