@@ -54,8 +54,8 @@ export class DataMapper {
     }
 
     public async mapFields(sourceFieldFQN: string, targetFieldFQN: string) {
-        const links = this.webView.locator('g [data-testid]');
-        const linkCount = await links.count();
+        // const links = this.webView.locator('g [data-testid]');
+        // const linkCount = await links.count();
 
         const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
         await sourceField.waitFor();
@@ -66,14 +66,14 @@ export class DataMapper {
         await targetField.click();
 
 
-        // await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
+        await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
 
-        // await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+        await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
 
         //await this.webView.waitForSelector(`[data-testid="temp-link"]`, { state: 'attached' });
         // await this.webView.waitForSelector(`[data-testid="temp-link"]`, { state: 'detached' });
         // await this.init();
-        await this.webView.waitForSelector('[data-testid="link-from-input.city.OUT-to-objectOutput.home.IN"]', { state: 'attached' });
+        // await this.webView.waitForSelector('[data-testid="link-from-input.city.OUT-to-objectOutput.home.IN"]', { state: 'attached' });
 
 
 
