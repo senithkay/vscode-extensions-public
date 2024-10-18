@@ -14,7 +14,8 @@ export async function switchToIFrame(
     page: Page,
     timeout: number = 150000
 ): Promise<Frame | null> {
-    await page.waitForTimeout(5000); // To fix intermittent issues in CI
+    if(process.env.ci)
+        await page.waitForTimeout(5000); // To fix intermittent issues in CI
     const webviewFrame = await page.waitForSelector('iframe.webview.ready', { timeout });
     const frame = await webviewFrame.contentFrame();
     if (!frame) {

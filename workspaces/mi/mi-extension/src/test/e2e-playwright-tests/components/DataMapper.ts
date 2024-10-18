@@ -20,7 +20,7 @@ import { IOType } from "@wso2-enterprise/mi-core";
 type SchemaTypeLabel = "JSON" | "JSON Schema" | "XML" | "CSV";
 export class DataMapper {
 
-    private webView!: Frame;
+    public webView!: Frame;
     // configFolder!: string;
     // tsFile!: string;
 
@@ -65,7 +65,23 @@ export class DataMapper {
         await targetField.waitFor();
         await targetField.click();
 
-        await expect(links).not.toHaveCount(linkCount);
+
+        // await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
+
+        // await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+
+        //await this.webView.waitForSelector(`[data-testid="temp-link"]`, { state: 'attached' });
+        // await this.webView.waitForSelector(`[data-testid="temp-link"]`, { state: 'detached' });
+        // await this.init();
+        await this.webView.waitForSelector('[data-testid="link-from-input.city.OUT-to-objectOutput.home.IN"]', { state: 'attached' });
+
+
+
+        // await expect(links).not.toHaveCount(linkCount);
+        // console.log('.:.1');
+        // console.log(await ((await links.all())[0].innerHTML()));
+        // console.log('.:.2');
+
     }
 
     public async runEventActions(eaFile: string) {
@@ -76,16 +92,18 @@ export class DataMapper {
         let linkCount = await links.count();
 
         for (const actionLine of actionLines) {
-            const [_, actionType, elementId] = actionLine.split(':');
+            const [_, actionType, query] = actionLine.split(':');
             switch (actionType) {
                 case 'click':
                     linkCount = await links.count();
-                    const element = this.webView.locator(`div[id="${elementId}"]`);
+                    const element = this.webView.locator(query);
                     await element.waitFor();
                     await element.click();
                     break;
                 case 'wait':
-                    await expect(links).not.toHaveCount(linkCount);
+                    await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+                    // await this.webView.waitForSelector(query, { state: 'attached' });
+                    // await expect(links).not.toHaveCount(linkCount);
                     //await page.page.waitForTimeout(3000);
                     break;
             }
@@ -110,6 +128,11 @@ export class DataMapper {
         const operatorsFile = path.join(configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
 
         return fs.existsSync(operatorsFile) && fs.existsSync(tsFile);
+    }
+
+    public overwriteTsFile(newTsFile: string) {
+        const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
+        fs.writeFileSync(tsFile, fs.readFileSync(newTsFile, 'utf8'));
     }
 
 

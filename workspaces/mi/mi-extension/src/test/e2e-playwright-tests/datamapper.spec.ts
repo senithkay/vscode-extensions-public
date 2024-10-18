@@ -184,6 +184,12 @@ function doMappings() {
     const dataMapper = new DataMapper(page.page, DM_NAME);
     await dataMapper.init();
 
+    // const interfacesTsFile = path.join(dmFilesPath, DM_NAME, 'interfaces.ts');
+    // dataMapper.overwriteTsFile(interfacesTsFile);
+    // await page.page.waitForTimeout(10000);
+
+
+
     // await dataMapper.mapFields('input.city', 'objectOutput.home');
     // await dataMapper.mapFields('input.name', 'objectOutput.age');
     // await dataMapper.mapFields('input.age', 'objectOutput.name');
@@ -195,7 +201,7 @@ function doMappings() {
     const mappingsEaFile = path.join(dmFilesPath, DM_NAME, 'mappings.ea');
     await dataMapper.runEventActions(mappingsEaFile);
 
-  await page.page.waitForTimeout(50000);
+    // await page.page.waitForTimeout(1000);
 
     // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
     // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
