@@ -28,7 +28,8 @@ interface OutputRoot {
 */
 export function mapFunction(input: Root): OutputRoot {
     return {
-        home: input.city
+        name: input.name + input.city,
+        home: input.name + input.city
     }
 }
 

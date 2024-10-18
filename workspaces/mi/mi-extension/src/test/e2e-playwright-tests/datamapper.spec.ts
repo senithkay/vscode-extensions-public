@@ -29,7 +29,7 @@ test.describe.configure({ mode: 'serial' });
 
 
 
-// createAndAddDM();
+createAndAddDM();
 doMappings();
 
 function createAndAddDM() {
@@ -122,63 +122,63 @@ function createAndAddDM() {
 
 
 
-  test.afterAll(async () => {
-    // await vscode?.close();
+  // test.afterAll(async () => {
+  //   // await vscode?.close();
 
-    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-    const video = page.page.video()
-    const videoDir = path.resolve(resourcesFolder, 'videos')
-    const videoPath = await video?.path()
+  //   const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
+  //   const video = page.page.video()
+  //   const videoDir = path.resolve(resourcesFolder, 'videos')
+  //   const videoPath = await video?.path()
 
-    if (video && videoPath) {
-      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-    }
+  //   if (video && videoPath) {
+  //     video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
+  //   }
 
-    // cleanup
-    // if (fs.existsSync(newProjectPath)) {
-    //   fs.rmSync(newProjectPath, { recursive: true });
-    // }
-    console.log('Diagram tests completed')
-  });
+  //   // cleanup
+  //   // if (fs.existsSync(newProjectPath)) {
+  //   //   fs.rmSync(newProjectPath, { recursive: true });
+  //   // }
+  //   console.log('Diagram tests completed')
+  // });
 
 }
 
 function doMappings() {
 
-  test.beforeAll(async () => {
-    console.log('Starting datamapper tests')
-    await resumeVSCode();
-  });
+  // test.beforeAll(async () => {
+  //   console.log('Starting datamapper tests')
+  //   await resumeVSCode();
+  // });
 
 
-  test('Open DataMapper from tree view', async () => {
-    // console.log('.:.Do Mappings1');
-    // await page.page.waitForTimeout(180000);
+  // test('Open DataMapper from tree view', async () => {
+  //   // console.log('.:.Do Mappings1');
+  //   // await page.page.waitForTimeout(180000);
 
-    // await page.page.waitForTimeout(5000);
+  //   // await page.page.waitForTimeout(5000);
 
-    const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
-    await dataMappersLabel.click();
-    const dataMapperItem = await page.page.waitForSelector(`div[aria-label="${DM_NAME}"]`, { timeout: 180000 });
-    await dataMapperItem.click();
+  //   const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
+  //   await dataMappersLabel.click();
+  //   const dataMapperItem = await page.page.waitForSelector(`div[aria-label="${DM_NAME}"]`, { timeout: 180000 });
+  //   await dataMapperItem.click();
 
-    const dataMapper = new DataMapper(page.page, DM_NAME);
-    await dataMapper.init();
-
-  });
-
-  // test('Load Schemas', async () => {
   //   const dataMapper = new DataMapper(page.page, DM_NAME);
   //   await dataMapper.init();
 
-  //   const interfacesTsFile = path.join(dmFilesPath, DM_NAME, 'interfaces.ts');
-  //   const inputJsonFile = path.join(dmFilesPath, DM_NAME, 'input.json');
-  //   const outputJsonFile = path.join(dmFilesPath, DM_NAME, 'output.json');
-  //   await dataMapper.importSchema(IOType.Input, 'JSON', inputJsonFile);
-  //   await dataMapper.importSchema(IOType.Output, 'JSON', outputJsonFile);
-    
-  //   expect(dataMapper.verifyTsFileContent(interfacesTsFile)).toBeTruthy();
   // });
+
+  test('Load Schemas', async () => {
+    const dataMapper = new DataMapper(page.page, DM_NAME);
+    await dataMapper.init();
+
+    const interfacesTsFile = path.join(dmFilesPath, DM_NAME, 'interfaces.ts');
+    const inputJsonFile = path.join(dmFilesPath, DM_NAME, 'input.json');
+    const outputJsonFile = path.join(dmFilesPath, DM_NAME, 'output.json');
+    await dataMapper.importSchema(IOType.Input, 'JSON', inputJsonFile);
+    await dataMapper.importSchema(IOType.Output, 'JSON', outputJsonFile);
+    
+    expect(dataMapper.verifyTsFileContent(interfacesTsFile)).toBeTruthy();
+  });
 
   test('Do Mappings', async () => {
     const dataMapper = new DataMapper(page.page, DM_NAME);
@@ -211,7 +211,7 @@ function doMappings() {
 
 
   test.afterAll(async () => {
-    // await vscode?.close();
+    await vscode?.close();
 
     const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
     const video = page.page.video()
@@ -223,10 +223,10 @@ function doMappings() {
     }
 
     // cleanup
-    // if (fs.existsSync(newProjectPath)) {
-    //   fs.rmSync(newProjectPath, { recursive: true });
-    // }
-    console.log('Diagram tests completed')
+    if (fs.existsSync(newProjectPath)) {
+      fs.rmSync(newProjectPath, { recursive: true });
+    }
+    console.log('DataMapper tests completed')
   });
 
 }
