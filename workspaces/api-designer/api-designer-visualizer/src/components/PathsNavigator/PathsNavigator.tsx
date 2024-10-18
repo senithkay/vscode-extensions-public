@@ -151,12 +151,30 @@ export function PathsNavigator(props: PathsNavigatorProps) {
     const [pathEditIndex, setPathEditIndex] = useState<number>(-1);
     const pathItemKeys = paths ? Object.keys(paths) : [];
     // Finf pathItemKeys of type object
-    const pathsArray: Array<keyof Paths> = pathItemKeys.filter((key) => (typeof paths[key] === "object" && key !== "servers" && key !== "parameters")) as Array<keyof Paths>; 
+    // const pathsArray: Array<keyof Paths> = pathItemKeys.filter((key) => (typeof paths[key] === "object" && key !== "servers" && key !== "parameters" && key !== "description") && key !== "summary");
     const schemaArray = components?.schemas ? Object.keys(components?.schemas) : [];
     // Get PathItems from paths
-    const pathItems = paths && pathsArray ? pathsArray
-        .filter(path => typeof paths[path] === "object" && path !== "servers") // Ensure the value is an object and not 'servers'
-        .map(path => paths[path]) as Paths[] : [];
+    // const pathItems = paths && pathsArray ? pathsArray
+    // .filter(path => {
+    //     const pathItem = paths[path];
+    //     return (
+    //         typeof pathItem === "object" && 
+    //         pathItem !== null && // Ensure it's not null
+    //         !('summary' in pathItem) && 
+    //         !('description' in pathItem)
+    //     );
+    // })
+    //     .map(path => paths[path]) as Paths[] : [];
+    let pathItems: any[] = [];
+    let pathsArray: string[] = []; 
+    Object.entries(paths).forEach(([key, value]) => {
+        // if (typeof value === "object" && value !== null && !('summary' in value) && !('description' in value)) {
+        if (typeof value === "object" && value !== null && key !== "servers" && key !== "parameters" && key !== "description" && key !== "summary") {
+            pathsArray.push(key);
+            pathItems.push(value);
+        }
+    });
+    pathsArray = pathsArray.filter((path) => path !== "servers" && path !== "parameters" && path !== "description" && path !== "summary");
     const handleOverviewClick = () => {
         onPathChange && onPathChange(undefined);
     };
@@ -262,7 +280,8 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             >
                 {pathsArray.map((path, index) => {
                     const pathItem = pathItems[index];
-                    const operations = Object.keys(pathItem);
+                    const operations = pathItem && Object.keys(pathItem);
+                    const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary");
                     return (
                         <TreeView
                             id={String(path)} 
@@ -291,7 +310,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                             selectedId={selectedPathID}
                             onSelect={onPathChange}
                         >
-                            {operations.map((operation) => {
+                            {sanitizedOperations?.map((operation) => {
                                 return (
                                     <TreeViewItem id={getResourceID(String(path), operation)}>
                                         <PathItemWrapper>

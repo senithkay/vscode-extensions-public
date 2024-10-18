@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CheckBox, CheckBoxGroup, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import { PathItem as PI, Param, Paths } from "../../Definitions/ServiceDefinitions";
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
 import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from "../Utils/OpenAPIUtils";
-import { ParamEditor } from "../Parameter/ParamEditor";
+import { HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
+import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 
 interface MakrDownEditorProps {
     pathItem: Paths;
@@ -24,9 +25,11 @@ interface MakrDownEditorProps {
 }
 
 const httpMethods = ["get", "post", "put", "delete", "options", "head", "patch", "trace"];
+const moreOptions = ["Summary", "Description"];
 
 export function PathItem(props: MakrDownEditorProps) {
     const { pathItem, path, onChange, sx } = props;
+    const { rpcClient } = useVisualizerContext();
     const [description, setDescription] = useState<string>(String(pathItem.description));
     const currentPathItem: PI = pathItem[path] as PI;
     const pathParameters: Param[] = pathItem.parameters && getPathParametersFromParameters(Object.values(pathItem.parameters));
@@ -34,6 +37,43 @@ export function PathItem(props: MakrDownEditorProps) {
     const headerParameters: Param[] = pathItem.parameters && getHeaderParametersFromParameters(Object.values(pathItem.parameters));
     // Available operations for the path
     const operations: string[] = pathItem && pathItem[path] && Object.keys(pathItem[path]);
+    let selectedOptions: string[] = [];
+    if ((pathItem as Paths).summary) {
+        selectedOptions.push("Summary");
+    }
+    if ((pathItem as Paths).description) {
+        selectedOptions.push("Description");
+    }
+    const handleOptionChange = (options: string[]) => {
+        if (options.includes("Summary")) {
+            const updatedPathItem = {
+                ...pathItem,
+                [path]: {
+                    ...currentPathItem,
+                    summary: "",
+                },
+            };
+            onChange(updatedPathItem, path);
+        } else {
+            // Delete summary from the pathItem
+            const updatedPathItem = { ...pathItem };
+            delete (updatedPathItem[path] as PI).summary;
+        }
+        if (options.includes("Description")) {
+            const updatedPathItem = {
+                ...pathItem,
+                [path]: {
+                    ...currentPathItem,
+                    description: "",
+                },
+            };
+            onChange(updatedPathItem, path);
+        } else {
+            // Delete description from the pathItem
+            const updatedPathItem = { ...pathItem };
+            delete (updatedPathItem[path] as PI).description;
+        }
+    }
     const handlePathChange = (p: string) => {
         // Delete the current path form the pathItem
         const clonedPathItem = { ...pathItem };
@@ -119,6 +159,16 @@ export function PathItem(props: MakrDownEditorProps) {
             delete (updatedPathItem[path] as PI)[method];
             onChange(updatedPathItem, path);
         }
+    };
+    const onConfigureClick=()=>{
+        rpcClient.selectQuickPickItems({
+            title:"Select sections",
+            items: moreOptions.map(item=>({label:item, picked: selectedOptions.includes(item)}))
+        }).then(resp=>{
+            if(resp){
+                handleOptionChange(resp.map(item=>item.label))
+            }
+        })
     }
 
     useEffect(() => {
@@ -128,28 +178,40 @@ export function PathItem(props: MakrDownEditorProps) {
     return (
         <>
             <PanelBody>
+                <HorizontalFieldWrapper>
+                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Path Item</Typography>
+                    <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
+                        <Codicon name='gear' sx={{marginRight:"4px"}}/>
+                        Configure
+                    </Button>
+                </HorizontalFieldWrapper>
                 <TextField 
                     label="Path"
                     id="path"
                     sx={{ width: "100%" }}
                     value={path}
+                    forceAutoFocus
                     onTextChange={handlePathChange}
                 />
-                <TextField
-                    label="Summary"
-                    id="summary"
-                    sx={{ width: "100%" }}
-                    value={String(pathItem?.summary)}
-                    onTextChange={handleSummaryChange}
-                />
-                <CodeTextArea
-                    label="Description"
-                    id="description"
-                    sx={{ width: "100%" }}
-                    growRange={{ start: 2, offset: 10 }}
-                    value={description}
-                    onTextChange={handleDescriptionChange}
-                />
+                {selectedOptions.includes("Summary") && (
+                    <TextField
+                        label="Summary"
+                        id="summary"
+                        sx={{ width: "100%" }}
+                        value={String(pathItem?.summary)}
+                        onTextChange={handleSummaryChange}
+                    />
+                )}
+                {selectedOptions.includes("Description") && (
+                    <CodeTextArea
+                        label="Description"
+                        id="description"
+                        sx={{ width: "100%" }}
+                        growRange={{ start: 2, offset: 10 }}
+                        value={description}
+                        onChange={(e) => handleDescriptionChange(e.target.value)}
+                    />
+                )}
                 <label>Operations</label>
                 <CheckBoxGroup
                     direction="vertical"

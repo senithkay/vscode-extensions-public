@@ -185,44 +185,65 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         if (openAPIDefinition.paths === undefined) {
             openAPIDefinition.paths = {};
         }
+
         const newPathVal = Object.keys(openAPIDefinition.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPIDefinition.paths).length + 1}` : "/path";
-        rpcClient.showInputBox({
-            title: "Add New Path",
-            placeholder: "/path",
-            value: newPathVal,
-        }).then(newPath=>{
-            if(newPath){
-                if(Object.keys(openAPIDefinition.paths).includes(newPath)){
-                    rpcClient.showErrorNotification(`Path ${newPath} already exists in the OpenAPI schema`)
-                    return
-                }
-                rpcClient.selectQuickPickItems({title:`Select methods of path ${newPath}`,items: APIResources.map(item=>({
-                    label: item,
-                    picked: item === "get"
-                }))}).then(methodSelection=>{
-                    if(!methodSelection || methodSelection.length<1){
-                        rpcClient.showErrorNotification("Need to select at least one method for the path")
-                    }else{
-                        const pathObj: PathItem = {};
-                        methodSelection.forEach(method=>{
-                            pathObj[method.label]={parameters:[]}
-                        })
-                        const updatedOpenAPIDefinition: OpenAPI = {
-                            ...openAPIDefinition,
-                            paths: {
-                                [newPath]: pathObj,
-                                ...openAPIDefinition.paths,
+        openAPIDefinition.paths[newPathVal] = {
+            get: {
+                parameters: [],
+                responses: {
+                    200: {
+                        description: "Successful response",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "string",
+                                }
                             }
-                        };
-                        setOpenAPIDefinition(updatedOpenAPIDefinition);
-                        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
-                        if(methodSelection.length === 1){
-                            setSelectedPathID(getResourceID(newPath, methodSelection[0]?.label));
-                        }
                     }
-                })
+                }
             }
-        })
+        }};
+        setOpenAPIDefinition(openAPIDefinition);
+        onOpenApiDefinitionChange(openAPIDefinition);
+        setSelectedPathID(newPathVal);
+        setCurrentView(Views.EDIT);
+        // rpcClient.showInputBox({
+        //     title: "Add New Path",
+        //     placeholder: "/path",
+        //     value: newPathVal,
+        // }).then(newPath=>{
+        //     if(newPath){
+        //         if(Object.keys(openAPIDefinition.paths).includes(newPath)){
+        //             rpcClient.showErrorNotification(`Path ${newPath} already exists in the OpenAPI schema`)
+        //             return
+        //         }
+        //         rpcClient.selectQuickPickItems({title:`Select methods of path ${newPath}`,items: APIResources.map(item=>({
+        //             label: item,
+        //             picked: item === "get"
+        //         }))}).then(methodSelection=>{
+        //             if(!methodSelection || methodSelection.length<1){
+        //                 rpcClient.showErrorNotification("Need to select at least one method for the path")
+        //             }else{
+        //                 const pathObj: PathItem = {};
+        //                 methodSelection.forEach(method=>{
+        //                     pathObj[method.label]={parameters:[]}
+        //                 })
+        //                 const updatedOpenAPIDefinition: OpenAPI = {
+        //                     ...openAPIDefinition,
+        //                     paths: {
+        //                         [newPath]: pathObj,
+        //                         ...openAPIDefinition.paths,
+        //                     }
+        //                 };
+        //                 setOpenAPIDefinition(updatedOpenAPIDefinition);
+        //                 onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        //                 if(methodSelection.length === 1){
+        //                     setSelectedPathID(getResourceID(newPath, methodSelection[0]?.label));
+        //                 }
+        //             }
+        //         })
+        //     }
+        // })
     };
 
     const handleAddResources = (path: string, methods: string[] = []) => {
@@ -335,7 +356,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
             ...openAPIDefinition,
             paths: pathItem
         };
-        selectedPathID && setSelectedPathID(currentPath);
+        selectedPathID && setSelectedPathID(currentPath || selectedPathID);
         setOpenAPIDefinition(updatedOpenAPIDefinition);
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
@@ -358,9 +379,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     useEffect(() => {
         setOpenAPIDefinition(initialOpenAPIDefinition);
     }, [initialOpenAPIDefinition]);
-
-    console.log("selectedPathID", selectedPathID);
-    console.log("currentPath", currentPath);
 
     return (
         <NavigationContainer>
