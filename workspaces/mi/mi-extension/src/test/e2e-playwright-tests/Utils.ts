@@ -66,7 +66,7 @@ export async function createProject(page: ExtendedPage) {
 
 export async function closeNotification(page: ExtendedPage) {
     const notificationsCloseButton = page.page.locator('a.action-label.codicon.codicon-notifications-clear');
-    if (await notificationsCloseButton.count() > 0) {
-        await notificationsCloseButton.click({ force: true });
+    while (await notificationsCloseButton.count() > 0) {
+        await notificationsCloseButton.first().click({ force: true });
     }
 }
