@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Dropdown, OptionProps, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, OptionProps, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI, Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
@@ -17,12 +17,12 @@ import {
     getPathParametersFromParameters,
     getQueryParametersFromParameters
 } from '../Utils/OpenAPIUtils';
-import { OptionPopup } from '../OptionPopup/OptionPopup';
-import { ContentWrapper, PanelBody } from '../Overview/Overview';
+import { ContentWrapper, PanelBody, SubSectionWrapper } from '../Overview/Overview';
 import { Request } from './Request';
 import { Response } from './Response';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import ResourceHeader from './ResourceHeader';
+import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -61,6 +61,7 @@ export function Resource(props: ResourceProps) {
     const { resourceOperation, openAPI, method, path, onPathChange, onOperationChange } = props;
     const [initailPath, setInitailPath] = useState<string>(path);
     const [initialMethod, setInitialMethod] = useState<string>(method);
+    const { rpcClient } = useVisualizerContext();
     let selOpt: string[] = [];
     if (resourceOperation.summary || resourceOperation.summary === "") {
         selOpt.push("Summary");
@@ -277,10 +278,29 @@ export function Resource(props: ResourceProps) {
         setInitialMethod(method);
     }, [path, method]);
 
+    const onConfigureClick=()=>{
+        rpcClient.selectQuickPickItems({
+            title:"Select sections",
+            items: moreOptions.map(item=>({label:item, picked: defaultOptions.includes(item)}))
+        }).then(resp=>{
+            if(resp){
+                handleOptionChange(resp.map(item=>item.label))
+            }
+        })
+    }
+
     return (
         <>
             <PanelBody>
-                <ResourceHeader method={method} path={path} actionButtons={<OptionPopup options={moreOptions} selectedOptions={defaultOptions} onOptionChange={handleOptionChange} />} />
+                <ResourceHeader 
+                    method={method} 
+                    path={path} 
+                    actionButtons={
+                        <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
+                            <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
+                        </Button>
+                    }
+                />
                 {
                     defaultOptions.includes("Summary") && (
                         <TextField
@@ -315,15 +335,15 @@ export function Resource(props: ResourceProps) {
                         />
                     )
                 }
-                <ContentWrapper>
+                <SubSectionWrapper>
                     <ParamEditor title="Path Parameters" params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
-                </ContentWrapper>
-                <ContentWrapper>
+                </SubSectionWrapper>
+                <SubSectionWrapper>
                     <ParamEditor title="Query Parameters" params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
-                </ContentWrapper>
-                <ContentWrapper>
+                </SubSectionWrapper>
+                <SubSectionWrapper>
                     <ParamEditor title="Header Parameters" params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
-                </ContentWrapper>
+                </SubSectionWrapper>
                 {method !== "get" && 
                     <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
                 }

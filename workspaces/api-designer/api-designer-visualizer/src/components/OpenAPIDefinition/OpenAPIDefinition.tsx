@@ -202,8 +202,8 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         const updatedOpenAPIDefinition: OpenAPI = {
                             ...openAPIDefinition,
                             paths: {
+                                [newPath]: pathObj,
                                 ...openAPIDefinition.paths,
-                                [newPath]: pathObj
                             }
                         };
                         setOpenAPIDefinition(updatedOpenAPIDefinition);
@@ -363,8 +363,8 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         zIndex: 5,
                     }}
                     views={[
-                        { id: Views.READ_ONLY, name: 'Docs' },
-                        { id: Views.EDIT, name: 'Designer' },
+                        { id: Views.READ_ONLY, name: 'View' },
+                        { id: Views.EDIT, name: 'Design' },
                     ]}
                     currentViewId={currentView}
                     onViewChange={handleViewChange}
