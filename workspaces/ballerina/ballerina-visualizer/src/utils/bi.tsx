@@ -288,3 +288,12 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
         currentArgIndex: signatureHelp.activeParameter
     }
 }
+
+export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
+    return visibleTypes.map((type) => ({
+        label: type,
+        description: `Type: ${type}`,
+        value: type,
+        kind: "type-parameter"
+    }));
+}

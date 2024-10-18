@@ -42,6 +42,7 @@ import {
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
     convertToFnSignature,
+    convertToVisibleTypes,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -107,6 +108,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const [types, setTypes] = useState<CompletionItem[]>([]);
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
@@ -660,6 +663,33 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
+    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
+        let visibleTypes: CompletionItem[] = types;
+        if (!types.length) {
+            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                filePath: model.fileName,
+                position: targetRef.current.startLine,
+            });
+
+            visibleTypes = convertToVisibleTypes(response.types);
+            setTypes(visibleTypes);
+        }
+
+        const effectiveText = value.slice(0, cursorPosition);
+        const filteredTypes = visibleTypes.filter((type) => {
+            const lowerCaseText = effectiveText.toLowerCase();
+            const lowerCaseLabel = type.label.toLowerCase();
+
+            return lowerCaseLabel.includes(lowerCaseText);
+        });
+
+        setFilteredTypes(filteredTypes);
+    }, 250);
+
+    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
+        await debouncedGetVisibleTypes(value, cursorPosition);
+    };
+
     const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
             filePath: model.fileName,
@@ -682,6 +712,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
+        setFilteredTypes([]);
+        setTypes([]);
     };
 
     const handleCompletionSelect = async () => {
@@ -788,9 +820,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         isActiveSubPanel={showSubPanel}
                         openSubPanel={handleSubPanel}
                         expressionEditor={{
-                            completions: filteredCompletions,
+                            completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
                             triggerCharacters: TRIGGER_CHARACTERS,
                             retrieveCompletions: handleGetCompletions,
+                            retrieveVisibleTypes: handleGetVisibleTypes,
                             extractArgsFromFunction: extractArgsFromFunction,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
