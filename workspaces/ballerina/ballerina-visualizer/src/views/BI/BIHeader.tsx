@@ -21,18 +21,21 @@ const TitleContainer = styled.div`
     /* margin-left: 20px; */
 `;
 
-const AIContainer = styled.div`
-    right: 0;
-    position: absolute;
-    margin-right: 35px;
-    margin-top: 50px;
+const ActionContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 0;
+    align-self: flex-end;
 `;
 
 const ProjectTitle = styled.h1`
     font-weight: bold;
     font-size: 1.5rem;
     text-transform: capitalize;
-
+    margin-bottom: 0;
+    margin-top:0;
     @media (min-width: 768px) {
         font-size: 1.875rem;
     }
@@ -43,7 +46,8 @@ const ProjectSubtitle = styled.h2`
     font-weight: 200;
     font-size: 1.5rem;
     opacity: 0.3;
-
+    margin-bottom: 0;
+    margin-top:0;
     @media (min-width: 640px) {
         display: block;
     }
@@ -53,14 +57,14 @@ const ProjectSubtitle = styled.h2`
     }
 `;
 
-export function BIHeader(props: { showAI?: boolean }) {
+export function BIHeader(props: { showAI?: boolean, actions?: React.ReactNode[] }) {
     const { rpcClient } = useRpcContext();
     const [projectName, setProjectName] = React.useState<string>("");
 
     useEffect(() => {
         rpcClient.getBIDiagramRpcClient().getWorkspaces().then(res => {
             setProjectName(res.workspaces[0].name);
-        })
+        });
     }, []);
 
     const handleGenerateBtn = () => {
@@ -72,11 +76,15 @@ export function BIHeader(props: { showAI?: boolean }) {
             <TitleContainer>
                 <ProjectTitle>{projectName}</ProjectTitle>
                 <ProjectSubtitle>Project</ProjectSubtitle>
-                {props.showAI && <AIContainer>
+                {/* {props.showAI && <AIContainer>
                     <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleGenerateBtn}>
                         <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
                     </VSCodeButton>
-                </AIContainer>}
+
+                </AIContainer>} */}
+                <ActionContainer>
+                    {props.actions}
+                </ActionContainer>
             </TitleContainer>
             <Divider />
         </>

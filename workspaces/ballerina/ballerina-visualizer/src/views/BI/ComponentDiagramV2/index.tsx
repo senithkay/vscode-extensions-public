@@ -28,7 +28,7 @@ import styled from "@emotion/styled";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
-import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
+import { fetchWithToken, getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -180,26 +180,40 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         if (readmeContent === "" && !isQuestion) {
             return;
         }
-
+        setLoadingMessage("Authenticating...");
         setIsLoading(true);
-        setLoadingMessage("Reading...");
+        
         let assistant_response = "";
         const controller = new AbortController();
         const signal = controller.signal;
         const url = backendRootUri.current;
-        const response = await fetch(url + "/code", {
+        const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
+        if (!token) {
+            await rpcClient.getAiPanelRpcClient().promptLogin();
+            setIsLoading(false);
+            return;
+        }
+        const response = await fetchWithToken(url + "/code", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({ usecase: readmeContent, chatHistory: [] }),
             signal: signal,
-        });
+        }, rpcClient);
+
         if (!response.ok) {
+            if (response.status >= 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
             setIsLoading(false);
             throw new Error("Failed to fetch response");
         }
 
+        setLoadingMessage("Reading...");
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let functions: any;

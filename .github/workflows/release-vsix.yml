@@ -63,7 +63,7 @@ jobs:
       mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
-      skipBallerinaUiTests: ${{ github.event.inputs.choreo == 'true' }}
+      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX

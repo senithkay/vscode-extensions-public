@@ -9,12 +9,13 @@
 
 import React, { useEffect, useState } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, RadioButtonGroup, FormGroup, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, View, ViewContent, ErrorBanner, RadioButtonGroup, FormGroup, Dropdown, ParamConfig, ParamManager } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
+import { getFunctionParametersList, parameterConfig } from "../../../utils/utils";
 
 const FormContainer = styled.div`
     display: flex;
@@ -53,33 +54,25 @@ const Link = styled.a`
     color: var(--button-primary-background);
 `;
 
-type TriggerType = "SCHEDULED" | "MANUAL";
-
 export function MainForm() {
     const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
-    const [triggerType, setType] = useState<TriggerType>("MANUAL");
-    const [argType, setArgType] = useState("");
-    const [argName, setArgName] = useState("");
     const [cron, setCron] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [automation, setAutomation] = useState<ProjectStructureArtifactResponse>(null);
     const [error, setError] = useState("");
+    const [params, setParams] = useState(parameterConfig);
 
     const handleFunctionCreate = async () => {
         setIsLoading(true);
-        console.log(triggerType);
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.AUTOMATION, taskType: { name, triggerType, argType, argName, cron } });
+        const paramList = getFunctionParametersList(params);
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.AUTOMATION, functionType: { name, parameters: paramList, cron } });
         setIsLoading(res.response);
         setError(res.error);
     };
 
     const validate = () => {
-        if (triggerType === "SCHEDULED") {
-            return !name || !cron || isLoading || automation !== null;
-        } else {
-            return !name || isLoading || automation !== null;
-        }
+        return !name || isLoading || automation !== null;
     }
 
     const openAutomation = () => {
@@ -99,6 +92,24 @@ export function MainForm() {
             });
     }, []);
 
+    const handleParamChange = (params: ParamConfig) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param, index) => {
+                const defaultValue = `${param.parameters[2].value}`;
+                let value = `${param.parameters[1].value}`
+                if (defaultValue) {
+                    value += ` = ${defaultValue}`;
+                }
+                return {
+                    ...param,
+                    key: param.parameters[0].value as string,
+                    value: value,
+                }
+            })
+        };
+        setParams(modifiedParams);
+    };
+
 
     return (
         <View>
@@ -106,48 +117,21 @@ export function MainForm() {
                 <BIHeader />
                 <Container>
                     {automation &&
-                        <Typography variant="h4">You have already created an automation task. <Link onClick={openAutomation}>View Now</Link></Typography>
+                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link></Typography>
                     }
-                    <Typography variant="h2">Create Automation Task</Typography>
+                    <Typography variant="h2">Create Automation</Typography>
                     <BodyText>
-                        Implement a task for either scheduled or one-time jobs.
+                        Implement an automation for either scheduled or manual jobs.
                     </BodyText>
                     <FormContainer>
                         <TextField
                             onTextChange={setName}
                             value={name}
-                            label="Task Name"
-                            placeholder="Enter task name"
+                            label="Automation Name"
+                            placeholder="Enter automation name"
                         />
-                        <RadioButtonGroup
-                            id="triggerType"
-                            label="Trigger Type"
-                            options={[{ content: "Manual", value: "MANUAL" }, { content: "Scheduled", value: "SCHEDULED" }]}
-                            onChange={(value) => setType(value.target.value as TriggerType)}
-                            value={triggerType}
-                        />
-                        {triggerType === "SCHEDULED" &&
-                            <TextField
-                                onTextChange={setCron}
-                                value={cron}
-                                label="Cron Expression"
-                                placeholder="Enter Cron expression"
-                            />
-                        }
-                        <FormGroup title="Arguments" isCollapsed={true}>
-                            <Dropdown
-                                id="injectTo"
-                                label="Argument Type"
-                                items={[{ value: "string" }, { value: "int" }]}
-                                onChange={(value) => setArgType(value.target.value)}
-                                value={argType}
-                            />
-                            <TextField
-                                label="Argument Name"
-                                placeholder="Enter argument name"
-                                onChange={(value) => setArgName(value.target.value)}
-                                value={argName}
-                            />
+                        <FormGroup title="Parameters" isCollapsed={true}>
+                            <ParamManager paramConfigs={params} readonly={false} onChange={handleParamChange} />
                         </FormGroup>
                         <ButtonWrapper>
                             <Button
@@ -155,11 +139,11 @@ export function MainForm() {
                                 onClick={handleFunctionCreate}
                                 appearance="primary"
                             >
-                                Create Task
+                                Create Automation
                             </Button>
                         </ButtonWrapper>
                         <BodyText >
-                            Please Note: Only one task can be created per project.
+                            Please Note: Only one automation can be created per project.
                         </BodyText>
                         {error && <ErrorBanner errorMsg={error} />}
                     </FormContainer>

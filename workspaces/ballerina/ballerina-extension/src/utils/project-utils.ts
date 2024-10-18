@@ -8,7 +8,7 @@
  */
 
 import { ballerinaExtInstance } from "../core";
-import {Uri, window, workspace} from "vscode";
+import { Uri, window, workspace } from "vscode";
 import * as path from 'path';
 import { isSupportedVersion, VERSION } from "./config";
 import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
@@ -66,7 +66,7 @@ function getCurrenDirectoryPath(): string {
 }
 
 function addToWorkspace(url: string) {
-    workspace.updateWorkspaceFolders(workspace.workspaceFolders ? workspace.workspaceFolders.length : 0, null, { uri: Uri.parse(url)} );
+    workspace.updateWorkspaceFolders(workspace.workspaceFolders ? workspace.workspaceFolders.length : 0, null, { uri: Uri.parse(url) });
 }
 
 export { addToWorkspace, getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath };
