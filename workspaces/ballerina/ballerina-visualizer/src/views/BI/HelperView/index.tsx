@@ -15,6 +15,7 @@ import { LineRange, SubPanel, SubPanelView } from '@wso2-enterprise/ballerina-co
 import { LibrariesView } from './LibrariesView';
 import { ExpressionFormField } from '@wso2-enterprise/ballerina-side-panel';
 import { VariablesView } from './VariablesView';
+import { ConfigureView } from './ConfigureView';
 
 
 interface HelperViewProps {
@@ -81,7 +82,7 @@ export function HelperView(props: HelperViewProps) {
                     <LibrariesView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
                 </PanelContent>
                 <PanelContent id={TabElements.configure}>
-                    <div></div>
+                    <ConfigureView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
                 </PanelContent>
 
             </StyledVSCodePanels>
