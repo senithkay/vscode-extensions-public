@@ -7,13 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { CheckBox, CheckBoxGroup, TextField } from "@wso2-enterprise/ui-toolkit";
 import { PathItem as PI, Param, Paths } from "../../Definitions/ServiceDefinitions";
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
 import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from "../Utils/OpenAPIUtils";
 import { ParamEditor } from "../Parameter/ParamEditor";
+import { getColorByMethod } from "@wso2-enterprise/service-designer";
 
 interface MakrDownEditorProps {
     pathItem: Paths;
@@ -22,6 +23,8 @@ interface MakrDownEditorProps {
     sx?: any;
 }
 
+const httpMethods = ["get", "post", "put", "delete", "options", "head", "patch", "trace"];
+
 export function PathItem(props: MakrDownEditorProps) {
     const { pathItem, path, onChange, sx } = props;
     const [description, setDescription] = useState<string>(String(pathItem.description));
@@ -29,6 +32,8 @@ export function PathItem(props: MakrDownEditorProps) {
     const pathParameters: Param[] = pathItem.parameters && getPathParametersFromParameters(Object.values(pathItem.parameters));
     const queryParameters: Param[] = pathItem.parameters && getQueryParametersFromParameters(Object.values(pathItem.parameters));
     const headerParameters: Param[] = pathItem.parameters && getHeaderParametersFromParameters(Object.values(pathItem.parameters));
+    // Available operations for the path
+    const operations: string[] = pathItem && pathItem[path] && Object.keys(pathItem[path]);
     const handlePathChange = (p: string) => {
         // Delete the current path form the pathItem
         const clonedPathItem = { ...pathItem };
@@ -84,6 +89,37 @@ export function PathItem(props: MakrDownEditorProps) {
         };
         onChange(updatedPathItem, path);
     };
+    const handleOperationChange = (isChecked: boolean, method: string) => {
+        // If the operation is checked, add it to the pathItem
+        if (isChecked) {
+            const updatedPathItem = {
+                ...pathItem,
+                [path]: {
+                    ...currentPathItem,
+                    [method]: {
+                        responses: {
+                            200: {
+                                description: "OK",
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "string",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+            onChange(updatedPathItem, path);
+        } else {
+            // If the operation is unchecked, remove it from the pathItem
+            const updatedPathItem = { ...pathItem };
+            delete (updatedPathItem[path] as PI)[method];
+            onChange(updatedPathItem, path);
+        }
+    }
 
     useEffect(() => {
         setDescription(String(pathItem.description));
@@ -114,6 +150,20 @@ export function PathItem(props: MakrDownEditorProps) {
                     value={description}
                     onTextChange={handleDescriptionChange}
                 />
+                <label>Operations</label>
+                <CheckBoxGroup
+                    direction="vertical"
+                    columns={2}
+                >
+                    {httpMethods && httpMethods.map((method: string) => (
+                        <CheckBox
+                            label={method?.toLocaleUpperCase()}
+                            value={method} checked={operations.includes(method)}
+                            onChange={(isChecked: boolean) => handleOperationChange(isChecked, method)}
+                            sx={{ "--foreground": getColorByMethod(method) }}
+                        />
+                    ))}
+                </CheckBoxGroup>
                 <ParamEditor
                     params={pathParameters}
                     onParamsChange={handlePathParametersChange}

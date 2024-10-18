@@ -64,8 +64,8 @@ export function APIDesigner(props: ServiceDesignerProps) {
                 convertedApiDefinition = {
                     openapi: "3.0.1",
                     info: {
-                        title: "New API",
-                        version: "1.0.0",
+                        title: "",
+                        version: "",
                     },
                     paths: {},
                 };
@@ -73,8 +73,8 @@ export function APIDesigner(props: ServiceDesignerProps) {
             // If no Info field is present in the response, then set the Info field
             if (!convertedApiDefinition.info) {
                 convertedApiDefinition.info = {
-                    title: "New API",
-                    version: "1.0.0",
+                    title: "",
+                    version: "",
                 };
             }
             setApiDefinition(convertedApiDefinition);

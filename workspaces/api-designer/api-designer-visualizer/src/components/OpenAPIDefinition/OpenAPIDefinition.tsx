@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from "react";
-import { OpenAPI, Operation, Path, PathItem } from "../../Definitions/ServiceDefinitions";
+import { OpenAPI, Operation, Path, PathItem, Paths } from "../../Definitions/ServiceDefinitions";
 import styled from "@emotion/styled";
 import { PathsNavigator } from "../PathsNavigator/PathsNavigator";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
 import { Tabs } from "../Tabs/Tabs";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { APIResources } from "../../constants";
+import { PathItem as PI } from "../PathItem/PathItem.tsx";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -328,6 +329,17 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setCurrentView(view as Views);
     };
 
+    const handlePathItemChange = (pathItem: Paths, currentPath: string) => {
+        // Update the OpenAPI definition with the new path
+        const updatedOpenAPIDefinition: OpenAPI = {
+            ...openAPIDefinition,
+            paths: pathItem
+        };
+        selectedPathID && setSelectedPathID(currentPath);
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+    };
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -341,10 +353,14 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
             }
         });
     }
+    const currentPath = selectedPathID && openAPIDefinition?.paths[selectedPathID];
 
     useEffect(() => {
         setOpenAPIDefinition(initialOpenAPIDefinition);
     }, [initialOpenAPIDefinition]);
+
+    console.log("selectedPathID", selectedPathID);
+    console.log("currentPath", currentPath);
 
     return (
         <NavigationContainer>
@@ -382,7 +398,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     onViewChange={handleViewChange}
                 >
                     <div id={Views.EDIT}>
-                        {(selectedPathID === undefined || !operation) && ( 
+                        {(selectedPathID === undefined || !currentPath) && ( 
                             <Overview
                                 openAPIDefinition={openAPIDefinition}
                                 onOpenApiDefinitionChange={onOpenApiDefinitionChange}
@@ -398,9 +414,12 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                                 onOperationChange={handleOperationChange}
                             />
                         )}
+                        {currentView === Views.EDIT && selectedPathID && currentPath && (
+                            <PI path={selectedPathID} pathItem={openAPIDefinition?.paths} onChange={handlePathItemChange} />
+                        )}
                     </div>
                     <div id={Views.READ_ONLY}>
-                        {(selectedPathID === undefined || !operation) && (
+                        {(selectedPathID === undefined || !currentPath) && (
                             <ReadOnlyOverview openAPIDefinition={openAPIDefinition} />
                         )}
                         {(operation && selectedPathID !== undefined) && (
