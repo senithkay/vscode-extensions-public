@@ -177,6 +177,13 @@ export function PathsNavigator(props: PathsNavigatorProps) {
         }       
     }
 
+    const handleAddPathMethod = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        if(onAddPath){
+            onAddPath()
+        }       
+    }
+
     const modifyPathClick = (evt: React.MouseEvent, index: number, path: string, currentOperations: string[]) => {
         evt.stopPropagation();
         rpcClient.selectQuickPickItem({title: `Select an option`,items:[
@@ -245,6 +252,9 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                         <LeftPathContainer>
                             <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Paths</Typography>
                         </LeftPathContainer>
+                        <RightPathContainerButtons className="buttons-container">
+                            <Button tooltip="Add Path" appearance="icon" onClick={handleAddPathMethod}><Codicon name="plus"/></Button>
+                        </RightPathContainerButtons> 
                     </PathContainer>
                 }
                 selectedId={selectedPathID}
@@ -305,7 +315,6 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                         </TreeView>
                     );
                 })}
-                <AddNewLink onClick={onAddPath}>Add Path</AddNewLink>
             </TreeView>
             <TreeView
                 sx={{ paddingBottom: 2 }}

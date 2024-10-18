@@ -20,8 +20,16 @@ export const HorizontalFieldWrapper = styled.div`
 export const ButtonWrapper = styled.div`
     display: flex;
     flex-direction: row;
-    gap: 10px;
-    margin-top: 5px;
+    align-items: center;
+    justify-content: end;
+`;
+
+export const ButtonWrapperParams = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 70px;
+    justify-content: end;
 `;
 
 interface OverviewProps {
@@ -93,7 +101,7 @@ export function ParamEditor(props: OverviewProps) {
     );
 
     return (
-        <>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             <SectionHeader title={title} actionButtons={getAddButton()} />
             {params && params.length > 0 ? (
                 params.map((param, index) => (
@@ -117,17 +125,20 @@ export function ParamEditor(props: OverviewProps) {
                             sx={{ width: "33%" }}
                             onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
                         />
-                        <ButtonWrapper>
-                            <Codicon iconSx={{ background: param.isArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray(index, !param.isArray)} />
-                            <Codicon iconSx={{ background: param.isRequired ? "var(--vscode-menu-separatorBackground)" : "none" }} name="question" onClick={() => updateRequired(index, !param.isRequired)} />
-                            <Codicon name="trash" onClick={() => removeParam(index)} />
-                        </ButtonWrapper>
+                        <ButtonWrapperParams>
+                            <Button appearance='icon' onClick={() => updateRequired(index, !param.isRequired)}>
+                                <div style={{fontSize: "11px"}}>{param.isRequired ? "Required" : "Optional"}</div>
+                            </Button>
+                            <Button appearance='icon' onClick={() => removeParam(index)}>
+                                <Codicon name="trash" />
+                            </Button>
+                        </ButtonWrapperParams>
                     </HorizontalFieldWrapper>
                 ))
             ) : (
                 <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No parameters.</Typography>
             )}
-        </>
+        </div>
 
     )
 }

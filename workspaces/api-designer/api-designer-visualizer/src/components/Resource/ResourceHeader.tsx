@@ -12,6 +12,7 @@ const MethodWrapper = styled.div<MethodWrapperProps>`
     width: fit-content;
     color: white;
     background-color: ${(props: MethodWrapperProps) => props.color};
+    border-radius: 2px;
 `;
 
 const PathWrapper = styled.div`

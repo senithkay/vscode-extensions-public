@@ -6,12 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
-import { OptionPopup } from '../OptionPopup/OptionPopup';
 import { useState } from 'react';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
+import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -30,7 +30,14 @@ export const PanelBody = styled.div`
 export const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
+`;
+
+export const SubSectionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
+    gap: 5px;
 `;
 
 interface OverviewProps {
@@ -43,6 +50,7 @@ const moreOptions = ["Summary", "Description", "Contact", "License"];
 // Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition } = props;
+    const { rpcClient } = useVisualizerContext();
     const [description, setDescription] = useState<string>(openAPIDefinition?.info?.description || "");
     let selectedOptions: string[] = [];
     if (openAPIDefinition?.info?.summary || openAPIDefinition?.info?.summary === "") {
@@ -153,14 +161,26 @@ export function Overview(props: OverviewProps) {
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
 
+    const onConfigureClick=()=>{
+        rpcClient.selectQuickPickItems({
+            title:"Select sections",
+            items: moreOptions.map(item=>({label:item, picked: selectedOptions.includes(item)}))
+        }).then(resp=>{
+            if(resp){
+                handleOptionChange(resp.map(item=>item.label))
+            }
+        })
+    }
+
     return (
         <>
             <PanelBody>
                 <HorizontalFieldWrapper>
-                    <Typography sx={{ margin: 0, marginTop: 0 }} variant="h2">Overview</Typography>
-                    <div style={{ marginLeft: 'auto' }}>
-                        <OptionPopup options={moreOptions} selectedOptions={selectedOptions} onOptionChange={handleOptionChange} />
-                    </div>
+                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Overview</Typography>
+                    <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
+                        <Codicon name='gear' sx={{marginRight:"4px"}}/>
+                        Configure
+                    </Button>
                 </HorizontalFieldWrapper>
                 <HorizontalFieldWrapper>
                     <TextField

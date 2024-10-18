@@ -12,21 +12,21 @@ import { Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
-import { PullUpButton } from '../PullUpButton/PullUPButton';
 import { BaseTypes, MediaTypes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
-import { ContentWrapper } from '../Overview/Overview';
+import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';
+import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 
 const RequestTypeWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 5px;
 `;
 
 const ParamWrapper = styled.div`
@@ -93,6 +93,7 @@ interface ReadOnlyResourceProps {
 export function Request(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path, onOperationChange } = props;
     const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.requestBody?.content ? Object.keys(resourceOperation.requestBody.content)[0] : undefined);
+    const { rpcClient } = useVisualizerContext();
 
     const requestContents = resourceOperation?.requestBody?.content ? Object.entries(resourceOperation.requestBody.content) : [];
     const mediaTypes = requestContents ? requestContents.map(([key]) => key) : [];
@@ -226,62 +227,59 @@ export function Request(props: ReadOnlyResourceProps) {
         onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
     };
 
-    const getContentTypeOptionSelect = () => {
-        return (
-            <PullUpButton options={MediaTypes} selectedOptions={mediaTypes} onOptionChange={handleOptionChange}>
-                <Button appearance="icon">
-                    <Codicon sx={{ marginRight: 5 }} name="add" />
-                    Add
-                </Button>
-            </PullUpButton>
-        )
+    const onConfigureRequestClick=()=>{
+        rpcClient.selectQuickPickItems({
+            title:"Select Content Types",
+            items: MediaTypes.map(item=>({label:item, picked: mediaTypes.includes(item)}))
+        }).then(resp=>{
+            if(resp){
+                handleOptionChange(resp.map(item=>item.label))
+            }
+        })
     }
 
     return (
-        <>
-            <Typography variant="h3" sx={{ margin: 0 }}>Requests Body</Typography>
-            <ContentWrapper>
-                <CodeTextArea
-                    id="description"
-                    label='Description'
-                    value={resourceOperation?.requestBody?.description}
-                    onChange={(evt) => handleDescriptionChange(evt.target.value)}
-                    resize="vertical"
-                    growRange={{ start: 2, offset: 10 }}
-                />
-                <ContentWrapper>
-                    <SectionHeader title="Content Type" variant='h4' actionButtons={getContentTypeOptionSelect()} />
-                    {requestContentTabViewItems.length > 0 && (
-                        <Tabs
-                            views={requestContentTabViewItems}
-                            currentViewId={selectedMediaType}
-                            onViewChange={setSelectedMediaType}
-                        >
-                            {requestContents.map(([key, value], index) => (
-                                <div key={index} id={key}>
-                                    <RequestTypeWrapper>
-                                        {/* <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
-                                        {!isInlinedObject && (
-                                            <HorizontalFieldWrapper>
-                                                <TextField
-                                                    placeholder="Default Value"
-                                                    value={type}
-                                                    sx={{ width: "100%" }}
-                                                    onChange={(e) => updateSchemaType(e.target.value)}
-                                                />
-                                                <ButtonWrapper>
-                                                    <Codicon iconSx={{ background: isSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
-                                                    <Codicon name="trash" onClick={() => removeType()} />
-                                                </ButtonWrapper>
-                                            </HorizontalFieldWrapper>
-                                        )}
-                                    </RequestTypeWrapper>
-                                </div>
-                            ))}
-                        </Tabs>
-                    )}
-                </ContentWrapper>
-            </ContentWrapper>
-        </>
+        <SubSectionWrapper>
+            <SectionHeader 
+                title="Request" 
+                variant='h3' 
+                actionButtons={
+                    <Button tooltip='Configure Content Types' onClick={onConfigureRequestClick} appearance='icon'>
+                        <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
+                    </Button>
+                }
+            />
+            {requestContentTabViewItems.length > 0 ? (
+                <Tabs
+                    views={requestContentTabViewItems}
+                    currentViewId={selectedMediaType}
+                    onViewChange={setSelectedMediaType}
+                >
+                    {requestContents.map(([key, value], index) => (
+                        <div key={index} id={key}>
+                            <RequestTypeWrapper>
+                                {/* <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
+                                {!isInlinedObject && (
+                                    <HorizontalFieldWrapper>
+                                        <TextField
+                                            placeholder="Default Value"
+                                            value={type}
+                                            sx={{ flex: 1 }}
+                                            onChange={(e) => updateSchemaType(e.target.value)}
+                                        />
+                                        <ButtonWrapper>
+                                            <CheckBox checked={isSchemaArray} label='Is Array' onChange={()=>updateArray()}/>
+                                            <Button appearance='icon' onClick={() => removeType()}>
+                                                <Codicon name="trash" />
+                                            </Button>
+                                        </ButtonWrapper>
+                                    </HorizontalFieldWrapper>
+                                )}
+                            </RequestTypeWrapper>
+                        </div>
+                    ))}
+                </Tabs>
+            ): <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No content types.</Typography>}
+        </SubSectionWrapper>
     )
 }
