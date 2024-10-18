@@ -12,20 +12,20 @@ import { Header, Operation, Param, Parameter, Responses } from '../../Definition
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
-import { PullUpButton } from '../PullUpButton/PullUPButton';
 import { BaseTypes, MediaTypes, StatusCodes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { convertParamsToParameters, getResponseHeadersFromResponse, resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter/ParamEditor';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
-import { ContentWrapper } from '../Overview/Overview';
+import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';
+import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 
 export const VerticalFieldWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
 `;
 
 const ParamContainer = styled.div`
@@ -83,6 +83,7 @@ interface ReadOnlyResourceProps {
 
 export function Response(props: ReadOnlyResourceProps) {
     const { resourceOperation, method, path, onOperationChange } = props;
+    const { rpcClient } = useVisualizerContext();
     const [selectedResponseType, setSelectedResponseType] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
     const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.responses && resourceOperation.responses[selectedResponseType]?.content ? Object.keys(resourceOperation.responses[selectedResponseType].content)[0] : undefined);
 
@@ -96,7 +97,7 @@ export function Response(props: ReadOnlyResourceProps) {
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties &&
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
     const responseSchema = selectedContentFromResponseMediaType && selectedMediaType &&
-        selectedContentFromResponseMediaType?.content[selectedMediaType] && selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema;
+        selectedContentFromResponseMediaType?.content?.[selectedMediaType] && selectedContentFromResponseMediaType?.content?.[selectedMediaType]?.schema;
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
     const headers: Header[] = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
@@ -343,36 +344,44 @@ export function Response(props: ReadOnlyResourceProps) {
         }
     }, [resourceOperation?.responses && Object.keys(resourceOperation.responses)[0]]);
 
-    const getStatusCodeOptionSelect = () => {
-        return (
-            <PullUpButton options={statusCodeList} selectedOptions={selectedStatusCode || []} onOptionChange={handleStatusCodeChange}>
-                <Button appearance="icon">
-                    <Codicon sx={{ marginRight: 5 }} name="add" />
-                    Add
-                </Button>
-            </PullUpButton>
-        )
+    const onConfigureClick=()=>{
+        rpcClient.selectQuickPickItems({
+            title:"Select Types",
+            items: MediaTypes.map(item=>({label:item, picked: responseMediaTypes.includes(item)}))
+        }).then(resp=>{
+            if(resp){
+                handleOptionChange(resp.map(item=>item.label))
+            }
+        })
     }
 
-    const getContentTypeOptionSelect = () => {
-        return (
-            <PullUpButton options={MediaTypes} selectedOptions={responseMediaTypes} onOptionChange={handleOptionChange}>
-                <Button appearance="icon">
-                    <Codicon sx={{ marginRight: 5 }} name="add" />
-                    Add
-                </Button>
-            </PullUpButton>
-        )
+    const onConfigureResponsesClick=()=>{
+        rpcClient.selectQuickPickItems({
+            title:"Select Responses",
+            items: statusCodeList.map(item=>({label:item, picked: selectedStatusCode?.includes(item)}))
+        }).then(resp=>{
+            if(resp){
+                handleStatusCodeChange(resp.map(item=>item.label))
+            }
+        })
     }
 
     return (
-        <>
-            <SectionHeader title="Responses" variant='h2' actionButtons={getStatusCodeOptionSelect()} />
-            <ContentWrapper>
-                {statusTabViewItems?.length > 0 && (
+        <SubSectionWrapper>
+            <SectionHeader 
+                title="Responses" 
+                variant='h3' 
+                actionButtons={
+                    <Button tooltip='Configure Responses' onClick={onConfigureResponsesClick} appearance='icon'>
+                        <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
+                    </Button>
+                }
+            />
+            <>
+                {statusTabViewItems?.length > 0 ? (
                     <Tabs views={statusTabViewItems} currentViewId={selectedResponseType} onViewChange={setSelectedResponseType}>
                         {resourceOperation?.responses && Object.keys(resourceOperation?.responses)?.map((status) => (
-                            <div id={status} style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+                            <div id={status} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                                 <CodeTextArea
                                     key="responseBody-description-${path}-${method}-${status}"
                                     label='Description'
@@ -388,10 +397,18 @@ export function Response(props: ReadOnlyResourceProps) {
                                     type="Header" disableCollapse
                                     onParamsChange={handleOnHeaderParamsChange}
                                 />
-                                <Typography variant="h3" sx={{ margin: 0 }}>Content</Typography>
-                                <SectionHeader title="Content" variant='h4' actionButtons={getContentTypeOptionSelect()} />
+                                <SubSectionWrapper>
+                                <SectionHeader 
+                                    title="Content" 
+                                    variant='h4' 
+                                    actionButtons={
+                                        <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
+                                            <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
+                                        </Button>
+                                    }
+                                />
                                 <ContentWrapper>
-                                    <Tabs views={respMediaTypeTabViewItems} currentViewId={selectedMediaType} onViewChange={setSelectedMediaType}>
+                                    {respMediaTypeTabViewItems?.length > 0 ? <Tabs views={respMediaTypeTabViewItems} currentViewId={selectedMediaType} onViewChange={setSelectedMediaType}>
                                         <div id={selectedMediaType}>
                                             <ResponseTypeWrapper>
                                                 {/* <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
@@ -419,21 +436,19 @@ export function Response(props: ReadOnlyResourceProps) {
                                                             resize="vertical" 
                                                             growRange={{ start: 2, offset: 10 }} 
                                                         /> */}
-                                                        {/* <ButtonWrapper>
-                                                            <Codicon iconSx={{ background: isResponseSchemaArray ? "var(--vscode-menu-separatorBackground)" : "none" }} name="symbol-array" onClick={() => updateArray()} />
-                                                            <Codicon name="trash" onClick={() => removeType()} />
-                                                        </ButtonWrapper> */}
                                                     </VerticalFieldWrapper>
                                                 )}
                                             </ResponseTypeWrapper>
                                         </div>
-                                    </Tabs>
+                                    </Tabs> : <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No content types.</Typography>}
+                                    
                                 </ContentWrapper>
+                                </SubSectionWrapper>
                             </div>
                         ))}
                     </Tabs>
-                )}
-            </ContentWrapper>
-        </>
+                ) : <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No response statuses.</Typography>}
+            </>
+        </SubSectionWrapper>
     )
 }
