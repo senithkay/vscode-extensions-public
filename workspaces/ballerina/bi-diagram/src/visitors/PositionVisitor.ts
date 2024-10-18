@@ -20,7 +20,7 @@ export class PositionVisitor implements BaseVisitor {
         console.log(">>> position visitor started");
     }
 
-    beginVisitEventHttpApi(node: FlowNode, parent?: FlowNode): void {
+    beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
@@ -79,6 +79,11 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     beginVisitConditional(node: Branch, parent?: FlowNode): void {
+        this.lastNodeY = node.viewState.y;
+    }
+
+    beginVisitBody(node: Branch, parent?: FlowNode): void {
+        // `Body` is inside `Foreach` node 
         this.lastNodeY = node.viewState.y;
     }
 
@@ -142,6 +147,23 @@ export class PositionVisitor implements BaseVisitor {
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
+        this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+    }
+
+    beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
+        node.viewState.y = this.lastNodeY;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+
+        const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
+        node.viewState.x = centerX - node.viewState.w / 2;
+
+        const bodyBranch = node.branches.find((branch) => branch.label === "Body");
+        bodyBranch.viewState.y = this.lastNodeY;
+
+        bodyBranch.viewState.x = centerX -  bodyBranch.viewState.cw / 2
+    }
+
+    endVisitForeach(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
     }
 

@@ -45,6 +45,7 @@ export function NodeIcon(props: NodeIconProps) {
             return <CallIcon />;
         case "RETURN":
             return <ReturnIcon />;
+        case "VARIABLE":
         case "NEW_DATA":
         case "UPDATE_DATA":
             return <VarIcon />;

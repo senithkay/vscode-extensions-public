@@ -22,9 +22,9 @@ export interface DiagramContextState {
     onDeleteNode: (node: FlowNode) => void;
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
+    onConnectionSelect?: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView: (filePath: string, position: NodePosition) => void;
-    flowNodeStyle?: FlowNodeStyle;
     suggestions?: {
         fetching: boolean;
         onAccept(): void;
@@ -45,9 +45,9 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     onDeleteNode: () => {},
     onAddComment: () => {},
     onNodeSelect: () => {},
+    onConnectionSelect: () => {},
     goToSource: () => {},
     openView: () => {},
-    flowNodeStyle: "default",
     suggestions: {
         fetching: false,
         onAccept: () => {},

@@ -15,23 +15,17 @@ export const LINK_BOTTOM_OFFSET = 30;
 
 export interface NodeLinkModelOptions {
     label?: string;
-    showAddButton?: boolean; // default true
-    showArrow?: boolean; // default true
-    brokenLine?: boolean; // default false
-    alignBottom?: boolean; // default false
+    visible: boolean;
     onAddClick?: () => void;
 }
 
 export class NodeLinkModel extends DefaultLinkModel {
-    label: string;
     sourceNode: NodeModel;
     targetNode: NodeModel;
     // options
-    showArrow: boolean;
-    showAddButton = true;
-    brokenLine = false;
-    alignBottom = false;
-    linkBottomOffset = LINK_BOTTOM_OFFSET;
+    label: string;
+    visible: boolean;
+    // call back
     onAddClick?: () => void;
 
     constructor(label?: string);
@@ -44,31 +38,21 @@ export class NodeLinkModel extends DefaultLinkModel {
             selectedColor: Colors.SECONDARY,
             curvyness: 0,
         });
-        // if (options) {
-        //     if (typeof options === "string" && options.length > 0) {
-        //         this.label = options;
-        //         this.linkBottomOffset = LINK_BOTTOM_OFFSET + 40;
-        //     } else {
-        //         if ((options as NodeLinkModelOptions).label) {
-        //             this.label = (options as NodeLinkModelOptions).label;
-        //         }
-        //         if ((options as NodeLinkModelOptions).showAddButton === false) {
-        //             this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
-        //         }
-        //         if ((options as NodeLinkModelOptions).showArrow) {
-        //             this.showArrow = (options as NodeLinkModelOptions).showArrow;
-        //         }
-        //         if ((options as NodeLinkModelOptions).brokenLine === true) {
-        //             this.brokenLine = (options as NodeLinkModelOptions).brokenLine;
-        //         }
-        //         if ((options as NodeLinkModelOptions).alignBottom === true) {
-        //             this.alignBottom = (options as NodeLinkModelOptions).alignBottom;
-        //         }
-        //     }
-        //     if ((options as NodeLinkModelOptions).onAddClick) {
-        //         this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
-        //     }
-        // }
+        if (options) {
+            if (typeof options === "string" && options.length > 0) {
+                this.label = options;
+            } else {
+                if ((options as NodeLinkModelOptions).label) {
+                    this.label = (options as NodeLinkModelOptions).label;
+                }
+                if ((options as NodeLinkModelOptions).visible === true) {
+                    this.visible = (options as NodeLinkModelOptions).visible;
+                }
+            }
+            if ((options as NodeLinkModelOptions).onAddClick) {
+                this.onAddClick = (options as NodeLinkModelOptions).onAddClick;
+            }
+        }
     }
 
     setSourceNode(node: NodeModel) {
@@ -77,43 +61,5 @@ export class NodeLinkModel extends DefaultLinkModel {
 
     setTargetNode(node: NodeModel) {
         this.targetNode = node;
-    }
-
-
-    // get add button position
-    getAddButtonPosition(): { x: number; y: number } {
-        if (this.points.length != 2 && !this.showAddButton) {
-            return { x: 0, y: 0 };
-        }
-
-        let source = this.getFirstPoint().getPosition();
-        let target = this.getLastPoint().getPosition();
-
-        // is lines are straight?
-        let tolerance = 10;
-        let isStraight = Math.abs(source.y - target.y) <= tolerance || Math.abs(source.x - target.x) <= tolerance;
-        if (isStraight) {
-            // with label
-            if (this.label) {
-                return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 + 2 };
-            }
-            // without label
-            return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 - 5 };
-        }
-
-        // generate for 2 angle lines
-        const bendY = this.alignBottom ? target.y : source.y + this.linkBottomOffset;
-        return { x: (source.x + target.x) / 2, y: bendY - 2 };
-    }
-
-    // show node arrow. default true. but target node is a EmptyNodeModel, then false
-    showArrowToNode(): boolean {
-        if (this.showArrow) {
-            return this.showArrow;
-        }
-        if (this.points.length != 2) {
-            return false;
-        }
-        return true;
     }
 }

@@ -15,16 +15,14 @@ import {
     CompletionItem,
     LinkButton,
     SidePanelBody,
-    Toggle,
-    Switch,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { FormField, FormValues } from "./types";
+import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { NodeKind, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { LineRange, NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 
 namespace S {
@@ -153,22 +151,35 @@ namespace S {
 }
 export interface FormProps {
     formFields: FormField[];
+    targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
+    fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    canUpdateVariable?: boolean;
-    editForm?: boolean;
     onSubmit?: (data: FormValues) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
-        onRetrieveCompletions: (value: string, offset: number) => any;
+        retrieveCompletions: (
+            value: string,
+            offset: number,
+            triggerCharacter?: string,
+            onlyVariables?: boolean
+        ) => Promise<void>;
+        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        }>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
         onCancel: () => void;
     };
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
 }
 
 export function Form(props: FormProps) {
@@ -176,14 +187,17 @@ export function Form(props: FormProps) {
         formFields,
         projectPath,
         selectedNode,
-        canUpdateVariable,
-        editForm,
         onSubmit,
         openRecordEditor,
         openView,
+        openSubPanel,
         expressionEditor,
+        targetLineRange,
+        fileName,
+        updatedExpressionField,
+        resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch } = useForm<FormValues>();
+    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -200,6 +214,16 @@ export function Form(props: FormProps) {
         });
         reset(defaultValues);
     }, [formFields, reset]);
+
+    useEffect(() => {
+        if (updatedExpressionField) {
+            const currentValue = getValues(updatedExpressionField.key);
+            if(currentValue !== undefined){
+                setValue(updatedExpressionField.key, currentValue + updatedExpressionField.value);
+                resetUpdatedExpressionField && resetUpdatedExpressionField();
+            }
+        }
+    }, [updatedExpressionField]);
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
@@ -272,6 +296,8 @@ export function Form(props: FormProps) {
             register,
         },
         expressionEditor,
+        targetLineRange,
+        fileName
     };
 
     // TODO: support multiple type fields
@@ -280,20 +306,15 @@ export function Form(props: FormProps) {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {canUpdateVariable && !editForm && (
-                            <S.CheckboxRow>
-                                Assign to a new variable
-                                <Toggle
-                                    checked={createNewVariable}
-                                    onChange={() => setCreateNewVariable(!createNewVariable)}
-                                />
-                            </S.CheckboxRow>
-                        )}
                         {variableField && createNewVariable && <EditorFactory field={variableField} />}
                         {typeField && createNewVariable && (
-                            <EditorFactory field={typeField} openRecordEditor={handleOpenRecordEditor} />
+                            <EditorFactory
+                                field={typeField}
+                                openRecordEditor={handleOpenRecordEditor}
+                                openSubPanel={openSubPanel}
+                            />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} />}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -308,7 +329,11 @@ export function Form(props: FormProps) {
                             }
                             return (
                                 <S.Row key={field.key}>
-                                    <EditorFactory field={field} openRecordEditor={handleOpenRecordEditor} />
+                                    <EditorFactory
+                                        field={field}
+                                        openRecordEditor={handleOpenRecordEditor}
+                                        openSubPanel={openSubPanel}
+                                    />
                                 </S.Row>
                             );
                         })}
@@ -350,7 +375,11 @@ export function Form(props: FormProps) {
                             if (field.optional) {
                                 return (
                                     <S.Row key={field.key}>
-                                        <EditorFactory field={field} openRecordEditor={handleOpenRecordEditor} />
+                                        <EditorFactory
+                                            field={field}
+                                            openRecordEditor={handleOpenRecordEditor}
+                                            openSubPanel={openSubPanel}
+                                        />
                                     </S.Row>
                                 );
                             }

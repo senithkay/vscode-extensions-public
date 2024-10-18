@@ -14,6 +14,7 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { Colors } from "./resources/constants";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
 const ViewContainer = styled.div`
     position: fixed;
@@ -58,6 +59,11 @@ const PopupPanel = (props: PopupPanelProps) => {
             switch (machineSate?.view) {
                 case MACHINE_VIEW.AddConnectionWizard:
                     setViewComponent(<AddConnectionWizard onClose={onClose} />);
+                    break;
+                case MACHINE_VIEW.EditConnectionWizard:
+                    setViewComponent(
+                        <EditConnectionWizard connectionName={machineSate?.identifier} onClose={onClose} />
+                    );
                     break;
                 default:
                     setViewComponent(null);

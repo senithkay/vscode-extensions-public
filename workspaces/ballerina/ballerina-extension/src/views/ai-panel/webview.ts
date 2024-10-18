@@ -33,7 +33,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            StateMachine.context().isBI ? "BI Copilot" : "Ballerina Copilot",
+            StateMachine.context().isBI ? "WSO2 BI Copilot" : "Ballerina Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -64,7 +64,6 @@ export class AiPanelWebview {
                 background-color: var(--vscode-editor-background);
                 height: 100vh;
                 width: 100%;
-                display: flex;
             }
             .loader-wrapper {
                 display: flex;

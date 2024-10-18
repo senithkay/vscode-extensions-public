@@ -17,7 +17,7 @@ operations:
         - policyName: "Request Policy 1"
           policyVersion: "v1"
           parameters:
-            headerName: "header1"
+            header: "header2"
       response:
         - policyName: "Response Policy 1"
           policyVersion: "v1"
@@ -38,7 +38,7 @@ operations:
         - policyName: "Request Policy 2"
           policyVersion: "v1"
           parameters:
-            headerName: "header2"
+            header: "header2"
       response:
         - policyName: "Response Policy 2"
           policyVersion: "v1"
@@ -57,9 +57,7 @@ authentication:
     sendTokenToUpstream: false
     enabled: true
     headerName: "Authorization"
-    queryParamName: "apikey"
     headerEnable: true
-    queryParamEnable: true
 additionalProperties: []
 corsConfiguration:
   corsConfigurationEnabled: false

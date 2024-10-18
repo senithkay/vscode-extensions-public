@@ -7,28 +7,35 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { FormField } from '../Form/types';
 import { Control, Controller, FieldValues } from 'react-hook-form';
-import { CompletionItem, ExpressionBar, ExpressionBarRef, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import { Button, CompletionItem, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
+import { SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
     triggerCharacters: readonly string[];
-    onRetrieveCompletions: (
+    retrieveCompletions: (
         value: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
-    ) => any;
+    ) => Promise<void>;
+    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    }>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
@@ -57,13 +64,24 @@ namespace S {
     export const Description = styled.div({
         color: 'var(--vscode-list-deemphasizedForeground)',
     });
+
+    export const EndAdornment = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-button-secondaryForeground);
+            font-size: 10px;
+        }
+    `;
+    
+    export const EndAdornmentText = styled.p`
+        font-size: 10px;
+        margin: 0;
+    `;
 }
 
 export function ContextAwareExpressionEditor(props: ContextAwareExpressionEditorProps) {
-    const { field } = props;
     const { form, expressionEditor } = useFormContext();
 
-    return <ExpressionEditor field={field} {...form} {...expressionEditor} />;
+    return <ExpressionEditor {...props} {...form} {...expressionEditor} />;
 }
 
 export function ExpressionEditor(props: ExpressionEditorProps) {
@@ -72,13 +90,18 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         field,
         completions,
         triggerCharacters,
-        onRetrieveCompletions,
+        retrieveCompletions,
+        extractArgsFromFunction,
         onFocus,
         onBlur,
         onCompletionSelect,
         onSave,
         onCancel,
+        openSubPanel
     } = props;
+
+    const { targetLineRange, fileName } = useFormContext();
+
     const exprRef = useRef<ExpressionBarRef>(null);
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
@@ -96,7 +119,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
 
         // Trigger actions on focus
         await onFocus?.();
-        await onRetrieveCompletions(value, cursorPosition, undefined, true);
+        await retrieveCompletions(value, cursorPosition, undefined, true);
     };
 
     const handleBlur = async () => {
@@ -114,6 +137,44 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
+    };
+
+    const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
+        openSubPanel({
+            view: view,
+            props: view === SubPanelView.UNDEFINED ? undefined : subPanelInfo
+        });
+    };
+
+    const endAdornment: InputProps = {
+        endAdornment: (
+            <S.EndAdornment
+                appearance="icon"
+                tooltip="Create using Data Mapper"
+                onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
+                    // TODO: get filePath and range from getFlowModel API
+                    filePath: "path/to/file",
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: 0, character: 0 },
+                    }
+                }})}
+                disabled={true} // TODO: enable when file path and range are available
+            >
+                <S.EndAdornmentText>DM</S.EndAdornmentText>
+            </S.EndAdornment>
+        )
+    };
+
+    const handleHelperPaneOpen = () => {
+        handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
+            filePath: fileName,
+            range: {
+                startLine: targetLineRange.startLine,
+                endLine: targetLineRange.endLine,
+            },
+            editorKey: field.key
+        }});
     };
 
     return (
@@ -143,11 +204,12 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                                     ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
                                     : undefined;
                             if (triggerCharacter) {
-                                await onRetrieveCompletions(value, updatedCursorPosition, triggerCharacter);
+                                await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
                             } else {
-                                await onRetrieveCompletions(value, updatedCursorPosition);
+                                await retrieveCompletions(value, updatedCursorPosition);
                             }
                         }}
+                        extractArgsFromFunction={extractArgsFromFunction}
                         onCompletionSelect={handleCompletionSelect}
                         onFocus={() => handleFocus(value)}
                         onBlur={handleBlur}
@@ -155,6 +217,8 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                         onCancel={onCancel}
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
+                        inputProps={endAdornment}
+                        handleHelperPaneOpen={handleHelperPaneOpen}
                         sx={{ paddingInline: '0' }}
                     />
                 )}

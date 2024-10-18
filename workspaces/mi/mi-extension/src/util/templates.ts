@@ -122,7 +122,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.73</version>
+            <version>5.2.75</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -217,7 +217,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
-            <version>5.2.73</version>
+            <version>5.2.75</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -253,7 +253,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
           <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>mi-container-config-mapper</artifactId>
-            <version>5.2.73</version>
+            <version>5.2.75</version>
             <extensions>true</extensions>
             <executions>
               <execution>
@@ -353,7 +353,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>synapse-unit-test-maven-plugin</artifactId>
-        <version>5.2.73</version>
+        <version>5.2.75</version>
         <executions>
           <execution>
             <id>synapse-unit-test</id>

@@ -14,6 +14,7 @@ import { cloneDeep } from "lodash";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
 
 import {
+    clearDiagramZoomAndPosition,
     generateEngine,
     hasDiagramZoomAndPosition,
     loadDiagramZoomAndPosition,
@@ -31,7 +32,8 @@ import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
-import { NodeTypes } from "../resources/constants";
+import { NODE_WIDTH, NodeTypes } from "../resources/constants";
+import Controls from "./Controls";
 
 export interface DiagramProps {
     model: Flow;
@@ -39,10 +41,9 @@ export interface DiagramProps {
     onDeleteNode: (node: FlowNode) => void;
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
+    onConnectionSelect: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
-    // node customization
-    flowNodeStyle?: FlowNodeStyle;
     // ai suggestions callbacks
     suggestions?: {
         fetching: boolean;
@@ -59,9 +60,9 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode,
         onAddComment,
         onNodeSelect,
+        onConnectionSelect,
         goToSource,
         openView,
-        flowNodeStyle,
         suggestions,
         projectPath,
     } = props;
@@ -79,6 +80,13 @@ export function Diagram(props: DiagramProps) {
             drawDiagram(nodes, links);
         }
     }, [model, showErrorFlow]);
+
+    useEffect(() => {
+        return () => {
+            console.log(">>> clear diagram position and zoom");
+            clearDiagramZoomAndPosition();
+        };
+    }, []);
 
     const getDiagramData = () => {
         // TODO: move to a separate function
@@ -132,9 +140,7 @@ export function Diagram(props: DiagramProps) {
         const otherNodes = nodes.filter((node) => node.getType() !== NodeTypes.CODE_BLOCK_NODE);
 
         newDiagramModel.addAll(...codeBlockNodes);
-        newDiagramModel.addAll(...otherNodes, ...links );
-
-        console.log(">>> diagram model", newDiagramModel);
+        newDiagramModel.addAll(...otherNodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
@@ -184,9 +190,9 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
+        onConnectionSelect: onConnectionSelect,
         goToSource: goToSource,
         openView: openView,
-        flowNodeStyle: flowNodeStyle,
         suggestions: suggestions,
         projectPath: projectPath,
     };
@@ -212,6 +218,7 @@ export function Diagram(props: DiagramProps) {
                     disabled={false}
                 />
             )}
+            <Controls engine={diagramEngine} />
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>

@@ -32,6 +32,8 @@ export * from "./icons/nodes/FunctionIcon";
 export * from "./icons/nodes/EqualIcon";
 
 export * from "./icons/PlusIcon";
+export * from "./icons/MinusIcon";
 export * from "./icons/SendIcon";
 export * from "./icons/MoreVertIcon";
 export * from "./icons/AddCommentIcon";
+export * from "./icons/FitScreenIcon";

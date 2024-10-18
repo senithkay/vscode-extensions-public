@@ -9,9 +9,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, NodeList, Category as PanelCategory, FormField } from "@wso2-enterprise/ballerina-side-panel";
+import {
+    PanelContainer,
+    NodeList,
+    Category as PanelCategory,
+    ExpressionFormField,
+} from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
-import { Diagram, FlowNodeStyle } from "@wso2-enterprise/bi-diagram";
+import { Diagram } from "@wso2-enterprise/bi-diagram";
 import {
     BIAvailableNodesRequest,
     Flow,
@@ -27,24 +32,45 @@ import {
     BIGetFunctionsRequest,
     TRIGGER_CHARACTERS,
     TriggerCharacter,
+    SubPanel,
+    SubPanelView,
 } from "@wso2-enterprise/ballerina-core";
+
 import {
     addDraftNodeToDiagram,
     convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
+    convertToFnSignature,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { View, ViewContent, ViewHeader, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import {
+    View,
+    ViewContent,
+    ViewHeader,
+    CompletionItem,
+    ProgressRing,
+    ProgressIndicator,
+} from "@wso2-enterprise/ui-toolkit";
 import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
-import { debounce } from "lodash";
+import { InlineDataMapper } from "../../InlineDataMapper";
+import { debounce, set } from "lodash";
+import { Colors } from "../../../resources/constants";
+import { HelperView } from "../HelperView";
 
 const Container = styled.div`
     width: 100%;
     height: calc(100vh - 50px);
+`;
+
+const SpinnerContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 `;
 
 interface ColoredTagProps {
@@ -79,11 +105,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [flowNodeStyle, setFlowNodeStyle] = useState<FlowNodeStyle>("default");
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const [showProgressIndicator, setShowProgressIndicator] = useState(false);
+    const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
+    const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
 
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
@@ -93,14 +121,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const selectedClientName = useRef<string>();
     const initialCategoriesRef = useRef<PanelCategory[]>([]);
     const showEditForm = useRef<boolean>(false);
-
-    useEffect(() => {
-        rpcClient.getVisualizerLocation().then((location) => {
-            if (location.metadata?.flowNodeStyle) {
-                setFlowNodeStyle(location.metadata.flowNodeStyle as FlowNodeStyle);
-            }
-        });
-    }, [rpcClient]);
 
     useEffect(() => {
         console.log(">>> Updating sequence model...", syntaxTree);
@@ -115,11 +135,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     });
 
     const getSequenceModel = () => {
+        setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .getFlowModel()
             .then((model) => {
                 setModel(model.flowModel);
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
             });
     };
 
@@ -133,6 +157,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
+        setSubPanel({ view: SubPanelView.UNDEFINED });
         clearExpressionEditor();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
@@ -161,6 +186,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // save original model
         originalFlowModel.current = model;
         // show side panel with available nodes
+        setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .getAvailableNodes(getNodeRequest)
@@ -179,6 +205,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 setModel(updatedFlowModel);
                 setShowSidePanel(true);
                 setSidePanelView(SidePanelView.NODE_LIST);
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
             });
         // get ai suggestions
         setFetchingAiSuggestions(true);
@@ -235,6 +264,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 : undefined,
         };
         console.log(">>> Search function request", request);
+        setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .getFunctions(request)
@@ -243,6 +273,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
                 setSidePanelView(SidePanelView.FUNCTION_LIST);
                 setShowSidePanel(true);
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
             });
     };
 
@@ -251,6 +284,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // node is function
         const nodeType: NodeKind = node.codedata.node;
         if (nodeType === "FUNCTION") {
+            setShowProgressIndicator(true);
             rpcClient
                 .getBIDiagramRpcClient()
                 .getFunctions({
@@ -263,11 +297,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
                     setSidePanelView(SidePanelView.FUNCTION_LIST);
                     setShowSidePanel(true);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
                 });
         } else {
             // default node
             console.log(">>> on select panel node", { nodeId, metadata });
             selectedClientName.current = category;
+            setShowProgressIndicator(true);
             rpcClient
                 .getBIDiagramRpcClient()
                 .getNodeTemplate({
@@ -281,6 +319,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     showEditForm.current = false;
                     setSidePanelView(SidePanelView.FORM);
                     setShowSidePanel(true);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
                 });
         }
     };
@@ -290,7 +331,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             console.log(">>> No updated node found");
             updatedNode = selectedNodeRef.current;
         }
-
+        setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .getSourceCode({
@@ -307,12 +348,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error updating source code", response);
                     // handle error
                 }
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
             });
     };
 
     const handleOnDeleteNode = (node: FlowNode) => {
         console.log(">>> on delete node", node);
-
+        setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .deleteFlowNode({
@@ -329,6 +373,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.error(">>> Error updating source code", response);
                     // handle error
                 }
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
             });
     };
 
@@ -395,7 +442,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
-
+        setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .getNodeTemplate({
@@ -408,6 +455,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 showEditForm.current = true;
                 setSidePanelView(SidePanelView.FORM);
                 setShowSidePanel(true);
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
             });
     };
 
@@ -429,6 +479,17 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
+            },
+            isPopup: true,
+        });
+    };
+
+    const handleOnEditConnection = (connectionName: string) => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EditConnectionWizard,
+                identifier: connectionName,
             },
             isPopup: true,
         });
@@ -484,7 +545,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
             const endOfStatementRegex = /[\)\]]\s*$/;
             if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
                 // Case 1: When a character unrelated to triggering completions is entered
@@ -551,6 +612,38 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         250
     );
 
+    const handleSubPanel = (subPanel: SubPanel) => {
+        setSubPanel(subPanel);
+    };
+
+    const updateExpressionField = (data: ExpressionFormField) => {
+        setUpdatedExpressionField(data);
+    };
+
+    const findSubPanelComponent = (subPanel: SubPanel) => {
+        switch (subPanel.view) {
+            case SubPanelView.INLINE_DATA_MAPPER:
+                return (
+                    <InlineDataMapper
+                        filePath={subPanel.props?.inlineDataMapper?.filePath}
+                        range={subPanel.props?.inlineDataMapper?.range}
+                    />
+                );
+            case SubPanelView.HELPER_PANEL:
+                return (
+                    <HelperView
+                        filePath={subPanel.props.sidePanelData.filePath}
+                        position={subPanel.props.sidePanelData.range}
+                        updateFormField={updateExpressionField}
+                        editorKey={subPanel.props.sidePanelData.editorKey}
+                        onClosePanel={handleSubPanel}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
     const handleGetCompletions = async (
         value: string,
         offset: number,
@@ -562,6 +655,25 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (triggerCharacter) {
             await debouncedGetCompletions.flush();
         }
+    };
+
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: model.fileName,
+            expression: value,
+            startLine: targetRef.current.startLine,
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            },
+        });
+
+        return convertToFnSignature(signatureHelp);
+    };
+
+    const handleResetUpdatedExpressionField = () => {
+        setUpdatedExpressionField(undefined);
     };
 
     const handleExpressionEditorCancel = () => {
@@ -576,14 +688,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
-    }
+    };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
+    const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
     const DiagramTitle = (
         <React.Fragment>
-            <span>Resource:</span>
+            <span>{isResource ? "Resource" : "Function"}:</span>
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
             <span>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</span>
         </React.Fragment>
@@ -592,9 +705,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     return (
         <>
             <View>
-                <ViewHeader title={DiagramTitle} codicon="globe" onEdit={handleOnFormBack}></ViewHeader>
+                <ViewHeader
+                    title={DiagramTitle}
+                    codicon={isResource ? "globe" : "terminal"} // TODO: fix this with component diagram icons
+                    onEdit={handleOnFormBack}
+                ></ViewHeader>
+                {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
                     <Container>
+                        {!model && (
+                            <SpinnerContainer>
+                                <ProgressRing color={Colors.PRIMARY} />
+                            </SpinnerContainer>
+                        )}
                         {model && (
                             <Diagram
                                 model={flowModel}
@@ -602,9 +725,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onDeleteNode={handleOnDeleteNode}
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
+                                onConnectionSelect={handleOnEditConnection}
                                 goToSource={handleOnGoToSource}
                                 openView={handleOpenView}
-                                flowNodeStyle={flowNodeStyle}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
                                     onAccept: onAcceptSuggestions,
@@ -625,6 +748,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         ? handleOnFormBack
                         : undefined
                 }
+                subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
+                subPanel={findSubPanelComponent(subPanel)}
             >
                 {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                     <div onClick={onDiscardSuggestions}>
@@ -657,14 +782,18 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         projectPath={projectPath}
                         editForm={showEditForm.current}
                         onSubmit={handleOnFormSubmit}
+                        openSubPanel={handleSubPanel}
                         expressionEditor={{
                             completions: filteredCompletions,
                             triggerCharacters: TRIGGER_CHARACTERS,
-                            onRetrieveCompletions: handleGetCompletions,
+                            retrieveCompletions: handleGetCompletions,
+                            extractArgsFromFunction: extractArgsFromFunction,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,
                             onBlur: handleExpressionEditorBlur,
                         }}
+                        updatedExpressionField={updatedExpressionField}
+                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                     />
                 )}
             </PanelContainer>

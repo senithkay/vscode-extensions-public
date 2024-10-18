@@ -20,13 +20,14 @@ export type Project = {
     connections: Connection[];
 };
 
-export type EntryPointType = "service" | "task" | "trigger";
+export type EntryPointType = "service" | "task" | "schedule-task" | "trigger";
 
 export type EntryPoint = {
     id: string;
     name: string;
     type: EntryPointType;
     location?: Location;
+    connections?: string[];
 };
 
 export type Connection = {
