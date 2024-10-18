@@ -9,7 +9,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, NodeList, Category as PanelCategory, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
+import {
+    PanelContainer,
+    NodeList,
+    Category as PanelCategory,
+    ExpressionFormField,
+} from "@wso2-enterprise/ballerina-side-panel";
 import styled from "@emotion/styled";
 import { Diagram } from "@wso2-enterprise/bi-diagram";
 import {
@@ -72,7 +77,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -613,7 +618,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const updateExpressionField = (data: ExpressionFormField) => {
         setUpdatedExpressionField(data);
-    }
+    };
 
     const findSubPanelComponent = (subPanel: SubPanel) => {
         switch (subPanel.view) {
@@ -632,13 +637,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
-                       
                     />
                 );
             default:
                 return null;
         }
-    }
+    };
 
     const handleGetCompletions = async (
         value: string,
@@ -662,15 +666,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             context: {
                 isRetrigger: false,
                 triggerKind: 1,
-            }
+            },
         });
 
         return convertToFnSignature(signatureHelp);
-    }
+    };
 
     const handleResetUpdatedExpressionField = () => {
         setUpdatedExpressionField(undefined);
-    }
+    };
 
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
@@ -689,9 +693,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
+    const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
     const DiagramTitle = (
         <React.Fragment>
-            <span>Resource:</span>
+            <span>{isResource ? "Resource" : "Function"}:</span>
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
             <span>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</span>
         </React.Fragment>
@@ -700,7 +705,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     return (
         <>
             <View>
-                <ViewHeader title={DiagramTitle} codicon="globe" onEdit={handleOnFormBack}></ViewHeader>
+                <ViewHeader
+                    title={DiagramTitle}
+                    codicon={isResource ? "globe" : "terminal"} // TODO: fix this with component diagram icons
+                    onEdit={handleOnFormBack}
+                ></ViewHeader>
                 {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
                     <Container>

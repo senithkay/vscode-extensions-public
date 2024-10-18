@@ -85,6 +85,41 @@ version = "0.1.0"
 bi = true  
 `;
 
+    const launchJsonContent = `
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Ballerina Run/Debug",
+            "type": "ballerina",
+            "request": "launch",
+            "programArgs": [],
+            "commandOptions": [],
+            "env": {}
+        },
+        {
+            "name": "Ballerina Test",
+            "type": "ballerina",
+            "request": "launch",
+            "debugTests": true,
+            "programArgs": [],
+            "commandOptions": [],
+            "env": {}
+        },
+        {
+            "name": "Ballerina Remote",
+            "type": "ballerina",
+            "request": "attach",
+            "debuggeeHost": "127.0.0.1",
+            "debuggeePort": "5005"
+        }
+    ]
+}
+`;
+
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
     fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
@@ -100,6 +135,19 @@ bi = true
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     fs.writeFileSync(datamappingsBalPath, EMPTY);
+
+    // Create a .vscode folder
+    const vscodeDir = path.join(projectRoot, '.vscode');
+    if (!fs.existsSync(vscodeDir)) {
+        fs.mkdirSync(vscodeDir);
+    }
+
+    // Create launch.json file
+    const launchPath = path.join(vscodeDir, 'launch.json');
+    fs.writeFileSync(launchPath, launchJsonContent.trim());
+
+    // Create settings.json file
+    const settingsPath = path.join(vscodeDir, 'settings.json');
 
     console.log(`BI project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));

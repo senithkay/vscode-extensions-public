@@ -138,6 +138,19 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         }
     };
 
+    const getNodeDescription = () => {
+        switch (model.node.type) {
+            case "trigger":
+                return "Webhook";
+            case "task":
+            case "schedule-task":
+                return "Automation";
+            case "service":
+            default:
+                return "Service";
+        }
+    }
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -150,7 +163,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                 <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
                 <NodeStyles.Header hovered={isHovered}>
                     <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
-                    <NodeStyles.Description>{model.node.type.replace(/-/g, " ")}</NodeStyles.Description>
+                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
             </NodeStyles.Box>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />

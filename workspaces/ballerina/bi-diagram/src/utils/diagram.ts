@@ -128,9 +128,22 @@ export const hasDiagramZoomAndPosition = (file: string) => {
     return localStorage.getItem("diagram-file-path") === file;
 };
 
-export const resetDiagramZoomAndPosition = (file: string) => {
-    localStorage.setItem("diagram-file-path", file);
+export const resetDiagramZoomAndPosition = (file?: string) => {
+    const container = document.getElementById("bi-diagram-canvas");
+    const containerWidth = container ? container.offsetWidth : window.innerWidth;
+    const center = containerWidth / 2;
+
+    if (file) {
+        localStorage.setItem("diagram-file-path", file);
+    }
     localStorage.setItem("diagram-zoom-level", "100");
-    localStorage.setItem("diagram-offset-x", (-1 * (DIAGRAM_CENTER_X - 500)).toString());
+    localStorage.setItem("diagram-offset-x", center.toString());
     localStorage.setItem("diagram-offset-y", "0");
+};
+
+export const clearDiagramZoomAndPosition = () => {
+    localStorage.removeItem("diagram-file-path");
+    localStorage.removeItem("diagram-zoom-level");
+    localStorage.removeItem("diagram-offset-x");
+    localStorage.removeItem("diagram-offset-y");
 };

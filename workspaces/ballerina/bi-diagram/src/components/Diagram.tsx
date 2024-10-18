@@ -14,6 +14,7 @@ import { cloneDeep } from "lodash";
 import { Switch } from "@wso2-enterprise/ui-toolkit";
 
 import {
+    clearDiagramZoomAndPosition,
     generateEngine,
     hasDiagramZoomAndPosition,
     loadDiagramZoomAndPosition,
@@ -31,7 +32,7 @@ import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
 import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
-import { NodeTypes } from "../resources/constants";
+import { NODE_WIDTH, NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
 
 export interface DiagramProps {
@@ -79,6 +80,13 @@ export function Diagram(props: DiagramProps) {
             drawDiagram(nodes, links);
         }
     }, [model, showErrorFlow]);
+
+    useEffect(() => {
+        return () => {
+            console.log(">>> clear diagram position and zoom");
+            clearDiagramZoomAndPosition();
+        };
+    }, []);
 
     const getDiagramData = () => {
         // TODO: move to a separate function
@@ -132,7 +140,7 @@ export function Diagram(props: DiagramProps) {
         const otherNodes = nodes.filter((node) => node.getType() !== NodeTypes.CODE_BLOCK_NODE);
 
         newDiagramModel.addAll(...codeBlockNodes);
-        newDiagramModel.addAll(...otherNodes, ...links );
+        newDiagramModel.addAll(...otherNodes, ...links);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
@@ -210,7 +218,7 @@ export function Diagram(props: DiagramProps) {
                     disabled={false}
                 />
             )}
-            <Controls engine={diagramEngine}/>
+            <Controls engine={diagramEngine} />
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
