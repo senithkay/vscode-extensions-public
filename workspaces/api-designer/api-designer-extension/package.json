@@ -11,6 +11,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onLanguage:yaml"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -29,13 +30,22 @@
     "commands": [
       {
         "command": "APIDesigner.openAPIDesigner",
-        "icon": {
-          "light": "assets/light-APIResource.svg",
-          "dark": "assets/dark-APIResource.svg"
-        },
         "title": "Open API Designer",
         "category": "APIDesigner",
-        "when": "isFileOpenAPI"
+        "when": "isFileOpenAPI",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "APIDesigner.createOpenAPIFile",
+        "title": "Create OpenAPI File",
+        "category": "APIDesigner"
+      },
+      {
+        "command": "APIDesigner.showCode",
+        "title": "Show Code",
+        "category": "APIDesigner",
+        "when": "isVisualizerActive",
+        "icon": "$(code)"
       }
     ],
     "menus": {
@@ -45,9 +55,20 @@
           "command": "APIDesigner.openAPIDesigner",
           "alt": "APIDesigner.openAPIDesigner",
           "group": "navigation"
+        },
+        {
+          "when": "isFileOpenAPI",
+          "command": "APIDesigner.showCode",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "APIDesigner.createOpenAPIFile",
+          "group": "APIDesigner@1"
         }
       ]
-     },
+    },
     "icons": {
       "distro-design-view": {
         "description": "design-view",
