@@ -8,11 +8,11 @@
  */
 
 import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
-import { PathItem as PI, Param, Paths } from "../../Definitions/ServiceDefinitions";
+import { PathItem as PI, Param, Parameter, Paths } from "../../Definitions/ServiceDefinitions";
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
-import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getQueryParametersFromParameters } from "../Utils/OpenAPIUtils";
+import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams } from "../Utils/OpenAPIUtils";
 import { HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
@@ -32,16 +32,17 @@ export function PathItem(props: MakrDownEditorProps) {
     const { rpcClient } = useVisualizerContext();
     const [description, setDescription] = useState<string>(String(pathItem.description));
     const currentPathItem: PI = pathItem[path] as PI;
-    const pathParameters: Param[] = pathItem.parameters && getPathParametersFromParameters(Object.values(pathItem.parameters));
-    const queryParameters: Param[] = pathItem.parameters && getQueryParametersFromParameters(Object.values(pathItem.parameters));
-    const headerParameters: Param[] = pathItem.parameters && getHeaderParametersFromParameters(Object.values(pathItem.parameters));
+    const pathPramFromPath = getPathParametersFromPath(path);
+    const pathParameters: Param[] =  pathItem && path && (pathItem[path] as Paths).parameters && getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getHeaderParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     // Available operations for the path
     const operations: string[] = pathItem && pathItem[path] && Object.keys(pathItem[path]);
     let selectedOptions: string[] = [];
-    if ((pathItem as Paths).summary) {
+    if ((pathItem as Paths).summary === "" || (pathItem as Paths).summary) {
         selectedOptions.push("Summary");
     }
-    if ((pathItem as Paths).description) {
+    if ((pathItem as Paths).description === "" || (pathItem as Paths).description) {
         selectedOptions.push("Description");
     }
     const handleOptionChange = (options: string[]) => {
@@ -109,23 +110,74 @@ export function PathItem(props: MakrDownEditorProps) {
         onChange(updatedPathItem);
     };
     const handlePathParametersChange = (params: Param[]) => {
-        const updatedPathItem = {
-            ...pathItem,
-            parameters: convertParamsToParameters(params, "path"),
+        const pathParamters = convertParamsToParameters(params, "path");
+        const queryParams = convertParamsToParameters(queryParameters, "query");
+        const headerParams = convertParamsToParameters(headerParameters, "header");
+        // New path string from the pathParamters removing the old path parameters
+        let newPath = path.split('/').map(segment => {
+            if (segment.startsWith('{') && segment.endsWith('}')) {
+                const paramName = segment.replace('{', '').replace('}', '');
+                const param = pathParamters.find(param => param.name === paramName);
+                return param ? `{${param.name}}` : "";
+            } else {
+                return segment;
+            }
+        }).join('/');
+        newPath = newPath.endsWith('/') ? newPath.slice(0, -1) : newPath;
+        const clonedPathItem = { ...pathItem };
+        let deletedIndex = -1;    
+        let existingPathItems: string | PI | Parameter[];
+        pathItem && Object.entries(pathItem).forEach(([key, value], i) => {
+            if (key === path && typeof value === "object" && key !== "servers" && key !== "parameters") {
+                existingPathItems = clonedPathItem[path];
+                deletedIndex = i;
+                delete clonedPathItem[path];
+            }
+        });
+        // Add the new path to the pathItem to the deleted index
+        pathItem && Object.keys(pathItem).forEach((_, i) => {
+            if (i === deletedIndex) {
+                clonedPathItem[newPath] = existingPathItems;
+            }
+        });
+        const currentPathItem: Paths = clonedPathItem[newPath] as Paths;
+        const updatedPath = {
+            ...currentPathItem,
+            parameters: [...pathParamters, ...queryParams, ...headerParams],
         };
-        onChange(updatedPathItem, path);
+        const updatedPathItem = {
+            ...clonedPathItem,
+            [newPath]: updatedPath,
+        };
+        onChange(updatedPathItem, newPath);
     };
     const handleQueryParametersChange = (params: Param[]) => {
+        const pathParamters = convertParamsToParameters(params, "path");
+        const queryParams = convertParamsToParameters(queryParameters, "query");
+        const headerParams = convertParamsToParameters(headerParameters, "header");
+        const currentPathItem: Paths = pathItem[path] as Paths;
+        const updatedPath = {
+            ...currentPathItem,
+            parameters: [...pathParamters, ...queryParams, ...headerParams],
+        };
         const updatedPathItem = {
             ...pathItem,
-            parameters: convertParamsToParameters(params, "query"),
+            [path]: updatedPath,
         };
         onChange(updatedPathItem, path);
     };
     const handleHeaderParametersChange = (params: Param[]) => {
+        const pathParamters = convertParamsToParameters(params, "path");
+        const queryParams = convertParamsToParameters(queryParameters, "query");
+        const headerParams = convertParamsToParameters(headerParameters, "header");
+        const currentPathItem: Paths = pathItem[path] as Paths;
+        const updatedPath = {
+            ...currentPathItem,
+            parameters: [...pathParamters, ...queryParams, ...headerParams],
+        };
         const updatedPathItem = {
             ...pathItem,
-            parameters: convertParamsToParameters(params, "header"),
+            [path]: updatedPath,
         };
         onChange(updatedPathItem, path);
     };
@@ -169,6 +221,40 @@ export function PathItem(props: MakrDownEditorProps) {
                 handleOptionChange(resp.map(item=>item.label))
             }
         })
+    }
+    const handlePathParamNameOutFocus = (params: Param[], name: string) => {
+        const pathParamters = convertParamsToParameters(params, "path");
+        const queryParams = convertParamsToParameters(queryParameters, "query");
+        const headerParams = convertParamsToParameters(headerParameters, "header");
+        const p = isNameNotInParams(name, pathPramFromPath) ?
+            path.endsWith("/") ? `${path}{${name}}` : `${path}/{${name}}` : path;
+        const clonedPathItem = { ...pathItem };
+        let deletedIndex = -1;    
+        let existingPathItems: string | PI | Parameter[];
+        pathItem && Object.entries(pathItem).forEach(([key, value], i) => {
+            if (key === path && typeof value === "object" && key !== "servers" && key !== "parameters") {
+                existingPathItems = clonedPathItem[path];
+                deletedIndex = i;
+                delete clonedPathItem[path];
+            }
+        });
+        // Add the new path to the pathItem to the deleted index
+        pathItem && Object.keys(pathItem).forEach((_, i) => {
+            if (i === deletedIndex) {
+                clonedPathItem[p] = existingPathItems;
+            }
+        });
+        const currentPathItem: Paths = clonedPathItem[p] as Paths;
+        const updatedPath = {
+            ...currentPathItem,
+            parameters: [...pathParamters, ...queryParams, ...headerParams],
+        };
+        // Update the path parameters
+        const updatedPathItem = {
+            ...clonedPathItem,
+            [p]: updatedPath,
+        };
+        onChange(updatedPathItem, p);
     }
 
     useEffect(() => {
@@ -229,6 +315,7 @@ export function PathItem(props: MakrDownEditorProps) {
                 <ParamEditor
                     params={pathParameters}
                     onParamsChange={handlePathParametersChange}
+                    paramNameOutFocus={handlePathParamNameOutFocus}
                     title="Path Parameters"
                     type="Path"
                 />

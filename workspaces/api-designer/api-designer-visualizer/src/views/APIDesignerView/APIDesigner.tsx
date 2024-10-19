@@ -45,7 +45,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
             // setServiceDesModel(serDesModel);
         }
     };
-    const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 500);
+    const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 300);
 
     useEffect(() => {
         const fetchData = async () => {

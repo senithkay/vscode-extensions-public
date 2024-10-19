@@ -281,7 +281,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                 {pathsArray.map((path, index) => {
                     const pathItem = pathItems[index];
                     const operations = pathItem && Object.keys(pathItem);
-                    const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary");
+                    const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary" && operation !== "parameters" && operation !== "servers");
                     return (
                         <TreeView
                             id={String(path)} 

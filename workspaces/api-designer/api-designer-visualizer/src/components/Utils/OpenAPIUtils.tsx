@@ -186,6 +186,27 @@ export function getPathParametersFromParameters(parameters: Parameter[]): Param[
     }));
 }
 
+export function getPathParametersFromPath(path: string): Param[] {
+    const pathSegments = path.split("/");
+    let pathParams: Param[] = [];
+    pathSegments.forEach((segment) => {
+        if (segment.startsWith("{") && segment.endsWith("}")) {
+            pathParams.push({
+                name: segment.replace("{", "").replace("}", ""),
+                type: "string",
+                defaultValue: "",
+                isArray: false,
+                isRequired: true,
+            });
+        }
+    });
+    return pathParams;
+}
+
+export function isNameNotInParams(name: string, params: Param[]): boolean {
+    return !params.some((param) => param.name === name);
+}
+
 export function getQueryParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "query").map((param) => ({
         name: param.name,

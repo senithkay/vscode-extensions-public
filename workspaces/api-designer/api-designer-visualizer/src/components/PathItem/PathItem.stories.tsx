@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { OpenAPI, Paths } from "../../Definitions/ServiceDefinitions";
-import { PathItem } from "./PathItem.tsx";
+import { PathItem } from "./PathItem";
 
 import petstoreJSON from "../OpenAPIDefinition/Data/petstore.json";
 import { useState } from "react";

@@ -23,7 +23,7 @@ import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
 import { Tabs } from "../Tabs/Tabs";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { APIResources } from "../../constants";
-import { PathItem as PI } from "../PathItem/PathItem.tsx";
+import { PathItem as PI } from "../PathItem/PathItem";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
