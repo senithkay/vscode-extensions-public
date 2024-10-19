@@ -128,5 +128,8 @@ paths:
 }
 
 async function showCode() {
-
+	const documentUri = StateMachine.context().documentUri;
+	if (documentUri) {
+		await vscode.workspace.openTextDocument(documentUri).then(doc => vscode.window.showTextDocument(doc));
+	}
 }

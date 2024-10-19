@@ -23,7 +23,7 @@
       },
       {
         "view": "APIDesigner.project-explorer",
-        "contents": "Welcome to API Designer",
+        "contents": "API Designer",
         "when": "true"
       }
     ],
@@ -51,13 +51,13 @@
     "menus": {
       "editor/title": [
         {
-          "when": "isFileOpenAPI",
+          "when": "isFileOpenAPI && !isVisualizerActive",
           "command": "APIDesigner.openAPIDesigner",
           "alt": "APIDesigner.openAPIDesigner",
           "group": "navigation"
         },
         {
-          "when": "isFileOpenAPI",
+          "when": "isVisualizerActive",
           "command": "APIDesigner.showCode",
           "group": "navigation"
         }
