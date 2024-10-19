@@ -17,7 +17,7 @@ import { HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 
-interface MakrDownEditorProps {
+interface PathItemProps {
     pathItem: Paths;
     path: string;
     onChange: (value: Paths, path?: string) => void;
@@ -27,7 +27,7 @@ interface MakrDownEditorProps {
 const httpMethods = ["get", "post", "put", "delete", "options", "head", "patch", "trace"];
 const moreOptions = ["Summary", "Description"];
 
-export function PathItem(props: MakrDownEditorProps) {
+export function PathItem(props: PathItemProps) {
     const { pathItem, path, onChange, sx } = props;
     const { rpcClient } = useVisualizerContext();
     const currentPathItem: PI = pathItem[path] as PI;

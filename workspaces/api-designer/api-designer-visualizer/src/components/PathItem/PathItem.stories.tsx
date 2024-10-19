@@ -10,6 +10,7 @@
 import styled from "@emotion/styled";
 import { OpenAPI, Paths } from "../../Definitions/ServiceDefinitions";
 import { PathItem } from "./PathItem";
+import { ReadOnlyPathItem } from "./ReadOnlyPathItem";
 
 import petstoreJSON from "../OpenAPIDefinition/Data/petstore.json";
 import { useState } from "react";
@@ -37,3 +38,11 @@ export const PathItemStory = () => {
         </Container>
     );
 };
+
+export const ReadOnlyPathItemStory = () => {
+    return (
+        <Container>
+            <ReadOnlyPathItem pathItem={getPathItem} currentPath="/pets" />
+        </Container>
+    );
+}

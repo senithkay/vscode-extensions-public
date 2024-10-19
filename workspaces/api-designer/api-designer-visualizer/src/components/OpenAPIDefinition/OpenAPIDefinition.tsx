@@ -22,8 +22,8 @@ import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
 import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
 import { Tabs } from "../Tabs/Tabs";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { APIResources } from "../../constants";
 import { PathItem as PI } from "../PathItem/PathItem";
+import { ReadOnlyPathItem } from "../PathItem/ReadOnlyPathItem";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -346,7 +346,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     }
 
     const handleViewChange = (view: string) => {
-        console.log("View changed to: ", view);
         setCurrentView(view as Views);
     };
 
@@ -448,6 +447,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         )}
                         {(operation && selectedPathID !== undefined) && (
                             <ReadOnlyResource resourceOperation={operation} method={selectedMethod} path={selectedPath} />
+                        )}
+                        {selectedPathID && currentPath && (
+                            <ReadOnlyPathItem currentPath={selectedPathID} pathItem={openAPIDefinition?.paths} />
                         )}
                     </div>
                     {/* {(selectedPathID === undefined || !operation) && (
