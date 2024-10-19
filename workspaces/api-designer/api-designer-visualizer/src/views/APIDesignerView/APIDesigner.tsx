@@ -33,6 +33,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
     const [ serviceDesModel, setServiceDesModel ] = useState<Service | undefined>(undefined);
     const [ documentType, setDocumentType ] = useState<string | undefined>(undefined);
+    const [ isNewFile, setIsNewFile ] = useState<boolean>(false);
 
     const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
@@ -69,6 +70,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
                     },
                     paths: {},
                 };
+                setIsNewFile(true);
             }
             // If no Info field is present in the response, then set the Info field
             if (!convertedApiDefinition.info) {
@@ -82,9 +84,10 @@ export function APIDesigner(props: ServiceDesignerProps) {
         };
         fetchData();
     }, [fileUri]);
+    console.log("isNewFile", isNewFile);
     return (
         <APIDesignerWrapper>
-            <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
+            <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} isNewFile={isNewFile} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
         </APIDesignerWrapper>
     )
 }

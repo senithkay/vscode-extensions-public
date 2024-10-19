@@ -30,49 +30,71 @@ const moreOptions = ["Summary", "Description"];
 export function PathItem(props: MakrDownEditorProps) {
     const { pathItem, path, onChange, sx } = props;
     const { rpcClient } = useVisualizerContext();
-    const [description, setDescription] = useState<string>(String(pathItem.description));
     const currentPathItem: PI = pathItem[path] as PI;
+    const [description, setDescription] = useState<string>(String(currentPathItem.description));
     const pathPramFromPath = getPathParametersFromPath(path);
     const pathParameters: Param[] =  pathItem && path && (pathItem[path] as Paths).parameters && getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getHeaderParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     // Available operations for the path
     const operations: string[] = pathItem && pathItem[path] && Object.keys(pathItem[path]);
+    const summary = currentPathItem?.summary;
     let selectedOptions: string[] = [];
-    if ((pathItem as Paths).summary === "" || (pathItem as Paths).summary) {
+    if (currentPathItem && currentPathItem.summary === "" || currentPathItem.summary) {
         selectedOptions.push("Summary");
     }
-    if ((pathItem as Paths).description === "" || (pathItem as Paths).description) {
+    if (currentPathItem && currentPathItem.description === "" || currentPathItem.description) {
         selectedOptions.push("Description");
     }
     const handleOptionChange = (options: string[]) => {
+        let updatedPathItem: Paths = pathItem;
+        let itemsUpdated = false;
         if (options.includes("Summary")) {
-            const updatedPathItem = {
-                ...pathItem,
-                [path]: {
-                    ...currentPathItem,
-                    summary: "",
-                },
+            const currentPathItem: Paths = updatedPathItem[path] as Paths;
+            const updatedPath = {
+                ...currentPathItem,
+                summary: "",
             };
-            onChange(updatedPathItem, path);
+            updatedPathItem = {
+                ...pathItem,
+                [path]: updatedPath,
+            };
+            itemsUpdated = true;
         } else {
             // Delete summary from the pathItem
-            const updatedPathItem = { ...pathItem };
-            delete (updatedPathItem[path] as PI).summary;
+            const currentPathItem: Paths = updatedPathItem[path] as Paths;
+            delete currentPathItem.summary;
+            updatedPathItem = {
+                ...pathItem,
+                [path]: currentPathItem,
+            };
+            itemsUpdated = true;
         }
         if (options.includes("Description")) {
-            const updatedPathItem = {
-                ...pathItem,
-                [path]: {
-                    ...currentPathItem,
-                    description: "",
-                },
+            const currentPathItem: Paths = updatedPathItem[path] as Paths;
+            const updatedPath = {
+                ...currentPathItem,
+                description: "",
             };
-            onChange(updatedPathItem, path);
+            updatedPathItem = {
+                ...pathItem,
+                [path]: updatedPath,
+            };
+            setDescription("");
+            itemsUpdated = true;
         } else {
             // Delete description from the pathItem
-            const updatedPathItem = { ...pathItem };
-            delete (updatedPathItem[path] as PI).description;
+            const currentPathItem: Paths = updatedPathItem[path] as Paths;
+            delete currentPathItem.description;
+            updatedPathItem = {
+                ...pathItem,
+                [path]: currentPathItem,
+            };
+            setDescription("");
+            itemsUpdated = true;
+        }
+        if (itemsUpdated) {
+            onChange(updatedPathItem);
         }
     }
     const handlePathChange = (p: string) => {
@@ -95,17 +117,27 @@ export function PathItem(props: MakrDownEditorProps) {
         onChange(updatedPathItem, p);
     };
     const handleSummaryChange = (summary: string) => {
-        const updatedPathItem: Paths = { 
-            ...pathItem, 
+        const currentPathItem: Paths = pathItem[path] as Paths;
+        const updatedPath = {
+            ...currentPathItem,
             summary: summary,
-         };
+        };
+        const updatedPathItem = {
+            ...pathItem,
+            [path]: updatedPath,
+        };
         onChange(updatedPathItem);
     };
     const handleDescriptionChange = (description: string) => {
         setDescription(description);
+        const currentPathItem: Paths = pathItem[path] as Paths;
+        const updatedPath = {
+            ...currentPathItem,
+            description: description,
+        };
         const updatedPathItem = {
             ...pathItem,
-            description: description,
+            [path]: updatedPath,
         };
         onChange(updatedPathItem);
     };
@@ -152,8 +184,8 @@ export function PathItem(props: MakrDownEditorProps) {
         onChange(updatedPathItem, newPath);
     };
     const handleQueryParametersChange = (params: Param[]) => {
-        const pathParamters = convertParamsToParameters(params, "path");
-        const queryParams = convertParamsToParameters(queryParameters, "query");
+        const pathParamters = convertParamsToParameters(pathParameters, "path");
+        const queryParams = convertParamsToParameters(params, "query");
         const headerParams = convertParamsToParameters(headerParameters, "header");
         const currentPathItem: Paths = pathItem[path] as Paths;
         const updatedPath = {
@@ -167,9 +199,9 @@ export function PathItem(props: MakrDownEditorProps) {
         onChange(updatedPathItem, path);
     };
     const handleHeaderParametersChange = (params: Param[]) => {
-        const pathParamters = convertParamsToParameters(params, "path");
+        const pathParamters = convertParamsToParameters(pathParameters, "path");
         const queryParams = convertParamsToParameters(queryParameters, "query");
-        const headerParams = convertParamsToParameters(headerParameters, "header");
+        const headerParams = convertParamsToParameters(params, "header");
         const currentPathItem: Paths = pathItem[path] as Paths;
         const updatedPath = {
             ...currentPathItem,
@@ -258,25 +290,25 @@ export function PathItem(props: MakrDownEditorProps) {
     }
 
     useEffect(() => {
-        setDescription(String(pathItem.description));
+        setDescription(currentPathItem?.description);
     }, [String(pathItem.description)]);
 
     return (
         <>
             <PanelBody>
                 <HorizontalFieldWrapper>
-                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Path Item</Typography>
+                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Path</Typography>
                     <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
                         <Codicon name='gear' sx={{marginRight:"4px"}}/>
                         Configure
                     </Button>
                 </HorizontalFieldWrapper>
-                <TextField 
+                <TextField
+                    readOnly
                     label="Path"
                     id="path"
                     sx={{ width: "100%" }}
                     value={path}
-                    forceAutoFocus
                     onTextChange={handlePathChange}
                 />
                 {selectedOptions.includes("Summary") && (
@@ -284,7 +316,7 @@ export function PathItem(props: MakrDownEditorProps) {
                         label="Summary"
                         id="summary"
                         sx={{ width: "100%" }}
-                        value={String(pathItem?.summary)}
+                        value={String(summary)}
                         onTextChange={handleSummaryChange}
                     />
                 )}

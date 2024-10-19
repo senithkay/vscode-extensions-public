@@ -25,7 +25,7 @@ interface PathsNavigatorProps {
     onAddResources?: (path: string, methods: string[]) => void;
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
-    onPathRename?: (path: string, index: number) => void;
+    onPathRename?: (path: string, index: number, prevPath: string) => void;
     onDeleteMethod?: (path: string, method: string) => void;
 }
 
@@ -211,7 +211,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             if(res.label === "Edit Route path"){
                 rpcClient.showInputBox({title:"Edit Route path",value: path}).then(newPath=>{
                     if(onPathRename && newPath){
-                        onPathRename(newPath, index)
+                        onPathRename(newPath, index, path)
                     }
                 })
             }else if(res.label === "Select Methods"){

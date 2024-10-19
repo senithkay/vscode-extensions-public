@@ -28,6 +28,7 @@ import { PathItem as PI } from "../PathItem/PathItem";
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
     serviceDesModel: Service;
+    isNewFile?: boolean;
     onOpenApiDefinitionChange: (openApiDefinition: OpenAPI) => void;
 }
 
@@ -75,10 +76,11 @@ enum Views {
 }
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
-    const { openAPIDefinition: initialOpenAPIDefinition, serviceDesModel, onOpenApiDefinitionChange } = props;
+    const { openAPIDefinition: initialOpenAPIDefinition, serviceDesModel, isNewFile: newF, onOpenApiDefinitionChange } = props;
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
-    const [currentView, setCurrentView] = useState<Views>(Views.READ_ONLY);
+    const [currentView, setCurrentView] = useState<Views>(newF ? Views.EDIT : Views.READ_ONLY);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
+    const [isNewFile, setIsNewFile] = useState<boolean>(newF);
     const { rpcClient } = useVisualizerContext();
 
     const {
@@ -309,20 +311,18 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         }
     };
 
-    const handleRenamePath = (path: string, pathIndex: number) => {
+    const handleRenamePath = (path: string, pathIndex: number, prevPath: string) => {
         // Get path by index
-        const pathKey = Object.keys(openAPIDefinition.paths)[pathIndex];
+        const pathKey = Object.keys(openAPIDefinition.paths).find((key) => key === prevPath);
         // Store the existing path item
         const pathItem = openAPIDefinition.paths[pathKey];
-        // Delete the old path
-        delete openAPIDefinition.paths[pathKey];
-        // Insert the renamed path at the same index
-        const updatedPaths = Object.keys(openAPIDefinition.paths);
-        updatedPaths.splice(pathIndex, 0, path); // Insert at the specified index
-        const newPaths: { [key: string]: PathItem } = {}; // Define the type for newPaths
-        updatedPaths.forEach(key => {
-            const pathItemValue = openAPIDefinition.paths[key] as PathItem;
-            newPaths[key] = pathItemValue;
+        const newPaths: { [key: string]: PathItem } = {};
+        Object.keys(openAPIDefinition.paths).forEach((key, index) => {
+            if (index === pathIndex) {
+                newPaths[path] = pathItem as PathItem;
+            } else {
+                newPaths[key] = openAPIDefinition.paths[key] as PathItem;
+            }
         });
         setOpenAPIDefinition({ ...openAPIDefinition, paths: newPaths });
         onOpenApiDefinitionChange({ ...openAPIDefinition, paths: newPaths });
@@ -379,6 +379,11 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     useEffect(() => {
         setOpenAPIDefinition(initialOpenAPIDefinition);
     }, [initialOpenAPIDefinition]);
+    useEffect(() => {
+        setIsNewFile(newF);
+        setCurrentView(newF ? Views.EDIT : Views.READ_ONLY);
+    }, [newF]);
+    console.log("openAPIDefinition", isNewFile);
 
     return (
         <NavigationContainer>
@@ -418,6 +423,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     <div id={Views.EDIT}>
                         {(selectedPathID === undefined || !currentPath) && ( 
                             <Overview
+                                isNewFile={isNewFile}
                                 openAPIDefinition={openAPIDefinition}
                                 onOpenApiDefinitionChange={onOpenApiDefinitionChange}
                             />
