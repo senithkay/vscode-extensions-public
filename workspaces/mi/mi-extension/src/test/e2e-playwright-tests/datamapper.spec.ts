@@ -200,17 +200,17 @@ function doMappings() {
     test('Open DataMapper from tree view', async () => {
       // console.log('.:.Do Mappings1');
       // await page.page.waitForTimeout(180000);
-  
+
       // await page.page.waitForTimeout(5000);
-  
+
       const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
       await dataMappersLabel.click();
       const dataMapperItem = await page.page.waitForSelector(`div[aria-label="${DM_NAME}"]`, { timeout: 180000 });
       await dataMapperItem.click();
-  
+
       const dataMapper = new DataMapper(page.page, DM_NAME);
       await dataMapper.init();
-  
+
     });
   }
 
@@ -230,13 +230,15 @@ function doMappings() {
   }
 
 
-  test('Do Mappings', async () => {
+  test('Do Basic Mappings', async () => {
+
+    return;
     const dataMapper = new DataMapper(page.page, DM_NAME);
     await dataMapper.init();
 
     // await closeNotification(page);
 
-    // await page.page.waitForTimeout(10000);
+    // await page.page.waitForTimeout(5000);
     // return;
 
     // const interfacesTsFile = path.join(dmFilesPath, DM_NAME, 'interfaces.ts');
@@ -264,7 +266,7 @@ function doMappings() {
 
 
     await closeNotification(page);
-    
+
     // many-one mapping with error
     // objectOutput.moeO = input.mo2I + input.moeI + input.mo3I
     await dataMapper.mapFields('input.mo2I', 'objectOutput.moeO');
@@ -290,8 +292,33 @@ function doMappings() {
     await dataMapper.mapFields('input.opmI.op2', 'objectOutput.ompO.p2');
 
 
-    // array mapping
+    
 
+
+    //await dataMapper.mapFields('input.city', 'objectOutput.home');
+    // await dataMapper.mapFields('input.name', 'objectOutput.age');
+    // await dataMapper.mapFields('input.age', 'objectOutput.name');
+
+    // const mappingsEaFile = path.join(dmFilesPath, DM_NAME, 'mappings.ea');
+    // await dataMapper.runEventActions(mappingsEaFile);
+
+    // await page.page.waitForTimeout(1000);
+
+    // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
+    // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
+
+
+  });
+
+  test('Do Array Mappings', async () => {
+    const dataMapper = new DataMapper(page.page, DM_NAME);
+    await dataMapper.init();
+
+    // array mapping
+    // objectOutput.nd1dO = input.nd1dI;
+    await dataMapper.mapArrayDirect('input.nd1dI', 'objectOutput.nd1dO');
+
+    await page.page.waitForTimeout(10000);
 
     // array mapping with mapping function
 
@@ -314,21 +341,8 @@ function doMappings() {
 
     // 3D - 1D array direct mapping (singleton access)
 
-
-    //await dataMapper.mapFields('input.city', 'objectOutput.home');
-    // await dataMapper.mapFields('input.name', 'objectOutput.age');
-    // await dataMapper.mapFields('input.age', 'objectOutput.name');
-
-    // const mappingsEaFile = path.join(dmFilesPath, DM_NAME, 'mappings.ea');
-    // await dataMapper.runEventActions(mappingsEaFile);
-
-    // await page.page.waitForTimeout(1000);
-
-    // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
-    // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
-
-
   });
+
 
 
   test.afterAll(async () => {
