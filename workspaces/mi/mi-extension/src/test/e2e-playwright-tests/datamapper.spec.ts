@@ -316,7 +316,11 @@ function doMappings() {
 
     // array mapping
     // objectOutput.nd1dO = input.nd1dI;
-    await dataMapper.mapArrayDirect('input.nd1dI', 'objectOutput.nd1dO');
+    await dataMapper.mapArrayDirect('input.d1I', 'objectOutput.d1O');
+
+    await dataMapper.mapArrayInner('input.m1I', 'objectOutput.m1O');
+
+    
 
     await page.page.waitForTimeout(10000);
 
