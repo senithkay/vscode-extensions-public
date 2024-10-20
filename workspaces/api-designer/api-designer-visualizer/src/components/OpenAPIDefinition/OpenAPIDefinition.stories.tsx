@@ -8,12 +8,10 @@
  */
 
 // import React from "react";
-import React from "react";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import petstoreJSON from "./Data/petstore.json";
 import coffeshop from "./Data/coffeShop.json";
 import { OpenAPIDefinition } from "./OpenAPIDefinition";
-import { convertOpenAPItoService } from "../Utils/OpenAPIUtils";
 
 export default {
     component: OpenAPIDefinition,

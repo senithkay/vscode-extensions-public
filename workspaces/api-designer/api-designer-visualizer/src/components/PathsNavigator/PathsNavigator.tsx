@@ -25,7 +25,7 @@ interface PathsNavigatorProps {
     onAddResources?: (path: string, methods: string[]) => void;
     onDeletePath?: (resourceID: string) => void;
     onPathChange?: (pathID: string) => void;
-    onPathRename?: (path: string, index: number) => void;
+    onPathRename?: (path: string, index: number, prevPath: string) => void;
     onDeleteMethod?: (path: string, method: string) => void;
 }
 
@@ -149,10 +149,32 @@ export function PathsNavigator(props: PathsNavigatorProps) {
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
     const [, setSelPathID] = useState<string | undefined>(selectedPathID);
     const [pathEditIndex, setPathEditIndex] = useState<number>(-1);
-    const pathsArray = paths ? Object.keys(paths) : [];
+    const pathItemKeys = paths ? Object.keys(paths) : [];
+    // Finf pathItemKeys of type object
+    // const pathsArray: Array<keyof Paths> = pathItemKeys.filter((key) => (typeof paths[key] === "object" && key !== "servers" && key !== "parameters" && key !== "description") && key !== "summary");
     const schemaArray = components?.schemas ? Object.keys(components?.schemas) : [];
     // Get PathItems from paths
-    const pathItems = paths ? Object.values(paths) : [];
+    // const pathItems = paths && pathsArray ? pathsArray
+    // .filter(path => {
+    //     const pathItem = paths[path];
+    //     return (
+    //         typeof pathItem === "object" && 
+    //         pathItem !== null && // Ensure it's not null
+    //         !('summary' in pathItem) && 
+    //         !('description' in pathItem)
+    //     );
+    // })
+    //     .map(path => paths[path]) as Paths[] : [];
+    let pathItems: any[] = [];
+    let pathsArray: string[] = []; 
+    Object.entries(paths).forEach(([key, value]) => {
+        // if (typeof value === "object" && value !== null && !('summary' in value) && !('description' in value)) {
+        if (typeof value === "object" && value !== null && key !== "servers" && key !== "parameters" && key !== "description" && key !== "summary") {
+            pathsArray.push(key);
+            pathItems.push(value);
+        }
+    });
+    pathsArray = pathsArray.filter((path) => path !== "servers" && path !== "parameters" && path !== "description" && path !== "summary");
     const handleOverviewClick = () => {
         onPathChange && onPathChange(undefined);
     };
@@ -189,7 +211,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             if(res.label === "Edit Route path"){
                 rpcClient.showInputBox({title:"Edit Route path",value: path}).then(newPath=>{
                     if(onPathRename && newPath){
-                        onPathRename(newPath, index)
+                        onPathRename(newPath, index, path)
                     }
                 })
             }else if(res.label === "Select Methods"){
@@ -258,10 +280,11 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             >
                 {pathsArray.map((path, index) => {
                     const pathItem = pathItems[index];
-                    const operations = Object.keys(pathItem);
+                    const operations = pathItem && Object.keys(pathItem);
+                    const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary" && operation !== "parameters" && operation !== "servers");
                     return (
                         <TreeView
-                            id={path} 
+                            id={String(path)} 
                             content={
                                 <PathContainer>
                                     <LeftPathContainer>
@@ -278,8 +301,8 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                                     </LeftPathContainer>
                                     {pathEditIndex === -1 && (
                                         <RightPathContainerButtons className="buttons-container">
-                                            <Button tooltip="Modify Path" appearance="icon" onClick={(e)=>modifyPathClick(e, index, path, operations)}><Codicon name="gear"/></Button>
-                                            <Button tooltip="Delete Path" appearance="icon" onClick={(e)=>handleDeletePath(e, path)}><Codicon name="trash"/></Button>
+                                            <Button tooltip="Modify Path" appearance="icon" onClick={(e)=>modifyPathClick(e, index, String(path), operations)}><Codicon name="gear"/></Button>
+                                            <Button tooltip="Delete Path" appearance="icon" onClick={(e)=>handleDeletePath(e, String(path))}><Codicon name="trash"/></Button>
                                         </RightPathContainerButtons>
                                     )}
                                 </PathContainer>
@@ -287,22 +310,22 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                             selectedId={selectedPathID}
                             onSelect={onPathChange}
                         >
-                            {operations.map((operation) => {
+                            {sanitizedOperations?.map((operation) => {
                                 return (
-                                    <TreeViewItem id={getResourceID(path, operation)}>
+                                    <TreeViewItem id={getResourceID(String(path), operation)}>
                                         <PathItemWrapper>
-                                            <Tooltip content={pathItem[operation]?.summary}>
+                                            <Tooltip>
                                                 <Operation
                                                     foreGroundColor={getColorByMethod(operation.toUpperCase())}
                                                     hoverForeGroundColor={getBackgroundColorByMethod(operation.toUpperCase())}
-                                                    selected={selectedPathID === getResourceID(path, operation)}
+                                                    selected={selectedPathID === getResourceID(String(path), operation)}
                                                     onClick={() => onPathChange && onPathChange(selectedPathID)}
                                                 >
                                                     <Typography variant="h5" sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "flex-start", width: 45, fontWeight: 300 }}>{operation.toUpperCase()}</Typography>
                                                 </Operation>
                                             </Tooltip>
                                             <RightPathContainerButtons className="buttons-container">
-                                                <Button tooltip="Delete Method" appearance="icon" onClick={(e)=>handleDeleteMethod(e, path, operation)}><Codicon name="trash"/></Button>
+                                                <Button tooltip="Delete Method" appearance="icon" onClick={(e)=>handleDeleteMethod(e, String(path), operation)}><Codicon name="trash"/></Button>
                                             </RightPathContainerButtons>   
                                         </PathItemWrapper>                                                                      
                                     </TreeViewItem>

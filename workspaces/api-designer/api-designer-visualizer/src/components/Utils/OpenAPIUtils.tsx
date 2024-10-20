@@ -70,33 +70,33 @@ export function getParametersFromOperation(operation: Operation): ParameterConfi
     return parameters;
 }
 
-export function convertOpenAPItoService(openAPIDefinition: OpenAPI): Service {
-    let service: Service = {
-        path: "",
-        resources: [],
-    };
-    service.port = 0;
-    if (openAPIDefinition.paths !== undefined) {
-        for (const [path, pathItem] of Object?.entries(openAPIDefinition.paths)) {
-            const pathSegemnent = path.match(/\/\{.*?\}/g);
-            for (const [method, operation] of Object.entries(pathItem)) {
-                let resource: Resource = {
-                    methods: [method],
-                    path: path,
-                    pathSegments: pathSegemnent ? pathSegemnent.map((segment, index) => ({
-                        id: index, name: segment.replace("/", "").replace("{", "").replace("}", ""),
-                    })) : [],
-                    params: getParametersFromOperation(operation),
-                    responses: resolveResponseFromOperation(operation),
+// export function convertOpenAPItoService(openAPIDefinition: OpenAPI): Service {
+//     let service: Service = {
+//         path: "",
+//         resources: [],
+//     };
+//     service.port = 0;
+//     if (openAPIDefinition.paths !== undefined) {
+//         for (const [path, pathItem] of Object?.entries(openAPIDefinition.paths)) {
+//             const pathSegemnent = path.match(/\/\{.*?\}/g);
+//             for (const [method, operation] of Object.entries(pathItem)) {
+//                 let resource: Resource = {
+//                     methods: [method],
+//                     path: path,
+//                     pathSegments: pathSegemnent ? pathSegemnent.map((segment, index) => ({
+//                         id: index, name: segment.replace("/", "").replace("{", "").replace("}", ""),
+//                     })) : [],
+//                     params: getParametersFromOperation(operation),
+//                     responses: resolveResponseFromOperation(operation),
     
-                };
-                service.resources.push(resource);
-            }
+//                 };
+//                 service.resources.push(resource);
+//             }
             
-        }
-    }
-    return service;
-}
+//         }
+//     }
+//     return service;
+// }
 
 export function convertJSONtoOpenAPI(json: string): OpenAPI {
     return JSON.parse(json);
@@ -106,13 +106,13 @@ export function convertYAMLtoOpenAPI(yamlString: string): OpenAPI {
     return yaml.load(yamlString) as OpenAPI;
 }
 
-export function convertOpenAPIStringToObject(openAPIString: string, type: "yaml" | "json"): Service {
-    if (type === "yaml") {
-        return convertOpenAPItoService(convertYAMLtoOpenAPI(openAPIString));
-    } else {
-        return convertOpenAPItoService(convertJSONtoOpenAPI(openAPIString));
-    }
-}
+// export function convertOpenAPIStringToObject(openAPIString: string, type: "yaml" | "json"): Service {
+//     if (type === "yaml") {
+//         return convertOpenAPItoService(convertYAMLtoOpenAPI(openAPIString));
+//     } else {
+//         return convertOpenAPItoService(convertJSONtoOpenAPI(openAPIString));
+//     }
+// }
 
 export function convertOpenAPIStringToOpenAPI(openAPIString: string, type: "yaml" | "json"): OpenAPI {
     if (type === "yaml") {
@@ -186,6 +186,27 @@ export function getPathParametersFromParameters(parameters: Parameter[]): Param[
     }));
 }
 
+export function getPathParametersFromPath(path: string): Param[] {
+    const pathSegments = path.split("/");
+    let pathParams: Param[] = [];
+    pathSegments.forEach((segment) => {
+        if (segment.startsWith("{") && segment.endsWith("}")) {
+            pathParams.push({
+                name: segment.replace("{", "").replace("}", ""),
+                type: "string",
+                defaultValue: "",
+                isArray: false,
+                isRequired: true,
+            });
+        }
+    });
+    return pathParams;
+}
+
+export function isNameNotInParams(name: string, params: Param[]): boolean {
+    return !params.some((param) => param.name === name);
+}
+
 export function getQueryParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "query").map((param) => ({
         name: param.name,
@@ -217,13 +238,18 @@ export function getResponseHeadersFromResponse(response: Header[]): Param[] {
 }
 
 export function getOperationFromPathItem(pathItem: PathItem, method: string): Operation {
-    return pathItem[method];
+    const operation = pathItem[method];
+    return typeof operation === 'object' ? operation : undefined; // Ensure it's an Operation
 }
 
 export function getOperationFromOpenAPI(path: string, method: string, openAPI: OpenAPI): Operation {
-    const pathItem = openAPI.paths[path];
+    const pathItem = openAPI.paths[path] as PathItem;
     if (pathItem) {
-        return getOperationFromPathItem(pathItem, method);
+        if (pathItem && typeof pathItem === 'object') { // Ensure pathItem is an object
+            return getOperationFromPathItem(pathItem, method);
+        } else {
+            return undefined;
+        }
     } else {
         return undefined;
     }

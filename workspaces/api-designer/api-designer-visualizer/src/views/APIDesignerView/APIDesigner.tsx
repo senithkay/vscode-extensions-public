@@ -8,9 +8,9 @@
  */
 
 import { useEffect, useState } from "react";
-import { Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
+import { Service } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
-import { convertOpenAPIStringToObject, convertOpenAPIStringToOpenAPI, convertOpenAPItoService } from "../../components/Utils/OpenAPIUtils";
+import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
@@ -33,6 +33,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
     const [ serviceDesModel, setServiceDesModel ] = useState<Service | undefined>(undefined);
     const [ documentType, setDocumentType ] = useState<string | undefined>(undefined);
+    const [ isNewFile, setIsNewFile ] = useState<boolean>(false);
 
     const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
@@ -45,7 +46,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
             // setServiceDesModel(serDesModel);
         }
     };
-    const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 500);
+    const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 300);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -64,17 +65,18 @@ export function APIDesigner(props: ServiceDesignerProps) {
                 convertedApiDefinition = {
                     openapi: "3.0.1",
                     info: {
-                        title: "New API",
-                        version: "1.0.0",
+                        title: "",
+                        version: "",
                     },
                     paths: {},
                 };
+                setIsNewFile(true);
             }
             // If no Info field is present in the response, then set the Info field
             if (!convertedApiDefinition.info) {
                 convertedApiDefinition.info = {
-                    title: "New API",
-                    version: "1.0.0",
+                    title: "",
+                    version: "",
                 };
             }
             setApiDefinition(convertedApiDefinition);
@@ -82,9 +84,10 @@ export function APIDesigner(props: ServiceDesignerProps) {
         };
         fetchData();
     }, [fileUri]);
+    console.log("isNewFile", isNewFile);
     return (
         <APIDesignerWrapper>
-            <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
+            <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} isNewFile={isNewFile} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
         </APIDesignerWrapper>
     )
 }

@@ -42,6 +42,7 @@ export const SubSectionWrapper = styled.div`
 
 interface OverviewProps {
     openAPIDefinition: OpenAPI;
+    isNewFile?: boolean;
     onOpenApiDefinitionChange: (openAPIDefinition: OpenAPI) => void;
 }
 
@@ -49,7 +50,7 @@ const moreOptions = ["Summary", "Description", "Contact", "License"];
 
 // Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
-    const { openAPIDefinition } = props;
+    const { openAPIDefinition, isNewFile } = props;
     const { rpcClient } = useVisualizerContext();
     const [description, setDescription] = useState<string>(openAPIDefinition?.info?.description || "");
     let selectedOptions: string[] = [];
@@ -187,9 +188,9 @@ export function Overview(props: OverviewProps) {
                         label="Title"
                         id="title"
                         sx={{ width: "50%" }}
-                        autoFocus
                         value={openAPIDefinition?.info?.title}
                         onTextChange={handleTitleChange}
+                        autoFocus={isNewFile}
                     />
                     <TextField
                         label="API Version"

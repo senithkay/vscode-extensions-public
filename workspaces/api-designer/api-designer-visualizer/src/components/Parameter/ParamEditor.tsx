@@ -38,6 +38,7 @@ interface OverviewProps {
     title: string;
     addButtonText?: string;
     disableCollapse?: boolean;
+    paramNameOutFocus?: (value: Param[], name: string) => void;
     onParamsChange: (params: Param[]) => void;
 }
 
@@ -111,19 +112,20 @@ export function ParamEditor(props: OverviewProps) {
                             name={`params[${index}].name`}
                             value={param.name || ""}
                             sx={{ width: "33%" }}
-                            onChange={(e) => updateParentComponent(index, "name", e.target.value)}
+                            onTextChange={(value) => updateParentComponent(index, "name", value)}
+                            onBlur={() => props.paramNameOutFocus && props.paramNameOutFocus(params, param.name)}
                         />
                         <TextField
                             placeholder="Type"
                             value={param.type || ""}
                             sx={{ width: "33%" }}
-                            onChange={(e) => updateParentComponent(index, "type", e.target.value)}
+                            onTextChange={(value) => updateParentComponent(index, "type", value)}
                         />
                         <TextField
                             placeholder="Default Value"
                             value={param.defaultValue || ""}
                             sx={{ width: "33%" }}
-                            onChange={(e) => updateParentComponent(index, "defaultValue", e.target.value)}
+                            onTextChange={(value) => updateParentComponent(index, "defaultValue", value)}
                         />
                         <ButtonWrapperParams>
                             <Button appearance='icon' onClick={() => updateRequired(index, !param.isRequired)}>

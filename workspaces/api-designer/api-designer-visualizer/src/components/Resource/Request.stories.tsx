@@ -24,9 +24,11 @@ const Container = styled.div`
 
 const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 // Extract the first PathItem from the OpenAPI object
-const pathItem: PathItem = apiDefinition.paths[Object.keys(apiDefinition.paths)[0]];
-const path: string = Object.keys(apiDefinition.paths)[1];
-const getOperation: Operation = pathItem.post;
+const pathKeys = Object.keys(apiDefinition.paths);
+const pathKey = pathKeys[1]; // Get the second key
+const pathItem: PathItem = apiDefinition.paths[pathKey] as PathItem; // Ensure it's treated as PathItem
+const path: string = pathKey;
+const getOperation: Operation = pathItem.get as Operation; 
 
 export const RequestStory = () => {
     return (
