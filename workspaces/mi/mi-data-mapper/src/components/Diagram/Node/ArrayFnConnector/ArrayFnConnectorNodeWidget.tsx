@@ -123,7 +123,7 @@ export function ArrayFnConnectorNodeWidget(props: ArrayFnConnectorNodeWidgetWidg
     return (!hidden && (
         <>
             {(!!sourcePort && !!inPort && !!outPort) && (
-                <div className={classes.root} >
+                <div className={classes.root} data-testid={`array-connector-node-${targetPort?.getName()}`}>
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={inPort} />
                         <Tooltip content={"Array Function"} position="bottom">
