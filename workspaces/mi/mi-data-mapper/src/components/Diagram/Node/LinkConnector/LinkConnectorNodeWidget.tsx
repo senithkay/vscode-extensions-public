@@ -71,7 +71,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     );
 
     return (!node.hidden && (
-            <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
+            <div className={classes.root} data-testid={`link-connector-node-${node?.targetPort?.getName()}`}>
                 <div className={classes.header}>
                     {renderPortWidget(engine, node.inPort, `${node?.value}-input`)}
                     {hasCallExpr ? renderFunctionCallTooltip() :  renderExpressionTooltip()}
