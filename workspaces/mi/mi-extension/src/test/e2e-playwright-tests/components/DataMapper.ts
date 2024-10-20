@@ -85,7 +85,7 @@ export class DataMapper {
     }
 
     public async mapArrayDirect(sourceFieldFQN: string, targetFieldFQN: string) {
-        
+
         const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
         await sourceField.waitFor();
         await sourceField.click();
@@ -100,6 +100,29 @@ export class DataMapper {
 
         // await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
         await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+
+    }
+
+    public async mapArrayInner(sourceFieldFQN: string, targetFieldFQN: string) {
+
+        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
+        await sourceField.waitFor();
+        await sourceField.click();
+
+        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
+        await targetField.waitFor();
+        await targetField.click();
+
+        const menuItem = this.webView.locator(`div[id="menu-item-a2a-inner"]`);
+        await menuItem.waitFor();
+        await menuItem.click();
+
+        // await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
+        await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+
+        const expandButton = await this.webView.locator(`div[data-testid="array-connector-node-${targetFieldFQN}.IN"] vscode-button[title="Map array elements"]`);
+        await expandButton.waitFor();
+        await expandButton.click()
         
     }
 
