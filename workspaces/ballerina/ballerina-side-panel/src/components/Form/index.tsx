@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
     CompletionItem,
+    ExpressionBarRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
@@ -159,6 +160,7 @@ export interface FormProps {
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
@@ -191,6 +193,7 @@ export function Form(props: FormProps) {
         openRecordEditor,
         openView,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
         targetLineRange,
         fileName,
@@ -201,6 +204,8 @@ export function Form(props: FormProps) {
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
+
+    const exprRef = useRef<ExpressionBarRef>(null);
 
     useEffect(() => {
         // Reset form with new values when formFields change
@@ -218,8 +223,14 @@ export function Form(props: FormProps) {
     useEffect(() => {
         if (updatedExpressionField) {
             const currentValue = getValues(updatedExpressionField.key);
-            if(currentValue !== undefined){
-                setValue(updatedExpressionField.key, currentValue + updatedExpressionField.value);
+
+            if (currentValue !== undefined) {
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart ?? currentValue.length;
+                const newValue = currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
+                setValue(updatedExpressionField.key, newValue);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
             }
         }
@@ -314,7 +325,7 @@ export function Form(props: FormProps) {
                                 openSubPanel={openSubPanel}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel} />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -330,9 +341,11 @@ export function Form(props: FormProps) {
                             return (
                                 <S.Row key={field.key}>
                                     <EditorFactory
+                                        ref={exprRef}
                                         field={field}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
+                                        isActiveSubPanel={isActiveSubPanel}
                                     />
                                 </S.Row>
                             );
@@ -376,9 +389,11 @@ export function Form(props: FormProps) {
                                 return (
                                     <S.Row key={field.key}>
                                         <EditorFactory
+                                            ref={exprRef}
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={openSubPanel}
+                                            isActiveSubPanel={isActiveSubPanel}
                                         />
                                     </S.Row>
                                 );

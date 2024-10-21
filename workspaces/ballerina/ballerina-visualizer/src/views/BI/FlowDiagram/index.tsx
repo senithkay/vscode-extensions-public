@@ -108,6 +108,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
+    const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
 
@@ -157,6 +158,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
+        setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
         clearExpressionEditor();
         selectedNodeRef.current = undefined;
@@ -613,6 +615,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     );
 
     const handleSubPanel = (subPanel: SubPanel) => {
+        setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
     };
 
@@ -782,6 +785,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         projectPath={projectPath}
                         editForm={showEditForm.current}
                         onSubmit={handleOnFormSubmit}
+                        isActiveSubPanel={showSubPanel}
                         openSubPanel={handleSubPanel}
                         expressionEditor={{
                             completions: filteredCompletions,

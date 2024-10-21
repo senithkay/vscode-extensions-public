@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { FormField } from '../Form/types';
 import { Control, Controller, FieldValues } from 'react-hook-form';
 import { Button, CompletionItem, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
@@ -19,6 +19,7 @@ import { SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ball
 type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
@@ -78,13 +79,13 @@ namespace S {
     `;
 }
 
-export function ContextAwareExpressionEditor(props: ContextAwareExpressionEditorProps) {
+export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
     const { form, expressionEditor } = useFormContext();
 
-    return <ExpressionEditor {...props} {...form} {...expressionEditor} />;
-}
+    return <ExpressionEditor ref={ref} {...props} {...form} {...expressionEditor} />;
+});
 
-export function ExpressionEditor(props: ExpressionEditorProps) {
+export const ExpressionEditor = forwardRef((props, ref) => {
     const {
         control,
         field,
@@ -97,12 +98,17 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         onCompletionSelect,
         onSave,
         onCancel,
-        openSubPanel
-    } = props;
+        openSubPanel,
+        isActiveSubPanel,
+    } = props as ExpressionEditorProps;
+
 
     const { targetLineRange, fileName } = useFormContext();
 
     const exprRef = useRef<ExpressionBarRef>(null);
+
+    useImperativeHandle(ref, () => exprRef.current);
+    
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
     // Use to disable the expression editor on save and completion selection
@@ -167,14 +173,16 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     };
 
     const handleHelperPaneOpen = () => {
-        handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
-            filePath: fileName,
-            range: {
-                startLine: targetLineRange.startLine,
-                endLine: targetLineRange.endLine,
-            },
-            editorKey: field.key
-        }});
+        if(targetLineRange) {
+            handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
+                filePath: fileName,
+                range: {
+                    startLine: targetLineRange.startLine,
+                    endLine: targetLineRange.endLine,
+                },
+                editorKey: field.key
+            }});
+        }
     };
 
     return (
@@ -225,4 +233,4 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
             />
         </S.Container>
     );
-}
+});

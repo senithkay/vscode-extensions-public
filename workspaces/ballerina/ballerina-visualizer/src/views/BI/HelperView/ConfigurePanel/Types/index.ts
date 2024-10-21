@@ -7,23 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type FormValues = {
-    [key: string]: any;
-};
+import CustomType from './CustomType';
+import InclusionType from "./InclusionType";
+import RecordType from "./RecordType";
+import UnionType from "./UnionType";
 
-export type FormField = {
-    key: string;
-    label: string;
-    type: null | string;
-    optional: boolean;
-    editable: boolean;
-    documentation: string;
-    value: string;
-    items?: string[];
-};
-
-export type ExpressionFormField = {
-    key: string;
-    value: string;
-    cursorPosition: number;
-};
+export {RecordType as record};
+export {UnionType as union};
+export {UnionType as enum};
+export {InclusionType as inclusion};
+export {CustomType as custom};

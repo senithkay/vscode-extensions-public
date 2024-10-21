@@ -129,7 +129,8 @@ export function VariablesView(props: VariablesViewProps) {
     const handleOnSelection = (variable: string) => {
         const updateData: ExpressionFormField = {
             value: variable,
-            key: editorKey
+            key: editorKey,
+            cursorPosition: position.endLine.offset
         }
         updateFormField(updateData);
     }
