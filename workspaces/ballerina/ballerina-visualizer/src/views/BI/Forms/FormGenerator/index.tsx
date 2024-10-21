@@ -32,7 +32,8 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     onSubmit: (node?: FlowNode) => void;
-    openSubPanel: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
+    openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
@@ -67,6 +68,7 @@ export function FormGenerator(props: FormProps) {
         editForm,
         onSubmit,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
         updatedExpressionField,
         resetUpdatedExpressionField,
@@ -194,6 +196,7 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
+                    isActiveSubPanel={isActiveSubPanel}
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
