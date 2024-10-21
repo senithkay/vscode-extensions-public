@@ -80,11 +80,20 @@ export async function activate(context: ExtensionContext) {
     // TODO: REMOVE THESE WHEN GOES LIVE
     const balExtension = extensions.getExtension('wso2.ballerina');
     if (balExtension) {
-        // Disable the ballerina extension
-        commands.executeCommand('workbench.extensions.uninstallExtension', 'wso2.ballerina')
-            .then(() => {
-                commands.executeCommand('workbench.action.reloadWindow');
-            });
+        const userResponse = await window.showInformationMessage(
+            'To run Kola, you need to uninstall the Ballerina extension. Would you like to uninstall the Ballerina extension?',
+            'Yes',
+            'No'
+        );
+        if (userResponse === 'Yes') {
+            // Disable the ballerina extension
+            commands.executeCommand('workbench.extensions.uninstallExtension', 'wso2.ballerina')
+                .then(() => {
+                    commands.executeCommand('workbench.action.reloadWindow');
+                });
+        } else {
+            return;
+        }
     }
     // <~--------------------- REMOVE ABOVE ------------------>
 
