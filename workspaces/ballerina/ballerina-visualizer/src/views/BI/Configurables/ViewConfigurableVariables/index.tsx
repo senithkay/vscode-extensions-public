@@ -9,14 +9,17 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, Category, Item, ConfigVariable } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, Category, Item, ConfigVariable, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, ProgressRing, SearchBox, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, SearchBox, Typography, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
 import { BIHeader } from "../../BIHeader";
 import { Tab } from "@headlessui/react";
+import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeDivider } from '@vscode/webview-ui-toolkit/react';
+import { ServiceDesigner } from "../../../ServiceDesigner";
+import { EditForm } from "../EditConfigurableVariables";
 
 const Container = styled.div`
     width: 100%;
@@ -77,6 +80,12 @@ namespace S {
     padding: 10px 20px 10px 0;
     text-align: left;
 `;
+    
+    export const Row = styled.div`
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    `;
 }
 
 // interface ConnectorViewProps {
@@ -89,10 +98,37 @@ export function ViewConfigurableVariables() {
     const { rpcClient } = useRpcContext();
 
     const [configVariables, setConfigVariables] = useState<ConfigVariable[]>([]);
+    const [isConfigVariableFormOpen, setConfigVariableFormOpen] = useState<boolean>(false);
+    const [configIndex, setConfigIndex] = useState<number>(0);
 
     // const [connectors, setConnectors] = useState<Category[]>([]);
     // const [searchText, setSearchText] = useState<string>("");
     // const [isSearching, setIsSearching] = useState(false);
+
+    const handleConfigVariableFormOpen = (index:number) => {
+        setConfigVariableFormOpen(true);
+        setConfigIndex(index);
+    };
+
+    const handleEditConfigFormClose = () => {
+        setConfigVariableFormOpen(false);
+        // setEditingResource(undefined);
+    };
+
+    const handleResourceFormSave = async (content: string, config: any, resourcePosition?: any) => {
+        console.log(">>> content", content);
+        
+        // const position = model.closeBraceToken.position;
+        // position.endColumn = 0;
+        // await applyModifications([{
+        //     type: "INSERT",
+        //     isImport: false,
+        //     config: {
+        //         "STATEMENT": content
+        //     },
+        //     ...(resourcePosition ? resourcePosition : position)
+        // }]);
+    };
 
     useEffect(() => {
         // getConnectors();
@@ -109,7 +145,7 @@ export function ViewConfigurableVariables() {
                 // setConnectors(model.categories);
             });
     };
-console.log(">>> configVariables", configVariables);
+    console.log(">>> configVariables", configVariables);
 
     // const getConfigVariables = () => {
     //     rpcClient
@@ -177,21 +213,86 @@ console.log(">>> configVariables", configVariables);
     //     return category;
     // });
 
+    
     return (
         <View>
             <ViewContent padding>
                 <BIHeader />
                 <Container>
                     <Typography variant="h2">Configurable variables</Typography>
-                    <BodyText>
-                        View and manage configurable variables in the Ballerina project.
-                    </BodyText>
+                    <S.Row>
+                        <BodyText>
+                            View and manage configurable variables in the Ballerina project.
+                        </BodyText>
+
+                        <Button appearance="primary">
+                            <Codicon name="add" sx={{ marginRight: 5 }} />Add Config Variables
+                        </Button>
+                    </S.Row>
+
+
+
 
                     {
+                        configVariables.length > 0 ?
+
+                    <VSCodeDataGrid>
+                        <VSCodeDataGridRow row-type="header">
+                            <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                Variable
+                            </VSCodeDataGridCell>
+                            <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                Type
+                            </VSCodeDataGridCell>
+                            <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                Value
+                            </VSCodeDataGridCell>
+                            <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                &nbsp;
+                            </VSCodeDataGridCell>
+                        </VSCodeDataGridRow>
+
+                        {
+                            configVariables.map((variable, index) => {
+                                return (
+                                    <VSCodeDataGridRow key={variable.properties.variable.value + index}>
+                                        <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}</VSCodeDataGridCell>
+                                        <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.type.value}</VSCodeDataGridCell>
+                                        <VSCodeDataGridCell grid-column={`1 + 1`}>{
+                                            variable.properties.defaultable.value &&
+                                                variable.properties.defaultable.value !== "null" ?
+                                                variable.properties.defaultable.value : null
+                                        }</VSCodeDataGridCell>
+                                        <VSCodeDataGridCell grid-column={`1 + 1`} style={{display: "flex"}}>
+                                            <Codicon name="edit" onClick={(event) => handleConfigVariableFormOpen(index)}/>
+                                            &nbsp;&nbsp;
+                                            <Codicon name="trash"/>
+                                        </VSCodeDataGridCell>
+                                    </VSCodeDataGridRow>
+
+                                );
+                            })
+                        }
+                    </VSCodeDataGrid>
+: null
+                    }
+
+
+{isConfigVariableFormOpen &&
+                    <EditForm
+                        isOpen={isConfigVariableFormOpen}
+                        onClose={handleEditConfigFormClose}
+                        variable={configVariables[configIndex]}
+                        onSave={handleResourceFormSave}
+                        />
+                }
+
+
+                    {/* {
                         configVariables.length === 0 ?
                         <Row>
                         <Button appearance="primary">
-                        <Codicon name="add" />&nbsp;&nbsp;Add Config Variables
+                        <Codicon name="add" sx={{ marginRight: 5 }} />Add Config Variables
                         </Button>
                     </Row>
                         :
@@ -226,14 +327,28 @@ console.log(">>> configVariables", configVariables);
                     </S.Table>
 
                     <Row>
-                        <Button appearance="primary">
+                        <Button appearance="primary" onClick={handleUpdateConfigVariables}>
                             Update Config Variables
                         </Button>
                     </Row>
                         </>
-                    }
+                    } */}
 
-                    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {/* <Row>
                 <StyledSearchInput
                     value={searchText}
