@@ -57,11 +57,11 @@ export class DataMapper {
         // const links = this.webView.locator('g [data-testid]');
         // const linkCount = await links.count();
 
-        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
+        const sourceField = this.webView.locator(`div[data-name="${sourceFieldFQN}.OUT"]`);
         await sourceField.waitFor();
         await sourceField.click();
 
-        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
+        const targetField = this.webView.locator(`div[data-name="${targetFieldFQN}.IN"]`);
         await targetField.waitFor();
         await targetField.click();
 
@@ -86,11 +86,11 @@ export class DataMapper {
 
     public async mapArrayDirect(sourceFieldFQN: string, targetFieldFQN: string) {
 
-        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
+        const sourceField = this.webView.locator(`div[data-name="${sourceFieldFQN}.OUT"]`);
         await sourceField.waitFor();
         await sourceField.click();
 
-        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
+        const targetField = this.webView.locator(`div[data-name="${targetFieldFQN}.IN"]`);
         await targetField.waitFor();
         await targetField.click();
 
@@ -105,11 +105,11 @@ export class DataMapper {
 
     public async mapArrayInner(sourceFieldFQN: string, targetFieldFQN: string) {
 
-        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
+        const sourceField = this.webView.locator(`div[data-name="${sourceFieldFQN}.OUT"]`);
         await sourceField.waitFor();
         await sourceField.click();
 
-        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
+        const targetField = this.webView.locator(`div[data-name="${targetFieldFQN}.IN"]`);
         await targetField.waitFor();
         await targetField.click();
 
@@ -122,8 +122,19 @@ export class DataMapper {
 
         const expandButton = await this.webView.locator(`div[data-testid="array-connector-node-${targetFieldFQN}.IN"] vscode-button[title="Map array elements"]`);
         await expandButton.waitFor();
-        await expandButton.click()
+        await expandButton.click();
+
+        const fieldName = sourceFieldFQN.split('.').pop();
+        await this.webView.waitForSelector(`div[id^="recordfield-focusedInput."]`);
         
+    }
+
+    public async gotoPreviousView(){
+        const breadcrumbs = this.webView.locator(`a[data-testid^="dm-header-breadcrumb-"]`);
+        const previousCrumb = this.webView.locator(`a[data-testid="dm-header-breadcrumb-${await breadcrumbs.count() - 1}"]`);
+        await previousCrumb.waitFor();
+        await previousCrumb.click();
+        await previousCrumb.waitFor({ state: 'detached' });
     }
 
     public async runEventActions(eaFile: string) {
