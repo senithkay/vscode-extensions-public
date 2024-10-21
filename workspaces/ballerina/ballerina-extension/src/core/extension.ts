@@ -358,7 +358,51 @@ export class BallerinaExtension {
             const qualaRelease = qualaReleaseResponse.data;
             console.log(`Release found: ${qualaRelease.name}`);
 
+            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
 
+            this.downloadAndUnzipBallerina(qualaRelease, destinationPath);
+
+            this.setBallerinaHomeAndCommand(destinationPath);
+
+            this.setExecutablePermissions();
+
+            console.log('Ballerina home has been set successfully for Quala version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
+        } catch (error) {
+            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+        }
+    }
+
+    async updateBallerinaQualaVersion() {
+        try {
+            window.showInformationMessage(`Updating Ballerina Quala version ${this.ballerinaQualaVersion}`);
+
+            // Remove the existing Ballerina Quala version
+            fs.rmSync(this.ballerinaHome, { recursive: true, force: true });
+
+            const qualaReleaseResponse = await axios.get(this.ballerinaQualaReleaseUrl);
+            const qualaRelease = qualaReleaseResponse.data;
+            console.log(`Release found: ${qualaRelease.name}`);
+
+            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
+
+            this.downloadAndUnzipBallerina(qualaRelease, destinationPath);
+
+            this.setBallerinaHomeAndCommand(destinationPath);
+
+            this.setExecutablePermissions();
+
+            console.log('Ballerina home has been set successfully for Quala version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
+        } catch (error) {
+            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+        }
+    }
+
+    private async downloadAndUnzipBallerina(qualaRelease: any, destinationPath: string) {
+        try {
             const platform = os.platform();
             const asset = qualaRelease.assets.find((asset: any) => {
                         if (platform === 'win32') {
@@ -413,33 +457,29 @@ export class BallerinaExtension {
             fs.rmSync(zipFilePath);
 
             const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
-            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
 
             // Rename the root folder to the new name
             fs.renameSync(tempRootPath, destinationPath);
 
             console.log('Cleanup complete.');
-
-            let exeExtension = "";
-            if (isWindows()) {
-                exeExtension = ".bat";
-            }
-
-            // Set the Ballerina Home and Command
-            this.ballerinaHome = destinationPath;
-            this.ballerinaCmd = join(this.ballerinaHome, "bin") + sep + "bal" + exeExtension;
-
-            // Update the configuration with the new Ballerina Home
-            workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
-
-            this.setExecutablePermissions();
-
-            console.log('Ballerina home has been set successfully for Quala version.');
-            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
         } catch (error) {
-            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
-            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+            console.error('Error downloading or unziping Ballerina Quala version:', error);
+            window.showErrorMessage('Error downloading or unziping Ballerina Quala version:', error);
         }
+    }
+
+    private async setBallerinaHomeAndCommand(destinationPath: string) {
+        let exeExtension = "";
+        if (isWindows()) {
+            exeExtension = ".bat";
+        }
+
+        // Set the Ballerina Home and Command
+        this.ballerinaHome = destinationPath;
+        this.ballerinaCmd = join(this.ballerinaHome, "bin") + sep + "bal" + exeExtension;
+
+        // Update the configuration with the new Ballerina Home
+        workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
     }
 
     private async setExecutablePermissions() {
