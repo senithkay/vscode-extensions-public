@@ -187,7 +187,7 @@
                     "kolab.enableAiSuggestions": {
                         "type": "boolean",
                         "default": true,
-                        "description": "Enable AI suggestions from Kola Copilot."
+                        "description": "Enable AI suggestions from WSO2 Copilot."
                     }
                 }
             }
