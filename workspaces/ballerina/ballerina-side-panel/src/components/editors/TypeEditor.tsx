@@ -8,7 +8,7 @@
  */
 
 import React, { useRef, useState } from "react";
-import { Codicon, ExpressionBar, ExpressionBarRef, RequiredFormInput, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, COMPLETION_ITEM_KIND, ExpressionBar, ExpressionBarRef, RequiredFormInput, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
@@ -136,6 +136,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         ref={exprRef}
                         name={name}
                         completions={completions}
+                        filterType={COMPLETION_ITEM_KIND.TypeParameter}
                         showDefaultCompletion={showDefaultCompletion}
                         getDefaultCompletion={getDefaultCompletion}
                         value={value}

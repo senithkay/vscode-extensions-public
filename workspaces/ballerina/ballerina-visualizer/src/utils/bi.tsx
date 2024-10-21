@@ -30,7 +30,7 @@ import {
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
-import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     return {
@@ -294,6 +294,6 @@ export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] 
         label: type,
         description: `Type: ${type}`,
         value: type,
-        kind: "type-parameter"
+        kind: COMPLETION_ITEM_KIND.TypeParameter
     }));
 }
