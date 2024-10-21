@@ -99,7 +99,7 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
             for (i = 0; i < params.length; i++) {
                 let param = params[i];
                 let value = param.defaultValue ? param.defaultValue : getValueFromProgramArgs(programArgs, i);
-                await showInputBox(param.type, value).then(r => {
+                await showInputBox(param.paramName, value).then(r => {
                     values.push(r);
                 });
             }
