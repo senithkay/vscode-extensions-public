@@ -153,7 +153,7 @@ export class BallerinaExtension {
         this.ballerinaLatestVersion = "2201.10.1";
         this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
         this.ballerinaQualaVersion = "2201.10.2";
-        this.ballerinaQualaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/tags/v" + this.ballerinaQualaVersion;
+        this.ballerinaQualaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/latest";
         this.ballerinaHomeCustomDirName = "ballerina-home";
         this.showStatusBarItem();
         // Load the extension
@@ -352,15 +352,11 @@ export class BallerinaExtension {
 
     async setupBallerinaQualaVersion() {
         try {
-            window.showInformationMessage(`Setting up Ballerina Quala version ${this.ballerinaQualaVersion}`);
-
-            const qualaReleaseResponse = await axios.get(this.ballerinaQualaReleaseUrl);
-            const qualaRelease = qualaReleaseResponse.data;
-            console.log(`Release found: ${qualaRelease.name}`);
+            window.showInformationMessage(`Setting up Ballerina Quala version`);
 
             const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
 
-            this.downloadAndUnzipBallerina(qualaRelease, destinationPath);
+            this.downloadAndUnzipBallerina(destinationPath);
 
             this.setBallerinaHomeAndCommand(destinationPath);
 
@@ -376,18 +372,14 @@ export class BallerinaExtension {
 
     async updateBallerinaQualaVersion() {
         try {
-            window.showInformationMessage(`Updating Ballerina Quala version ${this.ballerinaQualaVersion}`);
+            window.showInformationMessage(`Updating Ballerina Quala version`);
 
             // Remove the existing Ballerina Quala version
             fs.rmSync(this.ballerinaHome, { recursive: true, force: true });
 
-            const qualaReleaseResponse = await axios.get(this.ballerinaQualaReleaseUrl);
-            const qualaRelease = qualaReleaseResponse.data;
-            console.log(`Release found: ${qualaRelease.name}`);
-
             const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
 
-            this.downloadAndUnzipBallerina(qualaRelease, destinationPath);
+            this.downloadAndUnzipBallerina(destinationPath);
 
             this.setBallerinaHomeAndCommand(destinationPath);
 
@@ -401,8 +393,13 @@ export class BallerinaExtension {
         }
     }
 
-    private async downloadAndUnzipBallerina(qualaRelease: any, destinationPath: string) {
+    private async downloadAndUnzipBallerina(destinationPath: string) {
         try {
+            const qualaReleaseResponse = await axios.get(this.ballerinaQualaReleaseUrl);
+            const qualaRelease = qualaReleaseResponse.data;
+            this.ballerinaQualaVersion = qualaRelease.tag_name.replace('v', '');
+            console.log(`Latest release version: ${this.ballerinaQualaVersion}`);
+
             const platform = os.platform();
             const asset = qualaRelease.assets.find((asset: any) => {
                         if (platform === 'win32') {
