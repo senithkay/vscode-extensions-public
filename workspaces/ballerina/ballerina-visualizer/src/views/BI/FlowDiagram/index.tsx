@@ -84,6 +84,12 @@ const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     }
 `;
 
+const SubTitle = styled.div`
+    font-size: 14px;
+    font-weight: 600;
+    color: ${Colors.ON_SURFACE};
+`;
+
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
@@ -697,21 +703,27 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
-    const DiagramTitle = (
-        <React.Fragment>
-            <span>{isResource ? "Resource" : "Function"}:</span>
+    const ResourceDiagramTitle = (
+        <>
+            <span>{"Resource"}:</span>
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <span>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</span>
-        </React.Fragment>
+            <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
+        </>
+    );
+    const FunctionDiagramTitle = (
+        <>
+            <span>{"Function"}:</span>
+            <SubTitle>{method}</SubTitle>
+        </>
     );
 
     return (
         <>
             <View>
                 <ViewHeader
-                    title={DiagramTitle}
+                    title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
                     codicon={isResource ? "globe" : "terminal"} // TODO: fix this with component diagram icons
-                    onEdit={handleOnFormBack}
+                    // onEdit={handleOnFormBack}
                 ></ViewHeader>
                 {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
