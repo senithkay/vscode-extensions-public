@@ -419,7 +419,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     onViewChange={handleViewChange}
                 >
                     <div id={Views.EDIT}>
-                        {(selectedPathID === undefined || !currentPath) && ( 
+                        {(selectedPathID === undefined) && ( 
                             <Overview
                                 isNewFile={isNewFile}
                                 openAPIDefinition={openAPIDefinition}
@@ -441,7 +441,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         )}
                     </div>
                     <div id={Views.READ_ONLY}>
-                        {(selectedPathID === undefined || !currentPath) && (
+                        {(selectedPathID === undefined) && (
                             <ReadOnlyOverview openAPIDefinition={openAPIDefinition} />
                         )}
                         {(operation && selectedPathID !== undefined) && (

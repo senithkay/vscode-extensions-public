@@ -17,6 +17,7 @@ import { HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { BaseTypes } from "../../constants";
+import styled from "@emotion/styled";
 
 interface PathItemProps {
     pathItem: Paths;
@@ -24,6 +25,13 @@ interface PathItemProps {
     onChange: (value: Paths, path?: string) => void;
     sx?: any;
 }
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    flex-direction: flex-grow;
+    justify-content: flex-end;
+`;
+
 
 const httpMethods = ["get", "post", "put", "delete", "options", "head", "patch", "trace"];
 const moreOptions = ["Summary", "Description"];
@@ -297,13 +305,20 @@ export function PathItem(props: PathItemProps) {
     return (
         <>
             <PanelBody>
-                <HorizontalFieldWrapper>
-                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">{path}</Typography>
+                <ButtonWrapper>
                     <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
                         <Codicon name='gear' sx={{marginRight:"4px"}}/>
                         Configure
                     </Button>
-                </HorizontalFieldWrapper>
+                </ButtonWrapper>
+                <TextField
+                    label="Path"
+                    id="path"
+                    sx={{ width: "100%" }}
+                    value={path}
+                    forceAutoFocus
+                    onTextChange={handlePathChange}
+                />
                 {selectedOptions.includes("Summary") && (
                     <TextField
                         label="Summary"
