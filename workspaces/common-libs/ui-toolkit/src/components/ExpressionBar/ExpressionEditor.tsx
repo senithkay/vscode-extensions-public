@@ -498,9 +498,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     }, [completionSelectResponse]);
 
     const navigateUp = throttle((hoveredEl: Element) => {
-        const parentEl = hoveredEl.parentElement as HTMLElement;
         if (hoveredEl) {
             hoveredEl.classList.remove('hovered');
+            const parentEl = hoveredEl.parentElement as HTMLElement;
             if (hoveredEl.id === 'default-completion') {
                 const lastEl = listBoxRef.current.lastElementChild as HTMLElement;
                 if (lastEl) {
@@ -536,9 +536,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     }, 100);
 
     const navigateDown = throttle((hoveredEl: Element) => {
-        const parentEl = hoveredEl.parentElement as HTMLElement;
         if (hoveredEl) {
             hoveredEl.classList.remove('hovered');
+            const parentEl = hoveredEl.parentElement as HTMLElement;
             if (hoveredEl.id === 'default-completion') {
                 const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
                 if (firstEl) {
@@ -550,6 +550,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 if (defaultCompletionEl) {
                     defaultCompletionEl.classList.add('hovered');
                     defaultCompletionEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                }
+                const firstEl = listBoxRef.current.firstElementChild as HTMLElement;
+                if (firstEl) {
+                    firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                 }
             } else {
                 const nextEl = hoveredEl.nextElementSibling as HTMLElement;
