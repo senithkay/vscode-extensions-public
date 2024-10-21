@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor, extensions } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateBBE } from './views/bbe';
 import {
@@ -76,6 +76,18 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 }
 
 export async function activate(context: ExtensionContext) {
+
+    // TODO: REMOVE THESE WHEN GOES LIVE
+    const balExtension = extensions.getExtension('wso2.ballerina');
+    if (balExtension) {
+        // Disable the ballerina extension
+        commands.executeCommand('workbench.extensions.uninstallExtension', 'wso2.ballerina')
+            .then(() => {
+                commands.executeCommand('workbench.action.reloadWindow');
+            });
+    }
+    // <~--------------------- REMOVE ABOVE ------------------>
+
     extension.context = context;
     // Init RPC Layer methods
     RPCLayer.init();
