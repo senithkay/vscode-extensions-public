@@ -318,13 +318,23 @@ function doMappings() {
     // objectOutput.nd1dO = input.nd1dI;
     await dataMapper.mapArrayDirect('input.d1I', 'objectOutput.d1O');
 
+    // primitive array mapping with mapping function
     await dataMapper.mapArrayInner('input.m1I', 'objectOutput.m1O');
-
+    await dataMapper.mapFields('focusedInput.m1IItem','primitiveOutput.number');
+    await dataMapper.gotoPreviousView();
     
+    // object array mapping with mapping function
+    await dataMapper.mapArrayInner('input.m1objI', 'objectOutput.m1objO');
+    await dataMapper.mapFields('focusedInput.m1objIItem.p1','objectOutput.q1');
+    
+    await dataMapper.mapArrayInner('focusedInput.m1objIItem.p2', 'objectOutput.q2');
+    await dataMapper.mapFields('focusedInput.p2Item','primitiveOutput.string');
+    await dataMapper.gotoPreviousView();
+    await dataMapper.gotoPreviousView();
 
     await page.page.waitForTimeout(10000);
 
-    // array mapping with mapping function
+   
 
 
     // array mapping with mapping function and error #know issue
