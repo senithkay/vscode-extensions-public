@@ -100,6 +100,9 @@ const aiStateMachine = createMachine<AiMachineContext>({
                 EXECUTE: "Executing",
                 CLEAR: {
                     target: "Ready",
+                },
+                LOGIN: {
+                    target: "WaitingForLogin",
                 }
             }
         },
