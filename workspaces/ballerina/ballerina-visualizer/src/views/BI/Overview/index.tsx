@@ -193,7 +193,6 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     function isEmptyProject(): boolean {
-        console.log(">>> projectStructure", { projectStructure });
         return Object.values(projectStructure.directoryMap || {}).every(array => array.length === 0);
     }
 
