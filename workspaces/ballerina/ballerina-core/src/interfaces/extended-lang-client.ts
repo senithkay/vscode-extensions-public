@@ -435,6 +435,30 @@ export interface BallerinaServerCapability {
     [key: string]: boolean | string;
 }
 
+export interface ProjectDiagnosticsRequest {
+    projectRootIdentifier: DocumentIdentifier;
+}
+
+export interface ProjectDiagnosticsResponse {
+    errorDiagnosticMap?: Map<string, Diagnostic[]>;
+}
+
+export interface MainFunctionParamsRequest {
+    projectRootIdentifier: DocumentIdentifier;
+}
+
+export interface MainFunctionParamsResponse {
+    hasMain: boolean;
+    params?: TypeBindingPair[];
+    restParams?: TypeBindingPair;
+}
+
+export interface TypeBindingPair {
+    type: string;
+    paramName: string;
+    defaultValue?: string;
+}
+
 // <------------ EXTENDED LANG CLIENT INTERFACE --------->
 
 
