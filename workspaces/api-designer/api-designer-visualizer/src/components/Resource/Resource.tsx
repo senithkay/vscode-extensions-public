@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useEffect, useState } from 'react';
-import { Button, Codicon, Dropdown, OptionProps, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, OptionProps, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI, Operation, Param, Parameter, Path, Responses } from '../../Definitions/ServiceDefinitions';
 import { ParamEditor } from '../Parameter/ParamEditor';
@@ -17,12 +17,13 @@ import {
     getPathParametersFromParameters,
     getQueryParametersFromParameters
 } from '../Utils/OpenAPIUtils';
-import { ContentWrapper, PanelBody, SubSectionWrapper } from '../Overview/Overview';
+import { PanelBody, SubSectionWrapper } from '../Overview/Overview';
 import { Request } from './Request';
 import { Response } from './Response';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import ResourceHeader from './ResourceHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { BaseTypes } from '../../constants';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -85,34 +86,26 @@ export function Resource(props: ResourceProps) {
         responses: resourceOperation.responses
     };
 
-    const handleOnQueryParamsChange = (params: Param[]) => {
-        let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
-        if (params) {
-            p = p.concat(convertParamsToParameters(params, "query"));
-        }
-        if (values?.headerParams) {
-            p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
-        }
-        const currentPath = getPath();
-        const newPath = {
-            ...currentPath,
-            initialOperation: {
-                ...currentPath.initialOperation,
-                parameters: p
-            }
-        };
-        onPathChange(newPath);
-    };
+    // const handleQueryParamsChange = (params: Param[]) => {
+    //     let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
+    //     if (params) {
+    //         p = p.concat(convertParamsToParameters(params, "query"));
+    //     }
+    //     if (values?.headerParams) {
+    //         p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
+    //     }
+    //     const currentPath = getPath();
+    //     const newPath = {
+    //         ...currentPath,
+    //         initialOperation: {
+    //             ...currentPath.initialOperation,
+    //             parameters: p
+    //         }
+    //     };
+    //     onPathChange(newPath);
+    // };
 
-    const handleOnPathParamsChange = (params: Param[]) => {
-        const pathParams = params.map((param) => {
-            return `{${param.name}}`;
-        }).join("/");
-        const path = values.path;
-        let containsInitialSlash = path.startsWith("/");
-        const initialSlashRemovedPath =
-            path.startsWith("/") ? path.substring(1) : path;
-        const pathParamSanitizedPath = initialSlashRemovedPath.split("/")[0];
+    const handlePathParamsChange = (params: Param[]) => {
         let p: Parameter[] = convertParamsToParameters(params, "path");
         if (values?.queryParams) {
             p = p.concat(convertParamsToParameters(values?.queryParams, "query"));
@@ -120,58 +113,64 @@ export function Resource(props: ResourceProps) {
         if (values?.headerParams) {
             p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
         }
-        const currentPath = getPath();
-        const newPath = {
-            ...currentPath,
-            path: `${containsInitialSlash ? "/" : ""}${pathParamSanitizedPath}/${pathParams}`,
-            initialOperation: {
-                ...currentPath.initialOperation,
-                parameters: p,
-            }
+        const operation: Operation = {
+            ...resourceOperation,
+            parameters: p
         };
-        onPathChange(newPath);
+        onOperationChange(path, method, operation);
     };
 
-    const handleOnHeaderParamsChange = (params: Param[]) => {
-        let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
-        if (values?.queryParams) {
-            p = p.concat(convertParamsToParameters(values.queryParams, "query"));
-        }
-        if (params) {
-            p = p.concat(convertParamsToParameters(params, "header"));
-        }
-        const currentPath = getPath();
-        const newPath = {
-            ...currentPath,
-            initialOperation: {
-                ...currentPath.initialOperation,
-                parameters: p
-            }
-        };
-        onPathChange(newPath);
-    };
-
-    const handlePathChange = (value: string) => {
-        const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
-        const modifiedPathParams = pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }));
-        let p: Parameter[] = convertParamsToParameters(modifiedPathParams, "path");
+    const handleHeaderParamsChange = (params: Param[]) => {
+        let p: Parameter[] = convertParamsToParameters(values?.pathParams, "path");
         if (values?.queryParams) {
             p = p.concat(convertParamsToParameters(values?.queryParams, "query"));
         }
         if (values?.headerParams) {
+            p = p.concat(convertParamsToParameters(params, "header"));
+        }
+        const operation: Operation = {
+            ...resourceOperation,
+            parameters: p
+        };
+        onOperationChange(path, method, operation);
+    };
+
+    const handleQueryParamsChange = (params: Param[]) => {
+        let p: Parameter[] = convertParamsToParameters(values?.pathParams, "path");
+        if (params) {
+            p = p.concat(convertParamsToParameters(params, "query"));
+        }
+        if (values?.headerParams) {
             p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
         }
-        const currentPath = getPath();
-        const newPath = {
-            ...currentPath,
-            path: value,
-            initialOperation: {
-                ...currentPath.initialOperation,
-                parameters: p
-            }
+        const operation: Operation = {
+            ...resourceOperation,
+            parameters: p
         };
-        onPathChange(newPath);
+        onOperationChange(path, method, operation);
     };
+
+    // const handlePathChange = (value: string) => {
+    //     const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
+    //     const modifiedPathParams = pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }));
+    //     let p: Parameter[] = convertParamsToParameters(modifiedPathParams, "path");
+    //     if (values?.queryParams) {
+    //         p = p.concat(convertParamsToParameters(values?.queryParams, "query"));
+    //     }
+    //     if (values?.headerParams) {
+    //         p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
+    //     }
+    //     const currentPath = getPath();
+    //     const newPath = {
+    //         ...currentPath,
+    //         path: value,
+    //         initialOperation: {
+    //             ...currentPath.initialOperation,
+    //             parameters: p
+    //         }
+    //     };
+    //     onPathChange(newPath);
+    // };
 
     const handleMethodChange = (value: string) => {
         const currentPath = getPath();
@@ -263,15 +262,6 @@ export function Resource(props: ResourceProps) {
             availableItems.push({ value: m, content: m.toUpperCase() });
         }
     });
-    const dropDownItems: OptionProps[] = [
-        { value: "get", content: "GET" },
-        { value: "post", content: "POST" },
-        { value: "put", content: "PUT" },
-        { value: "delete", content: "DELETE" },
-        { value: "patch", content: "PATCH" },
-        { value: "options", content: "OPTIONS" },
-        { value: "head", content: "HEAD" }
-    ].filter((item) => !availableItems.find((availableItem) => availableItem.value === item.value));
 
     useEffect(() => {
         setInitailPath(path);
@@ -336,13 +326,13 @@ export function Resource(props: ResourceProps) {
                     )
                 }
                 <SubSectionWrapper>
-                    <ParamEditor title="Path Parameters" params={values?.pathParams} type="Path" onParamsChange={handleOnPathParamsChange} />
+                    <ParamEditor paramTypes={BaseTypes} title="Path Parameters" params={values?.pathParams} type="Path" onParamsChange={handlePathParamsChange} />
                 </SubSectionWrapper>
                 <SubSectionWrapper>
-                    <ParamEditor title="Query Parameters" params={values?.queryParams} type="Query" onParamsChange={handleOnQueryParamsChange} />
+                    <ParamEditor paramTypes={BaseTypes} title="Query Parameters" params={values?.queryParams} type="Query" onParamsChange={handleQueryParamsChange} />
                 </SubSectionWrapper>
                 <SubSectionWrapper>
-                    <ParamEditor title="Header Parameters" params={values?.headerParams} type="Header" onParamsChange={handleOnHeaderParamsChange} />
+                    <ParamEditor paramTypes={BaseTypes} title="Header Parameters" params={values?.headerParams} type="Header" onParamsChange={handleHeaderParamsChange} />
                 </SubSectionWrapper>
                 {method !== "get" && 
                     <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />

@@ -178,7 +178,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         //         }
         //     };
         // }
-        setSelectedPathID(getResourceID(path.path, path.method));
+        // setSelectedPathID(getResourceID(path.path, path.method));
         // setOpenAPIDefinition(updatedOpenAPIDefinition);
         // onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
@@ -382,7 +382,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setIsNewFile(newF);
         setCurrentView(newF ? Views.EDIT : Views.READ_ONLY);
     }, [newF]);
-    console.log("openAPIDefinition", isNewFile);
 
     return (
         <NavigationContainer>

@@ -64,6 +64,7 @@ export function ReadOnlyPathItem(props: ReadOnlyPathItemProps) {
     return (
         <>
             <PanelBody>
+                <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">{currentPath}</Typography>
                 {summary && (
                     <>
                         <Typography sx={{ margin: 0 }} variant='h3'> Summary </Typography>

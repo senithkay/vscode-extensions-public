@@ -131,6 +131,7 @@ export const BaseTypes = [
     "number",
     "integer",
     "boolean",
+    "array",
     "any",
 ];
 

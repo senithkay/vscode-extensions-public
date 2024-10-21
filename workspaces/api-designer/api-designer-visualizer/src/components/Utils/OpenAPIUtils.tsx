@@ -48,9 +48,9 @@ export function resolveResponseFromOperation(operation: Operation): ResponseConf
 }
 
 export function resolveTypeFormSchema(schema: Schema): string {
-    if (schema?.type === "array") {
-        return resolveTypeFormSchema(schema.items) + "[]";
-    }
+    // if (schema?.type === "array") {
+    //     return resolveTypeFormSchema(schema.items) + "[]";
+    // }
     return schema.type;
 }
 
@@ -178,9 +178,10 @@ export function getPathFromResourceID(resourceID: string): string {
 
 export function getPathParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "path").map((param) => ({
+        ...param,
         name: param.name,
         type: param?.schema?.type === "array" ? param.schema.items.type : param.schema.type,
-        defaultValue: param.schema ? param.schema.default : "",
+        description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
     }));
@@ -194,7 +195,6 @@ export function getPathParametersFromPath(path: string): Param[] {
             pathParams.push({
                 name: segment.replace("{", "").replace("}", ""),
                 type: "string",
-                defaultValue: "",
                 isArray: false,
                 isRequired: true,
             });
@@ -209,21 +209,23 @@ export function isNameNotInParams(name: string, params: Param[]): boolean {
 
 export function getQueryParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "query").map((param) => ({
+        ...param,
         name: param.name,
         type: param.schema ? ( param.schema.type === "array" ? param.schema.items.type : param.schema.type ) : "string",
-        defaultValue: param.schema ? param.schema.default : "",
+        description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
-        isRequired: param.required || false,
+        isRequired: param.required,
     }));
 }
 
 export function getHeaderParametersFromParameters(parameters: Parameter[]): Param[] {
     return parameters?.filter((param) => param.in === "header").map((param) => ({
+        ...param,
         name: param.name,
         type: param.schema ? ( param.schema.type === "array" ? param.schema.items.type : param.schema.type ) : "string",
-        defaultValue: param.schema ? param.schema.default : "",
+        description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
-        isRequired: param.required || false,
+        isRequired: param.required,
     }));
 }
 
@@ -231,9 +233,9 @@ export function getResponseHeadersFromResponse(response: Header[]): Param[] {
     return Object.entries(response).map(([name, header]) => ({
         name: header.name,
         type: header.schema ? ( header.schema.type === "array" ? header.schema.items.type : header.schema.type ) : "string",
-        defaultValue: header.schema ? header.schema.default : "",
+        description: header.description,
         isArray: header.schema ? header.schema.type === "array" : false,
-        isRequired: header.required || false,
+        isRequired: header.required,
     }));
 }
 
@@ -259,27 +261,33 @@ export function getOperationFromOpenAPI(path: string, method: string, openAPI: O
 export function convertParamsToParameters(params: Param[], type: "path" | "query" | "header"): Parameter[] {
     let parameters: Parameter[] = [];
     params?.forEach((param) => {
+        const newParam = { ...param };
+        delete newParam.isArray;
+        delete newParam.isRequired;
+        delete newParam.type;
         if (param.isArray) {
             parameters.push({
+                ...newParam,
                 name: param.name,
                 in: type,
                 required: param.isRequired,
                 schema: {
+                    ...newParam.schema,
                     type: "array",
                     items: {
                         type: param.type,
-                        default: param.defaultValue,
                     }
-                }
+                },
             });
         } else {
             parameters.push({
+                ...newParam,
                 name: param.name,
                 in: type,
                 required: param.isRequired,
                 schema: {
+                    ...newParam.schema,
                     type: param.type,
-                    default: param.defaultValue,
                 }
             });
         }
