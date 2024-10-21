@@ -6,10 +6,16 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FormGroup, LinkButton, TextField, Button, Codicon, Typography, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { TextField, Button, Codicon, Typography, Dropdown } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 import SectionHeader from '../Resource/SectionHeader';
+
+export enum Action {
+    ADD = "add",
+    DELETE = "delete",
+    UPDATE = "update",
+}
 
 export const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -36,16 +42,17 @@ export const ButtonWrapperParams = styled.div`
 interface OverviewProps {
     params: Param[];
     paramTypes: string[];
+    newParamName?: string;
     type: string;
     title: string;
     addButtonText?: string;
     disableCollapse?: boolean;
     paramNameOutFocus?: (value: Param[], name: string) => void;
-    onParamsChange: (params: Param[]) => void;
+    onParamsChange: (params: Param[], action?: Action) => void;
 }
 
 export function ParamEditor(props: OverviewProps) {
-    const { params, paramTypes, type, title, addButtonText, disableCollapse, onParamsChange } = props;
+    const { params, paramTypes, newParamName = "", type, title, addButtonText, disableCollapse, onParamsChange } = props;
 
     const paramTypeOptions = paramTypes.map((type) => ({ id: type, content: type, value: type }));
 
@@ -61,16 +68,16 @@ export function ParamEditor(props: OverviewProps) {
 
     const addNewParam = () => {
         if (!params) {
-            onParamsChange([{ name: "", type: "string", description: "" }]);
+            onParamsChange([{ name: newParamName, type: "string", description: "" }], Action.ADD);
             return;
         } else {
             onParamsChange([...params, {
-                name: "",
+                name: newParamName,
                 type: "string",
                 description: "",
                 isArray: false,
-                isRequired: false
-            }]);
+                isRequired: true,
+            }], Action.ADD);
         }
     };
 

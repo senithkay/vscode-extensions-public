@@ -180,7 +180,7 @@ export function getPathParametersFromParameters(parameters: Parameter[]): Param[
     return parameters?.filter((param) => param.in === "path").map((param) => ({
         ...param,
         name: param.name,
-        type: param?.schema?.type === "array" ? param.schema.items.type : param.schema.type,
+        type: param?.schema?.type,
         description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
@@ -326,4 +326,30 @@ export function resolveResonseHoverColor(responseCode: string): string {
     } else {
         return 'var(--vscode-minimap-selectionHighlight)';
     }
+}
+
+export function addNewParamToPath(params: Param, path: string): string {
+    return `${path}/{${params.name}}`;
+};
+
+export function convertParamsToPath(params: Param[], path: string): string {
+    let newPath = path;
+    params.forEach((param) => {
+        newPath = addNewParamToPath(param, newPath);
+    });
+    return newPath;
+};
+
+export function syncPathParamsWithParams(pathParams: Param[], params: Param[]): Param[] { // Added return type annotation
+    return pathParams.map((pathParam) => {
+        const param = params?.find((param) => param.name === pathParam.name);
+        if (param) {
+            return {
+                ...pathParam,
+                ...param,
+            };
+        } else {
+            return pathParam;
+        }
+    });
 }

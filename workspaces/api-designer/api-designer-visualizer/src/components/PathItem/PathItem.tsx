@@ -12,17 +12,16 @@ import { PathItem as PI, Param, Parameter, Paths } from "../../Definitions/Servi
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
-import { convertParamsToParameters, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams } from "../Utils/OpenAPIUtils";
-import { HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
+import { convertParamsToParameters, addNewParamToPath, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams, syncPathParamsWithParams, convertParamsToPath } from "../Utils/OpenAPIUtils";
+import { Action, HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { BaseTypes } from "../../constants";
 import styled from "@emotion/styled";
-
 interface PathItemProps {
     pathItem: Paths;
     path: string;
-    onChange: (value: Paths, path?: string) => void;
+    onChange: (value: Paths, path?: string, action?: Action) => void;
     sx?: any;
 }
 
@@ -32,7 +31,6 @@ const ButtonWrapper = styled.div`
     justify-content: flex-end;
 `;
 
-
 const httpMethods = ["get", "post", "put", "delete", "options", "head", "patch", "trace"];
 const moreOptions = ["Summary", "Description"];
 
@@ -41,8 +39,10 @@ export function PathItem(props: PathItemProps) {
     const { rpcClient } = useVisualizerContext();
     const currentPathItem: PI = pathItem[path] as PI;
     const [description, setDescription] = useState<string>(String(currentPathItem.description));
+    const [originalPath] = useState<string>(path);
     const pathPramFromPath = getPathParametersFromPath(path);
     const pathParameters: Param[] =  pathItem && path && (pathItem[path] as Paths).parameters && getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const finalPathParameters = syncPathParamsWithParams(pathPramFromPath, pathParameters);
     const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getHeaderParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     // Available operations for the path
@@ -117,13 +117,14 @@ export function PathItem(props: PathItemProps) {
             }
         });
         // Add the new path to the pathItem to the deleted index
+        const finalP = p ? p : "/";
         pathItem && Object.keys(pathItem).forEach((_, i) => {
             if (i === deletedIndex) {
-                clonedPathItem[p] = currentPathItem;
+                clonedPathItem[finalP] = currentPathItem;
             }
         });
         const updatedPathItem = { ...clonedPathItem };
-        onChange(updatedPathItem, p);
+        onChange(updatedPathItem, finalP);
     };
     const handleSummaryChange = (summary: string) => {
         const currentPathItem: Paths = pathItem[path] as Paths;
@@ -150,21 +151,18 @@ export function PathItem(props: PathItemProps) {
         };
         onChange(updatedPathItem);
     };
-    const handlePathParametersChange = (params: Param[]) => {
-        const pathParamters = convertParamsToParameters(params, "path");
+    const handlePathParametersChange = (params: Param[], action: Action) => {
+        const updatedPathString = convertParamsToPath(params, originalPath);
+        const newPathString = (action === Action.ADD) ? addNewParamToPath(params[params.length - 1], path) :
+            updatedPathString;
         const queryParams = convertParamsToParameters(queryParameters, "query");
         const headerParams = convertParamsToParameters(headerParameters, "header");
-        // New path string from the pathParamters removing the old path parameters
-        let newPath = path.split('/').map(segment => {
-            if (segment.startsWith('{') && segment.endsWith('}')) {
-                const paramName = segment.replace('{', '').replace('}', '');
-                const param = pathParamters.find(param => param.name === paramName);
-                return param ? `{${param.name}}` : "";
-            } else {
-                return segment;
-            }
-        }).join('/');
-        newPath = newPath.endsWith('/') ? newPath.slice(0, -1) : newPath;
+        let pathParams = convertParamsToParameters(params, "path");
+        if (action === Action.ADD) {
+            let p = getPathParametersFromPath(newPathString);
+            p = syncPathParamsWithParams(p, params);
+            pathParams = convertParamsToParameters(p, "path");
+        }
         const clonedPathItem = { ...pathItem };
         let deletedIndex = -1;    
         let existingPathItems: string | PI | Parameter[];
@@ -178,22 +176,22 @@ export function PathItem(props: PathItemProps) {
         // Add the new path to the pathItem to the deleted index
         pathItem && Object.keys(pathItem).forEach((_, i) => {
             if (i === deletedIndex) {
-                clonedPathItem[newPath] = existingPathItems;
+                clonedPathItem[newPathString] = existingPathItems;
             }
         });
-        const currentPathItem: Paths = clonedPathItem[newPath] as Paths;
+        const currentPathItem: Paths = clonedPathItem[newPathString] as Paths;
         const updatedPath = {
             ...currentPathItem,
-            parameters: [...pathParamters, ...queryParams, ...headerParams],
+            parameters: [...pathParams, ...queryParams, ...headerParams],
         };
         const updatedPathItem = {
             ...clonedPathItem,
-            [newPath]: updatedPath,
+            [newPathString]: updatedPath,
         };
-        onChange(updatedPathItem, newPath);
+        onChange(updatedPathItem, newPathString);
     };
     const handleQueryParametersChange = (params: Param[]) => {
-        const pathParamters = convertParamsToParameters(pathParameters, "path");
+        const pathParamters = convertParamsToParameters(finalPathParameters, "path");
         const queryParams = convertParamsToParameters(params, "query");
         const headerParams = convertParamsToParameters(headerParameters, "header");
         const currentPathItem: Paths = pathItem[path] as Paths;
@@ -208,7 +206,7 @@ export function PathItem(props: PathItemProps) {
         onChange(updatedPathItem, path);
     };
     const handleHeaderParametersChange = (params: Param[]) => {
-        const pathParamters = convertParamsToParameters(pathParameters, "path");
+        const pathParamters = convertParamsToParameters(finalPathParameters, "path");
         const queryParams = convertParamsToParameters(queryParameters, "query");
         const headerParams = convertParamsToParameters(params, "header");
         const currentPathItem: Paths = pathItem[path] as Paths;
@@ -353,7 +351,8 @@ export function PathItem(props: PathItemProps) {
                     ))}
                 </CheckBoxGroup>
                 <ParamEditor
-                    params={pathParameters}
+                    newParamName={`param${finalPathParameters?.length + 1}`}
+                    params={finalPathParameters}
                     onParamsChange={handlePathParametersChange}
                     paramNameOutFocus={handlePathParamNameOutFocus}
                     paramTypes={BaseTypes}
