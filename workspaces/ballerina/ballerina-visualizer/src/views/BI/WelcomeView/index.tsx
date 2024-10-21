@@ -105,7 +105,7 @@ export function WelcomeView() {
         <>
             <Wrapper>
                 <TitlePanel>
-                    <Headline>Ballerina Integrator for VS Code</Headline>
+                    <Headline>Kola Integrator for VS Code</Headline>
                     <span>
                         A comprehensive integration solution that simplifies your digital transformation journey.
                         Streamlines connectivity among applications, services, data, and cloud using a user-friendly
