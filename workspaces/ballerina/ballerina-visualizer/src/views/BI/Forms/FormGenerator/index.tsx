@@ -181,7 +181,15 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm fileName={fileName} node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+        return <IfForm
+            fileName={fileName}
+            node={node}
+            targetLineRange={targetLineRange}
+            onSubmit={onSubmit}
+            openSubPanel={openSubPanel}
+            updatedExpressionField={updatedExpressionField}
+            resetUpdatedExpressionField={resetUpdatedExpressionField}
+        />;
     }
 
     // default form

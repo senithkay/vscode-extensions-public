@@ -9,11 +9,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
-import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
-import { FormValues, ExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
+import { FormValues, ExpressionEditor, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertBalCompletion, convertNodePropertyToFormField, convertToFnSignature } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
@@ -25,10 +25,13 @@ interface IfFormProps {
     node: FlowNode;
     targetLineRange: LineRange;
     onSubmit: (node?: FlowNode) => void;
+    openSubPanel: (subPanel: SubPanel) => void;
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
 }
 
 export function IfForm(props: IfFormProps) {
-    const { fileName, node, targetLineRange, onSubmit } = props;
+    const { fileName, node, targetLineRange, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField } = props;
     const { control, getValues, setValue, handleSubmit } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
@@ -40,6 +43,24 @@ export function IfForm(props: IfFormProps) {
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
 
     console.log(">>> form fields", { node, values: getValues(), branches });
+
+    const exprRef = useRef<ExpressionBarRef>(null);
+
+    useEffect(() => {
+        if (updatedExpressionField) {
+            const currentValue = getValues(updatedExpressionField.key);
+
+            if (currentValue !== undefined) {
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart ?? currentValue.length;
+                const newValue = currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
+                setValue(updatedExpressionField.key, newValue);
+                resetUpdatedExpressionField && resetUpdatedExpressionField();
+            }
+        }
+    }, [updatedExpressionField]);
 
     const clearExpressionEditor = () => {
         // clear memory for expression editor
@@ -250,6 +271,7 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={branch.label}>
                             <ExpressionEditor
+                                ref={exprRef}
                                 control={control}
                                 field={field}
                                 completions={activeEditor === index ? filteredCompletions : []}
@@ -260,6 +282,9 @@ export function IfForm(props: IfFormProps) {
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}
                                 onBlur={handleExpressionEditorBlur}
+                                openSubPanel={openSubPanel}
+                                targetLineRange={targetLineRange}
+                                fileName={fileName}
                             />
                         </FormStyles.Row>
                     );
