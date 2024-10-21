@@ -139,8 +139,8 @@ export class BallerinaExtension {
     private ballerinaUserHomeName; string;
     private ballerinaLatestVersion: string;
     private ballerinaLatestReleaseUrl: string;
-    private ballerinaQualaVersion: string;
-    private ballerinaQualaReleaseUrl: string;
+    private ballerinaKolaVersion: string;
+    private ballerinaKolaReleaseUrl: string;
     private ballerinaHomeCustomDirName: string;
 
     constructor() {
@@ -152,8 +152,7 @@ export class BallerinaExtension {
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
         this.ballerinaLatestVersion = "2201.10.1";
         this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
-        this.ballerinaQualaVersion = "2201.10.2";
-        this.ballerinaQualaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/latest";
+        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/latest";
         this.ballerinaHomeCustomDirName = "ballerina-home";
         this.showStatusBarItem();
         // Load the extension
@@ -214,6 +213,18 @@ export class BallerinaExtension {
 
         commands.registerCommand(showMessageInstallBallerinaCommand, () => {
             this.showMessageInstallBallerina();
+        });
+
+        commands.registerCommand('ballerina.installBallerina', () => {
+            this.installBallerina();
+        });
+
+        commands.registerCommand('ballerina.setupKola', () => {
+            this.setupKolaVersion();
+        });
+
+        commands.registerCommand('ballerina.updateKola', () => {
+            this.updateKolaVersion();
         });
 
         try {
@@ -300,7 +311,8 @@ export class BallerinaExtension {
 
     async installBallerina() {
         try {
-            console.log('Downloading and setting up Ballerina');
+            window.showInformationMessage("Downloading and setting up Ballerina...");
+            console.log('Downloading and setting up Ballerina...');
 
             // Get the latest release installer url
             const installerUrl = this.getInstallerUrl();
@@ -336,8 +348,8 @@ export class BallerinaExtension {
                 command = `sudo installer -pkg ${installerFilePath} -target /Library`;
             }
             const terminal = window.createTerminal('Install Ballerina');
-            terminal.sendText(command);
-            terminal.show();
+            await terminal.sendText(command);
+            await terminal.show();
 
             // Cleanup: Remove the downloaded zip file
             fs.rmSync(installerFilePath);
@@ -350,17 +362,17 @@ export class BallerinaExtension {
         }
     }
 
-    async setupBallerinaQualaVersion() {
+    async setupKolaVersion() {
         try {
-            window.showInformationMessage(`Setting up Ballerina Quala version`);
+            window.showInformationMessage(`Setting up Ballerina Kola version`);
 
             const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
 
-            this.downloadAndUnzipBallerina(destinationPath);
+            await this.downloadAndUnzipBallerina(destinationPath);
 
-            this.setBallerinaHomeAndCommand(destinationPath);
+            await this.setBallerinaHomeAndCommand(destinationPath);
 
-            this.setExecutablePermissions();
+            await this.setExecutablePermissions();
 
             console.log('Ballerina home has been set successfully for Quala version.');
             window.showInformationMessage("Ballerina has been set up successfully for Quala version");
@@ -370,38 +382,38 @@ export class BallerinaExtension {
         }
     }
 
-    async updateBallerinaQualaVersion() {
+    async updateKolaVersion() {
         try {
-            window.showInformationMessage(`Updating Ballerina Quala version`);
+            window.showInformationMessage(`Updating Ballerina Kola version`);
 
-            // Remove the existing Ballerina Quala version
+            // Remove the existing Ballerina Kola version
             fs.rmSync(this.ballerinaHome, { recursive: true, force: true });
 
             const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
 
-            this.downloadAndUnzipBallerina(destinationPath);
+            await this.downloadAndUnzipBallerina(destinationPath);
 
-            this.setBallerinaHomeAndCommand(destinationPath);
+            await this.setBallerinaHomeAndCommand(destinationPath);
 
-            this.setExecutablePermissions();
+            await this.setExecutablePermissions();
 
-            console.log('Ballerina home has been set successfully for Quala version.');
-            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
+            console.log('Ballerina home has been set successfully for Kola version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Kola version");
         } catch (error) {
-            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
-            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+            console.error('Error downloading or unzipping the Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
         }
     }
 
     private async downloadAndUnzipBallerina(destinationPath: string) {
         try {
-            const qualaReleaseResponse = await axios.get(this.ballerinaQualaReleaseUrl);
-            const qualaRelease = qualaReleaseResponse.data;
-            this.ballerinaQualaVersion = qualaRelease.tag_name.replace('v', '');
-            console.log(`Latest release version: ${this.ballerinaQualaVersion}`);
+            const kolaReleaseResponse = await axios.get(this.ballerinaKolaReleaseUrl);
+            const kolaRelease = kolaReleaseResponse.data;
+            this.ballerinaKolaVersion = kolaRelease.tag_name.replace('v', '');
+            console.log(`Latest release version: ${this.ballerinaKolaVersion}`);
 
             const platform = os.platform();
-            const asset = qualaRelease.assets.find((asset: any) => {
+            const asset = kolaRelease.assets.find((asset: any) => {
                         if (platform === 'win32') {
                             return asset.name.endsWith('windows.zip');
                         } else if (platform === 'linux') {
@@ -416,7 +428,7 @@ export class BallerinaExtension {
                     });
 
             if (!asset) {
-                throw new Error('No artifact found in the release ' + this.ballerinaQualaVersion);
+                throw new Error('No artifact found in the release ' + this.ballerinaKolaVersion);
             }
 
             const artifactUrl = asset.browser_download_url;
@@ -460,8 +472,8 @@ export class BallerinaExtension {
 
             console.log('Cleanup complete.');
         } catch (error) {
-            console.error('Error downloading or unziping Ballerina Quala version:', error);
-            window.showErrorMessage('Error downloading or unziping Ballerina Quala version:', error);
+            console.error('Error downloading or unziping Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unziping Ballerina Kola version:', error);
         }
     }
 
@@ -493,7 +505,7 @@ export class BallerinaExtension {
             if (isWindows()) {
                 exeExtension = ".bat";
             }
-            await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaQualaVersion, 'bin', 'bal' + exeExtension), 0o755);
+            await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaKolaVersion, 'bin', 'bal' + exeExtension), 0o755);
 
             console.log('Command files are now executable.');
         } catch (error) {

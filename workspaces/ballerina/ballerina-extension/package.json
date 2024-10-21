@@ -319,6 +319,21 @@
         ],
         "commands": [
             {
+                "command": "ballerina.installBallerina",
+                "title": "Install Ballerina",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.setupKola",
+                "title": "Set up Kola",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.updateKola",
+                "title": "Update Kola",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.showExamples",
                 "title": "Show Examples",
                 "category": "Ballerina"
