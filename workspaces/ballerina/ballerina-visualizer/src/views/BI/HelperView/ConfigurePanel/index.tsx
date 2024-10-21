@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -67,25 +67,22 @@ export function ParameterBranch(props: ParameterBranchProps) {
                 optionalParams
             ) : (
                 <>
-                {optionalParams.length > 0 && (
-                <div className={stmtEditorHelperClasses.listOptionalWrapper}>
-                    <div className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </div>
-                    <Button
-                        data-testid="optional-toggle-button"
-                        className={stmtEditorHelperClasses.listOptionalBtn}
-                        onClick={toggleOptionalParams}
-                        appearance="secondary"
-                    >
-                        {showOptionalParams ? "Hide" : "Show"}
-                    </Button>
-                </div>
-            )}
-            {showOptionalParams && optionalParams.length > 0 && optionalParams}
+                    {optionalParams.length > 0 && (
+                        <div className={stmtEditorHelperClasses.listOptionalWrapper}>
+                            <div className={stmtEditorHelperClasses.listOptionalHeader}>Optional fields </div>
+                            <Button
+                                data-testid="optional-toggle-button"
+                                className={stmtEditorHelperClasses.listOptionalBtn}
+                                onClick={toggleOptionalParams}
+                                appearance="secondary"
+                            >
+                                {showOptionalParams ? "Hide" : "Show"}
+                            </Button>
+                        </div>
+                    )}
+                    {showOptionalParams && optionalParams.length > 0 && optionalParams}
                 </>
-             
-            
-
-        )}
+            )}
         </div>
     );
 }

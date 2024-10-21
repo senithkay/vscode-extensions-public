@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -45,7 +45,7 @@ export default function RecordType(props: TypeProps) {
                     />
                     <Typography
                         variant="body3"
-                        sx={{margin: '0px 5px'}}
+                        sx={{ margin: '0px 5px' }}
                     >
                         {param.name}
                     </Typography>

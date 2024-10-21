@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -456,7 +456,7 @@ function getEndpointExpression(model: STNode): ImplicitNewExpression {
 }
 // Select action expression from statement node
 function getActionExpression(model: STNode): RemoteMethodCallAction | ClientResourceAccessAction {
-    if (!model){
+    if (!model) {
         return undefined;
     }
     if (
@@ -556,7 +556,7 @@ function updateFormFieldFromArgNode(formField: FormField, node: PositionalArg | 
             formField.selected = checkFormFieldValue(formField);
             break;
         case "union":
-            if (node.expression?.source && formField.members){
+            if (node.expression?.source && formField.members) {
                 formField.value = node.expression.source;
                 formField.selected = isAnyFieldSelected(formField.members);
             }
@@ -566,7 +566,7 @@ function updateFormFieldFromArgNode(formField: FormField, node: PositionalArg | 
             if (recordExp && formField.fields && formField.fields.length > 0) {
                 mapRecordLiteralToRecordTypeFormField(recordExp.fields as SpecificField[], formField.fields);
                 formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
-            }else if (STKindChecker.isSimpleNameReference(node.expression) && node.expression?.name?.value){
+            } else if (STKindChecker.isSimpleNameReference(node.expression) && node.expression?.name?.value) {
                 formField.value = node.expression.name.value;
                 formField.selected = formField.selected || checkFormFieldValue(formField);
             }
@@ -580,7 +580,7 @@ function updateFormFieldFromArgNode(formField: FormField, node: PositionalArg | 
             }
             break;
         default:
-            if (node.expression?.source){
+            if (node.expression?.source) {
                 formField.value = node.expression.source;
                 formField.selected = checkFormFieldValue(formField);
             }
@@ -600,8 +600,8 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     findFormField = true;
                     formField.value =
                         STKindChecker.isStringLiteral(specificField.valueExpr) ||
-                        STKindChecker.isNumericLiteral(specificField.valueExpr) ||
-                        STKindChecker.isBooleanLiteral(specificField.valueExpr)
+                            STKindChecker.isNumericLiteral(specificField.valueExpr) ||
+                            STKindChecker.isBooleanLiteral(specificField.valueExpr)
                             ? (formField.value = specificField.valueExpr.literalToken.value)
                             : (formField.value = specificField.valueExpr.source);
                     formField.selected = checkFormFieldValue(formField);
@@ -651,7 +651,7 @@ export function mapRecordLiteralToRecordTypeFormField(specificFields: SpecificFi
                     formField.initialDiagnostics = specificField?.typeData?.diagnostics;
                 }
             });
-            if (!findFormField){
+            if (!findFormField) {
                 findAllFormFields = false;
                 return;
             }
