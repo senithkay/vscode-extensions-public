@@ -19,7 +19,6 @@ import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useGetGitBranches } from "../../../hooks/use-queries";
-import { useLinkedDirStateContext } from "../../../providers/linked-dir-state-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import type { componentGeneralDetailsSchema } from "../componentFormSchema";
 
@@ -43,8 +42,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 }) => {
 	const [compDetailsSections] = useAutoAnimate();
 	const [sourceDetailsSections] = useAutoAnimate();
-
-	const { state: linkedDirState } = useLinkedDirStateContext();
 
 	const subPath = form.watch("subPath");
 	const repoUrl = form.watch("repoUrl");
@@ -165,8 +162,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 		onInvalidRepoRefreshing = isFetchingRepoAccess;
 	}
 
-	const dirComponentExists = linkedDirState?.components?.some((item) => item.component?.spec?.source?.github?.path === subPath);
-
 	return (
 		<>
 			<div className="grid gap-4 md:grid-cols-2" ref={compDetailsSections}>
@@ -191,9 +186,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 					promptTitle="Select Component Directory"
 					wrapClassName="col-span-full"
 				/>
-				{dirComponentExists && (
-					<Banner key="dir-already-in-use" title="The selected directory is associated with another component within your Choreo project" />
-				)}
 				<div className="col-span-full grid gap-4 md:grid-cols-2" ref={sourceDetailsSections}>
 					{gitData?.remotes?.length > 0 && (
 						<Dropdown

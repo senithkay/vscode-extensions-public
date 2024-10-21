@@ -529,5 +529,6 @@ export interface ProjectBuildLogsData {
 
   export interface OpenApiSpec {
 	openapi: string | number,
+	swagger: string | number,
 	servers?: {url?: string}[]
 }

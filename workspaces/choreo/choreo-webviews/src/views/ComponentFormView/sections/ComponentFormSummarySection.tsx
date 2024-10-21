@@ -106,10 +106,10 @@ export const ComponentFormSummarySection: FC<Props> = ({
 	const items: ReactNode[] = [];
 	if (type === ChoreoComponentType.ApiProxy) {
 		items.push(<ComponentSummaryItem title="Type" text={gitProxyDetails?.componentConfig?.type} />);
-		items.push(<ComponentSummaryItem title="Target URL" text={gitProxyDetails?.proxyTargetUrl} className="col-span-2" />);
 		items.push(<ComponentSummaryItem title="API Context" text={gitProxyDetails?.proxyContext} />);
 		items.push(<ComponentSummaryItem title="Version" text={gitProxyDetails?.proxyVersion} />);
-		items.push(<ComponentSummaryItem title="Visibility" text={gitProxyDetails?.componentConfig?.networkVisibility} />);
+		// TODO: Re-enable this once networkVisibility is supported in the git proxy schema
+		// items.push(<ComponentSummaryItem title="Visibility" text={gitProxyDetails?.componentConfig?.networkVisibility} />);
 		if (gitProxyDetails?.componentConfig?.type === "REST" && gitProxyDetails?.componentConfig?.schemaFilePath) {
 			items.push(<ComponentSummaryItem title="Schema Path" text={gitProxyDetails?.componentConfig?.schemaFilePath} />);
 		}
@@ -119,6 +119,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		if (gitProxyDetails?.componentConfig?.thumbnailPath) {
 			items.push(<ComponentSummaryItem title="Thumbnail Path" text={gitProxyDetails?.componentConfig?.thumbnailPath} />);
 		}
+		items.push(<ComponentSummaryItem title="Target URL" text={gitProxyDetails?.proxyTargetUrl} className="col-span-2" />);
 	} else if (buildPackName) {
 		items.push(<ComponentSummaryItem title="Build Pack" text={buildPackName} />);
 

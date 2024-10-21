@@ -48,7 +48,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 					const projectBaseUrl = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
 
 					if (params?.component) {
-						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}`));
+						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
 					} else if (selected?.project) {
 						env.openExternal(Uri.parse(`${projectBaseUrl}/home`));
 					} else {
@@ -110,7 +110,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 						if (selectedOption?.type === "project") {
 							env.openExternal(Uri.parse(`${projectBaseUrl}/home`));
 						} else if (selectedOption?.type === "component") {
-							env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}`));
+							env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
 						}
 					}
 				}

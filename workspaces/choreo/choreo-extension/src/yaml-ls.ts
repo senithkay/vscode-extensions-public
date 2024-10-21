@@ -36,6 +36,11 @@ export async function registerYamlLanguageServer(): Promise<void> {
 				uri: `${SCHEMA}://schema/endpoints`,
 				schemaPath: path.join(schemaBasePath, "endpoints-yaml-schema.json"),
 			},
+			{
+				fileName: "component.yaml",
+				uri: `${SCHEMA}://schema/component`,
+				schemaPath: path.join(schemaBasePath, "component-yaml-schema.json"),
+			},
 		];
 
 		function onRequestSchemaURI(resource: string): string | undefined {

@@ -137,7 +137,8 @@ export const componentGitProxyFormSchema = z.object({
 	componentConfig: z
 		.object({
 			type: z.string().min(1, "Required"),
-			networkVisibility: z.string().min(1, "Required"),
+			// TODO: Re-enable this once networkVisibility is supported in the git proxy schema
+			// networkVisibility: z.string().min(1, "Required"),
 			schemaFilePath: z.string().min(1, "Required"),
 			thumbnailPath: z.string(),
 			docPath: z.string(),
@@ -342,13 +343,13 @@ export const getOpenApiContent = async (filePath: string): Promise<OpenApiSpec |
 		const fileContent = await ChoreoWebViewAPI.getInstance().readFile(filePath);
 		try {
 			const parsedSpec: OpenApiSpec = JSON.parse(fileContent);
-			if (parsedSpec?.openapi) {
+			if (parsedSpec?.openapi || parsedSpec?.swagger) {
 				return parsedSpec;
 			}
 		} catch {
 			try {
 				const parsedSpec = yaml.load(fileContent) as OpenApiSpec;
-				if (parsedSpec?.openapi) {
+				if (parsedSpec?.openapi || parsedSpec?.swagger) {
 					return parsedSpec;
 				}
 			} catch {

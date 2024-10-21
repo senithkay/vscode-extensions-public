@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Component Configuration",
+  "type": "object",
+  "required": ["schemaVersion"],
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "enum": [1.1, 1.0],
+      "description": "The configuration file schema version"
+    },
+    "endpoints": {
+      "type": "array",
+      "description": "Incoming connection details for the component (optional)",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique name for the endpoint"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Display name for the endpoint"
+          },
+          "service": {
+            "type": "object",
+            "required": ["port"],
+            "properties": {
+              "basePath": {
+                "type": "string",
+                "description": "Base path of the API exposed via the endpoint. Required in REST, GraphQL, WS"
+              },
+              "port": {
+                "type": "number",
+                "description": "Numeric port value"
+              }
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of traffic that the endpoint is accepting",
+            "enum": ["REST", "GraphQL", "GRPC", "TCP", "UDP", "WS"]
+          },
+          "networkVisibilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["Project", "Organization", "Public"]
+            }
+          }
+        },
+        "if": {
+          "properties": { "type": { "const": "REST" } }
+        },
+        "then": {
+          "properties": {
+            "schemaFilePath": {
+              "type": "string",
+              "description": "Path to the schema definition file, applicable only for REST."
+            }
+          },
+          "required": ["schemaFilePath"]
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "serviceReferences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "connectionConfig"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the service reference (v1.0)"
+              },
+              "connectionConfig": {
+                "type": "string",
+                "description": "Connection instance config (v1.0)"
+              },
+              "env": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["from", "to"],
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "description": "Key name of the connection configuration"
+                    },
+                    "to": {
+                      "type": "string",
+                      "description": "Environment variable injected into the container"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "connectionReferences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "resourceRef"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the connection reference (v1.1)"
+              },
+              "resourceRef": {
+                "type": "string",
+                "description": "Resource reference (v1.1)"
+              }
+            }
+          }
+        }
+      }
+    },
+    "proxy": {
+      "type": "object",
+      "description": "Proxy configurations of the component (optional)",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of traffic the endpoint is accepting",
+          "enum": ["REST", "GraphQL", "WS"]
+        },
+        "networkVisibilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Organization", "Public"]
+          }
+        },
+        "schemaFilePath": {
+          "type": "string",
+          "description": "Path to the schema definition file (REST only)"
+        },
+        "thumbnailPath": {
+          "type": "string",
+          "description": "Path to the thumbnail image"
+        },
+        "docPath": {
+          "type": "string",
+          "description": "Path to the documentation files"
+        }
+      },
+      "if": {
+        "properties": { "type": { "const": "REST" } }
+      },
+      "then": {
+        "properties": {
+          "schemaFilePath": {
+            "type": "string",
+            "description": "Schema file path required for REST endpoints"
+          }
+        },
+        "required": ["schemaFilePath"]
+      }
+    }
+  },
+  "if": {
+    "properties": {
+      "schemaVersion": { "const": 1.1 }
+    }
+  },
+  "then": {
+    "properties": {
+      "dependencies": {
+        "properties": {
+          "connectionReferences": {
+            "description": "Add connection references for v1.1"
+          }
+        }
+      }
+    }
+  }
+}

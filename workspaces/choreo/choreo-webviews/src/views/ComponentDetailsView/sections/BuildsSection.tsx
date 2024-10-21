@@ -180,7 +180,7 @@ const LoadingBuildRow = () => {
 			<GridColumnItem label="Status" index={2} lastItem>
 				<div className="flex items-center justify-start gap-2 md:justify-between">
 					<SkeletonText className="w-12" />
-					<SkeletonText className="w-16" />
+					<SkeletonText className="w-10" />
 				</div>
 			</GridColumnItem>
 		</div>

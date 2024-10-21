@@ -73,6 +73,7 @@ import {
 	ShowTextInOutputChannel,
 	ReadFile,
 	makeURLSafe,
+	ProxyConfig,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
@@ -286,10 +287,16 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			rmSync(join(params.componentDir, ".choreo", "component-config.yaml"));
 		}
 
+		const proxyConfig: ProxyConfig = {
+			...params.proxy,
+			docPath: params.proxy?.docPath || undefined,
+			thumbnailPath: params.proxy?.thumbnailPath || undefined,
+		}
+
 		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
 		if (existsSync(componentYamlPath)) {
 			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			endpointFileContent.proxy = params?.proxy;
+			endpointFileContent.proxy = proxyConfig
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 			if (!deepEqual(originalContent, endpointFileContent)) {
 				writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
@@ -298,7 +305,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			if (!existsSync(join(params.componentDir, ".choreo"))) {
 				mkdirSync(join(params.componentDir, ".choreo"));
 			}
-			const endpointFileContent: ComponentYamlContent = { schemaVersion: 1.1, proxy: params?.proxy };
+			const endpointFileContent: ComponentYamlContent = { schemaVersion: 1.1, proxy: proxyConfig };
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
 		}
 	});

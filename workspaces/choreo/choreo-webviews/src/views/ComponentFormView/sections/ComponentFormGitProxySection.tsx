@@ -85,7 +85,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 
 	return (
 		<>
-			<div className="col-span-2 grid gap-4 md:col-span-4" ref={proxyDetailsSections}>
+			<div className="grid gap-4 md:grid-cols-2" ref={proxyDetailsSections}>
 				<Dropdown
 					label="Type"
 					required
@@ -93,16 +93,17 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					items={[{ value: "REST" }, { value: "GraphQL" }, { value: "WS" }]}
 					control={form.control}
 				/>
-				<Dropdown
+				{/** TODO: Re-enable this once networkVisibility is supported in the schema */}
+				{/* <Dropdown
 					label="Visibility"
 					required
 					name="componentConfig.networkVisibility"
 					items={[{ value: "Public" }, { value: "Organization" }]}
 					control={form.control}
-				/>
-				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control} wrapClassName="col-span-2" />
+				/> */}
+				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control}  />
 				{proxyType === "REST" && (
-					<div key="proxy-schema" className="col-span-2 md:col-span-4">
+					<div key="proxy-schema" className="col-span-full">
 						<PathSelect
 							name="componentConfig.schemaFilePath"
 							label="Schema File Path"
@@ -131,9 +132,8 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					name="proxyTargetUrl"
 					placeholder="https://www.target-url.com"
 					control={form.control}
-					wrapClassName="col-span-2"
 				/>
-				<TextField label="API Context" required name="proxyContext" placeholder="/base-path" control={form.control} wrapClassName="col-span-2" />
+				<TextField label="API Context" required name="proxyContext" placeholder="/base-path" control={form.control} />
 				<PathSelect
 					name="componentConfig.docPath"
 					label="Documentation File Path"
@@ -141,7 +141,6 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					basePath={compPath}
 					type="file"
 					promptTitle="Select Documentation File Path"
-					wrapClassName="col-span-2"
 				/>
 				<PathSelect
 					name="componentConfig.thumbnailPath"
@@ -150,7 +149,6 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					basePath={compPath}
 					type="file"
 					promptTitle="Select Thumbnail File Path"
-					wrapClassName="col-span-2"
 				/>
 			</div>
 
