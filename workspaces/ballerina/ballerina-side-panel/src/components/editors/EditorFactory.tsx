@@ -43,6 +43,9 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         return (
             <TextEditor field={field} />
         );
+    } else if (field.type === "VIEW" ) {
+        // Skip this property
+        return <></>
     } else {
         return <TextEditor field={field} />;
     }
