@@ -172,7 +172,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
     const {
         reset,
         register,
-        formState: { errors, isValid, isDirty },
+        formState: { errors, isDirty },
         handleSubmit,
         watch,
         setValue,
@@ -226,6 +226,9 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
             setArtifactNames(regArtifactRes.artifacts);
 
             const contextResp = await rpcClient.getMiDiagramRpcClient().getAllAPIcontexts();
+            if (apiData) {
+                contextResp.contexts = contextResp.contexts.filter((context) => context !== apiData.apiContext);
+            }
             setAPIContexts(contextResp.contexts);
         })();
     }, []);
@@ -566,7 +569,7 @@ export function APIWizard({ apiData, path }: APIWizardProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateAPI)}
-                    disabled={!isValid || !isDirty}
+                    disabled={!isDirty}
                 >
                     {apiData ? "Save changes" : "Create"}
                 </Button>

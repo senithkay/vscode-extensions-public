@@ -21,6 +21,7 @@ export * from './components/Typography/Typography';
 export * from './components/Button/Button';
 export * from './components/ActionButtons/ActionButtons';
 export * from './components/Popover/Popover';
+export * from './components/ParamManager/ParamManager';
 export * from './components/SidePanel/SidePanel';
 export * from './components/TextArea/TextArea';
 export * from './components/Divider/Divider';

@@ -12,6 +12,7 @@ import React, { forwardRef } from 'react';
 import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
+import { Button } from '../Button/Button';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -74,16 +75,29 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
-    completions: CompletionItem[];
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
-    onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
+    
+    // Completion item props
+    // - The list of completions to be displayed
+    completions: CompletionItem[];
+    // - The function to be called when a completion is selected
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+
+    // Function signature props
+    // - Returns information about the function that is currently being edited
+    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    }>;
+    handleHelperPaneOpen?: () => void;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -121,11 +135,13 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, ...rest } = props;
+    const { id, handleHelperPaneOpen, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
-            <Icon name="function-icon" />
+            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip='Open Helper View'> 
+                <Icon name="function-icon" />
+            </Button>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>

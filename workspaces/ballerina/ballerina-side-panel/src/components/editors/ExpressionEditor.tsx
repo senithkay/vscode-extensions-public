@@ -25,12 +25,17 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
     triggerCharacters: readonly string[];
-    onRetrieveCompletions: (
+    retrieveCompletions: (
         value: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
-    ) => any;
+    ) => Promise<void>;
+    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    }>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
@@ -85,16 +90,17 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         field,
         completions,
         triggerCharacters,
-        onRetrieveCompletions,
+        retrieveCompletions,
+        extractArgsFromFunction,
         onFocus,
         onBlur,
         onCompletionSelect,
         onSave,
         onCancel,
-        openSubPanel,
+        openSubPanel
     } = props;
 
-    const [subPanelView, setSubPanelView] = useState<SubPanelView>(SubPanelView.UNDEFINED);
+    const { targetLineRange, fileName } = useFormContext();
 
     const exprRef = useRef<ExpressionBarRef>(null);
     const cursorPositionRef = useRef<number | undefined>(undefined);
@@ -113,7 +119,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
 
         // Trigger actions on focus
         await onFocus?.();
-        await onRetrieveCompletions(value, cursorPosition, undefined, true);
+        await retrieveCompletions(value, cursorPosition, undefined, true);
     };
 
     const handleBlur = async () => {
@@ -134,11 +140,9 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     };
 
     const handleOpenSubPanel = (view: SubPanelView, subPanelInfo: SubPanelViewProps) => {
-        const newView = subPanelView === SubPanelView.UNDEFINED ? view : SubPanelView.UNDEFINED;
-        setSubPanelView(newView);
         openSubPanel({
-            view: newView,
-            props: newView === SubPanelView.UNDEFINED ? undefined : subPanelInfo
+            view: view,
+            props: view === SubPanelView.UNDEFINED ? undefined : subPanelInfo
         });
     };
 
@@ -160,6 +164,17 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                 <S.EndAdornmentText>DM</S.EndAdornmentText>
             </S.EndAdornment>
         )
+    };
+
+    const handleHelperPaneOpen = () => {
+        handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
+            filePath: fileName,
+            range: {
+                startLine: targetLineRange.startLine,
+                endLine: targetLineRange.endLine,
+            },
+            editorKey: field.key
+        }});
     };
 
     return (
@@ -189,11 +204,12 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                                     ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
                                     : undefined;
                             if (triggerCharacter) {
-                                await onRetrieveCompletions(value, updatedCursorPosition, triggerCharacter);
+                                await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
                             } else {
-                                await onRetrieveCompletions(value, updatedCursorPosition);
+                                await retrieveCompletions(value, updatedCursorPosition);
                             }
                         }}
+                        extractArgsFromFunction={extractArgsFromFunction}
                         onCompletionSelect={handleCompletionSelect}
                         onFocus={() => handleFocus(value)}
                         onBlur={handleBlur}
@@ -202,6 +218,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}
+                        handleHelperPaneOpen={handleHelperPaneOpen}
                         sx={{ paddingInline: '0' }}
                     />
                 )}

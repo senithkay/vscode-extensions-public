@@ -33,14 +33,13 @@ import {
     AddComponentView,
     ServiceForm,
     PopupMessage,
-    ComponentDiagramV1,
     MainForm,
-    ComponentDiagramV2
+    FunctionForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
-import { FormView, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { PanelType, useVisualizerContext } from "./Context";
 import { ConstructPanel } from "./views/ConstructPanel";
 import { EditPanel } from "./views/EditPanel";
@@ -53,6 +52,7 @@ import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
+import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
 const globalStyles = css`
     *,
@@ -150,15 +150,10 @@ const MainPanel = () => {
                 switch (value?.view) {
                     case MACHINE_VIEW.Overview:
                         if (value.isBI) {
-                            // setViewComponent(<ComponentDiagram stateUpdated />);
                             setViewComponent(<OverviewBI />);
                             break;
                         }
                         setViewComponent(<Overview visualizerLocation={value} />);
-                        break;
-                    case MACHINE_VIEW.OverviewV2:
-                        setViewComponent(<OverviewBI />);
-                        // setViewComponent(<ComponentDiagramV2 stateUpdated />);
                         break;
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
@@ -216,8 +211,14 @@ const MainPanel = () => {
                     case MACHINE_VIEW.AddConnectionWizard:
                         setViewComponent(<AddConnectionWizard />);
                         break;
+                    case MACHINE_VIEW.EditConnectionWizard:
+                        setViewComponent(<EditConnectionWizard connectionName={value?.identifier} />);
+                        break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
+                        break;
+                    case MACHINE_VIEW.BIFunctionForm:
+                        setViewComponent(<FunctionForm />);
                         break;
                     default:
                         setNavActive(false);

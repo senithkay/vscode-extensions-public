@@ -501,6 +501,15 @@ export type BIAvailableNodesResponse = {
     categories: Category[];
 };
 
+export interface BIGetVisibleVariableTypesRequest {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface BIGetVisibleVariableTypesResponse {
+    categories: VisibleType[];
+};
+
 export interface BINodeTemplateRequest {
     position: LinePosition;
     filePath: string;
@@ -510,6 +519,14 @@ export interface BINodeTemplateRequest {
 
 export type BINodeTemplateResponse = {
     flowNode: FlowNode;
+};
+
+export interface BIModuleNodesRequest {
+    filePath: string;
+}
+
+export type BIModuleNodesResponse = {
+    flowModel: Flow;
 };
 
 export type SearchQueryParams = {
@@ -572,6 +589,10 @@ export type SequenceModelResponse = {
     sequenceDiagram: SqFlow;
 };
 
+export interface ComponentsFromContent {
+    content: string;
+}
+
 export enum TriggerKind {
     INVOKED = 1,
     TRIGGER_CHARACTER = 2,
@@ -609,6 +630,39 @@ export interface ExpressionCompletionItem {
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
+export interface SignatureHelpRequest {
+    filePath: string;
+    expression: string;
+    startLine: LinePosition;
+    offset: number;
+    context: {
+        isRetrigger: boolean;
+        triggerCharacter?: TriggerCharacter;
+        triggerKind: number;
+    }
+}
+
+export interface SignatureInfo {
+    label: string;
+    documentation: {
+        kind: string;
+        value: string;
+    };
+    parameters: {
+        label: number[];
+        documentation: {
+            kind: string;
+            value: string;
+        }
+    }[];
+}
+
+export interface SignatureHelpResponse {
+    signatures: SignatureInfo[];
+    activeSignature: number;
+    activeParameter: number;
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -630,6 +684,8 @@ export interface BIInterface extends BaseLangClientInterface {
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
+    getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

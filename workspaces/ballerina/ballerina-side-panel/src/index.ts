@@ -13,3 +13,4 @@ export * from "./components/NodeList/types";
 export * from "./components/Form";
 export * from "./components/Form/types";
 export * from "./components/editors";
+export * from "./components/GroupList";
