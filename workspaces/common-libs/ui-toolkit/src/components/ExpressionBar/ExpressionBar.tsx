@@ -13,6 +13,7 @@ import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
 import { Button } from '../Button/Button';
+import { ThemeColors } from '../../styles';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -139,12 +140,12 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
 
     return (
         <Ex.Container id={id}>
-            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip='Open Helper View'> 
-                <Icon name="function-icon" />
-            </Button>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
+            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip='Open Helper View'> 
+                <Icon name="function-icon" sx={{color: ThemeColors.PRIMARY}}/>
+            </Button>
         </Ex.Container>
     );
 });
