@@ -17,6 +17,8 @@ export default {
 };
 
 const schema: Schema = {
+    title: "Person",
+    description: "This is a person",
     type: "object",
     properties: {
         name: {
@@ -46,6 +48,6 @@ export const SchemaEditorStory = () => {
     };
 
     return (
-        <SchemaEditor schema={schema} schemaName="Person" />
+        <SchemaEditor schema={schema} schemaName="Person" onSchemaChange={(schema) => { console.log('schema change', schema) }} />
     );
 };

@@ -162,13 +162,13 @@ export function Overview(props: OverviewProps) {
         props.onOpenApiDefinitionChange(openAPIDefinition);
     };
 
-    const onConfigureClick=()=>{
+    const onConfigureClick = () => {
         rpcClient.selectQuickPickItems({
-            title:"Select sections",
-            items: moreOptions.map(item=>({label:item, picked: selectedOptions.includes(item)}))
-        }).then(resp=>{
-            if(resp){
-                handleOptionChange(resp.map(item=>item.label))
+            title: "Select sections",
+            items: moreOptions.map(item => ({ label: item, picked: selectedOptions.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleOptionChange(resp.map(item => item.label))
             }
         })
     }
@@ -179,7 +179,7 @@ export function Overview(props: OverviewProps) {
                 <HorizontalFieldWrapper>
                     <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Overview</Typography>
                     <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
-                        <Codicon name='gear' sx={{marginRight:"4px"}}/>
+                        <Codicon name='gear' sx={{ marginRight: "4px" }} />
                         Configure
                     </Button>
                 </HorizontalFieldWrapper>
