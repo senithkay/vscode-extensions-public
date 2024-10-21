@@ -16,6 +16,7 @@ import { convertParamsToParameters, getHeaderParametersFromParameters, getPathPa
 import { HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
+import { BaseTypes } from "../../constants";
 
 interface PathItemProps {
     pathItem: Paths;
@@ -297,20 +298,12 @@ export function PathItem(props: PathItemProps) {
         <>
             <PanelBody>
                 <HorizontalFieldWrapper>
-                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Path</Typography>
+                    <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">{path}</Typography>
                     <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
                         <Codicon name='gear' sx={{marginRight:"4px"}}/>
                         Configure
                     </Button>
                 </HorizontalFieldWrapper>
-                <TextField
-                    readOnly
-                    label="Path"
-                    id="path"
-                    sx={{ width: "100%" }}
-                    value={path}
-                    onTextChange={handlePathChange}
-                />
                 {selectedOptions.includes("Summary") && (
                     <TextField
                         label="Summary"
@@ -348,17 +341,20 @@ export function PathItem(props: PathItemProps) {
                     params={pathParameters}
                     onParamsChange={handlePathParametersChange}
                     paramNameOutFocus={handlePathParamNameOutFocus}
+                    paramTypes={BaseTypes}
                     title="Path Parameters"
                     type="Path"
                 />
                 <ParamEditor
                     params={queryParameters}
+                    paramTypes={BaseTypes}
                     onParamsChange={handleQueryParametersChange}
                     title="Query Parameters"
                     type="Query"
                 />
                 <ParamEditor
                     params={headerParameters}
+                    paramTypes={BaseTypes}
                     onParamsChange={handleHeaderParametersChange}
                     title="Headers"
                     type="Header"

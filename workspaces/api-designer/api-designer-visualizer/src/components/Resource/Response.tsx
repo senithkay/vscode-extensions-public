@@ -391,6 +391,7 @@ export function Response(props: ReadOnlyResourceProps) {
                                     growRange={{ start: 2, offset: 10 }}
                                 />
                                 <ParamEditor
+                                    paramTypes={BaseTypes}
                                     title="Response Headers"
                                     params={headerParams}
                                     addButtonText='Add Header'

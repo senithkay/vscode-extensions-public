@@ -233,6 +233,7 @@ export type Param = {
     name?: string;
     type?: string;
     defaultValue?: string;
+    description?: string;
     isRequired?: boolean;
     isArray?: boolean;
     [key: string]: any;

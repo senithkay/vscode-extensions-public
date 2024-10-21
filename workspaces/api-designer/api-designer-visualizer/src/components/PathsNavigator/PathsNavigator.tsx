@@ -87,7 +87,7 @@ const PathContainer = styled.div`
     flex: 1;
     align-items: center;
     position: relative;
-
+    cursor: pointer;
     &:hover div.buttons-container {
         opacity: 1;
     }

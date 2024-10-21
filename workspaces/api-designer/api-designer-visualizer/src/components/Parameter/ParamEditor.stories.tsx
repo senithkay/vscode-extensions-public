@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { BaseTypes } from "../../constants";
 import { Param } from "../../Definitions/ServiceDefinitions";
 import { ParamEditor } from "./ParamEditor";
 import styled from "@emotion/styled";
@@ -26,7 +27,7 @@ export const ParamEditorStory = () => {
     }
     return (
         <Container>
-            <ParamEditor title="Query Parameters" params={[]} type="Query" onParamsChange={handleParamChange} />
+            <ParamEditor paramTypes={BaseTypes} title="Query Parameters" params={[]} type="Query" onParamsChange={handleParamChange} />
         </Container>
     );
 };

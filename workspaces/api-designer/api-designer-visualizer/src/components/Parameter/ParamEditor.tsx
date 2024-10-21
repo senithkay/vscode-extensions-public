@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FormGroup, LinkButton, TextField, Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { FormGroup, LinkButton, TextField, Button, Codicon, Typography, Dropdown } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 import SectionHeader from '../Resource/SectionHeader';
@@ -29,11 +29,13 @@ export const ButtonWrapperParams = styled.div`
     flex-direction: row;
     align-items: center;
     min-width: 70px;
-    justify-content: end;
+    flex-grow: 1;
+    justify-content: flex-end;
 `;
 
 interface OverviewProps {
     params: Param[];
+    paramTypes: string[];
     type: string;
     title: string;
     addButtonText?: string;
@@ -43,7 +45,9 @@ interface OverviewProps {
 }
 
 export function ParamEditor(props: OverviewProps) {
-    const { params, type, title, addButtonText, disableCollapse, onParamsChange } = props;
+    const { params, paramTypes, type, title, addButtonText, disableCollapse, onParamsChange } = props;
+
+    const paramTypeOptions = paramTypes.map((type) => ({ id: type, content: type, value: type }));
 
     const updateParentComponent = (row: number, param: string, value: string) => {
         // Copy params array
@@ -57,13 +61,13 @@ export function ParamEditor(props: OverviewProps) {
 
     const addNewParam = () => {
         if (!params) {
-            onParamsChange([{ name: "", type: "", defaultValue: "" }]);
+            onParamsChange([{ name: "", type: "string", description: "" }]);
             return;
         } else {
             onParamsChange([...params, {
                 name: "",
-                type: "",
-                defaultValue: "",
+                type: "string",
+                description: "",
                 isArray: false,
                 isRequired: false
             }]);
@@ -111,21 +115,22 @@ export function ParamEditor(props: OverviewProps) {
                             placeholder="Name"
                             name={`params[${index}].name`}
                             value={param.name || ""}
-                            sx={{ width: "33%" }}
+                            sx={{ width: "35%" }}
                             onTextChange={(value) => updateParentComponent(index, "name", value)}
                             onBlur={() => props.paramNameOutFocus && props.paramNameOutFocus(params, param.name)}
                         />
-                        <TextField
-                            placeholder="Type"
-                            value={param.type || ""}
-                            sx={{ width: "33%" }}
-                            onTextChange={(value) => updateParentComponent(index, "type", value)}
+                        <Dropdown
+                            id={`param-type-${index}`}
+                            value={param.type}
+                            containerSx={{ width: "25%" }}
+                            items={paramTypeOptions}
+                            onValueChange={(value) => updateParentComponent(index, "type", value)}
                         />
                         <TextField
-                            placeholder="Default Value"
-                            value={param.defaultValue || ""}
-                            sx={{ width: "33%" }}
-                            onTextChange={(value) => updateParentComponent(index, "defaultValue", value)}
+                            placeholder="Description"
+                            value={param.description || ""}
+                            sx={{ width: "40%" }}
+                            onTextChange={(value) => updateParentComponent(index, "description", value)}
                         />
                         <ButtonWrapperParams>
                             <Button appearance='icon' onClick={() => updateRequired(index, !param.isRequired)}>
