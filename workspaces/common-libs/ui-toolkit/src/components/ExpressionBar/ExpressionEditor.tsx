@@ -17,7 +17,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon, setCursor } from './utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getCompletionIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 
@@ -250,7 +250,7 @@ const DropdownItem = (props: DropdownItemProps) => {
             onClick={onClick}
         >
             <TitleContainer>
-                {getIcon(item.kind)}
+                {getCompletionIcon(item.kind)}
                 {item.tag && <StyledTag>{item.tag}</StyledTag>}
                 <Typography variant="body3" sx={{ fontWeight: 600 }}>
                     {item.label}

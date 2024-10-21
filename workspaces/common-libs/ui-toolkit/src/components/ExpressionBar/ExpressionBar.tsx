@@ -9,11 +9,11 @@
 
 import styled from '@emotion/styled';
 import React, { forwardRef, ReactNode } from 'react';
-import { Icon } from '../Icon/Icon';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
 import { Button } from '../Button/Button';
 import { ThemeColors } from '../../styles';
+import { getExpressionIcon } from './utils';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -88,6 +88,8 @@ export type ExpressionBarBaseProps = {
     // Completion item props
     // - The list of completions to be displayed
     completions: CompletionItem[];
+    // - The only type of completion to be displayed
+    filterType?: CompletionItemKind;
     // - Should display the default completion item at the top of the completion list
     showDefaultCompletion?: boolean;
     // - Get default completion item to be displayed at the top of the completion list
@@ -142,7 +144,7 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, ...rest } = props;
+    const { id, handleHelperPaneOpen, filterType, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
@@ -150,7 +152,7 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
             <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip='Open Helper View'> 
-                <Icon name="function-icon" sx={{color: ThemeColors.PRIMARY}}/>
+                {getExpressionIcon(filterType, { color: ThemeColors.PRIMARY })}
             </Button>
         </Ex.Container>
     );
