@@ -216,7 +216,8 @@ import {
     DSSQueryGenRequest,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
-    APIContextsResponse
+    APIContextsResponse,
+    ListRegistryArtifactsResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3518,6 +3519,9 @@ ${endpointAttributes}
             }
             resolve({ artifacts: tempArtifactNames });
         });
+    }
+    async getAvailableRegistryResourcesData(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+        return getAvailableRegistryResources(params.path);
     }
 
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {

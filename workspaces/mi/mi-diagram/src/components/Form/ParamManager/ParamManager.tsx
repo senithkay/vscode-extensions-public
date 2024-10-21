@@ -66,6 +66,7 @@ export interface ParamField {
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup
     paramManager?: ParamManagerProps; // For nested ParamManager
+    artifactTypes?: { registry: boolean, normal: boolean }; //For KeyLookup
 }
 
 export interface ParamConfig {
@@ -321,6 +322,11 @@ const getPramFilterTypeFromParamId = (paramFields: ParamField[], paramId: number
     return paramField?.filterType;
 }
 
+const geArtifactTypeParamFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.artifactTypes;
+}
+
 const getPramOpenInDrawerFromParamId = (paramFields: ParamField[], paramId: number) => {
     const paramField = paramFields[paramId];
     return paramField?.paramManager?.openInDrawer;
@@ -364,6 +370,7 @@ export function ParamManager(props: ParamManagerProps) {
                 noItemsFoundMessage: getParamFieldNoItemsFoundMessageFromParamId(paramConfigs.paramFields, id),
                 filter: getPramFilterFromParamId(paramConfigs.paramFields, id),
                 filterType: getPramFilterTypeFromParamId(paramConfigs.paramFields, id),
+                artifactTypes: geArtifactTypeParamFromParamId(paramConfigs.paramFields, id),
                 openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id),
                 addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id),
                 ...(type === 'ParamManager') && { paramFields: paramConfigs.paramFields[id].paramManager.paramConfigs.paramFields }

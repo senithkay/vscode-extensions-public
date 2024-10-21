@@ -332,7 +332,9 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
-    getAllAPIcontexts
+    getAllAPIcontexts,
+    ListRegistryArtifactsResponse,
+    getAvailableRegistryResourcesData
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -670,6 +672,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return this._messenger.sendRequest(getAvailableRegistryResources, HOST_EXTENSION, params);
+    }
+    getAvailableRegistryResourcesData(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
+        return this._messenger.sendRequest(getAvailableRegistryResourcesData, HOST_EXTENSION, params);
     }
 
     updateRegistryMetadata(params: UpdateRegistryMetadataRequest): Promise<UpdateRegistryMetadataResponse> {

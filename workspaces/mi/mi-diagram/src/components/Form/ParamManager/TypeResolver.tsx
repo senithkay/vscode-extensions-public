@@ -41,6 +41,7 @@ export interface Param {
     enableCondition?: EnableCondition;
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup
+    artifactTypes?: { registry: boolean, normal: boolean }; //For KeyLookup
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
@@ -58,7 +59,7 @@ interface TypeResolverProps {
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
     const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
-        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder } = param;
+        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder,artifactTypes } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
@@ -177,6 +178,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     notItemsFoundMessage={noItemsFoundMessage}
                     filter={filter}
                     filterType={filterType}
+                    artifactTypes={artifactTypes}
                 />
             );
         case "ParamManager":
