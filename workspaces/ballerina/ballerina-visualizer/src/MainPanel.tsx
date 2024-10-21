@@ -53,7 +53,7 @@ import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import ViewConfigVariables from "./views/BI/Configurables/ViewConfigurableVariables";
-import UpdateConfigurableVariables from "./views/BI/Configurables/UpdateConfigurableVariables";
+
 
 const globalStyles = css`
     *,

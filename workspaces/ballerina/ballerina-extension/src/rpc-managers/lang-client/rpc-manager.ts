@@ -283,8 +283,8 @@ export class LangClientRpcManager implements LangClientAPI {
 
     async getConfigVariables(): Promise<ConfigVariableResponse> {
         return new Promise(async (resolve) => {
-            const configFilePath = path.join(StateMachine.context().projectUri, "config.bal");
-            const variables = await StateMachine.langClient().getConfigVariables( { configFilePath }) as ConfigVariableResponse;
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const variables = await StateMachine.langClient().getConfigVariables( { projectPath: projectPath }) as ConfigVariableResponse;
             resolve(variables);
         });
     }

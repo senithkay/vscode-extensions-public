@@ -529,7 +529,7 @@ export type ServiceFromOASResponse = {
 }
 
 export interface ConfigVariableRequest {
-    configFilePath: string;
+    projectPath: string;
 }
 
 export type ConfigVariableResponse = {
