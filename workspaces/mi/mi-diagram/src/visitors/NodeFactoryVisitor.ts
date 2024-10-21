@@ -451,41 +451,12 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitResource = (node: Resource): void => {
         if (node.inSequenceAttribute) {
             node.viewState.y = 40;
-            const startNode = structuredClone(node);
-            startNode.viewState.id = "inSequenceStart";
-            startNode.viewState.canAddAfter = false;
-            this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
-
-            const sequneceReferenceNode = structuredClone(node);
-            sequneceReferenceNode.viewState.id = "inSequenceNode";
-            sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-            sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            sequneceReferenceNode.viewState.canAddAfter = false;
-            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
-
-            const endNode = structuredClone(node);
-            endNode.viewState.id = "inSequenceEnd";
-            endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-            endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-            this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+            const endNode = this.addSequenceReference(node, "inSequence");
 
             node.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
         }
         if (node.outSequenceAttribute) {
-            const startNode = structuredClone(node);
-            startNode.viewState.id = "outSequence";
-            startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
-            this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
-
-            const sequneceReferenceNode = structuredClone(node);
-            sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-            sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
-
-            const endNode = structuredClone(node);
-            endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-            endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-            this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+            this.addSequenceReference(node, "outSequence");
         }
     }
 
@@ -494,39 +465,12 @@ export class NodeFactoryVisitor implements Visitor {
             const proxyTargetNode = node as ProxyTarget;
             if (proxyTargetNode.inSequenceAttribute) {
                 proxyTargetNode.viewState.y = 40;
-                const startNode = structuredClone(proxyTargetNode);
-                startNode.viewState.id = "inSequenceStart";
-                this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
-
-                const sequneceReferenceNode = structuredClone(proxyTargetNode);
-                sequneceReferenceNode.viewState.id = "inSequenceNode";
-                sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-                sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: proxyTargetNode.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
-
-                const endNode = structuredClone(proxyTargetNode);
-                endNode.viewState.id = "inSequenceEnd";
-                endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-                endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-                this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+                const endNode = this.addSequenceReference(proxyTargetNode, "proxyInSequence");
 
                 proxyTargetNode.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
             }
             if (proxyTargetNode.outSequenceAttribute) {
-                const startNode = structuredClone(proxyTargetNode);
-                startNode.viewState.id = "outSequence";
-                startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
-                this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
-
-                const sequneceReferenceNode = structuredClone(proxyTargetNode);
-                sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-                sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: proxyTargetNode.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
-
-                const endNode = structuredClone(proxyTargetNode);
-                endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-                endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-                this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+                const endNode = this.addSequenceReference(proxyTargetNode, "proxyOutSequence");
             }
         }
     }
@@ -1020,5 +964,29 @@ export class NodeFactoryVisitor implements Visitor {
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
+    }
+
+    private addSequenceReference(node: Resource | ProxyTarget, id: string) {
+        const startNode = structuredClone(node);
+        startNode.viewState.id = `${id}_start`;
+        startNode.viewState.canAddAfter = false;
+        this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
+
+        const sequneceReferenceNode = structuredClone(node);
+        sequneceReferenceNode.viewState.id = `${id}_reference`;
+        sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
+        sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        sequneceReferenceNode.viewState.canAddAfter = false;
+        this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
+
+        const endNode = structuredClone(node);
+        endNode.viewState.id = `${id}_end`;
+        endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
+        endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
+        this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+        return endNode;
     }
 }

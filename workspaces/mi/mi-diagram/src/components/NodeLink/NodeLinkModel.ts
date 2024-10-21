@@ -55,7 +55,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     constructor(options: NodeLinkModelOptions | string) {
         const stRange = (options as NodeLinkModelOptions)?.stRange as Position;
         super({
-            id: stRange?.line != undefined && stRange?.character != undefined ? `${stRange.line},${stRange.character}${(options as any)?.label ? `,${(options as any).label}` : ''}` : `link-${Date.now()}`,
+            id: stRange?.line != undefined && stRange?.character != undefined ? `${stRange.line},${stRange.character}${(options as any)?.label ? `,${(options as any).label}` : ''}` : `link-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
             type: NODE_LINK,
             width: 10,
             color: Colors.PRIMARY,
