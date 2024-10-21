@@ -200,7 +200,7 @@ export function Form(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch, setValue,  } = useForm<FormValues>();
+    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -224,12 +224,12 @@ export function Form(props: FormProps) {
         if (updatedExpressionField) {
             const currentValue = getValues(updatedExpressionField.key);
 
-            if(currentValue !== undefined){
+            if (currentValue !== undefined) {
                 const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart ?? currentValue.length;
-                const newValue = currentValue.slice(0, cursorPosition) + 
-                                 updatedExpressionField.value + 
-                                 currentValue.slice(cursorPosition);
-                
+                const newValue = currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
                 setValue(updatedExpressionField.key, newValue);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
             }
@@ -325,7 +325,7 @@ export function Form(props: FormProps) {
                                 openSubPanel={openSubPanel}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
+                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel} />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
