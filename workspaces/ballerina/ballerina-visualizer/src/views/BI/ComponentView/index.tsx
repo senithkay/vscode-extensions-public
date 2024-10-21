@@ -72,11 +72,18 @@ export function AddComponentView() {
                 },
                 isPopup: true,
             });
-        } else if (key === DIRECTORY_MAP.TASKS) {
+        } else if (key === DIRECTORY_MAP.AUTOMATION) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIMainFunctionForm,
+                }
+            });
+        } else if (key === DIRECTORY_MAP.FUNCTIONS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIFunctionForm,
                 }
             });
         } else {
@@ -115,7 +122,7 @@ export function AddComponentView() {
                                 icon={<Codicon name="calendar" />}
                                 title="Automation"
                                 description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
-                                onClick={() => handleClick(DIRECTORY_MAP.TASKS)}
+                                onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                             />
                             <ButtonCard
                                 icon={<Codicon name="debug-disconnect" />}
@@ -157,7 +164,7 @@ export function AddComponentView() {
                                     icon={<Codicon name="file-code" />}
                                     title="Functions"
                                     description="Create reusable functions to streamline your integration logic."
-                                    onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
+                                    onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
                                 />
                             </CardGrid>
                         </PanelViewMore>

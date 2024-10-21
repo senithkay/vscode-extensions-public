@@ -8,13 +8,17 @@
  */
 
 import React from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
+import {
+    DIRECTORY_MAP,
+    EVENT_TYPE,
+    MACHINE_VIEW,
+    ProjectStructureResponse,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -63,10 +67,14 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         handleAddArtifact();
     };
 
-    const handleGoToConnection = (connection: Connection) => {
-        if (connection.location) {
-            goToView(connection.location.filePath, connection.location.position);
-        }
+    const handleGoToConnection = async (connection: Connection) => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EditConnectionWizard,
+                identifier: connection.name,
+            }
+        });
     };
 
     if (!projectStructure) {
@@ -121,7 +129,9 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 filePath: task.path,
                 position: task.position,
             },
-            connections: (task.st as any)?.functionBody?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
+            connections:
+                (task.st as any)?.functionBody?.VisibleEndpoints?.map((endpoint: { name: string }) => endpoint.name) ||
+                [],
         });
     });
 

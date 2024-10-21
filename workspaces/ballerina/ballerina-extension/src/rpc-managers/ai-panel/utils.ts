@@ -27,8 +27,7 @@ import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
 
-export const BACKEND_API_URL = "https://dev-tools.wso2.com/ballerina-copilot/v1.0";
-export const BACKEND_API_URL_V2 = "https://dev-tools.wso2.com/ballerina-copilot/v2.0";
+export const BACKEND_API_URL_V2 =  workspace.getConfiguration('ballerina').get('rootUrl') as string;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
@@ -460,12 +459,13 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
         if (response.status === 401) {
             const newAccessToken = await refreshAccessToken();
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
+            
             if (isErrorCode(retryResponse)) {
                 return (retryResponse as ErrorCode);
             }
 
             retryResponse = (retryResponse as Response);
-            let intermediateMapping = JSON.parse(await filterResponse(response) as string); 
+            let intermediateMapping = JSON.parse(await filterResponse(retryResponse) as string); 
             let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
             return finalCode;
         }

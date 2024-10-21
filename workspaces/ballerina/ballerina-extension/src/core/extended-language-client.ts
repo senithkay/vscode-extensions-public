@@ -100,6 +100,11 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    BIModuleNodesRequest,
+    BIModuleNodesResponse,
+    ComponentsFromContent,
+    SignatureHelpRequest,
+    SignatureHelpResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -165,8 +170,11 @@ enum EXTENDED_APIS {
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
+    BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
+    BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -271,6 +279,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async executeCommand(params: ExecuteCommandParams): Promise<any> {
         return this.sendRequest(VSCODE_APIS.EXECUTE_CMD, params);
     }
+
     // <------------ VS CODE RELATED APIS END --------------->
 
     // <------------ EXTENDED APIS START --------------->
@@ -600,6 +609,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this.sendRequest<ExpressionCompletionsResponse>(EXTENDED_APIS.BI_EXPRESSION_COMPLETIONS, params);
+    }
+
+    async getModuleNodes(params: BIModuleNodesRequest): Promise<BIModuleNodesResponse> {
+        return this.sendRequest<BIModuleNodesResponse>(EXTENDED_APIS.BI_MODULE_NODES, params);
+    }
+    
+    async getComponentsFromContent(params: ComponentsFromContent): Promise<BallerinaProjectComponents> {
+        return this.sendRequest<BallerinaProjectComponents>(EXTENDED_APIS.BI_GET_COMPONENTS_FROM_CONTENT, params);
+    }
+
+    async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return this.sendRequest(EXTENDED_APIS.BI_SIGNATURE_HELP, params);
     }
 
     // <------------ BI APIS END --------------->

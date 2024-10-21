@@ -356,6 +356,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await updateST(text);
     };
 
+    // TODO: Implement arg extraction logic using getSignatureHelp method of ts-morph language server
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    const extractArgsFromFunction = async (text: string, cursorPosition: number): Promise<any> => {
+        return undefined;
+    }
+
     const updateSource = async (value: string) => {
         if (savedNodeValue === value || (portChanged && lastSavedNodeValue === value)) {
             return;
@@ -435,6 +441,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 completions={completions}
                 inputProps={inputProps}
                 onChange={handleChange}
+                extractArgsFromFunction={extractArgsFromFunction}
                 onCompletionSelect={updateSource}
                 onSave={updateSource}
                 onCancel={handleCancelCompletions}

@@ -53,7 +53,9 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                     actions: assign({
                         view: (context, event) => event.viewLocation.view,
                         recentIdentifier: (context, event) => "",
-                        documentUri: (context, event) => event.viewLocation.documentUri
+                        identifier: (context, event) => event.viewLocation.identifier,
+                        documentUri: (context, event) => event.viewLocation.documentUri,
+                        metadata: (context, event) => event.viewLocation.metadata
                     })
                 },
             }
@@ -68,7 +70,9 @@ const stateMachinePopup = createMachine<PopupMachineContext>({
                             actions: assign({
                                 view: (context, event) => event.viewLocation.view,
                                 recentIdentifier: (context, event) => "",
-                                documentUri: (context, event) => event.viewLocation.documentUri
+                                identifier: (context, event) => event.viewLocation.identifier,
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                metadata: (context, event) => event.viewLocation.metadata
                             })
                         },
                         CLOSE_VIEW: {
