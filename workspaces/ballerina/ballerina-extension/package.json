@@ -9,7 +9,7 @@
         "url": "https://github.com/wso2/ballerina-plugin-vscode/issues"
     },
     "qna": "https://discord.com/invite/ballerinalang",
-    "icon": "resources/images/ballerina.png",
+    "icon": "resources/images/kolab.png",
     "galleryBanner": {
         "color": "#e7eaeb",
         "theme": "light"
