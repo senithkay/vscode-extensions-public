@@ -777,7 +777,8 @@ export function ConfigureView(props: ConfigureViewProps) {
         console.log("====>>> content: ", content);
         const updateData: ExpressionFormField = {
             value: content,
-            key: editorKey
+            key: editorKey,
+            cursorPosition: position.endLine.offset
         }
         // TODO: Add inject code based on position
         updateFormField(updateData);

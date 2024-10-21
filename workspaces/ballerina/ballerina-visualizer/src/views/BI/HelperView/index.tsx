@@ -74,16 +74,16 @@ export function HelperView(props: HelperViewProps) {
             <StyledVSCodePanels activeid={TabElements.variables}>
                 <VSCodePanelTab id={TabElements.variables}>{TabElements.variables}</VSCodePanelTab>
                 <VSCodePanelTab id={TabElements.libraries}>{TabElements.libraries}</VSCodePanelTab>
-                <VSCodePanelTab id={TabElements.configure}>{TabElements.configure}</VSCodePanelTab>
-                <PanelContent id={TabElements.variables} disabled>
+                {/* <VSCodePanelTab id={TabElements.configure}>{TabElements.configure}</VSCodePanelTab> */}
+                <PanelContent id={TabElements.variables} >
                     <VariablesView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
                 </PanelContent>
                 <PanelContent id={TabElements.libraries}>
                     <LibrariesView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
                 </PanelContent>
-                <PanelContent id={TabElements.configure}>
+                {/* <PanelContent id={TabElements.configure}>
                     <ConfigureView filePath={filePath} position={position} updateFormField={updateFormField} editorKey={editorKey} />
-                </PanelContent>
+                </PanelContent> */}
 
             </StyledVSCodePanels>
         </Container>
