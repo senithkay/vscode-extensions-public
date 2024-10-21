@@ -503,6 +503,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
+    const handleOnAddFunction = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIFunctionForm,
+            },
+        });
+    };
+
     const handleOnGoToSource = (node: FlowNode) => {
         const targetPosition: NodePosition = {
             startLine: node.codedata.lineRange.startLine.line,
@@ -781,6 +790,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         categories={categories}
                         onSelect={handleOnSelectNode}
                         onSearchTextChange={handleSearchFunction}
+                        onAddFunction={handleOnAddFunction}
                         onClose={handleOnCloseSidePanel}
                         title={"Functions"}
                         onBack={handleOnFormBack}

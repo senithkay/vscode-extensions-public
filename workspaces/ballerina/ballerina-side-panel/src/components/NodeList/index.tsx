@@ -206,12 +206,23 @@ interface NodeListProps {
     onSelect: (id: string, metadata?: any) => void;
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
+    onAddFunction?: () => void;
     onBack?: () => void;
     onClose?: () => void;
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, showAiPanel, title, onSelect, onSearchTextChange, onAddConnection, onBack, onClose } = props;
+    const {
+        categories,
+        showAiPanel,
+        title,
+        onSelect,
+        onSearchTextChange,
+        onAddConnection,
+        onAddFunction,
+        onBack,
+        onClose,
+    } = props;
 
     console.log(">>> categories", { categories });
 
@@ -251,8 +262,11 @@ export function NodeList(props: NodeListProps) {
         }
     };
 
-    // TODO: Add the logic to handle adding a function
-    const handleAddFunction = () => {};
+    const handleAddFunction = () => {
+        if (onAddFunction) {
+            onAddFunction();
+        }
+    };
 
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
