@@ -172,6 +172,11 @@
                         "type": "string",
                         "default": "vscode://wso2.ballerina/signin",
                         "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
+                    },
+                    "ballerina.qualaVersionInstalled": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Quala version installed in the user's environment."
                     }
                 }
             },
