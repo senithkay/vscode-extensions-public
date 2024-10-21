@@ -69,6 +69,7 @@ export function TextEditor(props: TextEditorProps) {
             required={!field.optional}
             description={field.documentation}
             // labelAdornment={typeLabel(field.type)}
+            readOnly={!field.editable}
             sx={{ width: "100%" }}
         />
     );

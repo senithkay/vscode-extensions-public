@@ -55,6 +55,7 @@ export function TypeEditor(props: TypeEditorProps) {
             required={!field.optional}
             description={field.documentation}
             labelAdornment={openRecordEditor && addType("add", handleOpenRecordEditor)}
+            readOnly={!field.editable}
             sx={{ width: "100%" }}
         />
     );
