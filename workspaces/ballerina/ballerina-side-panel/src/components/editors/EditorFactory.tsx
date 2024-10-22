@@ -34,20 +34,26 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         return <DropdownEditor field={field} />;
     } else if (!field.items && (field.key === "type") && field.editable) {
         return (
-            <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus}/>
+            <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />
         );
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
         return (
-            <ContextAwareExpressionEditor ref={ref} field={field} openSubPanel={openSubPanel} isActiveSubPanel={isActiveSubPanel} handleOnFieldFocus={handleOnFieldFocus}/>
+            <ContextAwareExpressionEditor
+                ref={ref}
+                field={field}
+                openSubPanel={openSubPanel}
+                isActiveSubPanel={isActiveSubPanel}
+                handleOnFieldFocus={handleOnFieldFocus}
+            />
         );
     } else if (!field.items && (field.key !== "type")) {
         return (
-            <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus}/>
+            <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />
         );
-    } else if (field.type === "VIEW" ) {
+    } else if (field.type === "VIEW") {
         // Skip this property
         return <></>
     } else {
-        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus}/>;
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     }
 });

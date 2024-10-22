@@ -326,7 +326,12 @@ export function Form(props: FormProps) {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {variableField && createNewVariable && <EditorFactory field={variableField} handleOnFieldFocus={handleOnFieldFocus}/>}
+                        {variableField && createNewVariable &&
+                            <EditorFactory
+                                field={variableField}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />
+                        }
                         {typeField && createNewVariable && (
                             <EditorFactory
                                 field={typeField}
