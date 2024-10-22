@@ -23,7 +23,7 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 
 namespace S {
@@ -205,6 +205,7 @@ export function Form(props: FormProps) {
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
+    const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -255,6 +256,13 @@ export function Form(props: FormProps) {
     const handleOnHideAdvancedOptions = () => {
         setShowAdvancedOptions(false);
     };
+
+    const handleOnFieldFocus = (key: string) => {
+        if (isActiveSubPanel && activeFormField !== key) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveFormField(key);
+    }
 
     const handleOnUseDataMapper = () => {
         const viewField = formFields.find((field) => field.key === "view");
@@ -318,15 +326,26 @@ export function Form(props: FormProps) {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {variableField && createNewVariable && <EditorFactory field={variableField} />}
+                        {variableField && createNewVariable &&
+                            <EditorFactory
+                                field={variableField}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />
+                        }
                         {typeField && createNewVariable && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel} />}
+                        {updateVariableField && !createNewVariable &&
+                            <EditorFactory
+                                field={updateVariableField}
+                                openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -347,6 +366,7 @@ export function Form(props: FormProps) {
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
+                                        handleOnFieldFocus={handleOnFieldFocus}
                                     />
                                 </S.Row>
                             );
@@ -395,6 +415,7 @@ export function Form(props: FormProps) {
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={openSubPanel}
                                             isActiveSubPanel={isActiveSubPanel}
+                                            handleOnFieldFocus={handleOnFieldFocus}
                                         />
                                     </S.Row>
                                 );

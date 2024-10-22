@@ -65,8 +65,11 @@ import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
 import { title } from "process";
+import { extension } from "../../BalExtensionContext";
+import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
+
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
         return new Promise((resolve) => {
@@ -341,7 +344,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                     return;
                 }
-
+                const token = await extension.context.secrets.get('BallerinaAIUser');
+                if (!token) {
+                    resolve(undefined);
+                    return;
+                }
                 // get copilot context form ls
                 const copilotContextRequest: BICopilotContextRequest = {
                     filePath: filePath,
@@ -358,14 +365,25 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 };
                 const requestOptions = {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}`},
                     body: JSON.stringify(requestBody),
                 };
                 console.log(">>> request ai suggestion", { request: requestBody });
-                const response = await fetch(
-                    "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/completion-api/v1.0/completion",
-                    requestOptions
-                );
+                let response;
+                try {
+                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+                } catch (error) {
+                    console.log(">>> error fetching ai suggestion", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                }
+                if (!response.ok){
+                    console.log(">>> ai completion api call failed ", response);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                }
                 const data = await response.json();
                 console.log(">>> ai suggestion", { response: data });
                 const suggestedContent = (data as any).completions.at(0);
@@ -799,4 +817,23 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 });
         });
     }
+}
+
+
+export async function fetchWithToken(url: string, options: RequestInit) {
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await refreshAccessToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
 }
