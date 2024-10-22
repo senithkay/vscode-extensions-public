@@ -2,7 +2,7 @@
   "name": "api-designer",
   "displayName": "API Designer",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing API solutions.",
-  "version": "1.0.1",
+  "version": "0.9.0",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -57,7 +57,7 @@
           "group": "navigation"
         },
         {
-          "when": "isVisualizerActive",
+          "when": "isVisualizerActive && isVisualizerActive != false",
           "command": "APIDesigner.showCode",
           "group": "navigation"
         }
