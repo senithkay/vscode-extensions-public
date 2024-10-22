@@ -340,6 +340,17 @@ export function convertParamsToPath(params: Param[], path: string): string {
     return newPath;
 };
 
+export function getDeletedParamPath(newParams: Param[], path: string): string {
+    let newPath = path;
+    const prevParams = getPathParametersFromPath(path);
+    prevParams.forEach((param) => {
+        if (isNameNotInParams(param.name, newParams)) {
+            newPath = newPath.replace(`/{${param.name}}`, "");
+        }
+    });
+    return newPath;
+}
+
 export function syncPathParamsWithParams(pathParams: Param[], params: Param[]): Param[] { // Added return type annotation
     return pathParams.map((pathParam) => {
         const param = params?.find((param) => param.name === pathParam.name);
@@ -352,4 +363,15 @@ export function syncPathParamsWithParams(pathParams: Param[], params: Param[]): 
             return pathParam;
         }
     });
+}
+
+// To Provide the identical param name for a new param by appending a number to the name
+export function getIdenticalParamName(params: Param[], prefix: string): string {
+    let newName = prefix;
+    let count = 1;
+    while (!isNameNotInParams(newName, params)) {
+        newName = `${prefix}${count}`;
+        count++;
+    }
+    return newName;
 }
