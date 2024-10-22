@@ -1,3 +1,3 @@
-# Kola Integration Editor
+# Project Kola
 
-This is kola integration editor
+This is kola
