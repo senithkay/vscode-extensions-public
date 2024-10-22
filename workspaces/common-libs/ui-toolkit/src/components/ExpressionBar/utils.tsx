@@ -51,4 +51,3 @@ export const getIcon = (kind: CompletionItemKind) => {
 
     return <Codicon name="symbol-variable" />;
 };
-
