@@ -7,23 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { ReactNode } from "react";
 import styled from "@emotion/styled";
 import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField, Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
+import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { S } from "../../../Connectors/ActionList";
 
 const Container = styled.div`
-    padding: 0 20px 20px;
     max-width: 600px;
-    > div:last-child {
-        padding: 20px 0;
-        height: calc(100vh - 160px);
-        > div:last-child {
-            justify-content: flex-start;
-        }
-    }
 `;
 
 const Row = styled.div`
@@ -35,30 +29,75 @@ const Row = styled.div`
     color: ${Colors.ON_SURFACE};
 `;
 
+
+export interface SidePanelProps {
+    id?: string;
+    className?: string;
+    isOpen?: boolean;
+    overlay?: boolean;
+    children?: React.ReactNode;
+    alignment?: "left" | "right";
+    width?: number;
+    sx?: any;
+    onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    subPanel?: ReactNode;
+    subPanelWidth?: number;
+    isSubPanelOpen?: boolean;
+}
+
+const SubPanelContainer = styled.div<SidePanelProps>`
+    position: fixed;
+    top: 0;
+    ${(props: SidePanelProps) => props.alignment === "left" ? "left" : "right"}: ${(props: SidePanelProps) => `${props.width}px`};
+    width: ${(props: SidePanelProps) => `${props.subPanelWidth}px`};
+    height: 100%;
+    box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    z-index: 1999;
+    opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
+    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left'
+        ? (props.isSubPanelOpen ? '0%' : '-100%')
+        : (props.isSubPanelOpen ? '0%' : '100%')});
+    transition: transform 0.4s ease 0.1s, opacity 0.4s ease 0.1s;
+`;
+
 interface ConnectionConfigViewProps {
     name: string;
     fields: FormField[];
     onSubmit: (data: FormValues) => void;
     onBack?: () => void;
+    openSubPanel?: (subPanel: SubPanel) => void;
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
+    isActiveSubPanel?: boolean;
+
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { name, fields, onSubmit, onBack } = props;
+    const { name, fields, onSubmit, onBack, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
 
+    // TODO: With the InlineEditor implementation, the targetLine, fileName and expressionEditor should be passed to the Form component
     return (
         <Container>
-            <Row>
-                {onBack && (
-                    <Button appearance="icon" onClick={onBack}>
-                        <Codicon name="arrow-left" />
-                    </Button>
-                )}
-                <Typography variant="h2">Configure {name} Connector</Typography>
-            </Row>
-            <BodyText>
-                Provide the necessary configuration details for the selected connector to complete the setup.
-            </BodyText>
-            <Form formFields={fields} onSubmit={onSubmit} />
+            <Form
+                formFields={fields}
+                onSubmit={onSubmit}
+                openSubPanel={openSubPanel}
+                isActiveSubPanel={isActiveSubPanel}
+                targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                fileName={""}
+                updatedExpressionField={updatedExpressionField}
+                resetUpdatedExpressionField={resetUpdatedExpressionField}
+                expressionEditor={{
+                    completions: [],
+                    triggerCharacters: [],
+                    retrieveCompletions: async () => { },
+                    retrieveVisibleTypes: async () => { },
+                    extractArgsFromFunction: async () => ({ label: '', args: [], currentArgIndex: 0 }),
+                    onCancel: () => { },
+                }}
+            />
         </Container>
     );
 }
