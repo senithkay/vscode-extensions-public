@@ -32,18 +32,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             case TM_EVENT_TYPE_ERROR:
                 const errorEvent: LSErrorTelemetryEvent = <LSErrorTelemetryEvent>event;
                 props = getTelemetryProperties(ballerinaExtInstance, event.component, getMessageObject(TM_EVENT_TYPE_ERROR));
-                props["ballerina.langserver.error.description"] = errorEvent.message;
-                props["ballerina.langserver.error.stacktrace"] = errorEvent.errorStackTrace;
-                props["ballerina.langserver.error.message"] = errorEvent.errorMessage;
+                props["kolab.langserver.error.description"] = errorEvent.message;
+                props["kolab.langserver.error.stacktrace"] = errorEvent.errorStackTrace;
+                props["kolab.langserver.error.message"] = errorEvent.errorMessage;
                 reporter.sendTelemetryEvent(TM_ERROR_LANG_SERVER, props);
                 break;
             case TM_EVENT_TYPE_FEATURE_USAGE:
                 const usageEvent: LSFeatureUsageTelemetryEvent = <LSFeatureUsageTelemetryEvent>event;
                 props = getTelemetryProperties(ballerinaExtInstance, event.component,
                     getMessageObject(TM_EVENT_TYPE_FEATURE_USAGE));
-                props["ballerina.langserver.feature.name"] = usageEvent.featureName;
-                props["ballerina.langserver.feature.class"] = usageEvent.featureClass;
-                props["ballerina.langserver.feature.message"] = usageEvent.featureMessage;
+                props["kolab.langserver.feature.name"] = usageEvent.featureName;
+                props["kolab.langserver.feature.class"] = usageEvent.featureClass;
+                props["kolab.langserver.feature.message"] = usageEvent.featureMessage;
                 reporter.sendTelemetryEvent(TM_FEATURE_USAGE_LANG_SERVER, props);
                 break;
             default:

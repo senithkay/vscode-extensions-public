@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor, extensions } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateBBE } from './views/bbe';
 import {

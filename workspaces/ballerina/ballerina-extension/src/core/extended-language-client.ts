@@ -100,6 +100,10 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    ProjectDiagnosticsRequest,
+    ProjectDiagnosticsResponse,
+    MainFunctionParamsRequest,
+    MainFunctionParamsResponse,
     BIModuleNodesRequest,
     BIModuleNodesResponse,
     ComponentsFromContent,
@@ -175,6 +179,8 @@ enum EXTENDED_APIS {
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
+    RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
     BI_VISIBLE_TYPES = 'expressionEditor/types'
@@ -194,7 +200,8 @@ enum EXTENDED_APIS_ORG {
     BALLERINA_TO_OPENAPI = 'openAPILSExtension',
     NOTEBOOK_SUPPORT = "balShell",
     GRAPHQL_DESIGN = "graphqlDesignService",
-    SEQUENCE_DIAGRAM = "sequenceModelGeneratorService"
+    SEQUENCE_DIAGRAM = "sequenceModelGeneratorService",
+    RUNNER = "ballerinaRunner"
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -505,6 +512,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
+    async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RUNNER_DIAGNOSTICS);
+        if (!isSupported) {
+            return Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.RUNNER_DIAGNOSTICS, params);
+    }
+
+    async getMainFunctionParams(params: MainFunctionParamsRequest): Promise<MainFunctionParamsResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RUNNER_MAIN_FUNCTION_PARAMS);
+        if (!isSupported) {
+            return Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.RUNNER_MAIN_FUNCTION_PARAMS, params);
+    }
+
     async convertJsonToRecord(params: JsonToRecordParams): Promise<JsonToRecord | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
@@ -660,6 +683,9 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
                 },
                 {
                     name: EXTENDED_APIS_ORG.TRIGGER, triggers: true, trigger: true
+                },
+                {
+                    name: EXTENDED_APIS_ORG.RUNNER, diagnostics: true, mainFunctionParams: true,
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },

@@ -51,7 +51,7 @@ export function IfForm(props: IfFormProps) {
             const currentValue = getValues(updatedExpressionField.key);
 
             if (currentValue !== undefined) {
-                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart ?? currentValue.length;
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
                 const newValue = currentValue.slice(0, cursorPosition) +
                     updatedExpressionField.value +
                     currentValue.slice(cursorPosition);
@@ -62,15 +62,14 @@ export function IfForm(props: IfFormProps) {
         }
     }, [updatedExpressionField]);
 
-    const clearExpressionEditor = () => {
-        // clear memory for expression editor
-        setCompletions([]);
+    const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
         triggerCompletionOnNextRequest.current = false;
-    }
+    };
 
     const handleOnSave = (data: FormValues) => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
@@ -108,7 +107,7 @@ export function IfForm(props: IfFormProps) {
     };
 
     const addNewCondition = () => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
@@ -185,7 +184,14 @@ export function IfForm(props: IfFormProps) {
                 }
 
                 // Convert completions to the ExpressionBar format
-                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                let convertedCompletions: CompletionItem[] = [];
+                completions?.forEach((completion) => {
+                    if (completion.detail) {
+                        // HACK: Currently, completion with additional edits apart from imports are not supported
+                        // Completions that modify the expression itself (ex: member access)
+                        convertedCompletions.push(convertBalCompletion(completion));
+                    }
+                });
                 setCompletions(convertedCompletions);
 
                 if (triggerCharacter) {
@@ -234,11 +240,6 @@ export function IfForm(props: IfFormProps) {
 
         return convertToFnSignature(signatureHelp);
     }
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-    };
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
