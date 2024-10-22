@@ -213,15 +213,12 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     </BodyText>
                     <ConnectionConfigView
                         fileName={fileName}
-                        name={selectedConnectorRef.current?.metadata.label}
                         fields={fields}
                         onSubmit={handleOnFormSubmit}
-                        onBack={handleOnBack}
                         updatedExpressionField={updatedExpressionField}
                         resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                         openSubPanel={handleSubPanel}
                         isActiveSubPanel={showSubPanel}
-
                     />
                 </PanelContainer>
             )}

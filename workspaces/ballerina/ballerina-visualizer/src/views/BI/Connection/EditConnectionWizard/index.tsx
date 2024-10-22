@@ -180,7 +180,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 >
                     <ConnectionConfigView
                         fileName={fileName}
-                        name={connection.codedata.module}
                         fields={fields}
                         onSubmit={handleOnFormSubmit}
                         updatedExpressionField={updatedExpressionField}

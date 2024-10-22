@@ -9,30 +9,17 @@
 
 import React, { ReactNode, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Codicon, CompletionItem, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ExpressionFormField, Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { BodyText } from "../../../styles";
-import { Colors } from "../../../../resources/constants";
 import { SubPanel } from "@wso2-enterprise/ballerina-core";
-import { S } from "../../../Connectors/ActionList";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { convertBalCompletion, convertToFnSignature } from "../../../../utils/bi";
 import { TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
+import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     max-width: 600px;
 `;
-
-const Row = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    color: ${Colors.ON_SURFACE};
-`;
-
 
 export interface SidePanelProps {
     id?: string;
@@ -49,29 +36,10 @@ export interface SidePanelProps {
     isSubPanelOpen?: boolean;
 }
 
-const SubPanelContainer = styled.div<SidePanelProps>`
-    position: fixed;
-    top: 0;
-    ${(props: SidePanelProps) => props.alignment === "left" ? "left" : "right"}: ${(props: SidePanelProps) => `${props.width}px`};
-    width: ${(props: SidePanelProps) => `${props.subPanelWidth}px`};
-    height: 100%;
-    box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
-    background-color: var(--vscode-editor-background);
-    color: var(--vscode-editor-foreground);
-    z-index: 1999;
-    opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
-    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left'
-        ? (props.isSubPanelOpen ? '0%' : '-100%')
-        : (props.isSubPanelOpen ? '0%' : '100%')});
-    transition: transform 0.4s ease 0.1s, opacity 0.4s ease 0.1s;
-`;
-
 interface ConnectionConfigViewProps {
     fileName: string; // file path of `connection.bal`
-    name: string;
     fields: FormField[];
     onSubmit: (data: FormValues) => void;
-    onBack?: () => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
@@ -80,7 +48,7 @@ interface ConnectionConfigViewProps {
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { fileName, name, fields, onSubmit, onBack, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
+    const { fileName, fields, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
     const { rpcClient } = useRpcContext();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
@@ -200,7 +168,6 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         handleExpressionEditorCancel();
     };
 
-    // TODO: With the InlineEditor implementation, the targetLine, fileName and expressionEditor should be passed to the Form component
     return (
         <Container>
             <Form
@@ -209,7 +176,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                 openSubPanel={openSubPanel}
                 isActiveSubPanel={isActiveSubPanel}
                 targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
-                fileName={""}
+                fileName={fileName}
                 updatedExpressionField={updatedExpressionField}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
                 expressionEditor={{
