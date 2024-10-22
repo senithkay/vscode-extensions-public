@@ -135,6 +135,16 @@ export const BaseTypes = [
     "object",
 ];
 
+export const SchemaTypes = [
+    "string",
+    "number",
+    "integer",
+    "boolean",
+    "array",
+    "object",
+    "any",
+];
+
 export const APIResources = [
-    "get","post","put","delete","patch","head","options","trace"
+    "get", "post", "put", "delete", "patch", "head", "options", "trace"
 ];

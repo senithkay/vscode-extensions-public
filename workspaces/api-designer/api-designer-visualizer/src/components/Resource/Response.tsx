@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Header, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
@@ -21,6 +21,7 @@ import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { SchemaEditor } from '../SchemaEditor/SchemaEditor';
 
 export const VerticalFieldWrapper = styled.div`
     display: flex;
@@ -96,8 +97,13 @@ export function Response(props: ReadOnlyResourceProps) {
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.type === 'object' &&
         selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties &&
         Object.keys(selectedContentFromResponseMediaType.content[selectedMediaType].schema.properties).length > 0;
-    const responseSchema = selectedContentFromResponseMediaType && selectedMediaType &&
-        selectedContentFromResponseMediaType?.content?.[selectedMediaType] && selectedContentFromResponseMediaType?.content?.[selectedMediaType]?.schema;
+
+
+
+    const activeResponse = resourceOperation?.responses?.[selectedResponseType];
+    const responseSchema = selectedContentFromResponseMediaType?.content?.[selectedMediaType]?.schema;
+
+
     const responseMediaType = responseSchema && resolveTypeFromSchema(responseSchema);
     const isResponseSchemaArray = responseSchema && responseSchema.type === "array";
     const headers: Header[] = resourceOperation?.responses && resourceOperation?.responses[selectedResponseType]?.headers ? Object.values(resourceOperation?.responses[selectedResponseType]?.headers) : [];
@@ -111,8 +117,9 @@ export function Response(props: ReadOnlyResourceProps) {
         return `${status.status}: ${statusValue}`;
     });
 
+
     // selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema is type of string
-    
+
     // Get selected Schema
     // const selectedSchema =  selectedContentFromResponseMediaType?.content[selectedMediaType]?.schema as string;
     // const selectedExample = selectedContentFromResponseMediaType?.content[selectedMediaType]?.example;
@@ -231,7 +238,7 @@ export function Response(props: ReadOnlyResourceProps) {
     //     };
     //     onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     // };
-    const handleSchemaChange = (type: string) => {
+    const handleSchemaChange = (updatedSchema: any) => {
         const newResponseBody: Responses = {
             ...resourceOperation.responses,
             [selectedResponseType]: {
@@ -240,13 +247,15 @@ export function Response(props: ReadOnlyResourceProps) {
                     ...selectedContentFromResponseMediaType.content,
                     [selectedMediaType]: {
                         ...selectedContentFromResponseMediaType.content[selectedMediaType],
-                        schema: type
+                        schema: updatedSchema
                     }
                 }
             }
         };
         onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     };
+
+
     const handleExampleChange = (example: string) => {
         // Update the newResponseBody with Response example
         const newResponseBody: Responses = {
@@ -344,36 +353,36 @@ export function Response(props: ReadOnlyResourceProps) {
         }
     }, [resourceOperation?.responses && Object.keys(resourceOperation.responses)[0]]);
 
-    const onConfigureClick=()=>{
+    const onConfigureClick = () => {
         rpcClient.selectQuickPickItems({
-            title:"Select Types",
-            items: MediaTypes.map(item=>({label:item, picked: responseMediaTypes.includes(item)}))
-        }).then(resp=>{
-            if(resp){
-                handleOptionChange(resp.map(item=>item.label))
+            title: "Select Types",
+            items: MediaTypes.map(item => ({ label: item, picked: responseMediaTypes.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleOptionChange(resp.map(item => item.label))
             }
         })
     }
 
-    const onConfigureResponsesClick=()=>{
+    const onConfigureResponsesClick = () => {
         rpcClient.selectQuickPickItems({
-            title:"Select Responses",
-            items: statusCodeList.map(item=>({label:item, picked: selectedStatusCode?.includes(item)}))
-        }).then(resp=>{
-            if(resp){
-                handleStatusCodeChange(resp.map(item=>item.label))
+            title: "Select Responses",
+            items: statusCodeList.map(item => ({ label: item, picked: selectedStatusCode?.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleStatusCodeChange(resp.map(item => item.label))
             }
         })
     }
 
     return (
         <SubSectionWrapper>
-            <SectionHeader 
-                title="Responses" 
-                variant='h3' 
+            <SectionHeader
+                title="Responses"
+                variant='h3'
                 actionButtons={
                     <Button tooltip='Configure Responses' onClick={onConfigureResponsesClick} appearance='icon'>
-                        <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
+                        <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
                     </Button>
                 }
             />
@@ -399,51 +408,32 @@ export function Response(props: ReadOnlyResourceProps) {
                                     onParamsChange={handleOnHeaderParamsChange}
                                 />
                                 <SubSectionWrapper>
-                                <SectionHeader 
-                                    title="Content" 
-                                    variant='h4' 
-                                    actionButtons={
-                                        <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
-                                            <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
-                                        </Button>
-                                    }
-                                />
-                                <ContentWrapper>
-                                    {respMediaTypeTabViewItems?.length > 0 ? <Tabs views={respMediaTypeTabViewItems} currentViewId={selectedMediaType} onViewChange={setSelectedMediaType}>
-                                        <div id={selectedMediaType}>
-                                            <ResponseTypeWrapper>
-                                                {/* <CheckBox checked={isInlinedObjectResponse} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
-                                                {!isInlinedObjectResponse && selectedMediaType && (
-                                                    <VerticalFieldWrapper>
-                                                        {/* <TextField
-                                                            placeholder="Default Value"
-                                                            value={responseMediaType}
-                                                            sx={{ width: "100%" }}
-                                                            onChange={(e) => updateSchemaType(e.target.value)}
-                                                        /> */}
-                                                        {/* <CodeTextArea
-                                                            label='Schema'
-                                                            id="Schema"
-                                                            value={selectedSchema}
-                                                            onChange={(evt) => handleSchemaChange(evt.target.value)}
-                                                            resize="vertical"
-                                                            growRange={{ start: 1, offset: 10 }} 
-                                                        />
-                                                        <CodeTextArea
-                                                            label='Example'
-                                                            id="Example"
-                                                            value={selectedExample}
-                                                            onChange={(evt) => handleExampleChange(evt.target.value)}
-                                                            resize="vertical" 
-                                                            growRange={{ start: 2, offset: 10 }} 
-                                                        /> */}
-                                                    </VerticalFieldWrapper>
-                                                )}
-                                            </ResponseTypeWrapper>
-                                        </div>
-                                    </Tabs> : <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No content types.</Typography>}
-                                    
-                                </ContentWrapper>
+                                    <SectionHeader
+                                        title="Body"
+                                        variant='h3'
+                                        actionButtons={
+                                            <>
+                                                <Dropdown
+                                                    id="media-type-dropdown"
+                                                    value={selectedMediaType || "application/json"}
+                                                    //containerSx={{ width: '50%' }}
+                                                    items={respMediaTypeTabViewItems.map(item => ({ label: item.name, value: item.id }))}
+                                                    onValueChange={(value) => setSelectedMediaType(value)}
+                                                //sx={{ width: "150px" }}
+                                                />
+                                                <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
+                                                    <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
+                                                </Button>
+                                            </>
+                                        }
+                                    />
+                                    <div id={selectedMediaType}>
+                                        <SchemaEditor
+                                            schema={responseSchema}
+                                            schemaName={responseSchema?.title || responseSchema?.type}
+                                            onSchemaChange={handleSchemaChange}
+                                        />
+                                    </div>
                                 </SubSectionWrapper>
                             </div>
                         ))}

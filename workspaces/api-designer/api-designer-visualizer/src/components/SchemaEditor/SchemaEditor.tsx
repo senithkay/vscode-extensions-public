@@ -8,7 +8,8 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from "@emotion/styled";
-import { Typography, TextField, Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Typography, TextField, Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { SchemaTypes } from '../../constants';
 
 
 export interface Schema {
@@ -55,6 +56,7 @@ export interface Schema {
 export interface SchemaEditorProps {
     schema: Schema;
     schemaName: string;
+    variant?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
     sx?: any;
     onSchemaChange: (updatedSchema: Schema) => void;
 }
@@ -85,6 +87,31 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
             setNewPropertyKey(null);
         }
     }, [newPropertyKey]);
+
+    const handlePropertyTypeChange = (key: string, newType: Schema['type']) => {
+        const updatedProperties = { ...localProperties };
+        const currentProperty = updatedProperties[key];
+
+        const updatedProperty: Schema = {
+            ...currentProperty,
+            type: newType,
+        };
+
+        if (newType === 'array') {
+            updatedProperty.items = { type: 'string' };
+            delete updatedProperty.properties;
+        } else if (newType === 'object') {
+            updatedProperty.properties = updatedProperty.properties || {};
+            delete updatedProperty.items;
+        } else {
+            delete updatedProperty.items;
+            delete updatedProperty.properties;
+        }
+
+        updatedProperties[key] = updatedProperty;
+        setLocalProperties(updatedProperties);
+        onUpdate(updatedProperties);
+    };
 
     const handlePropertyChange = (oldKey: string, newKey: string, newValue: Schema) => {
         const updatedProperties = { ...localProperties };
@@ -124,11 +151,6 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
         <div>
             {Object.entries(localProperties).map(([key, value]) => (
                 <div key={key}>
-                    {value.description && (
-                        <Typography variant="body2" color="textSecondary">
-                            {value.description}
-                        </Typography>
-                    )}
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <TextField
                             value={key}
@@ -136,10 +158,18 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                             onBlur={(e) => handlePropertyChange(key, e.target.value, value)}
                             ref={(el) => inputRefs.current[key] = el}
                         />
-                        <TextField
+                        <Dropdown
+                            id={key}
                             value={value.type}
                             sx={{ width: '12em' }}
-                            onBlur={(e) => handlePropertyChange(key, key, { ...value, type: e.target.value as Schema['type'] })}
+                            items={SchemaTypes.map((type) => ({ id: type, content: type, value: type }))}
+                            onChange={(e) => handlePropertyTypeChange(key, e.target.value as Schema['type'])}
+                        />
+                        <TextField
+                            value={value.description || ''}
+                            placeholder="Description"
+                            sx={{ width: '20em' }}
+                            onBlur={(e) => handlePropertyChange(key, key, { ...value, description: e.target.value })}
                         />
                         <Button
                             appearance='icon'
@@ -166,6 +196,35 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                             />
                         </div>
                     )}
+                    {value.type === 'array' && value.items && (
+                        <div style={{ marginLeft: '20px' }}>
+                            {Array.isArray(value.items) ? (
+                                value.items.map((item, index) => (
+                                    <div key={index} style={{ marginBottom: '10px' }}>
+                                        <Typography variant="body2">Item {index + 1}</Typography>
+                                        <SchemaEditor
+                                            schema={item}
+                                            schemaName={`${key}[${index}]`}
+                                            onSchemaChange={(updatedItemSchema) => {
+                                                const updatedItems = Array.isArray(value.items) ? [...value.items] : [value.items];
+                                                updatedItems[index] = updatedItemSchema;
+                                                handlePropertyChange(key, key, { ...value, items: updatedItems });
+                                            }}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <SchemaEditor
+                                    schema={value.items}
+                                    schemaName={`Items`}
+                                    variant="h4"
+                                    onSchemaChange={(updatedItemSchema) => {
+                                        handlePropertyChange(key, key, { ...value, items: updatedItemSchema });
+                                    }}
+                                />
+                            )}
+                        </div>
+                    )}
                 </div>
             ))}
         </div>
@@ -173,7 +232,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
 };
 
 export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorProps) => {
-    const { schema: initialSchema, schemaName, sx, onSchemaChange } = props;
+    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4' } = props;
     const [schema, setSchema] = useState<Schema>(initialSchema);
 
     const handleSchemaUpdate = (updatedProperties: { [key: string]: Schema }) => {
@@ -199,10 +258,28 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
         onSchemaChange(updatedSchema);
     };
 
+    const handleTypeChange = (newType: Schema['type']) => {
+        const updatedSchema: Schema = {
+            ...schema,
+            type: newType,
+            properties: newType === 'object' ? schema.properties || {} : undefined,
+            items: newType === 'array' ? { type: 'string' } : undefined
+        };
+        setSchema(updatedSchema);
+        onSchemaChange(updatedSchema);
+    };
+
     return (
         <SchemaEditorContainer sx={sx}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                <Typography variant="h2">{schemaName}</Typography>
+                <Typography variant={variant} sx={{ margin: 0 }}>{schemaName}</Typography>
+                <Dropdown
+                    id={`${schemaName}-type`}
+                    value={schema.type}
+                    sx={{ width: '12em', marginLeft: '10px' }}
+                    items={SchemaTypes.map((type) => ({ id: type, content: type, value: type }))}
+                    onChange={(e) => handleTypeChange(e.target.value as Schema['type'])}
+                />
                 {schema.type === 'object' && (
                     <Button
                         appearance='icon'
@@ -215,6 +292,23 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
             </div>
             {schema.type === 'object' && schema.properties && (
                 <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} />
+            )}
+            {schema.type === 'array' && schema.items && (
+                <div style={{ marginLeft: '20px' }}>
+                    <SchemaEditor
+                        schema={Array.isArray(schema.items) ? schema.items[0] : schema.items}
+                        schemaName="Array Items"
+                        variant="h5"
+                        onSchemaChange={(updatedItemSchema) => {
+                            const updatedSchema = {
+                                ...schema,
+                                items: updatedItemSchema
+                            };
+                            setSchema(updatedSchema);
+                            onSchemaChange(updatedSchema);
+                        }}
+                    />
+                </div>
             )}
         </SchemaEditorContainer>
     );
