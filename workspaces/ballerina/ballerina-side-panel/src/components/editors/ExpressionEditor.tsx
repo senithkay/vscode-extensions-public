@@ -26,14 +26,14 @@ type ContextAwareExpressionEditorProps = {
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
-    triggerCharacters: readonly string[];
-    retrieveCompletions: (
+    triggerCharacters?: readonly string[];
+    retrieveCompletions?: (
         value: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;
