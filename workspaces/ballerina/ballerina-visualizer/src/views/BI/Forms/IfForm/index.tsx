@@ -51,7 +51,7 @@ export function IfForm(props: IfFormProps) {
             const currentValue = getValues(updatedExpressionField.key);
 
             if (currentValue !== undefined) {
-                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart ?? currentValue.length;
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
                 const newValue = currentValue.slice(0, cursorPosition) +
                     updatedExpressionField.value +
                     currentValue.slice(cursorPosition);
