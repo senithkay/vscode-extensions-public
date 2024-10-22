@@ -596,7 +596,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         handleClose();
                         return;
                     case 'ArrowDown': {
-                        
                         e.preventDefault();
                         navigateDown(hoveredEl);
                         return;
@@ -635,10 +634,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 }
                             }
                         }
-                        return;
-                    case 'Esc':
-                        e.preventDefault();
-                        handleClose();
                         return;
                 }
             }
