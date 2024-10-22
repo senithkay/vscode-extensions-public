@@ -20,6 +20,7 @@ import { Typography } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
+import { BodyText } from "../../../styles";
 
 const Container = styled.div`
     width: 100%;
@@ -206,6 +207,9 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     subPanel={findSubPanelComponent(subPanel)}
                     onBack={handleOnBack}
                 >
+                    <BodyText style={{ padding: '20px 20px 0 20px' }}>
+                            Provide the necessary configuration details for the selected connector to complete the setup.
+                    </BodyText>
                     <ConnectionConfigView
                         name={selectedConnectorRef.current?.metadata.label}
                         fields={fields}

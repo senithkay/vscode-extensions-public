@@ -80,9 +80,6 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
     // TODO: With the InlineEditor implementation, the targetLine, fileName and expressionEditor should be passed to the Form component
     return (
         <Container>
-            <BodyText style={{ padding: '20px' }}>
-                Provide the necessary configuration details for the selected connector to complete the setup.
-            </BodyText>
             <Form
                 formFields={fields}
                 onSubmit={onSubmit}
