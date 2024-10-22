@@ -19,7 +19,7 @@ import { createPortal } from 'react-dom';
 import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon,setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
-import { TextArea } from '../TextArea/TextArea';
+import { AutoResizeTextArea } from '../TextArea/TextArea';
 
 // Types
 type StyleBase = {
@@ -61,12 +61,12 @@ const Container = styled.div`
     display: flex;
 `;
 
-const StyledTextArea = styled(TextArea)`
+const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
         font-family: monospace;
         font-size: 12px;
-        height: 26px;
-        padding: 4px 8px;
+        min-height: 26px;
+        padding: 5px 8px;
     }
 `;
 
@@ -588,54 +588,59 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
         if (dropdownContainerRef.current) {
             const hoveredEl = dropdownContainerRef.current.querySelector('.hovered');
-            switch (e.key) {
-                case 'Escape':
-                    e.preventDefault();
-                    handleClose();
-                    return;
-                case 'ArrowDown': {
-                    e.preventDefault();
-                    navigateDown(hoveredEl);
-                    return;
-                }
-                case 'ArrowUp': {
-                    e.preventDefault();
-                    navigateUp(hoveredEl);
-                    return;
-                }
-                case 'Tab':
-                    e.preventDefault();
-                    if (hoveredEl) {
-                        if (hoveredEl.id === 'default-completion') {
-                            onDefaultCompletionSelect?.();
-                        } else {
-                            const item = completions.find(
-                                (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                            );
-                            if (item) {
-                                await handleCompletionSelectMutation(item);
+            if (dropdownRef.current) {
+                // Actions that can only be performed when the dropdown is open
+                switch (e.key) {
+                    case 'Escape':
+                        e.preventDefault();
+                        handleClose();
+                        return;
+                    case 'ArrowDown': {
+                        
+                        e.preventDefault();
+                        navigateDown(hoveredEl);
+                        return;
+                    }
+                    case 'ArrowUp': {
+                        e.preventDefault();
+                        navigateUp(hoveredEl);
+                        return;
+                    }
+                    case 'Tab':
+                        e.preventDefault();
+                        if (hoveredEl) {
+                            if (hoveredEl.id === 'default-completion') {
+                                onDefaultCompletionSelect?.();
+                            } else {
+                                const item = completions.find(
+                                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                                );
+                                if (item) {
+                                    await handleCompletionSelectMutation(item);
+                                }
                             }
                         }
-                    }
-                    return;
-                case 'Enter':
-                    e.preventDefault();
-                    if (hoveredEl) {
-                        if (hoveredEl.id === 'default-completion') {
-                            onDefaultCompletionSelect?.();
-                        } else {
-                            const item = completions.find(
-                                (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                            );
-                            if (item) {
-                                await handleCompletionSelectMutation(item);
+                        return;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (hoveredEl) {
+                            if (hoveredEl.id === 'default-completion') {
+                                onDefaultCompletionSelect?.();
+                            } else {
+                                const item = completions.find(
+                                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                                );
+                                if (item) {
+                                    await handleCompletionSelectMutation(item);
+                                }
                             }
                         }
-                    }
-                    return;
-                case 'Esc':
-                    e.preventDefault();
-                    handleClose();
+                        return;
+                    case 'Esc':
+                        e.preventDefault();
+                        handleClose();
+                        return;
+                }
             }
         }
 
@@ -705,6 +710,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     return (
         <Container ref={elementRef}>
             <StyledTextArea
+                {...rest}
                 ref={textAreaRef}
                 value={value}
                 onTextChange={handleChange}
@@ -713,8 +719,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 onBlur={handleTextFieldBlur}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || (shouldDisableOnSave && (isSelectingCompletion || isSavingExpression))}
-                rows={1}
-                {...rest}
+                growRange={{ start: 1, offset: 7 }}
+                resize='vertical'
             />
             {shouldDisableOnSave && (isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
