@@ -59,10 +59,20 @@ export function ParamEditor(props: OverviewProps) {
     const updateParentComponent = (row: number, param: string, value: string) => {
         // Copy params array
         const paramsCopy: Param[] = [...params];
-        paramsCopy[row] = {
-            ...paramsCopy[row],
-            [param]: value
-        };
+        if (param === "type") {
+            paramsCopy[row] = {
+                ...paramsCopy[row],
+                [param]: value,
+                schema: {
+                    type: value
+                }
+            };
+        } else {
+            paramsCopy[row] = {
+                ...paramsCopy[row],
+                [param]: value
+            };
+        }
         onParamsChange(paramsCopy);
     }
 

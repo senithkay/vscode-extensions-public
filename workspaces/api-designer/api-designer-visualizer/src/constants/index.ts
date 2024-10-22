@@ -132,7 +132,7 @@ export const BaseTypes = [
     "integer",
     "boolean",
     "array",
-    "any",
+    "object",
 ];
 
 export const APIResources = [
