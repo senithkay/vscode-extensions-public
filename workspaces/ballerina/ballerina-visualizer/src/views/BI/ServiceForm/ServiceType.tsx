@@ -7,11 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, TextArea, Card, Typography, LinkButton, Divider, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
-import { Transition } from "@headlessui/react";
-import { css } from "@emotion/css";
+import { Codicon, Typography, View, ViewContent, Icon } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { SERVICE_VIEW } from "./constants";
 import { BIHeader } from "../BIHeader";
@@ -83,7 +80,7 @@ export function ServiceType(props: HttpFormProps) {
                         </BodyText>
                         <CardGrid>
                             <ButtonCard
-                                icon={<Codicon name="globe" />}
+                                icon={<Icon name="bi-http-service"  iconSx={{ fontSize: "16px" }}/>}
                                 title="HTTP Service"
                                 description="Create an HTTP service to handle web requests and responses."
                                 onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}

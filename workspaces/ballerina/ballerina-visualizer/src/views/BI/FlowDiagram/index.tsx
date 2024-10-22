@@ -763,7 +763,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             <View>
                 <ViewHeader
                     title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
-                    codicon={isResource ? "globe" : "terminal"} // TODO: fix this with component diagram icons
+                    icon={isResource ? "bi-http-service" : "bi-function"}
+                    iconSx={{ fontSize: "16px" }}
                     // onEdit={handleOnFormBack}
                 ></ViewHeader>
                 {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
