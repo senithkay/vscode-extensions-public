@@ -37,7 +37,16 @@ interface Props extends NewComponentWebviewProps {
 	form: UseFormReturn<ComponentFormEndpointsType>;
 }
 
-export const ComponentFormEndpointsSection: FC<Props> = ({ directoryName, componentName, onBackClick, onNextClick, compFsPath,compUriPath, isSaving, form }) => {
+export const ComponentFormEndpointsSection: FC<Props> = ({
+	directoryName,
+	componentName,
+	onBackClick,
+	onNextClick,
+	compFsPath,
+	compUriPath,
+	isSaving,
+	form,
+}) => {
 	const [endpointListRef] = useAutoAnimate();
 
 	const watchedForm = useWatch({ control: form.control });
@@ -76,7 +85,7 @@ export const ComponentFormEndpointsSection: FC<Props> = ({ directoryName, compon
 	);
 };
 
-interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "componentName" | "compFsPath" | 'compUriPath'> {
+interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "componentName" | "compFsPath" | "compUriPath"> {
 	item: ComponentFormEndpointItemType & { id: string };
 	endpoints: ComponentFormEndpointItemType[];
 	form: UseFormReturn<ComponentFormEndpointsType, any, undefined>;
@@ -85,7 +94,17 @@ interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "comp
 	remove: UseFieldArrayRemove;
 }
 
-const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints, form, index, componentName, append, remove, compUriPath, compFsPath }) => {
+const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
+	item,
+	endpoints,
+	form,
+	index,
+	componentName,
+	append,
+	remove,
+	compUriPath,
+	compFsPath,
+}) => {
 	const [endpointListItemRef] = useAutoAnimate();
 
 	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
@@ -102,7 +121,10 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints
 				if (form.getValues(`endpoints.${index}.schemaFilePath`) === "") {
 					form.setValue(`endpoints.${index}.schemaFilePath`, fileNames[0], { shouldValidate: true });
 				} else {
-					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, form.getValues(`endpoints.${index}.schemaFilePath`)]);
+					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([
+						compFsPath,
+						form.getValues(`endpoints.${index}.schemaFilePath`),
+					]);
 					const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFullPath);
 					if (!fileExists) {
 						form.setValue(`endpoints.${index}.schemaFilePath`, "");

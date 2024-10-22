@@ -102,7 +102,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					items={[{ value: "Public" }, { value: "Organization" }]}
 					control={form.control}
 				/> */}
-				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control}  />
+				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control} />
 				{proxyType === "REST" && (
 					<div key="proxy-schema" className="col-span-full">
 						<PathSelect
@@ -127,13 +127,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 						)}
 					</div>
 				)}
-				<TextField
-					label="Target URL"
-					required
-					name="proxyTargetUrl"
-					placeholder="https://www.target-url.com"
-					control={form.control}
-				/>
+				<TextField label="Target URL" required name="proxyTargetUrl" placeholder="https://www.target-url.com" control={form.control} />
 				<TextField label="API Context" required name="proxyContext" placeholder="/base-path" control={form.control} />
 				<PathSelect
 					name="componentConfig.docPath"

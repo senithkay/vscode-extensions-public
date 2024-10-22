@@ -29,7 +29,17 @@ interface Props {
 }
 
 export const PathSelect: FC<Props> = (props) => {
-	const { label, required, control, name, baseUriPath, directoryName = "", wrapClassName, type = "directory", promptTitle = "Select Directory" } = props;
+	const {
+		label,
+		required,
+		control,
+		name,
+		baseUriPath,
+		directoryName = "",
+		wrapClassName,
+		type = "directory",
+		promptTitle = "Select Directory",
+	} = props;
 
 	const { mutate: handleClick, isLoading } = useMutation({
 		mutationFn: async (onSelect: (path: string) => void) => {

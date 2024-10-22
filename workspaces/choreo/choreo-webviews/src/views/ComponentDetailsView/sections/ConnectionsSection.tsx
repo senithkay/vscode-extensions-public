@@ -237,7 +237,9 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 								}}
 							/>
 						),
-						details: <MarketplaceItemDetails directoryFsPath={directoryFsPath} onCreateClick={() => setStep("create")} item={selectedItem} org={org} />,
+						details: (
+							<MarketplaceItemDetails directoryFsPath={directoryFsPath} onCreateClick={() => setStep("create")} item={selectedItem} org={org} />
+						),
 						create: (
 							<CreateConnection
 								item={selectedItem}

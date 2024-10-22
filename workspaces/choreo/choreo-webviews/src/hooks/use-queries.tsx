@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { type UseQueryOptions, useMutation, useQuery } from "@tanstack/react-query";
+import { type UseQueryOptions, useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import {
 	type ApiVersion,
 	type BuildKind,
@@ -217,6 +217,29 @@ export const useGetDeploymentStatus = (
 			}),
 		options,
 	);
+
+export const useGetDeploymentStatuses = (
+	deploymentTrack: DeploymentTrack,
+	component: ComponentKind,
+	org: Organization,
+	envs: Environment[],
+	options?: UseQueryOptions,
+) =>
+	useQueries<ComponentDeployment[]>({
+		queries: envs.map((env) => ({
+			queryKeys: queryKeys.getDeploymentStatus(deploymentTrack, component, org, env),
+			queryFn: () =>
+				ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getDeploymentStatus({
+					orgId: org.id.toString(),
+					orgUuid: org.uuid,
+					orgHandler: org.handle,
+					componentId: component.metadata.id,
+					deploymentTrackId: deploymentTrack?.id,
+					envId: env.id,
+				}),
+			...options,
+		})),
+	});
 
 export const useGetBuildList = (
 	deploymentTrack: DeploymentTrack,

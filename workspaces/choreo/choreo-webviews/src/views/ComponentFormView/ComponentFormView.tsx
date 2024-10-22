@@ -175,7 +175,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					repoUrl: genDetails.repoUrl,
 					branch: genDetails.branch,
 					langVersion: buildDetails.langVersion,
-					dockerFile: buildDetails.buildPackLang === ChoreoImplementationType.Docker ? buildDetails.dockerFile.replace(/\\/g, '/') : "",
+					dockerFile: buildDetails.buildPackLang === ChoreoImplementationType.Docker ? buildDetails.dockerFile.replace(/\\/g, "/") : "",
 					port: buildDetails.webAppPort,
 					spaBuildCommand: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaBuildCommand : "",
 					spaNodeVersion: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaNodeVersion : "",

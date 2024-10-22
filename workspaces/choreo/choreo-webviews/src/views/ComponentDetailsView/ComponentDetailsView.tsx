@@ -176,7 +176,9 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 	if (type === ChoreoComponentType.ApiProxy && localProxyConfig?.proxy) {
 		rightPanel.push({
 			key: "git-proxy-config",
-			node: <ProxyConfigSection proxyConfig={localProxyConfig?.proxy} configFilePath={localProxyConfig?.filePath} directoryFsPath={directoryFsPath} />,
+			node: (
+				<ProxyConfigSection proxyConfig={localProxyConfig?.proxy} configFilePath={localProxyConfig?.filePath} directoryFsPath={directoryFsPath} />
+			),
 		});
 	}
 	if (type !== ChoreoComponentType.ApiProxy && component?.spec?.type !== ComponentDisplayType.PrismMockService) {

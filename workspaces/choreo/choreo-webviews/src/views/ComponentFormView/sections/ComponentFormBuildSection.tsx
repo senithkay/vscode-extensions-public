@@ -42,7 +42,7 @@ interface Props extends NewComponentWebviewProps {
 }
 
 export const ComponentFormBuildSection: FC<Props> = (props) => {
-	const { onBackClick, onNextClick, compFsPath, baseUriPath,baseFsPath, organization, selectedType, subPath, form } = props;
+	const { onBackClick, onNextClick, compFsPath, baseUriPath, baseFsPath, organization, selectedType, subPath, form } = props;
 
 	const [buildConfigSections] = useAutoAnimate();
 

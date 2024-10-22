@@ -61,8 +61,10 @@ const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionIte
 		buildConfigs.push({ label: "Output Directory", value: component.spec?.build?.webapp?.outputDir });
 	} else {
 		// Build pack type
-		buildConfigs.push({ label: "Language Version", value: component.spec?.build?.buildpack?.version });
-		if (getTypeForDisplayType(component.spec.type) === "web-app") {
+		if (component.spec?.build?.buildpack?.version) {
+			buildConfigs.push({ label: "Language Version", value: component.spec?.build?.buildpack?.version });
+		}
+		if (getTypeForDisplayType(component.spec.type) === "web-app" && component.spec?.build?.docker?.port) {
 			buildConfigs.push({ label: "Port", value: component.spec?.build?.docker?.port });
 		}
 	}

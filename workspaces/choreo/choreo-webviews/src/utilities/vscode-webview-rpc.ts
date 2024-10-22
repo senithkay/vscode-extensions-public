@@ -37,6 +37,8 @@ import {
 	GoToSource,
 	HasDirtyLocalGitRepo,
 	type IChoreoRPCClient,
+	JoinFsFilePaths,
+	JoinUriFilePaths,
 	OpenComponentViewDrawer,
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
@@ -78,8 +80,6 @@ import {
 	type WebviewQuickPickItem,
 	type WebviewState,
 	WebviewStateChangedNotification,
-	JoinFsFilePaths,
-	JoinUriFilePaths,
 } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";

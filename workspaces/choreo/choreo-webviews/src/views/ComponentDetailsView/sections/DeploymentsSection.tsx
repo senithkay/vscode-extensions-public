@@ -87,6 +87,8 @@ export const DeploymentsSection: FC<Props> = (props) => {
 		refetchInterval: hasInactiveEndpoints ? 5000 : false,
 	});
 
+	const [deploymentStatusMap, setDeploymentStatusMap] = useState<{[key: string]:ComponentDeployment}>({});
+
 	if (loadingEnvs) {
 		return (
 			<>
@@ -119,50 +121,73 @@ export const DeploymentsSection: FC<Props> = (props) => {
 
 	return (
 		<>
-			{envs?.map((item) => (
-				<EnvItem
-					key={item.name}
-					env={item}
-					endpoints={endpoints.filter((endpointItem) => endpointItem.environmentId === item.id)}
-					refetchEndpoint={componentType === ChoreoComponentType.Service ? refetchEndpoints : undefined}
-					component={component}
-					organization={organization}
-					project={project}
-					deploymentTrack={deploymentTrack}
-					builds={builds}
-					triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
-					loadedDeploymentStatus={(deploying) => onTriggerDeployment(item, deploying)}
-					openBuildDetailsPanel={openBuildDetailsPanel}
-				/>
-			))}
+			{envs?.map((item, index) => {
+				let nextEnv: Environment;
+				let nextEnvDeploymentStatus: ComponentDeployment;
+				if(envs[index + 1] && envs[index + 1].promoteFrom.includes(item.id) && deploymentStatusMap[item.name]?.deploymentStatusV2 === DeploymentStatus.Active){
+					nextEnv = envs[index + 1]
+					nextEnvDeploymentStatus = deploymentStatusMap[envs[index + 1].name]
+				}
+				return (
+					<EnvItem
+						key={item.name}
+						index={index}
+						env={item}
+						nextEnv={nextEnv}
+						endpoints={endpoints.filter((endpointItem) => endpointItem.environmentId === item.id)}
+						refetchEndpoint={componentType === ChoreoComponentType.Service ? refetchEndpoints : undefined}
+						component={component}
+						organization={organization}
+						project={project}
+						deploymentTrack={deploymentTrack}
+						builds={builds}
+						triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
+						loadedDeploymentStatus={(deploying) => onTriggerDeployment(item, deploying)}
+						openBuildDetailsPanel={openBuildDetailsPanel}
+						loadedNextEnvDeploymentStatus={nextEnv ? (deploying) => onTriggerDeployment(nextEnv, deploying) : undefined}
+						nextEnvDeploymentStatus={nextEnvDeploymentStatus}
+						setDeploymentStatus={(deploymentStatus)=>setDeploymentStatusMap({...deploymentStatusMap,[item.name]:deploymentStatus})}
+					/>
+				)
+			})}
 		</>
 	);
 };
 
 const EnvItem: FC<{
+	index: number;
 	component: ComponentKind;
 	project: Project;
 	organization: Organization;
 	deploymentTrack?: DeploymentTrack;
 	env: Environment;
+	nextEnv?: Environment;
 	endpoints: ComponentEP[];
 	refetchEndpoint: () => void;
 	builds: BuildKind[];
 	triggeredDeployment?: boolean;
 	loadedDeploymentStatus: (deploying: boolean) => void;
+	loadedNextEnvDeploymentStatus: (deploying: boolean) => void;
 	openBuildDetailsPanel: (item: BuildKind) => void;
+	nextEnvDeploymentStatus?: ComponentDeployment;
+	setDeploymentStatus?: (deploymentStatus?: ComponentDeployment) => void;
 }> = ({
 	organization,
+	index,
 	project,
 	deploymentTrack,
 	component,
 	env,
+	nextEnv,
 	endpoints,
 	refetchEndpoint,
 	builds = [],
 	loadedDeploymentStatus,
 	triggeredDeployment,
 	openBuildDetailsPanel,
+	loadedNextEnvDeploymentStatus,
+	nextEnvDeploymentStatus,
+	setDeploymentStatus
 }) => {
 	const componentType = getTypeForDisplayType(component.spec.type);
 	const [envDetailsRef] = useAutoAnimate();
@@ -186,6 +211,7 @@ const EnvItem: FC<{
 			if (triggeredDeployment) {
 				loadedDeploymentStatus(false);
 			}
+			setDeploymentStatus(data)
 			setDeploymentInProgress(data?.deploymentStatusV2 === DeploymentStatus.InProgress);
 		},
 		refetchInterval: isDeploymentInProgress ? 5000 : false,
@@ -289,7 +315,7 @@ const EnvItem: FC<{
 						</Button>
 					)}
 					<div className="flex-1" />
-					{!loadingDeploymentStatus && builds.length > 0 && (
+					{index === 0 && !loadingDeploymentStatus && builds.length > 0 && (
 						<DeployButton
 							builds={builds}
 							component={component}
@@ -301,6 +327,22 @@ const EnvItem: FC<{
 							organization={organization}
 							project={project}
 							deploymentStatus={deploymentStatus}
+						/>
+					)}
+					{nextEnv && !!deploymentStatus && (
+						<DeployButton
+							builds={builds}
+							component={component}
+							componentType={componentType}
+							deploymentTrack={deploymentTrack}
+							env={nextEnv}
+							isDeployed={!!nextEnvDeploymentStatus}
+							loadedDeploymentStatus={loadedNextEnvDeploymentStatus}
+							organization={organization}
+							project={project}
+							deploymentStatus={nextEnvDeploymentStatus}
+							isPromote
+							prevBuild={deployedBuild}
 						/>
 					)}
 				</div>
@@ -680,11 +722,14 @@ const DeployButton: FC<{
 	loadedDeploymentStatus: (deploying: boolean) => void;
 	deploymentStatus?: ComponentDeployment;
 	proxyDeploymentData?: ProxyDeploymentInfo;
+	isPromote?: boolean;
+	prevBuild?: BuildKind;
 }> = ({
 	componentType,
 	component,
 	organization,
 	env,
+	isPromote,
 	project,
 	deploymentTrack,
 	builds = [],
@@ -692,12 +737,11 @@ const DeployButton: FC<{
 	isDeployed,
 	deploymentStatus,
 	proxyDeploymentData,
+	prevBuild,
 }) => {
 	const queryClient = useQueryClient();
 	const [isDeployPanelOpen, setIsDeployPanelOpen] = useState(false);
 	const [selectedBuild, setSelectedBuild] = useState<BuildKind>();
-
-	const displayType = component?.spec?.type;
 
 	const { mutate: triggerDeployment, isLoading: isDeploying } = useMutation({
 		mutationFn: async (params: {
@@ -755,7 +799,14 @@ const DeployButton: FC<{
 
 	const { mutate: selectBuildToDeploy } = useMutation({
 		mutationFn: async (showConfigMenu?: boolean) => {
-			if (builds.length > 1) {
+			if(isPromote && prevBuild){
+				if (showConfigMenu) {
+					setSelectedBuild(prevBuild);
+					setIsDeployPanelOpen(true);
+				} else {
+					triggerDeployment({ build: prevBuild });
+				}
+			}else if (builds.length > 1) {
 				const latestItem = builds[0];
 				const selected = await ChoreoWebViewAPI.getInstance().showQuickPicks({
 					title: "Select Build to Deploy",
@@ -837,8 +888,8 @@ const DeployButton: FC<{
 						<Codicon name="settings-gear" />
 					</Button>
 				)} */}
-				<Button disabled={isDeploying} onClick={() => selectBuildToDeploy(componentType === ChoreoComponentType.ScheduledTask)} appearance="primary">
-					{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}
+				<Button title={isPromote ? `Promote to ${env.name} environment` : `Deploy to ${env.name} environment`} disabled={isDeploying} onClick={() => selectBuildToDeploy(componentType === ChoreoComponentType.ScheduledTask)} appearance="secondary">
+					{isPromote ? <>{isDeploying ? "Promoting..." : "Promote"}</> : <>{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}</>}
 				</Button>
 			</div>
 		</>
@@ -1017,11 +1068,11 @@ export const EndpointDetailsSection: FC<{ endpoints: ComponentEP[] }> = ({ endpo
 									{item.apiDefinitionPath && <EndpointDetailsSectionDetailItem label="Schema" value={item.apiDefinitionPath} />}
 									{item.apiContext && <EndpointDetailsSectionDetailItem label="API Context" value={item.apiContext} />}
 								</div>
-								<EndpointItem type="Project" name={item.displayName} url={item.projectUrl} state={item.state} />
-								{item.visibility === "Organization" && (
+								{item.projectUrl && <EndpointItem type="Project" name={item.displayName} url={item.projectUrl} state={item.state} />}
+								{item.visibility === "Organization" && item.organizationUrl && (
 									<EndpointItem type="Organization" name={item.displayName} url={item.organizationUrl} state={item.state} />
 								)}
-								{item.visibility === "Public" && (
+								{item.visibility === "Public" && item.publicUrl && (
 									<EndpointItem type="Public" name={item.displayName} url={item.publicUrl} showOpen={true} state={item.state} />
 								)}
 							</React.Fragment>

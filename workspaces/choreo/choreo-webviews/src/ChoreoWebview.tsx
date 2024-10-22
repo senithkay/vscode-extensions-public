@@ -29,22 +29,24 @@ function ChoreoWebview(props: WebviewProps) {
 			<ErrorBoundary>
 				<ExtWebviewContextProvider>
 					<AuthContextProvider viewType={props.type}>
-							<main>
-								{(() => {
-									switch (props.type) {
-										case "NewComponentForm":
-											return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
-										case "ComponentDetailsView":
-											return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
-										case "ComponentsListActivityView":
-											return <LinkedDirStateContextProvider>
+						<main>
+							{(() => {
+								switch (props.type) {
+									case "NewComponentForm":
+										return <ComponentFormView {...(props as NewComponentWebviewProps)} />;
+									case "ComponentDetailsView":
+										return <ComponentDetailsView {...(props as ComponentsDetailsWebviewProps)} />;
+									case "ComponentsListActivityView":
+										return (
+											<LinkedDirStateContextProvider>
 												<ComponentListView {...(props as ComponentsListActivityViewProps)} />
-											</LinkedDirStateContextProvider>;
-										default:
-											return null;
-									}
-								})()}
-							</main>
+											</LinkedDirStateContextProvider>
+										);
+									default:
+										return null;
+								}
+							})()}
+						</main>
 					</AuthContextProvider>
 				</ExtWebviewContextProvider>
 			</ErrorBoundary>
