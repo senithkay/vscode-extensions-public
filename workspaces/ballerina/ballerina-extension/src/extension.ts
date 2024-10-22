@@ -81,7 +81,7 @@ export async function activate(context: ExtensionContext) {
     const balExtension = extensions.getExtension('wso2.ballerina');
     if (balExtension) {
         const userResponse = await window.showInformationMessage(
-            'To run Kola, you need to uninstall the Ballerina extension. Would you like to uninstall the Ballerina extension?',
+            'To run Kola, you need to disable the Ballerina extension. Would you like to disable the Ballerina extension?',
             'Yes',
             'No'
         );
