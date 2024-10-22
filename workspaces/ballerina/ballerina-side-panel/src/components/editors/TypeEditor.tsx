@@ -111,7 +111,7 @@ export function TypeEditor(props: TypeEditorProps) {
         await onCompletionSelect?.(value);
 
         // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
     };
 
@@ -138,6 +138,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
+                        key={field.key}
                         ref={exprRef}
                         name={name}
                         completions={completions}

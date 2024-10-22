@@ -9,6 +9,7 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
+import { URI, Utils } from "vscode-uri";
 import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
@@ -55,15 +56,28 @@ const PopupPanel = (props: PopupPanelProps) => {
     }, []);
 
     const fetchContext = () => {
-        rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
-            switch (machineSate?.view) {
+        rpcClient.getPopupVisualizerState().then((machineState: PopupVisualizerLocation) => {
+            switch (machineState?.view) {
                 case MACHINE_VIEW.AddConnectionWizard:
-                    setViewComponent(<AddConnectionWizard onClose={onClose} />);
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        setViewComponent(
+                            <AddConnectionWizard
+                                fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                onClose={onClose}
+                            />
+                        );
+                    })
                     break;
                 case MACHINE_VIEW.EditConnectionWizard:
-                    setViewComponent(
-                        <EditConnectionWizard connectionName={machineSate?.identifier} onClose={onClose} />
-                    );
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        setViewComponent(
+                            <EditConnectionWizard
+                                fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                connectionName={machineState?.identifier}
+                                onClose={onClose}
+                            />
+                        );
+                    });
                     break;
                 default:
                     setViewComponent(null);
