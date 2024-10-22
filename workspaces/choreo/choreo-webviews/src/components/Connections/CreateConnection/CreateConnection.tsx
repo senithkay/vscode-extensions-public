@@ -41,11 +41,11 @@ interface Props {
 	org: Organization;
 	project: Project;
 	onCreate: (createdItem: ConnectionDetailed) => void;
-	directoryPath: string;
+	directoryFsPath: string;
 	deploymentTrack: DeploymentTrack;
 }
 
-export const CreateConnection: FC<Props> = ({ item, component, org, project, directoryPath, deploymentTrack, onCreate }) => {
+export const CreateConnection: FC<Props> = ({ item, component, org, project, directoryFsPath, deploymentTrack, onCreate }) => {
 	const queryClient = useQueryClient();
 
 	const defaultSchema = item.connectionSchemas?.find((item) => item.isDefault) || item.connectionSchemas?.[0];
@@ -73,7 +73,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				serviceId: item.serviceId,
 				serviceVisibility: item.visibility[0],
 				componentType: getTypeForDisplayType(component?.spec?.type),
-				componentPath: directoryPath,
+				componentPath: directoryFsPath,
 				envs: defaultSchema?.entries?.map((item, index) => ({
 					from: item.name,
 					to: data.envNames[index],
@@ -91,7 +91,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				const connectionQueryKey = queryKeys.getComponentConnections(component, project, org);
 				const connectionItems: ConnectionListItem[] = queryClient.getQueryData(connectionQueryKey) ?? [];
 				queryClient.setQueryData(connectionQueryKey, [...connectionItems, { name: data.name }]);
-				queryClient.refetchQueries({ exact: true, queryKey: queryKeys.getComponentConfigDraft(directoryPath, component, deploymentTrack?.branch) });
+				queryClient.refetchQueries({ exact: true, queryKey: queryKeys.getComponentConfigDraft(directoryFsPath, component, deploymentTrack?.branch) });
 			}
 		},
 		onError: () => {

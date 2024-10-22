@@ -76,10 +76,10 @@ export const ComponentFormSummarySection: FC<Props> = ({
 	} = useQuery({
 		queryKey: ["get-config-drift", { dirPath: genDetails?.subPath }],
 		queryFn: async () => {
-			const directoryPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, genDetails.subPath]);
+			const directoryFsFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, genDetails.subPath]);
 			return ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
 				type,
-				repoDir: directoryPath,
+				repoDir: directoryFsFullPath,
 				branch: genDetails.branch,
 				repoUrl: genDetails.repoUrl,
 			});
@@ -91,8 +91,8 @@ export const ComponentFormSummarySection: FC<Props> = ({
 	const { data: hasLocalChanges } = useQuery({
 		queryKey: ["has-local-changes", { dirPath: genDetails?.subPath }],
 		queryFn: async () => {
-			const directoryPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, genDetails.subPath]);
-			return ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryPath);
+			const directoryFsFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, genDetails.subPath]);
+			return ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryFsFullPath);
 		},
 		refetchOnWindowFocus: true,
 	});

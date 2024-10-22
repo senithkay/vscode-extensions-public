@@ -13,7 +13,7 @@ export type WebviewTypes = "NewComponentForm" | "ComponentsListActivityView" | "
 
 export interface NewComponentWebviewProps {
 	type: "NewComponentForm";
-	directoryPath: string;
+	directoryUriPath: string;
 	directoryFsPath: string;
 	directoryName: string;
 	organization: Organization;
@@ -27,13 +27,13 @@ export interface ComponentsDetailsWebviewProps {
 	organization: Organization;
 	project: Project;
 	component: ComponentKind;
-	directoryPath?: string;
+	directoryFsPath?: string;
 	initialEnvs: Environment[];
 }
 
 export interface ComponentsListActivityViewProps {
 	type: "ComponentsListActivityView";
-	directoryPath?: string;
+	directoryFsPath?: string;
 }
 
 export type WebviewProps = ComponentsDetailsWebviewProps | NewComponentWebviewProps | ComponentsListActivityViewProps;

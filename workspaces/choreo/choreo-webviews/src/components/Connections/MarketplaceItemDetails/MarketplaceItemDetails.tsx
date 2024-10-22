@@ -24,7 +24,7 @@ type Props = {
 	item?: MarketplaceItem;
 	org: Organization;
 	onCreateClick: () => void;
-	directoryPath: string;
+	directoryFsPath: string;
 };
 
 const isXML = (xml: string) => {
@@ -79,7 +79,7 @@ const disableTryItOutPlugin = () => ({
 	},
 });
 
-export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, directoryPath }) => {
+export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, directoryFsPath }) => {
 	let visibility = "Project";
 	if (item?.visibility.includes("PUBLIC")) {
 		visibility = "Public";
@@ -103,7 +103,7 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 	const { mutate: saveApiDefinitionFile } = useMutation({
 		mutationFn: async (fileContent: string | object) => {
 			ChoreoWebViewAPI.getInstance().saveFile({
-				baseDirectory: directoryPath,
+				baseDirectory: directoryFsPath,
 				fileContent: typeof fileContent === "object" ? JSON.stringify(fileContent) : fileContent,
 				shouldPromptDirSelect: true,
 				fileName: `idl.${getIdlFileExt(fileContent)}`,

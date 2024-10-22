@@ -21,7 +21,7 @@ interface Props {
 	label?: string | ReactNode;
 	required?: boolean;
 	control?: Control;
-	basePath: string;
+	baseUriPath: string;
 	directoryName?: string;
 	wrapClassName?: HTMLProps<HTMLElement>["className"];
 	type?: "file" | "directory";
@@ -29,7 +29,7 @@ interface Props {
 }
 
 export const PathSelect: FC<Props> = (props) => {
-	const { label, required, control, name, basePath, directoryName = "", wrapClassName, type = "directory", promptTitle = "Select Directory" } = props;
+	const { label, required, control, name, baseUriPath, directoryName = "", wrapClassName, type = "directory", promptTitle = "Select Directory" } = props;
 
 	const { mutate: handleClick, isLoading } = useMutation({
 		mutationFn: async (onSelect: (path: string) => void) => {
@@ -38,13 +38,13 @@ export const PathSelect: FC<Props> = (props) => {
 				canSelectFolders: type === "directory",
 				canSelectMany: false,
 				title: promptTitle,
-				defaultUri: basePath,
+				defaultUri: baseUriPath,
 				filters: {},
 			});
 			if (paths && paths.length > 0) {
 				const subPath = await ChoreoWebViewAPI.getInstance().getSubPath({
 					subPath: paths[0],
-					parentPath: basePath,
+					parentPath: baseUriPath,
 				});
 				onSelect(subPath || "");
 			}

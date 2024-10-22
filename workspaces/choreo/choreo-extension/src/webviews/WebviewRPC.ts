@@ -74,6 +74,8 @@ import {
 	ReadFile,
 	makeURLSafe,
 	ProxyConfig,
+	JoinFsFilePaths,
+	JoinUriFilePaths,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
@@ -140,6 +142,8 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		}
 	});
 	messenger.onRequest(JoinFilePaths, (files: string[]) => getJoinedFilePaths(...files));
+	messenger.onRequest(JoinFsFilePaths, (files: string[]) => join(...files));
+	messenger.onRequest(JoinUriFilePaths, ([base, ...rest]: string[]) => Uri.joinPath(Uri.parse(base), ...rest).path);
 	messenger.onRequest(GetSubPath, (params: { subPath: string; parentPath: string }) => getSubPath(params.subPath, params.parentPath));
 	messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
 		if (args.length >= 1) {

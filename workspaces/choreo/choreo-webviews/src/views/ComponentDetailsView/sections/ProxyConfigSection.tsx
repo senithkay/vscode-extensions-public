@@ -24,12 +24,12 @@ import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
 interface Props {
-	directoryPath: string;
+	directoryFsPath: string;
 	proxyConfig: ProxyConfig;
 	configFilePath: string;
 }
 
-export const ProxyConfigSection: FC<Props> = ({ directoryPath, configFilePath, proxyConfig }) => {
+export const ProxyConfigSection: FC<Props> = ({ directoryFsPath, configFilePath, proxyConfig }) => {
 	const { openFile } = useGoToSource();
 
 	return (
@@ -52,7 +52,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryPath, configFilePath, p
 						<RightPanelSectionItem
 							label="API Schema"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, proxyConfig?.schemaFilePath])} className="text-vsc-foreground">
+								<VSCodeLink onClick={() => openFile([directoryFsPath, proxyConfig?.schemaFilePath])} className="text-vsc-foreground">
 									View File
 								</VSCodeLink>
 							}
@@ -62,7 +62,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryPath, configFilePath, p
 						<RightPanelSectionItem
 							label="Documentation"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, proxyConfig?.docPath])} className="text-vsc-foreground">
+								<VSCodeLink onClick={() => openFile([directoryFsPath, proxyConfig?.docPath])} className="text-vsc-foreground">
 									View File
 								</VSCodeLink>
 							}
@@ -72,7 +72,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryPath, configFilePath, p
 						<RightPanelSectionItem
 							label="Thumbnail"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, proxyConfig?.thumbnailPath])} className="ext-vsc-foreground">
+								<VSCodeLink onClick={() => openFile([directoryFsPath, proxyConfig?.thumbnailPath])} className="ext-vsc-foreground">
 									View File
 								</VSCodeLink>
 							}

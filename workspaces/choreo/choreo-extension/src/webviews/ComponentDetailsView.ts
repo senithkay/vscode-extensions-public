@@ -23,10 +23,10 @@ class ComponentDetailsView {
 	private _disposables: vscode.Disposable[] = [];
 	private _rpcHandler: WebViewPanelRpc;
 
-	constructor(extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryPath?: string) {
+	constructor(extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryFsPath?: string) {
 		this._panel = ComponentDetailsView.createWebview(component);
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, organization, project, component, directoryPath);
+		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, organization, project, component, directoryFsPath);
 		this._rpcHandler = new WebViewPanelRpc(this._panel);
 	}
 
@@ -53,7 +53,7 @@ class ComponentDetailsView {
 		organization: Organization,
 		project: Project,
 		component: ComponentKind,
-		directoryPath?: string,
+		directoryFsPath?: string,
 	) {
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
@@ -81,7 +81,7 @@ class ComponentDetailsView {
                   document.getElementById("root"),
                   ${JSON.stringify({
 										type: "ComponentDetailsView",
-										directoryPath,
+										directoryFsPath,
 										organization,
 										project,
 										component,
@@ -127,7 +127,7 @@ export const showComponentDetailsView = (
 	org: Organization,
 	project: Project,
 	component: ComponentKind,
-	componentPath: string,
+	directoryFsPath: string,
 	viewColumn?: vscode.ViewColumn,
 ) => {
 	const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
@@ -137,7 +137,7 @@ export const showComponentDetailsView = (
 		webView?.reveal(viewColumn);
 	} else {
 		webviewStateStore.getState().onCloseComponentDrawer(getComponentKey(org, project, component));
-		const componentDetailsView = new ComponentDetailsView(ext.context.extensionUri, org, project, component, componentPath);
+		const componentDetailsView = new ComponentDetailsView(ext.context.extensionUri, org, project, component, directoryFsPath);
 		componentDetailsView.getWebview()?.reveal(viewColumn);
 		componentViewMap.set(componentKey, componentDetailsView);
 

@@ -37,7 +37,7 @@ import { ProxyConfigSection } from "./sections/ProxyConfigSection";
 import { RightPanelSection } from "./sections/RightPanelSection";
 
 export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) => {
-	const { component, project, organization, directoryPath, initialEnvs = [] } = props;
+	const { component, project, organization, directoryFsPath, initialEnvs = [] } = props;
 	const deploymentTracks = component?.deploymentTracks ?? [];
 	const [rightPanelRef] = useAutoAnimate();
 	const type = getTypeForDisplayType(props.component.spec?.type);
@@ -82,36 +82,36 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 	});
 
 	const { data: hasLocalChanges } = useQuery({
-		queryKey: queryKeys.getHasLocalChanges(directoryPath),
-		queryFn: () => ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryPath),
-		enabled: !!directoryPath,
+		queryKey: queryKeys.getHasLocalChanges(directoryFsPath),
+		queryFn: () => ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryFsPath),
+		enabled: !!directoryFsPath,
 		refetchOnWindowFocus: true,
 	});
 
 	const { data: configDriftFiles = [] } = useQuery({
-		queryKey: queryKeys.getComponentConfigDraft(directoryPath, component, deploymentTrack?.branch),
+		queryKey: queryKeys.getComponentConfigDraft(directoryFsPath, component, deploymentTrack?.branch),
 		queryFn: () =>
 			ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
 				type: getTypeForDisplayType(component?.spec?.type),
-				repoDir: directoryPath,
+				repoDir: directoryFsPath,
 				branch: deploymentTrack?.branch,
 				repoUrl: component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository,
 			}),
-		enabled: !!directoryPath,
+		enabled: !!directoryFsPath,
 		refetchOnWindowFocus: true,
 	});
 
 	const { data: endpointsResp } = useQuery({
-		queryKey: ["get-service-endpoints", { directoryPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(directoryPath),
-		enabled: !!directoryPath && type === ChoreoComponentType.Service,
+		queryKey: ["get-service-endpoints", { directoryFsPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(directoryFsPath),
+		enabled: !!directoryFsPath && type === ChoreoComponentType.Service,
 		refetchOnWindowFocus: true,
 	});
 
 	const { data: localProxyConfig } = useQuery({
-		queryKey: ["get-local-proxy-config", { directoryPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(directoryPath),
-		enabled: !!directoryPath && type === ChoreoComponentType.ApiProxy,
+		queryKey: ["get-local-proxy-config", { directoryFsPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(directoryFsPath),
+		enabled: !!directoryFsPath && type === ChoreoComponentType.ApiProxy,
 		refetchOnWindowFocus: true,
 	});
 
@@ -170,13 +170,13 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 	if (type === ChoreoComponentType.Service && endpointsResp?.endpoints?.length > 0) {
 		rightPanel.push({
 			key: "endpoints",
-			node: <EndpointsSection endpointFilePath={endpointsResp?.filePath} endpoints={endpointsResp?.endpoints} directoryPath={directoryPath} />,
+			node: <EndpointsSection endpointFilePath={endpointsResp?.filePath} endpoints={endpointsResp?.endpoints} directoryFsPath={directoryFsPath} />,
 		});
 	}
 	if (type === ChoreoComponentType.ApiProxy && localProxyConfig?.proxy) {
 		rightPanel.push({
 			key: "git-proxy-config",
-			node: <ProxyConfigSection proxyConfig={localProxyConfig?.proxy} configFilePath={localProxyConfig?.filePath} directoryPath={directoryPath} />,
+			node: <ProxyConfigSection proxyConfig={localProxyConfig?.proxy} configFilePath={localProxyConfig?.filePath} directoryFsPath={directoryFsPath} />,
 		});
 	}
 	if (type !== ChoreoComponentType.ApiProxy && component?.spec?.type !== ComponentDisplayType.PrismMockService) {
@@ -187,7 +187,7 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 					org={organization}
 					project={project}
 					component={component}
-					directoryPath={directoryPath}
+					directoryFsPath={directoryFsPath}
 					deploymentTrack={deploymentTrack}
 				/>
 			),

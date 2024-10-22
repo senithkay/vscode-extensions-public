@@ -49,7 +49,7 @@ type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
 type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
-	const { project, organization, directoryFsPath, directoryPath, initialValues, existingComponents } = props;
+	const { project, organization, directoryFsPath, directoryUriPath, initialValues, existingComponents } = props;
 	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
 
@@ -105,9 +105,9 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		},
 	});
 
-	const { data: compPath = directoryPath } = useQuery({
-		queryKey: ["comp-create-path", { directoryPath, subPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryPath, subPath]),
+	const { data: compUriPath = directoryUriPath } = useQuery({
+		queryKey: ["comp-create-path", { directoryUriPath, subPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().joinUriFilePaths([directoryUriPath, subPath]),
 	});
 
 	// // TODO: uri.parse expects path & file read/write expects fsPath. Need to updated and check on windows
@@ -115,7 +115,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	// for fspath use path.join, for uri path use vscode.Uri.joinPath
 	const { data: compFsPath = directoryFsPath } = useQuery({
 		queryKey: ["comp-create-fs-path", { directoryFsPath, subPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]),
+		queryFn: () => ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]),
 	});
 
 	useQuery({
@@ -153,7 +153,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 
 			const componentName = makeURLSafe(genDetails.name);
 
-			const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+			const componentDir = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
 
 			const createCompCommandParams: SubmitComponentCreateReq = {
 				org: organization,
@@ -250,8 +250,9 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					form={buildDetailsForm}
 					selectedType={type}
 					subPath={subPath}
-					baseDirPath={directoryFsPath}
-					compPath={compPath}
+					baseFsPath={directoryFsPath}
+					baseUriPath={directoryUriPath}
+					compFsPath={compFsPath}
 				/>
 			),
 		});
@@ -266,7 +267,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 						{...props}
 						key="endpoints-step"
 						componentName={name || "component"}
-						compPath={compPath}
+						compUriPath={compUriPath}
+						compFsPath={compFsPath}
 						onNextClick={(data) => submitEndpoints(data.endpoints as Endpoint[])}
 						onBackClick={() => setStepIndex(stepIndex - 1)}
 						isSaving={isSubmittingEndpoints}
@@ -287,7 +289,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					onBackClick={() => setStepIndex(stepIndex - 1)}
 					isSaving={isSubmittingProxyConfig}
 					form={gitProxyForm}
-					compPath={compPath}
+					compUriPath={compUriPath}
+					compFsPath={compFsPath}
 				/>
 			),
 		});

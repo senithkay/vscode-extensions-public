@@ -29,14 +29,15 @@ type ComponentFormEndpointItemType = z.infer<typeof componentEndpointItemSchema>
 
 interface Props extends NewComponentWebviewProps {
 	componentName: string;
-	compPath?: string;
+	compFsPath?: string;
+	compUriPath?: string;
 	isSaving?: boolean;
 	onNextClick: (data: ComponentFormEndpointsType) => void;
 	onBackClick: () => void;
 	form: UseFormReturn<ComponentFormEndpointsType>;
 }
 
-export const ComponentFormEndpointsSection: FC<Props> = ({ directoryName, componentName, onBackClick, onNextClick, compPath, isSaving, form }) => {
+export const ComponentFormEndpointsSection: FC<Props> = ({ directoryName, componentName, onBackClick, onNextClick, compFsPath,compUriPath, isSaving, form }) => {
 	const [endpointListRef] = useAutoAnimate();
 
 	const watchedForm = useWatch({ control: form.control });
@@ -58,7 +59,8 @@ export const ComponentFormEndpointsSection: FC<Props> = ({ directoryName, compon
 					index={index}
 					item={{ ...watchedForm?.endpoints?.[index], id: item.id }}
 					componentName={componentName}
-					compPath={compPath}
+					compFsPath={compFsPath}
+					compUriPath={compUriPath}
 				/>
 			))}
 
@@ -74,7 +76,7 @@ export const ComponentFormEndpointsSection: FC<Props> = ({ directoryName, compon
 	);
 };
 
-interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "componentName" | "compPath"> {
+interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "componentName" | "compFsPath" | 'compUriPath'> {
 	item: ComponentFormEndpointItemType & { id: string };
 	endpoints: ComponentFormEndpointItemType[];
 	form: UseFormReturn<ComponentFormEndpointsType, any, undefined>;
@@ -83,24 +85,24 @@ interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "comp
 	remove: UseFieldArrayRemove;
 }
 
-const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints, form, index, componentName, append, remove, compPath }) => {
+const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints, form, index, componentName, append, remove, compUriPath, compFsPath }) => {
 	const [endpointListItemRef] = useAutoAnimate();
 
 	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
-		compPath,
+		compFsPath,
 		onSuccess: (subPath) => form.setValue(`endpoints.${index}.schemaFilePath`, subPath, { shouldValidate: true }),
 	});
 
 	// automatically detect open api files and select if only one available within the selected directory
 	useQuery({
-		queryKey: ["get-possible-openapi-schemas", { compPath }],
-		queryFn: async () => getOpenApiFiles(compPath),
+		queryKey: ["get-possible-openapi-schemas", { compFsPath }],
+		queryFn: async () => getOpenApiFiles(compFsPath),
 		onSuccess: async (fileNames) => {
 			if (fileNames.length === 1) {
 				if (form.getValues(`endpoints.${index}.schemaFilePath`) === "") {
 					form.setValue(`endpoints.${index}.schemaFilePath`, fileNames[0], { shouldValidate: true });
 				} else {
-					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, form.getValues(`endpoints.${index}.schemaFilePath`)]);
+					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, form.getValues(`endpoints.${index}.schemaFilePath`)]);
 					const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFullPath);
 					if (!fileExists) {
 						form.setValue(`endpoints.${index}.schemaFilePath`, "");
@@ -177,12 +179,12 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({ item, endpoints
 					label="Schema File Path"
 					required
 					control={form.control}
-					basePath={compPath}
+					baseUriPath={compUriPath}
 					type="file"
 					promptTitle="Select Schema File Path"
 				/>
 				{item.schemaFilePath && (
-					<VSCodeLink className="mt-0.5 font-semibold text-[11px] text-vsc-foreground" onClick={() => openFile([compPath, item.schemaFilePath])}>
+					<VSCodeLink className="mt-0.5 font-semibold text-[11px] text-vsc-foreground" onClick={() => openFile([compFsPath, item.schemaFilePath])}>
 						Edit Schema File
 					</VSCodeLink>
 				)}

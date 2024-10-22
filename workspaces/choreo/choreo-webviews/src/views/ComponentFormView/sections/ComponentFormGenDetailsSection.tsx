@@ -34,8 +34,8 @@ interface Props extends NewComponentWebviewProps {
 export const ComponentFormGenDetailsSection: FC<Props> = ({
 	onNextClick,
 	organization,
-	directoryPath,
 	directoryFsPath,
+	directoryUriPath,
 	directoryName,
 	form,
 	componentType,
@@ -53,7 +53,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 	} = useQuery({
 		queryKey: ["git-data", { subPath }],
 		queryFn: async () => {
-			const dir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+			const dir = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
 			const gitData = await ChoreoWebViewAPI.getInstance().getLocalGitData(dir);
 			return gitData ?? null;
 		},
@@ -180,7 +180,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 					label={componentType === ChoreoComponentType.ApiProxy ? "Source Directory" : "Source/Docker Context Directory"}
 					required
 					control={form.control}
-					basePath={directoryPath}
+					baseUriPath={directoryUriPath}
 					directoryName={directoryName}
 					type="directory"
 					promptTitle="Select Component Directory"

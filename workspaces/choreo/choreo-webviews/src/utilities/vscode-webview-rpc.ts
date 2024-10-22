@@ -79,6 +79,8 @@ import {
 	type WebviewQuickPickItem,
 	type WebviewState,
 	WebviewStateChangedNotification,
+	JoinFsFilePaths,
+	JoinUriFilePaths,
 } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -170,6 +172,14 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(JoinFilePaths, HOST_EXTENSION, paths);
 	}
 
+	public async joinFsFilePaths(paths: string[]): Promise<string> {
+		return this._messenger.sendRequest(JoinFsFilePaths, HOST_EXTENSION, paths);
+	}
+
+	public async joinUriFilePaths(paths: string[]): Promise<string> {
+		return this._messenger.sendRequest(JoinUriFilePaths, HOST_EXTENSION, paths);
+	}
+
 	public async getSubPath(params: { subPath: string; parentPath: string }): Promise<string | null> {
 		return this._messenger.sendRequest(GetSubPath, HOST_EXTENSION, params);
 	}
@@ -246,16 +256,16 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(GetDirectoryFileNames, HOST_EXTENSION, path);
 	}
 
-	public async fileExist(path: string): Promise<boolean> {
-		return this._messenger.sendRequest(FileExists, HOST_EXTENSION, path);
+	public async fileExist(fsPath: string): Promise<boolean> {
+		return this._messenger.sendRequest(FileExists, HOST_EXTENSION, fsPath);
 	}
 
-	public async readFile(path: string): Promise<string | null> {
-		return this._messenger.sendRequest(ReadFile, HOST_EXTENSION, path);
+	public async readFile(fsPath: string): Promise<string | null> {
+		return this._messenger.sendRequest(ReadFile, HOST_EXTENSION, fsPath);
 	}
 
-	public async goToSource(filePath: string): Promise<void> {
-		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
+	public async goToSource(fsPath: string): Promise<void> {
+		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, fsPath);
 	}
 
 	public async saveFile(params: SaveFileReq): Promise<string> {

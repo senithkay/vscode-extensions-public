@@ -41,11 +41,11 @@ type Props = {
 	org: Organization;
 	project: Project;
 	component: ComponentKind;
-	directoryPath: string;
+	directoryFsPath: string;
 	deploymentTrack: DeploymentTrack;
 };
 
-export const ConnectionsSection: FC<Props> = ({ org, project, component, directoryPath, deploymentTrack }) => {
+export const ConnectionsSection: FC<Props> = ({ org, project, component, directoryFsPath, deploymentTrack }) => {
 	const webviewState = useExtWebviewContext();
 	const [selectedItem, setSelectedItem] = useState<MarketplaceItem>();
 
@@ -76,7 +76,7 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 				connectionId: connectionItem.groupUuid,
 				connectionName: connectionItem.name,
 				orgId: org.id.toString(),
-				componentPath: directoryPath,
+				componentPath: directoryFsPath,
 			}),
 		onError: (_, params) => ChoreoWebViewAPI.getInstance().showErrorMsg(`Failed to delete connection ${params.name}`),
 		onSuccess: (_, params) => {
@@ -172,12 +172,12 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 					</div>
 					<Button
 						appearance="icon"
-						title={directoryPath ? "Add API Dependency" : "Only allowed if you are within the Git repo directory"}
+						title={directoryFsPath ? "Add API Dependency" : "Only allowed if you are within the Git repo directory"}
 						onClick={() => {
 							openCreatePanel();
 							setStep("list");
 						}}
-						disabled={!directoryPath}
+						disabled={!directoryFsPath}
 					>
 						<Codicon name="plus" />
 					</Button>
@@ -237,14 +237,14 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 								}}
 							/>
 						),
-						details: <MarketplaceItemDetails directoryPath={directoryPath} onCreateClick={() => setStep("create")} item={selectedItem} org={org} />,
+						details: <MarketplaceItemDetails directoryFsPath={directoryFsPath} onCreateClick={() => setStep("create")} item={selectedItem} org={org} />,
 						create: (
 							<CreateConnection
 								item={selectedItem}
 								org={org}
 								project={project}
 								component={component}
-								directoryPath={directoryPath}
+								directoryFsPath={directoryFsPath}
 								deploymentTrack={deploymentTrack}
 								onCreate={(item) => {
 									refetchComponentConnectionList();

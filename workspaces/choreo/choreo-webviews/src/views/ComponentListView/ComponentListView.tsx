@@ -18,7 +18,7 @@ import { ComponentsEmptyView } from "./ComponentsEmptyView";
 import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
 import { NoContextView } from "./NoContextView";
 
-export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryPath }) => {
+export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryFsPath }) => {
 	const webviewState = useExtWebviewContext();
 
 	const { state: linkedDirState, isLoading } = useLinkedDirStateContext();
@@ -27,7 +27,7 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
 
 	const validContextItems = Object.values(linkedDirState?.items ?? {}).filter((item) => item.project && item.org);
 
-	if (!directoryPath) {
+	if (!directoryFsPath) {
 		return <InvalidWorkspaceView loading={isLoading || linkedDirState.loading} />;
 	}
 

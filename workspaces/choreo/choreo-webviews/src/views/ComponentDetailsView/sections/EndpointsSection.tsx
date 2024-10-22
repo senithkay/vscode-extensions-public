@@ -19,11 +19,11 @@ import { RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
 interface Props {
 	endpoints?: Endpoint[];
-	directoryPath?: string;
+	directoryFsPath?: string;
 	endpointFilePath?: string;
 }
 
-export const EndpointsSection: FC<Props> = ({ endpointFilePath, endpoints = [], directoryPath }) => {
+export const EndpointsSection: FC<Props> = ({ endpointFilePath, endpoints = [], directoryFsPath }) => {
 	const { openFile } = useGoToSource();
 
 	return (
@@ -47,7 +47,7 @@ export const EndpointsSection: FC<Props> = ({ endpointFilePath, endpoints = [], 
 						<RightPanelSectionItem
 							label="API Schema"
 							value={
-								<VSCodeLink onClick={() => openFile([directoryPath, item.schemaFilePath])} className="text-vsc-foreground">
+								<VSCodeLink onClick={() => openFile([directoryFsPath, item.schemaFilePath])} className="text-vsc-foreground">
 									View File
 								</VSCodeLink>
 							}

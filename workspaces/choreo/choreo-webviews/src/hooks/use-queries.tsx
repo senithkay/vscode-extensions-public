@@ -298,8 +298,8 @@ export const useGetAutoBuildStatus = (
 
 export const useGoToSource = () => {
 	const { mutate: openFile } = useMutation({
-		mutationFn: async (paths: string[]) => {
-			const filePath = await ChoreoWebViewAPI.getInstance().joinFilePaths(paths);
+		mutationFn: async (fsPaths: string[]) => {
+			const filePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths(fsPaths);
 			const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(filePath);
 			if (fileExists) {
 				return ChoreoWebViewAPI.getInstance().goToSource(filePath);
@@ -340,7 +340,7 @@ export const useGetBuildLogs = (
 		options,
 	);
 
-export const useCreateNewOpenApiFile = ({ onSuccess, compPath }: { compPath: string; onSuccess?: (subPath: string) => void }) => {
+export const useCreateNewOpenApiFile = ({ onSuccess, compFsPath }: { compFsPath: string; onSuccess?: (subPath: string) => void }) => {
 	const sampleOpenAPIContent = `openapi: 3.0.0
 info:
   title: My API
@@ -356,18 +356,18 @@ paths:
 	const { mutate: createNewOpenApiFile } = useMutation({
 		mutationFn: async () => {
 			return ChoreoWebViewAPI.getInstance().saveFile({
-				baseDirectory: compPath,
+				baseDirectory: compFsPath,
 				fileContent: sampleOpenAPIContent,
 				shouldPromptDirSelect: true,
 				fileName: "swagger.yaml",
 				isOpenApiFile: true,
-				successMessage: `A sample OpenAPI specification file has been created at ${compPath}`,
+				successMessage: `A sample OpenAPI specification file has been created at ${compFsPath}`,
 			});
 		},
 		onSuccess: async (createdPath) => {
 			const subPath = await ChoreoWebViewAPI.getInstance().getSubPath({
 				subPath: createdPath,
-				parentPath: compPath,
+				parentPath: compFsPath,
 			});
 			if (onSuccess) {
 				onSuccess(subPath);

@@ -85,10 +85,10 @@ export const componentEndpointsFormSchema = z.object({
 
 export const getComponentEndpointsFormSchema = (directoryFsPath: string, subPath: string) =>
 	componentEndpointsFormSchema.partial().superRefine(async (data, ctx) => {
-		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+		const compFsPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
 		for (const [index, endpointItem] of data.endpoints.entries()) {
 			if (endpointItem.type === EndpointType.REST) {
-				const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, endpointItem.schemaFilePath]);
+				const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, endpointItem.schemaFilePath]);
 				const schemaFileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFilePath);
 				if (!schemaFileExists) {
 					ctx.addIssue({ path: [`endpoints.${index}.schemaFilePath`], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -152,8 +152,8 @@ export const componentGitProxyFormSchema = z.object({
 
 export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath: string) =>
 	componentGitProxyFormSchema.partial().superRefine(async (data, ctx) => {
-		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
-		const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, data.componentConfig?.schemaFilePath]);
+		const compFsPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
+		const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, data.componentConfig?.schemaFilePath]);
 		const schemaFileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFilePath);
 		if (!schemaFileExists) {
 			ctx.addIssue({ path: ["componentConfig.schemaFilePath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -165,7 +165,7 @@ export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath:
 		}
 
 		if (data.componentConfig?.thumbnailPath?.length > 0) {
-			const thumbnailPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, data.componentConfig?.thumbnailPath]);
+			const thumbnailPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, data.componentConfig?.thumbnailPath]);
 			const thumbnailExists = await ChoreoWebViewAPI.getInstance().fileExist(thumbnailPath);
 			if (!thumbnailExists) {
 				ctx.addIssue({ path: ["componentConfig.thumbnailPath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -173,7 +173,7 @@ export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath:
 		}
 
 		if (data.componentConfig?.docPath?.length > 0) {
-			const docPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, data.componentConfig?.docPath]);
+			const docPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, data.componentConfig?.docPath]);
 			const docPathExists = await ChoreoWebViewAPI.getInstance().fileExist(docPath);
 			if (!docPathExists) {
 				ctx.addIssue({ path: ["componentConfig.docPath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -190,7 +190,7 @@ export const getComponentFormSchemaGenDetails = (existingComponents: ComponentKi
 
 export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath: string, subPath: string) =>
 	componentBuildDetailsSchema.partial().superRefine(async (data, ctx) => {
-		const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
+		const compFsPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
 		if (
 			[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles, ChoreoBuildPackNames.Prism].includes(
 				data.buildPackLang as ChoreoBuildPackNames,
@@ -227,7 +227,7 @@ export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath
 		if (type && data.buildPackLang) {
 			const expectedFiles = getExpectedFilesForBuildPack(data.buildPackLang);
 			if (expectedFiles.length > 0) {
-				const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compPath);
+				const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compFsPath);
 				if (!expectedFiles.some((item) => containsMatchingElement(files, item))) {
 					ctx.addIssue({
 						path: ["buildPackLang"],
@@ -238,7 +238,7 @@ export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath
 			}
 
 			if (data.buildPackLang === ChoreoImplementationType.Docker) {
-				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, data.dockerFile]);
+				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, data.dockerFile]);
 				const isDockerFileExist = await ChoreoWebViewAPI.getInstance().fileExist(dockerFilePath);
 				if (!isDockerFileExist) {
 					ctx.addIssue({ path: ["dockerFile"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -338,9 +338,9 @@ export const isValidOpenApiSpec = async (filePath: string): Promise<boolean> => 
 	}
 };
 
-export const getOpenApiContent = async (filePath: string): Promise<OpenApiSpec | null> => {
+export const getOpenApiContent = async (fileFsPath: string): Promise<OpenApiSpec | null> => {
 	try {
-		const fileContent = await ChoreoWebViewAPI.getInstance().readFile(filePath);
+		const fileContent = await ChoreoWebViewAPI.getInstance().readFile(fileFsPath);
 		try {
 			const parsedSpec: OpenApiSpec = JSON.parse(fileContent);
 			if (parsedSpec?.openapi || parsedSpec?.swagger) {
@@ -361,14 +361,14 @@ export const getOpenApiContent = async (filePath: string): Promise<OpenApiSpec |
 	}
 };
 
-export const getOpenApiFiles = async (compPath: string) => {
+export const getOpenApiFiles = async (compFsPath: string) => {
 	const extensions = [".yaml", ".yml", ".json"];
-	const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compPath);
+	const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compFsPath);
 	const filteredFileNames: string[] = [];
 	for (const item of files) {
 		const extension = item.slice(item.lastIndexOf("."));
 		if (extensions.includes(extension)) {
-			const fileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([compPath, item]);
+			const fileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, item]);
 			const isValid = await isValidOpenApiSpec(fileFullPath);
 			if (isValid) {
 				filteredFileNames.push(item);

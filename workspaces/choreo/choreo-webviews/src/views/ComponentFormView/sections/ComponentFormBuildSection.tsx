@@ -32,8 +32,9 @@ type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>
 
 interface Props extends NewComponentWebviewProps {
 	selectedType: string;
-	baseDirPath: string;
-	compPath: string;
+	baseUriPath: string;
+	baseFsPath: string;
+	compFsPath: string;
 	subPath: string;
 	onNextClick: () => void;
 	onBackClick: () => void;
@@ -41,7 +42,7 @@ interface Props extends NewComponentWebviewProps {
 }
 
 export const ComponentFormBuildSection: FC<Props> = (props) => {
-	const { onBackClick, onNextClick, compPath, baseDirPath, organization, selectedType, subPath, form } = props;
+	const { onBackClick, onNextClick, compFsPath, baseUriPath,baseFsPath, organization, selectedType, subPath, form } = props;
 
 	const [buildConfigSections] = useAutoAnimate();
 
@@ -50,9 +51,9 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 	});
 
 	useQuery({
-		queryKey: ["set-possible-build-pack", { buildpacks, compPath }],
+		queryKey: ["set-possible-build-pack", { buildpacks, compFsPath }],
 		queryFn: async () => {
-			const possiblePack = await getPossibleBuildPack(compPath, buildpacks);
+			const possiblePack = await getPossibleBuildPack(compFsPath, buildpacks);
 			const selectedLang = form.getValues("buildPackLang");
 			if (buildpacks.length > 0 && (!selectedLang || !buildpacks.find((item) => item.language === selectedLang))) {
 				form.setValue("buildPackLang", possiblePack || "");
@@ -65,20 +66,20 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 
 	// automatically set dockerfile path
 	useQuery({
-		queryKey: ["set-dockerfile", { buildpacks, compPath }],
+		queryKey: ["set-dockerfile", { buildpacks, compFsPath }],
 		queryFn: async () => {
 			if (form.getValues("dockerFile") === "") {
-				const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([baseDirPath, subPath, "Dockerfile"]);
+				const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([baseFsPath, subPath, "Dockerfile"]);
 				const dockerFileExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFileFullPath);
 				if (dockerFileExists) {
 					const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
 					form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
 				}
 			} else {
-				const dockerFilePreviousPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([baseDirPath, form.getValues("dockerFile")]);
+				const dockerFilePreviousPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([baseFsPath, form.getValues("dockerFile")]);
 				const dockerFilePreviousExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFilePreviousPath);
 				if (!dockerFilePreviousExists) {
-					const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([baseDirPath, subPath, "Dockerfile"]);
+					const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([baseFsPath, subPath, "Dockerfile"]);
 					const dockerFileExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFileFullPath);
 					if (dockerFileExists) {
 						const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
@@ -131,7 +132,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 				label="Dockerfile path"
 				required
 				control={form.control}
-				basePath={baseDirPath}
+				baseUriPath={baseUriPath}
 				type="file"
 				key="docker-path"
 				promptTitle="Select Dockerfile"
