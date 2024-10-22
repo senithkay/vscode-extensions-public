@@ -1,8 +1,8 @@
 {
     "name": "kolab",
     "displayName": "KolaB",
-    "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "1.0.0",
+    "description": "KolaB Extension for Kola.",
+    "version": "0.0.1",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
