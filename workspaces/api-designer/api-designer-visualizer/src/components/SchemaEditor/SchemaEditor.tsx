@@ -68,7 +68,10 @@ interface SchemaEditorContainerProps {
 }
 
 const SchemaEditorContainer = styled.div<SchemaEditorContainerProps>`
-    padding: 10px;
+    padding: 15px;
+    background-color: var(--vscode-welcomePage-tileBackground);
+    border-radius: 8px;
+
 `;
 
 
