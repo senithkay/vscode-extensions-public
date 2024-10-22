@@ -20,6 +20,7 @@ type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
+    handleOnFieldFocus?: (key: string) => void;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
@@ -103,7 +104,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         openSubPanel,
         isActiveSubPanel,
         targetLineRange,
-        fileName
+        fileName,
+        handleOnFieldFocus
     } = props as ExpressionEditorProps;
 
 
@@ -133,6 +135,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         // Trigger actions on focus
         await onFocus?.();
         await retrieveCompletions(value, cursorPosition, undefined, true);
+        handleOnFieldFocus?.(field.key);
     };
 
     const handleBlur = async () => {
@@ -189,6 +192,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 },
                 editorKey: field.key
             }});
+            handleOnFieldFocus?.(field.key);
         }
     };
 

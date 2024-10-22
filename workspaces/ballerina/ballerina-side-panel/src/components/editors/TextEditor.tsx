@@ -44,10 +44,11 @@ const Pill = styled.div`
 
 interface TextEditorProps {
     field: FormField;
+    handleOnFieldFocus?: (key: string) => void;
 }
 
 export function TextEditor(props: TextEditorProps) {
-    const { field } = props;
+    const { field, handleOnFieldFocus } = props;
     const { form } = useFormContext();
     const { register } = form;
 
@@ -60,6 +61,12 @@ export function TextEditor(props: TextEditorProps) {
         </AddTypeContainer>
     );
 
+    const onFocus = () => {
+        if(handleOnFieldFocus) {
+            handleOnFieldFocus(field.key);
+        }
+    };
+
     return (
         <TextField
             id={field.key}
@@ -71,6 +78,7 @@ export function TextEditor(props: TextEditorProps) {
             // labelAdornment={typeLabel(field.type)}
             readOnly={!field.editable}
             sx={{ width: "100%" }}
+            onFocus={onFocus}
         />
     );
 }
