@@ -68,18 +68,42 @@ const SchemaEditorContainer = styled.div<SchemaEditorContainerProps>`
     padding: 10px;
 `;
 
-const PropertyWrapper = styled.div`
+interface PropertyContainerProps {
+    isRootElement?: boolean;
+    height?: number;
+    width?: number;
+}
+const PropertyContainer = styled.div<PropertyContainerProps>`
+    display: flex;
+    flex-direction: row;
+`;
+
+const VerticalBar = styled.div<PropertyContainerProps>`
+    width: 1px;
+    height: ${(props: PropertyContainerProps) => props.height ? `${props.height}px` : '100%'};
+    background-color: var(--vscode-editor-foreground);
+`;
+
+const HorizontalBar = styled.div<PropertyContainerProps>`
+    height: 1px;
+    margin-top: 8px;
+    width: ${(props: PropertyContainerProps) => props.width ? `${props.width}px` : '100%'};
+    background-color: var(--vscode-editor-foreground);
+`;
+
+const Properties = styled.div`
     display: flex;
     flex-direction: column;
     gap: 5px;
     align-items: flex-start;
 `;
 
-
-const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpdate: (updatedProperties: { [key: string]: Schema }) => void }> = ({ properties, onUpdate }) => {
+const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, isRootElement: boolean, onUpdate: (updatedProperties: { [key: string]: Schema }) => void }> = ({ properties, onUpdate, isRootElement }) => {
     const [localProperties, setLocalProperties] = useState(properties);
     const [newPropertyKey, setNewPropertyKey] = useState<string | null>(null);
     const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+    const propertyContainerRef = useRef<HTMLDivElement | null>(null); // Updated type
+    const [propertyContainerHeight, setPropertyContainerHeight] = useState<number>(0);
 
     useEffect(() => {
         setLocalProperties(properties);
@@ -91,6 +115,10 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
             setNewPropertyKey(null);
         }
     }, [newPropertyKey]);
+
+    useEffect(() => {
+        setPropertyContainerHeight(propertyContainerRef.current?.clientHeight || 0);
+    }, [propertyContainerRef.current]);
 
     const handlePropertyChange = (oldKey: string, newKey: string, newValue: Schema) => {
         const updatedProperties = { ...localProperties };
@@ -109,47 +137,51 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
             onUpdate(updatedProperties);
         }
     };
-
     return (
-        <PropertyWrapper>
-            {Object.entries(localProperties).map(([key, value]) => (
-                <div key={key}>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <Typography variant="body2" sx={{fontWeight: "bold"}}>{key}</Typography>
-                        <Typography variant="body2" sx={{fontWeight: "lighter"}}>{value?.type}</Typography>
-                    </div>
-                    {value.type === 'object' && value.properties && (
-                        <div style={{ marginLeft: '20px', marginTop: 5 }}>
-                            <SchemaProperties
-                                properties={value.properties}
-                                onUpdate={(updatedProperties) => handlePropertyChange(key, key, { ...value, properties: updatedProperties })}
-                            />
+        <PropertyContainer isRootElement={isRootElement}>
+            <VerticalBar height={ propertyContainerHeight } />
+            <Properties ref={propertyContainerRef}>
+                {Object.entries(localProperties).map(([key, value]) => (
+                    <div key={key}>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <HorizontalBar width={25} />
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{key}</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "lighter" }}>{value?.type}</Typography>
                         </div>
-                    )}
-                    {value.type === 'array' && value.items && (
-                        <div style={{ marginLeft: '20px', marginTop: 3 }}>
-                            {Array.isArray(value.items) ? (
-                                value.items.map((item, index) => (
-                                    <div key={index} style={{ marginBottom: '10px' }}>
-                                        <Typography variant="body2">Item {index + 1}</Typography>
-                                        <ReadOnlySchemaEditor
-                                            schema={item}
-                                            schemaName={`${key}[${index}]`}
-                                        />
-                                    </div>
-                                ))
-                            ) : (
-                                <ReadOnlySchemaEditor
-                                    schema={value.items}
-                                    schemaName={`Items`}
-                                    variant="h4"
+                        {value.type === 'object' && value.properties && (
+                            <div style={{ marginLeft: '35px', marginTop: 5 }}>
+                                <SchemaProperties
+                                    isRootElement={false}
+                                    properties={value.properties}
+                                    onUpdate={(updatedProperties) => handlePropertyChange(key, key, { ...value, properties: updatedProperties })}
                                 />
-                            )}
-                        </div>
-                    )}
-                </div>
-            ))}
-        </PropertyWrapper>
+                            </div>
+                        )}
+                        {value.type === 'array' && value.items && (
+                            <div style={{ marginLeft: '35px', marginTop: 3 }}>
+                                {Array.isArray(value.items) ? (
+                                    value.items.map((item, index) => (
+                                        <div key={index} style={{ marginBottom: '10px' }}>
+                                            <Typography variant="body2">Item {index + 1}</Typography>
+                                            <ReadOnlySchemaEditor
+                                                schema={item}
+                                                schemaName={`${key}[${index}]`}
+                                            />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <ReadOnlySchemaEditor
+                                        schema={value.items}
+                                        schemaName={`Items`}
+                                        variant="h4"
+                                    />
+                                )}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </Properties>
+        </PropertyContainer>
     );
 };
 
@@ -177,7 +209,7 @@ export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaE
                 {schema.type && <Typography variant={variant} sx={{ margin: "0 0 0 10px", fontWeight: "lighter" }}>{`<${schema.type}>`}</Typography>}
             </div>
             {schema.type === 'object' && schema.properties && (
-                <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} />
+                <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} isRootElement />
             )}
             {schema.type === 'array' && schema.items && (
                 <div style={{ marginLeft: '20px' }}>
