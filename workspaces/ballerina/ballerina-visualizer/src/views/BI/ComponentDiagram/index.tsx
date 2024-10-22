@@ -8,12 +8,7 @@
  */
 
 import React from "react";
-import {
-    DIRECTORY_MAP,
-    EVENT_TYPE,
-    MACHINE_VIEW,
-    ProjectStructureResponse,
-} from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
@@ -73,7 +68,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connection.name,
-            }
+            },
         });
     };
 
@@ -84,8 +79,6 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             </SpinnerContainer>
         );
     }
-
-    console.log(">>> project structure", { projectStructure });
 
     const project: Project = {
         name: projectName,
@@ -120,10 +113,15 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         const isScheduleTask =
             (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(2)?.valueExpr?.literalToken
                 ?.value === '"SCHEDULED"';
+        let taskName = (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(0)?.valueExpr
+            ?.literalToken?.value;
+        if (taskName) {
+            taskName = taskName.replace(/['"]/g, "");
+        }
 
         project.entryPoints.push({
             id: task.name,
-            name: task.name,
+            name: taskName || task.name,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,

@@ -42,6 +42,7 @@ import {
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
     convertToFnSignature,
+    convertToVisibleTypes,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -84,6 +85,12 @@ const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
     }
 `;
 
+const SubTitle = styled.div`
+    font-size: 14px;
+    font-weight: 600;
+    color: ${Colors.ON_SURFACE};
+`;
+
 export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
@@ -107,6 +114,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const [types, setTypes] = useState<CompletionItem[]>([]);
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
@@ -497,6 +506,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
+    const handleOnAddFunction = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIFunctionForm,
+            },
+        });
+    };
+
     const handleOnGoToSource = (node: FlowNode) => {
         const targetPosition: NodePosition = {
             startLine: node.codedata.lineRange.startLine.line,
@@ -660,6 +678,33 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
+    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
+        let visibleTypes: CompletionItem[] = types;
+        if (!types.length) {
+            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                filePath: model.fileName,
+                position: targetRef.current.startLine,
+            });
+
+            visibleTypes = convertToVisibleTypes(response.types);
+            setTypes(visibleTypes);
+        }
+
+        const effectiveText = value.slice(0, cursorPosition);
+        const filteredTypes = visibleTypes.filter((type) => {
+            const lowerCaseText = effectiveText.toLowerCase();
+            const lowerCaseLabel = type.label.toLowerCase();
+
+            return lowerCaseLabel.includes(lowerCaseText);
+        });
+
+        setFilteredTypes(filteredTypes);
+    }, 250);
+
+    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
+        await debouncedGetVisibleTypes(value, cursorPosition);
+    };
+
     const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
             filePath: model.fileName,
@@ -682,6 +727,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
+        setFilteredTypes([]);
+        setTypes([]);
     };
 
     const handleCompletionSelect = async () => {
@@ -697,21 +744,27 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const flowModel = originalFlowModel.current && suggestedModel ? suggestedModel : model;
 
     const isResource = STKindChecker.isResourceAccessorDefinition(props.syntaxTree);
-    const DiagramTitle = (
-        <React.Fragment>
-            <span>{isResource ? "Resource" : "Function"}:</span>
+    const ResourceDiagramTitle = (
+        <>
+            <span>{"Resource"}:</span>
             <ColoredTag color={getColorByMethod(method)}>{method}</ColoredTag>
-            <span>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</span>
-        </React.Fragment>
+            <SubTitle>{getResourcePath(syntaxTree as ResourceAccessorDefinition)}</SubTitle>
+        </>
+    );
+    const FunctionDiagramTitle = (
+        <>
+            <span>{"Function"}:</span>
+            <SubTitle>{method}</SubTitle>
+        </>
     );
 
     return (
         <>
             <View>
                 <ViewHeader
-                    title={DiagramTitle}
+                    title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
                     codicon={isResource ? "globe" : "terminal"} // TODO: fix this with component diagram icons
-                    onEdit={handleOnFormBack}
+                    // onEdit={handleOnFormBack}
                 ></ViewHeader>
                 {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
@@ -769,6 +822,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         categories={categories}
                         onSelect={handleOnSelectNode}
                         onSearchTextChange={handleSearchFunction}
+                        onAddFunction={handleOnAddFunction}
                         onClose={handleOnCloseSidePanel}
                         title={"Functions"}
                         onBack={handleOnFormBack}
@@ -788,9 +842,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         isActiveSubPanel={showSubPanel}
                         openSubPanel={handleSubPanel}
                         expressionEditor={{
-                            completions: filteredCompletions,
+                            completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
                             triggerCharacters: TRIGGER_CHARACTERS,
                             retrieveCompletions: handleGetCompletions,
+                            retrieveVisibleTypes: handleGetVisibleTypes,
                             extractArgsFromFunction: extractArgsFromFunction,
                             onCompletionSelect: handleCompletionSelect,
                             onCancel: handleExpressionEditorCancel,

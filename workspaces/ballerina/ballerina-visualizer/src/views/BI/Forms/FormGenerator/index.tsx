@@ -43,6 +43,7 @@ interface FormProps {
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
+        retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
         extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
@@ -181,7 +182,15 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm fileName={fileName} node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+        return <IfForm
+            fileName={fileName}
+            node={node}
+            targetLineRange={targetLineRange}
+            onSubmit={onSubmit}
+            openSubPanel={openSubPanel}
+            updatedExpressionField={updatedExpressionField}
+            resetUpdatedExpressionField={resetUpdatedExpressionField}
+        />;
     }
 
     // default form

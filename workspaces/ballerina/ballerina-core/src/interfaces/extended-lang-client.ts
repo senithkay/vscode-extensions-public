@@ -663,6 +663,15 @@ export interface SignatureHelpResponse {
     activeParameter: number;
 }
 
+export interface VisibleTypesRequest {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface VisibleTypesResponse {
+    types: string[];
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -686,6 +695,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
+    getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
