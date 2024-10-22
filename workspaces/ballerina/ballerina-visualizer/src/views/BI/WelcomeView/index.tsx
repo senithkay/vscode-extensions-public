@@ -105,7 +105,7 @@ export function WelcomeView() {
         <>
             <Wrapper>
                 <TitlePanel>
-                    <Headline>Ballerina Integrator for VS Code</Headline>
+                    <Headline>Kola Integrator for VS Code</Headline>
                     <span>
                         A comprehensive integration solution that simplifies your digital transformation journey.
                         Streamlines connectivity among applications, services, data, and cloud using a user-friendly
@@ -117,17 +117,17 @@ export function WelcomeView() {
                         <Tab>
                             <SubTitle>Getting started</SubTitle>
                             <span>
-                                Learn about the BI Extension in our{" "}
+                                Learn about the Kola Extension in our{" "}
                                 <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.
                             </span>
                         </Tab>
                         <Tab>
-                            <SubTitle>Create New Project</SubTitle>
+                            <SubTitle>Create New Integration</SubTitle>
                             <span>Create a new project by clicking the button below.</span>
                             <AddButton appearance="primary" onClick={() => goToCreateProject()}>
                                 <ButtonContent>
                                     <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                    <TextWrapper>Create New Project</TextWrapper>
+                                    <TextWrapper>Create New Integration</TextWrapper>
                                 </ButtonContent>
                             </AddButton>
                         </Tab>

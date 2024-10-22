@@ -64,9 +64,9 @@ export async function isLoggedin(): Promise<boolean> {
 
 export async function handleLogin() : Promise<void> {
     const quickPicks: QuickPickItem[] = [];
-    quickPicks.push({ label: "Ballerina: Copilot Login", description: "Register/Login to Ballerina Copilot"});
+    quickPicks.push({ label: "WSO2: Copilot Login", description: "Register/Login to WSO2 Copilot"});
 
-    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access Ballerina Copilot features. Please login and retry." };
+    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access WSO2 Copilot features. Please login and retry." };
     const selected = await window.showQuickPick(quickPicks, options);
     if (selected) {
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);

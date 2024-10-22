@@ -47,7 +47,7 @@ import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
-export const EXTENSION_ID = 'wso2.ballerina';
+export const EXTENSION_ID = 'wso2.kolab';
 const PREV_EXTENSION_ID = 'ballerina.ballerina';
 export enum LANGUAGE {
     BALLERINA = 'ballerina',
@@ -108,7 +108,7 @@ export interface WebviewContext {
     type?: WEBVIEW_TYPE;
 }
 
-const showMessageInstallBallerinaCommand = 'ballerina.showMessageInstallBallerina';
+const showMessageInstallBallerinaCommand = 'kolab.showMessageInstallBallerina';
 const SDK_PREFIX = 'Ballerina ';
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
@@ -185,7 +185,7 @@ export class BallerinaExtension {
             this.showUninstallOldVersion();
         }
         // Register show logs command.
-        const showLogs = commands.registerCommand('ballerina.showLogs', () => {
+        const showLogs = commands.registerCommand('kolab.showLogs', () => {
             outputChannel.show();
         });
         this.context!.subscriptions.push(showLogs);
@@ -249,7 +249,7 @@ export class BallerinaExtension {
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
-                commands.registerCommand('ballerina.stopLangServer', () => {
+                commands.registerCommand('kolab.stopLangServer', () => {
                     this.langClient.stop();
                 });
 
@@ -279,7 +279,7 @@ export class BallerinaExtension {
     showStatusBarItem() {
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Right, 100);
         this.updateStatusBar("Detecting");
-        this.sdkVersion.command = "ballerina.showLogs";
+        this.sdkVersion.command = "kolab.showLogs";
         this.sdkVersion.show();
 
         window.onDidChangeActiveTextEditor((editor) => {

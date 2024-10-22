@@ -39,7 +39,7 @@ import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils
 import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
 import { StateMachine } from '../../stateMachine';
 
-const BALLERINA_COMMAND = "ballerina.command";
+const BALLERINA_COMMAND = "kolab.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
 const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
