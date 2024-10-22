@@ -1,15 +1,14 @@
 {
     "name": "kolab",
     "displayName": "KolaB",
-    "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "1.0.0",
+    "description": "KolaB Extension for Kola.",
+    "version": "0.0.1",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
         "url": "https://github.com/wso2/ballerina-plugin-vscode/issues"
     },
     "qna": "https://discord.com/invite/ballerinalang",
-    "icon": "resources/images/kolab.png",
     "galleryBanner": {
         "color": "#e7eaeb",
         "theme": "light"
@@ -908,7 +907,7 @@
         "test-coverage": "cross-env COVER_CONFIG=html pnpm run test",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
-        "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; fi",
+        "package": "vsce package --no-dependencies --pre-release",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "copyVSIX": "copyfiles *.vsix ./vsix",
         "copyVSIXToRoot": "copyfiles -f ./vsix/*.vsix ../../..",
