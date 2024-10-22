@@ -204,7 +204,7 @@ export function ComponentDiagramV2(props: ComponentDiagramProps) {
         }, rpcClient);
 
         if (!response.ok) {
-            if (response.status >= 400 && response.status < 500) {
+            if (response.status > 400 && response.status < 500) {
                 await rpcClient.getAiPanelRpcClient().promptLogin();
                 setIsLoading(false);
                 return;
