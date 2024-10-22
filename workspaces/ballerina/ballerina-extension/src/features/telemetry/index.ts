@@ -50,7 +50,7 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
     : { [key: string]: string; } {
     return {
         ...params,
-        'ballerina.version': extension ? extension.ballerinaVersion : '',
+        'kolab.version': extension ? extension.ballerinaVersion : '',
         'scope': component,
         'idpId': process.env.VSCODE_CHOREO_USER_IDP_ID ? process.env.VSCODE_CHOREO_USER_IDP_ID : '',
         'isWSO2User': isWSO2User ? 'true' : 'false',
@@ -65,7 +65,7 @@ export function getTelemetryProperties(extension: BallerinaExtension, component:
 
 export function getMessageObject(message?: string): { [key: string]: string; } {
     if (message) {
-        return { 'ballerina.message': message };
+        return { 'kolab.message': message };
     }
     return {};
 }

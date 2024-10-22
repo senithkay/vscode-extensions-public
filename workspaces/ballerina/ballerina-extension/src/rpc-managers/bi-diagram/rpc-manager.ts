@@ -683,7 +683,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     openAIChat(params: AIChatRequest): void {
-        commands.executeCommand("ballerina.open.ai.panel");
+        commands.executeCommand("kolab.open.ai.panel");
     }
 
     async getModuleNodes(): Promise<BIModuleNodesResponse> {
