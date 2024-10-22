@@ -9,7 +9,7 @@
 
 import { commands, Uri, TextDocument, workspace, Position } from "vscode";
 
-const ACTION_POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
+const ACTION_POSITIONAL_RENAME_COMMAND = "kolab.action.positional.rename";
 
 function activateRenameCommand() {
    // Register ballerina rename command that uses line/character based position to rename

@@ -9,14 +9,16 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, FlowNode, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, LinePosition, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { Colors } from "../../../../resources/constants";
+import { InlineDataMapper } from "../../../InlineDataMapper";
+import { HelperView } from "../../HelperView";
 
 const Container = styled.div`
     width: 100%;
@@ -31,16 +33,20 @@ const SpinnerContainer = styled.div`
 `;
 
 interface EditConnectionWizardProps {
+    fileName: string; // file path of `connection.bal`
     connectionName: string;
     onClose?: () => void;
 }
 
 export function EditConnectionWizard(props: EditConnectionWizardProps) {
-    const { connectionName, onClose } = props;
+    const { fileName, connectionName, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
     const [connection, setConnection] = useState<FlowNode>();
+    const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
+    const [showSubPanel, setShowSubPanel] = useState(false);
+    const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
 
     useEffect(() => {
         rpcClient
@@ -79,13 +85,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             }
             console.log(">>> Updated node", updatedNode);
 
-            // get connections.bal file path
-            const visualizerLocation = await rpcClient.getVisualizerLocation();
-            let connectionsFilePath = "";
-            if (visualizerLocation.projectUri) {
-                connectionsFilePath = visualizerLocation.projectUri + "/connections.bal";
-            }
-            if (connectionsFilePath === "") {
+            if (fileName === "") {
                 console.error(">>> Error updating source code. No connections.bal file found");
                 return;
             }
@@ -93,7 +93,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             rpcClient
                 .getBIDiagramRpcClient()
                 .getSourceCode({
-                    filePath: connectionsFilePath,
+                    filePath: fileName,
                     flowNode: updatedNode,
                     isConnector: true,
                 })
@@ -124,6 +124,43 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
         });
     };
 
+    const handleSubPanel = (subPanel: SubPanel) => {
+        setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
+        setSubPanel(subPanel);
+    };
+
+    const updateExpressionField = (data: ExpressionFormField) => {
+        setUpdatedExpressionField(data);
+    };
+
+    const findSubPanelComponent = (subPanel: SubPanel) => {
+        switch (subPanel.view) {
+            case SubPanelView.INLINE_DATA_MAPPER:
+                return (
+                    <InlineDataMapper
+                        filePath={subPanel.props?.inlineDataMapper?.filePath}
+                        range={subPanel.props?.inlineDataMapper?.range}
+                    />
+                );
+            case SubPanelView.HELPER_PANEL:
+                return (
+                    <HelperView
+                        filePath={subPanel.props.sidePanelData.filePath}
+                        position={subPanel.props.sidePanelData.range}
+                        updateFormField={updateExpressionField}
+                        editorKey={subPanel.props.sidePanelData.editorKey}
+                        onClosePanel={handleSubPanel}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    const handleResetUpdatedExpressionField = () => {
+        setUpdatedExpressionField(undefined);
+    };
+
     return (
         <Container>
             {!connection && (
@@ -132,7 +169,26 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 </SpinnerContainer>
             )}
             {connection && (
-                <ConnectionConfigView name={connection.codedata.module} fields={fields} onSubmit={handleOnFormSubmit} />
+                <PanelContainer
+                    show={true}
+                    title={`Configure ${connection.codedata.module} Connector`}
+                    onClose={onClose}
+                    width={600}
+                    onBack={onClose}
+                    subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
+                    subPanel={findSubPanelComponent(subPanel)}
+                >
+                    <ConnectionConfigView
+                        fileName={fileName}
+                        fields={fields}
+                        onSubmit={handleOnFormSubmit}
+                        updatedExpressionField={updatedExpressionField}
+                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                        openSubPanel={handleSubPanel}
+                        isActiveSubPanel={showSubPanel}
+
+                    />
+                </PanelContainer>
             )}
         </Container>
     );

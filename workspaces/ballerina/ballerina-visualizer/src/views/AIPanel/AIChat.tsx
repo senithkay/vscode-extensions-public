@@ -538,7 +538,7 @@ export function AIChat() {
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to BI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
+                    <h3>Welcome to WSO2 Copilot <PreviewContainer>Preview</PreviewContainer></h3>
                     <p>
                         What do you want to integrate today?
                     </p>
@@ -798,7 +798,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
                                 e.stopPropagation();
                                 handleAddSelectiveCodetoWorkspace(segmentText, fileName);
                             }}>
-                            <Codicon name="add" />&nbsp;&nbsp;Add to Project
+                            <Codicon name="add" />&nbsp;&nbsp;Add to Integration
                         </Button>
                     }
                     {/* {!loading && !isReady &&language === 'ballerina' &&
