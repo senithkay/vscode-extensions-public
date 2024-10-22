@@ -12,7 +12,7 @@ import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import { EVENT_TYPE, AIVisualizerLocation, AIMachineStateValue, AI_EVENT_TYPE, AIUserTokens } from '@wso2-enterprise/ballerina-core';
 import { AiPanelWebview } from './webview';
-import { getAuthUrl } from './auth';
+import { getAuthUrl, getLogoutUrl } from './auth';
 import { extension } from '../../BalExtensionContext';
 import fetch from 'node-fetch';
 import { log } from '../../utils/logger';
@@ -80,21 +80,29 @@ const aiStateMachine = createMachine<AiMachineContext>({
             }
         },
         loggedOut: {
-            invoke: {
-                src: 'removeToken'
-            },
             on: {
                 LOGIN: {
                     target: "WaitingForLogin",
                 }
             }
         },
+        removeToken: {
+            invoke: {
+                src: 'removeToken',
+                onDone: {
+                    target: "loggedOut"
+                }
+            }
+        },
         Ready: {
             on: {
-                LOGOUT: "loggedOut",
+                LOGOUT: "removeToken",
                 EXECUTE: "Executing",
                 CLEAR: {
                     target: "Ready",
+                },
+                LOGIN: {
+                    target: "WaitingForLogin",
                 }
             }
         },
@@ -138,6 +146,8 @@ const aiStateMachine = createMachine<AiMachineContext>({
         checkToken: checkToken,
         openLogin: openLogin,
         removeToken: async (context, event) => {
+            const logoutURL = await getLogoutUrl();
+            vscode.env.openExternal(vscode.Uri.parse(logoutURL));
             await extension.context.secrets.delete('BallerinaAIUser');
             await extension.context.secrets.delete('BallerinaAIRefreshToken');
         },

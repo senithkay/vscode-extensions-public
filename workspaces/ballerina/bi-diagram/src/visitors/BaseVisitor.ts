@@ -15,8 +15,8 @@ export interface BaseVisitor {
     beginVisitNode?(node: FlowNode, parent?: FlowNode): void;
     endVisitNode?(node: FlowNode, parent?: FlowNode): void;
 
-    beginVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
-    endVisitEventHttpApi?(node: FlowNode, parent?: FlowNode): void;
+    beginVisitEventStart?(node: FlowNode, parent?: FlowNode): void;
+    endVisitEventStart?(node: FlowNode, parent?: FlowNode): void;
 
     beginVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
     endVisitErrorHandler?(node: FlowNode, parent?: FlowNode): void;
@@ -27,11 +27,18 @@ export interface BaseVisitor {
     beginVisitConditional?(node: Branch, parent?: FlowNode): void;
     endVisitConditional?(node: Branch, parent?: FlowNode): void;
 
+    // `Body` is inside `Foreach` node 
+    beginVisitBody?(node: Branch, parent?: FlowNode): void;
+    endVisitBody?(node: Branch, parent?: FlowNode): void;
+
     beginVisitElse?(node: Branch, parent?: FlowNode): void;
     endVisitElse?(node: Branch, parent?: FlowNode): void;
 
     beginVisitWhile?(node: FlowNode, parent?: FlowNode): void;
     endVisitWhile?(node: FlowNode, parent?: FlowNode): void;
+
+    beginVisitForeach?(node: FlowNode, parent?: FlowNode): void;
+    endVisitForeach?(node: FlowNode, parent?: FlowNode): void;
     
     beginVisitBlock?(node: Branch, parent?: FlowNode): void;
     endVisitBlock?(node: Branch, parent?: FlowNode): void;

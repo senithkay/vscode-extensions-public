@@ -14,3 +14,5 @@ export { AddComponentView } from "./ComponentView";
 export { ServiceForm } from "./ServiceForm";
 export { ComponentDiagram } from "./ComponentDiagram";
 export { PopupMessage } from "./PopupMessage";
+export { MainForm } from "./AutomationForm";
+export { FunctionForm } from "./FunctionForm";

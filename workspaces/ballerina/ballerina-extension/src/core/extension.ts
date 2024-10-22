@@ -30,9 +30,7 @@ import {
     ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
     ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
     ENABLE_LIVE_RELOAD,
-    ENABLE_FULL_PROJECT_SCAFFOLDING,
     ENABLE_AI_SUGGESTIONS,
-    FLOW_NODE_STYLE,
     ENABLE_SEQUENCE_DIAGRAM_VIEW
 }
     from "./preferences";
@@ -55,7 +53,7 @@ import path from 'path';
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
-export const EXTENSION_ID = 'wso2.ballerina';
+export const EXTENSION_ID = 'wso2.kolab';
 const PREV_EXTENSION_ID = 'ballerina.ballerina';
 export enum LANGUAGE {
     BALLERINA = 'ballerina',
@@ -116,7 +114,7 @@ export interface WebviewContext {
     type?: WEBVIEW_TYPE;
 }
 
-const showMessageInstallBallerinaCommand = 'ballerina.showMessageInstallBallerina';
+const showMessageInstallBallerinaCommand = 'kolab.showMessageInstallBallerina';
 const SDK_PREFIX = 'Ballerina ';
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
@@ -206,7 +204,7 @@ export class BallerinaExtension {
             this.showUninstallOldVersion();
         }
         // Register show logs command.
-        const showLogs = commands.registerCommand('ballerina.showLogs', () => {
+        const showLogs = commands.registerCommand('kolab.showLogs', () => {
             outputChannel.show();
         });
         this.context!.subscriptions.push(showLogs);
@@ -282,7 +280,7 @@ export class BallerinaExtension {
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
-                commands.registerCommand('ballerina.stopLangServer', () => {
+                commands.registerCommand('kolab.stopLangServer', () => {
                     this.langClient.stop();
                 });
 
@@ -574,7 +572,7 @@ export class BallerinaExtension {
     showStatusBarItem() {
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Right, 100);
         this.updateStatusBar("Detecting");
-        this.sdkVersion.command = "ballerina.showLogs";
+        this.sdkVersion.command = "kolab.showLogs";
         this.sdkVersion.show();
 
         window.onDidChangeActiveTextEditor((editor) => {
@@ -928,16 +926,8 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_SEQUENCE_DIAGRAM_VIEW);
     }
 
-    public biOverviewV2(): boolean {
-        return <boolean>workspace.getConfiguration().get(ENABLE_FULL_PROJECT_SCAFFOLDING);
-    }
-
     public enableAiSuggestions(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_AI_SUGGESTIONS);
-    }
-
-    public flowNodeStyle(): string {
-        return <string>workspace.getConfiguration().get(FLOW_NODE_STYLE);
     }
 
     public getDocumentContext(): DocumentContext {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
@@ -22,7 +22,7 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, TIcon, XIcon } from "../../../resources";
+import { MoreVertIcon, XIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
@@ -165,11 +165,16 @@ export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode, flowNodeStyle } = useDiagramContext();
+    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode } = useDiagramContext();
 
-    const [isHovered, setIsHovered] = useState(false);
+    const [isBoxHovered, setIsBoxHovered] = useState(false);
+    const [isCircleHovered, setIsCircleHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+
+    useEffect(() => {
+        model.setAroundLinksDisabled(model.node.suggested);
+    }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
@@ -182,6 +187,11 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const onNodeClick = () => {
         onClick && onClick(model.node);
         onNodeSelect && onNodeSelect(model.node);
+        setAnchorEl(null);
+    };
+
+    const onConnectionClick = () => {
+        onConnectionSelect && onConnectionSelect(model.node.properties?.connection?.value as string);
         setAnchorEl(null);
     };
 
@@ -214,38 +224,23 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const showReturnType = flowNodeStyle === "default";
 
     return (
-        <NodeStyles.Node onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-            <NodeStyles.Box disabled={disabled} hovered={isHovered}>
+        <NodeStyles.Node>
+            <NodeStyles.Box
+                disabled={disabled}
+                hovered={isBoxHovered}
+                onMouseEnter={() => setIsBoxHovered(true)}
+                onMouseLeave={() => setIsBoxHovered(false)}
+            >
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
                     <NodeStyles.Icon onClick={handleOnClick}>
                         <NodeIcon type={model.node.codedata.node} />
                     </NodeStyles.Icon>
                     <NodeStyles.Header onClick={handleOnClick}>
-                        <NodeStyles.Title>
-                            {model.node.codedata.module} : {model.node.metadata.label}
-                        </NodeStyles.Title>
-                        {/* <NodeStyles.Description>{model.node.metadata.description}</NodeStyles.Description> */}
+                        <NodeStyles.Title>{model.node.metadata.label}</NodeStyles.Title>
                         <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
-                        {showReturnType && (
-                            <NodeStyles.Footer>
-                                {/* {model.node.properties.variable?.value && (
-                                    <NodeStyles.Pill color={Colors.PURPLE}>
-                                        <XIcon />
-                                        {model.node.properties.variable.value}
-                                    </NodeStyles.Pill>
-                                )} */}
-                                {/* {model.node.properties.type?.value && (
-                                <NodeStyles.Pill color={Colors.GREEN}>
-                                    <TIcon />
-                                    {model.node.properties.type.value}
-                                </NodeStyles.Pill>
-                            )} */}
-                            </NodeStyles.Footer>
-                        )}
                     </NodeStyles.Header>
                     <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />
@@ -273,15 +268,18 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 width={NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT}
                 height={NODE_HEIGHT + LABEL_HEIGHT}
                 viewBox="0 0 130 70"
+                onClick={onConnectionClick}
+                onMouseEnter={() => setIsCircleHovered(true)}
+                onMouseLeave={() => setIsCircleHovered(false)}
             >
                 <circle
                     cx="80"
                     cy="24"
                     r="22"
                     fill={Colors.SURFACE_DIM}
-                    stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                    stroke={isCircleHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
                     strokeWidth={1.5}
-                    strokeDasharray={disabled ? "4 2" : "none"}
+                    strokeDasharray={disabled ? "5 5" : "none"}
                     opacity={disabled ? 0.7 : 1}
                 />
                 <text
@@ -292,8 +290,8 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     fontSize="14px"
                     fontFamily="GilmerRegular"
                 >
-                    {model.node.properties.connection.value?.length > 16
-                        ? `${model.node.properties.connection.value.slice(0, 16)}...`
+                    {(model.node.properties.connection.value as string)?.length > 16
+                        ? `${(model.node.properties.connection.value as string).slice(0, 16)}...`
                         : model.node.properties.connection.value}
                 </text>
                 <foreignObject x="68" y="12" width="44" height="44" fill={Colors.ON_SURFACE}>
@@ -305,7 +303,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     x2="57"
                     y2="25"
                     style={{
-                        stroke: disabled ? Colors.ON_SURFACE : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
+                        stroke: disabled ? Colors.ON_SURFACE : isBoxHovered ? Colors.PRIMARY : Colors.ON_SURFACE,
                         strokeWidth: 1.5,
                         markerEnd: `url(#${model.node.id}-arrow-head)`,
                     }}
@@ -322,7 +320,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     >
                         <polygon
                             points="0,4 0,0 4,2"
-                            fill={disabled ? Colors.ON_SURFACE : isHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
+                            fill={disabled ? Colors.ON_SURFACE : isBoxHovered ? Colors.PRIMARY : Colors.ON_SURFACE}
                         ></polygon>
                     </marker>
                 </defs>

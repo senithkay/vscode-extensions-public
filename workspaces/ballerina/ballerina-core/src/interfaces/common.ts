@@ -19,6 +19,12 @@ export declare enum BallerinaComponentTypes {
     WEBSOCKET_API = "websocketAPI"
 }
 
+export enum SubPanelView {
+    INLINE_DATA_MAPPER = "inlineDataMapper",
+    HELPER_PANEL = "helperPanel",
+    UNDEFINED = "undefined",
+}
+
 export interface DocumentIdentifier {
     uri: string;
 }
@@ -49,4 +55,25 @@ export interface NOT_SUPPORTED_TYPE {
 export interface FunctionDef {
     syntaxTree: STNode;
     defFilePath: string;
+}
+
+export interface SubPanel {
+    view: SubPanelView;
+    props?: SubPanelViewProps;
+}
+
+export interface SubPanelViewProps {
+    inlineDataMapper?: InlineDataMapperProps;
+    sidePanelData?: SidePanelData;
+}
+
+export interface SidePanelData {
+    filePath: string;
+    range: LineRange;
+    editorKey: string;
+}
+
+interface InlineDataMapperProps {
+    filePath: string;
+    range: Range;
 }

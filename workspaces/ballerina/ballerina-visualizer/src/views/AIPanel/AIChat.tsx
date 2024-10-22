@@ -31,6 +31,7 @@ import {
     dracula,
     materialOceanic,
 } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { handleFileAttach } from "../../utils/fileAttach";
 
 
 
@@ -157,8 +158,9 @@ export function AIChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
-    const [uploadedFile, setUploadedFile] = useState({ fileName: '', fileContent: '' });
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
+    const [files, setFiles] = useState([]);
+
 
     async function fetchBackendUrl() {
         try {
@@ -286,38 +288,44 @@ export function AIChat() {
         }
 
         const token = await rpcClient.getAiPanelRpcClient().getAccessToken();
-        async function fetchWithToken(url: string, options: RequestInit) {
-            let response = await fetch(url, options);
-            if (response.status === 401) {
-                console.log("Token expired. Refreshing token...");
-                // await rpcClient.getAiPanelRpcClient().refreshAccessToken();
-                const newToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
-                console.log("refreshed token : " + newToken);
-                if (newToken) {
-                    options.headers = {
-                        ...options.headers,
-                        'Authorization': `Bearer ${newToken}`,
-                    };
-                    response = await fetch(url, options);
-                }
-            }
-            return response;
+        const stringifiedUploadedFiles = files.map(file => JSON.stringify(file));
+        console.log("Filesss");
+        console.log(stringifiedUploadedFiles);
+        if (!token) {
+            await rpcClient.getAiPanelRpcClient().promptLogin();
+            setIsLoading(false);
+            return;
+        }
+        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
+        const requestBody: any = { 
+            "usecase": userInput, 
+            "chatHistory": chatArray, 
+            "sourceFiles": project.sourceFiles 
+        };
+
+        if (files.length > 0) {
+            requestBody.fileAttachmentContents = stringifiedUploadedFiles.toString();
         }
 
-        const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const response = await fetchWithToken(backendRootUri + "/code", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray, sourceFiles: project.sourceFiles }),
+            body: JSON.stringify(requestBody),
             signal: signal,
-        });
+        }, rpcClient);
 
         let functions : any;
 
         if (!response.ok) {
+            if (response.status > 400 && response.status < 500) {
+                await rpcClient.getAiPanelRpcClient().promptLogin();
+                setIsLoading(false);
+                return;
+            }
+
             setIsLoading(false);
             setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
@@ -400,7 +408,7 @@ export function AIChat() {
                         },
                         body: JSON.stringify({ "usecase": userInput, "chatHistory": chatArray, "sourceFiles": project.sourceFiles, diagnosticRequest: diagReq, functions: functions }),
                         signal: signal,
-                    });
+                    }, rpcClient);
                     if (!response.ok) {
                         console.log("errr");
                     } else {
@@ -434,6 +442,7 @@ export function AIChat() {
                 throw new Error('Streaming error');
             }
         }
+        removeAllFiles();
         addChatEntry("user", userInput);
         addChatEntry("assistant", assistant_response);
     }
@@ -488,28 +497,15 @@ export function AIChat() {
         }
     };
 
-    const handleFileAttach = (e: any) => {
-        const file = e.target.files[0];
-        const validTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
-
-        if (file && validTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const fileContents = event.target.result;
-                setUploadedFile({ fileName: file.name, fileContent: fileContents });
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        } else {
-            setFileUploadStatus({ type: 'error', text: 'Please select a valid XML, JSON, YAML, or text file.' });
-        }
+    const handleRemoveFile = (index: number) => {
+        setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
     };
 
-    const handleRemoveFile = () => {
-        setUploadedFile({ fileName: '', fileContent: '' });
+    const removeAllFiles = () => {
+        setFiles([]);
         setFileUploadStatus({ type: '', text: '' });
-    };
+    }
+
 
     return (
         <AIChatView>
@@ -520,14 +516,6 @@ export function AIChat() {
                     <ResetsInBadge>
                         {`Resets in: 30 days`}
                     </ResetsInBadge>
-                    <Button
-                        appearance="icon"
-                        onClick={() => handleClearChat()}
-                        tooltip="Clear Chat"
-                        disabled={isLoading}
-                    >
-                        <Codicon name="clear-all" />&nbsp;&nbsp;Clear
-                    </Button>
                 </Badge>
                 <HeaderButtons>
                     <Button
@@ -550,7 +538,7 @@ export function AIChat() {
             </Header>
             <main style={{ flex: 1, overflowY: "auto" }}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to BI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
+                    <h3>Welcome to WSO2 Copilot <PreviewContainer>Preview</PreviewContainer></h3>
                     <p>
                         What do you want to integrate today?
                     </p>
@@ -626,18 +614,31 @@ export function AIChat() {
                     </div>
                 </>
                 ))}
-                {uploadedFile && uploadedFile.fileName && (
-                    <FlexRow style={{ alignItems: 'center' }}>
-                        <span>{uploadedFile.fileName}</span>
+                {files.map((file, index) => (
+                    <FlexRow style={{ alignItems: 'center' }} key={index}>
+                        <span>{file.fileName}</span>
                         <Button
                             appearance="icon"
-                            onClick={handleRemoveFile}
+                            onClick={() => handleRemoveFile(index)}
                         >
-                            <span className="codicon codicon-close"></span>
+                            <Codicon name="close"/>
                         </Button>
                     </FlexRow>
-                )}
+                ))}
                 <FlexRow>
+                    <VSCodeButton
+                        appearance="secondary"
+                        onClick={() => document.getElementById('fileInput').click()}
+                        style={{ width: "35px", marginBottom: "4px" }}>
+                        <Codicon name="new-file"/>
+                    </VSCodeButton>
+                    <input
+                        id="fileInput"
+                        type="file"
+                        style={{ display: "none" }}
+                        multiple
+                        onChange={(e: any) => handleFileAttach(e, setFiles, setFileUploadStatus)}
+                    />
                     <VSCodeTextArea
                         value={userInput}
                         onInput={(e: any) => {
@@ -662,8 +663,8 @@ export function AIChat() {
                         <span className={`codicon ${isLoading ? 'codicon-debug-stop' : 'codicon-send'}`}></span>
                     </VSCodeButton>
                 </FlexRow>
-                {fileUploadStatus.text && (
-                    <div style={{ color: fileUploadStatus.type === 'error' ? 'red' : 'green' }}>
+                {fileUploadStatus.type === 'error' && (
+                    <div style={{ color: 'red' }}>
                         {fileUploadStatus.text}
                     </div>
                 )}
@@ -797,7 +798,7 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
                                 e.stopPropagation();
                                 handleAddSelectiveCodetoWorkspace(segmentText, fileName);
                             }}>
-                            <Codicon name="add" />&nbsp;&nbsp;Add to Project
+                            <Codicon name="add" />&nbsp;&nbsp;Add to Integration
                         </Button>
                     }
                     {/* {!loading && !isReady &&language === 'ballerina' &&
@@ -817,6 +818,23 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
     );
 };
 
+export async function fetchWithToken(url: string, options: RequestInit, rpcClient: any) {
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await rpcClient.getAiPanelRpcClient().getRefreshToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
+}
 
 // Define the different event body types
 interface ContentBlockDeltaBody {

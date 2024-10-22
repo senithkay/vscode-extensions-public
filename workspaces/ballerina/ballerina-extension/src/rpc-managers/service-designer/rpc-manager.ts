@@ -32,9 +32,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             const res: ProjectStructureResponse = await buildProjectStructure(context.projectUri, context.langClient);
-            res.directoryMap[DIRECTORY_MAP.SCHEMAS].forEach(schema => {
-                if (schema.name === params.recordName) {
-                    resolve({ recordST: schema.st as TypeDefinition });
+            res.directoryMap[DIRECTORY_MAP.TYPES].forEach(type => {
+                if (type.name === params.recordName) {
+                    resolve({ recordST: type.st as TypeDefinition });
                 }
             });
             resolve(null);

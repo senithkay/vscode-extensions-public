@@ -8,8 +8,8 @@
  */
 
 import React from "react";
-import styled from "@emotion/styled";
 import { css, Global } from "@emotion/react";
+import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
 import '../resources/assets/font/fonts.css';
 
@@ -51,7 +51,7 @@ export function DiagramCanvas(props: DiagramCanvasProps) {
     return (
         <>
             <Global styles={DiagramStyles.Expand} />
-            <DiagramStyles.Container background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
+            <DiagramStyles.Container id="bi-diagram-canvas" background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
                 {children}
             </DiagramStyles.Container>
         </>

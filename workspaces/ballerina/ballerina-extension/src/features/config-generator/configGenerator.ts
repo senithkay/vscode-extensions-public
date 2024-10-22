@@ -10,20 +10,21 @@
 import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
-import { BallerinaExtension } from "../../core";
+import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchema } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
-export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean): Promise<void> {
+export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean,isBi?: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
 
     if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
-        const currentProject: BallerinaProject | undefined = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
+        const currentProject: BallerinaProject | undefined = isBi ? await getCurrentBIProject(configFile)
+        : await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
 
         if (!currentProject) {
             return;
@@ -33,7 +34,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
         if (!isCommand && currentProject.kind === 'SINGLE_FILE_PROJECT') {
             // TODO: How to pass config values to single files
-            executeRunCommand(ballerinaExtInstance);
+            executeRunCommand(ballerinaExtInstance, configFile, isBi);
             return;
         }
 
@@ -56,7 +57,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
             const configSchema = data.configSchema;
             if (!isCommand && Object.keys(configSchema.properties).length === 0) {
-                executeRunCommand(ballerinaExtInstance);
+                executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 return;
             }
 
@@ -70,14 +71,14 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
 
             if (!isCommand && !orgName) {
-                executeRunCommand(ballerinaExtInstance);
+                executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 return;
             }
 
             const configs: Property = orgName[packageName];
 
             if (!isCommand && configs.required?.length === 0) {
-                executeRunCommand(ballerinaExtInstance);
+                executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 return;
             }
 
@@ -109,7 +110,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand);
             } else {
                 if (!isCommand) {
-                    executeRunCommand(ballerinaExtInstance);
+                    executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 }
             }
         } catch (error) {
@@ -155,11 +156,16 @@ export async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance
             currentProject = await getCurrentBallerinaProject(document.fsPath);
         }
     }
-
     return currentProject;
 }
 
-async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
+export async function getCurrentBIProject(projectPath: string): Promise<BallerinaProject | undefined> {
+    let currentProject: BallerinaProject = {};
+    currentProject = await getCurrentBallerinaProject(projectPath);
+    return currentProject;
+}
+
+export async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
     let result;
     let btnTitle = 'Add to config';
     let message = 'There are missing mandatory configurables that are required to run the program.';
@@ -209,18 +215,34 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
             window.showTextDocument(document, { preview: false });
         });
     } else if (!isCommand && result === ignoreButton) {
-        executeRunCommand(ballerinaExtInstance);
+        executeRunCommand(ballerinaExtInstance, configFile);
     }
 }
 
-function executeRunCommand(ballerinaExtInstance: BallerinaExtension): void {
-    if (ballerinaExtInstance.enabledRunFast()) {
-        commands.executeCommand(DEBUG_RUN_COMMAND_ID);
+async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
+    if (ballerinaExtInstance.enabledRunFast() || isBi) {
+        const projectHasErrors = await hasProjectContainsErrors(ballerinaExtInstance.langClient, filePath);
+        if (projectHasErrors) {
+            window.showErrorMessage("Project contains errors. Please fix them and try again.");
+        } else {
+            commands.executeCommand(DEBUG_RUN_COMMAND_ID);
+        }
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
     }
 }
 
+async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string) : Promise<boolean> {
+    const res = await langClient.getProjectDiagnostics({
+        projectRootIdentifier: {
+            uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
+        }
+    }) as ProjectDiagnosticsResponse;
+    if (res.errorDiagnosticMap && Object.keys(res.errorDiagnosticMap).length > 0) {
+        return true;
+    }
+    return false;
+}
 
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
     newValues.forEach(obj => {

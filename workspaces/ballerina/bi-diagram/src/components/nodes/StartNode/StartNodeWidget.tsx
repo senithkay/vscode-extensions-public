@@ -73,8 +73,8 @@ export function StartNodeWidget(props: StartNodeWidgetProps) {
         <NodeStyles.Node
             selected={model.isSelected()}
             hovered={isHovered}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            // onMouseEnter={() => setIsHovered(true)}
+            // onMouseLeave={() => setIsHovered(false)}
         >
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Title>Start</NodeStyles.Title>

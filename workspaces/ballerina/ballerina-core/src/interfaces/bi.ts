@@ -55,7 +55,7 @@ export type Metadata = {
 export type Property = {
     metadata: Metadata;
     valueType: string;
-    value: string;
+    value: string | ELineRange;
     optional: boolean;
     editable: boolean;
     valueTypeConstraint?: string[];
@@ -111,20 +111,24 @@ export type TargetMetadata = {
 
 export enum DIRECTORY_MAP {
     SERVICES = "services",
-    TASKS = "tasks",
+    AUTOMATION = "automation",
+    FUNCTIONS = "functions",
     TRIGGERS = "triggers",
     CONNECTIONS = "connections",
-    SCHEMAS = "schemas",
+    TYPES = "types",
+    RECORDS = "records",
     CONFIGURATIONS = "configurations",
 }
 
 export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.TASKS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
-        [DIRECTORY_MAP.SCHEMAS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
     };
 }
@@ -137,6 +141,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
 
@@ -164,7 +169,9 @@ export type NodePropertyKey =
     | "expression"
     | "statement"
     | "comment"
-    | "connection";
+    | "connection"
+    | "collection"
+    | "view";
 
 export type BranchKind = "block" | "worker";
 
@@ -175,7 +182,7 @@ export type Scope = "module" | "local" | "object";
 export type NodeKind =
     | "EMPTY"
     | "DRAFT"
-    | "EVENT_HTTP_API"
+    | "EVENT_START"
     | "IF"
     | "ACTION_CALL"
     | "RETURN"
@@ -195,6 +202,7 @@ export type NodeKind =
     | "ELSE"
     | "ON_FAILURE"
     | "BODY"
+    | "VARIABLE"
     | "NEW_DATA"
     | "UPDATE_DATA"
     | "NEW_CONNECTION"

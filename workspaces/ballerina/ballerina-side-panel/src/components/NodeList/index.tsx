@@ -206,12 +206,23 @@ interface NodeListProps {
     onSelect: (id: string, metadata?: any) => void;
     onSearchTextChange?: (text: string) => void;
     onAddConnection?: () => void;
+    onAddFunction?: () => void;
     onBack?: () => void;
     onClose?: () => void;
 }
 
 export function NodeList(props: NodeListProps) {
-    const { categories, showAiPanel, title, onSelect, onSearchTextChange, onAddConnection, onBack, onClose } = props;
+    const {
+        categories,
+        showAiPanel,
+        title,
+        onSelect,
+        onSearchTextChange,
+        onAddConnection,
+        onAddFunction,
+        onBack,
+        onClose,
+    } = props;
 
     console.log(">>> categories", { categories });
 
@@ -251,19 +262,27 @@ export function NodeList(props: NodeListProps) {
         }
     };
 
-    // TODO: Add the logic to handle adding a function
-    const handleAddFunction = () => {};
+    const handleAddFunction = () => {
+        if (onAddFunction) {
+            onAddFunction();
+        }
+    };
 
     const getNodesContainer = (nodes: Node[]) => (
         <S.Grid columns={2}>
-            {nodes.map((node, index) => (
-                // <Tooltip content={node.description} key={node.id + index + "tooltip"}>
-                <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
-                    <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
-                    <S.ComponentTitle>{node.label}</S.ComponentTitle>
-                </S.Component>
-                // </Tooltip>
-            ))}
+            {nodes.map((node, index) => {
+                if (["MATCH"].includes(node.id)) {
+                    // HACK: Skip the MATCH and FOREACH nodes until the implementation is ready
+                    return;
+                }
+
+                return (
+                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
+                        <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
+                        <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                    </S.Component>
+                );
+            })}
         </S.Grid>
     );
 

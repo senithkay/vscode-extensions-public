@@ -22,17 +22,47 @@ export async function getView(documentUri: string, position: NodePosition): Prom
 
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-
     if (node.parseSuccess) {
         if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
-            return {
-                location: {
-                    view: MACHINE_VIEW.ERDiagram,
-                    documentUri: documentUri,
-                    position: position
-                }
-            };
+            const recordST = node.syntaxTree;
+            const name = recordST.typeName?.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to render composition view', recordST);
+            } else {
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`;
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: nodeId
+                    }
+                };
+            }
         }
+        if (
+            STKindChecker.isModuleVarDecl(node.syntaxTree) &&
+            STKindChecker.isQualifiedNameReference(node.syntaxTree.typedBindingPattern.typeDescriptor) &&
+            node.syntaxTree.typedBindingPattern.typeDescriptor.identifier.value === "Client" &&
+            STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)
+        ) {
+            // connection
+            const connectionName = node.syntaxTree.typedBindingPattern.bindingPattern.variableName.value;
+            if (!connectionName) {
+                // tslint:disable-next-line
+                console.error("Couldn't capture connection from STNode", {STNode : node.syntaxTree});
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.EditConnectionWizard,
+                        identifier: connectionName,
+                    },
+                };
+            }
+        }
+
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
             let haveServiceType = false;
@@ -81,10 +111,9 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                     location: {
                         view: MACHINE_VIEW.BIDiagram,
                         documentUri: documentUri,
-                        position: position,
+                        position: node.syntaxTree.position,
                         metadata: {
                             enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
-                            flowNodeStyle: ballerinaExtInstance.flowNodeStyle()
                         }
                     },
                     dataMapperDepth: 0

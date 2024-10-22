@@ -27,14 +27,30 @@ export interface WorkspaceFolder {
     fsPath: string;
 }
 
-export interface CreateComponentRequest {
+export interface ComponentRequest {
     type: DIRECTORY_MAP;
+    serviceType?: ComponentServiceType;
+    functionType?: ComponentFunctionkType;
+}
+
+export interface ComponentServiceType {
     name: string;
     path: string;
     port: string;
     specPath?: string;
 }
+export interface ComponentFunctionkType {
+    name: string;
+    parameters: FunctionParameters[],
+    returnType?: string;
+    cron?: string;
+}
 
+export interface FunctionParameters {
+    type: string;
+    name: string;
+    defaultValue?: string;
+}
 export interface CreateComponentResponse {
     response: boolean,
     error: string
@@ -69,4 +85,8 @@ export interface ComponentsRequest {
 
 export interface ComponentsResponse {
     response: boolean;
+}
+
+export interface AIChatRequest {
+    scafold: boolean;
 }

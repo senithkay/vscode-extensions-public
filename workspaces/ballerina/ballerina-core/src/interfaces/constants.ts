@@ -8,21 +8,23 @@
  */
 
 export enum SHARED_COMMANDS {
-    SHOW_VISUALIZER = 'ballerina.show.visualizer',
-    OPEN_BI_WELCOME = 'ballerina.open.bi.welcome',
-    OPEN_SERVICE_FORM = 'ballerina.open.service.form',
-    OPEN_AI_PANEL = 'ballerina.open.ai.panel',
-    CLEAR_AI_PROMPT = 'ballerina.clear.ai.prompt',
+    SHOW_VISUALIZER = 'kolab.show.visualizer',
+    OPEN_BI_WELCOME = 'kolab.open.bi.welcome',
+    OPEN_SERVICE_FORM = 'kolab.open.service.form',
+    OPEN_AI_PANEL = 'kolab.open.ai.panel',
+    CLEAR_AI_PROMPT = 'kolab.clear.ai.prompt',
 }
 
 
 export const BI_COMMANDS = {
+    BI_RUN_PROJECT: 'BI.project.run',
     REFRESH_COMMAND: 'BI.project-explorer.refresh',
     FOCUS_PROJECT_EXPLORER: 'BI.project-explorer.focus',
     PROJECT_EXPLORER: 'BI.project-explorer',
     ADD_CONNECTIONS: 'BI.project-explorer.add-connection',
     ADD_ENTRY_POINT: 'BI.project-explorer.add-entry-point',
-    ADD_SCHEMA: 'BI.project-explorer.add-schema',
+    ADD_TYPE: 'BI.project-explorer.add-type',
     ADD_FUNCTION: 'BI.project-explorer.add-function',
+    OPEN_TYPE_DIAGRAM: 'BI.view.typeDiagram',
     ADD_CONFIGURATION: 'BI.project-explorer.add-configuration'
 };

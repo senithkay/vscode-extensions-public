@@ -8,10 +8,12 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef } from 'react';
-import { Icon } from '../Icon/Icon';
+import React, { forwardRef, ReactNode } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
+import { Button } from '../Button/Button';
+import { ThemeColors } from '../../styles';
+import { Icon } from '../Icon/Icon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -74,16 +76,40 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
-    completions: CompletionItem[];
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
-    onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
+
+    // Completion item props
+    // - The list of completions to be displayed
+    completions: CompletionItem[];
+    // - Get a custom icon for the expression bar
+    getExpressionBarIcon?: () => ReactNode;
+    // - Should display the default completion item at the top of the completion list
+    showDefaultCompletion?: boolean;
+    // - Get default completion item to be displayed at the top of the completion list
+    getDefaultCompletion?: () => ReactNode;
+    // - The function to be called when a completion is selected
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+    // - The function to be called when the default completion is selected
+    onDefaultCompletionSelect?: () => void | Promise<void>;
+
+    // Function signature props
+    // - Returns information about the function that is currently being edited
+    extractArgsFromFunction?: (
+        value: string,
+        cursorPosition: number
+    ) => Promise<{
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    }>;
+    handleHelperPaneOpen?: () => void;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -105,7 +131,7 @@ namespace Ex {
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
-        height: 32px;
+        min-height: 32px;
         gap: 8px;
         box-sizing: border-box;
 
@@ -121,14 +147,20 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, ...rest } = props;
+    const { id, handleHelperPaneOpen, getExpressionBarIcon, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
-            <Icon name="function-icon" />
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
+            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+                {getExpressionBarIcon ? (
+                    getExpressionBarIcon()
+                ) : (
+                    <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                )}
+            </Button>
         </Ex.Container>
     );
 });

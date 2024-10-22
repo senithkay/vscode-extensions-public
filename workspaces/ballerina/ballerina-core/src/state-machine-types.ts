@@ -39,18 +39,21 @@ export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
-    OverviewV2 = "OverviewV2",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
+    TypeDiagram = "Type Diagram",
     BIDiagram = "BI Diagram",
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    EditConnectionWizard = "Edit Connection Wizard",
+    BIMainFunctionForm = "Add Automation",
+    BIFunctionForm = "Add Function",
 }
 
 export interface MachineEvent {
@@ -79,7 +82,6 @@ export interface VisualizerLocation {
 export interface VisualizerMetadata {
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
-    flowNodeStyle?: string; // BI flow diagram flow node style
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
