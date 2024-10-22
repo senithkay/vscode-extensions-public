@@ -7,56 +7,161 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
-import { Codicon, LinkButton, TextField } from "@wso2-enterprise/ui-toolkit";
-import { FieldValues, UseFormRegister } from "react-hook-form";
+import React, { useRef, useState } from "react";
+import { Codicon, COMPLETION_ITEM_KIND, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
-import { Colors } from "../../resources/constants";
 import { useFormContext } from "../../context";
+import { Controller } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { TIcon } from "@wso2-enterprise/ballerina-core";
 
-const AddTypeContainer = styled.div<{}>`
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-    justify-content: flex-end;
-`;
+namespace S {
+    export const Container = styled.div({
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+        fontFamily: 'var(--font-family)',
+    });
+
+    export const LabelContainer = styled.div({
+        display: 'flex',
+        alignItems: 'center',
+    });
+
+    export const Label = styled.label({
+        color: 'var(--vscode-editor-foreground)',
+    });
+
+    export const Description = styled.div({
+        color: 'var(--vscode-list-deemphasizedForeground)',
+    });
+
+    export const TitleContainer = styled.div`
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+}
 
 interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
 }
 
-const addType = (name: string, onClick?: () => void) => (
-    <AddTypeContainer>
-        <LinkButton onClick={onClick} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
-            <Codicon name={name} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+const getDefaultCompletion = () => (
+    <S.TitleContainer>
+        <Codicon name="add" />
+        <Typography variant="body3" sx={{ fontWeight: 600 }}>
             Add Type
-        </LinkButton>
-    </AddTypeContainer>
+        </Typography>
+    </S.TitleContainer>
 );
+
+const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
 
 export function TypeEditor(props: TypeEditorProps) {
     const { field, openRecordEditor } = props;
-    const { form } = useFormContext();
-    const { register } = form;
+    const { form, expressionEditor } = useFormContext();
+    const { control } = form;
+    const {
+        completions,
+        retrieveVisibleTypes,
+        onFocus,
+        onBlur,
+        onCompletionSelect,
+        onSave,
+        onCancel,
+    } = expressionEditor;
 
-    const handleOpenRecordEditor = () => {
-        openRecordEditor(true);
+    const exprRef = useRef<ExpressionBarRef>(null);
+    const cursorPositionRef = useRef<number | undefined>(undefined);
+    const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
+
+    // Use to disable the expression editor on save and completion selection
+    const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
+        return useMutation({
+            mutationFn: fn,
+            networkMode: 'always',
+        });
     };
 
+    const handleFocus = async (value: string) => {
+        // Trigger actions on focus
+        await onFocus?.();
+        setShowDefaultCompletion(true);
+        await retrieveVisibleTypes(value, value.length);
+    };
+
+    const handleBlur = async () => {
+        // Trigger actions on blur
+        await onBlur?.();
+        setShowDefaultCompletion(undefined);
+
+        // Clean up memory
+        cursorPositionRef.current = undefined;
+    };
+
+    const handleCompletionSelect = async (value: string) => {
+        // Trigger actions on completion select
+        await onCompletionSelect?.(value);
+
+        // Set cursor position
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        cursorPositionRef.current = cursorPosition;
+    };
+
+    const handleCancel = () => {
+        onCancel?.();
+        setShowDefaultCompletion(false);
+    }
+
+    const handleDefaultCompletionSelect = () => {
+        openRecordEditor(true);
+        handleCancel();
+    }
+
     return (
-        <TextField
-            id={field.key}
-            name={field.key}
-            {...register(field.key, { required: !field.optional })}
-            label={field.label}
-            required={!field.optional}
-            description={field.documentation}
-            labelAdornment={openRecordEditor && addType("add", handleOpenRecordEditor)}
-            readOnly={!field.editable}
-            sx={{ width: "100%" }}
-        />
+        <S.Container>
+            <S.LabelContainer>
+                <S.Label>{field.label}</S.Label>
+                {!field.optional && <RequiredFormInput />}
+            </S.LabelContainer>
+            <S.Description>{field.documentation}</S.Description>
+            <Controller
+                control={control}
+                name={field.key}
+                rules={{ required: !field.optional }}
+                render={({ field: { name, value, onChange } }) => (
+                    <ExpressionBar
+                        ref={exprRef}
+                        name={name}
+                        completions={completions}
+                        getExpressionBarIcon={getExpressionBarIcon}
+                        showDefaultCompletion={showDefaultCompletion}
+                        getDefaultCompletion={getDefaultCompletion}
+                        value={value}
+                        onChange={async (value: string, updatedCursorPosition: number) => {
+                            onChange(value);
+                            cursorPositionRef.current = updatedCursorPosition;
+                            
+                            // Retrieve visible types
+                            await retrieveVisibleTypes(value, updatedCursorPosition);
+                        }}
+                        onCompletionSelect={handleCompletionSelect}
+                        onDefaultCompletionSelect={handleDefaultCompletionSelect}
+                        onFocus={() => handleFocus(value)}
+                        onBlur={handleBlur}
+                        onSave={onSave}
+                        onCancel={handleCancel}
+                        useTransaction={useTransaction}
+                        shouldDisableOnSave={false}
+                        sx={{ paddingInline: '0' }}
+                    />
+                )}
+            />
+        </S.Container>
     );
 }

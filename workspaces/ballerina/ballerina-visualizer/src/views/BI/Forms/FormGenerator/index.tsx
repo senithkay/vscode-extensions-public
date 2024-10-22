@@ -43,6 +43,7 @@ interface FormProps {
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
+        retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
         extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
