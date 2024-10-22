@@ -152,7 +152,7 @@ export class BallerinaExtension {
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
         this.ballerinaLatestVersion = "2201.10.1";
         this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
-        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/latest";
+        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/workflows/2151175/runs?status=success";
         this.ballerinaHomeCustomDirName = "ballerina-home";
         this.showStatusBarItem();
         // Load the extension
@@ -324,17 +324,14 @@ export class BallerinaExtension {
                 fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
             }
 
-            // Define the path to save the downloaded zip file
             const installerFilePath = path.join(this.getBallerinaUserHome(), installerName);
             
-            // Download the installer
+            // Download the installer and save it to the user home directory
             const response = await axios({
                 url: installerUrl,
                 method: 'GET',
                 responseType: 'arraybuffer',
             });
-    
-            // Save the downloaded artifact
             await fs.writeFileSync(installerFilePath, response.data);
 
             // Install Ballerina
@@ -406,68 +403,86 @@ export class BallerinaExtension {
     }
 
     private async downloadAndUnzipBallerina(destinationPath: string) {
+        window.showInformationMessage(`Downloading Ballerina Kola version`);
         try {
-            const kolaReleaseResponse = await axios.get(this.ballerinaKolaReleaseUrl);
-            const kolaRelease = kolaReleaseResponse.data;
-            this.ballerinaKolaVersion = kolaRelease.tag_name.replace('v', '');
-            console.log(`Latest release version: ${this.ballerinaKolaVersion}`);
+            // Get the latest successful daily build run and artifacts
+            const workflowResponse = await axios.get(this.ballerinaKolaReleaseUrl);
+            const workflowData = workflowResponse.data;
+            if (workflowData.total_count === 0) {
+                throw new Error('No successful workflow run found');
+            }
+            const latestRun = workflowData.workflow_runs[0];
+            console.log(`Found workflow run: ${latestRun.id}`);
 
+            const workflowRunUrl = `https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/runs/${latestRun.id}/artifacts`;
+            const workflowRunResponse = await axios.get(workflowRunUrl);
+            if (workflowRunResponse.data.total_count === 0) {
+                throw new Error('No artifacts found in the workflow run');
+            }
             const platform = os.platform();
-            const asset = kolaRelease.assets.find((asset: any) => {
+            const asset = workflowRunResponse.data.artifacts.find((asset: any) => {
                         if (platform === 'win32') {
-                            return asset.name.endsWith('windows.zip');
+                            return asset.name.endsWith('Windows Installer ZIP');
                         } else if (platform === 'linux') {
-                            return asset.name.endsWith('linux.zip');
+                            if (os.arch() === 'arm64') {
+                                return asset.name.endsWith('Linux-ARM Installer ZIP');
+                            } else {
+                                return asset.name.endsWith('Linux Installer ZIP');
+                            }
                         } else if (platform === 'darwin') {
                             if (os.arch() === 'arm64') {
-                                return asset.name.endsWith('macos-arm.zip');
+                                return asset.name.endsWith('MacOS-ARM Installer ZIP');
                             } else {
-                                return asset.name.endsWith('macos.zip');
+                                return asset.name.endsWith('MacOS Installer ZIP');
                             }
                         }
                     });
-
-            if (!asset) {
-                throw new Error('No artifact found in the release ' + this.ballerinaKolaVersion);
-            }
-
-            const artifactUrl = asset.browser_download_url;
-            console.log(`Downloading artifact from ${artifactUrl}`);
-
-            // Download the artifact
-            const response = await axios({
-                url: artifactUrl,
-                method: 'GET',
-                responseType: 'arraybuffer',
-            });
-
-            console.log(`Got the response`);
+            const artifactUrl = asset.archive_download_url;
 
             // Create destination folder if it doesn't exist
             if (!fs.existsSync(this.getBallerinaUserHome())) {
                 fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
             }
-
-            // Define the path to save the downloaded zip file
+            
+            // Download the artifact and save it to the user home directory
+            console.log(`Downloading artifact from ${artifactUrl}`);
+            const response = await axios({
+                url: artifactUrl,
+                method: 'GET',
+                responseType: 'arraybuffer',
+            });
             const zipFilePath = path.join(this.getBallerinaUserHome(), asset.name);
-
-            // Save the downloaded artifact
             await fs.writeFileSync(zipFilePath, response.data);
-
             console.log(`Downloaded artifact to ${zipFilePath}`);
+            window.showInformationMessage(`Downloaded artifact to ${zipFilePath}`);
 
             // Unzip the artifact
             const zip = new AdmZip(zipFilePath);
             zip.extractAllTo(this.getBallerinaUserHome(), true);
-
             console.log(`Unzipped artifact to ${this.getBallerinaUserHome()}`);
+
+            const filePattern = /^ballerina-.*-swan-lake-.*\.zip$/;
+            const files = fs.readdirSync(this.getBallerinaUserHome());
+            const matchingFile = files.find((file) => filePattern.test(file));
+            if (!matchingFile) {
+                throw new Error('No matching zip file found');
+            }
+            const tempZipFilePath = path.join(this.getBallerinaUserHome(), matchingFile.toString());
+            console.log(tempZipFilePath);
+
+            const tempZip = new AdmZip(tempZipFilePath);
+            tempZip.extractAllTo(this.getBallerinaUserHome(), true);
+
+            // Get the Ballerina Kola version
+            this.ballerinaKolaVersion = matchingFile.toString().split('-')[1];
+            console.log(`Ballerina Kola version: ${this.ballerinaKolaVersion}`);
 
             // Cleanup: Remove the downloaded zip file
             fs.rmSync(zipFilePath);
-
-            const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
-
+            fs.rmSync(tempZipFilePath);
+            
             // Rename the root folder to the new name
+            const tempRootPath = path.join(this.getBallerinaUserHome(), matchingFile.toString().replace('.zip', ''));
             fs.renameSync(tempRootPath, destinationPath);
 
             console.log('Cleanup complete.');
