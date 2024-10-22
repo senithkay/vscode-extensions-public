@@ -338,7 +338,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             <TreeView
                 sx={{ paddingBottom: 2 }}
                 rootTreeView
-                id="Schemas"
+                id="Schemas-Components"
                 content={
                     <PathContainer>
                         <LeftPathContainer>
@@ -347,11 +347,11 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                     </PathContainer>
                 }
                 selectedId={selectedPathID}
-                onSelect={onPathChange}
+                onSelect={onPathChange && onPathChange}
             >
                 {schemaArray.map((schema: string) => {
                     return (
-                        <TreeViewItem id={schema}>
+                        <TreeViewItem id={`${schema}-schema`}>
                             <SchemaItemWrapper>
                                 <Typography 
                                     sx={{

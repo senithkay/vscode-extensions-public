@@ -10,8 +10,6 @@ import { useEffect, useState } from "react";
 import { OpenAPI, Operation, Path, PathItem, Paths } from "../../Definitions/ServiceDefinitions";
 import styled from "@emotion/styled";
 import { PathsNavigator } from "../PathsNavigator/PathsNavigator";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
@@ -24,6 +22,7 @@ import { Tabs } from "../Tabs/Tabs";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { PathItem as PI } from "../PathItem/PathItem";
 import { ReadOnlyPathItem } from "../PathItem/ReadOnlyPathItem";
+import { Schema, SchemaEditor } from "../SchemaEditor/SchemaEditor";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -82,21 +81,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
     const [isNewFile, setIsNewFile] = useState<boolean>(newF);
     const { rpcClient } = useVisualizerContext();
-
-    const {
-        reset,
-        register,
-        formState: { errors, isDirty },
-        handleSubmit,
-        getValues,
-        setValue,
-        control,
-        watch,
-    } = useForm({
-        // defaultValues: null,
-        resolver: yupResolver(schema),
-        mode: "onChange"
-    });
 
     const handlePathClick = (pathID: string) => {
         setSelectedPathID(pathID);
@@ -360,6 +344,22 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
+    const handleSchemaChange = (schema: Schema) => {
+        // Update the OpenAPI definition with the new schema
+        const updatedOpenAPIDefinition: OpenAPI = {
+            ...openAPIDefinition,
+            components: {
+                ...openAPIDefinition.components,
+                schemas: {
+                    ...openAPIDefinition.components?.schemas,
+                    [schemaName]: schema
+                }
+            }
+        };
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+    };
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -374,6 +374,13 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         });
     }
     const currentPath = selectedPathID && openAPIDefinition?.paths[selectedPathID];
+
+    const isSchemaSelected = selectedPathID && selectedPathID?.includes("-schema");
+    const schemaName = isSchemaSelected && selectedPathID?.split("-")[0];
+    const schema = schemaName && openAPIDefinition?.components?.schemas[schemaName];
+    console.log("schema-out", schema);
+    console.log("schemaName-out", schemaName);
+    console.log("selectedPathID-out", selectedPathID);
 
     useEffect(() => {
         setOpenAPIDefinition(initialOpenAPIDefinition);
@@ -438,6 +445,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         )}
                         {currentView === Views.EDIT && selectedPathID && currentPath && (
                             <PI path={selectedPathID} pathItem={openAPIDefinition?.paths} onChange={handlePathItemChange} />
+                        )}
+                        {currentView === Views.EDIT && isSchemaSelected && schema && (
+                            <SchemaEditor schema={schema} schemaName={schemaName} onSchemaChange={handleSchemaChange} />
                         )}
                     </div>
                     <div id={Views.READ_ONLY}>
