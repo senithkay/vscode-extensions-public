@@ -17,31 +17,36 @@ import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 import { isDropdownField } from "./utils";
+import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
 
 interface FormFieldEditorProps {
     field: FormField;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
 }
 
-export function EditorFactory(props: FormFieldEditorProps) {
-    const { field, openRecordEditor, openSubPanel } = props;
+export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
+    const { field, openRecordEditor, openSubPanel, isActiveSubPanel } = props;
 
     if (isDropdownField(field)) {
         return <DropdownEditor field={field} />;
-    } else if (!field.items && (field.key === "type")) {
+    } else if (!field.items && (field.key === "type") && field.editable) {
         return (
             <TypeEditor field={field} openRecordEditor={openRecordEditor} />
         );
-    } else if (!field.items && field.type === "EXPRESSION") {
+    } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
         return (
-            <ContextAwareExpressionEditor field={field} openSubPanel={openSubPanel} />
+            <ContextAwareExpressionEditor ref={ref} field={field} openSubPanel={openSubPanel} isActiveSubPanel={isActiveSubPanel} />
         );
     } else if (!field.items && (field.key !== "type")) {
         return (
             <TextEditor field={field} />
         );
+    } else if (field.type === "VIEW" ) {
+        // Skip this property
+        return <></>
     } else {
         return <TextEditor field={field} />;
     }
-}
+});

@@ -43,7 +43,7 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
                 light: path.join(extension.context.extensionPath, 'assets', `light-${icon}.svg`),
                 dark: path.join(extension.context.extensionPath, 'assets', `dark-${icon}.svg`)
             };
-            console.log(this.iconPath, "this.iconPath");
+            // console.log(this.iconPath, "this.iconPath");
         }
     }
 }
@@ -201,20 +201,11 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         true
     );
     types.contextValue = "types";
-    types.children = getComponents(components.directoryMap[DIRECTORY_MAP.TYPES]);
+    types.children = getComponents([
+        ...components.directoryMap[DIRECTORY_MAP.TYPES],
+        ...components.directoryMap[DIRECTORY_MAP.RECORDS],
+    ]);
     entries.push(types);
-
-    // Records
-    const records = new ProjectExplorerEntry(
-        "Records",
-        vscode.TreeItemCollapsibleState.Expanded,
-        null,
-        'folder',
-        true
-    );
-    records.contextValue = "records";
-    records.children = getComponents(components.directoryMap[DIRECTORY_MAP.RECORDS]);
-    entries.push(records);
 
     // Functions
     const functions = new ProjectExplorerEntry(

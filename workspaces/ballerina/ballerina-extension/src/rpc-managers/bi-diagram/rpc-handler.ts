@@ -24,6 +24,7 @@ import {
     ReadmeContentRequest,
     SignatureHelpRequest,
     buildProject,
+    VisibleTypesRequest,
     createComponent,
     createComponents,
     createProject,
@@ -43,6 +44,7 @@ import {
     getSignatureHelp,
     getSourceCode,
     getVisibleVariableTypes,
+    getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
@@ -79,4 +81,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(runProject, () => rpcManger.runProject());
+    messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
 }

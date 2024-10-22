@@ -32,7 +32,8 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     onSubmit: (node?: FlowNode) => void;
-    openSubPanel: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
+    openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
@@ -42,6 +43,7 @@ interface FormProps {
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
+        retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
         extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
@@ -67,6 +69,7 @@ export function FormGenerator(props: FormProps) {
         editForm,
         onSubmit,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
         updatedExpressionField,
         resetUpdatedExpressionField,
@@ -179,7 +182,15 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm fileName={fileName} node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+        return <IfForm
+            fileName={fileName}
+            node={node}
+            targetLineRange={targetLineRange}
+            onSubmit={onSubmit}
+            openSubPanel={openSubPanel}
+            updatedExpressionField={updatedExpressionField}
+            resetUpdatedExpressionField={resetUpdatedExpressionField}
+        />;
     }
 
     // default form
@@ -194,6 +205,7 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
+                    isActiveSubPanel={isActiveSubPanel}
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
