@@ -81,14 +81,14 @@ const PropertyContainer = styled.div<PropertyContainerProps>`
 const VerticalBar = styled.div<PropertyContainerProps>`
     width: 1px;
     height: ${(props: PropertyContainerProps) => props.height ? `${props.height}px` : '100%'};
-    background-color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editorWidget-border);
 `;
 
 const HorizontalBar = styled.div<PropertyContainerProps>`
     height: 1px;
     margin-top: 8px;
     width: ${(props: PropertyContainerProps) => props.width ? `${props.width}px` : '100%'};
-    background-color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editorWidget-border);
 `;
 
 const Properties = styled.div`
