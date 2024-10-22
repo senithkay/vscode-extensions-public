@@ -10,6 +10,7 @@
 import React from 'react';
 import { Schema, SchemaEditor } from './SchemaEditor';
 import { useState } from 'react';
+import { ReadOnlySchemaEditor } from './ReadOnlySchemaEditor';
 
 export default {
     component: SchemaEditor,
@@ -51,3 +52,9 @@ export const SchemaEditorStory = () => {
         <SchemaEditor schema={schema} schemaName="Person" onSchemaChange={(schema) => { console.log('schema change', schema) }} />
     );
 };
+
+export const ReadonlySchemaEditorStory = () => {
+    return (
+        <ReadOnlySchemaEditor schema={schema} schemaName="Person" onSchemaChange={(schema) => { console.log('schema change', schema) }} />
+    );
+}
