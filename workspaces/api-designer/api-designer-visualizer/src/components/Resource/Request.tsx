@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
@@ -21,6 +21,7 @@ import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { SchemaEditor } from '../SchemaEditor/SchemaEditor';
 
 const RequestTypeWrapper = styled.div`
     display: flex;
@@ -108,7 +109,7 @@ export function Request(props: ReadOnlyResourceProps) {
     const requestContentTabViewItems: ViewItem[] = mediaTypes?.map((type: string) => {
         return {
             id: type,
-            name: type, // Added the missing 'name' property
+            name: type,
         };
     });
 
@@ -227,59 +228,62 @@ export function Request(props: ReadOnlyResourceProps) {
         onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
     };
 
-    const onConfigureRequestClick=()=>{
+    const onConfigureRequestClick = () => {
         rpcClient.selectQuickPickItems({
-            title:"Select Content Types",
-            items: MediaTypes.map(item=>({label:item, picked: mediaTypes.includes(item)}))
-        }).then(resp=>{
-            if(resp){
-                handleOptionChange(resp.map(item=>item.label))
+            title: "Select Content Types",
+            items: MediaTypes.map(item => ({ label: item, picked: mediaTypes.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleOptionChange(resp.map(item => item.label))
             }
         })
     }
 
+    const onSchemaChange = (updatedSchema: any) => {
+        if (selectedMediaType) {
+            const newRequestBody: RequestBody = {
+                ...resourceOperation.requestBody,
+                content: {
+                    ...resourceOperation.requestBody?.content,
+                    [selectedMediaType]: {
+                        ...resourceOperation.requestBody?.content?.[selectedMediaType],
+                        schema: updatedSchema
+                    }
+                }
+            };
+            onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
+        }
+    };
+
     return (
         <SubSectionWrapper>
-            <SectionHeader 
-                title="Request" 
-                variant='h3' 
+            <Typography variant='h2'>Request</Typography>
+
+            <SectionHeader
+                title="Body"
+                variant='h3'
                 actionButtons={
-                    <Button tooltip='Configure Content Types' onClick={onConfigureRequestClick} appearance='icon'>
-                        <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
-                    </Button>
+                    <>
+                        <Dropdown
+                            id="media-type-dropdown"
+                            value={selectedMediaType || "application/json"}
+                            items={requestContentTabViewItems.map(item => ({ label: item.name, value: item.id }))}
+                            onValueChange={(value) => setSelectedMediaType(value)}
+                        />
+                        <Button tooltip='Configure Content Types' onClick={onConfigureRequestClick} appearance='icon'>
+                            <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
+                        </Button>
+                    </>
                 }
             />
-            {requestContentTabViewItems.length > 0 ? (
-                <Tabs
-                    views={requestContentTabViewItems}
-                    currentViewId={selectedMediaType}
-                    onViewChange={setSelectedMediaType}
-                >
-                    {requestContents.map(([key, value], index) => (
-                        <div key={index} id={key}>
-                            <RequestTypeWrapper>
-                                {/* <CheckBox checked={isInlinedObject} label="Define Inline Object" onChange={handleInlineOptionChange} /> */}
-                                {!isInlinedObject && (
-                                    <HorizontalFieldWrapper>
-                                        <TextField
-                                            placeholder="Default Value"
-                                            value={type}
-                                            sx={{ flex: 1 }}
-                                            onChange={(e) => updateSchemaType(e.target.value)}
-                                        />
-                                        <ButtonWrapper>
-                                            <CheckBox checked={isSchemaArray} label='Is Array' onChange={()=>updateArray()}/>
-                                            <Button appearance='icon' onClick={() => removeType()}>
-                                                <Codicon name="trash" />
-                                            </Button>
-                                        </ButtonWrapper>
-                                    </HorizontalFieldWrapper>
-                                )}
-                            </RequestTypeWrapper>
-                        </div>
-                    ))}
-                </Tabs>
-            ): <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No content types.</Typography>}
+            {selectedMediaType && selectedContentFromMediaType?.schema && (
+                <SchemaEditor
+                    schema={selectedContentFromMediaType?.schema}
+                    schemaName={selectedContentFromMediaType?.schema.type}
+                    variant="h3"
+                    onSchemaChange={onSchemaChange}
+                />
+            )}
         </SubSectionWrapper>
     )
 }

@@ -379,7 +379,7 @@ export function Response(props: ReadOnlyResourceProps) {
         <SubSectionWrapper>
             <SectionHeader
                 title="Responses"
-                variant='h3'
+                variant='h2'
                 actionButtons={
                     <Button tooltip='Configure Responses' onClick={onConfigureResponsesClick} appearance='icon'>
                         <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
