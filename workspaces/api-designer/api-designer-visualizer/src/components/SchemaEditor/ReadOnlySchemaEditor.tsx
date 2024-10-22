@@ -9,7 +9,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from "@emotion/styled";
 import { Typography, TextField, Dropdown } from '@wso2-enterprise/ui-toolkit';
-import { SchemaTypes } from '../../constants';
 
 export interface Schema {
     $schema?: string;
@@ -57,7 +56,6 @@ export interface SchemaEditorProps {
     schemaName: string;
     variant?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
     sx?: any;
-    onSchemaChange: (updatedSchema: Schema) => void;
 }
 
 interface SchemaEditorContainerProps {
@@ -137,11 +135,6 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                                         <ReadOnlySchemaEditor
                                             schema={item}
                                             schemaName={`${key}[${index}]`}
-                                            onSchemaChange={(updatedItemSchema) => {
-                                                const updatedItems = Array.isArray(value.items) ? [...value.items] : [value.items];
-                                                updatedItems[index] = updatedItemSchema;
-                                                handlePropertyChange(key, key, { ...value, items: updatedItems });
-                                            }}
                                         />
                                     </div>
                                 ))
@@ -150,9 +143,6 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                                     schema={value.items}
                                     schemaName={`Items`}
                                     variant="h4"
-                                    onSchemaChange={(updatedItemSchema) => {
-                                        handlePropertyChange(key, key, { ...value, items: updatedItemSchema });
-                                    }}
                                 />
                             )}
                         </div>
@@ -164,7 +154,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
 };
 
 export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorProps) => {
-    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4' } = props;
+    const { schema: initialSchema, schemaName, sx, variant = 'h4' } = props;
     const [schema, setSchema] = useState<Schema>(initialSchema);
 
     const handleSchemaUpdate = (updatedProperties: { [key: string]: Schema }) => {
@@ -173,7 +163,6 @@ export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaE
             properties: updatedProperties
         };
         setSchema(updatedSchema);
-        onSchemaChange(updatedSchema);
     };
 
     useEffect(() => {
@@ -185,7 +174,7 @@ export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaE
         <SchemaEditorContainer sx={sx} key={schemaName}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <Typography variant={"h3"} sx={{ margin: 0, fontWeight: "bold" }}>{schemaName}</Typography>
-                <Typography variant={variant} sx={{ margin: "0 0 0 10px", fontWeight: "lighter" }}>{`<${schema.type}>`}</Typography>
+                {schema.type && <Typography variant={variant} sx={{ margin: "0 0 0 10px", fontWeight: "lighter" }}>{`<${schema.type}>`}</Typography>}
             </div>
             {schema.type === 'object' && schema.properties && (
                 <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} />
@@ -196,14 +185,6 @@ export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaE
                         schema={Array.isArray(schema.items) ? schema.items[0] : schema.items}
                         schemaName="Array Items"
                         variant="h5"
-                        onSchemaChange={(updatedItemSchema) => {
-                            const updatedSchema = {
-                                ...schema,
-                                items: updatedItemSchema
-                            };
-                            setSchema(updatedSchema);
-                            onSchemaChange(updatedSchema);
-                        }}
                     />
                 </div>
             )}

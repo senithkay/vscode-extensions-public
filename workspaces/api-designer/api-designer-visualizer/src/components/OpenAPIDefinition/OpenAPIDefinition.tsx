@@ -23,6 +23,7 @@ import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { PathItem as PI } from "../PathItem/PathItem";
 import { ReadOnlyPathItem } from "../PathItem/ReadOnlyPathItem";
 import { Schema, SchemaEditor } from "../SchemaEditor/SchemaEditor";
+import { ReadOnlySchemaEditor } from "../SchemaEditor/ReadOnlySchemaEditor";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -459,6 +460,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                         )}
                         {selectedPathID && currentPath && (
                             <ReadOnlyPathItem currentPath={selectedPathID} pathItem={openAPIDefinition?.paths} />
+                        )}
+                        {isSchemaSelected && schema && (
+                            <ReadOnlySchemaEditor schema={schema} schemaName={schemaName} />
                         )}
                     </div>
                     {/* {(selectedPathID === undefined || !operation) && (

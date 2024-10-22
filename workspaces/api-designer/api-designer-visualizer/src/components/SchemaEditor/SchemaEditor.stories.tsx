@@ -55,6 +55,6 @@ export const SchemaEditorStory = () => {
 
 export const ReadonlySchemaEditorStory = () => {
     return (
-        <ReadOnlySchemaEditor schema={schema} schemaName="Person" onSchemaChange={(schema) => { console.log('schema change', schema) }} />
+        <ReadOnlySchemaEditor schema={schema} schemaName="Person" />
     );
 }
