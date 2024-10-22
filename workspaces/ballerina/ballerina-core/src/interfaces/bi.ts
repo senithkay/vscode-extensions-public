@@ -55,7 +55,7 @@ export type Metadata = {
 export type Property = {
     metadata: Metadata;
     valueType: string;
-    value: string;
+    value: string | ELineRange;
     optional: boolean;
     editable: boolean;
     valueTypeConstraint?: string[];
@@ -170,7 +170,8 @@ export type NodePropertyKey =
     | "statement"
     | "comment"
     | "connection"
-    | "collection";
+    | "collection"
+    | "view";
 
 export type BranchKind = "block" | "worker";
 

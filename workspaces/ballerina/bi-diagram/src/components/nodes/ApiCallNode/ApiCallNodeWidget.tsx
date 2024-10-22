@@ -191,7 +191,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     };
 
     const onConnectionClick = () => {
-        onConnectionSelect && onConnectionSelect(model.node.properties?.connection?.value);
+        onConnectionSelect && onConnectionSelect(model.node.properties?.connection?.value as string);
         setAnchorEl(null);
     };
 
@@ -290,8 +290,8 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     fontSize="14px"
                     fontFamily="GilmerRegular"
                 >
-                    {model.node.properties.connection.value?.length > 16
-                        ? `${model.node.properties.connection.value.slice(0, 16)}...`
+                    {(model.node.properties.connection.value as string)?.length > 16
+                        ? `${(model.node.properties.connection.value as string).slice(0, 16)}...`
                         : model.node.properties.connection.value}
                 </text>
                 <foreignObject x="68" y="12" width="44" height="44" fill={Colors.ON_SURFACE}>
