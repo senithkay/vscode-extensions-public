@@ -458,6 +458,10 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
         // Refresh
         if (response.status === 401) {
             const newAccessToken = await refreshAccessToken();
+            if (!newAccessToken) {
+                await handleLogin();
+                return;
+            }
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
             
             if (isErrorCode(retryResponse)) {
