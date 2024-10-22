@@ -14,7 +14,7 @@ import { Button, CompletionItem, ExpressionBar, ExpressionBarRef, InputProps, Re
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
-import { SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import { LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -42,6 +42,8 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    targetLineRange?: LineRange;
+    fileName: string;
 };
 
 namespace S {
@@ -80,12 +82,12 @@ namespace S {
 }
 
 export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
-    const { form, expressionEditor } = useFormContext();
+    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-    return <ExpressionEditor ref={ref} {...props} {...form} {...expressionEditor} />;
+    return <ExpressionEditor ref={ref} fileName={fileName} {...targetLineRange} {...props} {...form} {...expressionEditor}  />;
 });
 
-export const ExpressionEditor = forwardRef((props, ref) => {
+export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorProps>((props, ref) => {
     const {
         control,
         field,
@@ -100,9 +102,15 @@ export const ExpressionEditor = forwardRef((props, ref) => {
         onCancel,
         openSubPanel,
         isActiveSubPanel,
+        targetLineRange,
+        fileName
     } = props as ExpressionEditorProps;
 
-    const { targetLineRange, fileName } = useFormContext();
+
+        // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
+    const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
+    const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
+    const effectiveFileName = fileName ?? contextFileName;
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -172,12 +180,12 @@ export const ExpressionEditor = forwardRef((props, ref) => {
     };
 
     const handleHelperPaneOpen = () => {
-        if(targetLineRange) {
+        if(effectiveTargetLineRange && effectiveFileName) {
             handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
-                filePath: fileName,
+                filePath: effectiveFileName,
                 range: {
-                    startLine: targetLineRange.startLine,
-                    endLine: targetLineRange.endLine,
+                    startLine: effectiveTargetLineRange.startLine,
+                    endLine: effectiveTargetLineRange.endLine,
                 },
                 editorKey: field.key
             }});
