@@ -102,7 +102,6 @@ export const ExpressionEditor = forwardRef((props, ref) => {
         isActiveSubPanel,
     } = props as ExpressionEditorProps;
 
-
     const { targetLineRange, fileName } = useFormContext();
 
     const exprRef = useRef<ExpressionBarRef>(null);

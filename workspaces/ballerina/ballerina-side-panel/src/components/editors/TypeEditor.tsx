@@ -8,13 +8,14 @@
  */
 
 import React, { useRef, useState } from "react";
-import { Codicon, COMPLETION_ITEM_KIND, ExpressionBar, ExpressionBarRef, RequiredFormInput, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, COMPLETION_ITEM_KIND, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { TIcon } from "@wso2-enterprise/ballerina-core";
 
 namespace S {
     export const Container = styled.div({
@@ -58,6 +59,8 @@ const getDefaultCompletion = () => (
         </Typography>
     </S.TitleContainer>
 );
+
+const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
 
 export function TypeEditor(props: TypeEditorProps) {
     const { field, openRecordEditor } = props;
@@ -136,7 +139,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         ref={exprRef}
                         name={name}
                         completions={completions}
-                        filterType={COMPLETION_ITEM_KIND.TypeParameter}
+                        getExpressionBarIcon={getExpressionBarIcon}
                         showDefaultCompletion={showDefaultCompletion}
                         getDefaultCompletion={getDefaultCompletion}
                         value={value}
