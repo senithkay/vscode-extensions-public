@@ -111,7 +111,7 @@ export function TypeEditor(props: TypeEditorProps) {
         await onCompletionSelect?.(value);
 
         // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
     };
 

@@ -130,7 +130,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const handleFocus = async (value?: string) => {
         // Retrieve the cursor position from the expression editor
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
 
         // Trigger actions on focus
         await onFocus?.();
@@ -151,7 +151,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         await onCompletionSelect?.(value);
 
         // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
     };
 
