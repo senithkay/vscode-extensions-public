@@ -275,6 +275,14 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/fetchTables", req);
     }
 
+    async getOverviewModel(): Promise<any> {
+        return this.sendRequest("synapse/getOverviewModel");
+    }
+
+    async getProjectExplorerStructure(path: string): Promise<any> {
+        return this.sendRequest('synapse/getProjectExplorerStructure', { uri: Uri.file(path).fsPath });
+    }
+
     async getSequencePath(sequenceName: string): Promise<string | undefined> {
         return new Promise(async (resolve) => {
             const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
