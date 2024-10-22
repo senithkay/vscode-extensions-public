@@ -12,7 +12,7 @@ import { PathItem as PI, Param, Parameter, Paths } from "../../Definitions/Servi
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
-import { convertParamsToParameters, addNewParamToPath, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams, syncPathParamsWithParams, convertParamsToPath } from "../Utils/OpenAPIUtils";
+import { convertParamsToParameters, addNewParamToPath, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams, syncPathParamsWithParams, convertParamsToPath, getDeletedParamPath, getIdenticalParamName } from "../Utils/OpenAPIUtils";
 import { Action, HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
@@ -45,6 +45,7 @@ export function PathItem(props: PathItemProps) {
     const finalPathParameters = syncPathParamsWithParams(pathPramFromPath, pathParameters);
     const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getHeaderParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const basePath = path.split("/{")[0];
     // Available operations for the path
     const operations: string[] = pathItem && pathItem[path] && Object.keys(pathItem[path]);
     const summary = currentPathItem?.summary;
@@ -152,7 +153,14 @@ export function PathItem(props: PathItemProps) {
         onChange(updatedPathItem);
     };
     const handlePathParametersChange = (params: Param[], action: Action) => {
-        const updatedPathString = action === Action.ADD ? convertParamsToPath(params, originalPath) : path;
+        let updatedPathString;
+        if (action === Action.ADD) {
+            updatedPathString = convertParamsToPath(params, originalPath);
+        } else if (action === Action.DELETE) {
+            updatedPathString = getDeletedParamPath(params, path);
+        } else {
+            updatedPathString = convertParamsToPath(params, basePath);
+        }
         const newPathString = (action === Action.ADD) ? addNewParamToPath(params[params.length - 1], path) :
             updatedPathString;
         const queryParams = convertParamsToParameters(queryParameters, "query");
@@ -351,7 +359,7 @@ export function PathItem(props: PathItemProps) {
                     ))}
                 </CheckBoxGroup>
                 <ParamEditor
-                    newParamName={`param${finalPathParameters?.length + 1}`}
+                    newParamName={getIdenticalParamName(finalPathParameters, "param")}
                     params={finalPathParameters}
                     onParamsChange={handlePathParametersChange}
                     paramNameOutFocus={handlePathParamNameOutFocus}

@@ -94,7 +94,7 @@ export function ParamEditor(props: OverviewProps) {
     const removeParam = (index: number) => {
         const paramsCopy: Param[] = [...params];
         paramsCopy.splice(index, 1);
-        onParamsChange(paramsCopy);
+        onParamsChange(paramsCopy, Action.DELETE);
     }
 
     const updateRequired = (index: number, value: boolean) => {
