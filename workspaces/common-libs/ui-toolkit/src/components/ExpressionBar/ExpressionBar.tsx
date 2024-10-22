@@ -13,7 +13,7 @@ import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
 import { Button } from '../Button/Button';
 import { ThemeColors } from '../../styles';
-import { getExpressionIcon } from './utils';
+import { Icon } from '../Icon/Icon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -84,12 +84,12 @@ export type ExpressionBarBaseProps = {
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
-    
+
     // Completion item props
     // - The list of completions to be displayed
     completions: CompletionItem[];
-    // - The only type of completion to be displayed
-    filterType?: CompletionItemKind;
+    // - Get a custom icon for the expression bar
+    getExpressionBarIcon?: () => ReactNode;
     // - Should display the default completion item at the top of the completion list
     showDefaultCompletion?: boolean;
     // - Get default completion item to be displayed at the top of the completion list
@@ -101,7 +101,10 @@ export type ExpressionBarBaseProps = {
 
     // Function signature props
     // - Returns information about the function that is currently being edited
-    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
+    extractArgsFromFunction?: (
+        value: string,
+        cursorPosition: number
+    ) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;
@@ -144,15 +147,19 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, filterType, ...rest } = props;
+    const { id, handleHelperPaneOpen, getExpressionBarIcon, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip='Open Helper View'> 
-                {getExpressionIcon(filterType, { color: ThemeColors.PRIMARY })}
+            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+                {getExpressionBarIcon ? (
+                    getExpressionBarIcon()
+                ) : (
+                    <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                )}
             </Button>
         </Ex.Container>
     );

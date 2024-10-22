@@ -10,7 +10,6 @@
 import React, { RefObject } from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
-import { Icon } from '../Icon/Icon';
 
 export const checkCursorInFunction = (text: string, cursorPosition: number) => {
     const effectiveText = text.substring(0, cursorPosition);
@@ -45,20 +44,10 @@ export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: numbe
     inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
 };
 
-export const getCompletionIcon = (kind: CompletionItemKind) => {
+export const getIcon = (kind: CompletionItemKind) => {
     if (Object.values(COMPLETION_ITEM_KIND).includes(kind)) {
         return <Codicon name={`symbol-${kind}`} />;
     }
 
     return <Codicon name="symbol-variable" />;
-};
-
-export const getExpressionIcon = (filterType?: CompletionItemKind, sx?: React.CSSProperties) => {
-    if (filterType === COMPLETION_ITEM_KIND.TypeParameter) {
-        return <Icon name="type-icon" sx={sx} />;
-    } else if (filterType && Object.values(COMPLETION_ITEM_KIND).includes(filterType)) {
-        return <Codicon name={`symbol-${filterType}`} sx={sx} />;
-    }
-
-    return <Icon name="function-icon" sx={sx} />;
 };
