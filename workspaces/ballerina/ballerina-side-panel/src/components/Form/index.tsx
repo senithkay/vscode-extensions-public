@@ -25,6 +25,7 @@ import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
+import { formatJSONLikeString } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -163,15 +164,15 @@ export interface FormProps {
     isActiveSubPanel?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        retrieveCompletions: (
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;
@@ -215,6 +216,8 @@ export function Form(props: FormProps) {
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
                 defaultValues[field.key] = getValueForDropdown(field);
+            } else if (typeof field.value === 'string') {
+                defaultValues[field.key] = formatJSONLikeString(field.value);
             } else {
                 defaultValues[field.key] = field.value;
             }
@@ -227,7 +230,7 @@ export function Form(props: FormProps) {
             const currentValue = getValues(updatedExpressionField.key);
 
             if (currentValue !== undefined) {
-                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart ?? currentValue.length;
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
                 const newValue = currentValue.slice(0, cursorPosition) +
                     updatedExpressionField.value +
                     currentValue.slice(cursorPosition);

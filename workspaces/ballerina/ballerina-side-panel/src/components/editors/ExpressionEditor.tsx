@@ -26,14 +26,14 @@ type ContextAwareExpressionEditorProps = {
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
-    triggerCharacters: readonly string[];
-    retrieveCompletions: (
+    triggerCharacters?: readonly string[];
+    retrieveCompletions?: (
         value: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;
@@ -130,7 +130,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const handleFocus = async (value?: string) => {
         // Retrieve the cursor position from the expression editor
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
 
         // Trigger actions on focus
         await onFocus?.();
@@ -151,7 +151,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         await onCompletionSelect?.(value);
 
         // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
     };
 
@@ -209,6 +209,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
+                        key={field.key}
                         ref={exprRef}
                         name={name}
                         completions={completions}

@@ -131,7 +131,7 @@ namespace Ex {
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
-        height: 32px;
+        min-height: 32px;
         gap: 8px;
         box-sizing: border-box;
 

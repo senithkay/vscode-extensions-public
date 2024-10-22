@@ -38,7 +38,7 @@ import {
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { URI } from "vscode-uri";
+import { URI, Utils } from "vscode-uri";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { PanelType, useVisualizerContext } from "./Context";
 import { ConstructPanel } from "./views/ConstructPanel";
@@ -209,10 +209,23 @@ const MainPanel = () => {
                         setViewComponent(<ServiceForm />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
-                        setViewComponent(<AddConnectionWizard />);
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <AddConnectionWizard
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.EditConnectionWizard:
-                        setViewComponent(<EditConnectionWizard connectionName={value?.identifier} />);
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <EditConnectionWizard
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                    connectionName={value?.identifier}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
