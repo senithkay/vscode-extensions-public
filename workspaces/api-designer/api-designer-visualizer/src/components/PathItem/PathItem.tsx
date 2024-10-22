@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, CheckBox, CheckBoxGroup, Codicon, TextField } from "@wso2-enterprise/ui-toolkit";
 import { PathItem as PI, Param, Parameter, Paths } from "../../Definitions/ServiceDefinitions";
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
 import { convertParamsToParameters, addNewParamToPath, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams, syncPathParamsWithParams, convertParamsToPath, getDeletedParamPath, getIdenticalParamName } from "../Utils/OpenAPIUtils";
-import { Action, HorizontalFieldWrapper, ParamEditor } from "../Parameter/ParamEditor";
+import { Action, ParamEditor } from "../Parameter/ParamEditor";
 import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { BaseTypes } from "../../constants";
@@ -323,7 +323,7 @@ export function PathItem(props: PathItemProps) {
                     sx={{ width: "100%" }}
                     value={path}
                     forceAutoFocus
-                    onTextChange={handlePathChange}
+                    onBlur={(e) => handlePathChange(e.target.value)}
                 />
                 {selectedOptions.includes("Summary") && (
                     <TextField
