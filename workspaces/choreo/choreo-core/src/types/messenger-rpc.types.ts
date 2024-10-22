@@ -29,7 +29,6 @@ export const GetContextState: RequestType<void, ContextStoreState> = { method: "
 export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: "getWebviewStoreState" };
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "openDialog" };
 export const GetLocalGitData: RequestType<string, GetLocalGitDataResp | undefined> = { method: "getLocalGitData" };
-export const JoinFilePaths: RequestType<string[], string> = { method: "joinFilePaths" };// remove
 export const JoinFsFilePaths: RequestType<string[], string> = { method: "joinFsFilePaths" };
 export const JoinUriFilePaths: RequestType<string[], string> = { method: "joinUriFilePaths" };
 export const GetSubPath: RequestType<{ subPath: string; parentPath: string }, string | null> = { method: "getSubPath" };
@@ -56,7 +55,6 @@ export const FileExists: RequestType<string, boolean> = { method: "fileExists" }
 export const ReadFile: RequestType<string, string | null> = { method: "readFile" };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: "executeCommand" };
 export const OpenExternal: RequestType<string, void> = { method: "openExternal" };
-export const ShowOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "showOpenDialog" };
 export const SelectCommitToBuild: RequestType<SelectCommitToBuildReq, CommitHistory | undefined> = { method: "selectCommitToBuild" };
 export const OpenComponentViewDrawer: RequestType<OpenComponentViewDrawerReq, void> = { method: "openComponentViewDrawer" };
 export const CloseComponentViewDrawer: RequestType<string, void> = { method: "closeComponentViewDrawer" };
@@ -193,7 +191,7 @@ export interface CreateNewFilReq {
 export interface SaveFileReq {
 	fileName: string;
 	fileContent: string;
-	baseDirectory: string;
+	baseDirectoryFs: string;
 	successMessage?: string;
 	shouldPromptDirSelect?: boolean;
 	isOpenApiFile?: boolean;

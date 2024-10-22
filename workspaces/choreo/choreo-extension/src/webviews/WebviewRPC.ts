@@ -35,7 +35,6 @@ import {
 	GetWebviewStoreState,
 	GoToSource,
 	HasDirtyLocalGitRepo,
-	JoinFilePaths,
 	OpenComponentViewDrawer,
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
@@ -59,7 +58,6 @@ import {
 	ShowErrorMessage,
 	ShowInfoMessage,
 	ShowInputBox,
-	ShowOpenDialogRequest,
 	ShowQuickPick,
 	SubmitComponentCreate,
 	TriggerGithubAuthFlow,
@@ -95,7 +93,7 @@ import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { sendTelemetryEvent, sendTelemetryException } from "../telemetry/utils";
-import { getJoinedFilePaths, getNormalizedPath, getSubPath, goTosource, readLocalEndpointsConfig, readLocalProxyConfig, saveFile } from "../utils";
+import { getNormalizedPath, getSubPath, goTosource, readLocalEndpointsConfig, readLocalProxyConfig, saveFile } from "../utils";
 
 // Register handlers
 function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
@@ -141,7 +139,6 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			return undefined;
 		}
 	});
-	messenger.onRequest(JoinFilePaths, (files: string[]) => getJoinedFilePaths(...files));
 	messenger.onRequest(JoinFsFilePaths, (files: string[]) => join(...files));
 	messenger.onRequest(JoinUriFilePaths, ([base, ...rest]: string[]) => Uri.joinPath(Uri.parse(base), ...rest).path);
 	messenger.onRequest(GetSubPath, (params: { subPath: string; parentPath: string }) => getSubPath(params.subPath, params.parentPath));
@@ -171,7 +168,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		return saveFile(
 			params.fileName,
 			params.fileContent,
-			params.baseDirectory,
+			params.baseDirectoryFs,
 			params.successMessage,
 			params.isOpenApiFile,
 			params.shouldPromptDirSelect,
@@ -319,15 +316,6 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			return readFileSync(filePath).toString();
 		} catch (err) {
 			return null;
-		}
-	});
-	messenger.onRequest(ShowOpenDialogRequest, async (options: OpenDialogOptions) => {
-		try {
-			const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
-			return result?.map((file) => file.fsPath);
-		} catch (error: any) {
-			getLogger().error(error.message);
-			return [];
 		}
 	});
 	messenger.onRequest(SelectCommitToBuild, async (params: SelectCommitToBuildReq) => {

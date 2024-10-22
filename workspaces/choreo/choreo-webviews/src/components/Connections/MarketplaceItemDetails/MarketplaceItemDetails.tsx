@@ -103,7 +103,7 @@ export const MarketplaceItemDetails: FC<Props> = ({ item, org, onCreateClick, di
 	const { mutate: saveApiDefinitionFile } = useMutation({
 		mutationFn: async (fileContent: string | object) => {
 			ChoreoWebViewAPI.getInstance().saveFile({
-				baseDirectory: directoryFsPath,
+				baseDirectoryFs: directoryFsPath,
 				fileContent: typeof fileContent === "object" ? JSON.stringify(fileContent) : fileContent,
 				shouldPromptDirSelect: true,
 				fileName: `idl.${getIdlFileExt(fileContent)}`,

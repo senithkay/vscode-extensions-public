@@ -356,7 +356,7 @@ paths:
 	const { mutate: createNewOpenApiFile } = useMutation({
 		mutationFn: async () => {
 			return ChoreoWebViewAPI.getInstance().saveFile({
-				baseDirectory: compFsPath,
+				baseDirectoryFs: compFsPath,
 				fileContent: sampleOpenAPIContent,
 				shouldPromptDirSelect: true,
 				fileName: "swagger.yaml",

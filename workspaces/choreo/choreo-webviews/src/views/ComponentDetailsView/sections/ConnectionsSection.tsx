@@ -141,9 +141,9 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 	const openGuidePanel = (connection: ConnectionListItem | ConnectionDetailed) =>
 		ChoreoWebViewAPI.getInstance().openComponentViewDrawer({ componentKey, drawer: ComponentViewDrawers.ConnectionGuide, params: { connection } });
 	const closePanel = () => ChoreoWebViewAPI.getInstance().closeComponentViewDrawer(componentKey);
-	const isCreatePanelOpen = webviewState?.componentViews?.[componentKey].openedDrawer === ComponentViewDrawers.CreateConnection;
-	const isGuidePanelOpen = webviewState?.componentViews?.[componentKey].openedDrawer === ComponentViewDrawers.ConnectionGuide;
-	const selectedConnItem = webviewState?.componentViews?.[componentKey].drawerParams?.connection;
+	const isCreatePanelOpen = webviewState?.componentViews?.[componentKey]?.openedDrawer === ComponentViewDrawers.CreateConnection;
+	const isGuidePanelOpen = webviewState?.componentViews?.[componentKey]?.openedDrawer === ComponentViewDrawers.ConnectionGuide;
+	const selectedConnItem = webviewState?.componentViews?.[componentKey]?.drawerParams?.connection;
 
 	return (
 		<RightPanelSection

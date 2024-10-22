@@ -17,7 +17,7 @@ import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspa
 import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
-import { isSubpath } from "../utils";
+import { convertFsPathToUriPath, isSubpath } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
@@ -47,7 +47,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 									canSelectFiles: false,
 									canSelectMany: false,
 									title: "Select directory that needs to be linked with Choreo",
-									defaultUri: Uri.file(directoryUrl.fsPath),
+									defaultUri: Uri.file(convertFsPathToUriPath(directoryUrl.fsPath)),
 								});
 
 								if (componentDir === undefined || componentDir.length === 0) {

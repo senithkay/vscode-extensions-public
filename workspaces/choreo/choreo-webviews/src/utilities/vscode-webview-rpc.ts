@@ -37,7 +37,6 @@ import {
 	GoToSource,
 	HasDirtyLocalGitRepo,
 	type IChoreoRPCClient,
-	JoinFilePaths,
 	OpenComponentViewDrawer,
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
@@ -166,10 +165,6 @@ export class ChoreoWebViewAPI {
 
 	public async getLocalGitData(dirPath: string): Promise<GetLocalGitDataResp> {
 		return this._messenger.sendRequest(GetLocalGitData, HOST_EXTENSION, dirPath);
-	}
-
-	public async joinFilePaths(paths: string[]): Promise<string> {
-		return this._messenger.sendRequest(JoinFilePaths, HOST_EXTENSION, paths);
 	}
 
 	public async joinFsFilePaths(paths: string[]): Promise<string> {

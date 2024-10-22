@@ -60,7 +60,7 @@ export const PathSelect: FC<Props> = (props) => {
 			render={({ field, fieldState }) => {
 				const { data: joinedPath } = useQuery({
 					queryKey: ["joined-file-path", { directoryName, value: field.value }],
-					queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryName, field.value]),
+					queryFn: () => ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryName, field.value]),
 				});
 
 				return (

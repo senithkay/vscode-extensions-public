@@ -93,18 +93,31 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
 	}
 };
 
+export const convertFsPathToUriPath = (fsPath: string): string => {
+	if(os.platform() === 'win32'){
+		// Replace backslashes with forward slashes
+		let uriPath = fsPath.replace(/\\/g, '/');
+
+		// If the path starts with a drive letter, prepend a slash
+		if (/^[a-zA-Z]:/.test(uriPath)) {
+			uriPath = `/${uriPath}`;
+		}
+		return uriPath;
+	}
+	return fsPath;
+}
+
 export const saveFile = async (
 	fileName: string,
 	fileContent: string,
-	baseDirectory: string,
+	baseDirectoryFs: string,
 	successMessage?: string,
 	isOpenApiFile?: boolean,
 	shouldPromptDirSelect?: boolean,
 	dialogTitle?: string,
 	shouldOpen?: boolean,
 ) => {
-	const dir = baseDirectory;
-
+	const baseDirectoryUri = convertFsPathToUriPath(baseDirectoryFs);
 	const createNewFile = async (basePath: string) => {
 		let tempFileName = fileName;
 		const baseName = fileName.split(".")[0];
@@ -148,14 +161,14 @@ export const saveFile = async (
 			canSelectFiles: false,
 			canSelectFolders: true,
 			canSelectMany: false,
-			defaultUri: Uri.parse(baseDirectory),
+			defaultUri: Uri.parse(baseDirectoryUri),
 		});
 
 		if (result?.[0]) {
 			return createNewFile(result?.[0].fsPath);
 		}
 	} else {
-		return createNewFile(baseDirectory);
+		return createNewFile(baseDirectoryFs);
 	}
 	return "";
 };
@@ -196,14 +209,6 @@ export const getNormalizedPath = (filePath: string)=>{
 		return filePath.replace(/^\//, '').replace(/\//g, '\\');
 	}
 	return path.normalize(filePath);
-}
-
-// TODO: uri.parse expects path & file read/write expects fsPath. Need to updated and check on windows
-// for fspath use path.join, for uri path use vscode.Uri.joinPath
-
-// TODO: use this for all join() operations
-export const getJoinedFilePaths = (...files:string[])=>{
-	return os.platform() === 'win32' ? join(...files).replace(/\\/g, '/') : join(...files)
 }
 
 export const createDirectory = (basePath: string, dirName: string) => {

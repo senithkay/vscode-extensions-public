@@ -72,7 +72,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 				const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([baseFsPath, subPath, "Dockerfile"]);
 				const dockerFileExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFileFullPath);
 				if (dockerFileExists) {
-					const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
+					const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([subPath, "Dockerfile"]);
 					form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
 				}
 			} else {
@@ -82,7 +82,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 					const dockerFileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([baseFsPath, subPath, "Dockerfile"]);
 					const dockerFileExists = await ChoreoWebViewAPI.getInstance().fileExist(dockerFileFullPath);
 					if (dockerFileExists) {
-						const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFilePaths([subPath, "Dockerfile"]);
+						const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([subPath, "Dockerfile"]);
 						form.setValue("dockerFile", dockerFilePath, { shouldValidate: true });
 					} else {
 						form.setValue("dockerFile", "");
