@@ -9,18 +9,22 @@
 
 import { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, FlowNode, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
+import { InlineDataMapper } from "../../../InlineDataMapper";
+import { HelperView } from "../../HelperView";
 
 const Container = styled.div`
     width: 100%;
+    display: flex;
+    justify-content: center;
 `;
 
 const LoadingContainer = styled.div`
@@ -49,6 +53,10 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
     const selectedConnectorRef = useRef<AvailableNode>();
     const selectedNodeRef = useRef<FlowNode>();
+    const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
+    const [showSubPanel, setShowSubPanel] = useState(false);
+    const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
+
 
     const handleOnSelectConnector = async (connector: AvailableNode) => {
         if (!connector.codedata) {
@@ -142,6 +150,43 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         setFields([]);
     };
 
+    const handleSubPanel = (subPanel: SubPanel) => {
+        setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
+        setSubPanel(subPanel);
+    };
+
+    const updateExpressionField = (data: ExpressionFormField) => {
+        setUpdatedExpressionField(data);
+    };
+
+    const findSubPanelComponent = (subPanel: SubPanel) => {
+        switch (subPanel.view) {
+            case SubPanelView.INLINE_DATA_MAPPER:
+                return (
+                    <InlineDataMapper
+                        filePath={subPanel.props?.inlineDataMapper?.filePath}
+                        range={subPanel.props?.inlineDataMapper?.range}
+                    />
+                );
+            case SubPanelView.HELPER_PANEL:
+                return (
+                    <HelperView
+                        filePath={subPanel.props.sidePanelData.filePath}
+                        position={subPanel.props.sidePanelData.range}
+                        updateFormField={updateExpressionField}
+                        editorKey={subPanel.props.sidePanelData.editorKey}
+                        onClosePanel={handleSubPanel}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
+    const handleResetUpdatedExpressionField = () => {
+        setUpdatedExpressionField(undefined);
+    };
+
     return (
         <Container>
             {isPullingConnector && (
@@ -153,12 +198,26 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             )}
             {!isPullingConnector && currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
             {!isPullingConnector && currentStep === WizardStep.CONNECTION_CONFIG && (
-                <ConnectionConfigView
-                    name={selectedConnectorRef.current?.metadata.label}
-                    fields={fields}
-                    onSubmit={handleOnFormSubmit}
+                <PanelContainer
+                    show={true}
+                    title={`Configure ${selectedConnectorRef.current?.metadata.label} Connector`}
+                    onClose={onClose} width={600}
+                    subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
+                    subPanel={findSubPanelComponent(subPanel)}
                     onBack={handleOnBack}
-                />
+                >
+                    <ConnectionConfigView
+                        name={selectedConnectorRef.current?.metadata.label}
+                        fields={fields}
+                        onSubmit={handleOnFormSubmit}
+                        onBack={handleOnBack}
+                        updatedExpressionField={updatedExpressionField}
+                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                        openSubPanel={handleSubPanel}
+                        isActiveSubPanel={showSubPanel}
+
+                    />
+                </PanelContainer>
             )}
         </Container>
     );
