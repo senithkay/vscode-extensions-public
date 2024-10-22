@@ -157,6 +157,7 @@ const stateMachine = createMachine<MachineContext>({
                     });
                 } else {
                     VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Active);
+                    vscode.commands.executeCommand('setContext', 'isViewOpenAPI', true);
                     resolve(true);
                 }
             });

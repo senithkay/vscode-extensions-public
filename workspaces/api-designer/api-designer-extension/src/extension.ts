@@ -22,10 +22,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initial check for the active document
 	checkDocumentForOpenAPI(vscode.window.activeTextEditor?.document);
 
-	// Add event listener for document opening and changes
+	// Add event listeners for document changes and focus
 	context.subscriptions.push(
-		vscode.workspace.onDidOpenTextDocument(checkDocumentForOpenAPI),
-		vscode.workspace.onDidChangeTextDocument(event => checkDocumentForOpenAPI(event.document))
+		vscode.workspace.onDidChangeTextDocument(event => checkDocumentForOpenAPI(event.document)),
+		vscode.window.onDidChangeActiveTextEditor(editor => checkDocumentForOpenAPI(editor?.document))
 	);
 
 	RPCLayer.init();
@@ -45,19 +45,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
 function checkDocumentForOpenAPI(document?: vscode.TextDocument) {
 	if (!document) {
-		vscode.commands.executeCommand('setContext', 'isFileOpenAPI', false);
+		vscode.commands.executeCommand('setContext', 'isFileOpenAPI', undefined);
 		return;
 	}
 
-	const isYamlFile = document.languageId === 'yaml' ||
-		document.fileName.endsWith('.yaml') ||
-		document.fileName.endsWith('.yml');
-
-	if (!isYamlFile) {
-		vscode.commands.executeCommand('setContext', 'isFileOpenAPI', false);
+	// Check if the document is a webview or not a YAML file
+	if (document.uri.scheme === 'webview' ||
+		!(document.languageId === 'yaml' || document.fileName.endsWith('.yaml') || document.fileName.endsWith('.yml'))) {
+		vscode.commands.executeCommand('setContext', 'isFileOpenAPI', undefined);
 		return;
 	}
 
+	// At this point, we know it's a YAML file
 	const firstFewLines = document.getText(new vscode.Range(0, 0, 10, 0));
 	const isOpenAPI = /\bopenapi\s*:/i.test(firstFewLines);
 	vscode.commands.executeCommand('setContext', 'isFileOpenAPI', isOpenAPI);
