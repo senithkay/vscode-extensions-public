@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "workspaces/api-designer/api-designer-extension"
+		},
+		{
+			"path": "workspaces/api-designer/api-designer-visualizer"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off"
+	}
+}

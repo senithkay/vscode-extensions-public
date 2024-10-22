@@ -55,6 +55,11 @@ export class VisualizerWebview {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
             vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
         });
+
+        this._panel.onDidDispose(() =>{
+            // Enable the Run and Build Project, Open AI Panel commands when the webview is active
+            vscode.commands.executeCommand('setContext', 'isVisualizerActive', false);
+        });
     }
 
     private static createWebview(beside: boolean): vscode.WebviewPanel {
