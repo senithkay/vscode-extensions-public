@@ -51,7 +51,7 @@ export function resolveTypeFormSchema(schema: Schema): string {
     // if (schema?.type === "array") {
     //     return resolveTypeFormSchema(schema.items) + "[]";
     // }
-    return schema.type;
+    return schema.type as string;
 }
 
 export function getParametersFromOperation(operation: Operation): ParameterConfig[] {
@@ -180,7 +180,7 @@ export function getPathParametersFromParameters(parameters: Parameter[]): Param[
     return parameters?.filter((param) => param.in === "path").map((param) => ({
         ...param,
         name: param.name,
-        type: param?.schema?.type,
+        type: param?.schema?.type as string,
         description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required || false,
@@ -211,7 +211,7 @@ export function getQueryParametersFromParameters(parameters: Parameter[]): Param
     return parameters?.filter((param) => param.in === "query").map((param) => ({
         ...param,
         name: param.name,
-        type: param.schema ? ( param.schema.type === "array" ? param.schema.items.type : param.schema.type ) : "string",
+        type: param.schema ? ( param.schema.type === "array" ? ((param.schema.items as Schema).type) as string : (param.schema.type as string) ) : "string",
         description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required,
@@ -222,7 +222,7 @@ export function getHeaderParametersFromParameters(parameters: Parameter[]): Para
     return parameters?.filter((param) => param.in === "header").map((param) => ({
         ...param,
         name: param.name,
-        type: param.schema ? ( param.schema.type === "array" ? param.schema.items.type : param.schema.type ) : "string",
+        type: param.schema ? ( param.schema.type === "array" ? ((param.schema.items as Schema).type as string) : (param.schema.type as string) ) : "string",
         description: param.description,
         isArray: param.schema ? param.schema.type === "array" : false,
         isRequired: param.required,
@@ -232,7 +232,7 @@ export function getHeaderParametersFromParameters(parameters: Parameter[]): Para
 export function getResponseHeadersFromResponse(response: Header[]): Param[] {
     return Object.entries(response).map(([name, header]) => ({
         name: header.name,
-        type: header.schema ? ( header.schema.type === "array" ? header.schema.items.type : header.schema.type ) : "string",
+        type: header.schema ? ( header.schema.type === "array" ? ((header.schema.items as Schema).type as string) : (header.schema.type as string)) : "string",
         description: header.description,
         isArray: header.schema ? header.schema.type === "array" : false,
         isRequired: header.required,
@@ -301,10 +301,10 @@ export function resolveTypeFromSchema(schema: Schema): string {
         return resolveTypeFromSchema(schema.items);
     } else if (schema.$ref) {
         return schema.$ref.replace("#/components/schemas/", "");
-    } else if (schema.items && schema.items.$ref) {
-        return schema.items.$ref.replace("#/components/schemas/", "");
+    } else if ((schema.items && schema.items as Schema)?.$ref) {
+        return (schema.items && schema.items as Schema).$ref.replace("#/components/schemas/", "");
     } else {
-        return schema.type;
+        return schema.type as string;
     }
 }
 

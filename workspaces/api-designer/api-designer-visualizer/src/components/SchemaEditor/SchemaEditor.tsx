@@ -269,13 +269,18 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
         onSchemaChange(updatedSchema);
     };
 
+    useEffect(() => {
+        // Update the schema when the initial schema changes
+        setSchema(initialSchema);
+    }, [initialSchema]);
+
     return (
-        <SchemaEditorContainer sx={sx}>
+        <SchemaEditorContainer sx={sx} key={schemaName}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <Typography variant={variant} sx={{ margin: 0 }}>{schemaName}</Typography>
                 <Dropdown
                     id={`${schemaName}-type`}
-                    value={schema.type}
+                    value={schema?.type}
                     sx={{ width: '12em', marginLeft: '10px' }}
                     items={SchemaTypes.map((type) => ({ id: type, content: type, value: type }))}
                     onChange={(e) => handleTypeChange(e.target.value as Schema['type'])}
