@@ -48,6 +48,8 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
@@ -801,6 +803,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     runProject(): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
+    }
+
+    async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getVisibleTypes(params)
+                .then((visibleTypes) => {
+                    resolve(visibleTypes);
+                })
+                .catch((error) => {
+                    reject("Error fetching visible types from ls");
+                });
+        });
     }
 }
 
