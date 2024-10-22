@@ -138,6 +138,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
+                        key={field.key}
                         ref={exprRef}
                         name={name}
                         completions={completions}

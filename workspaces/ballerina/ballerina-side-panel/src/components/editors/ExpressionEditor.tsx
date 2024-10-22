@@ -209,6 +209,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
+                        key={field.key}
                         ref={exprRef}
                         name={name}
                         completions={completions}
