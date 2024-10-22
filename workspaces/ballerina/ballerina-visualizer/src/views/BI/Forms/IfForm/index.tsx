@@ -62,15 +62,14 @@ export function IfForm(props: IfFormProps) {
         }
     }, [updatedExpressionField]);
 
-    const clearExpressionEditor = () => {
-        // clear memory for expression editor
-        setCompletions([]);
+    const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
         triggerCompletionOnNextRequest.current = false;
-    }
+    };
 
     const handleOnSave = (data: FormValues) => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
@@ -108,7 +107,7 @@ export function IfForm(props: IfFormProps) {
     };
 
     const addNewCondition = () => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
@@ -234,11 +233,6 @@ export function IfForm(props: IfFormProps) {
 
         return convertToFnSignature(signatureHelp);
     }
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-    };
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();

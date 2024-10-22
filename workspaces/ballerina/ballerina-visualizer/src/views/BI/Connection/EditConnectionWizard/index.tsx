@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, LinePosition, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
@@ -33,12 +33,13 @@ const SpinnerContainer = styled.div`
 `;
 
 interface EditConnectionWizardProps {
+    fileName: string; // file path of `connection.bal`
     connectionName: string;
     onClose?: () => void;
 }
 
 export function EditConnectionWizard(props: EditConnectionWizardProps) {
-    const { connectionName, onClose } = props;
+    const { fileName, connectionName, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [fields, setFields] = useState<FormField[]>([]);
@@ -84,13 +85,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             }
             console.log(">>> Updated node", updatedNode);
 
-            // get connections.bal file path
-            const visualizerLocation = await rpcClient.getVisualizerLocation();
-            let connectionsFilePath = "";
-            if (visualizerLocation.projectUri) {
-                connectionsFilePath = visualizerLocation.projectUri + "/connections.bal";
-            }
-            if (connectionsFilePath === "") {
+            if (fileName === "") {
                 console.error(">>> Error updating source code. No connections.bal file found");
                 return;
             }
@@ -98,7 +93,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             rpcClient
                 .getBIDiagramRpcClient()
                 .getSourceCode({
-                    filePath: connectionsFilePath,
+                    filePath: fileName,
                     flowNode: updatedNode,
                     isConnector: true,
                 })
@@ -184,6 +179,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                     subPanel={findSubPanelComponent(subPanel)}
                 >
                     <ConnectionConfigView
+                        fileName={fileName}
                         name={connection.codedata.module}
                         fields={fields}
                         onSubmit={handleOnFormSubmit}

@@ -42,11 +42,12 @@ enum WizardStep {
 }
 
 interface AddConnectionWizardProps {
+    fileName: string; // file path of `connection.bal`
     onClose?: () => void;
 }
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
-    const { onClose } = props;
+    const { fileName, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
@@ -208,9 +209,10 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     onBack={handleOnBack}
                 >
                     <BodyText style={{ padding: '20px 20px 0 20px' }}>
-                            Provide the necessary configuration details for the selected connector to complete the setup.
+                        Provide the necessary configuration details for the selected connector to complete the setup.
                     </BodyText>
                     <ConnectionConfigView
+                        fileName={fileName}
                         name={selectedConnectorRef.current?.metadata.label}
                         fields={fields}
                         onSubmit={handleOnFormSubmit}

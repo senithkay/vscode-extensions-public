@@ -157,10 +157,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
-    const clearExpressionEditor = () => {
-        // clear memory for expression editor
-        setCompletions([]);
+    const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
+        setFilteredTypes([]);
+        setTypes([]);
         triggerCompletionOnNextRequest.current = false;
     };
 
@@ -169,7 +170,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setSidePanelView(SidePanelView.NODE_LIST);
         setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -481,7 +482,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
     };
 
@@ -722,13 +723,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleResetUpdatedExpressionField = () => {
         setUpdatedExpressionField(undefined);
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-        setFilteredTypes([]);
-        setTypes([]);
     };
 
     const handleCompletionSelect = async () => {

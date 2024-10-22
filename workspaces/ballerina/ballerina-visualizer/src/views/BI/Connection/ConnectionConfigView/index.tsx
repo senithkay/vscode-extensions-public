@@ -7,14 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ExpressionFormField, Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
 import { SubPanel } from "@wso2-enterprise/ballerina-core";
 import { S } from "../../../Connectors/ActionList";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { debounce } from "lodash";
+import { convertBalCompletion, convertToFnSignature } from "../../../../utils/bi";
+import { TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
 
 const Container = styled.div`
     max-width: 600px;
@@ -63,6 +67,7 @@ const SubPanelContainer = styled.div<SidePanelProps>`
 `;
 
 interface ConnectionConfigViewProps {
+    fileName: string; // file path of `connection.bal`
     name: string;
     fields: FormField[];
     onSubmit: (data: FormValues) => void;
@@ -75,7 +80,125 @@ interface ConnectionConfigViewProps {
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { name, fields, onSubmit, onBack, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
+    const { fileName, name, fields, onSubmit, onBack, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
+    const { rpcClient } = useRpcContext();
+    const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
+
+    const debouncedGetCompletions = debounce(
+        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+            let expressionCompletions: CompletionItem[] = [];
+            const effectiveText = value.slice(0, offset);
+            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
+            const endOfStatementRegex = /[\)\]]\s*$/;
+            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
+                // Case 1: When a character unrelated to triggering completions is entered
+                setCompletions([]);
+            } else if (
+                completions.length > 0 &&
+                completionFetchText.length > 0 &&
+                !triggerCharacter &&
+                !onlyVariables &&
+                !triggerCompletionOnNextRequest.current
+            ) {
+                // Case 2: When completions have already been retrieved and only need to be filtered
+                expressionCompletions = completions
+                    .filter((completion) => {
+                        const lowerCaseText = completionFetchText.toLowerCase();
+                        const lowerCaseLabel = completion.label.toLowerCase();
+
+                        return lowerCaseLabel.includes(lowerCaseText);
+                    })
+                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
+            } else {
+                // Case 3: When completions need to be retrieved from the language server
+                // Retrieve completions from the ls
+                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
+                    filePath: fileName,
+                    expression: value,
+                    startLine: { line: 0, offset: 0 },
+                    offset: offset,
+                    context: {
+                        triggerKind: triggerCharacter ? 2 : 1,
+                        triggerCharacter: triggerCharacter as TriggerCharacter,
+                    },
+                });
+
+                if (onlyVariables) {
+                    // If only variables are requested, filter out the completions based on the kind
+                    // 'kind' for variables = 6
+                    completions = completions?.filter((completion) => completion.kind === 6);
+                    triggerCompletionOnNextRequest.current = true;
+                } else {
+                    triggerCompletionOnNextRequest.current = false;
+                }
+
+                // Convert completions to the ExpressionBar format
+                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                setCompletions(convertedCompletions);
+
+                if (triggerCharacter) {
+                    expressionCompletions = convertedCompletions;
+                } else {
+                    expressionCompletions = convertedCompletions
+                        .filter((completion) => {
+                            const lowerCaseText = completionFetchText.toLowerCase();
+                            const lowerCaseLabel = completion.label.toLowerCase();
+
+                            return lowerCaseLabel.includes(lowerCaseText);
+                        })
+                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
+                }
+            }
+
+            setFilteredCompletions(expressionCompletions);
+        },
+        250
+    );
+
+    const handleGetCompletions = async (
+        value: string,
+        offset: number,
+        triggerCharacter?: string,
+        onlyVariables?: boolean
+    ) => {
+        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
+
+        if (triggerCharacter) {
+            await debouncedGetCompletions.flush();
+        }
+    };
+
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: fileName,
+            expression: value,
+            startLine: { line: 0, offset: 0 },
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            },
+        });
+
+        return convertToFnSignature(signatureHelp);
+    };
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredCompletions([]);
+        setCompletions([]);
+        triggerCompletionOnNextRequest.current = false;
+    };
+
+    const handleCompletionSelect = async () => {
+        debouncedGetCompletions.cancel();
+        handleExpressionEditorCancel();
+    };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    };
 
     // TODO: With the InlineEditor implementation, the targetLine, fileName and expressionEditor should be passed to the Form component
     return (
@@ -90,12 +213,13 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                 updatedExpressionField={updatedExpressionField}
                 resetUpdatedExpressionField={resetUpdatedExpressionField}
                 expressionEditor={{
-                    completions: [],
-                    triggerCharacters: [],
-                    retrieveCompletions: async () => { },
-                    retrieveVisibleTypes: async () => { },
-                    extractArgsFromFunction: async () => ({ label: '', args: [], currentArgIndex: 0 }),
-                    onCancel: () => { },
+                    completions: filteredCompletions,
+                    triggerCharacters: TRIGGER_CHARACTERS,
+                    retrieveCompletions: handleGetCompletions,
+                    extractArgsFromFunction: extractArgsFromFunction,
+                    onCompletionSelect: handleCompletionSelect,
+                    onCancel: handleExpressionEditorCancel,
+                    onBlur: handleExpressionEditorBlur,
                 }}
             />
         </Container>
