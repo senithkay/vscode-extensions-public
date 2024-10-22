@@ -18,17 +18,20 @@ import {
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
+    GenerateMappingFromRecordResponse,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
+    GenerateTestRequest,
+    GeneratedTestSource,
+    GenerteMappingsFromRecordRequest,
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
     ProjectDiagnostics,
     ProjectSource,
-    STModification,
-    SyntaxTree,
+    SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, RequiredParam, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -38,11 +41,13 @@ import { Uri, window, workspace } from 'vscode';
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
+import { generateDataMapping } from "../../features/ai/dataMapping";
+import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
 import { modifyFileContent } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
-import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
+import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -137,8 +142,15 @@ export class AiPanelRpcManager implements AIPanelAPI {
             throw new Error("Not a Ballerina project.");
         }
 
-        const balFilePath = path.join(workspaceFolderPath, req.filePath);
-        fs.writeFileSync(balFilePath, req.content.trim());
+        let balFilePath = path.join(workspaceFolderPath, req.filePath);
+        if (req.isTestCode) {
+            const testsFolderPath = path.join(workspaceFolderPath, "tests");
+            if (!fs.existsSync(testsFolderPath)) {
+                fs.mkdirSync(testsFolderPath, { recursive: true });
+            }
+            balFilePath = path.join(testsFolderPath, `test.bal`).toLowerCase();
+        }
+        fs.writeFileSync(balFilePath, req.content.trim(), 'utf8');
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
@@ -241,48 +253,15 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
-        const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
-
-        if (isErrorCode(parameterDefinitions)) {
-            return { error: (parameterDefinitions as ErrorCode) };
-        }
-
-        const codeObject: object | ErrorCode = await getDatamapperCode(parameterDefinitions);
-        if (isErrorCode(codeObject)) {
-            if ((codeObject as ErrorCode).code === 6) {
+        const st = await processMappings(fnSt, fileUri);
+        if (isErrorCode(st)) {
+            if ((st as ErrorCode).code === 6) {
                 return { userAborted: true };
             }
-            return { error: codeObject as ErrorCode };
+            return { error: st as ErrorCode };
         }
 
-        let codeString: string = constructRecord(codeObject);
-        if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
-            const parameter = fnSt.functionSignature.parameters[0];
-            const param = parameter as RequiredParam;
-            const paramName = param.paramName.value;
-            codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
-            codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
-        } else {
-            codeString = `=> ${codeString};`;
-        }
-        const modifications: STModification[] = [];
-        modifications.push({
-            type: "INSERT",
-            config: { STATEMENT: codeString },
-            endColumn: fnSt.functionBody.position.endColumn,
-            endLine: fnSt.functionBody.position.endLine,
-            startColumn: fnSt.functionBody.position.startColumn,
-            startLine: fnSt.functionBody.position.startLine,
-        });
-
-        const stModifyResponse = await StateMachine.langClient().stModify({
-            astModifications: modifications,
-            documentIdentifier: {
-                uri: fileUri
-            }
-        });
-
-        const { parseSuccess, source, syntaxTree } = stModifyResponse as SyntaxTree;
+        const { parseSuccess, source, syntaxTree } = st as SyntaxTree;
 
         if (!parseSuccess) {
             return { error: MODIFIYING_ERROR };
@@ -439,7 +418,22 @@ export class AiPanelRpcManager implements AIPanelAPI {
     
         return false;
     }
-    
+
+    async getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
+        const projectRoot = await getBallerinaProjectRoot();
+        return await generateTest(projectRoot, params);
+    }
+
+    async getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+        const projectRoot = await getBallerinaProjectRoot();
+        return await getDiagnostics(projectRoot, params);
+    }
+
+    async getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
+        const projectRoot = await getBallerinaProjectRoot();
+        const projectSource = await this.getProjectSource();
+        return await generateDataMapping(projectRoot, projectSource, params);
+    }
 }
 
 interface BalModification {
@@ -482,7 +476,7 @@ async function setupProjectEnvironment(project: ProjectSource): Promise<{ langCl
 }
 
 async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
-    let modifications : BalModification[] = [];
+    let modifications: BalModification[] = [];
     let projectModified = false;
     for (const diagnostic of diagnosticsResult) {
         const fielUri = diagnostic.uri;
@@ -492,7 +486,7 @@ async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<bool
                 continue;
             }
             const module = getContentInsideQuotes(diag.message);
-            modifications.push({fileUri: fielUri, moduleName: module});
+            modifications.push({ fileUri: fielUri, moduleName: module });
         }
     }
 
@@ -560,7 +554,7 @@ async function isModuleNotFoundDiagsExist(diagnosticsResult: Diagnostics[], lang
                 // Read and save content to a string
                 const sourceFile = await workspace.openTextDocument(Uri.parse(diagnostic.uri));
                 const content = sourceFile.getText();
-                
+
                 langClient.didOpen({
                     textDocument: {
                         uri: diagnostic.uri,
@@ -637,7 +631,7 @@ async function getCurrentProjectSource(): Promise<BallerinaProject> {
     // Read root-level .bal files
     const rootFiles = fs.readdirSync(projectRoot);
     for (const file of rootFiles) {
-        if (file.endsWith('.bal') || file.toLowerCase()=== "readme.md") {
+        if (file.endsWith('.bal') || file.toLowerCase() === "readme.md") {
             const filePath = path.join(projectRoot, file);
             project.sources[file] = await fs.promises.readFile(filePath, 'utf-8');
         }
