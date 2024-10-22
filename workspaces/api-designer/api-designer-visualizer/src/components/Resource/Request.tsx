@@ -129,7 +129,7 @@ export function Request(props: ReadOnlyResourceProps) {
         if (!isItemDeleted) {
             options.forEach((type) => {
                 if (!mediaTypes.includes(type)) {
-                    colnedMediaTypes.push([type, {}]);
+                    colnedMediaTypes.push([type, { schema: { type: "object", properties: {} } }]);
                     currentMediaType = type;
                 }
             });
@@ -143,6 +143,7 @@ export function Request(props: ReadOnlyResourceProps) {
             onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
         }
     };
+
     const handleDescriptionChange = (markdown: string) => {
         const newRequestBody: RequestBody = {
             ...resourceOperation.requestBody,

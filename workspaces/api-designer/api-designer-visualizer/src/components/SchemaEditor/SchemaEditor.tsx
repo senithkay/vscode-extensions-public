@@ -233,7 +233,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
 
 export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorProps) => {
     const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4' } = props;
-    const [schema, setSchema] = useState<Schema>(initialSchema);
+    const [schema, setSchema] = useState<Schema | undefined>(initialSchema);
 
     const handleSchemaUpdate = (updatedProperties: { [key: string]: Schema }) => {
         const updatedSchema = {
@@ -269,10 +269,36 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
         onSchemaChange(updatedSchema);
     };
 
+    const handleAddSchema = () => {
+        const newSchema: Schema = {
+            type: 'object',
+            properties: {}
+        };
+        setSchema(newSchema);
+        onSchemaChange(newSchema);
+    };
+
     useEffect(() => {
         // Update the schema when the initial schema changes
         setSchema(initialSchema);
     }, [initialSchema]);
+
+    if (!schema) {
+        return (
+            <SchemaEditorContainer sx={sx} key={schemaName}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant={variant} sx={{ margin: 0 }}>{schemaName}</Typography>
+                    <Button
+                        appearance='icon'
+                        onClick={handleAddSchema}
+                        sx={{ marginLeft: '10px' }}
+                    >
+                        <Codicon name='add' sx={{ marginTop: '2px' }} />
+                    </Button>
+                </div>
+            </SchemaEditorContainer>
+        );
+    }
 
     return (
         <SchemaEditorContainer sx={sx} key={schemaName}>

@@ -41,7 +41,7 @@ export function PathItem(props: PathItemProps) {
     const [description, setDescription] = useState<string>(String(currentPathItem.description));
     const [originalPath] = useState<string>(path);
     const pathPramFromPath = getPathParametersFromPath(path);
-    const pathParameters: Param[] =  pathItem && path && (pathItem[path] as Paths).parameters && getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const pathParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     const finalPathParameters = syncPathParamsWithParams(pathPramFromPath, pathParameters);
     const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
     const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getHeaderParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
@@ -110,7 +110,7 @@ export function PathItem(props: PathItemProps) {
     const handlePathChange = (p: string) => {
         // Delete the current path form the pathItem
         const clonedPathItem = { ...pathItem };
-        let deletedIndex = -1;    
+        let deletedIndex = -1;
         pathItem && Object.entries(pathItem).forEach(([key, value], i) => {
             if (key === path && typeof value === "object" && key !== "servers" && key !== "parameters") {
                 deletedIndex = i;
@@ -172,7 +172,7 @@ export function PathItem(props: PathItemProps) {
             pathParams = convertParamsToParameters(p, "path");
         }
         const clonedPathItem = { ...pathItem };
-        let deletedIndex = -1;    
+        let deletedIndex = -1;
         let existingPathItems: string | PI | Parameter[];
         pathItem && Object.entries(pathItem).forEach(([key, value], i) => {
             if (key === path && typeof value === "object" && key !== "servers" && key !== "parameters") {
@@ -251,6 +251,19 @@ export function PathItem(props: PathItemProps) {
                     },
                 },
             };
+            // If the method is post, put or patch, add a request body
+            if (method === 'post' || method === 'put' || method === 'patch') {
+                (updatedPathItem[path] as PI)[method].requestBody = {
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {}
+                            }
+                        }
+                    }
+                };
+            }
             onChange(updatedPathItem, path);
         } else {
             // If the operation is unchecked, remove it from the pathItem
@@ -259,13 +272,13 @@ export function PathItem(props: PathItemProps) {
             onChange(updatedPathItem, path);
         }
     };
-    const onConfigureClick=()=>{
+    const onConfigureClick = () => {
         rpcClient.selectQuickPickItems({
-            title:"Select sections",
-            items: moreOptions.map(item=>({label:item, picked: selectedOptions.includes(item)}))
-        }).then(resp=>{
-            if(resp){
-                handleOptionChange(resp.map(item=>item.label))
+            title: "Select sections",
+            items: moreOptions.map(item => ({ label: item, picked: selectedOptions.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleOptionChange(resp.map(item => item.label))
             }
         })
     }
@@ -276,7 +289,7 @@ export function PathItem(props: PathItemProps) {
         const p = isNameNotInParams(name, pathPramFromPath) ?
             path.endsWith("/") ? `${path}{${name}}` : `${path}/{${name}}` : path;
         const clonedPathItem = { ...pathItem };
-        let deletedIndex = -1;    
+        let deletedIndex = -1;
         let existingPathItems: string | PI | Parameter[];
         pathItem && Object.entries(pathItem).forEach(([key, value], i) => {
             if (key === path && typeof value === "object" && key !== "servers" && key !== "parameters") {
@@ -313,7 +326,7 @@ export function PathItem(props: PathItemProps) {
             <PanelBody>
                 <ButtonWrapper>
                     <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
-                        <Codicon name='gear' sx={{marginRight:"4px"}}/>
+                        <Codicon name='gear' sx={{ marginRight: "4px" }} />
                         Configure
                     </Button>
                 </ButtonWrapper>
