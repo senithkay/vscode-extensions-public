@@ -36,7 +36,13 @@ export class DataMapper {
 
     }
 
+    public getWebView() {
+        return this.webView;
+    }
 
+    public async waitForProgressEnd() {
+        await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
+    }
 
     public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, schemaFile: string) {
         const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
@@ -126,15 +132,21 @@ export class DataMapper {
 
         const fieldName = sourceFieldFQN.split('.').pop();
         await this.webView.waitForSelector(`div[id^="recordfield-focusedInput."]`);
-        
+
     }
 
-    public async gotoPreviousView(){
+    public async gotoPreviousView() {
         const breadcrumbs = this.webView.locator(`a[data-testid^="dm-header-breadcrumb-"]`);
         const previousCrumb = this.webView.locator(`a[data-testid="dm-header-breadcrumb-${await breadcrumbs.count() - 1}"]`);
         await previousCrumb.waitFor();
         await previousCrumb.click();
         await previousCrumb.waitFor({ state: 'detached' });
+    }
+
+    public async saveSnapshot(snapshotFile: string) {
+        const root = this.webView.locator(`div#data-mapper-canvas-container`);
+        await root.waitFor();
+        fs.writeFileSync(snapshotFile, await root.innerHTML());
     }
 
     public async runEventActions(eaFile: string) {
@@ -166,11 +178,14 @@ export class DataMapper {
 
     public verifyTsFileContent(comparingFile: string) {
         const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
+        return this.compareFiles(tsFile, comparingFile);
+    }
 
-        const tsFileContent = fs.readFileSync(tsFile, 'utf8');
-        const comparingFileContent = fs.readFileSync(comparingFile, 'utf8');
+    public compareFiles(file1: string, file2: string) {
+        const file1Content = fs.readFileSync(file1, 'utf8');
+        const file2Content = fs.readFileSync(file2, 'utf8');
 
-        return tsFileContent === comparingFileContent;
+        return file1Content === file2Content;
     }
 
     public verifyFileCreation() {
