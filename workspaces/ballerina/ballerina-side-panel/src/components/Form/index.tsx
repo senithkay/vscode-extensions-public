@@ -25,6 +25,7 @@ import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
+import { formatJSONLikeString } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -215,6 +216,8 @@ export function Form(props: FormProps) {
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
                 defaultValues[field.key] = getValueForDropdown(field);
+            } else if (typeof field.value === 'string') {
+                defaultValues[field.key] = formatJSONLikeString(field.value);
             } else {
                 defaultValues[field.key] = field.value;
             }
