@@ -265,7 +265,7 @@ export function convertParamsToParameters(params: Param[], type: "path" | "query
         delete newParam.isArray;
         delete newParam.isRequired;
         delete newParam.type;
-        if (param.isArray) {
+        if (newParam?.isArray) {
             parameters.push({
                 ...newParam,
                 name: param.name,

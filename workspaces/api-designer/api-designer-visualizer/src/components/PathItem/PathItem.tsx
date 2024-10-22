@@ -152,7 +152,7 @@ export function PathItem(props: PathItemProps) {
         onChange(updatedPathItem);
     };
     const handlePathParametersChange = (params: Param[], action: Action) => {
-        const updatedPathString = convertParamsToPath(params, originalPath);
+        const updatedPathString = action === Action.ADD ? convertParamsToPath(params, originalPath) : path;
         const newPathString = (action === Action.ADD) ? addNewParamToPath(params[params.length - 1], path) :
             updatedPathString;
         const queryParams = convertParamsToParameters(queryParameters, "query");
