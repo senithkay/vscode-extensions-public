@@ -24,29 +24,36 @@ interface FormFieldEditorProps {
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
+    handleOnFieldFocus?: (key: string) => void;
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, openRecordEditor, openSubPanel, isActiveSubPanel } = props;
+    const { field, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
 
     if (isDropdownField(field)) {
         return <DropdownEditor field={field} />;
     } else if (!field.items && (field.key === "type") && field.editable) {
         return (
-            <TypeEditor field={field} openRecordEditor={openRecordEditor} />
+            <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />
         );
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
         return (
-            <ContextAwareExpressionEditor ref={ref} field={field} openSubPanel={openSubPanel} isActiveSubPanel={isActiveSubPanel} />
+            <ContextAwareExpressionEditor
+                ref={ref}
+                field={field}
+                openSubPanel={openSubPanel}
+                isActiveSubPanel={isActiveSubPanel}
+                handleOnFieldFocus={handleOnFieldFocus}
+            />
         );
     } else if (!field.items && (field.key !== "type")) {
         return (
-            <TextEditor field={field} />
+            <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />
         );
-    } else if (field.type === "VIEW" ) {
+    } else if (field.type === "VIEW") {
         // Skip this property
         return <></>
     } else {
-        return <TextEditor field={field} />;
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     }
 });

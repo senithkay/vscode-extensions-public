@@ -49,6 +49,7 @@ namespace S {
 interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
+    handleOnFieldFocus?: (key: string) => void;
 }
 
 const getDefaultCompletion = () => (
@@ -63,7 +64,7 @@ const getDefaultCompletion = () => (
 const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor } = props;
+    const { field, openRecordEditor, handleOnFieldFocus } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
@@ -93,6 +94,7 @@ export function TypeEditor(props: TypeEditorProps) {
         await onFocus?.();
         setShowDefaultCompletion(true);
         await retrieveVisibleTypes(value, value.length);
+        handleOnFieldFocus?.(field.key);
     };
 
     const handleBlur = async () => {
