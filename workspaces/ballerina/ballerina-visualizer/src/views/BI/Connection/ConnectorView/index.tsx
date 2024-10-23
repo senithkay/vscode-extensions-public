@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { AvailableNode, Category, Item } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
@@ -26,6 +26,8 @@ const ListContainer = styled.div`
     flex-direction: column;
     gap: 16px;
     margin-top: 24px;
+    height: 80vh;
+    overflow-y: scroll;
 `;
 
 const GridContainer = styled.div`
@@ -48,12 +50,20 @@ const StyledSearchInput = styled(SearchBox)`
     height: 30px;
 `;
 
+const TopBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+`;
+
 interface ConnectorViewProps {
     onSelectConnector: (connector: AvailableNode) => void;
+    onClose?: () => void;
 }
 
 export function ConnectorView(props: ConnectorViewProps) {
-    const { onSelectConnector } = props;
+    const { onSelectConnector, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
@@ -134,7 +144,15 @@ export function ConnectorView(props: ConnectorViewProps) {
 
     return (
         <Container>
+            <TopBar>
             <Typography variant="h2">Select a Connector</Typography>
+            {onClose && (
+                <Button appearance="icon" onClick={onClose}>
+                    <Codicon name="close" />
+                </Button>
+            )}
+            </TopBar>
+            
             <BodyText>
                 Select a connector to integrate with external services. Use search to quickly find the right one.
             </BodyText>
@@ -149,7 +167,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                 />
             </Row>
             {isSearching && (
-                <ListContainer style={{ height: '80vh', overflowY: 'scroll' }}>
+                <ListContainer>
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
                         <ProgressRing />
                     </div>
