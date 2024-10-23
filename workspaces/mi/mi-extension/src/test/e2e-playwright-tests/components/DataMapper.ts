@@ -40,6 +40,24 @@ export class DataMapper {
         return this.webView;
     }
 
+    public async scrollOutput(amount: number) {
+        const outputNode = this.webView.locator(`div[data-testid="objectOutput-node"]`);
+
+        await outputNode.hover();
+        await page.page.mouse.wheel(0, amount);
+    }
+
+    public async scrollOutputUntilVisible(locator: Locator) {
+        const outputNode = this.webView.locator(`div[data-testid="objectOutput-node"]`);
+        await outputNode.hover();
+
+        for (let i = 0; !(await locator.isVisible()) && i < 5; i++) {
+            await page.page.mouse.wheel(0, 200);
+        }
+    }
+
+
+
     public async waitForProgressEnd() {
         await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
     }

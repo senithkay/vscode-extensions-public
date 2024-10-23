@@ -369,6 +369,12 @@ function doMappings() {
     await dm.init();
     const dmWebView = dm.getWebView();
 
+    await dm.scrollOutputUntilVisible(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d1O.IN').locator('i'));
+
+    // await page.page.pause();
+
+   
+
     // primitive direct array mapping
     await dmWebView.locator('[id="recordfield-input\\.d1I"] i').click();
     await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d1O.IN').locator('i').click();
