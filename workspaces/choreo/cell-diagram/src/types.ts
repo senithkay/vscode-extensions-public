@@ -46,6 +46,7 @@ export enum ComponentType {
     WEB_HOOK = "web-hook",
     EVENT_HANDLER = "event-handler",
     TEST = "test",
+    EXTERNAL_CONSUMER = "external-consumer",
 }
 
 export interface Component {
