@@ -16,7 +16,7 @@ import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
 import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Overlay, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
@@ -198,28 +198,38 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
                 </LoadingContainer>
             )}
-            {!isPullingConnector && currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
+            {!isPullingConnector && (
+                <>
+                    <ConnectorView onSelectConnector={handleOnSelectConnector} onClose={onClose} />
+                    {currentStep === WizardStep.CONNECTION_CONFIG &&
+                        <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                    }
+                </>
+            )}
             {!isPullingConnector && currentStep === WizardStep.CONNECTION_CONFIG && (
                 <PanelContainer
                     show={true}
-                    title={`Configure ${selectedConnectorRef.current?.metadata.label} Connector`}
-                    onClose={onClose} width={600}
+                    title={`Configure ${selectedConnectorRef.current?.metadata.label || ''} Connector`}
+                    onClose={onClose ? onClose : handleOnBack}
+                    width={400}
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                     subPanel={findSubPanelComponent(subPanel)}
                     onBack={handleOnBack}
                 >
-                    <BodyText style={{ padding: '20px 20px 0 20px' }}>
-                        Provide the necessary configuration details for the selected connector to complete the setup.
-                    </BodyText>
-                    <ConnectionConfigView
-                        fileName={fileName}
-                        fields={fields}
-                        onSubmit={handleOnFormSubmit}
-                        updatedExpressionField={updatedExpressionField}
-                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                        openSubPanel={handleSubPanel}
-                        isActiveSubPanel={showSubPanel}
-                    />
+                    <>
+                        <BodyText style={{ padding: '20px 20px 0 20px' }}>
+                            Provide the necessary configuration details for the selected connector to complete the setup.
+                        </BodyText>
+                        <ConnectionConfigView
+                            fileName={fileName}
+                            fields={fields}
+                            onSubmit={handleOnFormSubmit}
+                            updatedExpressionField={updatedExpressionField}
+                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                            openSubPanel={handleSubPanel}
+                            isActiveSubPanel={showSubPanel}
+                        />
+                    </>
                 </PanelContainer>
             )}
         </Container>

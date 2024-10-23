@@ -69,6 +69,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connection.name,
             },
+            isPopup: true
         });
     };
 
