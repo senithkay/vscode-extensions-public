@@ -279,8 +279,8 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/getOverviewModel");
     }
 
-    async getProjectExplorerStructure(path: string): Promise<any> {
-        return this.sendRequest('synapse/getProjectExplorerStructure', { uri: Uri.file(path).fsPath });
+    async getProjectExplorerModel(path: string): Promise<any> {
+        return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {
