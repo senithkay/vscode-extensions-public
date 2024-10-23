@@ -204,6 +204,7 @@ export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaE
 
     return (
         <SchemaEditorContainer sx={sx} key={schemaName}>
+            {schema?.$ref && <Typography variant={"h3"} sx={{ margin: 0, fontWeight: "bold" }}>{schema.$ref.replace('#/components/schemas/', '')}</Typography>}
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <Typography variant={"h3"} sx={{ margin: 0, fontWeight: "bold" }}>{schemaName}</Typography>
                 {schema.type && <Typography variant={variant} sx={{ margin: "0 0 0 10px", fontWeight: "lighter" }}>{`<${schema.type}>`}</Typography>}
