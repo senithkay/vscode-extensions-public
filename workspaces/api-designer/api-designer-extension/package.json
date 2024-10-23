@@ -115,7 +115,8 @@
     "ts-morph": "^22.0.0",
     "await-notify": "^1.0.1",
     "yaml": "~2.4.3",
-    "@types/js-yaml": "~4.0.9"
+    "@types/js-yaml": "~4.0.9",
+    "to-json-schema": "~0.2.5"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",

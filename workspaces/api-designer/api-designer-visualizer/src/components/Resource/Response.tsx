@@ -375,6 +375,14 @@ export function Response(props: ReadOnlyResourceProps) {
         })
     }
 
+    const handleImportJSON = () => {
+        rpcClient.getApiDesignerVisualizerRpcClient().importJSON().then(resp => {
+            if (resp) {
+                handleSchemaChange(resp);
+            }
+        })
+    }
+
     return (
         <SubSectionWrapper>
             <SectionHeader
@@ -413,6 +421,9 @@ export function Response(props: ReadOnlyResourceProps) {
                                         variant='h3'
                                         actionButtons={
                                             <>
+                                                <Button tooltip='Import from JSON' onClick={handleImportJSON} appearance='icon'>
+                                                    <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
+                                                </Button>
                                                 <Dropdown
                                                     id="media-type-dropdown"
                                                     value={selectedMediaType || "application/json"}

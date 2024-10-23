@@ -29,3 +29,4 @@ export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
 export const goToSource: NotificationType<GoToSourceRequest> = { method: `${_preFix}/goToSource` };
 export const getOpenApiContent: RequestType<GetOpenAPIContentRequest, GetOpenAPIContentResponse> = { method: `${_preFix}/getOpenApiContent` };
 export const writeOpenApiContent: RequestType<WriteOpenAPIContentRequest, WriteOpenAPIContentResponse> = { method: `${_preFix}/writeOpenApiContent` };
+export const importJSON: NotificationType<void> = { method: `${_preFix}/importJSON` };

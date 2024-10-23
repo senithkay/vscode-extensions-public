@@ -24,8 +24,10 @@ import {
     goBack,
     goHome,
     goToSource,
+    importJSON,
     openView,
-    writeOpenApiContent
+    writeOpenApiContent,
+    Schema
 } from "@wso2-enterprise/api-designer-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -67,5 +69,9 @@ export class ApiDesignerVisualizerRpcClient implements APIDesignerVisualizerAPI 
 
     writeOpenApiContent(params: WriteOpenAPIContentRequest): Promise<WriteOpenAPIContentResponse> {
         return this._messenger.sendRequest(writeOpenApiContent, HOST_EXTENSION, params);
+    }
+
+    importJSON(): Promise<Schema | undefined> {
+        return this._messenger.sendRequest(importJSON, HOST_EXTENSION);
     }
 }
