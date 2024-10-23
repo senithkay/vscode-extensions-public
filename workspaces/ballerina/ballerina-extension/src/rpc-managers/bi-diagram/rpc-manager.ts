@@ -592,6 +592,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             resolve(response);
         });
     }
+    
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
