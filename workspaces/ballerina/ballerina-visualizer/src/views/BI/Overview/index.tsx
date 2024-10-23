@@ -17,7 +17,6 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
-    TextArea,
     Typography,
     View,
     ViewContent,
@@ -28,11 +27,9 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from 'react-markdown';
 
@@ -383,7 +380,7 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handlePlay = () => {
-        //rpcClient.getBIDiagramRpcClient().runProject();
+        rpcClient.getBIDiagramRpcClient().runProject();
     };
 
     const handleBuild = () => {
@@ -394,13 +391,13 @@ export function Overview(props: ComponentDiagramProps) {
 
     const getActionButtons = (): React.ReactNode[] => {
         return [
-            <VSCodeButton key="run" appearance="icon" title="Generate with AI" onClick={handlePlay}>
+            <VSCodeButton key="run" appearance="icon" title="Run" onClick={handlePlay}>
                 <Codicon name="play" sx={{ marginRight: 5 }} /> Run
             </VSCodeButton>,
-            <VSCodeButton key="build" appearance="icon" title="Generate with AI" onClick={handleBuild}>
+            <VSCodeButton key="build" appearance="icon" title="Build" onClick={handleBuild}>
                 <Codicon name="package" sx={{ marginRight: 5 }} /> Build
             </VSCodeButton>,
-            <VSCodeButton key="deploy" appearance="icon" title="Generate with AI" onClick={handleDeploy}>
+            <VSCodeButton key="deploy" appearance="icon" title="Deploy" onClick={handleDeploy}>
                 <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
             </VSCodeButton>,
             <VSCodeButton key="generate" appearance="icon" title="Generate with AI" onClick={handleGenerate}>
