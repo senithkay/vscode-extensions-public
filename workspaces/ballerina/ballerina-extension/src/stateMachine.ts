@@ -22,7 +22,6 @@ interface MachineContext extends VisualizerLocation {
 
 export let history: History;
 export let undoRedoManager: UndoRedoManager;
-const showBIOverviewV2 = ballerinaExtInstance.biOverviewV2();
 
 const stateMachine = createMachine<MachineContext>(
     {
@@ -188,7 +187,7 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            webview.title = "WSO2 BI";
+                            webview.title = "Kola";
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
                                 dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
@@ -207,11 +206,6 @@ const stateMachine = createMachine<MachineContext>(
             return new Promise(async (resolve, reject) => {
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
-                        if (context.isBI && showBIOverviewV2) {
-                            // Render overview 2 if setting is enabled
-                            history.push({ location: { view: MACHINE_VIEW.OverviewV2, documentUri: context.documentUri } });
-                            return resolve();
-                        }
                         if (context.isBI) {
                             const entryPoints = (await new BIDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
@@ -263,10 +257,6 @@ const stateMachine = createMachine<MachineContext>(
                 }) as SyntaxTree;
 
                 if (!selectedEntry?.location.view) {
-                    if (context.isBI && showBIOverviewV2) {
-                        // Render overview 2 if setting is enabled
-                        return resolve({ view: MACHINE_VIEW.OverviewV2, documentUri: context.documentUri });
-                    }
                     return resolve({ view: MACHINE_VIEW.Overview, documentUri: context.documentUri });
                 }
 

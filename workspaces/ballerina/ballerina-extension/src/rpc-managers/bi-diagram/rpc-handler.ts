@@ -9,22 +9,27 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AIChatRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
     BIGetFunctionsRequest,
+    BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    ComponentRequest,
     ComponentsRequest,
-    CreateComponentRequest,
     ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
-    UpdateConfigVariableRequest,
+    SignatureHelpRequest,
+    buildProject,
+    VisibleTypesRequest,
     createComponent,
     createComponents,
     createProject,
     deleteFlowNode,
+    deployProject,
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
@@ -32,13 +37,22 @@ import {
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
+    getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
+    getReadmeContent,
+    getSignatureHelp,
     getSourceCode,
+    getVisibleVariableTypes,
+    getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
-    updateConfigVariables
+    UpdateConfigVariableRequest,
+    updateConfigVariables,
+    openAIChat,
+    openReadme,
+    runProject,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BIDiagramRpcManager } from "./rpc-manager";
@@ -56,11 +70,21 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, () => rpcManger.getProjectStructure());
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
-    messenger.onRequest(createComponent, (args: CreateComponentRequest) => rpcManger.createComponent(args));
+    messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
+    messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
     messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
     messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
+    messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
+    messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
+    messenger.onNotification(openReadme, () => rpcManger.openReadme());
+    messenger.onNotification(deployProject, () => rpcManger.deployProject());
+    messenger.onNotification(openAIChat, (args: AIChatRequest) => rpcManger.openAIChat(args));
+    messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
+    messenger.onNotification(buildProject, () => rpcManger.buildProject());
+    messenger.onNotification(runProject, () => rpcManger.runProject());
+    messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
 }

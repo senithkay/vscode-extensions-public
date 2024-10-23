@@ -51,7 +51,7 @@ export function DiagramCanvas(props: DiagramCanvasProps) {
     return (
         <>
             <Global styles={DiagramStyles.Expand} />
-            <DiagramStyles.Container background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
+            <DiagramStyles.Container id="bi-diagram-canvas" background={background || Colors.SURFACE_BRIGHT} color={color || Colors.ON_SURFACE}>
                 {children}
             </DiagramStyles.Container>
         </>

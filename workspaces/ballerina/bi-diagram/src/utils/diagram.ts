@@ -23,7 +23,6 @@ import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
 import { DIAGRAM_CENTER_X, NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
 import { WhileNodeFactory } from "../components/nodes/WhileNode";
-import { ForeachNodeFactory } from "../components/nodes/ForeachNode";
 import { CodeBlockNodeFactory } from "../components/nodes/CodeBlockNode";
 
 export function generateEngine(): DiagramEngine {
@@ -40,7 +39,6 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
     engine.getNodeFactories().registerFactory(new WhileNodeFactory());
-    engine.getNodeFactories().registerFactory(new ForeachNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
     engine.getNodeFactories().registerFactory(new DraftNodeFactory());
@@ -128,9 +126,22 @@ export const hasDiagramZoomAndPosition = (file: string) => {
     return localStorage.getItem("diagram-file-path") === file;
 };
 
-export const resetDiagramZoomAndPosition = (file: string) => {
-    localStorage.setItem("diagram-file-path", file);
+export const resetDiagramZoomAndPosition = (file?: string) => {
+    const container = document.getElementById("bi-diagram-canvas");
+    const containerWidth = container ? container.offsetWidth : window.innerWidth;
+    const center = containerWidth / 2;
+
+    if (file) {
+        localStorage.setItem("diagram-file-path", file);
+    }
     localStorage.setItem("diagram-zoom-level", "100");
-    localStorage.setItem("diagram-offset-x", (-1 * (DIAGRAM_CENTER_X - 500)).toString());
+    localStorage.setItem("diagram-offset-x", center.toString());
     localStorage.setItem("diagram-offset-y", "0");
+};
+
+export const clearDiagramZoomAndPosition = () => {
+    localStorage.removeItem("diagram-file-path");
+    localStorage.removeItem("diagram-zoom-level");
+    localStorage.removeItem("diagram-offset-x");
+    localStorage.removeItem("diagram-offset-y");
 };

@@ -19,7 +19,7 @@ import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
-    public static readonly viewType = "ballerina.visualizer";
+    public static readonly viewType = "kolab.visualizer";
     public static readonly panelTitle = "Visualizer";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
@@ -44,8 +44,16 @@ export class VisualizerWebview {
             }
         }, extension.context);
 
+        vscode.workspace.onDidDeleteFiles(() => {
+            sendUpdateNotificationToWebview();
+        });
+
         this._panel.onDidChangeViewState(() => {
             vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
+            // Refresh the webview when becomes active
+            if (this._panel?.active) {
+                sendUpdateNotificationToWebview();
+            }
         });
     }
 

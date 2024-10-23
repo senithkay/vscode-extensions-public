@@ -19,7 +19,7 @@ import { StateMachine } from '../../stateMachine';
 
 export class AiPanelWebview {
     public static currentPanel: AiPanelWebview | undefined;
-    public static readonly viewType = 'ballerina.ai-panel';
+    public static readonly viewType = 'kolab.ai-panel';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -33,7 +33,7 @@ export class AiPanelWebview {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             AiPanelWebview.viewType,
-            StateMachine.context().isBI ? "WSO2 BI Copilot" : "Ballerina Copilot",
+            StateMachine.context().isBI ? "WSO2 Copilot" : "WSO2 Copilot",
             ViewColumn.Beside,
             {
                 enableScripts: true,
@@ -64,7 +64,6 @@ export class AiPanelWebview {
                 background-color: var(--vscode-editor-background);
                 height: 100vh;
                 width: 100%;
-                display: flex;
             }
             .loader-wrapper {
                 display: flex;

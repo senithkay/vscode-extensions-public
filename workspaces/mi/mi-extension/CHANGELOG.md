@@ -2,6 +2,28 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [1.1.2] - 2024-10-15
+
+### Fixed
+
+Fixed: Delete value option is not working in MI Datamapper submapings ([#404](https://github.com/wso2/mi-vscode/issues/404))  
+Fixed: Unit test results are not formatted correctly in the console output ([#422](https://github.com/wso2/mi-vscode/issues/422))  
+Fixed: Fix unit test issues ([#424](https://github.com/wso2/mi-vscode/issues/424))  
+Fixed: Proxy diagram breaks when named insequence is added ([#436](https://github.com/wso2/mi-vscode/issues/436))  
+Fixed: Issues in the Externals endpoint section ([#437](https://github.com/wso2/mi-vscode/issues/437))  
+Fixed: Service catalog is not working properly for versioned API ([#447](https://github.com/wso2/mi-vscode/issues/447))  
+Fixed: Edited values using expression bar in MI Datamapper not applying without internet ([#449](https://github.com/wso2/mi-vscode/issues/449))  
+Fixed: Connections created for few connectors are not listed in externals tab ([#455](https://github.com/wso2/mi-vscode/issues/455))  
+Fixed: Datamapper crashes when dynamically adding inputs to output in submapping ([#456](https://github.com/wso2/mi-vscode/issues/456))  
+Fixed: Diagram breaks after certain proxy edit operations ([#457](https://github.com/wso2/mi-vscode/issues/457))  
+Fixed: Datamapper crashes when opening ([#460](https://github.com/wso2/mi-vscode/issues/460))  
+Fixed: Cannot execute a selected unit test ([#463](https://github.com/wso2/mi-vscode/issues/463))  
+Fixed: Issues in unit tests ([#465](https://github.com/wso2/mi-vscode/issues/465))  
+### Improvements
+
+Improved: Placeholders for Name and Value fields in the Parameters section in Message Processor forms are not disabled ([#438](https://github.com/wso2/mi-vscode/issues/438))  
+
+
 ## [1.1.1] - 2024-10-01
 
 ### New Features

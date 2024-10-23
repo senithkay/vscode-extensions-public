@@ -9,13 +9,16 @@
  */
 
 import React, { useState } from 'react';
+import { debounce } from "lodash";
 import styled from '@emotion/styled';
-import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
+import { ConfigVariable, Flow } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
+import { convertToVisibleTypes } from '../../../../utils/bi';
 
 namespace S {
-	export const FormContainer = styled.div`
+    export const FormContainer = styled.div`
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -24,85 +27,140 @@ namespace S {
 }
 
 export interface ConfigFormProps {
-	isOpen: boolean;
-	onClose: () => void;
-	variable: ConfigVariable;
-	title: string;
+    isOpen: boolean;
+    onClose: () => void;
+    variable: ConfigVariable;
+    title: string;
 }
 
 export function EditForm(props: ConfigFormProps) {
-	const { isOpen, onClose, variable, title } = props;
+    const { isOpen, onClose, variable, title } = props;
 
-	const { rpcClient } = useRpcContext();
+    const { rpcClient } = useRpcContext();
 
-	// Map variables data to form fields
-	const currentFields: FormField[] = [
-		{
-			key: `variable`,
-			label: 'Variable',
-			type: 'string',
-			optional: false,
-			editable: variable?.properties?.variable?.editable || false,
-			documentation: '',
-			value: variable?.properties?.variable?.value || '',
-		},
-		{
-			key: `type`,
-			label: 'Type',
-			type: 'string',
-			optional: false,
-			editable: variable?.properties?.type?.editable || false,
-			documentation: '',
-			value: variable?.properties?.type?.value || ''
-		},
-		{
-			key: `defaultable`,
-			label: 'Value',
-			type: 'string',
-			optional: true,
-			editable: variable?.properties?.defaultable?.editable || false,
-			documentation: '',
-			value: variable?.properties?.defaultable?.value === '' || variable?.properties?.defaultable?.value === '?' ? '' : variable?.properties?.defaultable?.value.replaceAll('"', '') || ''
-		}
-	];
+    // Map variables data to form fields
+    const currentFields: FormField[] = [
+        {
+            key: `variable`,
+            label: 'Variable',
+            type: 'string',
+            optional: false,
+            editable: variable?.properties?.variable?.editable || false,
+            documentation: '',
+            value: variable?.properties?.variable?.value || '',
+        },
+        {
+            key: `type`,
+            label: 'Type',
+            type: 'string',
+            optional: false,
+            editable: variable?.properties?.type?.editable || false,
+            documentation: '',
+            value: variable?.properties?.type?.value || ''
+        },
+        {
+            key: `defaultable`,
+            label: 'Value',
+            type: 'string',
+            optional: true,
+            editable: variable?.properties?.defaultable?.editable || false,
+            documentation: '',
+            value: variable?.properties?.defaultable?.value === '' || variable?.properties?.defaultable?.value === '?' ? '' : variable?.properties?.defaultable?.value.replaceAll('"', '') || ''
+        }
+    ];
 
-	const [fields, setFields] = useState<FormField[]>(currentFields);
+    const [fields, setFields] = useState<FormField[]>(currentFields);
+    // const [model, setModel] = useState<Flow>();
 
-	const handleSave = (data: FormValues) => {
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [types, setTypes] = useState<CompletionItem[]>([]);
 
-		setFields([]);
+    const handleSave = (data: FormValues) => {
 
-		variable.properties.defaultable.value =
-			data.defaultable === "" || data.defaultable === null ?
-				"?"
-				: data.type === "string" ? '"' + data.defaultable + '"' : data.defaultable;
+        setFields([]);
 
-		variable.properties.type.value = data.type;
-		variable.properties.variable.value = data.variable;
+        variable.properties.defaultable.value =
+            data.defaultable === "" || data.defaultable === null ?
+                "?"
+                : data.type === "string" ? '"' + data.defaultable + '"' : data.defaultable;
 
-		rpcClient
-			.getBIDiagramRpcClient()
-			.updateConfigVariables({
-				configVariable: variable,
-				configFilePath: variable.codedata.lineRange.fileName
-			})
-			.then((response: any) => {
-				console.log(">>> Config variables------", response);
-			});
+        variable.properties.type.value = data.type;
+        variable.properties.variable.value = data.variable;
 
-		onClose();
-	};
+        rpcClient
+            .getBIDiagramRpcClient()
+            .updateConfigVariables({
+                configVariable: variable,
+                configFilePath: variable.codedata.lineRange.fileName
+            })
+            .then((response: any) => {
+                console.log(">>> Config variables------", response);
+            });
 
-	return (
-		<>
-			<PanelContainer
-				title={title}
-				show={props.isOpen}
-				onClose={onClose}>
+        onClose();
+    };
 
-				<Form formFields={fields} onSubmit={handleSave} />
+    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
+        let visibleTypes: CompletionItem[] = types;
+        if (!types.length) {
+            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                filePath: variable.codedata.lineRange.fileName,
+                position: variable.codedata.lineRange.startLine,
+            });
 
-			</PanelContainer>
-		</>
-	);
+            visibleTypes = convertToVisibleTypes(response.types);
+            setTypes(visibleTypes);
+        }
+
+        const effectiveText = value.slice(0, cursorPosition);
+        const filteredTypes = visibleTypes.filter((type) => {
+            const lowerCaseText = effectiveText.toLowerCase();
+            const lowerCaseLabel = type.label.toLowerCase();
+
+            return lowerCaseLabel.includes(lowerCaseText);
+        });
+
+        setFilteredTypes(filteredTypes);
+    }, 250);
+    
+    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
+        await debouncedGetVisibleTypes(value, cursorPosition);
+    };
+
+    const handleCompletionSelect = async () => {
+        handleExpressionEditorCancel();
+    };
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredTypes([]);
+        setTypes([]);
+    };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    };
+
+    return (
+        <>
+            <PanelContainer
+                title={title}
+                show={props.isOpen}
+                onClose={onClose}>
+
+                <Form
+                    formFields={fields}
+                    onSubmit={handleSave}
+                    fileName={variable.codedata.lineRange.fileName}
+                    targetLineRange={{startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine}}
+                    expressionEditor={{
+                        completions: filteredTypes,
+                        retrieveVisibleTypes: handleGetVisibleTypes,
+                        onCompletionSelect: handleCompletionSelect,
+                        onCancel: handleExpressionEditorCancel,
+                        onBlur: handleExpressionEditorBlur,
+                    }} />
+
+            </PanelContainer>
+        </>
+    );
 }

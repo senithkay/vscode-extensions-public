@@ -21,6 +21,7 @@ export declare enum BallerinaComponentTypes {
 
 export enum SubPanelView {
     INLINE_DATA_MAPPER = "inlineDataMapper",
+    HELPER_PANEL = "helperPanel",
     UNDEFINED = "undefined",
 }
 
@@ -63,6 +64,13 @@ export interface SubPanel {
 
 export interface SubPanelViewProps {
     inlineDataMapper?: InlineDataMapperProps;
+    sidePanelData?: SidePanelData;
+}
+
+export interface SidePanelData {
+    filePath: string;
+    range: LineRange;
+    editorKey: string;
 }
 
 interface InlineDataMapperProps {

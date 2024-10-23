@@ -56,6 +56,7 @@ export { default as ConnectorIcon } from './ConnectorIcon';
 export { default as ResourceIcon } from './ResourceIcon';
 export { default as ResourceAccessorDefinition } from './ResourceIcon';
 export { default as Custom } from "./Custom";
+export { VarIcon } from "./VarIcon";
 export { default as ErrorIcon } from "./Error";
 export { default as TriggerList } from "./ListenerIcon";
 export { default as ComponentCollapseIcon } from "./ComponentCollapseIcon";
@@ -95,4 +96,5 @@ export { GraphqlQueryIcon } from "./GraphqlQueryIcon";
 export { GraphqlMutationIcon } from "./GraphqlMutationIcon";
 export { GraphqlSubscriptionIcon } from "./GraphqlSubscriptionIcon";
 export { default as BackArrow } from './BackArrow';
+export { TIcon } from './TIcon';
 

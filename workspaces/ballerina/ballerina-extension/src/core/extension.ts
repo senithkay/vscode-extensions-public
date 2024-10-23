@@ -9,7 +9,8 @@
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor,
+    ConfigurationTarget
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -29,7 +30,6 @@ import {
     ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
     ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH,
     ENABLE_LIVE_RELOAD,
-    ENABLE_FULL_PROJECT_SCAFFOLDING,
     ENABLE_AI_SUGGESTIONS,
     ENABLE_SEQUENCE_DIAGRAM_VIEW
 }
@@ -45,10 +45,15 @@ import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
 import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import os, { platform } from "os";
+import axios from "axios";
+import AdmZip from 'adm-zip';
+import fs from 'fs';
+import path from 'path';
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
-export const EXTENSION_ID = 'wso2.ballerina';
+export const EXTENSION_ID = 'wso2.kolab';
 const PREV_EXTENSION_ID = 'ballerina.ballerina';
 export enum LANGUAGE {
     BALLERINA = 'ballerina',
@@ -109,7 +114,7 @@ export interface WebviewContext {
     type?: WEBVIEW_TYPE;
 }
 
-const showMessageInstallBallerinaCommand = 'ballerina.showMessageInstallBallerina';
+const showMessageInstallBallerinaCommand = 'kolab.showMessageInstallBallerina';
 const SDK_PREFIX = 'Ballerina ';
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
@@ -128,12 +133,25 @@ export class BallerinaExtension {
     private perfForecastContext: PerformanceForecastContext;
     private ballerinaConfigPath: string;
     private isOpenedOnce: boolean;
+    private ballerinaUserHome: string;
+    private ballerinaUserHomeName; string;
+    private ballerinaLatestVersion: string;
+    private ballerinaLatestReleaseUrl: string;
+    private ballerinaKolaVersion: string;
+    private ballerinaKolaReleaseUrl: string;
+    private ballerinaHomeCustomDirName: string;
 
     constructor() {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
         this.isPersist = false;
+        this.ballerinaUserHomeName = '.ballerina';
+        this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
+        this.ballerinaLatestVersion = "2201.10.1";
+        this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
+        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/workflows/2151175/runs?status=success";
+        this.ballerinaHomeCustomDirName = "ballerina-home";
         this.showStatusBarItem();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -186,13 +204,25 @@ export class BallerinaExtension {
             this.showUninstallOldVersion();
         }
         // Register show logs command.
-        const showLogs = commands.registerCommand('ballerina.showLogs', () => {
+        const showLogs = commands.registerCommand('kolab.showLogs', () => {
             outputChannel.show();
         });
         this.context!.subscriptions.push(showLogs);
 
         commands.registerCommand(showMessageInstallBallerinaCommand, () => {
             this.showMessageInstallBallerina();
+        });
+
+        commands.registerCommand('ballerina.installBallerina', () => {
+            this.installBallerina();
+        });
+
+        commands.registerCommand('ballerina.setupKola', () => {
+            this.setupKolaVersion();
+        });
+
+        commands.registerCommand('ballerina.updateKola', () => {
+            this.updateKolaVersion();
         });
 
         try {
@@ -250,7 +280,7 @@ export class BallerinaExtension {
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
-                commands.registerCommand('ballerina.stopLangServer', () => {
+                commands.registerCommand('kolab.stopLangServer', () => {
                     this.langClient.stop();
                 });
 
@@ -277,10 +307,272 @@ export class BallerinaExtension {
         }
     }
 
+    async installBallerina() {
+        try {
+            window.showInformationMessage("Downloading and setting up Ballerina...");
+            console.log('Downloading and setting up Ballerina...');
+
+            // Get the latest release installer url
+            const installerUrl = this.getInstallerUrl();
+            const parts = installerUrl.split("/");
+            const installerName = parts[parts.length - 1];
+
+            // Create ballerina user home directory if it doesn't exist
+            if (!fs.existsSync(this.getBallerinaUserHome())) {
+                fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
+            }
+
+            const installerFilePath = path.join(this.getBallerinaUserHome(), installerName);
+            
+            // Download the installer and save it to the user home directory
+            const response = await axios({
+                url: installerUrl,
+                method: 'GET',
+                responseType: 'arraybuffer',
+            });
+            await fs.writeFileSync(installerFilePath, response.data);
+
+            // Install Ballerina
+            var command = '';
+            const platform = os.platform();
+            if (platform === 'win32') {
+                command = `msiexec /i ${installerFilePath}`;
+            } else if (platform === 'linux') {
+                command = `sudo dpkg -i ${installerFilePath}`;
+            } else if (platform === 'darwin') {
+                command = `sudo installer -pkg ${installerFilePath} -target /Library`;
+            }
+            const terminal = window.createTerminal('Install Ballerina');
+            await terminal.sendText(command);
+            await terminal.show();
+
+            // Cleanup: Remove the downloaded zip file
+            fs.rmSync(installerFilePath);
+
+            console.log('Ballerina home has been set successfully.');
+            window.showInformationMessage("Ballerina has been set up successfully.");
+        } catch (error) {
+            console.error('Error downloading or installing Ballerina:', error);
+            window.showErrorMessage('Error downloading or installing Ballerina:', error);
+        }
+    }
+
+    async setupKolaVersion() {
+        try {
+            window.showInformationMessage(`Setting up Ballerina Kola version`);
+
+            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
+
+            await this.downloadAndUnzipBallerina(destinationPath);
+
+            await this.setBallerinaHomeAndCommand(destinationPath);
+
+            await this.setExecutablePermissions();
+
+            console.log('Ballerina home has been set successfully for Quala version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
+        } catch (error) {
+            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+        }
+    }
+
+    async updateKolaVersion() {
+        try {
+            window.showInformationMessage(`Updating Ballerina Kola version`);
+
+            // Remove the existing Ballerina Kola version
+            fs.rmSync(this.ballerinaHome, { recursive: true, force: true });
+
+            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
+
+            await this.downloadAndUnzipBallerina(destinationPath);
+
+            await this.setBallerinaHomeAndCommand(destinationPath);
+
+            await this.setExecutablePermissions();
+
+            console.log('Ballerina home has been set successfully for Kola version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+        } catch (error) {
+            console.error('Error downloading or unzipping the Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
+        }
+    }
+
+    private async downloadAndUnzipBallerina(destinationPath: string) {
+        window.showInformationMessage(`Downloading Ballerina Kola version`);
+        try {
+            // Get the latest successful daily build run and artifacts
+            const workflowResponse = await axios.get(this.ballerinaKolaReleaseUrl);
+            const workflowData = workflowResponse.data;
+            if (workflowData.total_count === 0) {
+                throw new Error('No successful workflow run found');
+            }
+            const latestRun = workflowData.workflow_runs[0];
+            console.log(`Found workflow run: ${latestRun.id}`);
+
+            const workflowRunUrl = `https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/runs/${latestRun.id}/artifacts`;
+            const workflowRunResponse = await axios.get(workflowRunUrl);
+            if (workflowRunResponse.data.total_count === 0) {
+                throw new Error('No artifacts found in the workflow run');
+            }
+            const platform = os.platform();
+            const asset = workflowRunResponse.data.artifacts.find((asset: any) => {
+                        if (platform === 'win32') {
+                            return asset.name.endsWith('Windows Installer ZIP');
+                        } else if (platform === 'linux') {
+                            if (os.arch() === 'arm64') {
+                                return asset.name.endsWith('Linux-ARM Installer ZIP');
+                            } else {
+                                return asset.name.endsWith('Linux Installer ZIP');
+                            }
+                        } else if (platform === 'darwin') {
+                            if (os.arch() === 'arm64') {
+                                return asset.name.endsWith('MacOS-ARM Installer ZIP');
+                            } else {
+                                return asset.name.endsWith('MacOS Installer ZIP');
+                            }
+                        }
+                    });
+            const artifactUrl = asset.archive_download_url;
+
+            // Create destination folder if it doesn't exist
+            if (!fs.existsSync(this.getBallerinaUserHome())) {
+                fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
+            }
+            
+            // Download the artifact and save it to the user home directory
+            console.log(`Downloading artifact from ${artifactUrl}`);
+            const response = await axios({
+                url: artifactUrl,
+                method: 'GET',
+                responseType: 'arraybuffer',
+            });
+            const zipFilePath = path.join(this.getBallerinaUserHome(), asset.name);
+            await fs.writeFileSync(zipFilePath, response.data);
+            console.log(`Downloaded artifact to ${zipFilePath}`);
+            window.showInformationMessage(`Downloaded artifact to ${zipFilePath}`);
+
+            // Unzip the artifact
+            const zip = new AdmZip(zipFilePath);
+            zip.extractAllTo(this.getBallerinaUserHome(), true);
+            console.log(`Unzipped artifact to ${this.getBallerinaUserHome()}`);
+
+            const filePattern = /^ballerina-.*-swan-lake-.*\.zip$/;
+            const files = fs.readdirSync(this.getBallerinaUserHome());
+            const matchingFile = files.find((file) => filePattern.test(file));
+            if (!matchingFile) {
+                throw new Error('No matching zip file found');
+            }
+            const tempZipFilePath = path.join(this.getBallerinaUserHome(), matchingFile.toString());
+            console.log(tempZipFilePath);
+
+            const tempZip = new AdmZip(tempZipFilePath);
+            tempZip.extractAllTo(this.getBallerinaUserHome(), true);
+
+            // Get the Ballerina Kola version
+            this.ballerinaKolaVersion = matchingFile.toString().split('-')[1];
+            console.log(`Ballerina Kola version: ${this.ballerinaKolaVersion}`);
+
+            // Cleanup: Remove the downloaded zip file
+            fs.rmSync(zipFilePath);
+            fs.rmSync(tempZipFilePath);
+            
+            // Rename the root folder to the new name
+            const tempRootPath = path.join(this.getBallerinaUserHome(), matchingFile.toString().replace('.zip', ''));
+            fs.renameSync(tempRootPath, destinationPath);
+
+            console.log('Cleanup complete.');
+        } catch (error) {
+            console.error('Error downloading or unziping Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unziping Ballerina Kola version:', error);
+        }
+    }
+
+    private async setBallerinaHomeAndCommand(destinationPath: string) {
+        let exeExtension = "";
+        if (isWindows()) {
+            exeExtension = ".bat";
+        }
+
+        // Set the Ballerina Home and Command
+        this.ballerinaHome = destinationPath;
+        this.ballerinaCmd = join(this.ballerinaHome, "bin") + sep + "bal" + exeExtension;
+
+        // Update the configuration with the new Ballerina Home
+        workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
+    }
+
+    private async setExecutablePermissions() {
+        try {
+            await fs.promises.chmod(this.getBallerinaCmd(), 0o755);
+
+            const javaExecFile = this.findFileInDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 'java');
+            if (javaExecFile) {
+                console.log('Found java executable:', javaExecFile);
+                await fs.promises.chmod(javaExecFile, 0o755);
+            }
+
+            let exeExtension = "";
+            if (isWindows()) {
+                exeExtension = ".bat";
+            }
+            await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaKolaVersion, 'bin', 'bal' + exeExtension), 0o755);
+
+            console.log('Command files are now executable.');
+        } catch (error) {
+            console.error('Failed to set executable permissions:', error);
+        }
+    }
+
+    private findFileInDirectory(directory: string, fileName: string): string | null {
+        const files = fs.readdirSync(directory);
+
+        for (const file of files) {
+            const fullPath = path.join(directory, file);
+
+            if (fs.statSync(fullPath).isDirectory()) {
+                const found = this.findFileInDirectory(fullPath, fileName);
+                if (found) {
+                    return found;
+                }
+            } else if (file === fileName) {
+                return fullPath;
+            }
+        }
+
+        return null;
+    }
+
+    private getInstallerUrl(): string {
+        const platform = os.platform();
+        if (platform === 'win32') {
+            return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-windows-x64.msi";
+        } else if (platform === 'linux') {
+            return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-linux-x64.deb";
+        } else if (platform === 'darwin') {
+            if (os.arch() === 'arm') {
+                return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-macos-arm-x64.pkg";
+            } else {
+                return this.ballerinaLatestReleaseUrl + "/ballerina-" + this.ballerinaLatestVersion + "-swan-lake-macos-x64.pkg";
+            }
+        }
+        return null;
+    }
+
+    private getUserHomeDirectory(): string {
+        return os.homedir();
+    }
+
+    getBallerinaUserHome(): string {
+        return this.ballerinaUserHome;
+    }
+
     showStatusBarItem() {
         this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Right, 100);
         this.updateStatusBar("Detecting");
-        this.sdkVersion.command = "ballerina.showLogs";
+        this.sdkVersion.command = "kolab.showLogs";
         this.sdkVersion.show();
 
         window.onDidChangeActiveTextEditor((editor) => {
@@ -632,10 +924,6 @@ export class BallerinaExtension {
 
     public enableSequenceDiagramView(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_SEQUENCE_DIAGRAM_VIEW);
-    }
-
-    public biOverviewV2(): boolean {
-        return <boolean>workspace.getConfiguration().get(ENABLE_FULL_PROJECT_SCAFFOLDING);
     }
 
     public enableAiSuggestions(): boolean {

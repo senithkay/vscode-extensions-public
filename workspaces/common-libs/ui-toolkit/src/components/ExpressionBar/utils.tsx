@@ -11,17 +11,13 @@ import React, { RefObject } from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
 
-export const getExpressionInfo = (text: string, cursorPosition: number) => {
-    const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
-    const closeBrackets = text.substring(0, cursorPosition).match(/\)/g);
-    const isCursorInFunction = !!(openBrackets && openBrackets.length > (closeBrackets?.length ?? 0));
-    let currentFnContent;
-    if (isCursorInFunction) {
-        const openBracketIndex = text.substring(0, cursorPosition).lastIndexOf('(');
-        currentFnContent = text.substring(openBracketIndex + 1, cursorPosition);
-    }
+export const checkCursorInFunction = (text: string, cursorPosition: number) => {
+    const effectiveText = text.substring(0, cursorPosition);
+    const lastOpenBracketIndex = effectiveText.lastIndexOf('(');
+    const lastCloseBracketIndex = effectiveText.lastIndexOf(')') ?? 0;
+    const cursorInFunction = lastOpenBracketIndex && (lastOpenBracketIndex > lastCloseBracketIndex);
 
-    return { isCursorInFunction, currentFnContent };
+    return cursorInFunction;
 };
 
 export const addClosingBracketIfNeeded = (text: string) => {
@@ -43,9 +39,9 @@ export const addClosingBracketIfNeeded = (text: string) => {
     return updatedText;
 };
 
-export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: number) => {
+export const setCursor = (inputRef: RefObject<HTMLTextAreaElement>, position: number) => {
     inputRef.current.focus();
-    inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
+    inputRef.current.shadowRoot.querySelector('textarea').setSelectionRange(position, position);
 };
 
 export const getIcon = (kind: CompletionItemKind) => {
@@ -55,4 +51,3 @@ export const getIcon = (kind: CompletionItemKind) => {
 
     return <Codicon name="symbol-variable" />;
 };
-
