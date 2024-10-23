@@ -16,7 +16,6 @@ import { DropdownEditor } from "./DropdownEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
-import { isDropdownField } from "./utils";
 import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
 
 interface FormFieldEditorProps {
@@ -30,13 +29,17 @@ interface FormFieldEditorProps {
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
     const { field, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
 
-    if (isDropdownField(field)) {
+    if (field.type === "MULTIPLE_SELECT" || field.type?.toUpperCase() === "ENUM") {
+        // Enum is a dropdown field
         return <DropdownEditor field={field} />;
-    } else if (!field.items && (field.key === "type") && field.editable) {
-        return (
-            <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />
-        );
+    } else if (field.type === "SINGLE_SELECT" && field.editable) {
+        // HACK:Single select field is treat as type editor for now
+        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+    } else if (!field.items && field.key === "type" && field.editable) {
+        // Type field is a type editor
+        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
+        // Expression field is a inline expression editor
         return (
             <ContextAwareExpressionEditor
                 ref={ref}
@@ -46,14 +49,12 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 handleOnFieldFocus={handleOnFieldFocus}
             />
         );
-    } else if (!field.items && (field.key !== "type")) {
-        return (
-            <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />
-        );
     } else if (field.type === "VIEW") {
         // Skip this property
-        return <></>
+        return <></>;
     } else {
+        // Default to text editor
+        // Readonly fields are also treated as text editor
         return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     }
 });

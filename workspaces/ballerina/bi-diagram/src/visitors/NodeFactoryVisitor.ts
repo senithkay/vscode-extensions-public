@@ -29,7 +29,6 @@ import { createNodesLink } from "../utils/diagram";
 import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
-import { ForeachNodeModel } from "../components/nodes/ForeachNode";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -270,16 +269,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     beginVisitWhile(node: FlowNode): void {
         const nodeModel = new WhileNodeModel(node);
-
-        // TODO: Fix and enable code-block node
-        const codeBlockNode = this.createCodeBlockNode(
-            `${node.id}-codeBlock`,
-            node.viewState.x + NODE_HEIGHT / 2 - (node.viewState.cw + NODE_GAP_X) / 2,
-            node.viewState.y + node.viewState.h,
-            node.viewState.cw + NODE_GAP_X,
-            node.viewState.ch - node.viewState.h
-        );
-
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
         this.lastNodeModel = undefined;
@@ -395,16 +384,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     beginVisitForeach(node: FlowNode): void {
-        const nodeModel = new ForeachNodeModel(node);
-
-        const codeBlockNode = this.createCodeBlockNode(
-            `${node.id}-codeBlock`,
-            node.viewState.x + NODE_HEIGHT / 2 - (node.viewState.cw + NODE_GAP_X) / 2,
-            node.viewState.y + node.viewState.h,
-            node.viewState.cw + NODE_GAP_X,
-            node.viewState.ch - node.viewState.h
-        );
-
+        const nodeModel = new WhileNodeModel(node);
         this.nodes.push(nodeModel);
         this.updateNodeLinks(node, nodeModel);
         this.lastNodeModel = undefined;
