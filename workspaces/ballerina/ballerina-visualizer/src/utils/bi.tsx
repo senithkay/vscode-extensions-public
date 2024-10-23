@@ -26,7 +26,7 @@ import {
     LineRange,
     ExpressionCompletionItem,
     TriggerModel,
-    FunctionField
+    FunctionField,
     SignatureHelpResponse
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";

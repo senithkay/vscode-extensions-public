@@ -393,10 +393,10 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
                     parameters.push({
                         NAME: `${paramName}${index}`,
                         TYPE: val.value
-                    })
+                    });
                 }
             });
-            functionsConfig.push({ NAME: key, PARAMS: parameters })
+            functionsConfig.push({ NAME: key, PARAMS: parameters });
         }
     }
 

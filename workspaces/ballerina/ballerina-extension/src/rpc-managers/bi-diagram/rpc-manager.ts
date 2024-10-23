@@ -66,7 +66,7 @@ import {
 } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, handleServiceCreation, sanitizeName } from "../../utils/bi";
 import { title } from "process";
 import { extension } from "../../BalExtensionContext";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
