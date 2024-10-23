@@ -254,7 +254,8 @@ export function LibrariesView(props: LibrariesViewProps) {
         const functionSignature = node?.metadata?.codedata?.module ? `${node.metadata.codedata.module}:${node.metadata.codedata.symbol}` : node.metadata?.codedata?.symbol;
         const updateData: ExpressionFormField = {
             value: functionSignature + "(",
-            key: editorKey
+            key: editorKey,
+            cursorPosition: position.endLine.offset
         }
         updateFormField(updateData);
     }
