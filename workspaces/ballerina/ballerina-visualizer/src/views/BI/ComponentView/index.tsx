@@ -69,8 +69,7 @@ export function AddComponentView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.AddConnectionWizard,
-                },
-                isPopup: true,
+                }
             });
         } else if (key === DIRECTORY_MAP.AUTOMATION) {
             await rpcClient.getVisualizerRpcClient().openView({
