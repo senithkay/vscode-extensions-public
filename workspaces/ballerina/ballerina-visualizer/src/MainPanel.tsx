@@ -34,7 +34,8 @@ import {
     ServiceForm,
     PopupMessage,
     MainForm,
-    FunctionForm
+    FunctionForm,
+    SetupView
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -196,6 +197,10 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIWelcome:
                         setNavActive(false);
                         setViewComponent(<WelcomeView />);
+                        break;
+                    case MACHINE_VIEW.SetupView:
+                        setNavActive(false);
+                        setViewComponent(<SetupView haveLS={value.metadata.haveLS} />);
                         break;
                     case MACHINE_VIEW.BIProjectForm:
                         setShowHome(false);

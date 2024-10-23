@@ -304,17 +304,17 @@
         ],
         "commands": [
             {
-                "command": "ballerina.installBallerina",
+                "command": "kolab-setup.installBallerina",
                 "title": "Install Ballerina",
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.setupKola",
+                "command": "kolab-setup.setupKola",
                 "title": "Set up Kola",
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.updateKola",
+                "command": "kolab-setup.updateKola",
                 "title": "Update Kola",
                 "category": "Ballerina"
             },
