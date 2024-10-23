@@ -192,15 +192,21 @@ export class PositionVisitor implements Visitor {
 
     beginVisitHeader = (node: Header): void => this.setBasicMediatorPosition(node);
 
-    beginVisitInSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
+    beginVisitInSequence = (node: Sequence): void => {
+        node.viewState.x = this.position.x - (node.viewState.w / 2);
+        node.viewState.y = this.position.y;
+        this.position.y += NODE_GAP.Y + node.viewState.h;
+    }
     endVisitInSequence = (node: Sequence): void => {
-        node.viewState.fh = this.position.y - node.viewState.y;
-        this.position.y += NODE_GAP.SEQUENCE_Y + node.viewState.h;
+        this.position.y += (node?.mediatorList?.length === 0 ? NODE_GAP.Y : 0);
     }
 
-    beginVisitOutSequence = (node: Sequence): void => this.setBasicMediatorPosition(node);
+    beginVisitOutSequence = (node: Sequence): void => {
+        this.position.y += NODE_GAP.SEQUENCE_Y;
+        this.setBasicMediatorPosition(node);
+    }
     endVisitOutSequence = (node: Sequence): void => {
-        this.position.y += NODE_GAP.Y + node.viewState.h;
+        this.position.y += NODE_DIMENSIONS.END.HEIGHT;
     }
 
     beginVisitFaultSequence = (node: Sequence): void => {
@@ -232,18 +238,38 @@ export class PositionVisitor implements Visitor {
     beginVisitRespond = (node: Respond): void => this.setBasicMediatorPosition(node);
 
     beginVisitResource = (node: Resource): void => {
-        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
-        if (node.inSequenceAttribute || node.outSequenceAttribute) {
-            this.setBasicMediatorPosition(node);
+        if (node.inSequenceAttribute) {
+            node.viewState.x = this.position.x - (node.viewState.w / 2);
+            node.viewState.y = this.position.y;
+            this.position.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        }
+    }
+    endVisitResource(node: Resource): void {
+        const { outSequenceAttribute, viewState } = node;
+
+        if (outSequenceAttribute) {
+            viewState.x = this.position.x;
+            viewState.y = this.position.y + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
+            this.position.y = viewState.y + NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
         }
     }
 
     beginVisitTarget = (node: Target | ProxyTarget): void => {
-        if (node.tag === "target") {
-            const proxyTargetNode = node as ProxyTarget;
-            if (proxyTargetNode.inSequenceAttribute || proxyTargetNode.outSequenceAttribute) {
-                this.setBasicMediatorPosition(proxyTargetNode);
-            }
+        const proxyTargetNode = node as ProxyTarget;
+        if (proxyTargetNode.inSequenceAttribute) {
+            node.viewState.x = this.position.x - (node.viewState.w / 2);
+            node.viewState.y = this.position.y;
+            this.position.y += NODE_GAP.Y + node.viewState.h;
+        }
+    }
+    endVisitTarget(node: Target | ProxyTarget): void {
+        const proxyTargetNode = node as ProxyTarget;
+        const { viewState, outSequenceAttribute } = proxyTargetNode;
+
+        if (outSequenceAttribute) {
+            viewState.x = this.position.x;
+            viewState.y = this.position.y + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
+            this.position.y = viewState.y + NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
         }
     }
 
@@ -285,7 +311,13 @@ export class PositionVisitor implements Visitor {
         this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
     }
     endVisitClone = (node: Clone): void => this.setSkipChildrenVisit(false);
-    beginVisitDataServiceCall = (node: DataServiceCall): void => this.setBasicMediatorPosition(node);
+
+    beginVisitDataServiceCall = (node: DataServiceCall): void => {
+        this.setBasicMediatorPosition(node);
+        this.setSkipChildrenVisit(true);
+    }
+    endVisitDataServiceCall = (node: DataServiceCall): void => this.setSkipChildrenVisit(false);
+
     beginVisitEnqueue = (node: Enqueue): void => this.setBasicMediatorPosition(node);
     beginVisitTransaction = (node: Transaction): void => this.setBasicMediatorPosition(node);
     beginVisitEvent = (node: Event): void => this.setBasicMediatorPosition(node);
@@ -334,7 +366,15 @@ export class PositionVisitor implements Visitor {
         }, NodeTypes.CONDITION_NODE, true, "default");
     }
     endVisitSwitch = (node: Switch): void => this.setSkipChildrenVisit(false);
-    beginVisitConditionalRouter = (node: ConditionalRouter): void => this.setBasicMediatorPosition(node);
+
+    beginVisitConditionalRouter = (node: ConditionalRouter): void => {
+        this.setBasicMediatorPosition(node);
+        this.skipChildrenVisit = true;
+    }
+    endVisitConditionalRouter = (node: ConditionalRouter): void => {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitThrottle = (node: Throttle): void => {
         this.setAdvancedMediatorPosition(node, {
             OnAccept: node.onAccept,
@@ -383,7 +423,15 @@ export class PositionVisitor implements Visitor {
     beginVisitNTLM = (node: Ntlm): void => this.setBasicMediatorPosition(node);
     //Transformation Mediators
     beginVisitDatamapper = (node: Datamapper): void => this.setBasicMediatorPosition(node);
-    beginVisitEnrich = (node: Enrich): void => this.setBasicMediatorPosition(node);
+
+    beginVisitEnrich = (node: Enrich): void => {
+        this.setBasicMediatorPosition(node);
+        this.skipChildrenVisit = true;
+    }
+    endVisitEnrich(node: Enrich): void {
+        this.skipChildrenVisit = false
+    }
+
     beginVisitFastXSLT = (node: FastXSLT): void => this.setBasicMediatorPosition(node);
     beginVisitMakefault = (node: Makefault): void => this.setBasicMediatorPosition(node);
     beginVisitJsontransform = (node: Jsontransform): void => {

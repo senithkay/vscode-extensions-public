@@ -26,7 +26,7 @@ import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
 import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
-import { Colors } from "../resources/constants";
+import { Colors, NODE_GAP } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -275,7 +275,7 @@ export function Diagram(props: DiagramProps) {
         const positionVisitor = new PositionVisitor(dimensions.width);
         traversNode(model, positionVisitor);
         const height = positionVisitor.getSequenceHeight();
-        dimensions.height = height;
+        dimensions.height = height + NODE_GAP.END_Y;
 
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any, breakpoints);
