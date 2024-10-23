@@ -47,7 +47,7 @@ export function HeaderSearchBoxOptions(props: HeaderSearchBoxOptionsProps) {
         } else {
             setSearchOptions(searchOptions.filter(option => option !== value));
         }
-        searchInputRef.current.shadowRoot.querySelector('input').focus();
+        searchInputRef.current.shadowRoot.querySelector('textarea').focus();
     };
 
     return (

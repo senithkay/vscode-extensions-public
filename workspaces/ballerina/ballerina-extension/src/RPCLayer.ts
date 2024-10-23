@@ -110,7 +110,9 @@ async function getPopupContext(): Promise<PopupVisualizerLocation> {
         resolve({
             documentUri: context.documentUri,
             view: context.view,
-            recentIdentifier: context.recentIdentifier
+            recentIdentifier: context.recentIdentifier,
+            identifier: context.identifier,
+            metadata: context.metadata,
         });
     });
 }

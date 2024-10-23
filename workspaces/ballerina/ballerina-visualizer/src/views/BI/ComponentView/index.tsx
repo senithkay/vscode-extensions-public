@@ -10,7 +10,7 @@
 import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, Divider, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Divider, Icon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BIHeader } from "../BIHeader";
 import ButtonCard from "../../../components/ButtonCard";
@@ -127,7 +127,7 @@ export function AddComponentView() {
                                 onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
                             <ButtonCard
-                                icon={<Codicon name="calendar" />}
+                                icon={<Icon name="bi-task"  iconSx={{ fontSize: "16px" }}/>}
                                 title="Automation"
                                 description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
                                 onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
@@ -151,25 +151,25 @@ export function AddComponentView() {
                             </BodyText>
                             <CardGrid>
                                 <ButtonCard
-                                    icon={<Codicon name="link" />}
+                                    icon={<Icon name="bi-connection" iconSx={{ fontSize: "16px" }}/>}
                                     title="Connections"
                                     description="Set up external service connections, like databases and APIs."
                                     onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
                                 />
                                 <ButtonCard
-                                    icon={<Codicon name="layout" />}
+                                    icon={<Icon name="bi-type" iconSx={{ fontSize: "16px" }}/>}
                                     title="Types"
                                     description="Define and manage data types with JSON schema."
                                     onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
                                 />
                                 <ButtonCard
-                                    icon={<Codicon name="gear" />}
+                                    icon={<Icon name="bi-config" iconSx={{ fontSize: "16px" }}/>}
                                     title="Configurations"
                                     description="Handle environment variables and secrets for your project."
                                     onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                                 />
                                 <ButtonCard
-                                    icon={<Codicon name="file-code" />}
+                                    icon={<Icon name="bi-function" iconSx={{ fontSize: "16px" }}/>}
                                     title="Functions"
                                     description="Create reusable functions to streamline your integration logic."
                                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}

@@ -8,7 +8,7 @@
  */
 import { commands, Uri, workspace, WorkspaceEdit, QuickPickItem, window, Position, TextDocument } from "vscode";
 
-const ACTION_EXTRACT_COMMAND = "ballerina.action.extract";
+const ACTION_EXTRACT_COMMAND = "kolab.action.extract";
 
 function activateExtractCommand() {
     // register ballerina extract command

@@ -193,7 +193,6 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     function isEmptyProject(): boolean {
-        console.log(">>> projectStructure", { projectStructure });
         return Object.values(projectStructure.directoryMap || {}).every(array => array.length === 0);
     }
 
@@ -383,15 +382,31 @@ export function Overview(props: ComponentDiagramProps) {
         rpcClient.getBIDiagramRpcClient().openReadme();
     };
 
+    const handlePlay = () => {
+        //rpcClient.getBIDiagramRpcClient().runProject();
+    };
+
+    const handleBuild = () => {
+        rpcClient.getBIDiagramRpcClient().buildProject();
+    };
+
+
+
     const getActionButtons = (): React.ReactNode[] => {
         return [
-            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleDeploy}>
+            <VSCodeButton key="run" appearance="icon" title="Generate with AI" onClick={handlePlay}>
+                <Codicon name="play" sx={{ marginRight: 5 }} /> Run
+            </VSCodeButton>,
+            <VSCodeButton key="build" appearance="icon" title="Generate with AI" onClick={handleBuild}>
+                <Codicon name="package" sx={{ marginRight: 5 }} /> Build
+            </VSCodeButton>,
+            <VSCodeButton key="deploy" appearance="icon" title="Generate with AI" onClick={handleDeploy}>
                 <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
             </VSCodeButton>,
-            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleGenerate}>
+            <VSCodeButton key="generate" appearance="icon" title="Generate with AI" onClick={handleGenerate}>
                 <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
             </VSCodeButton>,
-            <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
+            <VSCodeButton key="add-construct" appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
                 <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
             </VSCodeButton>
         ];
@@ -429,6 +444,11 @@ export function Overview(props: ComponentDiagramProps) {
                     )}
                     <CardTitleContainer>
                         <Title variant="h2">Readme</Title>
+                        {readmeContent && isEmptyProject() && (
+                            <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleGenerate}>
+                                <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
+                            </VSCodeButton>
+                        )}
                         <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
                             <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
                         </VSCodeButton>

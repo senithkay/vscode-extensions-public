@@ -21,3 +21,9 @@ export type FormField = {
     value: string;
     items?: string[];
 };
+
+export type ExpressionFormField = {
+    key: string;
+    value: string;
+    cursorPosition: number;
+};

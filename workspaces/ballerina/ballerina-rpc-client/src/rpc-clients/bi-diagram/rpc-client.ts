@@ -20,6 +20,9 @@ import {
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIModuleNodesResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
@@ -37,7 +40,12 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    SignatureHelpRequest,
+    SignatureHelpResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
     WorkspacesResponse,
+    buildProject,
     createComponent,
     createComponents,
     createProject,
@@ -50,15 +58,20 @@ import {
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
+    getModuleNodes,
     getNodeTemplate,
     getProjectComponents,
     getProjectStructure,
     getReadmeContent,
+    getSignatureHelp,
     getSourceCode,
+    getVisibleVariableTypes,
+    getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
-    openReadme
+    openReadme,
+    runProject
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -134,8 +147,16 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(createComponents, HOST_EXTENSION, params);
     }
 
+    getVisibleVariableTypes(params: BIGetVisibleVariableTypesRequest): Promise<BIGetVisibleVariableTypesResponse> {
+        return this._messenger.sendRequest(getVisibleVariableTypes, HOST_EXTENSION, params);
+    }
+
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getModuleNodes(): Promise<BIModuleNodesResponse> {
+        return this._messenger.sendRequest(getModuleNodes, HOST_EXTENSION);
     }
 
     getReadmeContent(): Promise<ReadmeContentResponse> {
@@ -152,5 +173,21 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     openAIChat(params: AIChatRequest): void {
         return this._messenger.sendNotification(openAIChat, HOST_EXTENSION, params);
+    }
+
+    getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
+        return this._messenger.sendRequest(getSignatureHelp, HOST_EXTENSION, params);
+    }
+
+    buildProject(): void {
+        return this._messenger.sendNotification(buildProject, HOST_EXTENSION);
+    }
+
+    runProject(): void {
+        return this._messenger.sendNotification(runProject, HOST_EXTENSION);
+    }
+
+    getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
+        return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
     }
 }

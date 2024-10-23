@@ -39,7 +39,6 @@ export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
 export enum MACHINE_VIEW {
     Overview = "Overview",
-    OverviewV2 = "OverviewV2",
     SequenceDiagram = "Sequence Diagram",
     ServiceDesigner = "Service Designer",
     ERDiagram = "ER Diagram",
@@ -53,6 +52,7 @@ export enum MACHINE_VIEW {
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
     AddTriggerWizard = "Add Trigger Wizard",
+    EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
 }

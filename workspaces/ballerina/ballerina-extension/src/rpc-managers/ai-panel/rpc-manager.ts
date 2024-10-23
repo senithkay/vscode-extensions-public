@@ -536,7 +536,7 @@ async function getCurrentProjectSource(): Promise<BallerinaProject> {
     // Read root-level .bal files
     const rootFiles = fs.readdirSync(projectRoot);
     for (const file of rootFiles) {
-        if (file.endsWith('.bal')) {
+        if (file.endsWith('.bal') || file.toLowerCase()=== "readme.md") {
             const filePath = path.join(projectRoot, file);
             project.sources[file] = await fs.promises.readFile(filePath, 'utf-8');
         }

@@ -36,10 +36,10 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject } from '@wso2-enterprise/ballerina-core';
+import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
 import { StateMachine } from '../../stateMachine';
 
-const BALLERINA_COMMAND = "ballerina.command";
+const BALLERINA_COMMAND = "kolab.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
 const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
@@ -66,14 +66,69 @@ export interface PACKAGE {
 }
 
 class DebugConfigProvider implements DebugConfigurationProvider {
-    resolveDebugConfiguration(_folder: WorkspaceFolder, config: DebugConfiguration)
-        : Thenable<DebugConfiguration> {
+    async resolveDebugConfiguration(_folder: WorkspaceFolder, config: DebugConfiguration)
+        : Promise<DebugConfiguration> {
         if (!config.type) {
             commands.executeCommand('workbench.action.debug.configure');
             return Promise.resolve({ request: '', type: '', name: '' });
+        
+        }
+        if (config.noDebug && (ballerinaExtInstance.enabledRunFast() || StateMachine.context().isBI)) {
+            await handleMainFunctionParams(config);
         }
         return getModifiedConfigs(_folder, config);
     }
+}
+
+function getValueFromProgramArgs(programArgs: string[], idx: number) {
+    return programArgs.length + 1 > idx ? programArgs[idx] : "";
+}
+
+async function handleMainFunctionParams(config: DebugConfiguration) {
+    const res = await ballerinaExtInstance.langClient?.getMainFunctionParams({
+        projectRootIdentifier: {
+            uri: "file://" + StateMachine.context().projectUri
+        }
+    }) as MainFunctionParamsResponse;
+    if (res.hasMain) {
+        let i;
+        let programArgs = config.programArgs;
+        let values: string[] = [];
+        if (res.params) {
+            let params = res.params;
+            for (i = 0; i < params.length; i++) {
+                let param = params[i];
+                let value = param.defaultValue ? param.defaultValue : getValueFromProgramArgs(programArgs, i);
+                await showInputBox(param.paramName, value).then(r => {
+                    values.push(r);
+                });
+            }
+        }
+        if (res.restParams) {
+            while (true) {
+                let value = getValueFromProgramArgs(programArgs, i);
+                i++;
+                let result = await showInputBox(res.restParams.paramName, value);
+                if (result) {
+                    values.push(result);
+                } else {
+                    break;
+                }
+            }
+        }
+        config.programArgs = values;
+    }
+}
+
+async function showInputBox(paramName: string, value: string) {
+    const inout = await window.showInputBox({ 
+        title: paramName,
+        ignoreFocusOut: true,
+        placeHolder: `Enter value for parameter: ${paramName}`,
+        prompt: "",
+        value: value
+    });
+    return inout;
 }
 
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
@@ -288,6 +343,7 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;
     root: string | null = null;
+    prgramArgs: string[] = [];
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         const langClient = ballerinaExtInstance.langClient;
@@ -301,9 +357,10 @@ class FastRunDebugAdapter extends LoggingDebugSession {
             }
         });
         this.notificationHandler = notificationHandler;
+        this.prgramArgs = (args as any).programArgs;
         getCurrentRoot().then((root) => {
             this.root = root;
-            runFast(root).then((didRan) => {
+            runFast(root, this.prgramArgs).then((didRan) => {
                 response.success = didRan;
                 this.sendResponse(response);
             });
@@ -327,6 +384,7 @@ class BIRunAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;
     root: string | null = null;
+    prgramArgs: string[] = [];
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         const langClient = ballerinaExtInstance.langClient;
@@ -341,7 +399,8 @@ class BIRunAdapter extends LoggingDebugSession {
         });
         this.notificationHandler = notificationHandler;
         this.root = StateMachine.context().projectUri;
-        runFast(this.root).then((didRan) => {
+        this.prgramArgs = (args as any).programArgs;
+        runFast(this.root, this.prgramArgs).then((didRan) => {
             response.success = didRan;
             if (didRan) {
                 outputChannel.show();
@@ -354,20 +413,18 @@ class BIRunAdapter extends LoggingDebugSession {
         const notificationHandler = this.notificationHandler;
         ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
             response.success = didStop;
-            if (didStop) {
-                outputChannel.hide();
-            }
             notificationHandler!.dispose();
             this.sendResponse(response);
         });
     }
 }
 
-async function runFast(root: string) {
+async function runFast(root: string, args: string[]): Promise<boolean> {
     if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
         await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
     }
-    return await ballerinaExtInstance.langClient.executeCommand({ command: "RUN", arguments: [{ key: "path", value: root }] });
+    return await ballerinaExtInstance.langClient.executeCommand({ command: "RUN", arguments: [
+        { key: "path", value: root }, {key: "args", value: args}] });
 }
 
 async function getCurrentRoot(): Promise<string> {

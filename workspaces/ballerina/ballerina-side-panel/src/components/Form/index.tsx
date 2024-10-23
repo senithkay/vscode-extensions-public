@@ -7,23 +7,25 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
     CompletionItem,
+    ExpressionBarRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { FormField, FormValues } from "./types";
+import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
+import { formatJSONLikeString } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -153,21 +155,37 @@ export interface FormProps {
     refKey?: string;
     formFields: FormField[];
     hideSave?: boolean;
+    targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
+    fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
     onSubmit?: (data: FormValues, refKey?: string) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        onRetrieveCompletions: (value: string, offset: number) => any;
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
+            value: string,
+            offset: number,
+            triggerCharacter?: string,
+            onlyVariables?: boolean
+        ) => Promise<void>;
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        }>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
         onCancel: () => void;
     };
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -180,13 +198,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openRecordEditor,
         openView,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
         hideSave
+        targetLineRange,
+        fileName,
+        updatedExpressionField,
+        resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch } = useForm<FormValues>();
+    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
+    const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+
+    const exprRef = useRef<ExpressionBarRef>(null);
 
     useEffect(() => {
         // Reset form with new values when formFields change
@@ -194,12 +220,30 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
                 defaultValues[field.key] = getValueForDropdown(field);
+            } else if (typeof field.value === 'string') {
+                defaultValues[field.key] = formatJSONLikeString(field.value);
             } else {
                 defaultValues[field.key] = field.value;
             }
         });
         reset(defaultValues);
     }, [formFields, reset]);
+
+    useEffect(() => {
+        if (updatedExpressionField) {
+            const currentValue = getValues(updatedExpressionField.key);
+
+            if (currentValue !== undefined) {
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                const newValue = currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
+                setValue(updatedExpressionField.key, newValue);
+                resetUpdatedExpressionField && resetUpdatedExpressionField();
+            }
+        }
+    }, [updatedExpressionField]);
 
     console.log(">>> form fields", { formFields, values: getValues() });
 
@@ -224,6 +268,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const handleOnHideAdvancedOptions = () => {
         setShowAdvancedOptions(false);
     };
+
+    const handleOnFieldFocus = (key: string) => {
+        if (isActiveSubPanel && activeFormField !== key) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveFormField(key);
+    }
 
     const handleOnUseDataMapper = () => {
         const viewField = formFields.find((field) => field.key === "view");
@@ -277,6 +328,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
             register,
         },
         expressionEditor,
+        targetLineRange,
+        fileName
     };
 
     // TODO: support multiple type fields
@@ -285,15 +338,26 @@ export const Form = forwardRef((props: FormProps, ref) => {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {variableField && createNewVariable && <EditorFactory field={variableField} />}
+                        {variableField && createNewVariable &&
+                            <EditorFactory
+                                field={variableField}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />
+                        }
                         {typeField && createNewVariable && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel} />}
+                        {updateVariableField && !createNewVariable &&
+                            <EditorFactory
+                                field={updateVariableField}
+                                openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -309,9 +373,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             return (
                                 <S.Row key={field.key}>
                                     <EditorFactory
+                                        ref={exprRef}
                                         field={field}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
+                                        isActiveSubPanel={isActiveSubPanel}
+                                        handleOnFieldFocus={handleOnFieldFocus}
                                     />
                                 </S.Row>
                             );
@@ -355,9 +422,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 return (
                                     <S.Row key={field.key}>
                                         <EditorFactory
+                                            ref={exprRef}
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={openSubPanel}
+                                            isActiveSubPanel={isActiveSubPanel}
+                                            handleOnFieldFocus={handleOnFieldFocus}
                                         />
                                     </S.Row>
                                 );
