@@ -200,7 +200,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openSubPanel,
         isActiveSubPanel,
         expressionEditor,
-        hideSave
+        hideSave,
         targetLineRange,
         fileName,
         updatedExpressionField,
