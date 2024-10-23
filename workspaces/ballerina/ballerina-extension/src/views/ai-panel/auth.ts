@@ -13,6 +13,7 @@ import { AIUserTokens, AI_EVENT_TYPE } from '@wso2-enterprise/ballerina-core';
 import { extension } from '../../BalExtensionContext';
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
+import { getPluginConfig } from '../../../src/utils';
 
 export interface AccessToken {
     accessToken: string;
@@ -26,7 +27,7 @@ const CommonReqHeaders = {
     'Accept': 'application/json'
 };
 
-const config = vscode.workspace.getConfiguration('ballerina');
+const config = getPluginConfig();
 const AUTH_ORG = config.get('authOrg') as string;
 const AUTH_CLIENT_ID = config.get('authClientID') as string;
 const AUTH_REDIRECT_URL = config.get('authRedirectURL') as string;
@@ -83,7 +84,7 @@ export async function exchangeAuthCode(authCode: string) {
             await extension.context.secrets.store('BallerinaAIRefreshToken', response.refreshToken ?? '');
             token = await extension.context.secrets.get('BallerinaAIUser');
             console.log("Token after exchange: " + token);
-            // const config = vscode.workspace.getConfiguration('ballerina');
+            // const config = getPluginConfig();
             // const ROOT_URL = config.get('rootUrl') as string;
             // const url = ROOT_URL + USER_CHECK_BACKEND_URL;
 

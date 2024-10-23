@@ -169,8 +169,8 @@
                     },
                     "kolab.authRedirectURL": {
                         "type": "string",
-                        "default": "vscode://wso2.ballerina/signin",
-                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
+                        "default": "vscode://wso2.kolab/signin",
+                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.kolab/signin"
                     }
                 }
             },
