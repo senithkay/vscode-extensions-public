@@ -19,7 +19,6 @@ import {
     CompletionResponse,
     ComponentModels,
     ComponentModelsParams,
-    ConfigVariableResponse,
     DefinitionPositionRequest,
     DefinitionResponse,
     DiagnosticsResponse,
@@ -53,7 +52,6 @@ import {
     getBallerinaProjectComponents,
     getBallerinaVersion,
     getCompletion,
-    getConfigVariables,
     getDefinitionPosition,
     getDiagnostics,
     getExecutorPositions,
@@ -195,9 +193,5 @@ export class LangClientRpcClient implements LangClientAPI {
 
     getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels> {
         return this._messenger.sendRequest(getPackageComponentModels, HOST_EXTENSION, params);
-    }
-
-    getConfigVariables(): Promise<ConfigVariableResponse> {
-        return this._messenger.sendRequest(getConfigVariables, HOST_EXTENSION);
     }
 }

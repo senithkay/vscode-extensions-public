@@ -9,11 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    CreateComponentRequest,
-    CreateComponentResponse,
-    DIRECTORY_MAP,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -31,9 +26,15 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
-    OverviewFlow,
+    ComponentsRequest,
+    ComponentsResponse,
+    ConfigVariableResponse,
+    CreateComponentRequest,
+    CreateComponentResponse,
+    DIRECTORY_MAP,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    OverviewFlow,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -41,6 +42,8 @@ import {
     ReadmeContentResponse,
     STModification,
     SyntaxTree,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure
@@ -48,7 +51,7 @@ import {
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
-import { commands, Uri, workspace } from "vscode";
+import { Uri, commands, workspace } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIProjectPure, createBIService, createBITask, handleServiceCreation, sanitizeName } from "../../utils/bi";
@@ -530,6 +533,24 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 .catch((error) => {
                     reject("Error fetching expression completions from ls");
                 });
+        });
+    }
+
+    async getConfigVariables(): Promise<ConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const variables = await StateMachine.langClient().getConfigVariables( { projectPath: projectPath }) as ConfigVariableResponse;
+            resolve(variables);
+        });
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequest = params;
+            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
+            const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
+            this.updateSource(response, false);
+            resolve(response);
         });
     }
 }

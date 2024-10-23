@@ -9,17 +9,18 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    CreateComponentRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
     BIGetFunctionsRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    ComponentsRequest,
+    CreateComponentRequest,
+    ExpressionCompletionsRequest,
     ProjectRequest,
     ReadmeContentRequest,
-    ExpressionCompletionsRequest,
+    UpdateConfigVariableRequest,
     createComponent,
     createComponents,
     createProject,
@@ -27,6 +28,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -35,7 +37,8 @@ import {
     getProjectStructure,
     getSourceCode,
     getWorkspaces,
-    handleReadmeContent
+    handleReadmeContent,
+    updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BIDiagramRpcManager } from "./rpc-manager";
@@ -58,4 +61,6 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
+    messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
 }

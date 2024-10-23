@@ -23,6 +23,9 @@ import {
     BIGetFunctionsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ConfigVariableResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -44,3 +47,5 @@ export const getBIConnectors: RequestType<BIConnectorsRequest, BIConnectorsRespo
 export const handleReadmeContent: RequestType<ReadmeContentRequest, ReadmeContentResponse> = { method: `${_preFix}/handleReadmeContent` };
 export const createComponents: RequestType<ComponentsRequest, ComponentsResponse> = { method: `${_preFix}/createComponents` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
+export const getConfigVariables: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariables` };
+export const updateConfigVariables: RequestType<UpdateConfigVariableRequest, UpdateConfigVariableResponse> = { method: `${_preFix}/updateConfigVariables` };

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,37 +8,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
-import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator, TextField, FormContainer } from '@wso2-enterprise/ui-toolkit';
-// import { ResourcePath } from '../ResourcePath/ResourcePath';
-// import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
-// import { ResourceParam } from '../ResourceParam/ResourceParam';
-// import { Payload } from '../Payload/Payload';
-// import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
-// import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
-// import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
-import { CommonRPCAPI, ConfigVariable, STModification } from '@wso2-enterprise/ballerina-core';
+import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { debounce } from "lodash";
-import { Colors } from '../../../../resources/constants';
-import { PanelContainer, Form} from '@wso2-enterprise/ballerina-side-panel';
-// import { useServiceDesignerContext } from '../../Context';
-
-// const FormTextInputContainer = styled.div`
-//     display: flex;
-//     flex-direction: column;
-//     gap: 4px;
-// `;
-// const FormTextInputContainer = styled.div`
-//     display: flex;
-//     flex-direction: column;
-//     gap: 4px;
-// `;
+import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 
 namespace S {
-    export const FormContainer = styled.div`
+	export const FormContainer = styled.div`
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -48,78 +25,83 @@ namespace S {
 
 export interface ConfigFormProps {
 	isOpen: boolean;
-    onClose: () => void;
-    onSave?: (source: string, config: ConfigVariable, updatePosition?: NodePosition) => void;
-    variable: ConfigVariable;
+	onClose: () => void;
+	variable: ConfigVariable;
+	title: string;
 }
 
 export function EditForm(props: ConfigFormProps) {
-	const { isOpen, onClose, variable } = props;
+	const { isOpen, onClose, variable, title } = props;
+
+	const { rpcClient } = useRpcContext();
 
 	// Map variables data to form fields
-	const formFields = [
+	const currentFields: FormField[] = [
 		{
-		  key: `variable-${variable?.properties?.variable?.value || ''}`,
-		  label: 'Variable',
-		  type: 'string',
-		  optional: false,
-		  editable: true,
-		  documentation: '',
-		  value: variable?.properties?.variable?.value || ''
+			key: `variable`,
+			label: 'Variable',
+			type: 'string',
+			optional: false,
+			editable: variable?.properties?.variable?.editable || false,
+			documentation: '',
+			value: variable?.properties?.variable?.value || '',
 		},
 		{
-		  key: `type-${variable?.properties?.type?.value || ''}`,
-		  label: 'Type',
-		  type: 'string',
-		  optional: false,
-		  editable: true,
-		  documentation: '',
-		  value: variable?.properties?.type?.value || ''
+			key: `type`,
+			label: 'Type',
+			type: 'string',
+			optional: false,
+			editable: variable?.properties?.type?.editable || false,
+			documentation: '',
+			value: variable?.properties?.type?.value || ''
 		},
 		{
-		  key: `defaultable-${variable?.properties?.defaultable?.value || ''}`,
-		  label: 'Value',
-		  type: 'string',
-		  optional: false,
-		  editable: true,
-		  documentation: '',
-		  value: variable?.properties?.defaultable?.value === '' ? '' : variable?.properties?.defaultable?.value || ''
+			key: `defaultable`,
+			label: 'Value',
+			type: 'string',
+			optional: true,
+			editable: variable?.properties?.defaultable?.editable || false,
+			documentation: '',
+			value: variable?.properties?.defaultable?.value === '' || variable?.properties?.defaultable?.value === '?' ? '' : variable?.properties?.defaultable?.value.replaceAll('"', '') || ''
 		}
-	  ];
-	  
+	];
 
-    const handleSave = () => {
-        console.log("Save");
-        
-		// const genSource = generateSource();
-		// const config = {
-		// 	methods: [method],
-		// 	path: path,
-		// 	params: parameters,
-		// 	advancedParams: advancedParams,
-		// 	payloadConfig: payload,
-		// 	responses: response
-		// };
-		// // Insert scenario
-		// if (!resourceConfig?.updatePosition) {
-		// 	// Insert scenario
-		// 	onSave && onSave(genSource, config);
-		// } else {
-		// 	// Edit scenario
-		// 	onSave && onSave(genSource, config, resourceConfig?.updatePosition);
-		// }
+	const [fields, setFields] = useState<FormField[]>(currentFields);
+
+	const handleSave = (data: FormValues) => {
+
+		setFields([]);
+
+		variable.properties.defaultable.value =
+			data.defaultable === "" || data.defaultable === null ?
+				"?"
+				: data.type === "string" ? '"' + data.defaultable + '"' : data.defaultable;
+
+		variable.properties.type.value = data.type;
+		variable.properties.variable.value = data.variable;
+
+		rpcClient
+			.getBIDiagramRpcClient()
+			.updateConfigVariables({
+				configVariable: variable,
+				configFilePath: variable.codedata.lineRange.fileName
+			})
+			.then((response: any) => {
+				console.log(">>> Config variables------", response);
+			});
+
 		onClose();
 	};
 
 	return (
 		<>
-			<PanelContainer 
-				title='Edit Config Variable'
-				show={props.isOpen} 
+			<PanelContainer
+				title={title}
+				show={props.isOpen}
 				onClose={onClose}>
 
-					<Form formFields={formFields} onSubmit={handleSave}/>
-                
+				<Form formFields={fields} onSubmit={handleSave} />
+
 			</PanelContainer>
 		</>
 	);

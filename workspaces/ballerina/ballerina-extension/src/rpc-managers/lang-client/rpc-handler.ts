@@ -36,7 +36,6 @@ import {
     getBallerinaProjectComponents,
     getBallerinaVersion,
     getCompletion,
-    getConfigVariables,
     getDefinitionPosition,
     getDiagnostics,
     getExecutorPositions,
@@ -56,7 +55,7 @@ import {
     getTypesFromFnDefinition,
     rename,
     stModify,
-    updateFileContent,
+    updateFileContent
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { LangClientRpcManager } from "./rpc-manager";
@@ -91,5 +90,4 @@ export function registerLangClientRpcHandlers(messenger: Messenger) {
     messenger.onNotification(didChange, (args: DidChangeRequest) => rpcManger.didChange(args));
     messenger.onNotification(didClose, (args: DidCloseRequest) => rpcManger.didClose(args));
     messenger.onRequest(getPackageComponentModels, (args: ComponentModelsParams) => rpcManger.getPackageComponentModels(args));
-    messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
 }

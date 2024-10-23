@@ -9,10 +9,6 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    ComponentsRequest,
-    ComponentsResponse,
-    CreateComponentRequest,
-    CreateComponentResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -27,6 +23,11 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    ComponentsRequest,
+    ComponentsResponse,
+    ConfigVariableResponse,
+    CreateComponentRequest,
+    CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ProjectComponentsResponse,
@@ -34,6 +35,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     WorkspacesResponse,
     createComponent,
     createComponents,
@@ -42,6 +45,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -50,7 +54,8 @@ import {
     getProjectStructure,
     getSourceCode,
     getWorkspaces,
-    handleReadmeContent
+    handleReadmeContent,
+    updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -124,5 +129,13 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getConfigVariables(): Promise<ConfigVariableResponse> {
+        return this._messenger.sendRequest(getConfigVariables, HOST_EXTENSION);
+    }
+
+    updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
     }
 }

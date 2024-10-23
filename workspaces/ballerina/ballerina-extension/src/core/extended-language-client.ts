@@ -102,6 +102,8 @@ import {
     VisibleVariableTypes,
     ConfigVariableResponse,
     ConfigVariableRequest,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -169,7 +171,8 @@ enum EXTENDED_APIS {
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
-    VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables'
+    VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
+    UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -586,6 +589,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getConfigVariables(params: ConfigVariableRequest): Promise<ConfigVariableResponse> {
         return this.sendRequest<ConfigVariableResponse>(EXTENDED_APIS.VIEW_CONFIG_VARIABLES, params);
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this.sendRequest<UpdateConfigVariableResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES, params);
     }
 
     async getSuggestedFlowModel(params: BISuggestedFlowModelRequest): Promise<BIFlowModelResponse> {

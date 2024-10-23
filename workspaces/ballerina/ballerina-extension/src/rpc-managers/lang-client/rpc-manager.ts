@@ -19,7 +19,6 @@ import {
     CompletionResponse,
     ComponentModels,
     ComponentModelsParams,
-    ConfigVariableResponse,
     DefinitionPositionRequest,
     DefinitionResponse,
     Diagnostics,
@@ -46,14 +45,13 @@ import {
     TypesFromFnDefinitionParams,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    UpdateFileContentResponse,
+    UpdateFileContentResponse
 } from "@wso2-enterprise/ballerina-core";
 import { workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine } from "../../stateMachine";
 import { modifyFileContent } from "../../utils/modification";
-import path from "path";
 
 export class LangClientRpcManager implements LangClientAPI {
     
@@ -281,11 +279,4 @@ export class LangClientRpcManager implements LangClientAPI {
         });
     }
 
-    async getConfigVariables(): Promise<ConfigVariableResponse> {
-        return new Promise(async (resolve) => {
-            const projectPath = path.join(StateMachine.context().projectUri);
-            const variables = await StateMachine.langClient().getConfigVariables( { projectPath: projectPath }) as ConfigVariableResponse;
-            resolve(variables);
-        });
-    }
 }

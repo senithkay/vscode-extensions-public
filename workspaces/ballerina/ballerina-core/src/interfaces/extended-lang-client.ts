@@ -534,7 +534,16 @@ export interface ConfigVariableRequest {
 
 export type ConfigVariableResponse = {
     configVariables: ConfigVariable[];
-};
+}
+
+export interface UpdateConfigVariableRequest {
+    configFilePath: string;
+    configVariable: ConfigVariable;
+}
+
+export interface UpdateConfigVariableResponse {
+    
+}
 
 export interface BICopilotContextRequest {
     position: LinePosition;
@@ -615,6 +624,7 @@ export interface BIInterface extends BaseLangClientInterface {
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getConfigVariables: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
+    updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
