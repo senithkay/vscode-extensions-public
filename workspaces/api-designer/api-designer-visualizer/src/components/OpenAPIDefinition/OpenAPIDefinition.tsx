@@ -186,10 +186,11 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                                     type: "string",
                                 }
                             }
+                        }
                     }
                 }
             }
-        }};
+        };
         setOpenAPIDefinition(openAPIDefinition);
         onOpenApiDefinitionChange(openAPIDefinition);
         setSelectedPathID(newPathVal);
@@ -234,18 +235,18 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handleAddResources = (path: string, methods: string[] = []) => {
-        const pathParameters = openAPIDefinition.paths[path] && 
+        const pathParameters = openAPIDefinition.paths[path] &&
             Object.keys(openAPIDefinition.paths[path]).map((key: string) => {
                 const item = (openAPIDefinition.paths[path] as PathItem)[key];
                 // Check if item is of type Operation to access parameters
                 return (item as Operation)?.parameters?.find((param) => param.in === "path");
-        });
+            });
         const distinctPathParameters = pathParameters && pathParameters.filter((param: { name: any; }, index: any, self: any[]) =>
             index === self.findIndex((t) => param && t?.name === param?.name));
         // Get current path
         const currentPath = openAPIDefinition.paths[path];
         // Add a new method to the current path
-        methods?.forEach(method=>{
+        methods?.forEach(method => {
             (currentPath as PathItem)[method] = { // Type assertion added here
                 parameters: distinctPathParameters || []
             };
@@ -260,7 +261,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
         const oldMethods = Object.keys(currentPath);
         const newMethods = methods?.filter(item => !oldMethods.includes(item))
-        if(newMethods.length === 1){
+        if (newMethods.length === 1) {
             setSelectedPathID(getResourceID(path, newMethods[0]));
         }
         setOpenAPIDefinition(updatedOpenAPIDefinition);
@@ -269,8 +270,8 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     const onDeleteResource = (p: string, method: string) => {
         const methodCount = Object.keys(openAPIDefinition.paths[p]).length;
-        rpcClient.showConfirmMessage({buttonText:"Delete", message:`Are you sure you want to delete this method '${method}' ${methodCount === 1 ? `and the path '${p}'?`: "?" }`}).then(res=>{
-            if(res){
+        rpcClient.showConfirmMessage({ buttonText: "Delete", message: `Are you sure you want to delete this method '${method}' ${methodCount === 1 ? `and the path '${p}'?` : "?"}` }).then(res => {
+            if (res) {
                 // If p with path and method exists, delete the perticular method
                 const pathItem = openAPIDefinition.paths[p] as PathItem;
                 if (pathItem && pathItem[method]) {
@@ -393,7 +394,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     return (
         <NavigationContainer>
-            <SplitView defaultWidths={[18, 82]} sx={{maxWidth: 1200}} dynamicContainerSx={{height: "96vh"}}>
+            <SplitView defaultWidths={[18, 82]} sx={{ maxWidth: 1200 }} dynamicContainerSx={{ height: "96vh" }}>
                 <NavigationPanelContainer>
                     {openAPIDefinition &&
                         <PathsNavigator
@@ -411,9 +412,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 </NavigationPanelContainer>
 
                 <Tabs
-                    sx={{paddingLeft: 10}}
-                    childrenSx={{overflowY: "auto", maxHeight: "90vh"}}
-                    tabTitleSx={{marginLeft: 5}}
+                    sx={{ paddingLeft: 10 }}
+                    childrenSx={{ overflowY: "auto", maxHeight: "90vh" }}
+                    tabTitleSx={{ marginLeft: 5 }}
                     titleContainerSx={{
                         position: "sticky",
                         top: 0,
@@ -426,8 +427,8 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     currentViewId={currentView}
                     onViewChange={handleViewChange}
                 >
-                    <div id={Views.EDIT}>
-                        {(selectedPathID === undefined) && ( 
+                    <div id={Views.EDIT} style={{ minHeight: "90vh" }}>
+                        {(selectedPathID === undefined) && (
                             <Overview
                                 isNewFile={isNewFile}
                                 openAPIDefinition={openAPIDefinition}

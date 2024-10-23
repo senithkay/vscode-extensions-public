@@ -51,14 +51,14 @@ export class VisualizerWebview {
             refreshDiagram();
         }, extension.context);
 
-        this._panel.onDidChangeViewState(() => {
+        this._panel.onDidChangeViewState((e) => {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
-            vscode.commands.executeCommand('setContext', 'isVisualizerActive', this._panel?.active);
+            vscode.commands.executeCommand('setContext', 'isViewOpenAPI', e.webviewPanel.active);
         });
 
-        this._panel.onDidDispose(() =>{
+        this._panel.onDidDispose(() => {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
-            vscode.commands.executeCommand('setContext', 'isVisualizerActive', false);
+            vscode.commands.executeCommand('setContext', 'isViewOpenAPI', undefined);
         });
     }
 

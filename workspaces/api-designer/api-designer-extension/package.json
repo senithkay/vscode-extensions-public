@@ -44,22 +44,22 @@
         "command": "APIDesigner.showCode",
         "title": "Show Code",
         "category": "APIDesigner",
-        "when": "isVisualizerActive",
+        "when": "isViewOpenAPI",
         "icon": "$(code)"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "when": "isFileOpenAPI && !isVisualizerActive",
+          "when": "isFileOpenAPI",
           "command": "APIDesigner.openAPIDesigner",
           "alt": "APIDesigner.openAPIDesigner",
           "group": "navigation"
         },
         {
-          "when": "isVisualizerActive && isVisualizerActive != false",
           "command": "APIDesigner.showCode",
-          "group": "navigation"
+          "group": "navigation",
+          "when": "isViewOpenAPI"
         }
       ],
       "explorer/context": [

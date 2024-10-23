@@ -12,7 +12,7 @@
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 export enum MACHINE_VIEW {
-    Welcome = "Welcome to API Designer",
+    Welcome = "API Designer",
     Overview = "Overview"
 }
 

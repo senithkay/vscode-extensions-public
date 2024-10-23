@@ -166,63 +166,70 @@ export function PathsNavigator(props: PathsNavigatorProps) {
     // })
     //     .map(path => paths[path]) as Paths[] : [];
     let pathItems: any[] = [];
-    let pathsArray: string[] = []; 
-    Object.entries(paths).forEach(([key, value]) => {
-        // if (typeof value === "object" && value !== null && !('summary' in value) && !('description' in value)) {
-        if (typeof value === "object" && value !== null && key !== "servers" && key !== "parameters" && key !== "description" && key !== "summary") {
-            pathsArray.push(key);
-            pathItems.push(value);
-        }
-    });
+    let pathsArray: string[] = [];
+    if (paths) {
+        Object.entries(paths).forEach(([key, value]) => {
+            if (typeof value === "object" && value !== null && key !== "servers" && key !== "parameters" && key !== "description" && key !== "summary") {
+                pathsArray.push(key);
+                pathItems.push(value);
+            }
+        });
+    } else {
+        console.warn("Paths object is null or undefined");
+    }
     pathsArray = pathsArray.filter((path) => path !== "servers" && path !== "parameters" && path !== "description" && path !== "summary");
     const handleOverviewClick = () => {
         onPathChange && onPathChange(undefined);
     };
     const handleDeletePath = (evt: React.MouseEvent, path: string) => {
         evt.stopPropagation();
-        if(onDeletePath){
-            rpcClient.showConfirmMessage({message:`Are you sure you want to delete the path '${path}'?`,buttonText:"Delete"}).then(res=>{
-                if(res){
+        if (onDeletePath) {
+            rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the path '${path}'?`, buttonText: "Delete" }).then(res => {
+                if (res) {
                     onDeletePath(path)
                 }
             })
-        }       
+        }
     }
     const handleDeleteMethod = (evt: React.MouseEvent, path: string, method: string) => {
         evt.stopPropagation();
-        if(onDeleteMethod){
+        if (onDeleteMethod) {
             onDeleteMethod(path, method)
-        }       
+        }
     }
 
     const handleAddPathMethod = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        if(onAddPath){
+        if (onAddPath) {
             onAddPath()
-        }       
+        }
     }
 
     const modifyPathClick = (evt: React.MouseEvent, index: number, path: string, currentOperations: string[]) => {
         evt.stopPropagation();
-        rpcClient.selectQuickPickItem({title: `Select an option`,items:[
-            { label: "Edit Route path",detail: `Edit the route '${path}'` },
-            { label: "Select Methods", detail: `Select the methods belonging to the path '${path}'` }
-        ]}).then(res=>{
-            if(res.label === "Edit Route path"){
-                rpcClient.showInputBox({title:"Edit Route path",value: path}).then(newPath=>{
-                    if(onPathRename && newPath){
+        rpcClient.selectQuickPickItem({
+            title: `Select an option`, items: [
+                { label: "Edit Route path", detail: `Edit the route '${path}'` },
+                { label: "Select Methods", detail: `Select the methods belonging to the path '${path}'` }
+            ]
+        }).then(res => {
+            if (res.label === "Edit Route path") {
+                rpcClient.showInputBox({ title: "Edit Route path", value: path }).then(newPath => {
+                    if (onPathRename && newPath) {
                         onPathRename(newPath, index, path)
                     }
                 })
-            }else if(res.label === "Select Methods"){
-                rpcClient.selectQuickPickItems({title:"Select the methods of the path",items:APIResources.map(method=>({
-                    label:method,
-                    picked: currentOperations.includes(method)
-                }))}).then(methodSelection=>{
-                    if(!methodSelection || methodSelection.length<1){
+            } else if (res.label === "Select Methods") {
+                rpcClient.selectQuickPickItems({
+                    title: "Select the methods of the path", items: APIResources.map(method => ({
+                        label: method,
+                        picked: currentOperations.includes(method)
+                    }))
+                }).then(methodSelection => {
+                    if (!methodSelection || methodSelection.length < 1) {
                         rpcClient.showErrorNotification("Need to select at least one method for the path")
-                    }else{
-                        onAddResources(path, methodSelection.map(item=>item.label))
+                    } else {
+                        onAddResources(path, methodSelection.map(item => item.label))
                     }
                 })
             }
@@ -259,10 +266,10 @@ export function PathsNavigator(props: PathsNavigatorProps) {
     return (
         <PathsContainer ref={pathContinerRef}>
             <OverviewTitle selected={selectedPathID === undefined} onClick={handleOverviewClick}>
-                <Codicon sx={{marginTop: -1}} name="globe" />
+                <Codicon sx={{ marginTop: -1 }} name="globe" />
                 <Typography variant="h4" sx={{ margin: 0, fontWeight: 300 }}>Overview</Typography>
             </OverviewTitle>
-            <TreeView 
+            <TreeView
                 rootTreeView
                 id="Paths"
                 content={
@@ -271,8 +278,8 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                             <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Paths</Typography>
                         </LeftPathContainer>
                         <RightPathContainerButtons className="buttons-container">
-                            <Button tooltip="Add Path" appearance="icon" onClick={handleAddPathMethod}><Codicon name="plus"/></Button>
-                        </RightPathContainerButtons> 
+                            <Button tooltip="Add Path" appearance="icon" onClick={handleAddPathMethod}><Codicon name="plus" /></Button>
+                        </RightPathContainerButtons>
                     </PathContainer>
                 }
                 selectedId={selectedPathID}
@@ -284,11 +291,11 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                     const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary" && operation !== "parameters" && operation !== "servers");
                     return (
                         <TreeView
-                            id={String(path)} 
+                            id={String(path)}
                             content={
                                 <PathContainer>
                                     <LeftPathContainer>
-                                        <Typography 
+                                        <Typography
                                             sx={{
                                                 whiteSpace: "nowrap",
                                                 overflow: "hidden",
@@ -301,8 +308,8 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                                     </LeftPathContainer>
                                     {pathEditIndex === -1 && (
                                         <RightPathContainerButtons className="buttons-container">
-                                            <Button tooltip="Modify Path" appearance="icon" onClick={(e)=>modifyPathClick(e, index, String(path), operations)}><Codicon name="gear"/></Button>
-                                            <Button tooltip="Delete Path" appearance="icon" onClick={(e)=>handleDeletePath(e, String(path))}><Codicon name="trash"/></Button>
+                                            <Button tooltip="Modify Path" appearance="icon" onClick={(e) => modifyPathClick(e, index, String(path), operations)}><Codicon name="gear" /></Button>
+                                            <Button tooltip="Delete Path" appearance="icon" onClick={(e) => handleDeletePath(e, String(path))}><Codicon name="trash" /></Button>
                                         </RightPathContainerButtons>
                                     )}
                                 </PathContainer>
@@ -325,9 +332,9 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                                                 </Operation>
                                             </Tooltip>
                                             <RightPathContainerButtons className="buttons-container">
-                                                <Button tooltip="Delete Method" appearance="icon" onClick={(e)=>handleDeleteMethod(e, String(path), operation)}><Codicon name="trash"/></Button>
-                                            </RightPathContainerButtons>   
-                                        </PathItemWrapper>                                                                      
+                                                <Button tooltip="Delete Method" appearance="icon" onClick={(e) => handleDeleteMethod(e, String(path), operation)}><Codicon name="trash" /></Button>
+                                            </RightPathContainerButtons>
+                                        </PathItemWrapper>
                                     </TreeViewItem>
                                 );
                             })}
@@ -353,7 +360,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                     return (
                         <TreeViewItem id={`${schema}-schema`}>
                             <SchemaItemWrapper>
-                                <Typography 
+                                <Typography
                                     sx={{
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
