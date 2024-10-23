@@ -42,13 +42,17 @@ export function activateSubscriptions() {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(SHARED_COMMANDS.OPEN_BI_WELCOME, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });
+            if (StateMachine.langClient()) {
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIWelcome });
+            } else {
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SetupView });
+            }
         })
     );
 
     context.subscriptions.push(
         vscode.commands.registerCommand(BI_COMMANDS.OPEN_TYPE_DIAGRAM, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TypeDiagram } );
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TypeDiagram });
         })
     );
 
