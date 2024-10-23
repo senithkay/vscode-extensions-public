@@ -73,8 +73,9 @@ const dmFilesPath = path.join(dataFolder, 'datamapper-files');
 test.describe.configure({ mode: 'serial' });
 
 // process.env.CI = 'true';
+const NEED_INITIAL_SETUP = true;
 
-if (process.env.CI)
+if (process.env.CI || NEED_INITIAL_SETUP) 
   createAndAddDM();
 doMappings();
 
@@ -191,7 +192,7 @@ function createAndAddDM() {
 
 function doMappings() {
 
-  if (!process.env.CI) {
+  if (!(process.env.CI || NEED_INITIAL_SETUP)) {
     test.beforeAll(async () => {
       console.log('Starting datamapper tests')
       await resumeVSCode();
@@ -214,7 +215,7 @@ function doMappings() {
     });
   }
 
-  if (process.env.CI) {
+  if (process.env.CI || NEED_INITIAL_SETUP) {
     test('Load Schemas', async () => {
       const dataMapper = new DataMapper(page.page, DM_NAME);
       await dataMapper.init();
