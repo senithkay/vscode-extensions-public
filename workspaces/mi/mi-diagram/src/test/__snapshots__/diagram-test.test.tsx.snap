@@ -669,7 +669,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Aggregate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Aggregate.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -1216,7 +1216,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - AggregateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - AggregateWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -1763,7 +1763,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Bam.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Bam.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -2168,7 +2168,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BamWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BamWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -2575,7 +2575,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Bean.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Bean.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -2980,7 +2980,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BeanWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BeanWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -3387,7 +3387,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Builder.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Builder.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -3792,7 +3792,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BuilderWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - BuilderWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -4199,7 +4199,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Cache.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Cache.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -4746,7 +4746,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CacheWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CacheWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -5295,7 +5295,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallDataService.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallDataService.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -5700,7 +5700,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallDataServiceWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallDataServiceWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -6105,7 +6105,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallEndpoint.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallEndpoint.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -6576,7 +6576,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallEndpointWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallEndpointWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -7049,7 +7049,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallSequence.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallSequence.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -7454,7 +7454,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallSequenceWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallSequenceWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -7859,7 +7859,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallTemplate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallTemplate.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -8264,7 +8264,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallTemplateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CallTemplateWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -8671,7 +8671,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Callout.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Callout.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -9076,7 +9076,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CalloutWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CalloutWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -9483,7 +9483,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Class.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Class.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -9888,7 +9888,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ClassWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ClassWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -10295,7 +10295,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Clone.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Clone.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -10878,7 +10878,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CloneWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CloneWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -11463,7 +11463,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Command.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Command.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -11868,7 +11868,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CommandWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - CommandWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -12275,7 +12275,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ConditionalRouter.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ConditionalRouter.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -12680,7 +12680,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ConditionalRouterWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ConditionalRouterWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -13087,7 +13087,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookup.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookup.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -13492,7 +13492,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookupWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBLookupWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -13899,7 +13899,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReport.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReport.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -14304,7 +14304,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReportWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DBReportWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -14711,7 +14711,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapper.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapper.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -15116,7 +15116,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapperWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DataMapperWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -15521,7 +15521,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Drop.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Drop.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -15926,7 +15926,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DropWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - DropWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -16333,7 +16333,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Ejb.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Ejb.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -16738,7 +16738,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EjbWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EjbWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -17145,7 +17145,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Enqueue.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Enqueue.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -17550,7 +17550,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EnqueueWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EnqueueWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -17957,7 +17957,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Enrich.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Enrich.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -18362,7 +18362,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EnrichWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EnrichWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -18769,7 +18769,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EntitlementService.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EntitlementService.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -19718,7 +19718,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EntitlementServiceWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EntitlementServiceWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -20669,7 +20669,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Event.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Event.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -21074,7 +21074,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EventWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - EventWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -21481,7 +21481,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FastXSLT.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FastXSLT.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -21886,7 +21886,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FastXSLTWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FastXSLTWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -22293,7 +22293,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Fault.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Fault.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -22698,7 +22698,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FaultWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FaultWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -23105,7 +23105,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Filter.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Filter.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -23819,7 +23819,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FilterWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - FilterWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -24533,7 +24533,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEach.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEach.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -25080,7 +25080,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEachWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEachWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -25629,7 +25629,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Header.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Header.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -26034,7 +26034,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - HeaderWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - HeaderWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -26441,7 +26441,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Iterate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Iterate.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -26988,7 +26988,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - IterateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - IterateWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -27537,7 +27537,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - JSONTransform.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - JSONTransform.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -27942,7 +27942,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - JSONTransformWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - JSONTransformWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -28349,7 +28349,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Log.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Log.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -28756,7 +28756,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - LogWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - LogWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -29163,7 +29163,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Loopback.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Loopback.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -29568,7 +29568,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - LoopbackWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - LoopbackWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -29975,7 +29975,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - NTLM.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - NTLM.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -30380,7 +30380,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - NTLMWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - NTLMWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -30787,7 +30787,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - OAuth.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - OAuth.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -31192,7 +31192,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - OAuthWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - OAuthWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -31599,7 +31599,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PayloadFactory.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PayloadFactory.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -32004,7 +32004,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PayloadFactoryWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PayloadFactoryWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -32411,7 +32411,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Property.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Property.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -32818,7 +32818,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyGroup.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyGroup.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -33223,7 +33223,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyGroupWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyGroupWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -33630,7 +33630,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PropertyWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -34037,7 +34037,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PublishEvent.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PublishEvent.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -34442,7 +34442,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PublishEventWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - PublishEventWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -34849,7 +34849,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Respond.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Respond.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -35254,7 +35254,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RespondWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RespondWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -35661,7 +35661,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Rewrite.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Rewrite.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -36066,7 +36066,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RewriteWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RewriteWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -36473,7 +36473,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Rule.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Rule.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -36878,7 +36878,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RuleWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - RuleWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -37285,7 +37285,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Script.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Script.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -37690,7 +37690,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ScriptWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ScriptWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -38097,7 +38097,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Send.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Send.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -38568,7 +38568,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SendWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SendWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -39041,7 +39041,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Smooks.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Smooks.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -39446,7 +39446,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SmooksWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SmooksWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -39853,7 +39853,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Spring.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Spring.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -40258,7 +40258,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SpringWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SpringWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -40665,7 +40665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Store.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Store.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -41070,7 +41070,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - StoreWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - StoreWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -41477,7 +41477,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Switch.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Switch.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -42227,7 +42227,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SwitchWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - SwitchWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -42977,7 +42977,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Throttle.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Throttle.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -43689,7 +43689,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ThrottleWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ThrottleWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -44403,7 +44403,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Transaction.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Transaction.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -44808,7 +44808,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - TransactionWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - TransactionWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -45215,7 +45215,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Validate.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Validate.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -45762,7 +45762,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ValidateWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ValidateWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -46311,7 +46311,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XQuery.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XQuery.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -46716,7 +46716,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XQueryWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XQueryWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -47123,7 +47123,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XSLT.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XSLT.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"
@@ -47528,7 +47528,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
-exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XSLTWithDescription.xml 1`] = `
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - XSLTWithDescription.xml: GET / 1`] = `
 "<div>
   <div
     class=\\"css-x0z1wx\\"

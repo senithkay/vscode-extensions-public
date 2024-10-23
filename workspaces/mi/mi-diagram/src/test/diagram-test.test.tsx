@@ -96,8 +96,11 @@ describe('Diagram component', () => {
                 });
 
                 if (syntaxTree.syntaxTree.api.resource && syntaxTree.syntaxTree.api.resource.length > 0) {
-                    const model = syntaxTree.syntaxTree.api.resource[0];
-                    await renderAndCheckSnapshot(model, uri);
+                    const resources = syntaxTree.syntaxTree.api.resource;
+                    for (const resource of resources) {
+                        const name = `${resource.methods ?? ''} ${resource.uriTemplate ?? resource.urlMapping}`;
+                        await renderAndCheckSnapshot(resource, uri, name);
+                    }
                 } else {
                     throw new Error("Resource is undefined or empty.");
                 }
@@ -117,7 +120,8 @@ describe('Diagram component', () => {
 
                 if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
                     const model = syntaxTree.syntaxTree?.data?.queries[0];
-                    await renderAndCheckSnapshot(model, uri);
+                    const name = `${model.name ?? ''}`;
+                    await renderAndCheckSnapshot(model, uri, name);
                 } else {
                     throw new Error("Resource is undefined or empty.");
                 }
@@ -126,7 +130,7 @@ describe('Diagram component', () => {
     });
 });
 
-async function renderAndCheckSnapshot(model: any, uri: string) {
+async function renderAndCheckSnapshot(model: any, uri: string, name: string) {
     const dom = render(
         <DiagramTest model={model} uri={uri} />
     );
@@ -145,6 +149,6 @@ async function renderAndCheckSnapshot(model: any, uri: string) {
     expect(prettyDom).toBeTruthy();
 
     const sanitazedDom = (prettyDom as string).replaceAll(/\s+(marker-end|id)="[^"]*"/g, '');
-    expect(sanitazedDom).toMatchSnapshot();
+    expect(sanitazedDom).toMatchSnapshot(name);
 }
 
