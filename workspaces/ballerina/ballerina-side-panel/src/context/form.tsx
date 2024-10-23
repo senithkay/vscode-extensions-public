@@ -20,15 +20,15 @@ export interface FormContext {
     };
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        retrieveCompletions: (
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;

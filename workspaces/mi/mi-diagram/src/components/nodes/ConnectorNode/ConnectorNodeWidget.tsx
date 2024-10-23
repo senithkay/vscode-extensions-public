@@ -299,7 +299,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             {(node.stNode as Connector).configKey &&
                 <S.ConnectionContainer>
                     <S.ConnectionText>
-                        {FirstCharToUpperCase((node.stNode as Connector).configKey)}
+                        {(node.stNode as Connector).configKey}
                     </S.ConnectionText>
                 </S.ConnectionContainer>}
             <Popover

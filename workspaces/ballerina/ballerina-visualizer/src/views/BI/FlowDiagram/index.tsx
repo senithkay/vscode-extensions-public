@@ -157,10 +157,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
-    const clearExpressionEditor = () => {
-        // clear memory for expression editor
-        setCompletions([]);
+    const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
+        setFilteredTypes([]);
+        setTypes([]);
         triggerCompletionOnNextRequest.current = false;
     };
 
@@ -169,7 +170,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setSidePanelView(SidePanelView.NODE_LIST);
         setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -481,7 +482,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
     };
 
@@ -610,7 +611,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 }
 
                 // Convert completions to the ExpressionBar format
-                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                let convertedCompletions: CompletionItem[] = [];
+                completions?.forEach((completion) => {
+                    if (completion.detail) {
+                        // HACK: Currently, completion with additional edits apart from imports are not supported
+                        // Completions that modify the expression itself (ex: member access)
+                        convertedCompletions.push(convertBalCompletion(completion));
+                    }
+                });
                 setCompletions(convertedCompletions);
 
                 if (triggerCharacter) {
@@ -724,13 +732,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setUpdatedExpressionField(undefined);
     };
 
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
@@ -763,7 +764,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             <View>
                 <ViewHeader
                     title={isResource ? ResourceDiagramTitle : FunctionDiagramTitle}
-                    codicon={isResource ? "globe" : "terminal"} // TODO: fix this with component diagram icons
+                    icon={isResource ? "bi-http-service" : "bi-function"}
+                    iconSx={{ fontSize: "16px" }}
                     // onEdit={handleOnFormBack}
                 ></ViewHeader>
                 {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}

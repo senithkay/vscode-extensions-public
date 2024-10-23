@@ -32,6 +32,7 @@ const HeaderContentWrapper = styled.div({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '0 20px', // Set padding on left and right to 20px
+    minHeight: '24px',
 });
 
 const TitleContainer = styled.div({

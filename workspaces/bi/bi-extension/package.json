@@ -1,13 +1,12 @@
 {
     "name": "kola-extension",
     "displayName": "Kola",
-    "description": "A comprehensive integration solution that simplifies your digital transformation journey.",
-    "version": "1.0.0",
+    "description": "Project Kola.",
+    "version": "0.0.1",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
     },
-    "icon": "resources/images/kola.png",
     "engines": {
         "vscode": "^1.84.0"
     },
@@ -18,7 +17,7 @@
         "workspaceContains:**/Ballerina.toml"
     ],
     "main": "./out/extension",
-    "extensionDependencies": [ "WSO2.kolab" ],
+    "extensionDependencies": [ "wso2.kolab" ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -32,7 +31,7 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola project or create a new project.\n[Open Kola Project](command:vscode.openFolder)\n[Create New Project](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://ei.docs.wso2.com).",
+                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://ei.docs.wso2.com).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
@@ -93,7 +92,7 @@
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js",
         "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
-        "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; fi",
+        "package": "vsce package --no-dependencies --pre-release",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
