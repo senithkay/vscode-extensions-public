@@ -98,12 +98,40 @@ const Properties = styled.div`
     align-items: flex-start;
 `;
 
+const ArrayHeight = 80;
+const ParameterHeight = 21;
+const calculateHeight = (schema: Schema, isParent?: boolean): number => {
+    if (schema.type === 'object' && schema.properties) {
+        const propertyKeys = Object.keys(schema.properties);
+        const propertiesHeight = propertyKeys.reduce((total, key, index) => {
+            const property = schema.properties[key];
+            const propertyHeight = calculateHeight(property); // Calculate height of the property
+            const isLastProperty = index === propertyKeys.length - 1;
+
+            // If it's the last property and of type 'object', add 20 only
+            if (isLastProperty && isParent && property.type === 'object') {
+                return total + ParameterHeight;
+            } else if (isLastProperty && isParent && property.type === 'array') {
+                return total + ArrayHeight;
+            }
+            return total + propertyHeight + (property.type === 'array' ? ArrayHeight : ParameterHeight); // Add property height and parameter height
+        }, 0);
+        return propertiesHeight; // Return total height
+    } else if (schema.type === 'array' && schema.items) {
+        // Calculate height for each item in the array
+        if (Array.isArray(schema.items)) {
+            return schema.items.reduce((total, item) => total + calculateHeight(item), 0);
+        } else {
+            return calculateHeight(schema.items); // For single item in array
+        }
+    }
+    return 0;
+};
+
 const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, isRootElement: boolean, onUpdate: (updatedProperties: { [key: string]: Schema }) => void }> = ({ properties, onUpdate, isRootElement }) => {
     const [localProperties, setLocalProperties] = useState(properties);
     const [newPropertyKey, setNewPropertyKey] = useState<string | null>(null);
     const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-    const propertyContainerRef = useRef<HTMLDivElement | null>(null); // Updated type
-    const [propertyContainerHeight, setPropertyContainerHeight] = useState<number>(0);
 
     useEffect(() => {
         setLocalProperties(properties);
@@ -115,10 +143,6 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, isRoot
             setNewPropertyKey(null);
         }
     }, [newPropertyKey]);
-
-    useEffect(() => {
-        setPropertyContainerHeight(propertyContainerRef.current?.clientHeight || 0);
-    }, [propertyContainerRef.current]);
 
     const handlePropertyChange = (oldKey: string, newKey: string, newValue: Schema) => {
         const updatedProperties = { ...localProperties };
@@ -139,8 +163,8 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, isRoot
     };
     return (
         <PropertyContainer isRootElement={isRootElement}>
-            <VerticalBar height={ propertyContainerHeight } />
-            <Properties ref={propertyContainerRef}>
+            <VerticalBar height={ calculateHeight({ type: 'object', properties: localProperties }, true) } />
+            <Properties>
                 {Object.entries(localProperties).map(([key, value]) => (
                     <div key={key}>
                         <div style={{ display: 'flex', gap: '10px' }}>

@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
 import { Schema, SchemaEditor } from './SchemaEditor';
 import { useState } from 'react';
 import { ReadOnlySchemaEditor } from './ReadOnlySchemaEditor';
@@ -36,6 +35,73 @@ const schema: Schema = {
                 },
                 city: {
                     type: "string"
+                }
+            }
+        },
+        friends: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    name: {
+                        type: "string"
+                    },
+                    age: {
+                        type: "number"
+                    },
+                    type: {
+                        type: "string"
+                    },
+                }
+            }
+        },
+        spouse: {
+            type: "object",
+            properties: {
+                name: {
+                    type: "string"
+                },
+                age: {
+                    type: "number"
+                },
+                address: {
+                    type: "object",
+                    properties: {
+                        street: {
+                            type: "string"
+                        },
+                        city: {
+                            type: "string"
+                        },
+                        country: {
+                            type: "string"
+                        }
+                    }
+                }
+            }
+        },
+        test: {
+            type: "object",
+            properties: {
+                name: {
+                    type: "string"
+                },
+                age: {
+                    type: "number"
+                },
+                address: {
+                    type: "object",
+                    properties: {
+                        street: {
+                            type: "string"
+                        },
+                        city: {
+                            type: "string"
+                        },
+                        country: {
+                            type: "string"
+                        }
+                    }
                 }
             }
         }
