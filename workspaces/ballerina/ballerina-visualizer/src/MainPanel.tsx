@@ -78,7 +78,6 @@ const PopUpContainer = styled.div`
     right: 0;
     bottom: 0;
     z-index: 2100;
-    background: var(--background);
 `;
 
 const MainPanel = () => {
