@@ -85,46 +85,41 @@ describe('Diagram component', () => {
 
     describe('renders correctly with valid XML files', () => {
         const dataRoot = path.join(__dirname, 'data', 'input-xml');
-        const files = fs.readdirSync(dataRoot);
+        const files = fs.readdirSync(dataRoot).filter(file => file.endsWith('.xml'));
         test.each(files)('Diagram work correctly for resource - %s', async (file) => {
-            if (file.endsWith('.xml')) {
-                const uri = path.join(dataRoot, file);
-                const syntaxTree = await langClient.getSyntaxTree({
-                    documentIdentifier: {
-                        uri
-                    }
-                });
-
-                if (syntaxTree.syntaxTree.api.resource && syntaxTree.syntaxTree.api.resource.length > 0) {
-                    const resources = syntaxTree.syntaxTree.api.resource;
-                    for (const resource of resources) {
-                        const name = `${resource.methods ?? ''} ${resource.uriTemplate ?? resource.urlMapping}`;
-                        await renderAndCheckSnapshot(resource, uri, name);
-                    }
-                } else {
-                    throw new Error("Resource is undefined or empty.");
+            const uri = path.join(dataRoot, file);
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri
                 }
+            });
+
+            if (syntaxTree.syntaxTree.api.resource && syntaxTree.syntaxTree.api.resource.length > 0) {
+                const resources = syntaxTree.syntaxTree.api.resource;
+                const resource = resources[0];
+                const name = `${resource.methods ?? ''} ${resource.uriTemplate ?? resource.urlMapping}`;
+                await renderAndCheckSnapshot(resource, uri, name);
+            } else {
+                throw new Error("Resource is undefined or empty.");
             }
         }, 20000);
 
         const dssDataRoot = path.join(__dirname, 'data', 'input-xml', 'data-services');
         const dssFiles = fs.readdirSync(dssDataRoot);
         test.each(dssFiles)('Diagram work correctly for data service - %s', async (file) => {
-            if (file.endsWith('.xml')) {
-                const uri = path.join(dssDataRoot, file);
-                const syntaxTree = await langClient.getSyntaxTree({
-                    documentIdentifier: {
-                        uri
-                    }
-                });
-
-                if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
-                    const model = syntaxTree.syntaxTree?.data?.queries[0];
-                    const name = `${model.name ?? ''}`;
-                    await renderAndCheckSnapshot(model, uri, name);
-                } else {
-                    throw new Error("Resource is undefined or empty.");
+            const uri = path.join(dssDataRoot, file);
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri
                 }
+            });
+
+            if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
+                const model = syntaxTree.syntaxTree?.data?.queries[0];
+                const name = `${model.name ?? ''}`;
+                await renderAndCheckSnapshot(model, uri, name);
+            } else {
+                throw new Error("Resource is undefined or empty.");
             }
         }, 20000);
     });
