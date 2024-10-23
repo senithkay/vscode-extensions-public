@@ -6,16 +6,18 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Operation } from '../../Definitions/ServiceDefinitions';
-import { ContentWrapper, PanelBody } from '../Overview/Overview';
+import { ContentWrapper, PanelBody, SubSectionWrapper } from '../Overview/Overview';
 import { getColorByMethod } from '@wso2-enterprise/service-designer';
 import { resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ContentTypeWrapper } from './Response';
 import { Tabs, ViewItem } from '../Tabs/Tabs';
+import SectionHeader from './SectionHeader';
+import { ReadOnlySchemaEditor } from '../SchemaEditor/ReadOnlySchemaEditor';
 
 const TitleWrapper = styled.div`
     display: flex;
@@ -132,8 +134,9 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     const statusTabViewItems: ViewItem[] = statusCodes?.map((status) => ({ id: status.status, name: status.status }));
     const responseMediaTypesViewItems: ViewItem[] = responseMediaTypes?.map((type) => ({ id: type, name: type }));
     const requestMediaTypesViewItems: ViewItem[] = requestMediaTypes?.map((type) => ({ id: type, name: type }));
+    const responseSchema = responseBody?.schema;
+    const requestBodySchema = requestBody?.schema;
 
-    console.log("selectedResponse", selectedResponse);
     const handleResponseCodeChange = (status: string) => {
         setSelectedStatus(status);
         if (responses && responses[status]?.content) {
@@ -142,10 +145,13 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     };
 
     useEffect(() => {
-        setSelectedStatus(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
+        const selResponseStatus = resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined;
+        setSelectedStatus(selResponseStatus);
+        const respMediaType = resourceOperation?.responses && 
+            resourceOperation.responses[selResponseStatus]?.content ? 
+                Object.keys(resourceOperation.responses[selResponseStatus].content)[0] : undefined;
+        setSelectedResposeMediaType(respMediaType);
     }, [path, method]);
-
-    console.log(">>>", responseMediaTypesViewItems);
 
     return (
         <>
@@ -182,7 +188,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                     </>
                 )}
 
-                {(pathParamaters?.length > 0 || queryParamaters?.length > 0 || headerParamaters?.length > 0  || !!requestMediaTypes) && <>
+                {(pathParamaters?.length > 0 || queryParamaters?.length > 0 || headerParamaters?.length > 0 || !!requestMediaTypes) && <>
                     <Typography sx={{ margin: 0 }} variant='h2'> Request </Typography>
                     <ContentWrapper>
                         {pathParamaters?.length > 0 && (
@@ -235,31 +241,36 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                         )}
                         {requestMediaTypes && method !== "get" && (
                             <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> Request Body </Typography>
-                                <ContentWrapper>
-                                    {requestMediaTypesViewItems && (
-                                        <Tabs views={requestMediaTypesViewItems} currentViewId={selectedRequestMediaType} onViewChange={(viewId) => setSelectedRequestMediaType(viewId)}>
+                                {requestMediaTypesViewItems?.length > 0 && (
+                                    <ContentWrapper>
+                                        <SubSectionWrapper>
+                                            <SectionHeader
+                                                title="Body"
+                                                variant='h3'
+                                                actionButtons={
+                                                    <Dropdown
+                                                        id="media-type-dropdown"
+                                                        value={selectedRequestMediaType || "application/json"}
+                                                        items={requestMediaTypesViewItems.map(item => ({ label: item.name, value: item.id }))}
+                                                        onValueChange={(value) => setSelectedRequestMediaType(value)}
+                                                    />
+                                                }
+                                            />
                                             <div id={selectedRequestMediaType}>
-                                                <Typography
-                                                    sx={{ margin: 0, fontWeight: "lighter" }}
-                                                    variant='body2'> {
-                                                        requestBody?.schema?.type === "array" ?
-                                                            (requestBody?.schema?.items?.type === "object" ?
-                                                                requestBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                                                requestBody?.schema?.items?.type
-                                                            ) : (requestBody?.schema?.type ?
-                                                                requestBody?.schema?.type : (requestBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                                    }
-                                                </Typography>
+                                                {requestBodySchema && (
+                                                    <ReadOnlySchemaEditor
+                                                        schema={requestBodySchema}
+                                                        schemaName={requestBodySchema?.title || requestBodySchema?.type}
+                                                    />
+                                                )}
                                             </div>
-                                        </Tabs>
-                                    )}
-                                </ContentWrapper>
+                                        </SubSectionWrapper>
+                                    </ContentWrapper>
+                                )}
                             </>
                         )}
                     </ContentWrapper>
                 </>}
-                
 
                 <>
                     <Typography sx={{ margin: 0 }} variant='h2'> Responses </Typography>
@@ -291,29 +302,33 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                                     </ContentWrapper>
                                                 </>
                                             )}
-                                            {responseMediaTypes && responseMediaTypesViewItems && (
+                                            {responseMediaTypes && responseMediaTypesViewItems?.length > 0 && (
                                                 <>
-                                                    <Typography sx={{ margin: 0 }} variant='h4'> Body </Typography>
                                                     <ContentWrapper>
-                                                        {responseMediaTypesViewItems && (
-                                                            <Tabs views={responseMediaTypesViewItems} currentViewId={selectedResposeMediaType} onViewChange={(viewId) => setSelectedResposeMediaType(viewId)}>
-                                                                {responseMediaTypesViewItems?.map((type) => (
-                                                                    <div id={type.name}>
-                                                                        <Typography
-                                                                            sx={{ margin: 0, fontWeight: "lighter" }}
-                                                                            variant='body2'> {
-                                                                                responseBody?.schema?.type === "array" ?
-                                                                                    (responseBody?.schema?.items?.type === "object" ?
-                                                                                        responseBody?.schema?.items?.$ref?.replace("#/components/schemas/", "") :
-                                                                                        responseBody?.schema?.items?.type
-                                                                                    ) : (responseBody?.schema?.type ?
-                                                                                        responseBody?.schema?.type : (responseBody?.schema?.$ref)?.replace("#/components/schemas/", ""))
-                                                                            }
-                                                                        </Typography>
-                                                                    </div>
-                                                                ))}
-                                                            </Tabs>
-                                                        )}
+                                                        <SubSectionWrapper>
+                                                            <SectionHeader
+                                                                title="Body"
+                                                                variant='h3'
+                                                                actionButtons={
+                                                                    <>
+                                                                        <Dropdown
+                                                                            id="media-type-dropdown"
+                                                                            value={selectedResposeMediaType || "application/json"}
+                                                                            items={responseMediaTypesViewItems.map(item => ({ label: item.name, value: item.id }))}
+                                                                            onValueChange={(value) => setSelectedResposeMediaType(value)}
+                                                                        />
+                                                                    </>
+                                                                }
+                                                            />
+                                                            <div id={selectedRequestMediaType}>
+                                                                {responseSchema && (
+                                                                    <ReadOnlySchemaEditor
+                                                                        schema={responseSchema}
+                                                                        schemaName={responseSchema?.title || responseSchema?.type}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </SubSectionWrapper>
                                                     </ContentWrapper>
                                                 </>
                                             )}
