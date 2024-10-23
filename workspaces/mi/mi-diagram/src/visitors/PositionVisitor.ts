@@ -243,13 +243,16 @@ export class PositionVisitor implements Visitor {
             node.viewState.y = this.position.y;
             this.position.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
         }
+        if (node.faultSequenceAttribute) {
+            node.viewState.x = this.position.x - (node.viewState.w / 2);
+            node.viewState.y = this.position.y;
+            this.position.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        }
     }
     endVisitResource(node: Resource): void {
         const { outSequenceAttribute, viewState } = node;
 
         if (outSequenceAttribute) {
-            viewState.x = this.position.x;
-            viewState.y = this.position.y + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
             this.position.y = viewState.y + NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
         }
     }
@@ -261,14 +264,17 @@ export class PositionVisitor implements Visitor {
             node.viewState.y = this.position.y;
             this.position.y += NODE_GAP.Y + node.viewState.h;
         }
+        if (proxyTargetNode.faultSequenceAttribute) {
+            node.viewState.x = this.position.x - (node.viewState.w / 2);
+            node.viewState.y = this.position.y;
+            this.position.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        }
     }
     endVisitTarget(node: Target | ProxyTarget): void {
         const proxyTargetNode = node as ProxyTarget;
         const { viewState, outSequenceAttribute } = proxyTargetNode;
 
         if (outSequenceAttribute) {
-            viewState.x = this.position.x;
-            viewState.y = this.position.y + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
             this.position.y = viewState.y + NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
         }
     }

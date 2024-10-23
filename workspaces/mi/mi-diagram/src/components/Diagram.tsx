@@ -158,15 +158,30 @@ export function Diagram(props: DiagramProps) {
         const { engine: faultEngine } = fault;
         const flows: DiagramData[] = [];
 
-        const modelCopy = structuredClone(model);
+        let flowModel = structuredClone(model);
         if (model.tag !== "sequence") {
+            let faultModel = structuredClone(model);
             let faultSequence;
-            if (modelCopy.tag === "proxy") {
-                faultSequence = (model as Proxy).target.faultSequence
-                delete (modelCopy as Proxy).target.faultSequence;
+            if (model.tag === "proxy") {
+                flowModel = flowModel as Proxy;
+                faultModel = faultModel as Proxy;
+                faultSequence = faultModel.target.faultSequenceAttribute ? faultModel.target : faultModel.target.faultSequence;
+                delete faultModel?.target?.inSequence;
+                delete faultModel?.target?.inSequenceAttribute;
+                delete faultModel?.target?.outSequence;
+                delete faultModel?.target?.outSequenceAttribute;
+                delete flowModel?.target?.faultSequence;
+                delete flowModel?.target?.faultSequenceAttribute;
             } else {
-                faultSequence = (model as APIResource).faultSequence;
-                delete (modelCopy as APIResource).faultSequence;
+                flowModel = flowModel as APIResource;
+                faultModel = faultModel as APIResource;
+                faultSequence = (faultModel as APIResource).faultSequenceAttribute ? faultModel : faultModel.faultSequence;
+                delete faultModel?.inSequence;
+                delete faultModel?.inSequenceAttribute;
+                delete faultModel?.outSequence;
+                delete faultModel?.outSequenceAttribute;
+                delete flowModel?.faultSequence;
+                delete flowModel?.faultSequenceAttribute;
             }
 
             if (faultSequence) {
@@ -181,7 +196,7 @@ export function Diagram(props: DiagramProps) {
         flows.push({
             engine: flowEngine,
             modelType: DiagramType.FLOW,
-            model: modelCopy
+            model: flowModel
         });
         updateDiagramData(flows);
 

@@ -456,6 +456,9 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks({ node, name: MEDIATORS.RESPOND });
 
     beginVisitResource = (node: Resource): void => {
+        if (node.faultSequenceAttribute) {
+            this.addSequenceReference(node, "faultSequence");
+        }
         if (node.inSequenceAttribute) {
             const endNode = this.addSequenceReference(node, "inSequence");
 
@@ -468,7 +471,7 @@ export class NodeFactoryVisitor implements Visitor {
         }
     }
     endVisitResource(node: Resource): void {
-        if (node.inSequence && node.outSequenceAttribute) {
+        if (!node.inSequenceAttribute && node.outSequenceAttribute) {
             node.viewState.y += NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
             this.addSequenceReference(node, "outSequence", StartNodeType.OUT_SEQUENCE);
         }
@@ -477,6 +480,9 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitTarget = (node: Target | ProxyTarget): void => {
         if (node.tag === "target") {
             const proxyTargetNode = node as ProxyTarget;
+            if (proxyTargetNode.faultSequenceAttribute) {
+                this.addSequenceReference(proxyTargetNode, "proxyFaultSequence");
+            }
             if (proxyTargetNode.inSequenceAttribute) {
                 const endNode = this.addSequenceReference(proxyTargetNode, "proxyInSequence");
 
@@ -492,7 +498,7 @@ export class NodeFactoryVisitor implements Visitor {
     endVisitTarget(node: Target | ProxyTarget): void {
         if (node.tag === "target") {
             const proxyTargetNode = node as ProxyTarget;
-            if (proxyTargetNode.inSequence && proxyTargetNode.outSequenceAttribute) {
+            if (!proxyTargetNode.inSequenceAttribute  && proxyTargetNode.outSequenceAttribute) {
                 // proxyTargetNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + proxyTargetNode.inSequence.viewState.fh + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
                 proxyTargetNode.viewState.x -= NODE_DIMENSIONS.END.WIDTH / 2;
                 this.addSequenceReference(proxyTargetNode, "proxyOutSequence", StartNodeType.OUT_SEQUENCE);

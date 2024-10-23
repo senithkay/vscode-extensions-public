@@ -573,6 +573,15 @@ export class SizingVisitor implements Visitor {
                 fh: node.viewState.fh + namedSequenceHeight
             };
         }
+        if (node.faultSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        }
     }
 
 }
