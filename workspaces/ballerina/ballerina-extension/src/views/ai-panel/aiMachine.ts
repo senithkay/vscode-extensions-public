@@ -160,7 +160,7 @@ async function checkToken(context, event): Promise<UserToken> {
         try {
             const token = await extension.context.secrets.get('BallerinaAIUser');
             if (token) {
-                // const config = vscode.workspace.getConfiguration('Ballerina');
+                // const config = getPluginConfig();
                 // const ROOT_URL = config.get('rootUrl') as string;
                 // const url = ROOT_URL + USER_CHECK_BACKEND_URL;
                 // const response = await fetch(url, {
@@ -224,7 +224,7 @@ async function openLogin(context, event) {
 
 async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
-        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.ballerina/signin`)
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.kolab/signin`)
     );
     const oauthURL = await getAuthUrl(callbackUri.toString());
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
