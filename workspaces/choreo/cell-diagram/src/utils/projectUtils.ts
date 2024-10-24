@@ -729,6 +729,49 @@ function generateCellLinks(
                 }
             }
         });
+        // external consumer connections
+        if (targetComponent && targetComponent.isExternalConsumer()) {
+            for (const connection of component.connections) {
+                let targetEmptyNode: EmptyModel | null = null;
+                let targetBound: CellBounds | null = null;
+                for (const cmp of project.components) {
+                    if (cmp.services && cmp.services[connection.id]) {
+                        const service = cmp.services[connection.id];
+                        if (service.deploymentMetadata?.gateways.internet.isExposed) {
+                            targetBound = CellBounds.NorthBound;
+                        } else if (service.deploymentMetadata?.gateways.intranet.isExposed) {
+                            targetBound = CellBounds.WestBound;
+                        }
+                    }
+                }
+                if (targetBound) {
+                    targetEmptyNode = emptyNodes.get(getEmptyNodeName(targetBound));
+                }
+                if (targetEmptyNode) {
+                    // create cell gateway connection for external consumer
+                    const sourcePort: ComponentPortModel | null = targetComponent.getPort(
+                        `bottom-${targetComponent.getID()}`
+                    );
+                    const targetPort: CellPortModel | null = targetEmptyNode.getPort(
+                        getNodePortId(
+                            targetEmptyNode.getID(),
+                            targetBound === CellBounds.NorthBound ? PortModelAlignment.TOP : PortModelAlignment.LEFT
+                        )
+                    );
+                    if (sourcePort && targetPort) {
+                        const linkId = getCellLinkName(sourcePort.getID(), targetPort.getID());
+                        const link: CellLinkModel = new CellLinkModel(linkId);
+                        link.setSourceNode(targetComponent.getID());
+                        link.setTargetNode(targetEmptyNode.getID());
+                        links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
+                    } else {
+                        console.warn('Unable to create link: sourcePort or targetPort is null');
+                        // You might want to add additional error handling or logging here
+                        // depending on your application's requirements
+                    }
+                }
+            }
+        }
     });
 
     return links;
