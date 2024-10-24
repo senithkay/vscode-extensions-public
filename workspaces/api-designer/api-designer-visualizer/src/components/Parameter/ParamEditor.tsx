@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TextField, Button, Codicon, Typography, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { TextField, Button, Codicon, Typography, Dropdown, RequiredFormInput, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 import SectionHeader from '../Resource/SectionHeader';
@@ -34,9 +34,30 @@ export const ButtonWrapperParams = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    min-width: 70px;
+    min-width: 40px;
     flex-grow: 1;
+    gap: 5px;
     justify-content: flex-end;
+`;
+
+interface RequiredFormInputProps {
+    color?: string;
+}
+const RequiredElement = styled.div<RequiredFormInputProps>`
+    font-size: 28px;
+    color: ${(props: RequiredFormInputProps) => props.color || "var(--vscode-editor-foreground)"};
+    font-weight: bold;
+    line-height: 24px; // Reduced line height to lower the asterisk
+    cursor: pointer;
+`;
+const RequiredElementWrapper = styled.div`
+    height: 15px;
+    padding: 2px;
+    border-radius: 4px;
+    &:hover {
+        /* background-color: var(--vscode-editorHoverWidget-background); */
+        background-color: var(--button-icon-hover-background)
+    }
 `;
 
 interface OverviewProps {
@@ -150,9 +171,15 @@ export function ParamEditor(props: OverviewProps) {
                             onTextChange={(value) => updateParentComponent(index, "description", value)}
                         />
                         <ButtonWrapperParams>
-                            <Button appearance='icon' onClick={() => updateRequired(index, !param.isRequired)}>
-                                <div style={{fontSize: "11px"}}>{param.isRequired ? "Required" : "Optional"}</div>
-                            </Button>
+                            <Tooltip content="Make this parameter optional/required">
+                                <RequiredElementWrapper onClick={() => updateRequired(index, !param.isRequired)}>
+                                    <RequiredElement
+                                        color={param.isRequired ? "var(--vscode-errorForeground)" : "var(--vscode-editor-foreground)"}
+                                    >
+                                        *
+                                    </RequiredElement>
+                                </RequiredElementWrapper>
+                            </Tooltip>
                             <Button appearance='icon' onClick={() => removeParam(index)}>
                                 <Codicon name="trash" />
                             </Button>
