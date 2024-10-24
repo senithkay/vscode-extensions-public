@@ -596,27 +596,8 @@ export class BallerinaExtension {
             exeExtension = ".bat";
         }
 
-        let versionFolder;
-        try {
-            const distributionFolder = path.join(destinationPath, "distributions");
-            versionFolder = fs
-                .readdirSync(distributionFolder)
-                .map((name) => path.join(distributionFolder, name))
-                .find(
-                    (filePath) =>
-                        fs.statSync(filePath).isDirectory() && /^ballerina-\d+\.\d+\.\d+$/.test(path.basename(filePath))
-                );
-
-            if (!versionFolder) {
-                throw new Error("Ballerina version folder not found");
-            }
-        } catch (error) {
-            console.error("Error finding Ballerina version folder:", error);
-            versionFolder = destinationPath;
-        }
-
         // Set the Ballerina Home and Command
-        this.ballerinaHome = versionFolder;
+        this.ballerinaHome = destinationPath;
         this.ballerinaCmd = join(this.ballerinaHome, "bin") + sep + "bal" + exeExtension;
 
         // Update the configuration with the new Ballerina Home
