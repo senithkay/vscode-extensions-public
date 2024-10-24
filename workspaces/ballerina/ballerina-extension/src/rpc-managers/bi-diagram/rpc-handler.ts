@@ -17,7 +17,6 @@ import {
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
-    BITriggersRequest,
     ComponentRequest,
     ComponentsRequest,
     ExpressionCompletionsRequest,
