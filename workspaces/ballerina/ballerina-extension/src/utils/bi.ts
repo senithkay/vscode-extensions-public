@@ -68,6 +68,7 @@ export function createBIProject(name: string, isService: boolean) {
 export function createBIProjectPure(name: string, projectPath: string) {
     const projectLocation = projectPath;
 
+    name = sanitizeName(name);
     const projectRoot = path.join(projectLocation, name);
     // Create project root directory
     if (!fs.existsSync(projectRoot)) {

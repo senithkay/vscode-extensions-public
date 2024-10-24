@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
 import { CELL_LINK, Colors, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
@@ -9,6 +9,7 @@ import { DiagramLayer } from "../../../types";
 import { SharedLink } from "../../SharedLink/SharedLink";
 import Popper from "@mui/material/Popper";
 import Box from "@mui/material/Box";
+import { CellBounds } from "../CellNode/CellModel";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -68,6 +69,17 @@ export function CellLinkWidget(props: WidgetProps) {
             link.deregisterListener(listener);
         };
     }, [link, hideLink]);
+
+    useEffect(() => {
+        if (link.getIsExternalConsumerLink()) {
+            const destinationNode = link.getDestinationNode();
+            if (destinationNode) {
+                destinationNode.fireEvent({
+                    cellBound: link.getTargetPort().getOptions().alignment === PortModelAlignment.TOP ? CellBounds.NorthBound : CellBounds.WestBound,
+                }, isSelected ? "EXTERNAL_CONSUMER_LINK_SELECT" : "EXTERNAL_CONSUMER_LINK_UNSELECT");
+            }
+        }
+    }, [link, isSelected]);
 
     const selectPath = () => {
         if (hideLink) {
