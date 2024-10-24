@@ -55,7 +55,7 @@ export type Metadata = {
 export type Property = {
     metadata: Metadata;
     valueType: string;
-    value: string;
+    value: string | ELineRange;
     optional: boolean;
     editable: boolean;
     valueTypeConstraint?: string[];
@@ -170,7 +170,8 @@ export type NodePropertyKey =
     | "statement"
     | "comment"
     | "connection"
-    | "collection";
+    | "collection"
+    | "view";
 
 export type BranchKind = "block" | "worker";
 
@@ -240,3 +241,42 @@ export type Connection = {
     package?: string;
     client?: string;
 }
+
+export type Line = {
+    line: number;
+    offset: number;
+};
+
+export type ConfigVariableLineRange = {
+    fileName: string;
+    startLine: Line;
+    endLine: Line;
+};
+
+export type ConfigVariableMetadata = {
+    label: string;
+    description?: string;
+};
+
+export type ConfigVariableProperty = {
+    metadata: Metadata;
+    valueType: string;
+    value: string;
+    optional: boolean;
+    editable: boolean;
+};
+
+export type ConfigVariableCodeData = {
+    node: string;
+    lineRange: ConfigVariableLineRange;
+};
+
+export type ConfigVariable = {
+    metadata: ConfigVariableMetadata;
+    codedata: ConfigVariableCodeData;
+    properties: {
+        type: ConfigVariableProperty;
+        variable: ConfigVariableProperty;
+        defaultable: ConfigVariableProperty;
+    };
+};

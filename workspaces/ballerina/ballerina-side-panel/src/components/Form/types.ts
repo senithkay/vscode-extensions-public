@@ -25,4 +25,5 @@ export type FormField = {
 export type ExpressionFormField = {
     key: string;
     value: string;
+    cursorPosition: number;
 };

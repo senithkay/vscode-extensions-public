@@ -45,12 +45,14 @@ export enum MACHINE_VIEW {
     DataMapper = "Data Mapper",
     GraphQLDiagram = "GraphQL Diagram",
     TypeDiagram = "Type Diagram",
+    SetupView = "Setup View",
     BIDiagram = "BI Diagram",
     BIWelcome = "BI Welcome",
     BIProjectForm = "BI Project Form",
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    ViewConfigVariables = "View Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
@@ -80,6 +82,7 @@ export interface VisualizerLocation {
 }
 
 export interface VisualizerMetadata {
+    haveLS?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
 }
@@ -92,7 +95,17 @@ export interface ParentPopupData {
     recentIdentifier: string;
 }
 
+export interface DownloadProgress {
+    totalSize?: number;
+    downloadedSize?: number;
+    percentage?: number;
+    success: boolean;
+    message: string;
+    step?: number;
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+export const onDownloadProgress: NotificationType<DownloadProgress> = { method: 'onDownloadProgress' };
 export const projectContentUpdated: NotificationType<boolean> = { method: 'projectContentUpdated' };
 export const getVisualizerLocation: RequestType<void, VisualizerLocation> = { method: 'getVisualizerLocation' };
 export const webviewReady: NotificationType<void> = { method: `webviewReady` };

@@ -14,7 +14,7 @@ import { configGenerator } from "../config-generator/configGenerator";
 import { StateMachine } from "../../stateMachine";
 
 export function activate(context: BallerinaExtension) {
-    commands.registerCommand("BI.project.run", () => {
+    commands.registerCommand(BI_COMMANDS.BI_RUN_PROJECT, () => {
         configGenerator(context, StateMachine.context().projectUri, false, true);
     });
 

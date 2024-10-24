@@ -26,8 +26,9 @@ import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
+import { getPluginConfig } from "../../../src/utils";
 
-export const BACKEND_API_URL_V2 =  workspace.getConfiguration('ballerina').get('rootUrl') as string;
+export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
@@ -64,9 +65,9 @@ export async function isLoggedin(): Promise<boolean> {
 
 export async function handleLogin() : Promise<void> {
     const quickPicks: QuickPickItem[] = [];
-    quickPicks.push({ label: "Ballerina: Copilot Login", description: "Register/Login to Ballerina Copilot"});
+    quickPicks.push({ label: "WSO2: Copilot Login", description: "Register/Login to WSO2 Copilot"});
 
-    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access Ballerina Copilot features. Please login and retry." };
+    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access WSO2 Copilot features. Please login and retry." };
     const selected = await window.showQuickPick(quickPicks, options);
     if (selected) {
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
@@ -334,7 +335,7 @@ export async function refreshAccessToken(): Promise<string> {
         'Accept': 'application/json'
     };
 
-    const config = workspace.getConfiguration('ballerina');
+    const config = getPluginConfig();
     const AUTH_ORG = config.get('authOrg') as string;
     const AUTH_CLIENT_ID = config.get('authClientID') as string;
 
@@ -458,6 +459,10 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
         // Refresh
         if (response.status === 401) {
             const newAccessToken = await refreshAccessToken();
+            if (!newAccessToken) {
+                await handleLogin();
+                return;
+            }
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
             
             if (isErrorCode(retryResponse)) {

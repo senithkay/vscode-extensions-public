@@ -34,11 +34,12 @@ import {
     ServiceForm,
     PopupMessage,
     MainForm,
-    FunctionForm
+    FunctionForm,
+    SetupView
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { URI } from "vscode-uri";
+import { URI, Utils } from "vscode-uri";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { PanelType, useVisualizerContext } from "./Context";
 import { ConstructPanel } from "./views/ConstructPanel";
@@ -53,6 +54,7 @@ import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
+import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 
 const globalStyles = css`
     *,
@@ -78,7 +80,6 @@ const PopUpContainer = styled.div`
     right: 0;
     bottom: 0;
     z-index: 2100;
-    background: var(--background);
 `;
 
 const MainPanel = () => {
@@ -198,6 +199,10 @@ const MainPanel = () => {
                         setNavActive(false);
                         setViewComponent(<WelcomeView />);
                         break;
+                    case MACHINE_VIEW.SetupView:
+                        setNavActive(false);
+                        setViewComponent(<SetupView haveLS={value.metadata.haveLS} />);
+                        break;
                     case MACHINE_VIEW.BIProjectForm:
                         setShowHome(false);
                         setViewComponent(<ProjectForm />);
@@ -209,16 +214,32 @@ const MainPanel = () => {
                         setViewComponent(<ServiceForm />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
-                        setViewComponent(<AddConnectionWizard />);
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <AddConnectionWizard
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.EditConnectionWizard:
-                        setViewComponent(<EditConnectionWizard connectionName={value?.identifier} />);
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <EditConnectionWizard
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                    connectionName={value?.identifier}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm />);
+                        break;
+                    case MACHINE_VIEW.ViewConfigVariables:
+                        setViewComponent(<ViewConfigurableVariables />);
                         break;
                     default:
                         setNavActive(false);

@@ -253,6 +253,7 @@ importers:
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
+      adm-zip: ^0.5.16
       axios: ^1.6.0
       chai: ^4.3.10
       copyfiles: ^2.4.1
@@ -344,6 +345,7 @@ importers:
       '@types/tcp-port-used': 1.0.4
       '@types/vscode': 1.86.0
       '@types/vscode-notebook-renderer': 1.72.3
+      adm-zip: 0.5.16
       axios: 1.6.7
       chai: 4.4.1
       copyfiles: 2.4.1
@@ -25759,6 +25761,11 @@ packages:
     resolution: {integrity: sha512-DnyqqifT4Jrcvb8USYjp6FHtBpEIz1mnXu6pTRHZ0RL69LbQYiO+0lDFg5+OKA7U29oWSs3a/i8fhn8ZcceIWg==}
     engines: {node: '>=12.0'}
     dev: false
+
+  /adm-zip/0.5.16:
+    resolution: {integrity: sha512-TGw5yVi4saajsSEgz25grObGHEUaDrniwvA2qwSC060KfqGPdglhvPMA2lPIoxs3PQIItj2iag35fONcQqgUaQ==}
+    engines: {node: '>=12.0'}
+    dev: true
 
   /agent-base/5.1.1:
     resolution: {integrity: sha512-TMeqbNl2fMW0nMjTEPOwe3J/PRFP4vqeoNuQMG0HlMrtm5QxKqdvAkZ1pRBQ/ulIyDD5Yq0nJ7YbdD8ey0TO3g==}
