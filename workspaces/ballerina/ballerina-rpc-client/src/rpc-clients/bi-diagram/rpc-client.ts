@@ -27,11 +27,10 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
-    BITriggersRequest,
-    BITriggersResponse,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
+    ConfigVariableResponse,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -40,6 +39,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
@@ -54,7 +55,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
-    getBITriggers,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -69,6 +70,7 @@ import {
     getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
+    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject
@@ -135,10 +137,6 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getBIConnectors, HOST_EXTENSION, params);
     }
 
-    getBITriggers(params: BITriggersRequest): Promise<BITriggersResponse> {
-        return this._messenger.sendRequest(getBITriggers, HOST_EXTENSION, params);
-    }
-
     handleReadmeContent(params: ReadmeContentRequest): Promise<ReadmeContentResponse> {
         return this._messenger.sendRequest(handleReadmeContent, HOST_EXTENSION, params);
     }
@@ -153,6 +151,14 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getConfigVariables(): Promise<ConfigVariableResponse> {
+        return this._messenger.sendRequest(getConfigVariables, HOST_EXTENSION);
+    }
+
+    updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
     }
 
     getModuleNodes(): Promise<BIModuleNodesResponse> {

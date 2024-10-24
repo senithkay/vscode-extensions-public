@@ -171,10 +171,10 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
             {connection && (
                 <PanelContainer
                     show={true}
-                    title={`Configure ${connection.codedata.module} Connector`}
-                    onClose={onClose}
-                    width={600}
-                    onBack={onClose}
+                    title={`Configure ${connection.codedata.module || ''} Connector`}
+                    onClose={onClose ? onClose : gotoHome}
+                    width={400}
+                    onBack={onClose ? onClose : gotoHome}
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                     subPanel={findSubPanelComponent(subPanel)}
                 >

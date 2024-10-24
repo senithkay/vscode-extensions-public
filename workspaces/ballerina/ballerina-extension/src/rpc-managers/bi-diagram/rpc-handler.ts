@@ -34,7 +34,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
-    getBITriggers,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -49,6 +49,8 @@ import {
     getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
+    UpdateConfigVariableRequest,
+    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject,
@@ -71,11 +73,12 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectComponents, () => rpcManger.getProjectComponents());
     messenger.onRequest(createComponent, (args: ComponentRequest) => rpcManger.createComponent(args));
     messenger.onRequest(getBIConnectors, (args: BIConnectorsRequest) => rpcManger.getBIConnectors(args));
-    messenger.onRequest(getBITriggers, (args: BITriggersRequest) => rpcManger.getBITriggers(args));
     messenger.onRequest(handleReadmeContent, (args: ReadmeContentRequest) => rpcManger.handleReadmeContent(args));
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
+    messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());

@@ -39,12 +39,13 @@ import { modifyFileContent } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { constructRecord, getDatamapperCode, getFunction, getParamDefinitions, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, refreshAccessToken } from "./utils";
+import { getPluginConfig } from "../../../src/utils";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
-            const config = workspace.getConfiguration('ballerina');
+            const config = getPluginConfig();
             const BACKEND_URL = config.get('rootUrl') as string;
             resolve(BACKEND_URL);
         });

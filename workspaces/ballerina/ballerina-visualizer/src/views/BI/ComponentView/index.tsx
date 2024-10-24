@@ -69,8 +69,7 @@ export function AddComponentView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.AddConnectionWizard,
-                },
-                isPopup: true,
+                }
             });
         } else if (key === DIRECTORY_MAP.AUTOMATION) {
             await rpcClient.getVisualizerRpcClient().openView({
@@ -93,6 +92,13 @@ export function AddComponentView() {
                     view: MACHINE_VIEW.AddTriggerWizard,
                 },
                 isPopup: true
+            });
+        } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.ViewConfigVariables,
+                }
             });
         } else {
             setPopupMessage(true);
@@ -127,7 +133,7 @@ export function AddComponentView() {
                                 onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
                             <ButtonCard
-                                icon={<Icon name="bi-task"  iconSx={{ fontSize: "16px" }}/>}
+                                icon={<Icon name="bi-task" iconSx={{ fontSize: "16px" }} />}
                                 title="Automation"
                                 description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
                                 onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
@@ -151,25 +157,25 @@ export function AddComponentView() {
                             </BodyText>
                             <CardGrid>
                                 <ButtonCard
-                                    icon={<Icon name="bi-connection" iconSx={{ fontSize: "16px" }}/>}
+                                    icon={<Icon name="bi-connection" iconSx={{ fontSize: "16px" }} />}
                                     title="Connections"
                                     description="Set up external service connections, like databases and APIs."
                                     onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
                                 />
                                 <ButtonCard
-                                    icon={<Icon name="bi-type" iconSx={{ fontSize: "16px" }}/>}
+                                    icon={<Icon name="bi-type" iconSx={{ fontSize: "16px" }} />}
                                     title="Types"
                                     description="Define and manage data types with JSON schema."
                                     onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
                                 />
                                 <ButtonCard
-                                    icon={<Icon name="bi-config" iconSx={{ fontSize: "16px" }}/>}
+                                    icon={<Icon name="bi-config" iconSx={{ fontSize: "16px" }} />}
                                     title="Configurations"
                                     description="Handle environment variables and secrets for your project."
                                     onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                                 />
                                 <ButtonCard
-                                    icon={<Icon name="bi-function" iconSx={{ fontSize: "16px" }}/>}
+                                    icon={<Icon name="bi-function" iconSx={{ fontSize: "16px" }} />}
                                     title="Functions"
                                     description="Create reusable functions to streamline your integration logic."
                                     onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}

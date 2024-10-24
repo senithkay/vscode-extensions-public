@@ -26,8 +26,9 @@ import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
+import { getPluginConfig } from "../../../src/utils";
 
-export const BACKEND_API_URL_V2 =  workspace.getConfiguration('ballerina').get('rootUrl') as string;
+export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
@@ -334,7 +335,7 @@ export async function refreshAccessToken(): Promise<string> {
         'Accept': 'application/json'
     };
 
-    const config = workspace.getConfiguration('ballerina');
+    const config = getPluginConfig();
     const AUTH_ORG = config.get('authOrg') as string;
     const AUTH_CLIENT_ID = config.get('authClientID') as string;
 

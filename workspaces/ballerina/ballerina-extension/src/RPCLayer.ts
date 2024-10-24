@@ -99,6 +99,7 @@ async function getContext(): Promise<VisualizerLocation> {
             projectUri: context.projectUri,
             haveServiceType: context.haveServiceType,
             metadata: {
+                haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
             },

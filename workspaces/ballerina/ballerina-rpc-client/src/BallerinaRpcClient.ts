@@ -28,7 +28,9 @@ import {
     PopupMachineStateValue,
     popupStateChanged,
     PopupVisualizerLocation,
-    getPopupVisualizerState
+    getPopupVisualizerState,
+    onDownloadProgress,
+    DownloadProgress
 } from "@wso2-enterprise/ballerina-core";
 import { LangClientRpcClient } from "./rpc-clients/lang-client/rpc-client";
 import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
@@ -163,6 +165,10 @@ export class BallerinaRpcClient {
 
     onPopupStateChanged(callback: (state: PopupMachineStateValue) => void) {
         this.messenger.onNotification(popupStateChanged, callback);
+    }
+
+    onDownloadProgress(callback: (state: DownloadProgress) => void) {
+        this.messenger.onNotification(onDownloadProgress, callback);
     }
 
     getPopupVisualizerState(): Promise<PopupVisualizerLocation> {

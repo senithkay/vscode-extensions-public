@@ -34,7 +34,8 @@ import {
     ServiceForm,
     PopupMessage,
     MainForm,
-    FunctionForm
+    FunctionForm,
+    SetupView
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -54,6 +55,7 @@ import AddTriggerWizard from "./views/BI/Trigger/AddTriggerWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
+import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 
 const globalStyles = css`
     *,
@@ -79,7 +81,6 @@ const PopUpContainer = styled.div`
     right: 0;
     bottom: 0;
     z-index: 2100;
-    background: var(--background);
 `;
 
 const MainPanel = () => {
@@ -199,6 +200,10 @@ const MainPanel = () => {
                         setNavActive(false);
                         setViewComponent(<WelcomeView />);
                         break;
+                    case MACHINE_VIEW.SetupView:
+                        setNavActive(false);
+                        setViewComponent(<SetupView haveLS={value.metadata.haveLS} />);
+                        break;
                     case MACHINE_VIEW.BIProjectForm:
                         setShowHome(false);
                         setViewComponent(<ProjectForm />);
@@ -236,6 +241,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm />);
+                        break;
+                    case MACHINE_VIEW.ViewConfigVariables:
+                        setViewComponent(<ViewConfigurableVariables />);
                         break;
                     default:
                         setNavActive(false);

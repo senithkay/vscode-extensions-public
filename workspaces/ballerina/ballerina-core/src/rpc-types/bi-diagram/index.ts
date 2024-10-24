@@ -27,8 +27,9 @@ import {
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
-    BITriggersRequest,
-    BITriggersResponse,
+    ConfigVariableResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     BIGetVisibleVariableTypesRequest,
@@ -52,11 +53,12 @@ export interface BIDiagramAPI {
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
     createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
-    getBITriggers: (params: BITriggersRequest) => Promise<BITriggersResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getConfigVariables:() => Promise<ConfigVariableResponse>;
+    updateConfigVariables:(params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;

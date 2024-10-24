@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
     Button,
     TextField,
@@ -19,7 +19,8 @@ import {
     RadioButtonGroup,
     FormCheckBox,
     FormGroup,
-    Typography
+    Typography,
+    LinkButton
 } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import styled from "@emotion/styled";
@@ -47,6 +48,13 @@ const SidePanelBodyWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
+`;
+
+const AddButtonWrapper = styled.div`
+	margin: 8px 0;
+	display: flex;
+	justify-content: flex-end;
+	gap: 20px;
 `;
 
 // Schema
@@ -155,6 +163,7 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
         formState: { errors, isValid, isDirty, dirtyFields },
         register,
         watch,
+        setValue,
         reset
     } = useForm({
         defaultValues: initialValues,
@@ -168,8 +177,13 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
     const outSequenceType = watch("outSequenceType");
     const faultSequenceType = watch("faultSequenceType");
 
+    const [isHidden, setIsHidden] = useState(false);
+    const [paramType, setParamType] = useState("");
+    const [paramValue, setParamValue] = useState("");
+
     // Functions
     const handleCancel = () => {
+        setIsHidden(false);
         onCancel();
     };
 
@@ -181,6 +195,53 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
             isFaultSequenceDirty: dirtyFields.faultSequenceType,
         };
         onSave({ ...data, ...metaData });
+    };
+
+    const showQueryParam = () => {
+        setParamType("queryParam");
+        setIsHidden(true);
+    }
+
+    const addQueryParam = () => {
+        const urlType = urlStyle === "uri-template" ? "uriTemplate" : "urlMapping";
+        const sanitizedParamValue = paramValue.replace(/[^a-zA-Z0-9 ]+/g, '').replace(/\s+/g, '_');
+        if (watch(urlType).includes('?')) {
+            setValue(urlType, watch(urlType) + `&${sanitizedParamValue}={${sanitizedParamValue}}`, { shouldDirty: true });
+        } else {
+            setValue(urlType, watch(urlType) + `?${sanitizedParamValue}={${sanitizedParamValue}}`, { shouldDirty: true });
+        }
+        handleAddParameterCancel();
+    }
+
+    const showPathParam = () => {
+        setParamType("pathParam");
+        setIsHidden(true);
+    }
+
+    const addPathParam = () => {
+        const urlType = urlStyle === "uri-template" ? "uriTemplate" : "urlMapping";
+        const sanitizedParamValue = paramValue.replace(/[^a-zA-Z0-9 ]+/g, '').replace(/\s+/g, '_');
+        if (watch(urlType).includes('?')) {
+            const [basePath, queryParams] = watch(urlType).split('?');
+            if (basePath.endsWith('/')) {
+                setValue(urlType, `${basePath}{${sanitizedParamValue}}?${queryParams}`, { shouldDirty: true });
+            } else {
+                setValue(urlType, `${basePath}/{${sanitizedParamValue}}?${queryParams}`, { shouldDirty: true });
+            }
+        } else {
+            if (watch(urlType).endsWith('/')) {
+                setValue(urlType, watch(urlType) + `{${sanitizedParamValue}}`, { shouldDirty: true });
+            } else {
+                setValue(urlType, watch(urlType) + `/{${sanitizedParamValue}}`, { shouldDirty: true });
+            }
+        }
+        handleAddParameterCancel();
+    }
+
+    const handleAddParameterCancel = () => {
+        setIsHidden(false);
+        setParamValue("");
+        setParamType("");
     };
 
     // useEffects
@@ -201,142 +262,183 @@ export const ResourceForm = ({ isOpen, documentUri, onCancel, onSave, formData }
             sx={{ transition: "all 0.3s ease-in-out" }}
         >
             <SidePanelTitleContainer>
-                <Typography variant="h3" sx={{margin: 0}}>{`${formData ? "Edit" : "Add"} API Resource`}</Typography>
-                <Button sx={{ marginLeft: "auto" }} onClick={onCancel} appearance="icon">
+                <Typography variant="h3" sx={{margin: 0}}>
+                    {isHidden ? `Add ${paramType === "pathParam" ? "Path" : "Query"} Param` : `${formData ? "Edit" : "Add"} API Resource`}
+                </Typography>
+                <Button sx={{ marginLeft: "auto" }} onClick={handleCancel} appearance="icon">
                     <Codicon name="close" />
                 </Button>
             </SidePanelTitleContainer>
             <SidePanelBody style={{ overflowY: "scroll" }}>
                 <SidePanelBodyWrapper>
-                    {urlStyle === "uri-template" && (
+                    {isHidden ?
                         <TextField
-                            id="url-style-uri-template"
-                            label="URI Template"
+                            id="param-name"
+                            value={paramValue}
+                            label={`${paramType === "pathParam" ? "Path" : "Query"} Parameter`}
                             size={150}
-                            {...register("uriTemplate")}
-                            errorMsg={errors.uriTemplate?.message}
+                            onTextChange={(value) => setParamValue(value)}
+                            required
                         />
-                    )}
-                    {urlStyle === "url-mapping" && (
-                        <TextField
-                            id="url-style-url-mapping"
-                            label="URL Mapping"
-                            size={150}
-                            {...register("urlMapping")}
-                            errorMsg={errors.urlMapping?.message}
-                        />
-                    )}
-                    <RadioButtonGroup
-                        id="urlStyle"
-                        label="URL Style"
-                        options={[
-                            { id: "uri-template", content: "URI_TEMPLATE", value: "uri-template" },
-                            { id: "url-mapping", content: "URL_MAPPING", value: "url-mapping" },
-                            { id: "none", content: "NONE", value: "none" },
-                        ]}
-                        orientation="horizontal"
-                        {...register("urlStyle")}
-                    />
-                    <CheckBoxContainer>
-                        <label>Methods</label>
-                        <CheckBoxGroup columns={2}>
-                            <FormCheckBox name="methods.get" label="GET" control={control} />
-                            <FormCheckBox name="methods.patch" label="PATCH" control={control} />
-                            <FormCheckBox name="methods.post" label="POST" control={control} />
-                            <FormCheckBox name="methods.head" label="HEAD" control={control} />
-                            <FormCheckBox name="methods.put" label="PUT" control={control} />
-                            <FormCheckBox name="methods.options" label="OPTIONS" control={control} />
-                            <FormCheckBox name="methods.delete" label="DELETE" control={control} />
-                        </CheckBoxGroup>
-                    </CheckBoxContainer>
-                    <CheckBoxContainer>
-                        <label>Protocol</label>
-                        <CheckBoxGroup columns={2}>
-                            <FormCheckBox name="protocol.http" label="HTTP" control={control} />
-                            <FormCheckBox name="protocol.https" label="HTTPS" control={control} />
-                        </CheckBoxGroup>
-                    </CheckBoxContainer>
-
-                    {/* Only when editing a resource */}
-                    {formData && (
-                        <Fragment>
-                            <FormGroup title="Advanced Options">
-                                <React.Fragment>
-                                    <RadioButtonGroup
-                                        id="inSequenceType"
-                                        label="In Sequence"
-                                        options={[
-                                            { id: "inline", content: "In-Line", value: "inline" },
-                                            { id: "named", content: "Named", value: "named" },
-                                        ]}
-                                        orientation="horizontal"
-                                        {...register("inSequenceType")}
-                                    />
-                                    {inSequenceType === "named" && (
-                                        <FormKeylookup
-                                            id="in-sequence-keylookup"
-                                            name="inSequence"
-                                            filterType="sequence"
-                                            path={documentUri}
-                                            control={control}
-                                            errorMsg={errors.inSequence?.message}
+                        :
+                        <>
+                            {urlStyle === "uri-template" && (
+                                <TextField
+                                    id="url-style-uri-template"
+                                    label="Resource Path"
+                                    size={150}
+                                    {...register("uriTemplate")}
+                                    errorMsg={errors.uriTemplate?.message}
+                                />
+                            )}
+                            {urlStyle === "url-mapping" && (
+                                <TextField
+                                    id="url-style-url-mapping"
+                                    label="Resource Path"
+                                    size={150}
+                                    {...register("urlMapping")}
+                                    errorMsg={errors.urlMapping?.message}
+                                />
+                            )}
+                            {urlStyle !== "none" && (
+                                <AddButtonWrapper>
+                                    <LinkButton onClick={showPathParam}>
+                                        <Codicon name="add"/><>Add Path Param</>
+                                    </LinkButton>
+                                    <LinkButton onClick={showQueryParam}>
+                                        <Codicon name="add"/><>Add Query Param</>
+                                    </LinkButton>
+                                </AddButtonWrapper>
+                            )}
+                            <CheckBoxContainer>
+                                <label>Methods</label>
+                                <CheckBoxGroup columns={2}>
+                                    <FormCheckBox name="methods.get" label="GET" control={control}/>
+                                    <FormCheckBox name="methods.patch" label="PATCH" control={control}/>
+                                    <FormCheckBox name="methods.post" label="POST" control={control}/>
+                                    <FormCheckBox name="methods.head" label="HEAD" control={control}/>
+                                    <FormCheckBox name="methods.put" label="PUT" control={control}/>
+                                    <FormCheckBox name="methods.options" label="OPTIONS" control={control}/>
+                                    <FormCheckBox name="methods.delete" label="DELETE" control={control}/>
+                                </CheckBoxGroup>
+                            </CheckBoxContainer>
+                            <Fragment>
+                                <FormGroup title="Advanced Options">
+                                    <React.Fragment>
+                                        <RadioButtonGroup
+                                            id="urlStyle"
+                                            label="URL Style"
+                                            options={[
+                                                {id: "uri-template", content: "URI_TEMPLATE", value: "uri-template"},
+                                                {id: "url-mapping", content: "URL_MAPPING", value: "url-mapping"}
+                                            ]}
+                                            orientation="horizontal"
+                                            {...register("urlStyle")}
                                         />
-                                    )}
-                                    <RadioButtonGroup
-                                        id="outSequenceType"
-                                        label="Out Sequence"
-                                        options={[
-                                            { id: "inline", content: "In-Line", value: "inline" },
-                                            { id: "named", content: "Named", value: "named" },
-                                        ]}
-                                        orientation="horizontal"
-                                        {...register("outSequenceType")}
-                                    />
-                                    {outSequenceType === "named" && (
-                                        <FormKeylookup
-                                            id="out-sequence-keylookup"
-                                            name="outSequence"
-                                            filterType="sequence"
-                                            path={documentUri}
-                                            control={control}
-                                            errorMsg={errors.outSequence?.message}
-                                        />
-                                    )}
-                                    <RadioButtonGroup
-                                        id="faultSequenceType"
-                                        label="Fault Sequence"
-                                        options={[
-                                            { id: "inline", content: "In-Line", value: "inline" },
-                                            { id: "named", content: "Named", value: "named" },
-                                        ]}
-                                        orientation="horizontal"
-                                        {...register("faultSequenceType")}
-                                    />
-                                    {faultSequenceType === "named" && (
-                                        <FormKeylookup
-                                            id="fault-sequence-keylookup"
-                                            name="faultSequence"
-                                            filterType="sequence"
-                                            path={documentUri}
-                                            control={control}
-                                            errorMsg={errors.faultSequence?.message}
-                                        />
-                                    )}
-                                </React.Fragment>
-                            </FormGroup>
-                        </Fragment>
-                    )}
+                                        <CheckBoxContainer>
+                                            <label>Protocol</label>
+                                            <CheckBoxGroup columns={2}>
+                                                <FormCheckBox name="protocol.http" label="HTTP" control={control}/>
+                                                <FormCheckBox name="protocol.https" label="HTTPS" control={control}/>
+                                            </CheckBoxGroup>
+                                        </CheckBoxContainer>
+                                        {/* Only when editing a resource */}
+                                        {formData && (
+                                            <>
+                                                <RadioButtonGroup
+                                                    id="inSequenceType"
+                                                    label="In Sequence"
+                                                    options={[
+                                                        {id: "inline", content: "In-Line", value: "inline"},
+                                                        {id: "named", content: "Named", value: "named"},
+                                                    ]}
+                                                    orientation="horizontal"
+                                                    {...register("inSequenceType")}
+                                                />
+                                                {inSequenceType === "named" && (
+                                                    <FormKeylookup
+                                                        id="in-sequence-keylookup"
+                                                        name="inSequence"
+                                                        filterType="sequence"
+                                                        path={documentUri}
+                                                        control={control}
+                                                        errorMsg={errors.inSequence?.message}
+                                                    />
+                                                )}
+                                                <RadioButtonGroup
+                                                    id="outSequenceType"
+                                                    label="Out Sequence"
+                                                    options={[
+                                                        {id: "inline", content: "In-Line", value: "inline"},
+                                                        {id: "named", content: "Named", value: "named"},
+                                                    ]}
+                                                    orientation="horizontal"
+                                                    {...register("outSequenceType")}
+                                                />
+                                                {outSequenceType === "named" && (
+                                                    <FormKeylookup
+                                                        id="out-sequence-keylookup"
+                                                        name="outSequence"
+                                                        filterType="sequence"
+                                                        path={documentUri}
+                                                        control={control}
+                                                        errorMsg={errors.outSequence?.message}
+                                                    />
+                                                )}
+                                                <RadioButtonGroup
+                                                    id="faultSequenceType"
+                                                    label="Fault Sequence"
+                                                    options={[
+                                                        {id: "inline", content: "In-Line", value: "inline"},
+                                                        {id: "named", content: "Named", value: "named"},
+                                                    ]}
+                                                    orientation="horizontal"
+                                                    {...register("faultSequenceType")}
+                                                />
+                                                {faultSequenceType === "named" && (
+                                                    <FormKeylookup
+                                                        id="fault-sequence-keylookup"
+                                                        name="faultSequence"
+                                                        filterType="sequence"
+                                                        path={documentUri}
+                                                        control={control}
+                                                        errorMsg={errors.faultSequence?.message}
+                                                    />
+                                                )}
+                                            </>
+                                        )}
+                                    </React.Fragment>
+                                </FormGroup>
+                            </Fragment>
+                        </>}
                     <ActionContainer>
-                        <Button appearance="secondary" onClick={handleCancel}>
-                            Cancel
-                        </Button>
-                        <Button
-                            appearance="primary"
-                            onClick={handleSubmit(handleResourceSubmit)}
-                            disabled={!isValid || !isDirty}
-                        >
-                            {formData ? "Update" : "Create"}
-                        </Button>
+                        {isHidden ?
+                            <>
+                                <Button appearance="secondary" onClick={handleAddParameterCancel}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    appearance="primary"
+                                    onClick={paramType === "pathParam" ? addPathParam : addQueryParam}
+                                    disabled={paramValue === ""}
+                                >
+                                    Add
+                                </Button>
+                            </>
+                            :
+                            <>
+                                <Button appearance="secondary" onClick={handleCancel}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    appearance="primary"
+                                    onClick={handleSubmit(handleResourceSubmit)}
+                                    disabled={!isValid || !isDirty}
+                                >
+                                    {formData ? "Update" : "Create"}
+                                </Button>
+                            </>
+                        }
                     </ActionContainer>
                 </SidePanelBodyWrapper>
             </SidePanelBody>

@@ -100,6 +100,10 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    ConfigVariableResponse,
+    ConfigVariableRequest,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     ProjectDiagnosticsRequest,
     ProjectDiagnosticsResponse,
     MainFunctionParamsRequest,
@@ -179,6 +183,8 @@ enum EXTENDED_APIS {
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
+    UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
@@ -614,6 +620,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async generateServiceFromOAS(params: ServiceFromOASRequest): Promise<ServiceFromOASResponse> {
         return this.sendRequest<ServiceFromOASResponse>(EXTENDED_APIS.BI_GEN_OPEN_API, params);
+    }
+
+    async getConfigVariables(params: ConfigVariableRequest): Promise<ConfigVariableResponse> {
+        return this.sendRequest<ConfigVariableResponse>(EXTENDED_APIS.VIEW_CONFIG_VARIABLES, params);
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this.sendRequest<UpdateConfigVariableResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES, params);
     }
 
     async getSuggestedFlowModel(params: BISuggestedFlowModelRequest): Promise<BIFlowModelResponse> {
