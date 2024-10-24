@@ -9,9 +9,9 @@
 
 import React, { useRef } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
+import { BallerinaTrigger, ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
 
@@ -25,6 +25,19 @@ const Container = styled.div`
             justify-content: flex-start;
         }
     }
+`;
+
+const FormContainer = styled.div`
+    padding-top: 15px;
+    paddding-bottom: 15px;
+`;
+
+const LoadingContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    flex-direction: column;
 `;
 
 const Row = styled.div`
@@ -41,6 +54,7 @@ interface TriggerConfigViewProps {
     listenerFields: FormField[];
     serviceFields: FormField[];
     functionFields: Record<string, FunctionField>;
+    serviceTypes: Record<string, FunctionField>;
     onSubmit: (data: ComponentTriggerType) => void;
     onBack: () => void;
 }
@@ -49,7 +63,8 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
     const listenerFieldsRef = useRef<{ triggerSave: () => void }>(null);
     const serviceFieldsRef = useRef<{ triggerSave: () => void }>(null);
     const functionFieldsRefs: Record<string, React.RefObject<{ triggerSave: () => void }>> = {};
-    const { name, listenerFields, serviceFields, functionFields, onSubmit, onBack } = props;
+    const serviceTypesRef: Record<string, React.RefObject<{ triggerSave: () => void }>> = {};
+    const { name, listenerFields, serviceFields, functionFields, serviceTypes, onSubmit, onBack } = props;
 
 
     const handleListenerSubmit = async (data: FormValues) => {
@@ -91,6 +106,12 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                 functionFieldsRefs[key].current.triggerSave();
             }
         }
+        for (const key in serviceTypesRef) {
+            if (serviceTypesRef[key].current) {
+                serviceTypesRef[key].current.triggerSave();
+            }
+        }
+        console.log("Updated serviceTypesRef", serviceTypes);
         console.log("Updated handleListenerSubmit", listenerFields);
         console.log("Updated handleServiceSubmit", serviceFields);
         console.log("Updated handleFunctionsSubmit", functionFields);
@@ -101,6 +122,7 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
         const response: ComponentTriggerType = {
             name: name,
             listener: listenerFields,
+            serviceTypes: serviceTypes,
             service: serviceFields,
             functions: functionFields
         }
@@ -109,54 +131,91 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
 
     return (
         <Container>
-            <Row>
-                <Button appearance="icon" onClick={onBack}>
-                    <Codicon name="arrow-left" />
-                </Button>
-                <Typography variant="h2">Configure {name} Trigger</Typography>
-            </Row>
-            <BodyText>
-                Provide the necessary configuration details for the selected trigger to complete the setup.
-            </BodyText>
-            <FormGroup title="Listener Configuration" isCollapsed={false}>
-                <Form ref={listenerFieldsRef} hideSave={true} formFields={listenerFields} onSubmit={handleListenerSubmit} />
-            </FormGroup>
 
-            {serviceFields.length > 0 &&
-                <FormGroup title="Service Configuration" isCollapsed={false}>
-                    <Form ref={serviceFieldsRef} hideSave={true} formFields={serviceFields} onSubmit={handleServiceSubmit} />
-                </FormGroup>
+            {!name &&
+                <LoadingContainer>
+                    <ProgressRing />
+                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Trigger...</Typography>
+                </LoadingContainer>
             }
 
-            <FormGroup title="Remote Functions" isCollapsed={false}>
-                {Object.keys(functionFields).map((functionName) => {
-                    // Initialize ref for each function field if it doesn't exist
-                    if (!functionFieldsRefs[functionName]) {
-                        functionFieldsRefs[functionName] = React.createRef<{ triggerSave: () => void }>();
+            {name &&
+                <>
+                    <FormContainer>
+                        <FormGroup title="Listener Configuration" isCollapsed={false}>
+                            <Form ref={listenerFieldsRef} hideSave={true} formFields={listenerFields} onSubmit={handleListenerSubmit} />
+                        </FormGroup>
+                    </FormContainer>
+
+                    {serviceFields.length > 0 &&
+                        <FormContainer>
+                            <FormGroup title="Service Configuration" isCollapsed={false}>
+                                <Form ref={serviceFieldsRef} hideSave={true} formFields={serviceFields} onSubmit={handleServiceSubmit} />
+                            </FormGroup>
+                        </FormContainer>
                     }
-                    return (
-                        <>
-                            <CheckBox
-                                checked={functionFields[functionName].required}
-                                disabled={functionFields[functionName].required}
-                                label={functionName}
-                                onChange={(checked) => {
-                                    functionFields[functionName].checked = checked
-                                }}
-                                value={functionName}
-                            />
-                            {/* <FormGroup key={functionName} title={functionName} isCollapsed={false}>
+
+                    {Object.keys(serviceTypes).length > 1 &&
+                        <FormContainer>
+                            <FormGroup title="Service Types" isCollapsed={false}>
+                                {Object.keys(serviceTypes).map((serviceType) => {
+                                    // Initialize ref for each function field if it doesn't exist
+                                    if (!serviceTypesRef[serviceType]) {
+                                        serviceTypesRef[serviceType] = React.createRef<{ triggerSave: () => void }>();
+                                    }
+                                    return (
+                                        <>
+                                            <CheckBox
+                                                checked={serviceTypes[serviceType].required}
+                                                disabled={serviceTypes[serviceType].required}
+                                                label={serviceType}
+                                                onChange={(checked) => {
+                                                    serviceTypes[serviceType].checked = checked
+                                                }}
+                                                value={serviceType}
+                                            />
+                                        </>
+                                    )
+                                })}
+                            </FormGroup>
+                        </FormContainer>
+                    }
+
+                    {Object.keys(serviceTypes).length === 1 &&
+                        <FormContainer>
+                            <FormGroup title="Remote Functions" isCollapsed={false}>
+                                {Object.keys(functionFields).map((functionName) => {
+                                    // Initialize ref for each function field if it doesn't exist
+                                    if (!functionFieldsRefs[functionName]) {
+                                        functionFieldsRefs[functionName] = React.createRef<{ triggerSave: () => void }>();
+                                    }
+                                    return (
+                                        <>
+                                            <CheckBox
+                                                checked={functionFields[functionName].required}
+                                                disabled={functionFields[functionName].required}
+                                                label={functionName}
+                                                onChange={(checked) => {
+                                                    functionFields[functionName].checked = checked
+                                                }}
+                                                value={functionName}
+                                            />
+                                            {/* <FormGroup key={functionName} title={functionName} isCollapsed={false}>
                                 <Form refKey={functionName} ref={functionFieldsRefs[functionName]} hideSave={true} formFields={functionFields[functionName].fields} onSubmit={handleFunctionsSubmit} />
                             </FormGroup> */}
-                        </>
-                    )
-                })}
-            </FormGroup>
-            <ButtonWrapper>
-                <Button appearance="primary" onClick={handleTriggerSave}>
-                    Create Trigger
-                </Button>
-            </ButtonWrapper>
+                                        </>
+                                    )
+                                })}
+                            </FormGroup>
+                        </FormContainer>
+                    }
+                    <ButtonWrapper>
+                        <Button appearance="primary" onClick={handleTriggerSave}>
+                            Create Trigger
+                        </Button>
+                    </ButtonWrapper>
+                </>
+            }
         </Container>
     );
 }

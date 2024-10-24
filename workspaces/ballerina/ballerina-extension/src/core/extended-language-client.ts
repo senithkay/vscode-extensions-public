@@ -138,6 +138,8 @@ enum EXTENDED_APIS {
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
     TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
     TRIGGER_TRIGGER = 'ballerinaTrigger/trigger',
+    NEW_TRIGGER_TRIGGERS = 'ballerinaTrigger/triggersNew',
+    NEW_TRIGGER_TRIGGER = 'ballerinaTrigger/triggerNew',
     CONNECTOR_CONNECTOR = 'ballerinaConnector/connector',
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
@@ -346,7 +348,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Triggers>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
+        return this.sendRequest<Triggers>(EXTENDED_APIS.NEW_TRIGGER_TRIGGERS, params);
     }
 
     async getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE> {
@@ -358,7 +360,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Trigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
+        return this.sendRequest<Trigger>(EXTENDED_APIS.NEW_TRIGGER_TRIGGER, params);
     }
 
     async getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE> {
@@ -654,7 +656,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getModuleNodes(params: BIModuleNodesRequest): Promise<BIModuleNodesResponse> {
         return this.sendRequest<BIModuleNodesResponse>(EXTENDED_APIS.BI_MODULE_NODES, params);
     }
-    
+
     async getComponentsFromContent(params: ComponentsFromContent): Promise<BallerinaProjectComponents> {
         return this.sendRequest<BallerinaProjectComponents>(EXTENDED_APIS.BI_GET_COMPONENTS_FROM_CONTENT, params);
     }

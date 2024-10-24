@@ -27,7 +27,10 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
     }
 
     async getTrigger(params: TriggerParams): Promise<Trigger> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            const res: Trigger = await context.langClient.getTrigger(params) as Trigger;
+            resolve(res);
+        });
     }
 }

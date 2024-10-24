@@ -9,15 +9,16 @@
 
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { TriggerModel, FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField } from "@wso2-enterprise/ballerina-core";
+import { TriggerModel, FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField, BallerinaTrigger, SubPanelView, Trigger } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import TriggerView from "../TriggerView";
 import TriggerConfigView from "../TriggerConfigView";
-import { convertTriggerFunctionsConfig, convertTriggerListenerConfig, convertTriggerServiceConfig, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
-import { FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { convertTriggerFunctionsConfig, convertTriggerListenerConfig, convertTriggerServiceConfig, convertTriggerServiceTypes, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
+import { FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
+import { BodyText } from "../../../styles";
 
 const Container = styled.div`
     width: 100%;
@@ -50,23 +51,32 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
     const [functionFields, setFunctionFields] = useState<Record<string, FunctionField>>({});
+    const [serviceTypes, setServiceTypes] = useState<Record<string, FunctionField>>({});
     const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
-    const selectedConnectorRef = useRef<TriggerModel>();
+    const selectedTriggerRef = useRef<BallerinaTrigger>();
 
-    const handleOnSelect = async (trigger: TriggerModel) => {
+    const handleOnSelect = async (trigger: BallerinaTrigger) => {
+        selectedTriggerRef.current = null;
         if (!trigger) {
             console.error(">>> Error selecting trigger. No codedata found");
             return;
         }
-        selectedConnectorRef.current = trigger;
+
         setCurrentStep(WizardStep.TRIGGER_CONFIG);
-        setListenerFields(convertTriggerListenerConfig(trigger));
-        setServiceFields(convertTriggerServiceConfig(trigger));
-        setFunctionFields(convertTriggerFunctionsConfig(trigger));
+        const response = await rpcClient.getTriggerWizardRpcClient().getTrigger({ id: trigger.id });
+        console.log(">>>Trigger by id", response);
+        selectedTriggerRef.current = response;
+        setListenerFields(convertTriggerListenerConfig(response));
+        setServiceTypes(convertTriggerServiceTypes(response));
+        // setServiceFields(convertTriggerServiceConfig(response));
+        if (response.serviceTypes.length === 1) {
+            setFunctionFields(convertTriggerFunctionsConfig(response));
+        }
     };
 
     const handleOnFormSubmit = async (trigger: ComponentTriggerType) => {
         setIsPullingConnector(true);
+        trigger.trigger = selectedTriggerRef.current as Trigger;
         await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.TRIGGERS, triggerType: trigger });
         setIsPullingConnector(false);
     };
@@ -87,16 +97,31 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
                     <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
                 </LoadingContainer>
             )}
-            {!isPullingConnector && currentStep === WizardStep.TRIGGER_LIST && <TriggerView onTriggerSelect={handleOnSelect} />}
+            {!isPullingConnector && <TriggerView onTriggerSelect={handleOnSelect} />}
             {!isPullingConnector && currentStep === WizardStep.TRIGGER_CONFIG && (
-                <TriggerConfigView
-                    name={selectedConnectorRef.current?.name}
-                    listenerFields={listenerFields}
-                    serviceFields={serviceFields}
-                    functionFields={functionFields}
-                    onSubmit={handleOnFormSubmit}
+
+                <PanelContainer
+                    show={true}
+                    title={`Configure ${selectedTriggerRef.current?.displayName || ''} `}
+                    onClose={onClose ? onClose : handleOnBack}
+                    width={400}
                     onBack={handleOnBack}
-                />
+                >
+                    <>
+                        <BodyText style={{ padding: '20px 20px 0 20px' }}>
+                            Provide the necessary configuration details for the selected trigger to complete the setup.
+                        </BodyText>
+                        <TriggerConfigView
+                            name={selectedTriggerRef.current?.name}
+                            listenerFields={listenerFields}
+                            serviceTypes={serviceTypes}
+                            serviceFields={serviceFields}
+                            functionFields={functionFields}
+                            onSubmit={handleOnFormSubmit}
+                            onBack={handleOnBack}
+                        />
+                    </>
+                </PanelContainer>
             )}
         </Container>
     );

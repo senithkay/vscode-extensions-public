@@ -90,8 +90,7 @@ export function AddComponentView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.AddTriggerWizard,
-                },
-                isPopup: true
+                }
             });
         } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
             await rpcClient.getVisualizerRpcClient().openView({

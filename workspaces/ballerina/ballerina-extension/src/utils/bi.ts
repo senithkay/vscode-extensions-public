@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { exec } from "child_process";
-import { window, commands, workspace, Uri } from "vscode";
+import { window, commands, workspace, Uri, TextDocument } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { ComponentRequest, CreateComponentResponse, createFunctionSignature, createImportStatement, createServiceDeclartion, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaTrigger, ComponentRequest, ComponentTriggerType, CreateComponentResponse, createFunctionSignature, createImportStatement, createServiceDeclartion, createTrigger, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse, Trigger } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
 import { applyModifications, modifyFileContent } from "./modification";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -239,6 +239,13 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
         }
         const response = await handleTriggerCreation(targetFile, params);
         await modifyFileContent({ filePath: targetFile, content: response.source });
+        const fileUri = Uri.parse(targetFile);
+        const fileUriString = fileUri.toString();
+        await StateMachine.langClient().resolveMissingDependencies({
+            documentIdentifier: {
+                uri: fileUriString
+            }
+        });
         const modulePart: ModulePart = response.syntaxTree as ModulePart;
         let targetPosition: NodePosition = response.syntaxTree?.position;
         modulePart.members.forEach(member => {
@@ -365,6 +372,33 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
 // <---------- Trigger Source Generation START-------->
 export async function handleTriggerCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
     const triggerInfo = params.triggerType;
+
+    const document = await workspace.openTextDocument(Uri.file(targetFile));
+    const lastPosition = document.lineAt(document.lineCount - 1).range.end;
+
+    const targetPosition: NodePosition = {
+        startLine: lastPosition.line,
+        startColumn: 0,
+        endLine: lastPosition.line,
+        endColumn: 0
+    };
+    const modifications: STModification[] = [];
+    // if (Object.keys(params.triggerType.functions).length > 0) {
+    //     modifications.push(...createMessageTriggerCode(triggerInfo, targetPosition, document));
+    // } else {
+    modifications.push(...createAsyncTriggerCode(triggerInfo, targetPosition));
+    // }
+
+    let res;
+    try {
+        res = await applyModifications(targetFile, modifications) as SyntaxTreeResponse;
+    } catch (error) {
+        console.log(error);
+    }
+    return res;
+}
+
+const createMessageTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition, document: TextDocument) => {
     const functionsList = triggerInfo.functions;
     const modifications: STModification[] = [];
 
@@ -401,15 +435,6 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
         }
     }
 
-    const document = await workspace.openTextDocument(Uri.file(targetFile));
-    const lastPosition = document.lineAt(document.lineCount - 1).range.end;
-
-    const targetPosition: NodePosition = {
-        startLine: lastPosition.line,
-        startColumn: 0,
-        endLine: lastPosition.line,
-        endColumn: 0
-    };
     modifications.push(
         {
             ...targetPosition,
@@ -427,8 +452,35 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
         modifications.push(createImportStatement(org, module));
     }
 
-    const res = await applyModifications(targetFile, modifications) as SyntaxTreeResponse;
-    return res;
+    return modifications;
+}
+
+const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
+    let httpBased: boolean = true;
+    const triggerId = triggerInfo.trigger.moduleName.split(".");
+    const triggerAlias = triggerId[triggerId.length - 1];
+    const serviceTypes = triggerInfo.trigger.serviceTypes.filter((sType) => {
+        return Object.entries(triggerInfo.serviceTypes).some(([key, value]) => value.checked && key === sType.name);
+    });
+    // TODO: This is a temporary fix till the central API supports the httpBased parameter
+    if (triggerAlias === 'asb' || triggerAlias === 'salesforce') {
+        httpBased = false;
+    }
+    const newTriggerInfo = {
+        ...triggerInfo.trigger,
+        serviceTypes,
+        triggerType: triggerAlias,
+        httpBased
+    };
+    // This is for initial imports only. Initially stModification import for nonHttpBased triggers
+    const stModification = [
+        createImportStatement("ballerinax", triggerInfo.trigger.moduleName),
+        createTrigger(newTriggerInfo, targetPosition)
+    ];
+    if (httpBased) {
+        stModification.push(createImportStatement("ballerina", "http"))
+    }
+    return stModification;
 }
 // <---------- Trigger Source Generation END-------->
 

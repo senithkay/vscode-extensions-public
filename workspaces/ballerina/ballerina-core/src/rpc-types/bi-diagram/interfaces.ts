@@ -9,8 +9,9 @@
 
 import { LineRange } from "../../interfaces/common";
 import { DIRECTORY_MAP, Flow, OverviewFlow } from "../../interfaces/bi";
-import { BallerinaProjectComponents } from "../../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, Trigger } from "../../interfaces/extended-lang-client";
 import { TriggerFormField } from "../../interfaces/triggers";
+import { RemoteFunction, ServiceType } from "../../interfaces/ballerina";
 
 export interface ProjectRequest {
     projectName: string;
@@ -49,15 +50,19 @@ export interface ComponentFunctionType {
 }
 export interface ComponentTriggerType {
     name: string;
+    trigger?: Trigger;
     listener: TriggerFormField[];
     service: TriggerFormField[];
+    serviceTypes: Record<string, FunctionField>;
     functions: Record<string, FunctionField>;
 }
 
 export interface FunctionField {
     required: boolean;
     checked: boolean;
-    fields: TriggerFormField[];
+    serviceType?: ServiceType;
+    functionType?: RemoteFunction;
+    fields?: TriggerFormField[];
 }
 
 export interface FunctionParameters {

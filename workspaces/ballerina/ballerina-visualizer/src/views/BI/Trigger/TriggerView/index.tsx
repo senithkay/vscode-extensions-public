@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, BallerinaTrigger, Category, Item, TriggerModel, Triggers } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, BallerinaTrigger, Category, Item, Triggers } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
@@ -30,7 +30,7 @@ const ListContainer = styled.div`
 
 const GridContainer = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
     width: 100%;
 `;
@@ -49,7 +49,7 @@ const StyledSearchInput = styled(SearchBox)`
 `;
 
 interface TriggerViewProps {
-    onTriggerSelect: (trigger: TriggerModel) => void;
+    onTriggerSelect: (trigger: BallerinaTrigger) => void;
 }
 
 export function TriggerView(props: TriggerViewProps) {
@@ -58,17 +58,16 @@ export function TriggerView(props: TriggerViewProps) {
 
     const [triggers, setTriggers] = useState<Triggers>({ central: [] });
     const [searchText, setSearchText] = useState<string>("");
-    const [isSearching, setIsSearching] = useState(false);
+    const [isSearching, setIsSearching] = useState(true);
 
     useEffect(() => {
-        setIsSearching(true);
         getTriggers();
     }, []);
 
     const getTriggers = () => {
         rpcClient
             .getTriggerWizardRpcClient()
-            .getTriggers({ query: "", limit: 2 })
+            .getTriggers({ query: "" })
             .then((model) => {
                 console.log(">>> bi triggers", model);
                 setTriggers(model);
@@ -89,19 +88,14 @@ export function TriggerView(props: TriggerViewProps) {
             .then((model) => {
                 console.log(">>> bi searched triggers", model);
                 setTriggers(model);
+                setIsSearching(false);
             });
     }
     const debouncedSearch = debounce(handleSearch, 1100);
 
-
-    useEffect(() => {
-        setIsSearching(false);
-    }, [triggers]);
-
     const handleOnSearch = (text: string) => {
         setSearchText(text);
     };
-
 
     return (
         <Container>
@@ -120,30 +114,43 @@ export function TriggerView(props: TriggerViewProps) {
                 />
             </Row>
             {isSearching && (
-                <ListContainer style={{ height: '80vh', overflowY: 'scroll' }}>
+                <ListContainer style={{ height: '60vh', overflowY: 'scroll' }}>
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
                         <ProgressRing />
                     </div>
-                </ListContainer>)}
-            <ListContainer>
-                {/* Default triggers of LS is hardcoded and is sent with categories with item field */}
-                <GridContainer>
-                    {triggers.central.map((item, index) => {
-                        return (
-                            <ButtonCard
-                                key={item.moduleName}
-                                title={item.displayAnnotation.label}
-                                description={item.package.summary}
-                                icon={<img width={100} src={item.package.icon} alt={item.displayAnnotation.label} />}
-                                onClick={() => {
-                                    // onTriggerSelect(trigger);
-                                }}
-                            />
-                        );
-                    })}¸
-                </GridContainer>
-            </ListContainer>
-            {!isSearching && !triggers || (triggers.central.length === 0 && <p>No triggers found</p>)}
+                </ListContainer>
+            )}
+            {!isSearching && (
+                <ListContainer>
+                    <GridContainer>
+                        {triggers.central.map((item, index) => {
+                            return (
+                                <ButtonCard
+                                    key={item.moduleName}
+                                    caption={`v${item.package.version}`}
+                                    title={item.displayAnnotation.label}
+                                    description={`${item.package.organization}/${item.package.name}`}
+                                    icon={
+                                        item.package.icon ? (
+                                            <img
+                                                src={item.package.icon}
+                                                alt={item.displayAnnotation.label}
+                                                style={{ width: "40px" }}
+                                            />
+                                        ) : (
+                                            <Codicon name="mail" />
+                                        )
+                                    }
+                                    onClick={() => {
+                                        onTriggerSelect(item);
+                                    }}
+                                />
+                            );
+                        })}
+                    </GridContainer>
+                </ListContainer>
+            )}
+            {(!isSearching && triggers.central.length === 0 && <p>No triggers found</p>)}
         </Container>
     );
 }

@@ -140,7 +140,11 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
           {{#each this.functions}}
             remote function {{ this.name }}({{#each this.parameters}}{{#if @index}},
             {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}} {{/each}}) returns error? {
-              //Not Implemented
+                do {
+                    //Not Implemented
+                } on fail error e {
+                    return e;
+                }
             }
           {{/each}}
         }

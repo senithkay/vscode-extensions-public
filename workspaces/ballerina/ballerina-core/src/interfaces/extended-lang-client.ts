@@ -164,7 +164,9 @@ export interface Connector extends BallerinaConnectorInfo {
 }
 
 export interface TriggerParams {
-    id: string
+    id: string;
+    orgName?: string;
+    packageName?: string;
 }
 
 export interface Trigger extends BallerinaTriggerInfo {
@@ -583,7 +585,7 @@ export interface UpdateConfigVariableRequest {
 }
 
 export interface UpdateConfigVariableResponse {
-    
+
 }
 
 export interface BICopilotContextRequest {

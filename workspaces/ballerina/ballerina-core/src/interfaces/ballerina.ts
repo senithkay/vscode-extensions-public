@@ -235,8 +235,10 @@ export interface ServiceType {
 export interface RemoteFunction {
     isRemote?: boolean;
     documentation?: string;
+    optional?: boolean;
     name: string;
     parameters?: Parameter[];
+    qualifiers?: string[];
     returnType?: ReturnType;
 }
 
@@ -250,6 +252,11 @@ export interface Parameter {
     hasRestType?: boolean;
     restType?: ReturnType;
     defaultable?: boolean;
+    defaultValue?: string;
+    defaultTypeName?: string; // Is this defaultTypeValue?
+    documentation?: string;
+    type?: string[]
+    arrayType?: boolean;
 }
 
 export interface DisplayAnnotation {

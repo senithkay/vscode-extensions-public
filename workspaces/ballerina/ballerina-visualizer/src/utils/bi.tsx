@@ -25,7 +25,7 @@ import {
     Branch,
     LineRange,
     ExpressionCompletionItem,
-    TriggerModel,
+    Trigger,
     FunctionField,
     SignatureHelpResponse
 } from "@wso2-enterprise/ballerina-core";
@@ -273,20 +273,29 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
 }
 
 // TRIGGERS RELATED HELPERS
-export function convertTriggerListenerConfig(trigger: TriggerModel): FormField[] {
+export function convertTriggerServiceTypes(trigger: Trigger): Record<string, FunctionField> {
+    const response: Record<string, FunctionField> = {};
+    for (const key in trigger.serviceTypes) {
+        const serviceType = trigger.serviceTypes[key];
+        response[serviceType.name] = { checked: trigger.serviceTypes.length === 1, required: false, serviceType };
+    }
+    return response;
+}
+
+export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
     const formFields: FormField[] = [];
 
-    for (const key in trigger.listener) {
-        if (trigger.listener.hasOwnProperty(key)) {
-            const expression = trigger.listener[key];
+    for (const key in trigger.listenerParams) {
+        if (trigger.listenerParams.hasOwnProperty(key)) {
+            const expression = trigger.listenerParams[key];
             const formField: FormField = {
-                key: key,
-                label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                documentation: expression.description,
-                optional: !expression.required,
-                type: expression.type,
+                key: expression.name,
+                label: expression.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                documentation: expression.name,
+                optional: expression.optional,
+                type: expression.typeName,
                 editable: true,
-                value: expression.value
+                value: expression.defaultValue
             }
             formFields.push(formField);
         }
@@ -295,46 +304,49 @@ export function convertTriggerListenerConfig(trigger: TriggerModel): FormField[]
     return formFields;
 }
 
-export function convertTriggerServiceConfig(trigger: TriggerModel): FormField[] {
+export function convertTriggerServiceConfig(trigger: Trigger): FormField[] {
     const formFields: FormField[] = [];
-    const formField: FormField = {
-        key: "basePath",
-        label: "Base Path",
-        documentation: trigger.service.basePath.description,
-        optional: false,
-        type: "string",
-        editable: true,
-        value: trigger.service.basePath.value
-    }
-    if (trigger.service.basePath.required) {
-        formFields.push(formField);
-    }
+    // const formField: FormField = {
+    //     key: "basePath",
+    //     label: "Base Path",
+    //     documentation: trigger.service.basePath.description,
+    //     optional: false,
+    //     type: "string",
+    //     editable: true,
+    //     value: trigger.service.basePath.value
+    // }
+    // if (trigger.service.basePath.required) {
+    //     formFields.push(formField);
+    // }
     return formFields;
 }
 
-export function convertTriggerFunctionsConfig(trigger: TriggerModel): Record<string, FunctionField> {
+export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, FunctionField> {
     const response: Record<string, FunctionField> = {};
-    for (const key in trigger.service.functions) {
-        const triggerFunction = trigger.service.functions[key];
-        const formFields: FormField[] = [];
-        if (trigger.service.functions.hasOwnProperty(key)) {
-            for (const param in triggerFunction.params) {
-                const expression = triggerFunction.params[param];
-                const formField: FormField = {
-                    key: param,
-                    label: param.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                    documentation: expression?.description,
-                    optional: !expression?.required,
-                    type: expression?.type,
-                    editable: true,
-                    value: expression.value
+
+    for (const service in trigger.serviceTypes) {
+        const functions = trigger.serviceTypes[service].functions;
+        for (const key in functions) {
+            const triggerFunction = functions[key];
+            const formFields: FormField[] = [];
+            if (functions.hasOwnProperty(key)) {
+                for (const param in triggerFunction.parameters) {
+                    const expression = triggerFunction.parameters[param];
+                    const formField: FormField = {
+                        key: expression.name,
+                        label: expression.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                        documentation: expression?.documentation,
+                        optional: expression?.optional,
+                        type: expression?.typeName,
+                        editable: true,
+                        value: expression.defaultTypeName
+                    }
+                    formFields.push(formField);
                 }
-                formFields.push(formField);
             }
+            response[triggerFunction.name] = { checked: !triggerFunction.optional, required: !triggerFunction.optional, fields: formFields, functionType: triggerFunction };
         }
-        response[key] = { checked: triggerFunction.required, required: triggerFunction.required, fields: formFields };
     }
-    console.log("xxx", response);
     return response;
 }
 export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
