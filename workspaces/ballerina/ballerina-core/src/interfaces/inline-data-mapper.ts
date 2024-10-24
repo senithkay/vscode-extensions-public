@@ -1,0 +1,73 @@
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+export enum TypeKind {
+    Record = "record",
+    Array = "array",
+    String = "string",
+    Int = "int",
+    Float = "float",
+    Decimal = "decimal",
+    Boolean = "boolean",
+    Unknown = "unknown"
+}
+
+export enum InputCategory {
+    Const = "const",
+    ModuleVariable = "moduleVariable",
+    Configurable = "configurable"
+}
+
+interface Diagnostic {
+    kind: string;
+    message: string;
+    range: {
+        start: {
+            line: number;
+            character: number;
+        };
+        end: {
+            line: number;
+            character: number;
+        };
+    };
+}
+
+export interface Mapping {
+    inputs: string[];
+    expression: string;
+    diagnostics?: Diagnostic[];
+    isComplex?: boolean;
+}
+
+export interface IOBaseType {
+    id: string;
+    kind: TypeKind;
+    typeName?: string;
+    fieldName?: string;
+    fields?: IOBaseType[];
+    memberType?: IOBaseType;
+    defaultValue?: unknown;
+    optional?: boolean;
+}
+
+export interface InputType extends IOBaseType {
+    category: InputCategory;
+    identifier?: string;
+}
+
+export interface OutputType extends IOBaseType {
+    fields?: OutputType[];
+    mapping?: Mapping;
+}
+
+export interface IDMModel {
+    inputTypes: InputType[];
+    outputType: OutputType;
+}

@@ -26,10 +26,11 @@ import {
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { OutputType } from '@wso2-enterprise/ballerina-core';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	dmTypeWithValue: DMTypeWithValue;
+	outputType: OutputType;
 	typeName: string;
 	value: any;
 	engine: DiagramEngine;
@@ -44,7 +45,7 @@ export interface ObjectOutputWidgetProps {
 export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	const {
 		id,
-		dmTypeWithValue,
+		outputType,
 		typeName,
 		value,
 		engine,
@@ -73,8 +74,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-	const { childrenTypes } = dmTypeWithValue;
-	const fields = childrenTypes || [];
+	const fields = outputType.fields || [];
 	const hasFields = fields.length > 0;
 
 	const portIn = getPort(`${id}.IN`);
@@ -134,11 +134,11 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 		<>
 			<TreeContainer data-testid={`${id}-node`} onContextMenu={onRightClick}>
 				<TreeHeader
-					isSelected={portState !== PortState.Unselected}
+					isSelected={false}
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
-					className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
+					// className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
 				>
 					<span className={classes.inPort}>
 						{portIn && (
@@ -177,7 +177,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									context={context}
 									treeDepth={0}
 									deleteField={deleteField}
-									hasHoveredParent={isHovered}
+									hasHoveredParent={false}
 								/>
 							);
 						})}

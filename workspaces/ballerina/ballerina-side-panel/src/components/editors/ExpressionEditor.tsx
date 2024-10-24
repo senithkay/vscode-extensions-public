@@ -182,6 +182,17 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         )
     };
 
+    const handleInlineDataMapperOpen = () => {
+        handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
+            // TODO: get filePath and range from getFlowModel API
+            filePath: effectiveFileName,
+            range: {
+                start: { line: effectiveTargetLineRange.startLine.line, character: effectiveTargetLineRange.startLine.offset },
+                end: { line:  effectiveTargetLineRange.endLine.line, character: effectiveTargetLineRange.endLine.offset },
+            }
+        }})
+    };
+
     const handleHelperPaneOpen = () => {
         if(effectiveTargetLineRange && effectiveFileName) {
             handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
@@ -239,6 +250,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}
                         handleHelperPaneOpen={handleHelperPaneOpen}
+                        handleInlineDataMapperOpen={handleInlineDataMapperOpen}
                         sx={{ paddingInline: '0' }}
                     />
                 )}

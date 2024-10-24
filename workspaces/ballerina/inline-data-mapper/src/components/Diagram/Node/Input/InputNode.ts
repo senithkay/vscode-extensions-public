@@ -11,7 +11,7 @@ import { Point } from "@projectstorm/geometry";
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { InputType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 export const INPUT_NODE_TYPE = "datamapper-node-input";
 const NODE_ID = "input-node";
@@ -19,11 +19,11 @@ const NODE_ID = "input-node";
 export class InputNode extends DataMapperNodeModel {
     public numberOfFields:  number;
     public x: number;
-    private _paramName: string;
+    private identifier: string;
 
     constructor(
         public context: IDataMapperContext,
-        public dmType: IDMType,
+        public inputType: InputType,
     ) {
         super(
             NODE_ID,
@@ -31,28 +31,28 @@ export class InputNode extends DataMapperNodeModel {
             INPUT_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this._paramName = this.dmType?.fieldName;
+        this.identifier = this.inputType?.id;
     }
 
     async initPorts() {
         this.numberOfFields = 1;
 
-        if (this.dmType) {
+        if (this.inputType) {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, collapsedFields);
+            const parentPort = this.addPortsForHeader(this.inputType, this.identifier, "OUT", undefined, collapsedFields);
 
-            if (this.dmType.kind === TypeKind.Record) {
-                const fields = this.dmType.fields;
+            if (this.inputType.kind === TypeKind.Record) {
+                const fields = this.inputType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
-                        subField, "OUT", this._paramName, this._paramName, '',
+                        subField, "OUT", this.identifier, this.identifier, '',
                         parentPort, collapsedFields, parentPort.collapsed, subField.optional
                     );
                 });
             } else {
                 this.addPortsForInputField(
-                    this.dmType, "OUT", this._paramName, this._paramName,  '',
-                    parentPort, collapsedFields, parentPort.collapsed, this.dmType.optional
+                    this.inputType, "OUT", this.identifier, this.identifier,  '',
+                    parentPort, collapsedFields, parentPort.collapsed, this.inputType.optional
                 );
             }
         }

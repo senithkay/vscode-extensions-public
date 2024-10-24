@@ -35,15 +35,15 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 					<ObjectOutputWidget
 						engine={this.engine}
 						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						dmTypeWithValue={event.model.dmTypeWithValue}
+						outputType={event.model.outputType}
 						typeName={event.model.typeName}
-						value={event.model.value}
+						value={undefined}
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
-						originalTypeName={event.model.dmType?.fieldName}
+						originalTypeName={event.model.filteredOutputType?.fieldName}
 					/>
 				)}
 			</>

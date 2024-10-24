@@ -6,11 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { InputType, IOBaseType, OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMSearchStore } from "../../../store/store";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
-export const getSearchFilteredInput = (dmType: IDMType, varName?: string) => {
+export const getSearchFilteredInput = (dmType: OutputType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
 	if (!searchValue) {
 		return dmType;
@@ -26,16 +26,16 @@ export const getSearchFilteredInput = (dmType: IDMType, varName?: string) => {
 	}
 }
 
-export const getSearchFilteredOutput = (dmType: IDMType) => {
+export const getSearchFilteredOutput = (outputType: OutputType) => {
 	const searchValue = useDMSearchStore.getState().outputSearch;
-	if (!dmType) {
+	if (!outputType) {
 		return null
 	}
 	if (!searchValue) {
-		return dmType;
+		return outputType;
 	}
 
-	let searchType: IDMType = dmType;
+	let searchType: OutputType = outputType;
 
 	if (searchType.kind === TypeKind.Array) {
 		const subFields = searchType.memberType?.fields
@@ -62,58 +62,58 @@ export const getSearchFilteredOutput = (dmType: IDMType) => {
 	return  null;
 }
 
-export const getFilteredSubFields = (dmType: IDMType, searchValue: string) => {
-	if (!dmType) {
+export const getFilteredSubFields = (field: InputType | OutputType | IOBaseType, searchValue: string) => {
+	if (!field) {
 		return null;
 	}
 
 	if (!searchValue) {
-		return dmType;
+		return field;
 	}
 
-	if (dmType.kind === TypeKind.Record) {
-		const matchedSubFields: IDMType[] = dmType?.fields
-            ?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue))
-            .filter(fieldItem => fieldItem);
+	if (field.kind === TypeKind.Record) {
+		const matchedSubFields = field.fields
+			?.map((fieldItem): IOBaseType | OutputType => getFilteredSubFields(fieldItem, searchValue))
+			.filter(fieldItem => fieldItem);
 
-		const matchingName = dmType?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
+		const matchingName = field?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
-				...dmType,
-				fields: matchingName ? dmType?.fields : matchedSubFields
+				...field,
+				fields: matchingName ? field?.fields : matchedSubFields
 			}
 		}
-	} else if (dmType.kind === TypeKind.Array) {
-		const matchedSubFields: IDMType[] = dmType?.memberType
-            ?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue))
-            .filter(fieldItem => fieldItem);
+	} else if (field.kind === TypeKind.Array) {
+		const matchedSubFields = field?.memberType?.fields
+			?.map((fieldItem): IOBaseType | OutputType => getFilteredSubFields(fieldItem, searchValue))
+			.filter(fieldItem => fieldItem);
 
-		const matchingName = dmType?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
+		const matchingName = field?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
 		if (matchingName || matchedSubFields?.length > 0) {
 			return {
-				...dmType,
+				...field,
 				memberType: {
-					...dmType?.memberType,
-					fields: matchingName ? dmType?.memberType?.fields : matchedSubFields
+					...field?.memberType,
+					fields: matchingName ? field?.memberType?.fields : matchedSubFields
 				}
 			}
 		}
 	} else {
-		return dmType?.fieldName?.toLowerCase()?.includes(searchValue.toLowerCase()) ? dmType : null
+		return field?.fieldName?.toLowerCase()?.includes(searchValue.toLowerCase()) ? field : null
 	}
 
 	return null;
 }
 
-export function hasNoOutputMatchFound(dmType: IDMType, valueEnrichedType: DMTypeWithValue): boolean {
+export function hasNoOutputMatchFound(outputType: OutputType, filteredOutputType: OutputType): boolean {
 	const searchValue = useDMSearchStore.getState().outputSearch;
-	const filteredTypeDef = valueEnrichedType.type;
+
 	if (!searchValue) {
 		return false;
-	} else if (dmType.kind === TypeKind.Record && filteredTypeDef.kind === TypeKind.Record) {
-		return valueEnrichedType?.childrenTypes.length === 0;
-	} else if (dmType.kind === TypeKind.Array && filteredTypeDef.kind === TypeKind.Array) {
-		return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
+	} else if (outputType.kind === TypeKind.Record && filteredOutputType.kind === TypeKind.Record) {
+		return filteredOutputType?.fields.length === 0;
+	} else if (outputType.kind === TypeKind.Array && filteredOutputType.kind === TypeKind.Array) {
+		// return hasNoMatchFoundInArray(filteredOutputType?.elements, searchValue);
 	}
 	return false;
 }

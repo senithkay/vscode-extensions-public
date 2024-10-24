@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { IDMType } from "@wso2-enterprise/ballerina-core";
+import { IDMType, InputType, OutputType } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -32,12 +32,11 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: IDMType,
+		public field: InputType | OutputType,
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,
 		public index?: number,
-		public typeWithValue?: DMTypeWithValue,
 		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
 		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: InputOutputPortModel,
@@ -72,14 +71,14 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
 					
 					if (targetPort) {
-						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
-						const expr = typeWithValue.value;
+						const typeWithValue = (targetPort as InputOutputPortModel).field;
+						const expr = (typeWithValue as OutputType).mapping.expression;
 
 						let updatedExpr;
 						// if (Node.isPropertyAssignment(expr)) {
 						// 	updatedExpr = expr.setInitializer(sourceInputAccessExpr);
 						// } else {
-							updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
+							// updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
 						// }
 
 						// await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
@@ -129,16 +128,15 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	}
 
 	getValueType(lm: DataMapperLinkModel): ValueType {
-		const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
+		const field = (lm.getTargetPort() as InputOutputPortModel).field as OutputType;
 
-		if (typeWithValue?.value) {
-			let expr = typeWithValue.value;
+		if (field.mapping) {
+			let expr = field.mapping?.expression;
 	
 			// if (Node.isPropertyAssignment(expr)) {
 			// 	expr = expr.getInitializer();
 			// }
-			const value = expr?.getText();
-			if (value !== undefined) {
+			if (expr !== undefined) {
 				// return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
 			}
 		}

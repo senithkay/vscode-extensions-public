@@ -12,11 +12,10 @@ import React from "react";
 /** @jsx jsx */
 import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { IDMType } from "@wso2-enterprise/ballerina-core";
+import { IDMModel } from "@wso2-enterprise/ballerina-core";
 
 import { InlineDataMapper } from "./components/DataMapper/DataMapper";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -38,28 +37,17 @@ const globalStyles = css`
 `;
 
 export interface DataMapperViewProps {
-    filePath: string;
-    stNode: STNode;
-    inputTrees: IDMType[];
-    outputTree: IDMType;
+    model: IDMModel;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
-    const {
-        stNode,
-        inputTrees,
-        outputTree
-    } = props;
+    const { model } = props;
 
     return (
         <ErrorBoundary errorMsg="An error occurred while redering the Inline Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
-                <InlineDataMapper
-                    stNode={stNode}
-                    inputTrees={inputTrees}
-                    outputTree={outputTree}
-                />
+                <InlineDataMapper model={model}/>
             </QueryClientProvider>
         </ErrorBoundary>
     );

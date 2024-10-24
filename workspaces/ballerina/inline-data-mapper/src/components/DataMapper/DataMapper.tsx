@@ -10,15 +10,15 @@
 import React, { useEffect, useState } from "react";
 
 import { css } from "@emotion/css";
-import { IDMType } from "@wso2-enterprise/ballerina-core";
-import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { IDMModel } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
-import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
+import { NodeInitVisitor } from "../../visitors/NodeInitVisitor";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
+import { traverseNode } from "../../utils/model-utils";
 
 const classes = {
     root: css({
@@ -29,37 +29,31 @@ const classes = {
 }
 
 export interface InlineDataMapperProps {
-    stNode: STNode;
-    inputTrees: IDMType[];
-    outputTree: IDMType;
+    model: IDMModel;
 }
 
 export function InlineDataMapper(props: InlineDataMapperProps) {
-    const {
-        stNode,
-        inputTrees,
-        outputTree
-    } = props;
+    const { model } = props;
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const hasInternalError = false;
 
     useEffect(() => {
         async function generateNodes() {
-            const context = new DataMapperContext(stNode, inputTrees, outputTree);
+            const context = new DataMapperContext(model);
 
             const nodeInitVisitor = new NodeInitVisitor(context);
-            traversNode(stNode, nodeInitVisitor);
+            traverseNode(model, nodeInitVisitor);
             setNodes(nodeInitVisitor.getNodes());
 
         }
         generateNodes();
-    }, [stNode]);
+    }, [model]);
 
     return (
         <DataMapperErrorBoundary hasError={hasInternalError}>
             <div className={classes.root}>
-                {stNode && (
+                {model && (
                     <DataMapperHeader
                         hasEditDisabled={false}
                         onClose={undefined}

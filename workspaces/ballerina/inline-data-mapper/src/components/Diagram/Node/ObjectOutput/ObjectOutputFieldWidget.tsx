@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { TypeKind } from "@wso2-enterprise/ballerina-core";
+import { OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -24,7 +24,7 @@ import { getTypeName } from "../../utils/type-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
-    field: DMTypeWithValue;
+    field: OutputType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     parentObjectLiteralExpr: Node;
@@ -54,14 +54,14 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-    let fieldName = field.type.fieldName || '';
+    let fieldName = field.fieldName || '';
     let indentation = treeDepth * 16;
     let expanded = true;
 
-    const typeName = getTypeName(field.type);
-    const typeKind = field.type.kind;
+    const typeName = getTypeName(field);
+    const typeKind = field.kind;
     const isArray = typeKind === TypeKind.Array;
-    const isInterface = typeKind === TypeKind.Record;
+    const isRecord = typeKind === TypeKind.Record;
 
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
@@ -69,7 +69,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const portIn = getPort(fieldId + ".IN");
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
-    const fields = isInterface && field.childrenTypes;
+    const fields = isRecord && field.fields;
     const isWithinArray = fieldIndex !== undefined;
 
     const handleExpand = () => {
@@ -113,7 +113,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     }
 
     if (isWithinArray) {
-        const elementName = fieldName || field.parentType.type?.fieldName;
+        const elementName = fieldName || field?.fieldName;
         fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
@@ -126,7 +126,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
-                {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
+                {!field?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>
             {typeName && (
@@ -152,7 +152,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
                         hasHoveredParent ? classes.treeLabelParentHovered : "",
-                        isExprBarFocused ? classes.treeLabelPortExprFocused : ""
+                        // isExprBarFocused ? classes.treeLabelPortExprFocused : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}

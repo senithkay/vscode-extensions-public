@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { IDMType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { useDMCollapsedFieldsStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -15,7 +15,7 @@ import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from "../../Mappings/MappingMetadata";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { getSearchFilteredOutput, hasNoOutputMatchFound } from "../../utils/search-utils";
-import { enrichAndProcessType, getTypeName } from "../../utils/type-utils";
+import { getTypeName } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -23,7 +23,7 @@ export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
 
 export class ObjectOutputNode extends DataMapperNodeModel {
-    public dmType: IDMType;
+    public filteredOutputType: OutputType;
     public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
     public rootName: string;
@@ -35,9 +35,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: any | undefined,
-        public originalType: IDMType,
-        public isSubMapping: boolean = false
+        public outputType: OutputType
     ) {
         super(
             NODE_ID,
@@ -47,28 +45,24 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.dmType = getSearchFilteredOutput(this.originalType);
+        this.filteredOutputType = getSearchFilteredOutput(this.outputType);
 
-        if (this.dmType) {
-            this.rootName = this.dmType?.fieldName;
+        if (this.filteredOutputType) {
+            this.rootName = this.filteredOutputType?.fieldName;
 
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
-            this.dmType = type;
-            this.typeName = getTypeName(valueEnrichedType.type);
+            this.typeName = getTypeName(this.filteredOutputType);
 
-            this.hasNoMatchingFields = hasNoOutputMatchFound(this.originalType, valueEnrichedType);
+            this.hasNoMatchingFields = hasNoOutputMatchFound(this.outputType, this.filteredOutputType);
     
             const parentPort = this.addPortsForHeader(
-                this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, valueEnrichedType, this.isMapFn
+                this.filteredOutputType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                collapsedFields, this.isMapFn
             );
     
-            if (valueEnrichedType.type.kind === TypeKind.Record) {
-                this.dmTypeWithValue = valueEnrichedType;
-
-                if (this.dmTypeWithValue.childrenTypes.length) {
-                    this.dmTypeWithValue.childrenTypes.forEach(field => {
+            if (this.filteredOutputType.kind === TypeKind.Record) {
+                if (this.filteredOutputType.fields.length) {
+                    this.filteredOutputType.fields.forEach(field => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
                             parentPort, collapsedFields, parentPort.collapsed, this.isMapFn

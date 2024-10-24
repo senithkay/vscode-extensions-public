@@ -15,6 +15,7 @@ import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr } from '../../../components/Diagram/utils/modification-utils';
 import { View } from '../Views/DataMapperView';
+import { OutputType } from '@wso2-enterprise/ballerina-core';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -173,65 +174,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }, [textFieldRef.current, focusedPort, focusedFilter, views]);
 
     const onChangeTextField = async (text: string) => {
-        setTextFieldValue(text);
-        const focusedFieldValue = focusedPort?.typeWithValue.value;
-        if (focusedFieldValue) {
-            if (focusedFieldValue.wasForgotten()) {
-                return;
-            }
-            
-            // if (Node.isPropertyAssignment(focusedFieldValue)) {
-            //     const parent = focusedFieldValue.getParent();
-            //     const propName = focusedFieldValue.getName();
-            //     focusedFieldValue.remove();
-            //     const propertyAssignment = parent.addPropertyAssignment({
-            //         name: propName,
-            //         initializer: text
-            //     });
-            //     focusedPort.typeWithValue.setValue(propertyAssignment);
-            // }
-        } else if (focusedFilter) {
-            // focusedFilter.replaceWithText(text);
-        } else {
-            // const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-            // const fnBody = focusedNode.context.functionST.getBody() as Block;
-
-            // const returnExpr = (fnBody.getStatements().find((statement) =>
-            //     Node.isReturnStatement(statement)
-            // ) as ReturnStatement)?.getExpression();
-
-            // let objLitExpr: ObjectLiteralExpression;
-            // if (returnExpr) {
-            //     if (Node.isObjectLiteralExpression(returnExpr)) {
-            //         objLitExpr = returnExpr;
-            //     } else {
-            //         if (focusedNode instanceof ObjectOutputNode && Node.isObjectLiteralExpression(focusedNode.value)) {
-            //             objLitExpr = focusedNode.value;
-            //         } else if (focusedNode instanceof ArrayOutputNode && focusedNode.dmTypeWithValue) {
-            //             const elements = focusedNode.dmTypeWithValue.elements;
-            //             if (elements && elements.length > 0) {
-            //                 const targetElement = elements.find(element => {
-            //                     let nextPort = focusedPort;
-            //                     while (nextPort) {
-            //                         if (element.member.value.getPos() === nextPort?.typeWithValue?.value?.getPos()) {
-            //                             return true;
-            //                         }
-            //                         nextPort = nextPort?.parentModel;
-            //                     }
-            //                 });
-            //                 if (targetElement && targetElement.member.value && Node.isObjectLiteralExpression(targetElement.member.value)) {
-            //                     objLitExpr = targetElement.member.value;
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-
-            // const propertyAssignment = await createSourceForUserInput(
-            //     focusedPort?.typeWithValue, objLitExpr, text, fnBody
-            // );
-            // focusedPort.typeWithValue.setValue(propertyAssignment);
-        }
     };
 
     const handleExpressionSave = async (value: string) => {
@@ -259,11 +201,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const applyChangesOnFocusedPort = async (value: string) => {
-        const focusedFieldValue = focusedPort?.typeWithValue.value;
+        const focusedFieldValue = (focusedPort?.field as OutputType).mapping.expression;
         if (focusedFieldValue) {
-            if (focusedFieldValue.wasForgotten()) {
-                return;
-            }
 
             let targetExpr: Node;
             // if (Node.isPropertyAssignment(focusedFieldValue)) {
@@ -278,7 +217,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             //     targetExpr.replaceWithText(replaceWith);
             // }
-            await applyModifications(focusedFieldValue.getSourceFile().getFullText());
+            // await applyModifications(focusedFieldValue.getSourceFile().getFullText());
         }
     };
 

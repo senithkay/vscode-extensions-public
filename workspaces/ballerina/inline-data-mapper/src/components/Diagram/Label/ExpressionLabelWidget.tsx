@@ -187,7 +187,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             const targetPortField = target.field;
 
             if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                await applyArrayFunction(link, targetPortField.memberType);
+                // await applyArrayFunction(link, targetPortField.memberType);
             }
         }
     };

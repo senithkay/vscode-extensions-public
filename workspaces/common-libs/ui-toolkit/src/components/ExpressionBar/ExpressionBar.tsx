@@ -110,6 +110,7 @@ export type ExpressionBarBaseProps = {
         currentArgIndex: number;
     }>;
     handleHelperPaneOpen?: () => void;
+    handleInlineDataMapperOpen?: () => void;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -144,10 +145,22 @@ namespace Ex {
         display: flex;
         flex: 1 1 auto;
     `;
+
+    export const InlineDMButton = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-button-secondaryForeground);
+            font-size: 10px;
+        }
+    `;
+
+    export const InlineDMButtonText = styled.p`
+        font-size: 10px;
+        margin: 0;
+    `;    
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, getExpressionBarIcon, ...rest } = props;
+    const { id, handleHelperPaneOpen, handleInlineDataMapperOpen, getExpressionBarIcon, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
@@ -161,6 +174,16 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
                     <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
                 )}
             </Button>
+            {handleInlineDataMapperOpen && (
+                <Ex.InlineDMButton
+                    appearance="icon"
+                    tooltip="Create using Data Mapper"
+                    onClick={handleInlineDataMapperOpen}
+                    // disabled={true} // TODO: enable when file path and range are available
+                >
+                    <Ex.InlineDMButtonText>DM</Ex.InlineDMButtonText>
+                </Ex.InlineDMButton>
+            )}
         </Ex.Container>
     );
 });
