@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { ConfigVariable } from "@wso2-enterprise/ballerina-core";
+import { ConfigVariable, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
@@ -39,7 +39,8 @@ export function ViewConfigurableVariables() {
     const [isEditConfigVariableFormOpen, setEditConfigVariableFormOpen] = useState<boolean>(false);
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
     const [configIndex, setConfigIndex] = useState<number>(0);
-    const [dataSaved, setDataSaved] = useState(true);
+    const [showProgressIndicator, setShowProgressIndicator] = useState(false);
+    const selectedNodeRef = useRef<FlowNode>();
 
     const handleEditConfigVariableFormOpen = (index: number) => {
         setEditConfigVariableFormOpen(true);
@@ -57,15 +58,41 @@ export function ViewConfigurableVariables() {
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
-        setDataSaved(true);
+        // setDataSaved(true);
+    };
+
+    const handleOnDeleteConfigVariable = async (index: number) => {
+        setConfigIndex(index);
+
+        const projectPath: string = (await rpcClient.getVisualizerLocation()).projectUri
+        const filePath = projectPath.concat('/' + configVariables[index].codedata.lineRange.fileName);
+
+        setShowProgressIndicator(true);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .deleteFlowNode({
+                filePath: filePath,
+                flowNode: configVariables[configIndex],
+            })
+            .then((response) => {
+                console.log(">>> Updated source code after delete", response);
+                if (response.textEdits) {
+                    // clear memory
+                    selectedNodeRef.current = undefined;
+                } else {
+                    console.error(">>> Error updating source code", response);
+                    // handle error
+                }
+            })
+            .finally(() => {
+                setShowProgressIndicator(false);
+            });
     };
 
     useEffect(() => {
-        if (dataSaved) {
-            getConfigVariables();
-            setDataSaved(false);
-        }
-    }, [dataSaved]);
+        console.log(">>> Get Config Variables");
+        getConfigVariables();
+    }, [configVariables]);
 
     const getConfigVariables = () => {
         rpcClient
@@ -73,7 +100,6 @@ export function ViewConfigurableVariables() {
             .getConfigVariables()
             .then((variables) => {
                 setConfigVariables(variables.configVariables);
-                setDataSaved(false);
             });
     };
 
@@ -115,23 +141,22 @@ export function ViewConfigurableVariables() {
                                 {
                                     configVariables.map((variable, index) => {
                                         return (
-                                            <VSCodeDataGridRow key={variable.properties.variable.value + index}>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}</VSCodeDataGridCell>
+                                            <VSCodeDataGridRow key={index}>
+                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}-{index}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.type.value}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`}>
-                                                    {
-                                                        variable.properties.defaultable.value &&
-                                                            variable.properties.defaultable.value !== "null" ?
-                                                            variable.properties.defaultable.value === "?" ?
-                                                                null
-                                                                : variable.properties.defaultable.value.replaceAll('"', '')
-                                                            : null
-                                                    }
+                                                    {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
+                                                        variable.properties.defaultable.value === "?" ?
+                                                            null
+                                                            : variable.properties.type.value === 'string' && typeof variable.properties.defaultable.value === "string" ?
+                                                                variable.properties.defaultable.value.replace(/"/g, '')
+                                                                : variable.properties.defaultable.value
+                                                        : null}
                                                 </VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`} style={{ display: "flex" }}>
                                                     <Codicon name="edit" onClick={(event) => handleEditConfigVariableFormOpen(index)} />
                                                     &nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <Codicon name="trash" />
+                                                    <Codicon name="trash" onClick={(event) => handleOnDeleteConfigVariable(index)} />
                                                 </VSCodeDataGridCell>
                                             </VSCodeDataGridRow>
 
