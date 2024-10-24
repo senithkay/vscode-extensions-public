@@ -85,6 +85,13 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
 
     const handlePathClick = (pathID: string) => {
         setSelectedPathID(pathID);
+        if (pathID?.includes("Schemas-Components")) {
+            const firstSchemaName= Object.keys(openAPIDefinition.components?.schemas)[0];
+            setSelectedPathID(firstSchemaName + "-schema");
+        } else if (pathID?.includes("Paths-Resources")) {
+            const firstPath = Object.keys(openAPIDefinition.paths)[0];
+            setSelectedPathID(firstPath);
+        }
     };
 
     const handlePathChange = (path: Path) => {
@@ -245,7 +252,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         };
         setOpenAPIDefinition(openAPIDefinition);
         onOpenApiDefinitionChange(openAPIDefinition);
-        setSelectedPathID
+        setSelectedPathID(newSchemaName + "-schema");
         setCurrentView(Views.EDIT);
     }
 

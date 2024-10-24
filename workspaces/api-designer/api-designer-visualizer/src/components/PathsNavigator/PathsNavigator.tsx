@@ -279,7 +279,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             </OverviewTitle>
             <TreeView
                 rootTreeView
-                id="Paths"
+                id="Paths-Resources"
                 content={
                     <PathContainer>
                         <LeftPathContainer>
