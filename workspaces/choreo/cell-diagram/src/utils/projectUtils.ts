@@ -33,6 +33,7 @@ import {
     Observations,
     Gateways,
     ObservationSummary,
+    ComponentType,
 } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getNodePortId, getCellPortMetadata, getCellLinkName } from "../components/Cell/cell-util";
@@ -175,6 +176,17 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
     const externalLinkOffset = Math.max(100, cellNode.width / 10);
     let nextConnectorNodeOffset = externalLinkOffset;
+
+    let externalConsumerOffset = 0;
+    // Position external consumer components
+    model.getNodes().forEach((node) => {
+        if (node instanceof ComponentModel && node.isExternalConsumer()) {
+            const cellPosition = cellNode.getPosition();
+            node.setPosition(cellPosition.x - 200 - externalConsumerOffset, cellPosition.y - 100);
+            externalConsumerOffset += node.width + 50; // Add some spacing between external consumers
+        }
+    });
+
     for (const key in cellNode.getPorts()) {
         if (Object.prototype.hasOwnProperty.call(cellNode.getPorts(), key)) {
             const port = cellNode.getPorts()[key];
@@ -261,7 +273,7 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
 
 export function isRenderInsideCell(node: BaseModel<BaseModelGenerics>): boolean {
     return (
-        node.getType() === COMPONENT_NODE ||
+        (node.getType() === COMPONENT_NODE && !((node as ComponentModel).isExternalConsumer())) ||
         (node.getType() === CONNECTION_NODE &&
             isConnectorConnection((node as ConnectionModel).connection) &&
             (node as ConnectionModel).connection.onPlatform)
@@ -438,6 +450,10 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
     const links: Map<string, ComponentLinkModel> = new Map();
 
     project.components?.forEach((component, _key) => {
+        // skip generating component links for external consumer components
+        if (component.type === ComponentType.EXTERNAL_CONSUMER) {
+            return;
+        }
         const componentId = getComponentName(component);
         const callingComponent: ComponentModel | undefined = nodes.get(componentId) as ComponentModel;
 
