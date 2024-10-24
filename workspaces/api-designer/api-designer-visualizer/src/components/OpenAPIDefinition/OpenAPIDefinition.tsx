@@ -24,6 +24,7 @@ import { PathItem as PI } from "../PathItem/PathItem";
 import { ReadOnlyPathItem } from "../PathItem/ReadOnlyPathItem";
 import { Schema, SchemaEditor } from "../SchemaEditor/SchemaEditor";
 import { ReadOnlySchemaEditor } from "../SchemaEditor/ReadOnlySchemaEditor";
+import { Codicon, Button, Typography } from "@wso2-enterprise/ui-toolkit";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
@@ -242,10 +243,13 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handleAddSchema = () => {
-        if (openAPIDefinition.components?.schemas === undefined) {
+        if (openAPIDefinition.components === undefined) {
+            openAPIDefinition.components = {};
+        }
+        if (openAPIDefinition.components.schemas === undefined) {
             openAPIDefinition.components.schemas = {};
         }
-        const newSchemaName = Object.keys(openAPIDefinition.components.schemas).find((key) => key === "schema") ? `Schema${Object.keys(openAPIDefinition.components.schemas).length + 1}` : "schema";
+        const newSchemaName = Object.keys(openAPIDefinition.components.schemas).find((key) => key === "schema") ? `Schema${Object.keys(openAPIDefinition.components.schemas).length + 1}` : "Schema";
         openAPIDefinition.components.schemas[newSchemaName] = {
             type: "object",
             properties: {}
@@ -368,6 +372,23 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
+    const handleSchemaNameChange = (newName: string, oldSchemaName: string) => {
+        const component = openAPIDefinition.components[oldSchemaName];
+        const updatedOpenAPIDefinition: OpenAPI = {
+            ...openAPIDefinition,
+            components: {
+                ...openAPIDefinition.components,
+                schemas: Object.keys(openAPIDefinition.components?.schemas || {}).reduce((acc, key) => {
+                    acc[key === oldSchemaName ? newName : key] = openAPIDefinition.components?.schemas?.[key];
+                    return acc;
+                }, {} as { [key: string]: Schema })
+            }
+        };
+        setSelectedPathID(selectedPathID?.replace(oldSchemaName, newName));
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+    }
+
     const handleSchemaChange = (schema: Schema) => {
         // Update the OpenAPI definition with the new schema
         const updatedOpenAPIDefinition: OpenAPI = {
@@ -383,6 +404,10 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         setOpenAPIDefinition(updatedOpenAPIDefinition);
         onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
+
+    const handleImportJSON = (schemaName: string) => {
+        console.log("schemaName", schemaName);
+    }
 
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
@@ -472,7 +497,15 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             <PI path={selectedPathID} pathItem={openAPIDefinition?.paths} onChange={handlePathItemChange} />
                         )}
                         {currentView === Views.EDIT && isSchemaSelected && schema && (
-                            <SchemaEditor openAPI={openAPIDefinition} schema={schema} schemaName={schemaName} onSchemaChange={handleSchemaChange} />
+                            <>
+                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                    <Typography variant="h3" sx={{}}>{schemaName}</Typography>
+                                    <Button tooltip='Import from JSON' onClick={() => handleImportJSON(schemaName)} appearance='icon' sx={{ marginLeft: '10px' }}>
+                                        <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
+                                    </Button>
+                                </div>
+                                <SchemaEditor openAPI={openAPIDefinition} schema={schema} schemaName={schemaName} onNameChange={handleSchemaNameChange} onSchemaChange={handleSchemaChange} />
+                            </>
                         )}
                     </div>
                     <div id={Views.READ_ONLY}>

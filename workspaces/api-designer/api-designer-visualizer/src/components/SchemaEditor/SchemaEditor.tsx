@@ -60,6 +60,7 @@ export interface SchemaEditorProps {
     variant?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
     sx?: any;
     openAPI: OpenAPI;
+    onNameChange?: (newName: string, oldName: string) => void;
     onSchemaChange: (updatedSchema: Schema) => void;
 }
 
@@ -266,7 +267,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
 };
 
 export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorProps) => {
-    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4', openAPI } = props;
+    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4', openAPI, onNameChange } = props;
     const [schema, setSchema] = useState<Schema | undefined>(initialSchema);
 
     const handleSchemaUpdate = (updatedProperties: { [key: string]: Schema }) => {
@@ -359,11 +360,17 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
     return (
         <SchemaEditorContainer sx={sx} key={schemaName}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                <Typography variant={variant} sx={{ margin: 0 }}>{schemaName}</Typography>
+                {onNameChange &&
+                    <TextField
+                        value={schemaName}
+                        onBlur={(e) => onNameChange(e.target.value, schemaName)}
+                        sx={{ marginRight: '10px', width: '200px' }}
+                    />
+                }
                 <Dropdown
                     id={`${schemaName}-type`}
                     value={schema?.$ref ? schema?.$ref : schema?.type}
-                    sx={{ width: '12em', marginLeft: '10px' }}
+                    sx={{ width: '12em' }}
                     items={getSchemas()}
                     onChange={(e) => handleTypeChange(e.target.value as Schema['type'])}
                 />
