@@ -472,4 +472,3 @@ export function Overview(props: ComponentDiagramProps) {
         </View>
     );
 }
-

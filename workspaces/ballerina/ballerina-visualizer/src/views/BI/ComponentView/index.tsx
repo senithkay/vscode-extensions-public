@@ -85,6 +85,13 @@ export function AddComponentView() {
                     view: MACHINE_VIEW.BIFunctionForm,
                 }
             });
+        } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.ViewConfigVariables,
+                }
+            });
         } else {
             setPopupMessage(true);
         }

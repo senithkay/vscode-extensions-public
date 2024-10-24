@@ -30,6 +30,7 @@ import {
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
+    ConfigVariableResponse,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -38,6 +39,8 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
@@ -52,6 +55,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -66,6 +70,7 @@ import {
     getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
+    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject
@@ -146,6 +151,14 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getConfigVariables(): Promise<ConfigVariableResponse> {
+        return this._messenger.sendRequest(getConfigVariables, HOST_EXTENSION);
+    }
+
+    updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
     }
 
     getModuleNodes(): Promise<BIModuleNodesResponse> {
