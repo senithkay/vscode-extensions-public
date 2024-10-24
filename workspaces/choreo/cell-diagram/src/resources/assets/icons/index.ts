@@ -48,3 +48,6 @@ export { BallerinaIcon as ballerinaIcon } from "./lang/BallerinaIcon";
 export { DockerIcon as dockerIcon } from "./lang/DockerIcon";
 export { MIIcon as microintegratorIcon } from "./lang/MIIcon";
 export { RustIcon as rustIcon } from "./lang/RustIcon";
+
+// External consumer icon
+export { ExternalConsumerIcon } from "./ExternalConsumerIcon";

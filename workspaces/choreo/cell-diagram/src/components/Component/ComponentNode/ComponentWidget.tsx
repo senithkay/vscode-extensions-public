@@ -8,7 +8,7 @@
  */
 
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, LinkModel, PortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { ComponentModel } from "./ComponentModel";
 import { ComponentLinkModel } from "../ComponentLink/ComponentLinkModel";
 import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
@@ -16,6 +16,8 @@ import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
 import { Tooltip } from "@mui/material";
+import { ExternalConsumerLinkSelectEvent } from "../../../types";
+import { CellBounds } from "../../Cell/CellNode/CellModel";
 
 
 interface ComponentWidgetProps {
@@ -46,8 +48,31 @@ export function ComponentWidget(props: ComponentWidgetProps) {
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
 
+        const handleExternalConsumerLink = (evt: ExternalConsumerLinkSelectEvent, action: 'SELECT' | 'UNSELECT') => {
+            setIsHovered(action === 'SELECT');
+            const portId = evt.cellBound === CellBounds.NorthBound ? 'top' : 'left';
+            const alignment = evt.cellBound === CellBounds.NorthBound ? PortModelAlignment.TOP : PortModelAlignment.LEFT;
+            const port = node.getPort(`${portId}-${node.getID()}`);
+            const portLinks: Map<string, LinkModel> = new Map(Object.entries(port.links));
+            portLinks.forEach((link) => {
+                if (link.getTargetPort().getOptions().alignment === alignment) {
+                    link.fireEvent({}, action);
+                }
+            });
+        };
+
+        const externalConsumerListener = node.registerListener({
+            EXTERNAL_CONSUMER_LINK_SELECT: (evt: ExternalConsumerLinkSelectEvent) => {
+                handleExternalConsumerLink(evt, 'SELECT');
+            },
+            EXTERNAL_CONSUMER_LINK_UNSELECT: (evt: ExternalConsumerLinkSelectEvent) => {
+                handleExternalConsumerLink(evt, 'UNSELECT');
+            },
+        });
+
         return () => {
             node.deregisterListener(listener);
+            node.deregisterListener(externalConsumerListener);
         };
     }, [node]);
 
