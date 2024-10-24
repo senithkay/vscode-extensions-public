@@ -683,7 +683,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     openAIChat(params: AIChatRequest): void {
-        commands.executeCommand("kolab.open.ai.panel");
+        if (params.readme) {
+            commands.executeCommand("kolab.open.ai.panel", "Generate an integration according to the given Readme file");
+        } else {
+            commands.executeCommand("kolab.open.ai.panel");
+        }
     }
 
     async getModuleNodes(): Promise<BIModuleNodesResponse> {

@@ -29,6 +29,11 @@ export interface ProjectDiagnostics {
     diagnostics: DiagnosticEntry[];
 }
 
+export interface InitialPrompt {
+    exists: boolean;
+    text: string;
+}
+
 export interface DiagnosticEntry {
     message : string;
 }

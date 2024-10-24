@@ -245,6 +245,7 @@ export const StateMachineAI = {
 
 export function openAIWebview(initialPrompt?: string) {
     extension.initialPrompt = typeof initialPrompt === 'string' ? initialPrompt : undefined;
+    console.log(extension.initialPrompt)
     if (!AiPanelWebview.currentPanel) {
         AiPanelWebview.currentPanel = new AiPanelWebview();
     } else {
