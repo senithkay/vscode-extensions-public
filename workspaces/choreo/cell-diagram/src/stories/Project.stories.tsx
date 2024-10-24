@@ -309,11 +309,11 @@ const externalConsumerModel: Project = {
             type: "external-consumer",
             connections: [
                 {
-                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:users",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:myconid_users",
                     type: "http",
                 },
                 {
-                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:basepath",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:myconid_basepath",
                     type: "http",
                 },
             ],
@@ -324,11 +324,11 @@ const externalConsumerModel: Project = {
             type: "external-consumer",
             connections: [
                 {
-                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:users",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:myconid_users",
                     type: "http",
                 },
                 {
-                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:basepath",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:myconid_basepath",
                     type: "http",
                 },
             ],

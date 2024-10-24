@@ -734,16 +734,20 @@ function generateCellLinks(
             for (const connection of component.connections) {
                 let targetEmptyNode: EmptyModel | null = null;
                 let targetBound: CellBounds | null = null;
-                let targetComponentNode: ComponentModel | null = null;
+                let destinationComponentNode: ComponentModel | null = null;
+                const metadata = getConnectionMetadata(connection) as ComponentMetadata;
                 for (const cmp of project.components) {
-                    if (cmp.services && cmp.services[connection.id]) {
-                        const service = cmp.services[connection.id];
-                        const componentId = getComponentName(cmp);
-                        targetComponentNode = nodes.get(componentId) as ComponentModel;
-                        if (service.deploymentMetadata?.gateways.internet.isExposed) {
-                            targetBound = CellBounds.NorthBound;
-                        } else if (service.deploymentMetadata?.gateways.intranet.isExposed) {
-                            targetBound = CellBounds.WestBound;
+                    if (cmp.id === metadata.component) {
+                        destinationComponentNode = nodes.get(getComponentName(cmp)) as ComponentModel;
+                        // If any service is exposed to internet, set targetBound to NorthBound, else to WestBound
+                        // This is due to a limit in current model to track individual services by connection ID
+                        const services = Object.values(cmp.services);
+                        targetBound = CellBounds.WestBound; // Default to WestBound
+                        for (const service of services) {
+                            if (service.deploymentMetadata?.gateways.internet.isExposed) {
+                                targetBound = CellBounds.NorthBound;
+                                break; // Exit the loop once we find an internet-exposed service
+                            }
                         }
                     }
                 }
@@ -767,7 +771,7 @@ function generateCellLinks(
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(targetEmptyNode.getID());
                         link.setIsExternalConsumerLink(true);
-                        link.setDestinationNode(targetComponentNode);
+                        link.setDestinationNode(destinationComponentNode);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     } else {
                         console.warn('Unable to create link: sourcePort or targetPort is null');
