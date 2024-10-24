@@ -734,9 +734,12 @@ function generateCellLinks(
             for (const connection of component.connections) {
                 let targetEmptyNode: EmptyModel | null = null;
                 let targetBound: CellBounds | null = null;
+                let targetComponentNode: ComponentModel | null = null;
                 for (const cmp of project.components) {
                     if (cmp.services && cmp.services[connection.id]) {
                         const service = cmp.services[connection.id];
+                        const componentId = getComponentName(cmp);
+                        targetComponentNode = nodes.get(componentId) as ComponentModel;
                         if (service.deploymentMetadata?.gateways.internet.isExposed) {
                             targetBound = CellBounds.NorthBound;
                         } else if (service.deploymentMetadata?.gateways.intranet.isExposed) {
@@ -763,6 +766,8 @@ function generateCellLinks(
                         const link: CellLinkModel = new CellLinkModel(linkId);
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(targetEmptyNode.getID());
+                        link.setIsExternalConsumerLink(true);
+                        link.setDestinationNode(targetComponentNode);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     } else {
                         console.warn('Unable to create link: sourcePort or targetPort is null');

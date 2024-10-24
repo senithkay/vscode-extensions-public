@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
 import {
     CellLinkModel,
     ComponentLinkModel,
@@ -19,6 +18,7 @@ import {
 } from "./components";
 import { CellBounds } from "./components/Cell/CellNode/CellModel";
 import { AdvancedLinkModel } from "./components/Project/AdvancedLink/AdvancedLinkModel";
+import { BaseEvent } from "@projectstorm/react-canvas-core";
 
 export interface Organization {
     id: string;
@@ -48,6 +48,11 @@ export enum ComponentType {
     TEST = "test",
     EXTERNAL_CONSUMER = "external-consumer",
 }
+
+
+export type ExternalConsumerLinkSelectEvent = BaseEvent & {
+    cellBound: CellBounds;
+};
 
 export interface Component {
     id: string;
