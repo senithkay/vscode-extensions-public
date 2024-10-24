@@ -147,7 +147,7 @@ async function getProjectStructureData(): Promise<ProjectExplorerEntry[]> {
 function generateTreeData(project: vscode.WorkspaceFolder, components: ProjectStructureResponse): ProjectExplorerEntry | undefined {
     const projectRootPath = project.uri.fsPath;
     const projectRootEntry = new ProjectExplorerEntry(
-        `Project ${project.name}`,
+        `${project.name}`,
         vscode.TreeItemCollapsibleState.Expanded,
         projectRootPath,
         'project',

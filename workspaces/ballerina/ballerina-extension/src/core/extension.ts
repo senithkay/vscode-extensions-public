@@ -220,7 +220,8 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('kolab-setup.setupKola', () => {
-            this.setupKolaVersion();
+            // this.setupKolaVersion();
+            this.updateKolaVersion();
         });
 
         commands.registerCommand('kolab-setup.updateKola', () => {
@@ -379,15 +380,16 @@ export class BallerinaExtension {
 
             let res: DownloadProgress = {
                 message: `Success..`,
-                success: true
+                success: true,
+                step: 6 // This is the last step
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
-            console.log('Ballerina home has been set successfully for Quala version.');
-            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
+            console.log('Ballerina home has been set successfully for Kola version.');
+            window.showInformationMessage("Ballerina has been set up successfully for Kola version");
         } catch (error) {
-            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
-            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
+            console.error('Error downloading or unzipping the Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
         }
     }
 
@@ -406,6 +408,13 @@ export class BallerinaExtension {
 
             await this.setExecutablePermissions();
 
+            let res: DownloadProgress = {
+                message: `Success..`,
+                success: true,
+                step: 6 // This is the last step
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
             console.log('Ballerina home has been set successfully for Kola version.');
             window.showInformationMessage("Ballerina has been set up successfully for Kola version");
         } catch (error) {
@@ -423,7 +432,8 @@ export class BallerinaExtension {
                 message: "Fetching latest kola distribution details..",
                 percentage: 0,
                 success: false,
-                totalSize: 0
+                totalSize: 0,
+                step: 1
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const workflowResponse = await axios.get(this.ballerinaKolaReleaseUrl);
@@ -441,7 +451,8 @@ export class BallerinaExtension {
                 message: "Pulling the artifacts...",
                 percentage: 0,
                 success: false,
-                totalSize: 0
+                totalSize: 0,
+                step: 1
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             const workflowRunResponse = await axios.get(workflowRunUrl);
@@ -483,7 +494,8 @@ export class BallerinaExtension {
                     message: "Download starting...",
                     percentage: 0,
                     success: false,
-                    totalSize: 0
+                    totalSize: 0,
+                    step: 2
                 };
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                 const sizeMB = 1024 * 1024;
@@ -505,7 +517,8 @@ export class BallerinaExtension {
                             message: "Downloading...",
                             percentage: percentCompleted,
                             success: false,
-                            totalSize: progressEvent.total / sizeMB
+                            totalSize: progressEvent.total / sizeMB,
+                            step: 2
                         };
                         RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                     }
@@ -516,7 +529,8 @@ export class BallerinaExtension {
                 res = {
                     ...res,
                     message: `Failed: ${error}`,
-                    success: false
+                    success: false,
+                    step: -1 // Error step
                 };
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                 console.error('Error downloading artifact:', error);
@@ -529,7 +543,8 @@ export class BallerinaExtension {
             res = {
                 ...res,
                 message: `Setting the Kola Home location...`,
-                success: false
+                success: false,
+                step: 3
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             // Unzip the artifact
@@ -563,7 +578,8 @@ export class BallerinaExtension {
             res = {
                 ...res,
                 message: `Cleaning up the temp files...`,
-                success: false
+                success: false,
+                step: 5
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
@@ -587,7 +603,8 @@ export class BallerinaExtension {
         // Update the configuration with the new Ballerina Home
         let res: DownloadProgress = {
             message: `Setting the configurable values in vscode...`,
-            success: false
+            success: false,
+            step: 4
         };
         RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
         workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
@@ -598,7 +615,8 @@ export class BallerinaExtension {
         try {
             let res: DownloadProgress = {
                 message: `Setting the kola distribution permissions...`,
-                success: false
+                success: false,
+                step: 4
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 

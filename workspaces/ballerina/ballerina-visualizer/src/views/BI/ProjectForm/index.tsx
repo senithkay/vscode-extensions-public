@@ -22,7 +22,7 @@ const FormContainer = styled.div`
 
 const ButtonWrapper = styled.div`
     margin-top: 20px;
-    width: 130px;
+    /* width: 130px; */
 `;
 
 export function ProjectForm() {
