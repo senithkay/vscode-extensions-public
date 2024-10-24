@@ -27,6 +27,7 @@ interface PathsNavigatorProps {
     onPathChange?: (pathID: string) => void;
     onPathRename?: (path: string, index: number, prevPath: string) => void;
     onDeleteMethod?: (path: string, method: string) => void;
+    onAddSchema?: () => void;
 }
 
 const PathsContainer = styled.div`
@@ -143,7 +144,7 @@ const AddNewLink = styled(VSCodeLink)`
 `;
 
 export function PathsNavigator(props: PathsNavigatorProps) {
-    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename, onDeleteMethod } = props;
+    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename, onDeleteMethod, onAddSchema } = props;
     const { rpcClient } = useVisualizerContext();
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
@@ -202,6 +203,13 @@ export function PathsNavigator(props: PathsNavigatorProps) {
         evt.stopPropagation();
         if (onAddPath) {
             onAddPath()
+        }
+    }
+
+    const handleAddSchema = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        if (onAddSchema) {
+            onAddSchema()
         }
     }
 
@@ -351,6 +359,9 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                         <LeftPathContainer>
                             <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Schemas</Typography>
                         </LeftPathContainer>
+                        <RightPathContainerButtons className="buttons-container">
+                            <Button tooltip="Add Schema" appearance="icon" onClick={handleAddSchema}><Codicon name="plus" /></Button>
+                        </RightPathContainerButtons>
                     </PathContainer>
                 }
                 selectedId={selectedPathID}

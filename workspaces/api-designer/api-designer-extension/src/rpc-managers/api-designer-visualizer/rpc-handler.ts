@@ -20,8 +20,9 @@ import {
     goBack,
     goHome,
     goToSource,
+    importJSON,
     openView,
-    writeOpenApiContent
+    writeOpenApiContent,
 } from "@wso2-enterprise/api-designer-core";
 import { Messenger } from "vscode-messenger";
 import { ApiDesignerVisualizerRpcManager } from "./rpc-manager";
@@ -36,4 +37,5 @@ export function registerApiDesignerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onRequest(getOpenApiContent, (args: GetOpenAPIContentRequest) => rpcManger.getOpenApiContent(args));
     messenger.onRequest(writeOpenApiContent, (args: WriteOpenAPIContentRequest) => rpcManger.writeOpenApiContent(args));
+    messenger.onRequest(importJSON, () => rpcManger.importJSON());
 }

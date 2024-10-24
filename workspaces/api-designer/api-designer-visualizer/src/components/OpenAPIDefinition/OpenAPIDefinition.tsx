@@ -234,6 +234,21 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         // })
     };
 
+    const handleAddSchema = () => {
+        if (openAPIDefinition.components?.schemas === undefined) {
+            openAPIDefinition.components.schemas = {};
+        }
+        const newSchemaName = Object.keys(openAPIDefinition.components.schemas).find((key) => key === "schema") ? `Schema${Object.keys(openAPIDefinition.components.schemas).length + 1}` : "schema";
+        openAPIDefinition.components.schemas[newSchemaName] = {
+            type: "object",
+            properties: {}
+        };
+        setOpenAPIDefinition(openAPIDefinition);
+        onOpenApiDefinitionChange(openAPIDefinition);
+        setSelectedPathID
+        setCurrentView(Views.EDIT);
+    }
+
     const handleAddResources = (path: string, methods: string[] = []) => {
         const pathParameters = openAPIDefinition.paths[path] &&
             Object.keys(openAPIDefinition.paths[path]).map((key: string) => {
@@ -407,6 +422,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             onDeletePath={onDeletePath}
                             onPathRename={handleRenamePath}
                             onDeleteMethod={onDeleteResource}
+                            onAddSchema={handleAddSchema}
                         />
                     }
                 </NavigationPanelContainer>
@@ -449,7 +465,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             <PI path={selectedPathID} pathItem={openAPIDefinition?.paths} onChange={handlePathItemChange} />
                         )}
                         {currentView === Views.EDIT && isSchemaSelected && schema && (
-                            <SchemaEditor schema={schema} schemaName={schemaName} onSchemaChange={handleSchemaChange} />
+                            <SchemaEditor openAPI={openAPIDefinition} schema={schema} schemaName={schemaName} onSchemaChange={handleSchemaChange} />
                         )}
                     </div>
                     <div id={Views.READ_ONLY}>

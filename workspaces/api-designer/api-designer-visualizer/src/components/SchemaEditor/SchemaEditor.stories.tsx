@@ -11,6 +11,8 @@ import React from 'react';
 import { Schema, SchemaEditor } from './SchemaEditor';
 import { useState } from 'react';
 import { ReadOnlySchemaEditor } from './ReadOnlySchemaEditor';
+import { OpenAPI } from '../../Definitions/ServiceDefinitions';
+
 
 export default {
     component: SchemaEditor,
@@ -42,6 +44,20 @@ const schema: Schema = {
     }
 };
 
+const openAPIDefinition: OpenAPI = {
+    openapi: '3.0.0',
+    info: {
+        title: 'Test',
+        version: '1.0.0'
+    },
+    paths: {},
+    components: {
+        schemas: {
+            Person: schema
+        }
+    }
+};
+
 export const SchemaEditorStory = () => {
     const [selectedId, setSelectedId] = useState<string | null>("1");
     const handleClick = (id: string) => {
@@ -49,7 +65,7 @@ export const SchemaEditorStory = () => {
     };
 
     return (
-        <SchemaEditor schema={schema} schemaName="Person" onSchemaChange={(schema) => { console.log('schema change', schema) }} />
+        <SchemaEditor openAPI={openAPIDefinition} schema={schema} schemaName="Person" onSchemaChange={(schema) => { console.log('schema change', schema) }} />
     );
 };
 

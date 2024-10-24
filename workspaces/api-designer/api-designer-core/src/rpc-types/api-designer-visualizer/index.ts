@@ -16,6 +16,7 @@ import {
     GetOpenAPIContentResponse,
     WriteOpenAPIContentResponse,
     WriteOpenAPIContentRequest,
+    Schema
 } from "./types";
 
 export interface APIDesignerVisualizerAPI {
@@ -27,4 +28,5 @@ export interface APIDesignerVisualizerAPI {
     goToSource: (params: GoToSourceRequest) => void;
     getOpenApiContent: (params: GetOpenAPIContentRequest) => Promise<GetOpenAPIContentResponse>;
     writeOpenApiContent: (params: WriteOpenAPIContentRequest) => Promise<WriteOpenAPIContentResponse>;
+    importJSON: () => Promise<Schema | undefined>;
 }

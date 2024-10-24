@@ -27,12 +27,12 @@ const pathKeys = Object.keys(apiDefinition.paths);
 const pathKey = pathKeys[1]; // Get the second key
 const pathItem: PathItem = apiDefinition.paths[pathKey] as PathItem; // Ensure it's treated as PathItem
 const path: string = pathKey;
-const getOperation: Operation = pathItem.get as Operation; 
+const getOperation: Operation = pathItem.get as Operation;
 
 export const ResponseStory = () => {
     return (
         <Container>
-            <Response resourceOperation={getOperation} method="post" path={path} onOperationChange={() => {}} />
+            <Response openAPI={apiDefinition} resourceOperation={getOperation} method="post" path={path} onOperationChange={() => { }} />
         </Container>
     );
 };

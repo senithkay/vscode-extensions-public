@@ -8,7 +8,7 @@
  */
 import { Button, CheckBox, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
+import { OpenAPI, Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
@@ -89,10 +89,11 @@ interface ReadOnlyResourceProps {
     path: string;
     resourceOperation: Operation;
     onOperationChange: (path: string, method: string, operation: Operation) => void;
+    openAPI: OpenAPI;
 }
 
 export function Request(props: ReadOnlyResourceProps) {
-    const { resourceOperation, method, path, onOperationChange } = props;
+    const { resourceOperation, method, path, onOperationChange, openAPI } = props;
     const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.requestBody?.content ? Object.keys(resourceOperation.requestBody.content)[0] : undefined);
     const { rpcClient } = useVisualizerContext();
 
@@ -241,6 +242,7 @@ export function Request(props: ReadOnlyResourceProps) {
     }
 
     const onSchemaChange = (updatedSchema: any) => {
+        console.log('updatedSchema', updatedSchema);
         if (selectedMediaType) {
             const newRequestBody: RequestBody = {
                 ...resourceOperation.requestBody,
@@ -256,6 +258,14 @@ export function Request(props: ReadOnlyResourceProps) {
         }
     };
 
+    const handleImportJSON = () => {
+        rpcClient.getApiDesignerVisualizerRpcClient().importJSON().then(resp => {
+            if (resp) {
+                onSchemaChange(resp);
+            }
+        })
+    }
+
     return (
         <SubSectionWrapper>
             <Typography variant='h2'>Request</Typography>
@@ -265,6 +275,9 @@ export function Request(props: ReadOnlyResourceProps) {
                 variant='h3'
                 actionButtons={
                     <>
+                        <Button tooltip='Import from JSON' onClick={handleImportJSON} appearance='icon'>
+                            <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
+                        </Button>
                         <Dropdown
                             id="media-type-dropdown"
                             value={selectedMediaType || "application/json"}
@@ -283,6 +296,7 @@ export function Request(props: ReadOnlyResourceProps) {
                     schemaName={selectedContentFromMediaType?.schema.type}
                     variant="h3"
                     onSchemaChange={onSchemaChange}
+                    openAPI={openAPI}
                 />
             )}
         </SubSectionWrapper>

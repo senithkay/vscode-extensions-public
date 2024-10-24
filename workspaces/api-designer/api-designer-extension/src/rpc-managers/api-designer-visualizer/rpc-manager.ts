@@ -17,10 +17,13 @@ import {
     HistoryEntryResponse,
     OpenViewRequest,
     WriteOpenAPIContentRequest,
-    WriteOpenAPIContentResponse
+    WriteOpenAPIContentResponse,
+    Schema
 } from "@wso2-enterprise/api-designer-core";
 import { readFile, writeFile } from 'fs/promises';
 import yaml from 'js-yaml';
+import toJsonSchema from 'to-json-schema';
+import * as vscode from 'vscode';
 export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI {
     async openView(params: OpenViewRequest): Promise<void> {
         // ADD YOUR IMPLEMENTATION HERE
@@ -54,7 +57,7 @@ export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI
 
     async getOpenApiContent(params: GetOpenAPIContentRequest): Promise<GetOpenAPIContentResponse> {
         // Read the file content from the file system
-        let fileType : 'json' | 'yaml' | undefined;
+        let fileType: 'json' | 'yaml' | undefined;
         let fileContent;
         if (!params.filePath) {
             console.error('File path is not provided');
@@ -106,6 +109,55 @@ export class ApiDesignerVisualizerRpcManager implements APIDesignerVisualizerAPI
         } catch (err: any) {
             console.error('Error writing file:', err);
             return { success: false };
+        }
+    }
+
+    async importJSON(): Promise<Schema | undefined> {
+        // Provide a quick pick to select import from clip board or file 
+        // if a file is selected, provide a file picker to select the file
+        // if clipboard is selected, get the text from the clipboard
+        // parse the text as JSON and return the JSON object
+        const options = [
+            { label: 'Import from Clipboard', description: 'Parse JSON from clipboard content' },
+            { label: 'Import from File', description: 'Select a JSON file to import' }
+        ];
+
+        const selectedOption = await vscode.window.showQuickPick(options, {
+            placeHolder: 'Select import source'
+        });
+
+        if (!selectedOption) {
+            return; // User cancelled the selection
+        }
+
+        let jsonContent: string;
+
+        if (selectedOption.label === 'Import from Clipboard') {
+            jsonContent = await vscode.env.clipboard.readText();
+        } else {
+            const fileUri = await vscode.window.showOpenDialog({
+                canSelectFiles: true,
+                canSelectFolders: false,
+                canSelectMany: false,
+                filters: {
+                    'JSON files': ['json']
+                }
+            });
+
+            if (!fileUri || fileUri.length === 0) {
+                return; // User cancelled file selection
+            }
+
+            jsonContent = Buffer.from(await vscode.workspace.fs.readFile(fileUri[0])).toString('utf8');
+        }
+
+        try {
+            const jsonObject = JSON.parse(jsonContent);
+            const schema = toJsonSchema(jsonObject) as Schema;
+            return schema;
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to parse JSON. Please ensure the content is valid JSON.');
+            return undefined;
         }
     }
 }
