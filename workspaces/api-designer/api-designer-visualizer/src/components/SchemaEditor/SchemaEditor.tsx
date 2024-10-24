@@ -11,6 +11,7 @@ import styled from "@emotion/styled";
 import { Typography, TextField, Button, Codicon, Dropdown, OptionProps } from '@wso2-enterprise/ui-toolkit';
 import { SchemaTypes } from '../../constants';
 import { OpenAPI } from '../../Definitions/ServiceDefinitions';
+import { css } from '@emotion/react';
 
 
 export interface Schema {
@@ -60,6 +61,7 @@ export interface SchemaEditorProps {
     variant?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
     sx?: any;
     openAPI: OpenAPI;
+    isRoot?: boolean;
     onNameChange?: (newName: string, oldName: string) => void;
     onSchemaChange: (updatedSchema: Schema) => void;
 }
@@ -71,12 +73,10 @@ interface SchemaEditorContainerProps {
 }
 
 const SchemaEditorContainer = styled.div<SchemaEditorContainerProps>`
-    padding: 15px;
     background-color: var(--vscode-welcomePage-tileBackground);
     border-radius: 8px;
-
+    ${(props: SchemaEditorContainerProps) => css(props.sx)}
 `;
-
 
 const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpdate: (updatedProperties: { [key: string]: Schema }) => void, openAPI: OpenAPI }> = ({ properties, onUpdate, openAPI }) => {
     const [localProperties, setLocalProperties] = useState(properties);
@@ -238,6 +238,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                                         <SchemaEditor
                                             schema={item}
                                             schemaName={`${key}[${index}]`}
+                                            isRoot={false}
                                             onSchemaChange={(updatedItemSchema) => {
                                                 const updatedItems = Array.isArray(value.items) ? [...value.items] : [value.items];
                                                 updatedItems[index] = updatedItemSchema;
@@ -252,10 +253,12 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                                     schema={value.items}
                                     schemaName={`Items`}
                                     variant="h4"
+                                    isRoot={false}
                                     onSchemaChange={(updatedItemSchema) => {
                                         handlePropertyChange(key, key, { ...value, items: updatedItemSchema });
                                     }}
                                     openAPI={openAPI}
+                                    sx={{ margin: '0px' }}
                                 />
                             )}
                         </div>
@@ -267,7 +270,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
 };
 
 export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorProps) => {
-    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4', openAPI, onNameChange } = props;
+    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4', openAPI, onNameChange, isRoot = true } = props;
     const [schema, setSchema] = useState<Schema | undefined>(initialSchema);
 
     const handleSchemaUpdate = (updatedProperties: { [key: string]: Schema }) => {
@@ -328,7 +331,7 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
 
     if (!schema) {
         return (
-            <SchemaEditorContainer sx={sx} key={schemaName}>
+            <SchemaEditorContainer sx={sx} key={schemaName} style={isRoot ? { padding: '15px' } : undefined}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Typography variant={variant} sx={{ margin: 0 }}>{schemaName}</Typography>
                     <Button
@@ -358,15 +361,15 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
     }
 
     return (
-        <SchemaEditorContainer sx={sx} key={schemaName}>
+        <SchemaEditorContainer sx={sx} key={schemaName} style={isRoot ? { padding: '15px' } : undefined}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                {onNameChange &&
+                {onNameChange && (
                     <TextField
                         value={schemaName}
                         onBlur={(e) => onNameChange(e.target.value, schemaName)}
                         sx={{ marginRight: '10px', width: '200px' }}
                     />
-                }
+                )}
                 <Dropdown
                     id={`${schemaName}-type`}
                     value={schema?.$ref ? schema?.$ref : schema?.type}
@@ -394,6 +397,7 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
                         schemaName="Array Items"
                         variant="h4"
                         openAPI={openAPI}
+                        isRoot={false}
                         onSchemaChange={(updatedItemSchema) => {
                             const updatedSchema = {
                                 ...schema,

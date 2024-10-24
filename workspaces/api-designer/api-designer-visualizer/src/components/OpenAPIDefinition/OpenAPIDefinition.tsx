@@ -406,7 +406,11 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     };
 
     const handleImportJSON = (schemaName: string) => {
-        console.log("schemaName", schemaName);
+        rpcClient.getApiDesignerVisualizerRpcClient().importJSON().then(resp => {
+            if (resp) {
+                handleSchemaChange(resp);
+            }
+        })
     }
 
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
