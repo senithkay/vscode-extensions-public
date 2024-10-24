@@ -147,9 +147,9 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
     useEffect(() => {
         const selResponseStatus = resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined;
         setSelectedStatus(selResponseStatus);
-        const respMediaType = resourceOperation?.responses && 
-            resourceOperation.responses[selResponseStatus]?.content ? 
-                Object.keys(resourceOperation.responses[selResponseStatus].content)[0] : undefined;
+        const respMediaType = resourceOperation?.responses &&
+            resourceOperation.responses[selResponseStatus]?.content ?
+            Object.keys(resourceOperation.responses[selResponseStatus].content)[0] : undefined;
         setSelectedResposeMediaType(respMediaType);
     }, [path, method]);
 

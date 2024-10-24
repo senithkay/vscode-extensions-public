@@ -8,7 +8,7 @@
  */
 import { Button, Codicon, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Header, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
+import { Header, OpenAPI, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
@@ -80,10 +80,11 @@ interface ReadOnlyResourceProps {
     path: string;
     resourceOperation: Operation;
     onOperationChange: (path: string, method: string, operation: Operation) => void;
+    openAPI: OpenAPI;
 }
 
 export function Response(props: ReadOnlyResourceProps) {
-    const { resourceOperation, method, path, onOperationChange } = props;
+    const { resourceOperation, method, path, onOperationChange, openAPI } = props;
     const { rpcClient } = useVisualizerContext();
     const [selectedResponseType, setSelectedResponseType] = useState<string | undefined>(resourceOperation?.responses ? Object.keys(resourceOperation.responses)[0] : undefined);
     const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(resourceOperation?.responses && resourceOperation.responses[selectedResponseType]?.content ? Object.keys(resourceOperation.responses[selectedResponseType].content)[0] : undefined);
@@ -443,6 +444,7 @@ export function Response(props: ReadOnlyResourceProps) {
                                             schema={responseSchema}
                                             schemaName={responseSchema?.title || responseSchema?.type}
                                             onSchemaChange={handleSchemaChange}
+                                            openAPI={openAPI}
                                         />
                                     </div>
                                 </SubSectionWrapper>

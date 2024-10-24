@@ -8,8 +8,9 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from "@emotion/styled";
-import { Typography, TextField, Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import { Typography, TextField, Button, Codicon, Dropdown, OptionProps } from '@wso2-enterprise/ui-toolkit';
 import { SchemaTypes } from '../../constants';
+import { OpenAPI } from '../../Definitions/ServiceDefinitions';
 
 
 export interface Schema {
@@ -58,6 +59,7 @@ export interface SchemaEditorProps {
     schemaName: string;
     variant?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
     sx?: any;
+    openAPI: OpenAPI;
     onSchemaChange: (updatedSchema: Schema) => void;
 }
 
@@ -75,7 +77,7 @@ const SchemaEditorContainer = styled.div<SchemaEditorContainerProps>`
 `;
 
 
-const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpdate: (updatedProperties: { [key: string]: Schema }) => void }> = ({ properties, onUpdate }) => {
+const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpdate: (updatedProperties: { [key: string]: Schema }) => void, openAPI: OpenAPI }> = ({ properties, onUpdate, openAPI }) => {
     const [localProperties, setLocalProperties] = useState(properties);
     const [newPropertyKey, setNewPropertyKey] = useState<string | null>(null);
     const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -95,20 +97,32 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
         const updatedProperties = { ...localProperties };
         const currentProperty = updatedProperties[key];
 
-        const updatedProperty: Schema = {
-            ...currentProperty,
-            type: newType,
-        };
+        let updatedProperty: Schema;
 
-        if (newType === 'array') {
-            updatedProperty.items = { type: 'string' };
-            delete updatedProperty.properties;
-        } else if (newType === 'object') {
-            updatedProperty.properties = updatedProperty.properties || {};
-            delete updatedProperty.items;
+        if (typeof newType === 'string' && newType.startsWith('#/components/schemas/')) {
+            updatedProperty = {
+                $ref: newType
+            };
+            delete updatedProperty.type;
         } else {
-            delete updatedProperty.items;
-            delete updatedProperty.properties;
+            if (currentProperty.$ref) {
+                delete currentProperty.$ref;
+            }
+            updatedProperty = {
+                ...currentProperty,
+                type: newType,
+            };
+
+            if (newType === 'array') {
+                updatedProperty.items = { type: 'string' };
+                delete updatedProperty.properties;
+            } else if (newType === 'object') {
+                updatedProperty.properties = updatedProperty.properties || {};
+                delete updatedProperty.items;
+            } else {
+                delete updatedProperty.items;
+                delete updatedProperty.properties;
+            }
         }
 
         updatedProperties[key] = updatedProperty;
@@ -150,6 +164,20 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
         onUpdate(updatedProperties);
     };
 
+    const getSchemas = (): OptionProps[] => {
+        const componentSchemas = openAPI?.components?.schemas || {};
+        const schemaOptions = Object.keys(componentSchemas).map(schemaName => ({
+            id: schemaName,
+            content: schemaName,
+            value: `#/components/schemas/${schemaName}`
+        }));
+
+        return [
+            ...SchemaTypes.map((type) => ({ id: type, content: type, value: type })),
+            ...schemaOptions
+        ];
+    }
+
     return (
         <div>
             {Object.entries(localProperties).map(([key, value]) => (
@@ -163,9 +191,9 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                         />
                         <Dropdown
                             id={key}
-                            value={value.type}
+                            value={value.$ref ? value.$ref : value.type}
                             sx={{ width: '12em' }}
-                            items={SchemaTypes.map((type) => ({ id: type, content: type, value: type }))}
+                            items={getSchemas()}
                             onChange={(e) => handlePropertyTypeChange(key, e.target.value as Schema['type'])}
                         />
                         <TextField
@@ -196,6 +224,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                             <SchemaProperties
                                 properties={value.properties}
                                 onUpdate={(updatedProperties) => handlePropertyChange(key, key, { ...value, properties: updatedProperties })}
+                                openAPI={openAPI}
                             />
                         </div>
                     )}
@@ -213,6 +242,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                                                 updatedItems[index] = updatedItemSchema;
                                                 handlePropertyChange(key, key, { ...value, items: updatedItems });
                                             }}
+                                            openAPI={openAPI}
                                         />
                                     </div>
                                 ))
@@ -224,6 +254,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
                                     onSchemaChange={(updatedItemSchema) => {
                                         handlePropertyChange(key, key, { ...value, items: updatedItemSchema });
                                     }}
+                                    openAPI={openAPI}
                                 />
                             )}
                         </div>
@@ -235,7 +266,7 @@ const SchemaProperties: React.FC<{ properties: { [key: string]: Schema }, onUpda
 };
 
 export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorProps) => {
-    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4' } = props;
+    const { schema: initialSchema, schemaName, sx, onSchemaChange, variant = 'h4', openAPI } = props;
     const [schema, setSchema] = useState<Schema | undefined>(initialSchema);
 
     const handleSchemaUpdate = (updatedProperties: { [key: string]: Schema }) => {
@@ -262,12 +293,20 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
     };
 
     const handleTypeChange = (newType: Schema['type']) => {
-        const updatedSchema: Schema = {
-            ...schema,
-            type: newType,
-            properties: newType === 'object' ? schema.properties || {} : undefined,
-            items: newType === 'array' ? { type: 'string' } : undefined
-        };
+        let updatedSchema: Schema;
+        if (typeof newType === 'string' && newType.startsWith('#/components/schemas/')) {
+            updatedSchema = { $ref: newType };
+        } else {
+            if (schema.$ref) {
+                delete schema.$ref;
+            }
+            updatedSchema = {
+                ...schema,
+                type: newType,
+                properties: newType === 'object' ? schema.properties || {} : undefined,
+                items: newType === 'array' ? { type: 'string' } : undefined
+            };
+        }
         setSchema(updatedSchema);
         onSchemaChange(updatedSchema);
     };
@@ -303,15 +342,29 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
         );
     }
 
+    const getSchemas = (): OptionProps[] => {
+        const componentSchemas = openAPI?.components?.schemas || {};
+        const schemaOptions = Object.keys(componentSchemas).map(schemaName => ({
+            id: schemaName,
+            content: schemaName,
+            value: `#/components/schemas/${schemaName}`
+        }));
+
+        return [
+            ...SchemaTypes.map((type) => ({ id: type, content: type, value: type })),
+            ...schemaOptions
+        ];
+    }
+
     return (
         <SchemaEditorContainer sx={sx} key={schemaName}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <Typography variant={variant} sx={{ margin: 0 }}>{schemaName}</Typography>
                 <Dropdown
                     id={`${schemaName}-type`}
-                    value={schema?.type}
+                    value={schema?.$ref ? schema?.$ref : schema?.type}
                     sx={{ width: '12em', marginLeft: '10px' }}
-                    items={SchemaTypes.map((type) => ({ id: type, content: type, value: type }))}
+                    items={getSchemas()}
                     onChange={(e) => handleTypeChange(e.target.value as Schema['type'])}
                 />
                 {schema.type === 'object' && (
@@ -325,14 +378,15 @@ export const SchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaEditorPro
                 )}
             </div>
             {schema.type === 'object' && schema.properties && (
-                <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} />
+                <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} openAPI={openAPI} />
             )}
             {schema.type === 'array' && schema.items && (
                 <div style={{ marginLeft: '20px' }}>
                     <SchemaEditor
                         schema={Array.isArray(schema.items) ? schema.items[0] : schema.items}
                         schemaName="Array Items"
-                        variant="h5"
+                        variant="h4"
+                        openAPI={openAPI}
                         onSchemaChange={(updatedItemSchema) => {
                             const updatedSchema = {
                                 ...schema,

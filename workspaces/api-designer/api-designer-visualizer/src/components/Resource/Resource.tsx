@@ -268,13 +268,13 @@ export function Resource(props: ResourceProps) {
         setInitialMethod(method);
     }, [path, method]);
 
-    const onConfigureClick=()=>{
+    const onConfigureClick = () => {
         rpcClient.selectQuickPickItems({
-            title:"Select sections",
-            items: moreOptions.map(item=>({label:item, picked: defaultOptions.includes(item)}))
-        }).then(resp=>{
-            if(resp){
-                handleOptionChange(resp.map(item=>item.label))
+            title: "Select sections",
+            items: moreOptions.map(item => ({ label: item, picked: defaultOptions.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleOptionChange(resp.map(item => item.label))
             }
         })
     }
@@ -282,12 +282,12 @@ export function Resource(props: ResourceProps) {
     return (
         <>
             <PanelBody>
-                <ResourceHeader 
-                    method={method} 
-                    path={path} 
+                <ResourceHeader
+                    method={method}
+                    path={path}
                     actionButtons={
                         <Button tooltip='Select sections' onClick={onConfigureClick} appearance='icon'>
-                            <Codicon name='gear' sx={{marginRight:"4px"}}/> Configure
+                            <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
                         </Button>
                     }
                 />
@@ -334,10 +334,16 @@ export function Resource(props: ResourceProps) {
                 <SubSectionWrapper>
                     <ParamEditor paramTypes={BaseTypes} title="Header Parameters" params={values?.headerParams} type="Header" onParamsChange={handleHeaderParamsChange} />
                 </SubSectionWrapper>
-                {method !== "get" && 
-                    <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+                {method !== "get" &&
+                    <Request resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} openAPI={openAPI} />
                 }
-                <Response resourceOperation={resourceOperation} method={method} path={path} onOperationChange={onOperationChange} />
+                <Response
+                    resourceOperation={resourceOperation}
+                    method={method}
+                    path={path}
+                    onOperationChange={onOperationChange}
+                    openAPI={openAPI}
+                />
             </PanelBody >
         </>
     )
