@@ -435,6 +435,30 @@ export interface BallerinaServerCapability {
     [key: string]: boolean | string;
 }
 
+export interface ProjectDiagnosticsRequest {
+    projectRootIdentifier: DocumentIdentifier;
+}
+
+export interface ProjectDiagnosticsResponse {
+    errorDiagnosticMap?: Map<string, Diagnostic[]>;
+}
+
+export interface MainFunctionParamsRequest {
+    projectRootIdentifier: DocumentIdentifier;
+}
+
+export interface MainFunctionParamsResponse {
+    hasMain: boolean;
+    params?: TypeBindingPair[];
+    restParams?: TypeBindingPair;
+}
+
+export interface TypeBindingPair {
+    type: string;
+    paramName: string;
+    defaultValue?: string;
+}
+
 // <------------ EXTENDED LANG CLIENT INTERFACE --------->
 
 
@@ -639,6 +663,15 @@ export interface SignatureHelpResponse {
     activeParameter: number;
 }
 
+export interface VisibleTypesRequest {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface VisibleTypesResponse {
+    types: string[];
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -662,6 +695,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
+    getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

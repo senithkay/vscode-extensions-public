@@ -48,7 +48,7 @@ export function ProjectForm() {
 
     return (
         <FormContainer>
-            <Typography variant="h2">Create Your BI Project</Typography>
+            <Typography variant="h2">Create Your Kola Integration</Typography>
             <BodyText>
                 Start by naming your project and selecting a location to save it. This will be the foundation for
                 building your integration.
@@ -57,11 +57,11 @@ export function ProjectForm() {
                 onTextChange={handleProjectName}
                 sx={{ marginTop: 20, marginBottom: 20 }}
                 value={name}
-                label="Project Name"
-                placeholder="Enter a project name"
+                label="Integration Name"
+                placeholder="Enter a integration name"
             />
             <LocationSelector
-                label="Select Project Directory"
+                label="Select Integration Directory"
                 selectedFile={path}
                 onSelect={handleProjecDirSelection}
             />
@@ -71,7 +71,7 @@ export function ProjectForm() {
                     onClick={handleCreateProject}
                     appearance="primary"
                 >
-                    Create Project
+                    Create Integration
                 </Button>
             </ButtonWrapper>
         </FormContainer>

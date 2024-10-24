@@ -31,6 +31,8 @@ import {
     SignatureHelpResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 
@@ -60,4 +62,5 @@ export interface BIDiagramAPI {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     buildProject: () => void;
     runProject: () => void;
+    getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
 }

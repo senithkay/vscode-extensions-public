@@ -79,8 +79,8 @@ export interface EditorAPI {
 }
 
 export enum PALETTE_COMMANDS {
-    RUN = 'ballerina.project.run',
-    TRY_IT = 'ballerina.tryit'
+    RUN = 'kolab.project.run',
+    TRY_IT = 'kolab.tryit'
 }
 
 export type EditorProps = EditorState & EditorAPI;
