@@ -89,8 +89,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				}
 			})
 		});
-		return lm;
-		// return undefined;
+		return lm as any;
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {

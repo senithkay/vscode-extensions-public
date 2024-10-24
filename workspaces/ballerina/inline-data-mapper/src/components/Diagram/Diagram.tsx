@@ -59,11 +59,11 @@ function initDiagramEngine() {
 	engine.getLayerFactories().registerFactory(new OverriddenLinkLayerFactory());
 	engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
 
-	// engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
-	// engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
-	// engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
-	// engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
-	// engine.getPortFactories().registerFactory(new DefaultPortFactory());
+	engine.getLabelFactories().registerFactory(new DefaultLabelFactory() as any);
+	engine.getNodeFactories().registerFactory(new DefaultNodeFactory() as any);
+	engine.getLinkFactories().registerFactory(new DefaultLinkFactory() as any);
+	engine.getLinkFactories().registerFactory(new PathFindingLinkFactory() as any);
+	engine.getPortFactories().registerFactory(new DefaultPortFactory() as any);
 
 	// register the default interaction behaviours
 	engine.getStateMachine().pushState(new DefaultDiagramState());
@@ -78,8 +78,8 @@ function initDiagramEngine() {
 
 	engine.getLabelFactories().registerFactory(new Labels.ExpressionLabelFactory());
 
-	// engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory());
-	// engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory());
+	engine.getLinkFactories().registerFactory(new Links.DataMapperLinkFactory() as any);
+	engine.getLinkFactories().registerFactory(new Links.ArrowLinkFactory() as any);
 
 	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
