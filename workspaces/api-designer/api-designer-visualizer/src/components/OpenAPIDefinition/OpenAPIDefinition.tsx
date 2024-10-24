@@ -249,7 +249,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         if (openAPIDefinition.components.schemas === undefined) {
             openAPIDefinition.components.schemas = {};
         }
-        const newSchemaName = Object.keys(openAPIDefinition.components.schemas).find((key) => key === "schema") ? `Schema${Object.keys(openAPIDefinition.components.schemas).length + 1}` : "Schema";
+        const newSchemaName = Object.keys(openAPIDefinition.components.schemas).find((key) => key.toLocaleLowerCase() === "schema") ? `Schema${Object.keys(openAPIDefinition.components.schemas).length + 1}` : "Schema";
         openAPIDefinition.components.schemas[newSchemaName] = {
             type: "object",
             properties: {}
