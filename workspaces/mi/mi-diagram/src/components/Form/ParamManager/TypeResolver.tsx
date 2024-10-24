@@ -41,7 +41,7 @@ export interface Param {
     enableCondition?: EnableCondition;
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup
-    artifactTypes?: { registry: boolean, normal: boolean }; //For KeyLookup
+    artifactTypes?: { registryArtifacts: boolean, artifacts: boolean }; //For KeyLookup
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField

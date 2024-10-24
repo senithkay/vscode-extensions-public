@@ -66,7 +66,7 @@ export interface ParamField {
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup
     paramManager?: ParamManagerProps; // For nested ParamManager
-    artifactTypes?: { registry: boolean, normal: boolean }; //For KeyLookup
+    artifactTypes?: { registryArtifacts: boolean, artifacts: boolean }; //For KeyLookup
 }
 
 export interface ParamConfig {

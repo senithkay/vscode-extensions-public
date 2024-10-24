@@ -98,7 +98,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         label: "Name",
         filterType: ["sequence", "endpoint", "api", "messageStore", "messageProcessor", "task", "sequenceTemplate", "endpointTemplate", "proxyService", "dataService", "dataSource", "localEntry", "dataMapper"] as ResourceType[],
         isRequired: true,
-        artifactTypes: { registry: false, normal: true }
+        artifactTypes: { registryArtifacts: false, artifacts: true }
     };
     const registryParamConfigs: ParamField = {
         id: 0,
@@ -106,7 +106,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         label: "Name",
         filterType: ["sequence", "endpoint", "sequenceTemplate", "endpointTemplate", "localEntry", "registry"] as ResourceType[],
         isRequired: true,
-        artifactTypes: { registry: true, normal: false }
+        artifactTypes: { registryArtifacts: true, artifacts: false }
     };
 
     // Schema
