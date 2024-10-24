@@ -58,7 +58,6 @@ export function ViewConfigurableVariables() {
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
-        // setDataSaved(true);
     };
 
     const handleOnDeleteConfigVariable = async (index: number) => {
