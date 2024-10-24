@@ -100,6 +100,7 @@ export interface DownloadProgress {
     percentage?: number;
     success: boolean;
     message: string;
+    step?: number;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
