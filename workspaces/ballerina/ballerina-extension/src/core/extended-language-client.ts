@@ -184,7 +184,7 @@ enum EXTENDED_APIS {
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
-    UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables'
+    UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
