@@ -90,7 +90,7 @@ export enum ChoreoImplementationType {
 	PHP = "php",
 	Ruby = "ruby",
 	MicroIntegrator = "microintegrator",
-	Prism = "prism"
+	Prism = "prism",
 }
 
 export enum ChoreoComponentType {
@@ -116,4 +116,18 @@ export enum EndpointType {
 	GRPC = "GRPC",
 	TCP = "TCP",
 	UDP = "UDP",
+}
+
+export enum WorkflowInstanceStatus {
+	ENABLED = "ENABLED",
+	// user needs to wait for the approval
+	PENDING = "PENDING",
+	// user need to submit new one
+	NOT_FOUND = "NOT_FOUND",
+	REJECTED = "REJECTED",
+	TIMEOUT = "TIMEOUT",
+	CANCELLED = "CANCELLED",
+	// good to proceed
+	DISABLED = "DISABLED",
+	APPROVED = "APPROVED",
 }

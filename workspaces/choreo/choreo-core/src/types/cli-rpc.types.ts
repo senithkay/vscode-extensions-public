@@ -317,6 +317,45 @@ export interface GetProxyDeploymentInfoReq {
 	envId: string;
 }
 
+export interface CheckWorkflowStatusReq {
+	orgId: string;
+	buildId: string;
+	envId: string;
+}
+
+export interface CancelApprovalReq {
+	orgId: string;
+	wkfInstanceId: string;
+}
+
+export interface RequestPromoteApprovalReq {
+	orgId: string;
+	orgHandler: string;
+	envId: string;
+	envName: string;
+	buildId: string;
+	projectId: string;
+	projectName: string;
+	requestComment: string;
+	componentName: string;
+	envFromId: string;
+	envFromName: string;
+}
+
+export interface PromoteProxyDeploymentReq {
+	orgId: string;
+	componentId: string;
+	apiId: string;
+	promoteFromEnvId: string;
+	envId: string;
+	buildId: string;
+}
+
+export interface CheckWorkflowStatusResp {
+	status: string;
+	wkfInstanceId: string;
+}
+
 export interface GetBuildLogsReq {
 	orgId: string;
 	orgHandler: string;
@@ -334,9 +373,10 @@ export interface GetBuildLogsForTypeReq {
 }
 
 export interface IChoreoRPCClient {
-	getProjects(orgID: string): Promise<Project[]>;
-	// this also can be removed
 	getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
+	getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
+	// can remove above ones
+	getProjects(orgID: string): Promise<Project[]>;
 	getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
 	createProject(params: CreateProjectReq): Promise<Project>;
 	createComponent(params: CreateComponentReq): Promise<ComponentKind>;
@@ -346,8 +386,6 @@ export interface IChoreoRPCClient {
 	deleteComponent(params: DeleteCompReq): Promise<void>;
 	getBuilds(params: GetBuildsReq): Promise<BuildKind[]>;
 	createBuild(params: CreateBuildReq): Promise<BuildKind>;
-	// also can be removed
-	getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
 	getCommits(params: GetCommitsReq): Promise<CommitHistory[]>;
 	getEnvs(params: GetProjectEnvsReq): Promise<Environment[]>;
 	getComponentEndpoints(params: GetComponentEndpointsReq): Promise<ComponentEP[]>;
@@ -368,6 +406,10 @@ export interface IChoreoRPCClient {
 	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null>;
 	getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData | null>;
 	getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null>;
+	checkWorkflowStatus(params: CheckWorkflowStatusReq): Promise<CheckWorkflowStatusResp>;
+	cancelApprovalRequest(params: CancelApprovalReq): Promise<void>;
+	requestPromoteApproval(params: RequestPromoteApprovalReq): Promise<void>;
+	promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -469,6 +511,18 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null> {
 		return this._messenger.sendRequest(ChoreoRpcGetBuildLogsForType, HOST_EXTENSION, params);
 	}
+	checkWorkflowStatus(params: CheckWorkflowStatusReq): Promise<CheckWorkflowStatusResp> {
+		return this._messenger.sendRequest(ChoreoRpcCheckWorkflowStatus, HOST_EXTENSION, params);
+	}
+	cancelApprovalRequest(params: CancelApprovalReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcCancelWorkflowApproval, HOST_EXTENSION, params);
+	}
+	requestPromoteApproval(params: RequestPromoteApprovalReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcRequestPromoteApproval, HOST_EXTENSION, params);
+	}
+	promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcPromoteProxyDeployment, HOST_EXTENSION, params);
+	}
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: "rpc/project/getProjects" };
@@ -519,3 +573,15 @@ export const ChoreoRpcGetProxyDeploymentInfo: RequestType<GetProxyDeploymentInfo
 };
 export const ChoreoRpcGetBuildLogs: RequestType<GetBuildLogsReq, DeploymentLogsData> = { method: "rpc/build/logs" };
 export const ChoreoRpcGetBuildLogsForType: RequestType<GetBuildLogsForTypeReq, ProjectBuildLogsData> = { method: "rpc/build/getLogsForType" };
+export const ChoreoRpcCheckWorkflowStatus: RequestType<CheckWorkflowStatusReq, CheckWorkflowStatusResp> = {
+	method: "rpc/deployment/checkWorkflowStatus",
+};
+export const ChoreoRpcCancelWorkflowApproval: RequestType<CancelApprovalReq, void> = {
+	method: "rpc/deployment/cancelApprovalRequest",
+};
+export const ChoreoRpcRequestPromoteApproval: RequestType<RequestPromoteApprovalReq, void> = {
+	method: "rpc/deployment/requestPromoteApproval",
+};
+export const ChoreoRpcPromoteProxyDeployment: RequestType<PromoteProxyDeploymentReq, void> = {
+	method: "rpc/deployment/promoteProxy",
+};

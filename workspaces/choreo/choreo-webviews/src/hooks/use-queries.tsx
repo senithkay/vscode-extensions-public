@@ -12,6 +12,7 @@ import {
 	type ApiVersion,
 	type BuildKind,
 	type Buildpack,
+	type CheckWorkflowStatusResp,
 	ChoreoComponentType,
 	type CommitHistory,
 	type ComponentDeployment,
@@ -59,6 +60,14 @@ export const queryKeys = {
 			component: component.metadata.id,
 			deploymentTrackId: deploymentTrack?.id,
 			envId: env.id,
+		},
+	],
+	getWorkflowStatus: (org: Organization, env: Environment, buildId: string) => [
+		"get-workflow-status",
+		{
+			organization: org?.handle,
+			envId: env?.id,
+			buildId,
 		},
 	],
 	getBuilds: (deploymentTrack: DeploymentTrack, component: ComponentKind, project: Project, org: Organization) => [
@@ -240,6 +249,18 @@ export const useGetDeploymentStatuses = (
 			...options,
 		})),
 	});
+
+export const useGetWorkflowStatus = (org: Organization, env: Environment, buildId: string, options?: UseQueryOptions<CheckWorkflowStatusResp>) =>
+	useQuery<CheckWorkflowStatusResp>(
+		queryKeys.getWorkflowStatus(org, env, buildId),
+		() =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().checkWorkflowStatus({
+				buildId,
+				envId: env?.id,
+				orgId: org?.id?.toString(),
+			}),
+		options,
+	);
 
 export const useGetBuildList = (
 	deploymentTrack: DeploymentTrack,

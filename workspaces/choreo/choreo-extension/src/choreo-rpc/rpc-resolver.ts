@@ -8,6 +8,8 @@
  */
 
 import {
+	ChoreoRpcCancelWorkflowApproval,
+	ChoreoRpcCheckWorkflowStatus,
 	ChoreoRpcCreateBuildRequest,
 	ChoreoRpcCreateComponentConnection,
 	ChoreoRpcCreateComponentRequest,
@@ -40,6 +42,8 @@ import {
 	ChoreoRpcGetSwaggerRequest,
 	ChoreoRpcGetTestKeyRequest,
 	ChoreoRpcIsRepoAuthorizedRequest,
+	ChoreoRpcPromoteProxyDeployment,
+	ChoreoRpcRequestPromoteApproval,
 	type IChoreoRPCClient,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window } from "vscode";
@@ -107,4 +111,22 @@ export function registerChoreoRpcResolver(messenger: Messenger, rpcClient: IChor
 	messenger.onRequest(ChoreoRpcDisableAutoBuild, (params) => rpcClient.disableAutoBuildOnCommit(params));
 	messenger.onRequest(ChoreoRpcGetBuildLogs, (params) => rpcClient.getBuildLogs(params));
 	messenger.onRequest(ChoreoRpcGetBuildLogsForType, (params) => rpcClient.getBuildLogsForType(params));
+	messenger.onRequest(ChoreoRpcCheckWorkflowStatus, (params) => rpcClient.checkWorkflowStatus(params));
+	messenger.onRequest(ChoreoRpcCancelWorkflowApproval, async (params) => {
+		return window.withProgress({ title: `Cancelling approval request...`, location: ProgressLocation.Notification }, () =>
+			rpcClient.cancelApprovalRequest(params),
+		);
+	});
+	messenger.onRequest(ChoreoRpcRequestPromoteApproval, async (params) => {
+		return window.withProgress({ title: `Requesting approval to promote to ${params.envName} environment...`, location: ProgressLocation.Notification }, () =>
+			rpcClient.requestPromoteApproval(params),
+		);
+	});
+	messenger.onRequest(ChoreoRpcPromoteProxyDeployment, async (params) => {
+		return window.withProgress(
+			{ title: `Promoting proxy deployment...`, location: ProgressLocation.Notification },
+			() => rpcClient.promoteProxyDeployment(params),
+		);
+	});
 }
+

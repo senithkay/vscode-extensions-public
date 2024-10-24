@@ -10,10 +10,11 @@
 import { type } from "node:os";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UseQueryResult, useMutation, useQueryClient } from "@tanstack/react-query";
+import { UseQueryResult, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import {
 	type BuildKind,
+	type CheckWorkflowStatusResp,
 	ChoreoComponentType,
 	type ComponentDeployment,
 	ComponentDisplayType,
@@ -31,6 +32,7 @@ import {
 	type StateReason,
 	type WebviewQuickPickItem,
 	WebviewQuickPickItemKind,
+	WorkflowInstanceStatus,
 	capitalizeFirstLetter,
 	getShortenedHash,
 	getTimeAgo,
@@ -52,9 +54,16 @@ import { Divider } from "../../../components/Divider";
 import { Drawer } from "../../../components/Drawer";
 import { Empty } from "../../../components/Empty";
 import { Dropdown } from "../../../components/FormElements/Dropdown";
+import { TextArea } from "../../../components/FormElements/TextArea";
 import { TextField } from "../../../components/FormElements/TextField";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { queryKeys, useGetDeployedEndpoints, useGetDeploymentStatus, useGetProxyDeploymentInfo } from "../../../hooks/use-queries";
+import {
+	queryKeys,
+	useGetDeployedEndpoints,
+	useGetDeploymentStatus,
+	useGetProxyDeploymentInfo,
+	useGetWorkflowStatus,
+} from "../../../hooks/use-queries";
 import { useExtWebviewContext } from "../../../providers/ext-vewview-ctx-provider";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { httpsUrlSchema } from "../../ComponentFormView/componentFormSchema";
@@ -87,7 +96,8 @@ export const DeploymentsSection: FC<Props> = (props) => {
 		refetchInterval: hasInactiveEndpoints ? 5000 : false,
 	});
 
-	const [deploymentStatusMap, setDeploymentStatusMap] = useState<{[key: string]:ComponentDeployment}>({});
+	const [deploymentStatusMap, setDeploymentStatusMap] = useState<{ [key: string]: ComponentDeployment }>({});
+	const [proxyDeploymentStatusMap, setProxyDeploymentStatusMap] = useState<{ [key: string]: ProxyDeploymentInfo }>({});
 
 	if (loadingEnvs) {
 		return (
@@ -102,19 +112,37 @@ export const DeploymentsSection: FC<Props> = (props) => {
 	if (componentType === ChoreoComponentType.ApiProxy) {
 		return (
 			<>
-				{envs?.map((item) => (
-					<ProxyEnvItem
-						key={item.name}
-						env={item}
-						component={component}
-						organization={organization}
-						project={project}
-						deploymentTrack={deploymentTrack}
-						triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
-						loadedDeploymentStatus={(deploying) => onTriggerDeployment(item, deploying)}
-						builds={builds}
-					/>
-				))}
+				{envs?.map((item, index) => {
+					let nextEnv: Environment;
+					let nextEnvDeploymentStatus: ProxyDeploymentInfo;
+					if (
+						envs[index + 1] &&
+						envs[index + 1].promoteFrom.includes(item.id) &&
+						["CREATED", "PUBLISHED"].includes(proxyDeploymentStatusMap[item.name]?.lifecycleStatus)
+					) {
+						nextEnv = envs[index + 1];
+						nextEnvDeploymentStatus = proxyDeploymentStatusMap[envs[index + 1].name];
+					}
+					// TODO: nextEnv should be a list of envs
+					return (
+						<ProxyEnvItem
+							key={item.name}
+							index={index}
+							env={item}
+							component={component}
+							organization={organization}
+							project={project}
+							deploymentTrack={deploymentTrack}
+							triggeredDeployment={triggeredDeployment[`${deploymentTrack?.branch}-${item.name}`]}
+							loadedDeploymentStatus={(deploying) => onTriggerDeployment(item, deploying)}
+							builds={builds}
+							loadedNextEnvDeploymentStatus={nextEnv ? (deploying) => onTriggerDeployment(nextEnv, deploying) : undefined}
+							nextEnv={nextEnv}
+							nextEnvProxyDeploymentStatus={nextEnvDeploymentStatus}
+							setDeploymentStatus={(deploymentStatus) => setProxyDeploymentStatusMap({ ...proxyDeploymentStatusMap, [item.name]: deploymentStatus })}
+						/>
+					);
+				})}
 			</>
 		);
 	}
@@ -124,10 +152,15 @@ export const DeploymentsSection: FC<Props> = (props) => {
 			{envs?.map((item, index) => {
 				let nextEnv: Environment;
 				let nextEnvDeploymentStatus: ComponentDeployment;
-				if(envs[index + 1] && envs[index + 1].promoteFrom.includes(item.id) && deploymentStatusMap[item.name]?.deploymentStatusV2 === DeploymentStatus.Active){
-					nextEnv = envs[index + 1]
-					nextEnvDeploymentStatus = deploymentStatusMap[envs[index + 1].name]
+				if (
+					envs[index + 1] &&
+					envs[index + 1].promoteFrom.includes(item.id) &&
+					deploymentStatusMap[item.name]?.deploymentStatusV2 === DeploymentStatus.Active
+				) {
+					nextEnv = envs[index + 1];
+					nextEnvDeploymentStatus = deploymentStatusMap[envs[index + 1].name];
 				}
+				// TODO: nextEnv should be a list of envs
 				return (
 					<EnvItem
 						key={item.name}
@@ -146,9 +179,9 @@ export const DeploymentsSection: FC<Props> = (props) => {
 						openBuildDetailsPanel={openBuildDetailsPanel}
 						loadedNextEnvDeploymentStatus={nextEnv ? (deploying) => onTriggerDeployment(nextEnv, deploying) : undefined}
 						nextEnvDeploymentStatus={nextEnvDeploymentStatus}
-						setDeploymentStatus={(deploymentStatus)=>setDeploymentStatusMap({...deploymentStatusMap,[item.name]:deploymentStatus})}
+						setDeploymentStatus={(deploymentStatus) => setDeploymentStatusMap({ ...deploymentStatusMap, [item.name]: deploymentStatus })}
 					/>
-				)
+				);
 			})}
 		</>
 	);
@@ -187,7 +220,7 @@ const EnvItem: FC<{
 	openBuildDetailsPanel,
 	loadedNextEnvDeploymentStatus,
 	nextEnvDeploymentStatus,
-	setDeploymentStatus
+	setDeploymentStatus,
 }) => {
 	const componentType = getTypeForDisplayType(component.spec.type);
 	const [envDetailsRef] = useAutoAnimate();
@@ -211,10 +244,22 @@ const EnvItem: FC<{
 			if (triggeredDeployment) {
 				loadedDeploymentStatus(false);
 			}
-			setDeploymentStatus(data)
+			setDeploymentStatus(data);
 			setDeploymentInProgress(data?.deploymentStatusV2 === DeploymentStatus.InProgress);
+			if (nextEnv?.critical) {
+				refetchWorkflowStatus();
+			}
 		},
 		refetchInterval: isDeploymentInProgress ? 5000 : false,
+	});
+
+	const buildId = deploymentStatus?.build?.buildId;
+	const {
+		data: workflowStatus,
+		refetch: refetchWorkflowStatus,
+		isLoading: isLoadingWorkflowStatus,
+	} = useGetWorkflowStatus(organization, nextEnv, buildId, {
+		enabled: !!nextEnv && !!nextEnv?.critical && !!buildId,
 	});
 
 	let timeAgo = "";
@@ -322,7 +367,6 @@ const EnvItem: FC<{
 							componentType={componentType}
 							deploymentTrack={deploymentTrack}
 							env={env}
-							isDeployed={!!deploymentStatus}
 							loadedDeploymentStatus={loadedDeploymentStatus}
 							organization={organization}
 							project={project}
@@ -336,13 +380,18 @@ const EnvItem: FC<{
 							componentType={componentType}
 							deploymentTrack={deploymentTrack}
 							env={nextEnv}
-							isDeployed={!!nextEnvDeploymentStatus}
 							loadedDeploymentStatus={loadedNextEnvDeploymentStatus}
 							organization={organization}
 							project={project}
 							deploymentStatus={nextEnvDeploymentStatus}
-							isPromote
-							prevBuild={deployedBuild}
+							promotion={{
+								prevEnv: env,
+								prevBuild: deployedBuild,
+								prevDeploymentStatus: deploymentStatus,
+								workflowStatus: workflowStatus,
+								refetchWorkflowStatus: refetchWorkflowStatus,
+								isLoadingWorkflowStatus: nextEnv?.critical && isLoadingWorkflowStatus,
+							}}
 						/>
 					)}
 				</div>
@@ -465,7 +514,26 @@ const ProxyEnvItem: FC<{
 	triggeredDeployment?: boolean;
 	loadedDeploymentStatus: (deploying: boolean) => void;
 	builds: BuildKind[];
-}> = ({ organization, project, deploymentTrack, component, env, triggeredDeployment, loadedDeploymentStatus, builds = [] }) => {
+	index: number;
+	nextEnv?: Environment;
+	nextEnvProxyDeploymentStatus?: ProxyDeploymentInfo;
+	loadedNextEnvDeploymentStatus: (deploying: boolean) => void;
+	setDeploymentStatus?: (deploymentStatus?: ProxyDeploymentInfo) => void;
+}> = ({
+	organization,
+	project,
+	deploymentTrack,
+	component,
+	env,
+	triggeredDeployment,
+	loadedDeploymentStatus,
+	builds = [],
+	setDeploymentStatus,
+	nextEnv,
+	loadedNextEnvDeploymentStatus,
+	index,
+	nextEnvProxyDeploymentStatus,
+}) => {
 	const [isTestPanelOpen, setTestPanelOpen] = useState(false);
 	const componentType = getTypeForDisplayType(component.spec.type);
 	const [envDetailsRef] = useAutoAnimate();
@@ -480,10 +548,23 @@ const ProxyEnvItem: FC<{
 		isRefetching: isRefetchingProxyDeploymentData,
 	} = useGetProxyDeploymentInfo(component, organization, env, latestApiVersion, {
 		enabled: !!latestApiVersion,
-		onSuccess: () => {
+		onSuccess: (data) => {
 			loadedDeploymentStatus(false);
+			setDeploymentStatus(data);
+			if (nextEnv?.critical) {
+				refetchWorkflowStatus();
+			}
 		},
 		refetchInterval: triggeredDeployment ? 5000 : false,
+	});
+
+	const buildId = proxyDeploymentData?.build?.id;
+	const {
+		data: workflowStatus,
+		refetch: refetchWorkflowStatus,
+		isLoading: isLoadingWorkflowStatus,
+	} = useGetWorkflowStatus(organization, nextEnv, buildId, {
+		enabled: !!nextEnv && !!nextEnv?.critical && !!buildId,
 	});
 
 	let timeAgo = "";
@@ -548,18 +629,37 @@ const ProxyEnvItem: FC<{
 						</Button>
 					)}
 					<div className="flex-1" />
-					{!isLoadingProxyDeploymentData && builds.length > 0 && (
+					{index === 0 && !isLoadingProxyDeploymentData && builds.length > 0 && (
 						<DeployButton
 							builds={builds}
 							component={component}
 							componentType={componentType}
 							deploymentTrack={deploymentTrack}
 							env={env}
-							isDeployed={!!proxyDeploymentData}
 							loadedDeploymentStatus={loadedDeploymentStatus}
 							organization={organization}
 							project={project}
 							proxyDeploymentData={proxyDeploymentData}
+						/>
+					)}
+					{nextEnv && !!proxyDeploymentData && (
+						<DeployButton
+							builds={builds}
+							component={component}
+							componentType={componentType}
+							deploymentTrack={deploymentTrack}
+							env={nextEnv}
+							loadedDeploymentStatus={loadedNextEnvDeploymentStatus}
+							organization={organization}
+							project={project}
+							proxyDeploymentData={nextEnvProxyDeploymentStatus}
+							promotion={{
+								prevEnv: env,
+								prevProxyDeploymentData: proxyDeploymentData,
+								workflowStatus: workflowStatus,
+								refetchWorkflowStatus: refetchWorkflowStatus,
+								isLoadingWorkflowStatus: nextEnv?.critical && isLoadingWorkflowStatus,
+							}}
 						/>
 					)}
 				</div>
@@ -634,9 +734,11 @@ const EnvItemSkeleton: FC<{ index: number }> = ({ index }) => {
 						<Codicon name="refresh" />
 					</Button>
 					<div className="flex-1" />
-					<Button appearance="secondary" disabled className="animate-pulse">
-						Deploy
-					</Button>
+					{index === 0 && (
+						<Button appearance="secondary" disabled className="animate-pulse">
+							Deploy
+						</Button>
+					)}
 				</div>
 				<div className="flex flex-col gap-3 ">
 					<div className="grid grid-cols-1 gap-2 gap-x-5 md:grid-cols-2 xl:grid-cols-3">
@@ -717,66 +819,94 @@ const DeployButton: FC<{
 	env: Environment;
 	project: Project;
 	deploymentTrack: DeploymentTrack;
-	builds: BuildKind[];
-	isDeployed: boolean;
+	builds?: BuildKind[];
 	loadedDeploymentStatus: (deploying: boolean) => void;
 	deploymentStatus?: ComponentDeployment;
 	proxyDeploymentData?: ProxyDeploymentInfo;
-	isPromote?: boolean;
-	prevBuild?: BuildKind;
+	promotion?: {
+		prevBuild?: BuildKind;
+		prevProxyDeploymentData?: ProxyDeploymentInfo;
+		prevDeploymentStatus?: ComponentDeployment;
+		workflowStatus?: CheckWorkflowStatusResp;
+		refetchWorkflowStatus?: () => void;
+		isLoadingWorkflowStatus?: boolean;
+		prevEnv?: Environment;
+	};
 }> = ({
 	componentType,
 	component,
 	organization,
 	env,
-	isPromote,
 	project,
 	deploymentTrack,
 	builds = [],
 	loadedDeploymentStatus,
-	isDeployed,
 	deploymentStatus,
 	proxyDeploymentData,
-	prevBuild,
+	promotion,
 }) => {
 	const queryClient = useQueryClient();
 	const [isDeployPanelOpen, setIsDeployPanelOpen] = useState(false);
+	const [isDeployRequestPanelOpen, setIsDeployRequestPanelOpen] = useState(false);
 	const [selectedBuild, setSelectedBuild] = useState<BuildKind>();
+	const isDeployed = !!deploymentStatus || !!proxyDeploymentData;
+	const buildId = promotion?.prevProxyDeploymentData?.build?.id || promotion?.prevDeploymentStatus?.build?.buildId;
+
+	// can deploy if type is truthy & (disabled or approved)
+	const showRequestToPromote =
+		env?.critical &&
+		promotion?.workflowStatus &&
+		![WorkflowInstanceStatus.DISABLED, WorkflowInstanceStatus.APPROVED].includes(promotion?.workflowStatus?.status as WorkflowInstanceStatus);
 
 	const { mutate: triggerDeployment, isLoading: isDeploying } = useMutation({
 		mutationFn: async (params: {
 			build: BuildKind;
 			args?: { cronExpression?: string; cronTimeZone?: string; proxyTargetUrl?: string; proxySandboxUrl?: string };
 		}) => {
-			const req: CreateDeploymentReq = {
-				commitHash: params.build.spec.revision,
-				buildRef: componentType === ChoreoComponentType.ApiProxy ? params.build.status?.runId?.toString() : params.build.status.images?.[0]?.id,
-				componentName: component.metadata.name,
-				componentId: component.metadata.id,
-				componentHandle: component.metadata.handler,
-				componentDisplayType: component.spec.type,
-				envId: env.id,
-				envName: env.name,
-				versionId:
-					componentType === ChoreoComponentType.ApiProxy ? component?.apiVersions?.find((item) => item.latest)?.versionId : deploymentTrack?.id,
-				orgId: organization.id.toString(),
-				orgHandler: organization.handle,
-				projectId: project.id,
-				projectHandle: project.handler,
-			};
-			if (componentType === ChoreoComponentType.ScheduledTask && params?.args?.cronExpression && params?.args?.cronTimeZone) {
-				req.cronExpression = params?.args?.cronExpression;
-				req.cronTimezone = params?.args?.cronTimeZone;
-			}
-			if (componentType === ChoreoComponentType.ApiProxy) {
-				if (params?.args?.proxyTargetUrl) {
-					req.proxyTargetUrl = params?.args?.proxyTargetUrl;
+			if (promotion && componentType === ChoreoComponentType.ApiProxy) {
+				// if promoting proxy, call call promoteProxyDeployment
+				await ChoreoWebViewAPI.getInstance()
+					.getChoreoRpcClient()
+					.promoteProxyDeployment({
+						componentId: component.metadata.id,
+						buildId,
+						envId: env?.id,
+						promoteFromEnvId: promotion?.prevEnv?.id,
+						orgId: organization?.id.toString(),
+						apiId: component?.apiVersions?.find((item) => item.latest)?.id,
+					});
+			} else {
+				const req: CreateDeploymentReq = {
+					commitHash: params.build.spec.revision,
+					buildRef: componentType === ChoreoComponentType.ApiProxy ? params.build.status?.runId?.toString() : params.build.status.images?.[0]?.id,
+					componentName: component.metadata.name,
+					componentId: component.metadata.id,
+					componentHandle: component.metadata.handler,
+					componentDisplayType: component.spec.type,
+					envId: env.id,
+					envName: env.name,
+					versionId:
+						componentType === ChoreoComponentType.ApiProxy ? component?.apiVersions?.find((item) => item.latest)?.versionId : deploymentTrack?.id,
+					orgId: organization.id.toString(),
+					orgHandler: organization.handle,
+					projectId: project.id,
+					projectHandle: project.handler,
+				};
+				if (componentType === ChoreoComponentType.ScheduledTask && params?.args?.cronExpression && params?.args?.cronTimeZone) {
+					req.cronExpression = params?.args?.cronExpression;
+					req.cronTimezone = params?.args?.cronTimeZone;
 				}
-				if (params?.args?.proxySandboxUrl) {
-					req.proxySandboxUrl = params?.args?.proxySandboxUrl;
+				if (componentType === ChoreoComponentType.ApiProxy) {
+					if (params?.args?.proxyTargetUrl) {
+						req.proxyTargetUrl = params?.args?.proxyTargetUrl;
+					}
+					if (params?.args?.proxySandboxUrl) {
+						req.proxySandboxUrl = params?.args?.proxySandboxUrl;
+					}
 				}
+				await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment(req);
 			}
-			await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment(req);
+
 			loadedDeploymentStatus(true);
 		},
 		onSuccess: () => {
@@ -799,14 +929,14 @@ const DeployButton: FC<{
 
 	const { mutate: selectBuildToDeploy } = useMutation({
 		mutationFn: async (showConfigMenu?: boolean) => {
-			if(isPromote && prevBuild){
+			if (promotion?.prevBuild) {
 				if (showConfigMenu) {
-					setSelectedBuild(prevBuild);
+					setSelectedBuild(promotion?.prevBuild);
 					setIsDeployPanelOpen(true);
 				} else {
-					triggerDeployment({ build: prevBuild });
+					triggerDeployment({ build: promotion?.prevBuild });
 				}
-			}else if (builds.length > 1) {
+			} else if (builds.length > 1) {
 				const latestItem = builds[0];
 				const selected = await ChoreoWebViewAPI.getInstance().showQuickPicks({
 					title: "Select Build to Deploy",
@@ -846,6 +976,52 @@ const DeployButton: FC<{
 		},
 	});
 
+	const { mutate: reqCancelApproval, isLoading: isLoadingCancelReq } = useMutation({
+		mutationFn: (wkfInstanceId: string) =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().cancelApprovalRequest({
+				orgId: organization?.id?.toString(),
+				wkfInstanceId: wkfInstanceId,
+			}),
+		onSuccess: () => {
+			queryClient.setQueryData(queryKeys.getWorkflowStatus(organization, env, buildId), {
+				...promotion?.workflowStatus,
+				status: WorkflowInstanceStatus?.CANCELLED,
+			});
+			if (promotion?.refetchWorkflowStatus) {
+				promotion?.refetchWorkflowStatus();
+			}
+		},
+	});
+
+	const { mutate: reqPromoteApproval, isLoading: isLoadingPromoteApproval } = useMutation({
+		mutationFn: (requestComment: string) =>
+			ChoreoWebViewAPI.getInstance()
+				.getChoreoRpcClient()
+				.requestPromoteApproval({
+					componentName: component?.metadata?.name,
+					orgHandler: organization?.handle,
+					orgId: organization?.id?.toString(),
+					envFromId: promotion?.prevEnv?.id,
+					envFromName: promotion?.prevEnv?.name,
+					envId: env?.id,
+					envName: env?.name,
+					projectId: project?.id,
+					projectName: project?.name,
+					requestComment,
+					buildId: promotion?.prevProxyDeploymentData?.build?.id || promotion?.prevDeploymentStatus?.build?.buildId,
+				}),
+		onSuccess: () => {
+			setIsDeployRequestPanelOpen(false);
+			queryClient.setQueryData(queryKeys.getWorkflowStatus(organization, env, buildId), {
+				...promotion?.workflowStatus,
+				status: WorkflowInstanceStatus?.PENDING,
+			});
+			if (promotion?.refetchWorkflowStatus) {
+				promotion?.refetchWorkflowStatus();
+			}
+		},
+	});
+
 	return (
 		<>
 			<Drawer
@@ -877,6 +1053,20 @@ const DeployButton: FC<{
 					</form>
 				</div>
 			</Drawer>
+
+			<Drawer
+				open={isDeployRequestPanelOpen}
+				onClose={() => setIsDeployRequestPanelOpen(false)}
+				maxWidthClassName="max-w-sm"
+				title={`Request to ${promotion ? "Promote" : "Deploy"} to ${capitalizeFirstLetter(env.name)} Environment`}
+			>
+				<div className="flex h-[calc(100vh-96px)] flex-col gap-4 overflow-y-auto">
+					<form className="relative flex flex-col gap-4 px-4 sm:px-6">
+						<RequestForDeploymentForm onSubmit={(requestMessage) => reqPromoteApproval(requestMessage)} isLoading={isLoadingPromoteApproval} />
+					</form>
+				</div>
+			</Drawer>
+
 			<div className="flex items-center gap-1">
 				{/* {displayType === ComponentDisplayType.GitProxy && proxyDeploymentData && (
 					<Button
@@ -888,9 +1078,40 @@ const DeployButton: FC<{
 						<Codicon name="settings-gear" />
 					</Button>
 				)} */}
-				<Button title={isPromote ? `Promote to ${env.name} environment` : `Deploy to ${env.name} environment`} disabled={isDeploying} onClick={() => selectBuildToDeploy(componentType === ChoreoComponentType.ScheduledTask)} appearance="secondary">
-					{isPromote ? <>{isDeploying ? "Promoting..." : "Promote"}</> : <>{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}</>}
-				</Button>
+				{showRequestToPromote ? (
+					<>
+						{promotion?.workflowStatus?.status === WorkflowInstanceStatus.PENDING ? (
+							<Button
+								appearance="icon"
+								disabled={isLoadingCancelReq || promotion?.isLoadingWorkflowStatus}
+								onClick={() => {
+									ChoreoWebViewAPI.getInstance()
+										.showConfirmMessage({ buttonText: "Cancel Request", message: "Are you sure you want to cancel your request to promote" })
+										.then((res) => {
+											if (res) {
+												reqCancelApproval(promotion?.workflowStatus?.wkfInstanceId);
+											}
+										});
+								}}
+							>
+								{isLoadingCancelReq ? "Cancelling" : "Cancel"} Request to {promotion ? "Promote" : "Deploy"}
+							</Button>
+						) : (
+							<Button appearance="secondary" disabled={promotion?.isLoadingWorkflowStatus} onClick={() => setIsDeployRequestPanelOpen(true)}>
+								Request to {promotion ? "Promote" : "Deploy"}
+							</Button>
+						)}
+					</>
+				) : (
+					<Button
+						title={promotion ? `Promote to ${env.name} environment` : `Deploy to ${env.name} environment`}
+						disabled={isDeploying || promotion?.isLoadingWorkflowStatus}
+						onClick={() => selectBuildToDeploy(componentType === ChoreoComponentType.ScheduledTask)}
+						appearance="secondary"
+					>
+						{promotion ? <>{isDeploying ? "Promoting..." : "Promote"}</> : <>{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}</>}
+					</Button>
+				)}
 			</div>
 		</>
 	);
@@ -934,6 +1155,41 @@ const CronDeployForm: FC<{
 			<div className="flex justify-end gap-3 pt-6 pb-2">
 				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={isDeploying}>
 					{isDeploying ? "Deploying..." : "Deploy"}
+				</Button>
+			</div>
+		</>
+	);
+};
+
+const RequestForDeploymentForm: FC<{
+	onSubmit: (requestMessage: string) => void;
+	isLoading?: boolean;
+}> = ({ onSubmit, isLoading }) => {
+	const deployRequestSchema = z.object({
+		requestMessage: z.string().min(1, "Required"),
+	});
+
+	const form = useForm<z.infer<typeof deployRequestSchema>>({
+		resolver: zodResolver(deployRequestSchema),
+		mode: "all",
+		defaultValues: { requestMessage: "" },
+	});
+
+	const onSubmitForm: SubmitHandler<z.infer<typeof deployRequestSchema>> = (data) => onSubmit(data.requestMessage);
+
+	return (
+		<>
+			<TextArea
+				label="Request Message"
+				required
+				name="requestMessage"
+				placeholder="Enter a message for your request"
+				control={form.control}
+				rows={10}
+			/>
+			<div className="flex justify-end gap-3 pt-6 pb-2">
+				<Button onClick={form.handleSubmit(onSubmitForm)} disabled={isLoading}>
+					{isLoading ? "Requesting..." : "Request"}
 				</Button>
 			</div>
 		</>

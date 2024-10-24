@@ -11,6 +11,9 @@ import type {
 	BuildKind,
 	BuildPackReq,
 	Buildpack,
+	CancelApprovalReq,
+	CheckWorkflowStatusReq,
+	CheckWorkflowStatusResp,
 	CommitHistory,
 	ComponentDeployment,
 	ComponentEP,
@@ -58,7 +61,9 @@ import type {
 	MarketplaceListResp,
 	Project,
 	ProjectBuildLogsData,
+	PromoteProxyDeploymentReq,
 	ProxyDeploymentInfo,
+	RequestPromoteApprovalReq,
 	ToggleAutoBuildReq,
 	ToggleAutoBuildResp,
 	UserInfo,
@@ -450,6 +455,35 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		}
 		const response: ToggleAutoBuildResp = await this.client.sendRequest("build/disableAutoBuild", params);
 		return response;
+	}
+
+	async checkWorkflowStatus(params: CheckWorkflowStatusReq): Promise<CheckWorkflowStatusResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: {data: CheckWorkflowStatusResp} = await this.client.sendRequest("deployment/checkWorkflowStatus", params);
+		return response?.data;
+	}
+
+	async cancelApprovalRequest(params: CancelApprovalReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("deployment/cancelApprovalRequest", params);
+	}
+
+	async requestPromoteApproval(params: RequestPromoteApprovalReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("deployment/requestPromoteApproval", params);
+	}
+	
+	async promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("deployment/promoteProxy", params);
 	}
 }
 

@@ -193,7 +193,7 @@ export enum ChoreoBuildPackNames {
 	Vue = "vuejs",
 	StaticFiles = "staticweb",
 	MicroIntegrator = "microintegrator",
-	Prism = "prism"
+	Prism = "prism",
 }
 
 export interface WebviewQuickPickItem {
@@ -476,12 +476,12 @@ export interface DeploymentLogsDataStep {
 }
 
 export enum DeploymentStepStatus {
-	InProgress = 'in_progress',
-	Completed = 'completed',
-	Skipped = 'skipped',
-	Failure = 'failure',
-	Queued = 'queued',
-  }
+	InProgress = "in_progress",
+	Completed = "completed",
+	Skipped = "skipped",
+	Failure = "failure",
+	Queued = "queued",
+}
 
 export interface DeploymentLogsData {
 	codeGen?: {
@@ -525,10 +525,11 @@ export interface ProjectBuildLogsData {
 	mIVersionValidation: string;
 	proxyBuildLogs?: string;
 	governanceLogs?: string;
-  }
+	configValidationLogs?: string;
+}
 
-  export interface OpenApiSpec {
-	openapi: string | number,
-	swagger: string | number,
-	servers?: {url?: string}[]
+export interface OpenApiSpec {
+	openapi: string | number;
+	swagger: string | number;
+	servers?: { url?: string }[];
 }

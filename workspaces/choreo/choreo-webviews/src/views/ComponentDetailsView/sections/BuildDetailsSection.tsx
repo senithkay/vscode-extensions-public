@@ -60,6 +60,7 @@ export enum DeployedBuildResultSteps {
 	UPDATE_API = "Update API",
 	SOURCE_CONFIGURATION_FILE_VALIDATION = "Source Configuration File Validation",
 	API_GOVERNANCE = "Validate Against Governance Rules",
+	READ_COMOPNENT_CONFIG = "Read Component Yaml",
 }
 
 export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, isVisible, org, buildItem }) => {
@@ -125,6 +126,19 @@ export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, i
 								{isGitProxy ? (
 									<>
 										<BuildDetailsSectionItem
+											title="Initialization"
+											steps={data.init?.steps}
+											conclusion={data.init?.status}
+											// todo: check console behavior
+											// logs={data?.oasValidation?.log}
+											isVisible={isVisible}
+											buildId={buildId}
+											component={component}
+											org={org}
+											buildConclusion={buildConclusion}
+										/>
+										<Divider className="opacity-50" />
+										<BuildDetailsSectionItem
 											title="API definition validation"
 											steps={data.oasValidation?.steps}
 											conclusion={data.oasValidation?.status}
@@ -138,11 +152,11 @@ export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, i
 										/>
 										<Divider className="opacity-50" />
 										<BuildDetailsSectionItem
-											title="API governance"
-											steps={data.governanceCheck?.steps}
-											conclusion={data.governanceCheck?.status}
+											title="API update"
+											steps={data.updateApi?.steps}
+											conclusion={data.updateApi?.status}
 											// todo: check console behavior
-											// logs={data?.governanceCheck?.log}
+											// logs={data?.updateApi?.log}
 											isVisible={isVisible}
 											buildId={buildId}
 											component={component}
@@ -151,11 +165,11 @@ export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, i
 										/>
 										<Divider className="opacity-50" />
 										<BuildDetailsSectionItem
-											title="API update"
-											steps={data.updateApi?.steps}
-											conclusion={data.updateApi?.status}
+											title="API governance"
+											steps={data.governanceCheck?.steps}
+											conclusion={data.governanceCheck?.status}
 											// todo: check console behavior
-											// logs={data?.updateApi?.log}
+											// logs={data?.governanceCheck?.log}
 											isVisible={isVisible}
 											buildId={buildId}
 											component={component}
@@ -377,6 +391,9 @@ const getLogTypeForStepName = (step: DeploymentLogsDataStep) => {
 	if (step.name === DeployedBuildResultSteps.API_GOVERNANCE) {
 		return "governanceLogs";
 	}
+	if (step.name === DeployedBuildResultSteps.READ_COMOPNENT_CONFIG) {
+		return "configValidationLogs";
+	}
 	return "";
 };
 
@@ -410,6 +427,9 @@ const getLogStrFromBuildLogData = (step: DeploymentLogsDataStep, data: ProjectBu
 	}
 	if (step.name === DeployedBuildResultSteps.API_GOVERNANCE) {
 		return data.governanceLogs;
+	}
+	if (step.name === DeployedBuildResultSteps.READ_COMOPNENT_CONFIG) {
+		return data.configValidationLogs;
 	}
 	return "";
 };

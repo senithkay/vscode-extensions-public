@@ -19,7 +19,7 @@ export interface NewComponentWebviewProps {
 	organization: Organization;
 	project: Project;
 	existingComponents: ComponentKind[];
-	initialValues?: { type?: string; buildPackLang?: string; subPath?: string; name?: string; };
+	initialValues?: { type?: string; buildPackLang?: string; subPath?: string; name?: string };
 }
 
 export interface ComponentsDetailsWebviewProps {
