@@ -64,7 +64,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
             case ComponentType.WEB_HOOK:
                 return <WebhookIcon />;
             case ComponentType.EXTERNAL_CONSUMER:
-                return <>EC</>;
+                return <ExternalConsumerIcon />;
             default:
                 return <ServiceIcon />;
         }
