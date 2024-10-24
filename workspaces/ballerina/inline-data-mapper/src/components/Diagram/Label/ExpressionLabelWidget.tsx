@@ -112,7 +112,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
     const classes = useStyles();
-    const { field, link, value, valueNode, context, deleteLink } = props.model;
+    const { link, value, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -238,30 +238,21 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const target = link?.getTargetPort();
 
     if (source instanceof InputOutputPortModel) {
-        if (source?.parentId) {
-            const fieldName = source.field.fieldName;
-            isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
-        } else {
-            isSourceCollapsed = collapsedFields?.includes(source.portName)
-        }
+        // if (source?.parentId) {
+        //     const fieldName = source.field.fieldName;
+        //     isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
+        // } else {
+        //     isSourceCollapsed = collapsedFields?.includes(source.portName)
+        // }
     }
 
     if (target instanceof InputOutputPortModel) {
-        if (target?.parentId) {
-            const fieldName = target.field.fieldName;
-            isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
-        } else {
-            isTargetCollapsed = collapsedFields?.includes(target.portName)
-        }
-    }
-
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
-        // for direct links, disable link widgets if both sides are collapsed
-        return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
-        // for links with intermediary nodes,
-        // disable link widget if either source or target port is collapsed
-        return null;
+        // if (target?.parentId) {
+        //     const fieldName = target.field.fieldName;
+        //     isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
+        // } else {
+        //     isTargetCollapsed = collapsedFields?.includes(target.portName)
+        // }
     }
 
     return linkStatus === LinkState.TemporaryLink

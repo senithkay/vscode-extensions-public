@@ -24,7 +24,7 @@ export enum InputCategory {
     Configurable = "configurable"
 }
 
-interface Diagnostic {
+export interface IDMDiagnostic {
     kind: string;
     message: string;
     range: {
@@ -55,7 +55,7 @@ export interface Mapping {
     output: string,
     inputs: string[];
     expression: string;
-    diagnostics?: Diagnostic[];
+    diagnostics?: IDMDiagnostic[];
     isComplex?: boolean;
 }
 
