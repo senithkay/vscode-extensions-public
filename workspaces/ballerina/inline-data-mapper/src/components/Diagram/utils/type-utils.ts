@@ -6,9 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IOBaseType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
-export function getTypeName(field: IOBaseType): string {
+export function getTypeName(field: IOType): string {
 	if (!field) {
 		return '';
 	}

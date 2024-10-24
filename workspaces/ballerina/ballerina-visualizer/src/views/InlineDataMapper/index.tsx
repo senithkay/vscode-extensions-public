@@ -84,22 +84,11 @@ export function InlineDataMapper(props: DataMapperProps) {
                     "id": "output.fullName",
                     "kind": TypeKind.String,
                     "fieldName": "fullName",
-                    "mapping": {
-                        "inputs": ["input1.name"],
-                        "expression": "input1.name",
-                        "diagnostics": []
-                    }
                 },
                 {
                     "id": "output.ageGroup",
                     "kind": TypeKind.String,
-                    "fieldName": "ageGroup",
-                    "mapping": {
-                        "inputs": ["input1.age"],
-                        "expression": "input1.age >= 18 ? \"Adult\" : \"Minor\"",
-                        "diagnostics": [],
-                        "isComplex": true
-                    }
+                    "fieldName": "ageGroup"
                 },
                 {
                     "id": "output.tags",
@@ -108,42 +97,59 @@ export function InlineDataMapper(props: DataMapperProps) {
                     "memberType": {
                         "id": "output.tags.member",
                         "kind": TypeKind.String
-                    },
-                    "mapping": {
-                        "inputs": ["input2"],
-                        "expression": "input2",
-                        "diagnostics": []
                     }
                 },
                 {
                     "id": "output.salary",
                     "kind": TypeKind.Decimal,
                     "fieldName": "salary",
-                    "optional": true,
-                    "mapping": {
-                        "inputs": ["input3"],
-                        "expression": "input3 * 2",
-                        "diagnostics": [
-                            {
-                                "kind": "warning",
-                                "message": "Potential loss of precision when multiplying decimal values",
-                                range: {
-                                    start: {
-                                        line: 1,
-                                        character: 1
-                                    },
-                                    end: {
-                                        line: 1,
-                                        character: 1
-                                    }
-                                }
-                            }
-                        ],
-                        "isComplex": true
-                    }
+                    "optional": true
                 }
             ]
-        }
+        },
+        mappings: [
+            {
+                "output": "output.fullName",
+                "inputs": ["input1.name"],
+                "expression": "input1.name",
+                "diagnostics": []
+            },
+            {
+                "output": "output.ageGroup",
+                "inputs": ["input1.age"],
+                "expression": "input1.age >= 18 ? \"Adult\" : \"Minor\"",
+                "diagnostics": [],
+                "isComplex": true
+            },
+            {
+                "output": "output.tags.0",
+                "inputs": ["input2"],
+                "expression": "input2",
+                "diagnostics": []
+            },
+            {
+                "output": "output.salary",
+                "inputs": ["input3"],
+                "expression": "input3 * 2",
+                "diagnostics": [
+                    {
+                        "kind": "warning",
+                        "message": "Potential loss of precision when multiplying decimal values",
+                        range: {
+                            start: {
+                                line: 1,
+                                character: 1
+                            },
+                            end: {
+                                line: 1,
+                                character: 1
+                            }
+                        }
+                    }
+                ],
+                "isComplex": true
+            }
+        ]
     };
 
     return <DataMapperView model={model} />;

@@ -8,7 +8,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { InputType, IOBaseType, OutputType, TypeKind } from '@wso2-enterprise/ballerina-core';
+import { IOType, TypeKind } from '@wso2-enterprise/ballerina-core';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -47,7 +47,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 
 	protected addPortsForInputField(
-		field: InputType | IOBaseType,
+		field: IOType,
 		portType: "IN" | "OUT",
 		parentId: string,
 		unsafeParentId: string,
@@ -95,7 +95,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputField(
-		field: OutputType,
+		field: IOType,
 		type: "IN" | "OUT",
 		parentId: string,
 		elementIndex?: number,
@@ -139,7 +139,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeader(
-		dmType: InputType | OutputType,
+		dmType: IOType,
 		name: string,
 		portType: "IN" | "OUT",
 		portPrefix: string,

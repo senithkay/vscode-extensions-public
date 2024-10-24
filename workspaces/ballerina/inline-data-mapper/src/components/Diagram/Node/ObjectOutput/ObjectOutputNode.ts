@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 import { useDMCollapsedFieldsStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -23,7 +23,7 @@ export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
 
 export class ObjectOutputNode extends DataMapperNodeModel {
-    public filteredOutputType: OutputType;
+    public filteredOutputType: IOType;
     public dmTypeWithValue: DMTypeWithValue;
     public typeName: string;
     public rootName: string;
@@ -35,7 +35,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public outputType: OutputType
+        public outputType: IOType
     ) {
         super(
             NODE_ID,

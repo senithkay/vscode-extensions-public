@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { IDMType, IOBaseType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
@@ -23,7 +23,7 @@ import { getTypeName } from "../../utils/type-utils";
 
 export interface InputNodeTreeItemWidgetProps {
     parentId: string;
-    dmType: IOBaseType;
+    dmType: IOType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     treeDepth?: number;
@@ -44,7 +44,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     const classes = useIONodesStyles();
 
-    let fields: IOBaseType[];
+    let fields: IOType[];
 
     if (dmType.kind === TypeKind.Record) {
         fields = dmType.fields;

@@ -7,10 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { IDMType, InputType, OutputType } from "@wso2-enterprise/ballerina-core";
+import { IOType } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
-import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
 import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
 import { buildInputAccessExpr, createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
@@ -32,7 +31,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: InputType | OutputType,
+		public field: IOType,
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public parentId: string,
@@ -72,7 +71,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 					
 					if (targetPort) {
 						const typeWithValue = (targetPort as InputOutputPortModel).field;
-						const expr = (typeWithValue as OutputType).mapping.expression;
+						// const expr = (typeWithValue as IOType).mapping.expression;
 
 						let updatedExpr;
 						// if (Node.isPropertyAssignment(expr)) {
@@ -90,8 +89,8 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				}
 			})
 		});
-		// return lm;
-		return undefined;
+		return lm;
+		// return undefined;
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {
@@ -128,18 +127,18 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	}
 
 	getValueType(lm: DataMapperLinkModel): ValueType {
-		const field = (lm.getTargetPort() as InputOutputPortModel).field as OutputType;
+		const field = (lm.getTargetPort() as InputOutputPortModel).field as IOType;
 
-		if (field.mapping) {
-			let expr = field.mapping?.expression;
+		// if (field.mapping) {
+		// 	let expr = field.mapping?.expression;
 	
-			// if (Node.isPropertyAssignment(expr)) {
-			// 	expr = expr.getInitializer();
-			// }
-			if (expr !== undefined) {
-				// return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
-			}
-		}
+		// 	// if (Node.isPropertyAssignment(expr)) {
+		// 	// 	expr = expr.getInitializer();
+		// 	// }
+		// 	if (expr !== undefined) {
+		// 		// return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
+		// 	}
+		// }
 
 		return ValueType.Empty;
 	}

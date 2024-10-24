@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -24,7 +24,7 @@ import { getTypeName } from "../../utils/type-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
-    field: OutputType;
+    field: IOType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     parentObjectLiteralExpr: Node;

@@ -9,7 +9,7 @@
 import { ObjectOutputNode, InputNode } from "../components/Diagram/Node";
 import { DataMapperNodeModel } from "../components/Diagram/Node/commons/DataMapperNode";
 import { DataMapperContext } from "../utils/DataMapperContext/DataMapperContext";
-import { IDMModel, InputType, OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { OFFSETS } from "../components/Diagram/utils/constants";
 import { BaseVisitor } from "./BaseVisitor";
 
@@ -21,14 +21,14 @@ export class NodeInitVisitor implements BaseVisitor {
         private context: DataMapperContext,
     ){}
 
-    beginVisitInputType(node: InputType, parent?: IDMModel): void {
+    beginVisitInputType(node: IOType, parent?: IDMModel): void {
         // Create input node
         const inputNode = new InputNode(this.context, node);
         inputNode.setPosition(0, 0);
         this.inputNodes.push(inputNode);
     }
 
-    beginVisitOutputType(node: OutputType, parent?: IDMModel): void {
+    beginVisitOutputType(node: IOType, parent?: IDMModel): void {
         // Create output node
         if (node.kind === TypeKind.Record) {
             this.outputNode = new ObjectOutputNode(this.context, node);

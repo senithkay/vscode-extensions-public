@@ -6,11 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { InputType, IOBaseType, OutputType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import { useDMSearchStore } from "../../../store/store";
-import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 
-export const getSearchFilteredInput = (dmType: OutputType, varName?: string) => {
+export const getSearchFilteredInput = (dmType: IOType, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
 	if (!searchValue) {
 		return dmType;
@@ -26,7 +25,7 @@ export const getSearchFilteredInput = (dmType: OutputType, varName?: string) => 
 	}
 }
 
-export const getSearchFilteredOutput = (outputType: OutputType) => {
+export const getSearchFilteredOutput = (outputType: IOType) => {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 	if (!outputType) {
 		return null
@@ -35,7 +34,7 @@ export const getSearchFilteredOutput = (outputType: OutputType) => {
 		return outputType;
 	}
 
-	let searchType: OutputType = outputType;
+	let searchType: IOType = outputType;
 
 	if (searchType.kind === TypeKind.Array) {
 		const subFields = searchType.memberType?.fields
@@ -62,7 +61,7 @@ export const getSearchFilteredOutput = (outputType: OutputType) => {
 	return  null;
 }
 
-export const getFilteredSubFields = (field: InputType | OutputType | IOBaseType, searchValue: string) => {
+export const getFilteredSubFields = (field: IOType, searchValue: string) => {
 	if (!field) {
 		return null;
 	}
@@ -73,7 +72,7 @@ export const getFilteredSubFields = (field: InputType | OutputType | IOBaseType,
 
 	if (field.kind === TypeKind.Record) {
 		const matchedSubFields = field.fields
-			?.map((fieldItem): IOBaseType | OutputType => getFilteredSubFields(fieldItem, searchValue))
+			?.map((fieldItem): IOType => getFilteredSubFields(fieldItem, searchValue))
 			.filter(fieldItem => fieldItem);
 
 		const matchingName = field?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
@@ -85,7 +84,7 @@ export const getFilteredSubFields = (field: InputType | OutputType | IOBaseType,
 		}
 	} else if (field.kind === TypeKind.Array) {
 		const matchedSubFields = field?.memberType?.fields
-			?.map((fieldItem): IOBaseType | OutputType => getFilteredSubFields(fieldItem, searchValue))
+			?.map((fieldItem): IOType => getFilteredSubFields(fieldItem, searchValue))
 			.filter(fieldItem => fieldItem);
 
 		const matchingName = field?.fieldName?.toLowerCase().includes(searchValue.toLowerCase());
@@ -105,7 +104,7 @@ export const getFilteredSubFields = (field: InputType | OutputType | IOBaseType,
 	return null;
 }
 
-export function hasNoOutputMatchFound(outputType: OutputType, filteredOutputType: OutputType): boolean {
+export function hasNoOutputMatchFound(outputType: IOType, filteredOutputType: IOType): boolean {
 	const searchValue = useDMSearchStore.getState().outputSearch;
 
 	if (!searchValue) {
@@ -116,22 +115,4 @@ export function hasNoOutputMatchFound(outputType: OutputType, filteredOutputType
 		// return hasNoMatchFoundInArray(filteredOutputType?.elements, searchValue);
 	}
 	return false;
-}
-
-function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
-	if (!elements) {
-		return false;
-	} else if (elements.length === 0) {
-		return true;
-	}
-	return elements.every(element => {
-		if (element.member.type.kind === TypeKind.Record) {
-			return element.member?.childrenTypes.length === 0;
-		} else if (element.member.type.kind === TypeKind.Array) {
-			return element.member.elements && element.member.elements.length === 0
-		} else if (element.member.value) {
-			const value = element.member.value?.getText() || element.member.value.getText();
-			return !value.toLowerCase().includes(searchValue.toLowerCase());
-		}
-	});
 }

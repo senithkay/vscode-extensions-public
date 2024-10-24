@@ -15,7 +15,6 @@ import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { buildInputAccessExpr } from '../../../components/Diagram/utils/modification-utils';
 import { View } from '../Views/DataMapperView';
-import { OutputType } from '@wso2-enterprise/ballerina-core';
 
 const useStyles = () => ({
     exprBarContainer: css({
@@ -201,24 +200,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const applyChangesOnFocusedPort = async (value: string) => {
-        const focusedFieldValue = (focusedPort?.field as OutputType).mapping.expression;
-        if (focusedFieldValue) {
-
-            let targetExpr: Node;
-            // if (Node.isPropertyAssignment(focusedFieldValue)) {
-            //     if (value === '') {
-            //         focusedFieldValue.remove();
-            //     }
-            // } else {
-            //     targetExpr = focusedFieldValue;
-            //     const replaceWith = value === ''
-            //         ? getDefaultValue(focusedPort.typeWithValue.type.kind)
-            //         : value;
-
-            //     targetExpr.replaceWithText(replaceWith);
-            // }
-            // await applyModifications(focusedFieldValue.getSourceFile().getFullText());
-        }
     };
 
     const applyChangesOnFocusedFilter = async () => {

@@ -11,7 +11,7 @@ import { Point } from "@projectstorm/geometry";
 import { useDMCollapsedFieldsStore, useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
-import { InputType, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 export const INPUT_NODE_TYPE = "datamapper-node-input";
 const NODE_ID = "input-node";
@@ -23,7 +23,7 @@ export class InputNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public inputType: InputType,
+        public inputType: IOType,
     ) {
         super(
             NODE_ID,

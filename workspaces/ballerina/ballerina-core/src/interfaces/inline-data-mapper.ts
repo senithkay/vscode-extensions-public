@@ -39,35 +39,28 @@ interface Diagnostic {
     };
 }
 
+export interface IOType {
+    id: string;
+    category?: InputCategory;
+    kind: TypeKind;
+    typeName?: string;
+    fieldName?: string;
+    fields?: IOType[];
+    memberType?: IOType;
+    defaultValue?: unknown;
+    optional?: boolean;
+}
+
 export interface Mapping {
+    output: string,
     inputs: string[];
     expression: string;
     diagnostics?: Diagnostic[];
     isComplex?: boolean;
 }
 
-export interface IOBaseType {
-    id: string;
-    kind: TypeKind;
-    typeName?: string;
-    fieldName?: string;
-    fields?: IOBaseType[];
-    memberType?: IOBaseType;
-    defaultValue?: unknown;
-    optional?: boolean;
-}
-
-export interface InputType extends IOBaseType {
-    category: InputCategory;
-    identifier?: string;
-}
-
-export interface OutputType extends IOBaseType {
-    fields?: OutputType[];
-    mapping?: Mapping;
-}
-
 export interface IDMModel {
-    inputTypes: InputType[];
-    outputType: OutputType;
+    inputTypes: IOType[];
+    outputType: IOType;
+    mappings: Mapping[];
 }

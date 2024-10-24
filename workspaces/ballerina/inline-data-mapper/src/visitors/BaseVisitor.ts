@@ -7,17 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { IDMModel, InputType, Mapping, OutputType } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, IOType, Mapping } from "@wso2-enterprise/ballerina-core";
 
 export interface BaseVisitor {
     beginVisit?(node: IDMModel, parent?: IDMModel): void;
     endVisit?(node: IDMModel, parent?: IDMModel): void;
     
-    beginVisitInputType?(node: InputType, parent?: IDMModel): void;
-    endVisitInputType?(node: InputType, parent?: IDMModel): void;
+    beginVisitInputType?(node: IOType, parent?: IDMModel): void;
+    endVisitInputType?(node: IOType, parent?: IDMModel): void;
 
-    beginVisitOutputType?(node: OutputType, parent?: IDMModel): void;
-    endVisitOutputType?(node: OutputType, parent?: IDMModel): void;
+    beginVisitOutputType?(node: IOType, parent?: IDMModel): void;
+    endVisitOutputType?(node: IOType, parent?: IDMModel): void;
 
     beginVisitMapping?(node: Mapping, parent?: IDMModel): void;
     endVisitMapping?(node: Mapping, parent?: IDMModel): void;

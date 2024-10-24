@@ -26,11 +26,11 @@ import {
 } from '../../../../store/store';
 import { OutputSearchHighlight } from '../commons/Search';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
-import { OutputType } from '@wso2-enterprise/ballerina-core';
+import { IOType } from '@wso2-enterprise/ballerina-core';
 
 export interface ObjectOutputWidgetProps {
 	id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-	outputType: OutputType;
+	outputType: IOType;
 	typeName: string;
 	value: any;
 	engine: DiagramEngine;
