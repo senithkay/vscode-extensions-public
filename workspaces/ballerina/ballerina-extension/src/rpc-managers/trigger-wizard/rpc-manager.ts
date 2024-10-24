@@ -15,11 +15,15 @@ import {
     Triggers,
     TriggersParams
 } from "@wso2-enterprise/ballerina-core";
+import { StateMachine } from "../../stateMachine";
 
 export class TriggerWizardRpcManager implements TriggerWizardAPI {
     async getTriggers(params: TriggersParams): Promise<Triggers> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            const res: Triggers = await context.langClient.getTriggers(params) as Triggers;
+            resolve(res);
+        });
     }
 
     async getTrigger(params: TriggerParams): Promise<Trigger> {

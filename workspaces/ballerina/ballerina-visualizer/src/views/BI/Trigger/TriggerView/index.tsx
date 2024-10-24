@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, Category, Item, TriggerModel } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, BallerinaTrigger, Category, Item, TriggerModel, Triggers } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
@@ -56,21 +56,23 @@ export function TriggerView(props: TriggerViewProps) {
     const { onTriggerSelect } = props;
     const { rpcClient } = useRpcContext();
 
-    const [triggers, setTriggers] = useState<TriggerModel[]>([]);
+    const [triggers, setTriggers] = useState<Triggers>({ central: [] });
     const [searchText, setSearchText] = useState<string>("");
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
+        setIsSearching(true);
         getTriggers();
     }, []);
 
     const getTriggers = () => {
         rpcClient
-            .getBIDiagramRpcClient()
-            .getBITriggers({ queryMap: {} })
+            .getTriggerWizardRpcClient()
+            .getTriggers({ query: "", limit: 2 })
             .then((model) => {
                 console.log(">>> bi triggers", model);
-                setTriggers(model.triggers);
+                setTriggers(model);
+                setIsSearching(false);
             });
     };
 
@@ -82,11 +84,11 @@ export function TriggerView(props: TriggerViewProps) {
 
     const handleSearch = (text: string) => {
         rpcClient
-            .getBIDiagramRpcClient()
-            .getBITriggers({ queryMap: { q: text } })
+            .getTriggerWizardRpcClient()
+            .getTriggers({ query: text })
             .then((model) => {
                 console.log(">>> bi searched triggers", model);
-                setTriggers(model.triggers);
+                setTriggers(model);
             });
     }
     const debouncedSearch = debounce(handleSearch, 1100);
@@ -126,23 +128,22 @@ export function TriggerView(props: TriggerViewProps) {
             <ListContainer>
                 {/* Default triggers of LS is hardcoded and is sent with categories with item field */}
                 <GridContainer>
-                    {triggers.map((item, index) => {
-                        const trigger = item as TriggerModel;
+                    {triggers.central.map((item, index) => {
                         return (
                             <ButtonCard
-                                key={trigger.name + index}
-                                title={trigger.name}
-                                description={`${trigger.name} - Message broker based trigger`}
-                                icon={<Codicon name="mail" />}
+                                key={item.moduleName}
+                                title={item.displayAnnotation.label}
+                                description={item.package.summary}
+                                icon={<img width={100} src={item.package.icon} alt={item.displayAnnotation.label} />}
                                 onClick={() => {
-                                    onTriggerSelect(trigger);
+                                    // onTriggerSelect(trigger);
                                 }}
                             />
                         );
                     })}¸
                 </GridContainer>
             </ListContainer>
-            {!isSearching && !triggers || (triggers.length === 0 && <p>No triggers found</p>)}
+            {!isSearching && !triggers || (triggers.central.length === 0 && <p>No triggers found</p>)}
         </Container>
     );
 }
