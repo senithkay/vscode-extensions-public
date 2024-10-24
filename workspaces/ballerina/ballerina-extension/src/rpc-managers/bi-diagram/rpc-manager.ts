@@ -53,6 +53,7 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
+    BI_COMMANDS,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -64,7 +65,6 @@ import {
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
-import { title } from "process";
 import { extension } from "../../BalExtensionContext";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 
@@ -801,8 +801,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     runProject(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        commands.executeCommand(BI_COMMANDS.BI_RUN_PROJECT);
     }
 
     async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
