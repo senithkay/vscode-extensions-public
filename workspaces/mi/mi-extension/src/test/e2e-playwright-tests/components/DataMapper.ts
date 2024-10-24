@@ -40,20 +40,42 @@ export class DataMapper {
         return this.webView;
     }
 
-    public async scrollOutput(amount: number) {
-        const outputNode = this.webView.locator(`div[data-testid="objectOutput-node"]`);
 
-        await outputNode.hover();
-        await page.page.mouse.wheel(0, amount);
+
+    public async scrollClickOutput(locator: Locator) {
+        await this.scrollOutputUntilClickable(locator);
+        await locator.click();
     }
 
-    public async scrollOutputUntilVisible(locator: Locator) {
-        const outputNode = this.webView.locator(`div[data-testid="objectOutput-node"]`);
+    public async scrollOutputUntilClickable(locator: Locator) {
+        const outputNode = this.webView.locator(`div[data-testid$="Output-node"]`);
         await outputNode.hover();
 
-        for (let i = 0; !(await locator.isVisible()) && i < 5; i++) {
-            await page.page.mouse.wheel(0, 200);
+        for (let i = 0; !(await this.isClickable(locator)) && i < 5; i++) {
+            await page.page.mouse.wheel(0, 400);
+            // await page.page.waitForTimeout(1000);
+            // console.log('.:.', i);
         }
+    }
+
+
+
+    public async isClickable(element: Locator): Promise<boolean> {
+        // Check if the element is visible
+        // const isVisible = await element.isVisible();
+
+        // // Check if the element is enabled (not disabled)
+        // const isEnabled = await element.isEnabled();
+
+        // Check if the element is not covered by other elements
+        const isNotObstructed = await element.evaluate((el) => {
+            const rect = el.getBoundingClientRect();
+            const elementAtPoint = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            return elementAtPoint === el || el.contains(elementAtPoint) || (elementAtPoint?.contains(el) ?? false);
+        });
+
+        // Element is clickable if it's visible, enabled, and not obstructed
+        return isNotObstructed;
     }
 
 
@@ -73,9 +95,9 @@ export class DataMapper {
         await importNode.waitFor({ state: 'detached' });
     }
 
-    public async waitForCanvasToLoad() {
-        await this.webView.waitForSelector(`div#data-mapper-canvas-container`);
-    }
+    // public async waitForCanvasToLoad() {
+    //     await this.webView.waitForSelector(`div#data-mapper-canvas-container`);
+    // }
 
     public async mapFields(sourceFieldFQN: string, targetFieldFQN: string) {
         // const links = this.webView.locator('g [data-testid]');

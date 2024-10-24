@@ -73,7 +73,7 @@ const dmFilesPath = path.join(dataFolder, 'datamapper-files');
 test.describe.configure({ mode: 'serial' });
 
 // process.env.CI = 'true';
-const NEED_INITIAL_SETUP = true;
+const NEED_INITIAL_SETUP = false;
 
 if (process.env.CI || NEED_INITIAL_SETUP) 
   createAndAddDM();
@@ -292,90 +292,17 @@ function doMappings() {
     // objectOutput.ompO.p2 = input.opmI.dm2;
     await dataMapper.mapFields('input.opmI.op2', 'objectOutput.ompO.p2');
 
-
-
-
-
-    //await dataMapper.mapFields('input.city', 'objectOutput.home');
-    // await dataMapper.mapFields('input.name', 'objectOutput.age');
-    // await dataMapper.mapFields('input.age', 'objectOutput.name');
-
-    // const mappingsEaFile = path.join(dmFilesPath, DM_NAME, 'mappings.ea');
-    // await dataMapper.runEventActions(mappingsEaFile);
-
-    // await page.page.waitForTimeout(1000);
-
     // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
     // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
 
 
   });
 
-  // test('Do Array Mappings', async () => {
-  //   const dataMapper = new DataMapper(page.page, DM_NAME);
-  //   await dataMapper.init();
-
-  //   // array mapping
-  //   // objectOutput.nd1dO = input.nd1dI;
-  //   // await dataMapper.mapArrayDirect('input.d1I', 'objectOutput.d1O');
-
-  //   // // primitive array mapping with mapping function
-  //   // await dataMapper.mapArrayInner('input.m1I', 'objectOutput.m1O');
-  //   // await dataMapper.mapFields('focusedInput.m1IItem', 'primitiveOutput.number');
-  //   // await dataMapper.gotoPreviousView();
-
-  //   // // object array mapping with mapping function
-  //   // await dataMapper.mapArrayInner('input.m1objI', 'objectOutput.m1objO');
-  //   // await dataMapper.mapFields('focusedInput.m1objIItem.p1', 'objectOutput.q1');
-
-  //   // await dataMapper.mapArrayInner('focusedInput.m1objIItem.p2', 'objectOutput.q2');
-  //   // await dataMapper.mapFields('focusedInput.p2Item', 'primitiveOutput.string');
-  //   // await dataMapper.gotoPreviousView();
-  //   // await dataMapper.gotoPreviousView();
-
-  //   // const savedSnapshotFile = path.join(dataFolder, 'datamapper-files', 'array', 'snapshot.html');
-  //   // const currentSnapshotFile = path.join(dataFolder, 'datamapper-files', 'array', 'current.html');
-  //   // await dataMapper.saveSnapshot(currentSnapshotFile);
-
-  //   // expect(dataMapper.compareFiles(savedSnapshotFile, currentSnapshotFile)).toBeTruthy();
-
-  //   await page.page.pause();
-
-  //   await page.page.waitForTimeout(10000);
-
-
-
-  //   // array mapping with mapping function and error #know issue
-
-  //   // Initialize array and map
-
-  //   // 2D array direct mapping
-
-
-  //   // 2D array mapping with mapping function
-
-
-  //   // 2D - 1D array direct mapping (singleton access)
-
-
-  //   // 3D - 2D array direct mapping (singleton access)
-
-
-  //   // 3D - 1D array direct mapping (singleton access)
-
-  // });
-
   test('Do Array Mappings', async () => {
     const dm = new DataMapper(page.page, DM_NAME);
     await dm.init();
     const dmWebView = dm.getWebView();
-
-    await dm.scrollOutputUntilVisible(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d1O.IN').locator('i'));
-
-    // await page.page.pause();
-
    
-
     // primitive direct array mapping
     await dmWebView.locator('[id="recordfield-input\\.d1I"] i').click();
     await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d1O.IN').locator('i').click();
@@ -398,7 +325,8 @@ function doMappings() {
     await dmWebView.getByTestId('link-from-focusedInput.m1IItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
 
     await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
-
+    await closeNotification(page);
+    
     // object array mapping with mapping function
     await dmWebView.locator('[id="recordfield-input\\.m1objI"] i').click();
     await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.m1objO.IN').locator('i').click();
@@ -429,48 +357,106 @@ function doMappings() {
     await dm.gotoPreviousView();
     await dm.gotoPreviousView();
 
-    // Initialize array and map
+    // Initialize 1d array and map
+    await dmWebView.locator('[id="recordfield-objectOutput\\.i1O"] #component-list-menu-btn i').click();
+    await dmWebView.getByRole('gridcell', { name: 'Initialize Array' }).click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('array-widget-objectOutput.i1O.IN-add-element').click();
+    await dmWebView.locator('[id="recordfield-input\\.i1I"] i').click();
+    await dmWebView.getByTestId('array-widget-objectOutput.i1O.IN-values').locator('i').first().click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i1O.0.IN').waitFor({ state: 'attached' });
+    
 
-    // 2D array direct mapping
+    // Initialize 2d array and map
+    await dmWebView.locator('[id="recordfield-objectOutput\\.i2O"] #component-list-menu-btn i').click();
+    await dmWebView.getByText('Initialize Array').click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('array-widget-objectOutput.i2O.IN-add-element').click();
+    await dmWebView.getByTestId('array-widget-objectOutput.i2O.0.IN-add-element').click();
+    await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
+    await dmWebView.getByTestId('array-widget-objectOutput.i2O.0.IN-values').locator('i').first().click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.i2O.0.0.IN').waitFor({ state: 'attached' });
 
+    
+    // Init array object and map scroll 
 
-    // 2D array mapping with mapping function
+    await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO"] #component-list-menu-btn i').click();
+    await dmWebView.getByText('Initialize Array').click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('array-widget-objectOutput.iobjO.IN-add-element').click();
+    await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
+    await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p1"]'));
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p1.IN').waitFor({ state: 'attached' });
 
-    // 1D - 0D array direct mapping (singleton access)
+    await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.0\\.p2"] #component-list-menu-btn i').click();
+    await dmWebView.getByText('Initialize Array').click();
+    await dmWebView.getByTestId('array-widget-objectOutput.iobjO.0.p2.IN-add-element').click();
+    await dmWebView.locator('[id="recordfield-input\\.i1I"]').click();
+    await dmWebView.getByTestId('array-widget-objectOutput.iobjO.0.p2.IN-values').locator('i').first().click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.i1I.OUT-to-objectOutput.iobjO.0.p2.0.IN').waitFor({ state: 'attached' });
 
+    await dm.scrollClickOutput(dmWebView.getByTestId('array-widget-objectOutput.iobjO.IN-add-element'));
+    await dmWebView.locator('[id="recordfield-input\\.iobjI"]').click();
+    await dmWebView.locator('[id="recordfield-objectOutput\\.iobjO\\.1"]').click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.iobjI.OUT-to-objectOutput.iobjO.1.IN').waitFor({ state: 'attached' });
+    
 
-    // 2D - 1D array direct mapping (singleton access)
+    // 2D array direct mapping 8-10,22
+    await dmWebView.locator('[id="recordfield-input\\.d2I"] i').click();
+    await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.d2O.IN').locator('i'));
+    await dmWebView.locator('#menu-item-a2a-direct').click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.d2I.OUT-to-objectOutput.d2O.IN').waitFor({ state: 'attached' });
+  
+    // 1D - 0D array direct mapping (singleton access) 25-29
+    await dmWebView.locator('[id="recordfield-input\\.s10O"] i').click();
+    await dm.scrollClickOutput(dmWebView.locator('[id="recordfield-objectOutput\\.s10O"] i').first());
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.s10O.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+    await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s10O.IN').waitFor({ state: 'attached' });
+    await dmWebView.getByTestId('link-connector-node-objectOutput.s10O.IN').waitFor();
 
+    // 2D - 1D array direct mapping (singleton access) 30-38
+    await dmWebView.locator('[id="recordfield-input\\.s21I"] i').click();
+    await dm.scrollClickOutput(dmWebView.getByTestId('array-type-editable-record-field-objectOutput.s21O.IN').locator('i'));
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.s21I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+    await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.s21O.IN').waitFor({ state: 'attached' });
+    await dmWebView.getByTestId('link-connector-node-objectOutput.s21O.IN').waitFor({ state: 'attached' });
 
-    // 3D - 2D array direct mapping (singleton access)
+    // 2D array mapping with mapping function 11-24
+    await dmWebView.locator('[id="recordfield-input\\.m2I"] i').click();
+    await dmWebView.getByTestId('array-type-editable-record-field-objectOutput.m2O.IN').locator('i').click();
+    await dmWebView.locator('#menu-item-a2a-inner').click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-input.m2I.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+    await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.m2O.IN').waitFor({ state: 'attached' });
+    
+    await dmWebView.getByTestId('expand-array-fn-m2O').locator('i').click();
+    await dmWebView.getByTestId('focusedInput.m2IItem-node').locator('i').click();
+    await dmWebView.getByTestId('arrayOutput-node').locator('i').first().click();
+    await dmWebView.locator('#menu-item-a2a-inner').click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-focusedInput.m2IItem.OUT-to-datamapper-intermediate-port').waitFor({ state: 'attached' });
+    await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-arrayOutput.IN').waitFor({ state: 'attached' });
 
-
-    // 3D - 1D array direct mapping (singleton access)
-
+    await dmWebView.getByTitle('Map array elements').locator('i').click();
+    await dmWebView.getByTestId('focusedInput.m2IItemItem-node').locator('i').click();
+    await dmWebView.getByTestId('primitiveOutput-node').locator('i').nth(1).click();
+    await dm.waitForProgressEnd();
+    await dmWebView.getByTestId('link-from-focusedInput.m2IItemItem.OUT-to-primitiveOutput.number.IN').waitFor({ state: 'attached' });
+    
+    await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
+    await dmWebView.getByTestId('dm-header-breadcrumb-0').waitFor({state: 'detached'});
 
     await page.page.pause();
 
     await page.page.waitForTimeout(10000);
-
-
-
-    // array mapping with mapping function and error #know issue
-
-    // Initialize array and map
-
-    // 2D array direct mapping
-
-
-    // 2D array mapping with mapping function
-
-
-    // 2D - 1D array direct mapping (singleton access)
-
-
-    // 3D - 2D array direct mapping (singleton access)
-
-
-    // 3D - 1D array direct mapping (singleton access)
 
   });
 
