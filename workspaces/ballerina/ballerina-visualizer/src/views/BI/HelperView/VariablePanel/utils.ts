@@ -9,7 +9,7 @@
 
 import { TypeField } from "@wso2-enterprise/ballerina-core";
 
-export function getTypeName(typeField: TypeField) {
+export function getTypeName(typeField: TypeField): string {
     if (typeField.typeName === "record") {
         return typeField?.typeInfo?.name;
     } else if (typeField.typeName === "array") {
@@ -18,7 +18,20 @@ export function getTypeName(typeField: TypeField) {
         return typeField.members
             .map((member): string => getTypeName(member))
             .join(" & ");
-
+    } else if (typeField.typeName === "enum") {
+        return typeField?.typeInfo?.name;
+    } else if (typeField.typeName === "object") {
+        return typeField?.typeInfo?.moduleName ? `${typeField?.typeInfo?.moduleName}:${typeField?.typeInfo?.name}` : typeField?.typeName;
+    } else if (typeField.typeName === "union") {
+        return typeField.members
+            .map((member): string => getTypeName(member))
+            .join(" | ");
+    } else if (typeField.typeName === "map") {
+        return "map<" + getTypeName(typeField?.paramType) + ">";
+    } else if (typeField.typeName === "stream") {
+        return "stream<" + getTypeName(typeField?.leftTypeParam) + ", " + getTypeName(typeField?.rightTypeParam) + ">";
+    } else if (typeField.typeName === "table") {
+        return "table<" + getTypeName(typeField?.rowType) + ">";
     } else {
         return typeField?.typeName;
     }
