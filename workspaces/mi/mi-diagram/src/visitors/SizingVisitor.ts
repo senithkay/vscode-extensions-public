@@ -427,9 +427,17 @@ export class SizingVisitor implements Visitor {
     }
     endVisitForeach = (node: Foreach): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
-        this.calculateAdvancedMediator(node, {
+
+        this.calculateAdvancedMediator(node, node.sequenceAttribute ? {} : {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE);
+
+        if (node.sequenceAttribute) {
+            const topGap = node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
+            const bottomGap = NODE_GAP.GROUP_NODE_END_Y;
+            const sequenceFullHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+            node.viewState.fh = topGap + sequenceFullHeight + bottomGap;
+        }
     }
     //Filter Mediators
     endVisitFilter = (node: Filter): void => {

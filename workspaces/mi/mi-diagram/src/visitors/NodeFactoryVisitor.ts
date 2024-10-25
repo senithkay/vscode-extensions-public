@@ -205,7 +205,10 @@ export class NodeFactoryVisitor implements Visitor {
         if (this.previousSTNodes && this.previousSTNodes.length > 0) {
             for (let i = 0; i < this.previousSTNodes.length; i++) {
                 const previousStNode = this.previousSTNodes[i];
-                const previousNodes = this.nodes.filter((node) => JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range));
+                const previousNodes = this.nodes.filter((node) =>
+                    JSON.stringify(node.getStNode().range) === JSON.stringify(previousStNode.range) &&
+                    node.getStNode().viewState?.id === previousStNode.viewState?.id
+                );
                 const previousNode = previousNodes[previousNodes.length - 1];
                 const currentNodeType = node.tag;
                 const previousNodeType = previousStNode.tag;
@@ -663,9 +666,18 @@ export class NodeFactoryVisitor implements Visitor {
         this.createNodeAndLinks(({ node, name: MEDIATORS.FOREACHMEDIATOR, type: NodeTypes.GROUP_NODE }))
         this.parents.push(node);
 
-        this.visitSubSequences(node, MEDIATORS.FOREACHMEDIATOR, {
-            Sequence: node.sequence
-        }, NodeTypes.GROUP_NODE, false)
+        if (node?.sequenceAttribute) {
+            this.previousSTNodes = [];
+            const callSequenceNode = structuredClone(node);
+            callSequenceNode.viewState.y += callSequenceNode.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
+            callSequenceNode.viewState.x += (callSequenceNode.viewState.w / 2) - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
+            this.addSequenceReference(callSequenceNode, "foreach_seq_ref", StartNodeType.SUB_SEQUENCE);
+            this.previousSTNodes = [node];
+        } else {
+            this.visitSubSequences(node, MEDIATORS.FOREACHMEDIATOR, {
+                Sequence: node.sequence
+            }, NodeTypes.GROUP_NODE, false)
+        }
         this.skipChildrenVisit = true;
     }
     endVisitForeach(node: Foreach): void {
@@ -1003,8 +1015,7 @@ export class NodeFactoryVisitor implements Visitor {
         return this.skipChildrenVisit;
     }
 
-    private addSequenceReference(node: Resource | ProxyTarget | Target, id: string, startNodeType: StartNodeType = StartNodeType.IN_SEQUENCE): STNode {
-        const reference = (node as Resource | ProxyTarget)?.inSequenceAttribute || (node as Target)?.sequenceAttribute;
+    private addSequenceReference(node: Resource | ProxyTarget | Target | Foreach, id: string, startNodeType: StartNodeType = StartNodeType.IN_SEQUENCE): STNode {
 
         const startNodeDimentions = startNodeType === StartNodeType.IN_SEQUENCE ? NODE_DIMENSIONS.START.EDITABLE : NODE_DIMENSIONS.START.DISABLED;
         const startNode = structuredClone(node);
@@ -1019,6 +1030,7 @@ export class NodeFactoryVisitor implements Visitor {
         sequneceReferenceNode.viewState.x += (startNodeDimentions.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
         sequneceReferenceNode.viewState.canAddAfter = false;
         this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        const reference = (sequneceReferenceNode as Resource | ProxyTarget)?.inSequenceAttribute || (sequneceReferenceNode as Target | Foreach)?.sequenceAttribute;
         this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: reference, openViewName: OPEN_SEQUENCE_VIEW } });
 
         const endNode = structuredClone(node);
