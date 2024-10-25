@@ -54,6 +54,7 @@ import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
+import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 
 const globalStyles = css`
     *,
@@ -236,6 +237,9 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.BIFunctionForm:
                         setViewComponent(<FunctionForm />);
+                        break;
+                    case MACHINE_VIEW.ViewConfigVariables:
+                        setViewComponent(<ViewConfigurableVariables />);
                         break;
                     default:
                         setNavActive(false);

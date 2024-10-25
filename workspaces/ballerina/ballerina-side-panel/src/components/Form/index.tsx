@@ -215,11 +215,11 @@ export function Form(props: FormProps) {
         const defaultValues: FormValues = {};
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
-                defaultValues[field.key] = getValueForDropdown(field);
+                defaultValues[field.key] = getValueForDropdown(field) ?? "";
             } else if (typeof field.value === 'string') {
-                defaultValues[field.key] = formatJSONLikeString(field.value);
+                defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
             } else {
-                defaultValues[field.key] = field.value;
+                defaultValues[field.key] = field.value ?? "";
             }
         });
         reset(defaultValues);

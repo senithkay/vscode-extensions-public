@@ -171,7 +171,9 @@ export type NodePropertyKey =
     | "comment"
     | "connection"
     | "collection"
-    | "view";
+    | "view"
+    | "variable"
+    | "defaultable";
 
 export type BranchKind = "block" | "worker";
 
@@ -210,7 +212,8 @@ export type NodeKind =
     | "FUNCTION"
     | "FUNCTION_CALL"
     | "ASSIGN"
-    | "DATA_MAPPER";
+    | "DATA_MAPPER"
+    | "CONFIG_VARIABLE";
 
 
 export type OverviewFlow = {
@@ -241,3 +244,17 @@ export type Connection = {
     package?: string;
     client?: string;
 }
+
+export type Line = {
+    line: number;
+    offset: number;
+};
+
+export type ConfigVariable = {
+    metadata: Metadata;
+    codedata: CodeData;
+    properties: NodeProperties;
+    branches: Branch[];
+    id: string;
+    returning: boolean;
+};

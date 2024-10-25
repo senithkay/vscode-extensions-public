@@ -14,7 +14,7 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range 
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 
@@ -569,6 +569,23 @@ export type ServiceFromOASResponse = {
     errorMsg?: string;
 }
 
+export interface ConfigVariableRequest {
+    projectPath: string;
+}
+
+export type ConfigVariableResponse = {
+    configVariables: ConfigVariable[];
+}
+
+export interface UpdateConfigVariableRequest {
+    configFilePath: string;
+    configVariable: ConfigVariable;
+}
+
+export interface UpdateConfigVariableResponse {
+    
+}
+
 export interface BICopilotContextRequest {
     position: LinePosition;
     filePath: string;
@@ -693,6 +710,8 @@ export interface BIInterface extends BaseLangClientInterface {
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getConfigVariables: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
+    updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
