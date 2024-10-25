@@ -75,7 +75,7 @@ export function BIHeader(props: { showAI?: boolean, actions?: React.ReactNode[] 
         <>
             <TitleContainer>
                 <ProjectTitle>{projectName}</ProjectTitle>
-                <ProjectSubtitle>Project</ProjectSubtitle>
+                <ProjectSubtitle>Integration</ProjectSubtitle>
                 {/* {props.showAI && <AIContainer>
                     <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleGenerateBtn}>
                         <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI

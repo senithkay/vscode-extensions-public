@@ -30,6 +30,7 @@ import {
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
+    ConfigVariableResponse,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -38,8 +39,12 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
     WorkspacesResponse,
     buildProject,
     createComponent,
@@ -50,6 +55,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -61,8 +67,10 @@ import {
     getSignatureHelp,
     getSourceCode,
     getVisibleVariableTypes,
+    getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
+    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject
@@ -145,6 +153,14 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
     }
 
+    getConfigVariables(): Promise<ConfigVariableResponse> {
+        return this._messenger.sendRequest(getConfigVariables, HOST_EXTENSION);
+    }
+
+    updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
+    }
+
     getModuleNodes(): Promise<BIModuleNodesResponse> {
         return this._messenger.sendRequest(getModuleNodes, HOST_EXTENSION);
     }
@@ -175,5 +191,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     runProject(): void {
         return this._messenger.sendNotification(runProject, HOST_EXTENSION);
+    }
+
+    getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
+        return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
     }
 }

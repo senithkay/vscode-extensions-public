@@ -12,6 +12,7 @@ import { Point } from "@projectstorm/geometry";
 import { SharedLinkModel } from "../../SharedLink/SharedLink";
 import { CellBounds } from "../CellNode/CellModel";
 import { getEmptyNodeName } from "../cell-util";
+import { ComponentModel } from "../../Component/ComponentNode/ComponentModel";
 
 interface LinkOrigins {
     nodeId: string;
@@ -20,9 +21,19 @@ interface LinkOrigins {
 export class CellLinkModel extends SharedLinkModel {
     sourceNode: LinkOrigins;
     targetNode: LinkOrigins;
+    isExternalConsumerLink: boolean;
+    destinationNode: ComponentModel;
 
     constructor(id: string) {
         super(id, "cellLink");
+    }
+
+    setIsExternalConsumerLink(isExternalConsumerLink: boolean) {
+        this.isExternalConsumerLink = isExternalConsumerLink;
+    }
+
+    setDestinationNode(destinationNode: ComponentModel) {
+        this.destinationNode = destinationNode;
     }
 
     setSourceNode(nodeId: string) {
@@ -31,6 +42,14 @@ export class CellLinkModel extends SharedLinkModel {
 
     setTargetNode(nodeId: string) {
         this.targetNode = { nodeId };
+    }
+
+    getDestinationNode() {
+        return this.destinationNode;
+    }
+
+    getIsExternalConsumerLink() {
+        return this.isExternalConsumerLink;
     }
 
     getArrowHeadPoints = (scale = 1): string => {

@@ -577,11 +577,11 @@
     //   "projectFolder": "workspaces/ballerina/perf-forecast",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "@wso2-enterprise/cell-diagram",
-    //   "projectFolder": "workspaces/choreo/cell-diagram",
-    //   "versionPolicyName": "choreo-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/cell-diagram",
+      "projectFolder": "workspaces/choreo/cell-diagram",
+      "versionPolicyName": "choreo-extension"
+    },
     {
       "packageName": "@wso2-enterprise/persist-layer-diagram",
       "projectFolder": "workspaces/ballerina/persist-layer-diagram",
@@ -613,7 +613,7 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
-      "packageName": "ballerina",
+      "packageName": "kolab",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
     },
@@ -665,9 +665,9 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "bi-extension",
+      "packageName": "kola-extension",
       "projectFolder": "workspaces/bi/bi-extension",
-      "versionPolicyName": "bi-extension"
+      "versionPolicyName": "kola-extension"
     },
     // {
     //   "packageName": "@wso2-enterprise/bi-diagram",

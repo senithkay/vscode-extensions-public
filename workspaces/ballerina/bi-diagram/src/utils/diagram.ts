@@ -23,7 +23,6 @@ import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
 import { DIAGRAM_CENTER_X, NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
 import { WhileNodeFactory } from "../components/nodes/WhileNode";
-import { ForeachNodeFactory } from "../components/nodes/ForeachNode";
 import { CodeBlockNodeFactory } from "../components/nodes/CodeBlockNode";
 
 export function generateEngine(): DiagramEngine {
@@ -40,7 +39,6 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EmptyNodeFactory());
     engine.getNodeFactories().registerFactory(new IfNodeFactory());
     engine.getNodeFactories().registerFactory(new WhileNodeFactory());
-    engine.getNodeFactories().registerFactory(new ForeachNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
     engine.getNodeFactories().registerFactory(new DraftNodeFactory());

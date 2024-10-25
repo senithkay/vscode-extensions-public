@@ -116,7 +116,7 @@ export function FunctionForm() {
                             <Dropdown
                                 id="return"
                                 label="Return Type"
-                                items={[{ value: "void" }, { value: "string" }, { value: "int" }]}
+                                items={[{ value: "string" }, { value: "int" }]} // FIXME: Replace this with type editor
                                 onChange={(value) => setReturnType(value.target.value)}
                                 value={returnType}
                             />

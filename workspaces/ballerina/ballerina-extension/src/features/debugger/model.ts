@@ -20,7 +20,7 @@ export interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArgum
     scriptArguments: Array<string>;
     programArgs: Array<string>;
     commandOptions: Array<string>;
-    'ballerina.home': string;
+    'kolab.home': string;
     debugTests: boolean;
     networkLogs: Boolean;
     networkLogsPort: number;

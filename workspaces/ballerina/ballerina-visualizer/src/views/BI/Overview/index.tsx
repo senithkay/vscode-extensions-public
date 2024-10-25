@@ -17,7 +17,6 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
-    TextArea,
     Typography,
     View,
     ViewContent,
@@ -28,11 +27,9 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from 'react-markdown';
 
@@ -193,7 +190,6 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     function isEmptyProject(): boolean {
-        console.log(">>> projectStructure", { projectStructure });
         return Object.values(projectStructure.directoryMap || {}).every(array => array.length === 0);
     }
 
@@ -375,8 +371,15 @@ export function Overview(props: ComponentDiagramProps) {
     const handleGenerate = () => {
         rpcClient.getBIDiagramRpcClient().openAIChat({
             scafold: true,
+            readme: false
         });
+    };
 
+    const handleReadmeGenerate = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
+            readme: true
+        });
     };
 
     const handleEditReadme = () => {
@@ -384,7 +387,7 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handlePlay = () => {
-        //rpcClient.getBIDiagramRpcClient().runProject();
+        rpcClient.getBIDiagramRpcClient().runProject();
     };
 
     const handleBuild = () => {
@@ -395,19 +398,19 @@ export function Overview(props: ComponentDiagramProps) {
 
     const getActionButtons = (): React.ReactNode[] => {
         return [
-            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handlePlay}>
+            <VSCodeButton key="run" appearance="icon" title="Run" onClick={handlePlay}>
                 <Codicon name="play" sx={{ marginRight: 5 }} /> Run
             </VSCodeButton>,
-            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleBuild}>
+            <VSCodeButton key="build" appearance="icon" title="Build" onClick={handleBuild}>
                 <Codicon name="package" sx={{ marginRight: 5 }} /> Build
             </VSCodeButton>,
-            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleDeploy}>
+            <VSCodeButton key="deploy" appearance="icon" title="Deploy" onClick={handleDeploy}>
                 <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
             </VSCodeButton>,
-            <VSCodeButton appearance="icon" title="Generate with AI" onClick={handleGenerate}>
+            <VSCodeButton key="generate" appearance="icon" title="Generate with AI" onClick={handleGenerate}>
                 <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
             </VSCodeButton>,
-            <VSCodeButton appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
+            <VSCodeButton key="add-construct" appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
                 <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
             </VSCodeButton>
         ];
@@ -446,7 +449,7 @@ export function Overview(props: ComponentDiagramProps) {
                     <CardTitleContainer>
                         <Title variant="h2">Readme</Title>
                         {readmeContent && isEmptyProject() && (
-                            <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleGenerate}>
+                            <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleReadmeGenerate}>
                                 <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
                             </VSCodeButton>
                         )}
@@ -476,4 +479,3 @@ export function Overview(props: ComponentDiagramProps) {
         </View>
     );
 }
-

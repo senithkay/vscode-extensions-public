@@ -24,10 +24,15 @@ import {
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ConfigVariableResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -50,6 +55,8 @@ export const handleReadmeContent: RequestType<ReadmeContentRequest, ReadmeConten
 export const createComponents: RequestType<ComponentsRequest, ComponentsResponse> = { method: `${_preFix}/createComponents` };
 export const getVisibleVariableTypes: RequestType<BIGetVisibleVariableTypesRequest, BIGetVisibleVariableTypesResponse> = { method: `${_preFix}/getVisibleVariableTypes` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
+export const getConfigVariables: RequestType<void, ConfigVariableResponse> = { method: `${_preFix}/getConfigVariables` };
+export const updateConfigVariables: RequestType<UpdateConfigVariableRequest, UpdateConfigVariableResponse> = { method: `${_preFix}/updateConfigVariables` };
 export const getModuleNodes: RequestType<void, BIModuleNodesResponse> = { method: `${_preFix}/getModuleNodes` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
@@ -58,3 +65,4 @@ export const openAIChat: NotificationType<AIChatRequest> = { method: `${_preFix}
 export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpResponse> = { method: `${_preFix}/getSignatureHelp` };
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
 export const runProject: NotificationType<void> = { method: `${_preFix}/runProject` };
+export const getVisibleTypes: RequestType<VisibleTypesRequest, VisibleTypesResponse> = { method: `${_preFix}/getVisibleTypes` };
