@@ -189,6 +189,7 @@ export function FormGenerator(props: FormProps) {
             onSubmit={onSubmit}
             openSubPanel={openSubPanel}
             updatedExpressionField={updatedExpressionField}
+            isActiveSubPanel={isActiveSubPanel}
             resetUpdatedExpressionField={resetUpdatedExpressionField}
         />;
     }
