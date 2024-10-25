@@ -20,7 +20,7 @@ export class NodeLinkFactory extends AbstractReactFactory<NodeLinkModel, Diagram
     }
 
     generateModel(event: GenerateModelEvent): NodeLinkModel {
-        return new NodeLinkModel();
+        return new NodeLinkModel(event.initialConfig);
     }
 
     generateReactWidget(event: GenerateWidgetEvent<NodeLinkModel>): JSX.Element {

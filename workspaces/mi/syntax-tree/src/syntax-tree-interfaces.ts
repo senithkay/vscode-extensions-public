@@ -693,8 +693,11 @@ export interface EndpointType extends ExtensibleDocumentedType, STNode {
 
 export interface Resource extends STNode {
     inSequenceAttribute?: string;
+    inSequence?: Sequence;
     outSequenceAttribute?: string;
+    outSequence?: Sequence;
     faultSequenceAttribute?: string;
+    faultSequence?: Sequence;
     location: string;
     key: string;
 }
