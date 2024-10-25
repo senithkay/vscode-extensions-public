@@ -152,7 +152,7 @@ export class BallerinaExtension {
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
         this.ballerinaLatestVersion = "2201.10.1";
         this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
-        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/workflows/79472995/runs?status=success&per_page=1";
+        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases/tags/v2201.11.0-bi-pack";
         this.ballerinaHomeCustomDirName = "ballerina-home";
         this.showStatusBarItem();
         // Load the extension
@@ -436,15 +436,10 @@ export class BallerinaExtension {
                 step: 1
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            const workflowResponse = await axios.get(this.ballerinaKolaReleaseUrl);
-            const workflowData = workflowResponse.data;
-            if (workflowData.total_count === 0) {
-                throw new Error('No successful workflow run found');
-            }
-            const latestRun = workflowData.workflow_runs[0];
-            console.log(`Found workflow run: ${latestRun.id}`);
-
-            const workflowRunUrl = latestRun.artifacts_url;
+            const kolaReleaseResponse = await axios.get(this.ballerinaKolaReleaseUrl);
+            const kolaRelease = kolaReleaseResponse.data;
+            this.ballerinaKolaVersion = kolaRelease.tag_name.replace('v', '').split('-')[0];
+            console.log(`Latest release version: ${this.ballerinaKolaVersion}`);
 
             res = {
                 downloadedSize: 0,
@@ -454,30 +449,25 @@ export class BallerinaExtension {
                 totalSize: 0,
                 step: 1
             };
-            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
-            const workflowRunResponse = await axios.get(workflowRunUrl);
-            if (workflowRunResponse.data.total_count === 0) {
-                throw new Error('No artifacts found in the workflow run');
-            }
+
             const platform = os.platform();
-            const asset = workflowRunResponse.data.artifacts.find((asset: any) => {
-                if (platform === 'win32') {
-                    return asset.name.endsWith('Windows Installer ZIP');
-                } else if (platform === 'linux') {
-                    if (os.arch() === 'arm64') {
-                        return asset.name.endsWith('Linux-ARM Installer ZIP');
-                    } else {
-                        return asset.name.endsWith('Linux Installer ZIP');
-                    }
-                } else if (platform === 'darwin') {
-                    if (os.arch() === 'arm64') {
-                        return asset.name.endsWith('MacOS-ARM Installer ZIP');
-                    } else {
-                        return asset.name.endsWith('MacOS Installer ZIP');
-                    }
-                }
-            });
-            const artifactUrl = asset.archive_download_url;
+            const asset = kolaRelease.assets.find((asset: any) => {
+                        if (platform === 'win32') {
+                            return asset.name.endsWith('windows.zip');
+                        } else if (platform === 'linux') {
+                            return asset.name.endsWith('linux.zip');
+                        } else if (platform === 'darwin') {
+                            if (os.arch() === 'arm64') {
+                                return asset.name.endsWith('macos-arm.zip');
+                            } else {
+                                return asset.name.endsWith('macos.zip');
+                            }
+                        }
+                    });
+            if (!asset) {
+                throw new Error('No artifact found in the release ' + this.ballerinaKolaVersion);
+            }
+            const artifactUrl = asset.browser_download_url;
 
             // Create destination folder if it doesn't exist
             if (!fs.existsSync(this.getBallerinaUserHome())) {
@@ -486,7 +476,6 @@ export class BallerinaExtension {
 
             // Download the artifact and save it to the user home directory
             console.log(`Downloading artifact from ${artifactUrl}`);
-            const token = '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';
             let response;
             try {
                 res = {
@@ -503,9 +492,6 @@ export class BallerinaExtension {
                     url: artifactUrl,
                     method: 'GET',
                     responseType: 'arraybuffer',
-                    headers: {
-                        'Authorization': `Bearer ${token}`, // Include the token in the headers
-                    },
                     onDownloadProgress: (progressEvent) => {
                         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                         console.log(`Total Size: ${progressEvent.total / (1024 * 1024)}MB`);
@@ -622,17 +608,14 @@ export class BallerinaExtension {
 
             await fs.promises.chmod(this.getBallerinaCmd(), 0o755);
 
-            const javaExecFile = this.findFileInDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 'java');
-            if (javaExecFile) {
-                console.log('Found java executable:', javaExecFile);
-                await fs.promises.chmod(javaExecFile, 0o755);
-            }
-
             let exeExtension = "";
             if (isWindows()) {
                 exeExtension = ".bat";
             }
             await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaKolaVersion, 'bin', 'bal' + exeExtension), 0o755);
+
+            // Set executable permissions for all files in the jre
+            this.setExecPermissionsForDirectory(path.join(this.getBallerinaHome(), 'dependencies'));
 
             console.log('Command files are now executable.');
         } catch (error) {
@@ -640,23 +623,16 @@ export class BallerinaExtension {
         }
     }
 
-    private findFileInDirectory(directory: string, fileName: string): string | null {
+    private async setExecPermissionsForDirectory(directory: string) {
         const files = fs.readdirSync(directory);
-
         for (const file of files) {
             const fullPath = path.join(directory, file);
-
             if (fs.statSync(fullPath).isDirectory()) {
-                const found = this.findFileInDirectory(fullPath, fileName);
-                if (found) {
-                    return found;
-                }
-            } else if (file === fileName) {
-                return fullPath;
+                this.setExecPermissionsForDirectory(fullPath);
+            } else {
+                await fs.promises.chmod(fullPath, 0o755);
             }
         }
-
-        return null;
     }
 
     private getInstallerUrl(): string {
