@@ -32,6 +32,7 @@ interface SidePanelContext {
     previousNode?: string;
     nextNode?: string;
     formValues?: { [key: string]: any };
+    inputOutput?:any;
     isFormOpen?: boolean;
     connectors?: any[];
     expressionEditor?: {

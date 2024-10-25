@@ -90,8 +90,8 @@ export class MILanguageClient {
 
     constructor(private context: ExtensionContext) { }
 
-    public static async getInstance(context: ExtensionContext) {
-        if (!this._instance) {
+    public static async getInstance(context?: ExtensionContext) {
+        if (!this._instance && context) {
             this._instance = new MILanguageClient(context);
             await this._instance.launch();
         }
@@ -277,6 +277,7 @@ export class MILanguageClient {
             }
             let extensionPath = extensions.getExtension("wso2.micro-integrator")!.extensionPath;
             xml['xml']['extensionPath'] = [`${extensionPath}`];
+            xml['xml']['miServerPath'] = "/Users/thuvarakan/Downloads/wso2mi-4.3.0";
             xml['xml']['catalogs'] = [`${extensionPath}/synapse-schemas/catalog.xml`];
             xml['xml']['useCache'] = true;
             return xml;
@@ -378,6 +379,12 @@ export class MILanguageClient {
         function registerFormattingProvider(context: ExtensionContext, langClient: ExtendedLanguageClient) {
             const formattingProvider = new FormattingProvider(langClient);
             context.subscriptions.push(languages.registerDocumentRangeFormattingEditProvider("SynapseXml", formattingProvider));
+        }
+    }
+
+    public async stop() {
+        if (this.languageClient) {
+            return this.languageClient.stop();
         }
     }
 }

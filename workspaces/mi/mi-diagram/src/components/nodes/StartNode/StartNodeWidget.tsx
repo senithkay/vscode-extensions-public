@@ -12,6 +12,8 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { StartNodeModel, StartNodeType } from "./StartNodeModel";
 import { Colors } from "../../../resources/constants";
+import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 namespace S {
     export const Node = styled.div<{}>`
@@ -31,6 +33,8 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     const { node, engine } = props;
     const nodeType = node.getNodeType();
     const [hovered, setHovered] = React.useState(false);
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
 
     const getNamedStartNode = () => (
         <svg
@@ -67,8 +71,23 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
         }
     };
 
+    const onClick = () =>{
+
+        const inputPayload="";
+        rpcClient.getMiDiagramRpcClient().getInputPayload({});
+
+        sidePanelContext.setSidePanelState({
+            isOpen: true,
+            operationName:"input",
+            isEditing: true,
+            formValues: inputPayload,
+            node: node,
+        });
+        console.log("Clicked");
+    }
+
     return (
-        <S.Node data-testid={`startNode-${node.getID()}`}>
+        <S.Node onClick={onClick} data-testid={`startNode-${node.getID()}`}>
             <PortWidget port={node.getPort("in")!} engine={engine} />
             {getSVGNode()}
             <PortWidget port={node.getPort("out")!} engine={engine} />

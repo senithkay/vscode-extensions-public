@@ -10,6 +10,7 @@ import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
+import InputPayloadForm from './Pages/InputPayload';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -132,6 +133,9 @@ const SidePanelList = (props: SidePanelListProps) => {
                 if (form) {
                     mediatorsPage = { content: form.form, title: `Edit ${form.title}` };
                 }
+            } else if(sidePanelContext.isEditing && sidePanelContext.operationName=="input"){
+
+                mediatorsPage = { content: <InputPayloadForm />, title: `Edit Input Payload` };
             } else {
 
                 const allMediators = getAllMediators({

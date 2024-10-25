@@ -235,7 +235,11 @@ import {
     addDriverToLib,
     deleteDriverFromLib,
     AddDriverToLibRequest,
-    getAllAPIcontexts
+    getAllAPIcontexts,
+    tryOutMediator,
+    MediatorTryOutRequest,
+    saveInputPayload,
+    getInputPayload
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -373,4 +377,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
     messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
+    messenger.onRequest(tryOutMediator, (args:MediatorTryOutRequest) => rpcManger.tryOutMediator(args));
+    messenger.onRequest(saveInputPayload, (args:any) => rpcManger.saveInputPayload(args));
+    messenger.onRequest(getInputPayload, (args:any) => rpcManger.getInputPayload(args));
 }

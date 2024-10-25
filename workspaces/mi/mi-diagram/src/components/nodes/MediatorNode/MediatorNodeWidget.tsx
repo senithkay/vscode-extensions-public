@@ -133,9 +133,14 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                         <S.IconContainer>{getMediatorIconsFromFont(node.mediatorName)}</S.IconContainer>
                         <div>
                             {isHovered && (
+                                <div>
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
-                                    <MoreVertIcon />
-                                </OptionsMenu>
+                                        <MoreVertIcon />
+                                    </OptionsMenu>
+                                    <Button appearance="icon" sx={{ position: "absolute", top: 0, right: 0 }} onClick={(e) => node.onOpenSchema(e, node, rpcClient, sidePanelContext)}>
+                                        Run
+                                    </Button>
+                                </div>
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>

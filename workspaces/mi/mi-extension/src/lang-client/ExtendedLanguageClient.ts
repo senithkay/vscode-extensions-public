@@ -40,7 +40,8 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSQueryGenResponse
+    DSSQueryGenResponse,
+    MediatorTryOutRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -290,5 +291,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
             resolve(undefined);
         });
+    }
+
+    async tryOutMediator(req:MediatorTryOutRequest): Promise<any> {
+        return this.sendRequest("synapse/tryOutMediator", req);
     }
 }

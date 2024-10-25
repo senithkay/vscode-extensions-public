@@ -1748,3 +1748,15 @@ export interface FileRenameRequest {
     existingPath: string;
     newPath: string;
 }
+
+export interface MediatorTryOutRequest {
+    isServerLess?:boolean;
+    file:string;
+    line:number;
+    column:number;
+    inputPayload?:string;
+    edits?: {
+        text:string;
+        range: Range;
+    }[]
+}

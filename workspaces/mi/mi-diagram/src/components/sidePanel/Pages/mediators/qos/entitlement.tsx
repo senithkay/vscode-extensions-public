@@ -19,6 +19,7 @@ import { MEDIATORS } from '../../../../../resources/constants';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { sidepanelGoBack } from '../../..';
+import TryOutView from '../tryout';
 
 const cardStyle = { 
     display: "block",
@@ -42,6 +43,9 @@ const EntitlementForm = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [ isLoading, setIsLoading ] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
+    const [isTryout, setTryout] = React.useState(false);
+    const [isSchemaView, setIsSchemaView] = React.useState(false);
+    const [schema, setSchema] = React.useState<any>({});
 
     const { control, formState: { errors, dirtyFields }, handleSubmit, watch, reset } = useForm();
 
@@ -74,6 +78,43 @@ const EntitlementForm = (props: AddMediatorProps) => {
         };
     }, [sidePanelContext.pageStack]);
 
+
+    const onTryOut = async (values: any) => {
+        // setTryout(true);
+        
+        const xml = getXML(MEDIATORS.ENTITLEMENT, values, dirtyFields, sidePanelContext.formValues);
+        let edits;
+        if(Array.isArray(xml)){
+            edits = xml;
+        } else {
+            edits = [{range: props.nodePosition, text: xml}];
+        }
+        const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({file: props.documentUri, line:props.nodePosition.start.line,column:props.nodePosition.start.character+1, edits});
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isTryoutOpen: true,
+            inputOutput: res,
+        });
+    }
+
+    const onClickConfigure = async (values:any) => {
+        setIsSchemaView(false);
+    }
+
+    const onClickSchema = async (values:any) => {
+        
+        setIsSchemaView(true);
+        const xml = getXML(MEDIATORS.ENTITLEMENT, values, dirtyFields, sidePanelContext.formValues);
+        let edits;
+        if(Array.isArray(xml)){
+            edits = xml;
+        } else {
+            edits = [{range: props.nodePosition, text: xml}];
+        }
+        const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({file: props.documentUri, line:props.nodePosition.start.line,column:props.nodePosition.start.character+1, edits: edits, isServerLess:true});
+        setSchema(res);
+    }
+
     const onClick = async (values: any) => {
         setDiagramLoading(true);
         
@@ -93,6 +134,7 @@ const EntitlementForm = (props: AddMediatorProps) => {
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
+            isTryoutOpen: false,
             isEditing: false,
             formValues: undefined,
             nodeRange: undefined,
@@ -106,7 +148,20 @@ const EntitlementForm = (props: AddMediatorProps) => {
     return (
         <>
             <Typography sx={{ padding: "10px 20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">Evaluates messages against XACML policy.</Typography>
-            <div style={{ padding: "20px" }}>
+            <br />
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+                <Button
+                    onClick={handleSubmit(onClickConfigure)}
+                >
+                   Configuration
+                </Button>
+                <Button
+                    onClick={handleSubmit(onClickSchema)}
+                >
+                   Input/Output
+                </Button>
+            </div>
+            {!isSchemaView && <div style={{ padding: "20px" }}>
 
                 <Field>
                     <Controller
@@ -405,16 +460,25 @@ const EntitlementForm = (props: AddMediatorProps) => {
                 </Field>
 
 
-                <div style={{ textAlign: "right", marginTop: "10px", float: "right" }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
+                    <Button
+                        onClick={handleSubmit(onTryOut)}
+                        sx={{ marginRight: '10px' }}
+                    >
+                        Try Out
+                    </Button>
                     <Button
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 
-            </div>
+            </div>}
+            {isSchemaView &&
+            <TryOutView data={schema} isSchemaView={true} />
+            }
         </>
     );
 };

@@ -216,7 +216,9 @@ import {
     DSSQueryGenRequest,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
-    APIContextsResponse
+    APIContextsResponse,
+    tryOutMediator,
+    MediatorTryOutRequest
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -275,6 +277,46 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
         });
     }
+    
+    async saveInputPayload(params:any):Promise<any>{
+        return new Promise((resolve)=>{
+
+            const projectUri = StateMachine.context().projectUri!;
+            const tryout = path.join(projectUri,".tryout");
+            if(!fs.existsSync(tryout)){
+                fs.mkdirSync(tryout);
+            }
+            fs.writeFileSync(path.join(tryout,"input.json"),params.payload);
+            resolve(true);
+        });
+    }
+
+    async getInputPayload(params:any):Promise<any>{
+        return new Promise((resolve)=>{
+            const projectUri = StateMachine.context().projectUri!;
+            const tryout = path.join(projectUri,".tryout","input.json");
+            if(fs.existsSync(tryout)){
+                const payload =  fs.readFileSync(tryout,"utf8");
+                const payloadJson = JSON.parse(payload);
+                resolve({hasPayload:true, payload:payloadJson});
+            }else{
+                resolve({hasPayload:false})
+            }
+        });
+    }
+
+    async tryOutMediator(params:MediatorTryOutRequest):Promise<any>{
+        return new Promise(async (resolve) => {
+            const projectUri = StateMachine.context().projectUri!;
+            const payloadPath = path.join(projectUri,".tryout","input.json");
+            const payload = fs.readFileSync(payloadPath,"utf8");
+            // const payloadJson = JSON.parse(payload);
+            params.inputPayload =payload
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.tryOutMediator(params);
+            resolve(res);
+        });
+    }
 
     async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
         const isGetSTFromUriRequest = (params: any): params is GetSTFromUriRequest => {
@@ -296,6 +338,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 params.artifactName
             );
         }
+
 
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;

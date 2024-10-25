@@ -332,7 +332,11 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
-    getAllAPIcontexts
+    getAllAPIcontexts,
+    MediatorTryOutRequest,
+    tryOutMediator,
+    getInputPayload,
+    saveInputPayload
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -866,5 +870,16 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
+    }
+
+    tryOutMediator(params:MediatorTryOutRequest): Promise<any> {
+        return this._messenger.sendRequest(tryOutMediator, HOST_EXTENSION, params);
+    }
+
+    saveInputPayload(params:any): Promise<any> {
+        return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
+    }
+    getInputPayload(params:any): Promise<any> {
+        return this._messenger.sendRequest(getInputPayload, HOST_EXTENSION, params);
     }
 }
