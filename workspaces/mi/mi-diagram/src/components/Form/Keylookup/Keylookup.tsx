@@ -278,7 +278,7 @@ export const Keylookup = (props: IKeylookup) => {
         }
         if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
+                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:"), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;

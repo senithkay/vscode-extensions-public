@@ -404,7 +404,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             return normalize(param[0].additionalData.path).replace(`${normalize(projectUri)}/`, '');
         });
 
-        const registryResources = getParamManagerValues(values.registryResources, false);
+        const registryResources = getParamManagerValues(values.registryResources, true);
         values.registryResources = await getRegistryArtifactDetails(registryResources);
 
         const mockServicePaths = [];
@@ -421,7 +421,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: xml, name: values.name, artifact }).then(() => {
             openOverview();
         });
-        async function getRegistryArtifactDetails(params: string[][]): Promise<{ fileName: string; artifact: string; registryPath: string; mediaType: string }[]> {
+        async function getRegistryArtifactDetails(params: any): Promise<{ fileName: string; artifact: string; registryPath: string; mediaType: string }[]> {
             const PATH_PREFIXES = [
                 { basePath: '/_system/governance/', prefix: 'gov:' },
                 { basePath: '/_system/config/', prefix: 'conf:' },
@@ -432,10 +432,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 miDiagramRpcClient.getAvailableRegistryResourcesData({ path: projectUri }),
                 miDiagramRpcClient.getAllRegistryPaths({ path: projectUri }),
             ]);
-
-            const resourcesPropertiesFiles = allRegistryPaths.registryPaths.map((registryPath) =>
-                registryPath.split(path.sep).join('/')
-            );
 
             const artifacts = allRegistryResources.artifacts.map((artifact) => ({
                 ...artifact,
@@ -451,7 +447,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
             for (const param of params) {
                 const paramKey = param[0];
-                const artifact = artifacts.find((a) => a.key === paramKey);
+                const artifact = artifacts.find((a) => a.key === paramKey.value);
                 if (!artifact) continue;
 
                 const registryPath =
@@ -459,8 +455,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                         ? artifact.path.slice(0, -1)
                         : artifact.path;
 
-                const artifactPath = findArtifactAbsolutePath(paramKey);
-                if (!artifactPath) continue;
+                const artifactPath = normalize(param[0].additionalData.path).replace(`${normalize(projectUri)}/`, '')
 
                 const newArtifact = {
                     fileName: artifact.file,
@@ -470,10 +465,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 };
 
                 artifactDetails.push(newArtifact);
-                const relativePath = findArtifactRelativePath(paramKey);
+                const relativePath = findArtifactRelativePath(paramKey.value);
                 if (
                     relativePath &&
-                    resourcesPropertiesFiles.includes(`${relativePath}.properties`)
+                    allRegistryPaths.registryPaths.includes(`${relativePath}.properties`)
                 ) {
                     artifactDetails.push({
                         fileName: `${newArtifact.fileName}.properties`,
@@ -490,12 +485,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 if (!match) return null;
                 const [, type, fileName] = match;
                 return { type, fileName };
-            }
-
-            function findArtifactAbsolutePath(paramValue: string): string | null {
-                const parsed = parseParamValue(paramValue);
-                if (!parsed) return null;
-                return `src/main/wso2mi/resources/registry/${parsed.type}/${parsed.fileName}`;
             }
 
             function findArtifactRelativePath(paramValue: string): string | null {
