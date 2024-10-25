@@ -14,14 +14,17 @@ import {
     AddToProjectRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
+    InitialPrompt,
     NotifyAIMappingsRequest,
     ProjectDiagnostics,
     ProjectSource,
     addToProject,
+    clearInitialPrompt,
     generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getInitialPrompt,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
@@ -76,8 +79,8 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    addToProject(content: AddToProjectRequest): void {
-        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, content);
+    addToProject(params: AddToProjectRequest): void {
+        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
     }
 
     getRefreshToken(): Promise<string> {
@@ -104,7 +107,15 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION);
     }
 
-    getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
-        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, project);
+    getShadowDiagnostics(params: ProjectSource): Promise<ProjectDiagnostics> {
+        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getInitialPrompt(): Promise<InitialPrompt> {
+        return this._messenger.sendRequest(getInitialPrompt, HOST_EXTENSION);
+    }
+
+    clearInitialPrompt(): void {
+        return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
     }
 }
