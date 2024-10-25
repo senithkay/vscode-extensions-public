@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
     CompletionItem,
+    ExpressionBarRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
@@ -22,8 +23,9 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
+import { formatJSONLikeString } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -159,16 +161,18 @@ export interface FormProps {
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        retrieveCompletions: (
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;
@@ -191,6 +195,7 @@ export function Form(props: FormProps) {
         openRecordEditor,
         openView,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
         targetLineRange,
         fileName,
@@ -201,15 +206,20 @@ export function Form(props: FormProps) {
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
+    const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+
+    const exprRef = useRef<ExpressionBarRef>(null);
 
     useEffect(() => {
         // Reset form with new values when formFields change
         const defaultValues: FormValues = {};
         formFields.forEach((field) => {
             if (isDropdownField(field)) {
-                defaultValues[field.key] = getValueForDropdown(field);
+                defaultValues[field.key] = getValueForDropdown(field) ?? "";
+            } else if (typeof field.value === 'string') {
+                defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
             } else {
-                defaultValues[field.key] = field.value;
+                defaultValues[field.key] = field.value ?? "";
             }
         });
         reset(defaultValues);
@@ -218,8 +228,14 @@ export function Form(props: FormProps) {
     useEffect(() => {
         if (updatedExpressionField) {
             const currentValue = getValues(updatedExpressionField.key);
-            if(currentValue !== undefined){
-                setValue(updatedExpressionField.key, currentValue + updatedExpressionField.value);
+
+            if (currentValue !== undefined) {
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                const newValue = currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
+                setValue(updatedExpressionField.key, newValue);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
             }
         }
@@ -243,6 +259,13 @@ export function Form(props: FormProps) {
     const handleOnHideAdvancedOptions = () => {
         setShowAdvancedOptions(false);
     };
+
+    const handleOnFieldFocus = (key: string) => {
+        if (isActiveSubPanel && activeFormField !== key) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveFormField(key);
+    }
 
     const handleOnUseDataMapper = () => {
         const viewField = formFields.find((field) => field.key === "view");
@@ -306,15 +329,26 @@ export function Form(props: FormProps) {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {variableField && createNewVariable && <EditorFactory field={variableField} />}
+                        {variableField && createNewVariable &&
+                            <EditorFactory
+                                field={variableField}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />
+                        }
                         {typeField && createNewVariable && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
+                        {updateVariableField && !createNewVariable &&
+                            <EditorFactory
+                                field={updateVariableField}
+                                openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                            />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -330,9 +364,12 @@ export function Form(props: FormProps) {
                             return (
                                 <S.Row key={field.key}>
                                     <EditorFactory
+                                        ref={exprRef}
                                         field={field}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
+                                        isActiveSubPanel={isActiveSubPanel}
+                                        handleOnFieldFocus={handleOnFieldFocus}
                                     />
                                 </S.Row>
                             );
@@ -376,9 +413,12 @@ export function Form(props: FormProps) {
                                 return (
                                     <S.Row key={field.key}>
                                         <EditorFactory
+                                            ref={exprRef}
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={openSubPanel}
+                                            isActiveSubPanel={isActiveSubPanel}
+                                            handleOnFieldFocus={handleOnFieldFocus}
                                         />
                                     </S.Row>
                                 );

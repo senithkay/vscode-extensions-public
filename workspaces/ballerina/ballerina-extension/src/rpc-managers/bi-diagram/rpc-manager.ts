@@ -31,6 +31,7 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
+    ConfigVariableResponse,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
@@ -48,9 +49,14 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
+    BI_COMMANDS,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -62,9 +68,11 @@ import {
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
-import { title } from "process";
+import { extension } from "../../BalExtensionContext";
+import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
+
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
         return new Promise((resolve) => {
@@ -339,7 +347,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     resolve(undefined);
                     return;
                 }
-
+                const token = await extension.context.secrets.get('BallerinaAIUser');
+                if (!token) {
+                    resolve(undefined);
+                    return;
+                }
                 // get copilot context form ls
                 const copilotContextRequest: BICopilotContextRequest = {
                     filePath: filePath,
@@ -356,14 +368,25 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 };
                 const requestOptions = {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}`},
                     body: JSON.stringify(requestBody),
                 };
                 console.log(">>> request ai suggestion", { request: requestBody });
-                const response = await fetch(
-                    "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/completion-api/v1.0/completion",
-                    requestOptions
-                );
+                let response;
+                try {
+                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+                } catch (error) {
+                    console.log(">>> error fetching ai suggestion", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                }
+                if (!response.ok){
+                    console.log(">>> ai completion api call failed ", response);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                }
                 const data = await response.json();
                 console.log(">>> ai suggestion", { response: data });
                 const suggestedContent = (data as any).completions.at(0);
@@ -552,6 +575,24 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async getConfigVariables(): Promise<ConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const variables = await StateMachine.langClient().getConfigVariables( { projectPath: projectPath }) as ConfigVariableResponse;
+            resolve(variables);
+        });
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequest = params;
+            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
+            const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
+            this.updateSource(response, false);
+            resolve(response);
+        });
+    }
+    
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
@@ -663,7 +704,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     openAIChat(params: AIChatRequest): void {
-        commands.executeCommand("ballerina.open.ai.panel");
+        commands.executeCommand("kolab.open.ai.panel");
     }
 
     async getModuleNodes(): Promise<BIModuleNodesResponse> {
@@ -781,7 +822,38 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     runProject(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        commands.executeCommand(BI_COMMANDS.BI_RUN_PROJECT);
     }
+
+    async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getVisibleTypes(params)
+                .then((visibleTypes) => {
+                    resolve(visibleTypes);
+                })
+                .catch((error) => {
+                    reject("Error fetching visible types from ls");
+                });
+        });
+    }
+}
+
+
+export async function fetchWithToken(url: string, options: RequestInit) {
+    let response = await fetch(url, options);
+    console.log("Response status: ", response.status);
+    if (response.status === 401) {
+        console.log("Token expired. Refreshing token...");
+        const newToken = await refreshAccessToken();
+        console.log("refreshed token : " + newToken);
+        if (newToken) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            response = await fetch(url, options);
+        }
+    }
+    return response;
 }

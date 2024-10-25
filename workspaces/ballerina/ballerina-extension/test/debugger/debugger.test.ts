@@ -94,7 +94,7 @@ suite('Ballerina Debug Adapter', () => {
             const debuggeePort = await getAvailablePort(5005);
             const response = await dc.launch({
                 script: program,
-                "ballerina.home": BALLERINA_HOME,
+                "kolab.home": BALLERINA_HOME,
                 request: "launch",
                 name: "Ballerina Debug",
                 "debugServer": DEBUG_PORT,
@@ -110,7 +110,7 @@ suite('Ballerina Debug Adapter', () => {
             const debuggeePort = await getAvailablePort(5006);
             const launchArgs = {
                 script: program,
-                "ballerina.home": BALLERINA_HOME,
+                "kolab.home": BALLERINA_HOME,
                 request: "launch",
                 name: "Ballerina Debug",
                 "debugServer": DEBUG_PORT,
@@ -125,7 +125,7 @@ suite('Ballerina Debug Adapter', () => {
             const debuggeePort = await getAvailablePort(5007);
             const launchArgs = {
                 script: program,
-                "ballerina.home": BALLERINA_HOME,
+                "kolab.home": BALLERINA_HOME,
                 request: "launch",
                 name: "Ballerina Debug",
                 "debugServer": DEBUG_PORT,
@@ -149,7 +149,7 @@ suite('Ballerina Debug Adapter', () => {
             const debuggeePort = await getAvailablePort(5008);
             const launchArgs = {
                 script: program,
-                "ballerina.home": BALLERINA_HOME,
+                "kolab.home": BALLERINA_HOME,
                 request: "launch",
                 name: "Ballerina Debug",
                 "debugServer": DEBUG_PORT,
@@ -172,7 +172,7 @@ suite('Ballerina Debug Adapter', () => {
             const debuggeePort = await getAvailablePort(5009);
             const launchArgs = {
                 script: program,
-                "ballerina.home": BALLERINA_HOME,
+                "kolab.home": BALLERINA_HOME,
                 request: "launch",
                 name: "Ballerina Debug",
                 "debugServer": DEBUG_PORT,

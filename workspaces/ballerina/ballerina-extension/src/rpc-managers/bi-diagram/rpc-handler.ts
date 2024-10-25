@@ -24,6 +24,7 @@ import {
     ReadmeContentRequest,
     SignatureHelpRequest,
     buildProject,
+    VisibleTypesRequest,
     createComponent,
     createComponents,
     createProject,
@@ -32,6 +33,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
     getFlowModel,
     getFunctions,
@@ -43,8 +45,11 @@ import {
     getSignatureHelp,
     getSourceCode,
     getVisibleVariableTypes,
+    getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
+    UpdateConfigVariableRequest,
+    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject,
@@ -71,6 +76,8 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
+    messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
@@ -79,4 +86,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getSignatureHelp, (args: SignatureHelpRequest) => rpcManger.getSignatureHelp(args));
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(runProject, () => rpcManger.runProject());
+    messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
 }
