@@ -45,7 +45,7 @@ const InputPayloadForm = (props: any) => {
     const { control, formState: { errors, dirtyFields }, handleSubmit,getValues, watch, reset } = useForm();
 
     useEffect(() => {
-        const payload = rpcClient.getMiDiagramRpcClient().getInputPayload({}).then((res) => {
+        const payload = rpcClient.getMiDiagramRpcClient().getInputPayload({documentUri:""}).then((res) => {
             reset({
                 payload: JSON.stringify(res.payload)
             });
@@ -57,7 +57,7 @@ const InputPayloadForm = (props: any) => {
     const savePayload = async ()=>{
         // setPayload(event)
         await rpcClient.getMiDiagramRpcClient().saveInputPayload({payload:getValues('payload')});
-        const res = await rpcClient.getMiDiagramRpcClient().getInputPayload({});
+        const res = await rpcClient.getMiDiagramRpcClient().getInputPayload({documentUri:""});
         if(res.hasPayload){
             reset({payload:res.payload});
         }
@@ -66,7 +66,7 @@ const InputPayloadForm = (props: any) => {
 
     const editPayload = async ()=>{
 
-        const res = await rpcClient.getMiDiagramRpcClient().getInputPayload({});
+        const res = await rpcClient.getMiDiagramRpcClient().getInputPayload({documentUri:""});
         if(res.hasPayload){
             reset({payload:JSON.stringify(res.payload)})
         } else {

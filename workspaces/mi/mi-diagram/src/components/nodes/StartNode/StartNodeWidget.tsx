@@ -74,7 +74,7 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     const onClick = () =>{
 
         const inputPayload="";
-        rpcClient.getMiDiagramRpcClient().getInputPayload({});
+        rpcClient.getMiDiagramRpcClient().getInputPayload({documentUri:""});
 
         sidePanelContext.setSidePanelState({
             isOpen: true,

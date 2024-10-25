@@ -1760,3 +1760,30 @@ export interface MediatorTryOutRequest {
         range: Range;
     }[]
 }
+
+export interface MediatorTryOutResponse {
+    input: MediatorTryOutInfo;
+    output: MediatorTryOutInfo;
+}
+
+export interface MediatorTryOutInfo {
+    payload: string;
+    synapse: { [key: string]: any };
+    axis2: { [key: string]: any };
+    axis2Client: { [key: string]: any };
+    axis2Transport: { [key: string]: any };
+    axis2Operation: { [key: string]: any };
+}
+
+export interface SavePayloadRequest {
+    payload: string;
+}
+
+export interface GetPayloadRequest {
+    documentUri: string;
+}
+
+export interface GetPayloadResponse {
+    hasPayload: boolean;
+    payload?: string;
+}

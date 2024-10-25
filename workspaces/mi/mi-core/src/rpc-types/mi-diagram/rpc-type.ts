@@ -200,7 +200,11 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
-    MediatorTryOutRequest
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -336,6 +340,6 @@ export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
-export const tryOutMediator: RequestType<MediatorTryOutRequest,any> = { method: `${_preFix}/tryOutMediator` };
-export const saveInputPayload: RequestType<any,any> = { method: `${_preFix}/saveInputPayload` };
-export const getInputPayload: RequestType<any,any> = { method: `${_preFix}/getInputPayload` };
+export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
+export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
+export const getInputPayload: RequestType<GetPayloadRequest,GetPayloadResponse> = { method: `${_preFix}/getInputPayload` };

@@ -41,7 +41,8 @@ import {
     AddDriverRequest,
     DSSQueryGenRequest,
     DSSQueryGenResponse,
-    MediatorTryOutRequest
+    MediatorTryOutRequest,
+    MediatorTryOutResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -293,7 +294,7 @@ export class ExtendedLanguageClient extends LanguageClient {
         });
     }
 
-    async tryOutMediator(req:MediatorTryOutRequest): Promise<any> {
+    async tryOutMediator(req:MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this.sendRequest("synapse/tryOutMediator", req);
     }
 }

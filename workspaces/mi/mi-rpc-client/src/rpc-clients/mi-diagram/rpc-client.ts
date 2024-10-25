@@ -336,7 +336,11 @@ import {
     MediatorTryOutRequest,
     tryOutMediator,
     getInputPayload,
-    saveInputPayload
+    saveInputPayload,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -872,14 +876,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
     }
 
-    tryOutMediator(params:MediatorTryOutRequest): Promise<any> {
+    tryOutMediator(params:MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this._messenger.sendRequest(tryOutMediator, HOST_EXTENSION, params);
     }
 
-    saveInputPayload(params:any): Promise<any> {
+    saveInputPayload(params:SavePayloadRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
     }
-    getInputPayload(params:any): Promise<any> {
+    getInputPayload(params:GetPayloadRequest): Promise<GetPayloadResponse> {
         return this._messenger.sendRequest(getInputPayload, HOST_EXTENSION, params);
     }
 }

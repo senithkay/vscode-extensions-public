@@ -239,7 +239,9 @@ import {
     tryOutMediator,
     MediatorTryOutRequest,
     saveInputPayload,
-    getInputPayload
+    getInputPayload,
+    SavePayloadRequest,
+    GetPayloadRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -378,6 +380,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
     messenger.onRequest(tryOutMediator, (args:MediatorTryOutRequest) => rpcManger.tryOutMediator(args));
-    messenger.onRequest(saveInputPayload, (args:any) => rpcManger.saveInputPayload(args));
-    messenger.onRequest(getInputPayload, (args:any) => rpcManger.getInputPayload(args));
+    messenger.onRequest(saveInputPayload, (args:SavePayloadRequest) => rpcManger.saveInputPayload(args));
+    messenger.onRequest(getInputPayload, (args:GetPayloadRequest) => rpcManger.getInputPayload(args));
 }

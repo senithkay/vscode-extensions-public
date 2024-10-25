@@ -218,7 +218,11 @@ import {
     AddDriverToLibRequest,
     APIContextsResponse,
     tryOutMediator,
-    MediatorTryOutRequest
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -278,7 +282,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
     
-    async saveInputPayload(params:any):Promise<any>{
+    async saveInputPayload(params:SavePayloadRequest):Promise<boolean>{
         return new Promise((resolve)=>{
 
             const projectUri = StateMachine.context().projectUri!;
@@ -291,7 +295,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getInputPayload(params:any):Promise<any>{
+    async getInputPayload(params:GetPayloadRequest):Promise<GetPayloadResponse>{
         return new Promise((resolve)=>{
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri,".tryout","input.json");
@@ -305,7 +309,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async tryOutMediator(params:MediatorTryOutRequest):Promise<any>{
+    async tryOutMediator(params:MediatorTryOutRequest):Promise<MediatorTryOutResponse>{
         return new Promise(async (resolve) => {
             const projectUri = StateMachine.context().projectUri!;
             const payloadPath = path.join(projectUri,".tryout","input.json");
