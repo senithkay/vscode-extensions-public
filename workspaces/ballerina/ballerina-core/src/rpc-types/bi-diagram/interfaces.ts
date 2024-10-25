@@ -89,4 +89,5 @@ export interface ComponentsResponse {
 
 export interface AIChatRequest {
     scafold: boolean;
+    readme: boolean;
 }
