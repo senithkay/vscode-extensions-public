@@ -1823,7 +1823,7 @@ export interface UnitTest extends STNode {
 export interface UnitTestArtifacts {
     testArtifact: TestArtifact;
     supportiveArtifacts: SupportiveArtifacts;
-    registryResources: any;
+    registryResources: RegistryResources;
     connectorResources: STNode;
 }
 
@@ -1832,7 +1832,7 @@ export interface SupportiveArtifacts extends STNode {
 }
 
 export interface RegistryResources extends STNode {
-    artifacts: Artifact[];
+    registryResources: Artifact[];
 }
 
 export interface TestArtifact extends STNode {

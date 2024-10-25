@@ -297,6 +297,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                         }]);
                     }
                 }
+
                 if (syntaxTree.unitTestArtifacts.registryResources?.registryResources) {
                     const resources = syntaxTree.unitTestArtifacts.registryResources.registryResources.map((resource: any) => {
                         return resource.artifact.textNode;
@@ -311,7 +312,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                         }]);
                     }
                 }
-
 
                 // get test cases
                 if (syntaxTree.testCases?.testCases) {
@@ -405,7 +405,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         });
 
         const registryResources = getParamManagerValues(values.registryResources, false);
-
         values.registryResources = await getRegistryArtifactDetails(registryResources);
 
         const mockServicePaths = [];
@@ -471,7 +470,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 };
 
                 artifactDetails.push(newArtifact);
-
                 const relativePath = findArtifactRelativePath(paramKey);
                 if (
                     relativePath &&
@@ -485,7 +483,6 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     });
                 }
             }
-
             return artifactDetails;
 
             function parseParamValue(paramValue: string): { type: string; fileName: string } | null {
