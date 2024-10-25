@@ -371,8 +371,15 @@ export function Overview(props: ComponentDiagramProps) {
     const handleGenerate = () => {
         rpcClient.getBIDiagramRpcClient().openAIChat({
             scafold: true,
+            readme: false
         });
+    };
 
+    const handleReadmeGenerate = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
+            readme: true
+        });
     };
 
     const handleEditReadme = () => {
@@ -442,7 +449,7 @@ export function Overview(props: ComponentDiagramProps) {
                     <CardTitleContainer>
                         <Title variant="h2">Readme</Title>
                         {readmeContent && isEmptyProject() && (
-                            <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleGenerate}>
+                            <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleReadmeGenerate}>
                                 <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
                             </VSCodeButton>
                         )}
