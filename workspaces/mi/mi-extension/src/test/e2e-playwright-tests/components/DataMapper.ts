@@ -103,11 +103,11 @@ export class DataMapper {
         // const links = this.webView.locator('g [data-testid]');
         // const linkCount = await links.count();
 
-        const sourceField = this.webView.locator(`div[data-name="${sourceFieldFQN}.OUT"]`);
+        const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
         await sourceField.waitFor();
         await sourceField.click();
 
-        const targetField = this.webView.locator(`div[data-name="${targetFieldFQN}.IN"]`);
+        const targetField = this.webView.locator(`div[id="recordfield-${targetFieldFQN}"]`);
         await targetField.waitFor();
         await targetField.click();
 
