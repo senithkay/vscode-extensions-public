@@ -110,7 +110,7 @@ export function InlineDataMapper(props: DataMapperProps) {
         mappings: [
             {
                 "output": "output.fullName",
-                "inputs": ["input1.name"],
+                "inputs": ["input1.name", "input1.age"],
                 "expression": "input1.name",
                 "diagnostics": []
             },

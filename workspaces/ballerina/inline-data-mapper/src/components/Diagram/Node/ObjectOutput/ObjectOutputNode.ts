@@ -16,10 +16,11 @@ import { getFilteredMappings, getSearchFilteredOutput, hasNoOutputMatchFound } f
 import { getTypeName } from "../../utils/type-utils";
 import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { findInputNode, getInputPort, getOutputPort } from "../../utils/node-utils";
+import { findInputNode } from "../../utils/node-utils";
 import { InputOutputPortModel } from "../../Port";
 import { DataMapperLinkModel } from "../../Link";
 import { ExpressionLabelModel } from "../../Label";
+import { getInputPort, getOutputPort } from "../../utils/port-utils";
 
 export const OBJECT_OUTPUT_NODE_TYPE = "data-mapper-node-object-output";
 const NODE_ID = "object-output-node";
@@ -87,7 +88,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 return;
             }
 
-            const inputNode = findInputNode(mapping, this);
+            const inputNode = findInputNode(mapping.inputs, this);
             let inPort: InputOutputPortModel;
             if (inputNode) {
                 inPort = getInputPort(inputNode, mapping.inputs[0]);
