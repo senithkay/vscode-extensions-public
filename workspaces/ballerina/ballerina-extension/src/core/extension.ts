@@ -538,29 +538,13 @@ export class BallerinaExtension {
             zip.extractAllTo(this.getBallerinaUserHome(), true);
             console.log(`Unzipped artifact to ${this.getBallerinaUserHome()}`);
 
-            const filePattern = /^ballerina-.*-swan-lake-.*\.zip$/;
-            const files = fs.readdirSync(this.getBallerinaUserHome());
-            const matchingFile = files.find((file) => filePattern.test(file));
-            if (!matchingFile) {
-                throw new Error('No matching zip file found');
-            }
-            const tempZipFilePath = path.join(this.getBallerinaUserHome(), matchingFile.toString());
-            console.log(tempZipFilePath);
-
-            const tempZip = new AdmZip(tempZipFilePath);
-            tempZip.extractAllTo(this.getBallerinaUserHome(), true);
-
-            // Get the Ballerina Kola version
-            this.ballerinaKolaVersion = matchingFile.toString().split('-')[1];
-            console.log(`Ballerina Kola version: ${this.ballerinaKolaVersion}`);
-
             // Cleanup: Remove the downloaded zip file
             fs.rmSync(zipFilePath);
-            fs.rmSync(tempZipFilePath);
 
             // Rename the root folder to the new name
-            const tempRootPath = path.join(this.getBallerinaUserHome(), matchingFile.toString().replace('.zip', ''));
+            const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
             fs.renameSync(tempRootPath, destinationPath);
+            
             res = {
                 ...res,
                 message: `Cleaning up the temp files...`,
