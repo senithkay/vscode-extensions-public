@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/api-designer-core';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { Overview } from './views/Overview';
-import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
@@ -24,13 +23,6 @@ const LoaderWrapper = styled.div`
     align-items: center;
     height: 50vh;
     width: 100vw;
-`;
-
-const ProgressRing = styled(VSCodeProgressRing)`
-    height: 40px;
-    width: 40px;
-    margin-top: auto;
-    padding: 4px;
 `;
 
 const PopUpContainer = styled.div`
@@ -125,7 +117,6 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
         <ViewContainer>
             {!viewComponent ? (
                 <LoaderWrapper>
-                    <ProgressRing />
                 </LoaderWrapper>
             ) : <>
                 {/* {showNavigator && <NavigationBar />} */}

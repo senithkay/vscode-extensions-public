@@ -11,7 +11,6 @@ import React, { createRef, useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
 import MainPanel from "./MainPanel";
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 
@@ -21,13 +20,6 @@ const LoaderWrapper = styled.div`
     align-items: center;
     height: 50vh;
     width: 100vw;
-`;
-
-const ProgressRing = styled(VSCodeProgressRing)`
-    height: 40px;
-    width: 40px;
-    margin-top: auto;
-    padding: 4px;
 `;
 
 const MODES = {
@@ -83,7 +75,6 @@ const VisualizerComponent = React.memo(({ state, handleResetError }: { state: Ma
         default:
             return (
                 <LoaderWrapper>
-                    <ProgressRing />
                 </LoaderWrapper>
             );
     }
