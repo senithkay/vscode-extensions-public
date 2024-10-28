@@ -85,9 +85,9 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const fetchConnectors = async () => {
         setIsFetchingConnectors(true);
         try {
-            const response = await fetch(APIS.CONNECTOR);
-            const data = await response.json();
-            setConnectors(data['inbound-connector-data'])
+            const response = rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+            const data = (await response).inboundConnectors;
+            setConnectors(data)
         } catch (e) {
             console.error("Error fetching connectors", e);
         }
@@ -164,7 +164,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const openSourceView = () => {
         rpcClient.getMiDiagramRpcClient().closeWebView();
-        rpcClient.getMiDiagramRpcClient().openFile({path: props.path});
+        rpcClient.getMiDiagramRpcClient().openFile({ path: props.path });
     };
 
     const openOverview = () => {
