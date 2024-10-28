@@ -19,9 +19,7 @@
   },
   "dependencies": {
     "@types/vscode-webview": "^1.57.3",
-    "vscode-messenger-common": "^0.4.5",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
-    "vscode-languageserver-types": "~3.17.5"
+    "vscode-messenger-common": "^0.4.5"
   },
   "repository": {
     "type": "git",
