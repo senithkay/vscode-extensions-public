@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { getColorByMethod } from '@wso2-enterprise/service-designer';
+import { getColorByMethod } from '../Utils/OpenAPIUtils';
 
 interface MethodWrapperProps {
     color: string;

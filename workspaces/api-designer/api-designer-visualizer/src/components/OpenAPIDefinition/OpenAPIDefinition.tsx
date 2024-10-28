@@ -15,7 +15,6 @@ import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
 import { SplitView } from "../SplitView/SplitView";
-import { Service } from "@wso2-enterprise/service-designer";
 import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
 import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
 import { Tabs } from "../Tabs/Tabs";
@@ -28,7 +27,6 @@ import { Codicon, Button, Typography } from "@wso2-enterprise/ui-toolkit";
 
 interface OpenAPIDefinitionProps {
     openAPIDefinition: OpenAPI;
-    serviceDesModel: Service;
     isNewFile?: boolean;
     onOpenApiDefinitionChange: (openApiDefinition: OpenAPI) => void;
 }
@@ -77,7 +75,7 @@ enum Views {
 }
 
 export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
-    const { openAPIDefinition: initialOpenAPIDefinition, serviceDesModel, isNewFile: newF, onOpenApiDefinitionChange } = props;
+    const { openAPIDefinition: initialOpenAPIDefinition, isNewFile: newF, onOpenApiDefinitionChange } = props;
     const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
     const [currentView, setCurrentView] = useState<Views>(newF ? Views.EDIT : Views.READ_ONLY);
     const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
@@ -432,15 +430,6 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
-    if (selectedMethod && selectedPath) {
-        serviceDesModel?.resources.forEach((resource) => {
-            if (resource.path === selectedPath && resource.methods.includes(selectedMethod)) {
-                resource.isOpen = true;
-            } else {
-                resource.isOpen = false;
-            }
-        });
-    }
     const currentPath = selectedPathID && openAPIDefinition?.paths[selectedPathID];
 
     const isSchemaSelected = selectedPathID && selectedPathID?.includes("-schema");

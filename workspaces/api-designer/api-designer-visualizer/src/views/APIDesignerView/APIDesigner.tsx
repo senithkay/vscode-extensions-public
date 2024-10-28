@@ -8,7 +8,6 @@
  */
 
 import { useEffect, useState } from "react";
-import { Service } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import styled from "@emotion/styled";
@@ -31,7 +30,6 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const { fileUri } = props;
     const { rpcClient } = useVisualizerContext();
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
-    const [ serviceDesModel, setServiceDesModel ] = useState<Service | undefined>(undefined);
     const [ documentType, setDocumentType ] = useState<string | undefined>(undefined);
     const [ isNewFile, setIsNewFile ] = useState<boolean>(false);
 
@@ -87,7 +85,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
     console.log("isNewFile", isNewFile);
     return (
         <APIDesignerWrapper>
-            <OpenAPIDefinition openAPIDefinition={apiDefinition} serviceDesModel={serviceDesModel} isNewFile={isNewFile} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
+            <OpenAPIDefinition openAPIDefinition={apiDefinition} isNewFile={isNewFile} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
         </APIDesignerWrapper>
     )
 }

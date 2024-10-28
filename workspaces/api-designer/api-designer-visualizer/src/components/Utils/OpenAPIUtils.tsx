@@ -9,7 +9,6 @@
 
 import yaml from 'js-yaml';
 
-import { ParameterConfig, Resource, ResponseConfig, Service } from "@wso2-enterprise/service-designer";
 import { OpenAPI, Operation, Param, Parameter, PathItem, Schema, Response, Header } from '../../Definitions/ServiceDefinitions';
 import { colors, darkerColors } from '../../constants';
 
@@ -30,44 +29,11 @@ export function resolveResponseType(response: Response): string {
     }
 }
 
-export function resolveResponseFromOperation(operation: Operation): ResponseConfig[] {
-    let responses: ResponseConfig[] = [];
-    if (operation.responses) {
-        let index = 0;
-        for (const [code, response] of Object.entries(operation.responses)) {
-            responses.push({
-                id: index,
-                code: code,
-                type: resolveResponseType(response),
-                description: response.description,
-            });
-            index++;
-        }
-    }
-    return responses;
-}
-
 export function resolveTypeFormSchema(schema: Schema): string {
     // if (schema?.type === "array") {
     //     return resolveTypeFormSchema(schema.items) + "[]";
     // }
     return schema.type as string;
-}
-
-export function getParametersFromOperation(operation: Operation): ParameterConfig[] {
-    let parameters: ParameterConfig[] = [];
-    if (operation.parameters) {
-        let index = 0;
-        for (const parameter of operation.parameters) {
-            parameters.push({
-                id: index,
-                name: parameter.name,
-                type: resolveTypeFormSchema(parameter.schema),
-            });
-            index++;
-        }
-    }
-    return parameters;
 }
 
 // export function convertOpenAPItoService(openAPIDefinition: OpenAPI): Service {

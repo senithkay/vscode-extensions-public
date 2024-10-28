@@ -10,8 +10,7 @@ import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathItem, Paths } from '../../Definitions/ServiceDefinitions';
 import { ContentWrapper, PanelBody } from '../Overview/Overview';
-import { getColorByMethod } from '@wso2-enterprise/service-designer';
-import { resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
+import { getColorByMethod, resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { MarkdownRenderer } from '../Resource/ReadOnlyResource';
 import React from 'react';
 

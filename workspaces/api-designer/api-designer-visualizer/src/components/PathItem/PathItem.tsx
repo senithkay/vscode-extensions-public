@@ -12,9 +12,8 @@ import { PathItem as PI, Param, Parameter, Paths } from "../../Definitions/Servi
 import { PanelBody } from "../Overview/Overview";
 import { CodeTextArea } from "../CodeTextArea/CodeTextArea";
 import { useEffect, useState } from "react";
-import { convertParamsToParameters, addNewParamToPath, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams, syncPathParamsWithParams, convertParamsToPath, getDeletedParamPath, getIdenticalParamName } from "../Utils/OpenAPIUtils";
+import { convertParamsToParameters, addNewParamToPath, getHeaderParametersFromParameters, getPathParametersFromParameters, getPathParametersFromPath, getQueryParametersFromParameters, isNameNotInParams, syncPathParamsWithParams, convertParamsToPath, getDeletedParamPath, getIdenticalParamName, getColorByMethod } from "../Utils/OpenAPIUtils";
 import { Action, ParamEditor } from "../Parameter/ParamEditor";
-import { getColorByMethod } from "@wso2-enterprise/service-designer";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { BaseTypes } from "../../constants";
 import styled from "@emotion/styled";

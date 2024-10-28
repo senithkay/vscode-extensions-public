@@ -29,7 +29,6 @@ export const APIDesignerStory = () => {
         <OpenAPIDefinition
             openAPIDefinition={apiDefinition}
             onOpenApiDefinitionChange={onOpenAPIDefinitionChange}
-            serviceDesModel={null}
         />
     );
 };
@@ -40,7 +39,6 @@ export const CoffeeshopStory = () => {
     return (
         <OpenAPIDefinition
             openAPIDefinition={coffeeshopJSON}
-            serviceDesModel={null}
             onOpenApiDefinitionChange={onOpenAPIDefinitionChange}
         />
     );
