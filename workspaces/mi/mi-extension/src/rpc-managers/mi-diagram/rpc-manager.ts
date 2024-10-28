@@ -216,7 +216,8 @@ import {
     DSSQueryGenRequest,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
-    APIContextsResponse
+    APIContextsResponse,
+    RegistryArtifact
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3514,7 +3515,11 @@ ${endpointAttributes}
             for (let i = 0; i < artifacts.length; i++) {
                 tempArtifactNames.push(artifacts[i].name);
             }
-            resolve({ artifacts: tempArtifactNames });
+            let artifactsWithAdditionalData: RegistryArtifact[] = [];
+            if (params.withAdditionalData) {
+                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+            }
+            resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });
     }
 
