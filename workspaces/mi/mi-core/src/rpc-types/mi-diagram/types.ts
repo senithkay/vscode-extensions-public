@@ -1450,7 +1450,8 @@ export interface GetConnectionFormResponse {
 }
 
 export interface StoreConnectorJsonResponse {
-    data: any[];
+    outboundConnectors: any[];
+    inboundConnectors: any[];
 }
 
 export interface CreateDataSourceResponse {
