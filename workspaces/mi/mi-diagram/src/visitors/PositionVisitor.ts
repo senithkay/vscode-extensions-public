@@ -89,7 +89,7 @@ export class PositionVisitor implements Visitor {
     }
 
     getSequenceHeight(): number {
-        return this.position.y;
+        return this.position.y - NODE_GAP.START_Y;
     }
 
     private setBasicMediatorPosition(node: STNode): void {
@@ -198,15 +198,16 @@ export class PositionVisitor implements Visitor {
         this.position.y += NODE_GAP.Y + node.viewState.h;
     }
     endVisitInSequence = (node: Sequence): void => {
-        this.position.y += (node?.mediatorList?.length === 0 ? NODE_GAP.Y : 0);
+        this.position.y += (node?.mediatorList?.length === 0 ? NODE_GAP.Y : 0) + NODE_DIMENSIONS.END.HEIGHT;
     }
 
     beginVisitOutSequence = (node: Sequence): void => {
-        this.position.y += NODE_GAP.SEQUENCE_Y;
-        this.setBasicMediatorPosition(node);
+        node.viewState.x = this.position.x - (node.viewState.w / 2);
+        node.viewState.y = this.position.y + NODE_GAP.SEQUENCE_Y;
+        this.position.y += NODE_GAP.SEQUENCE_Y + node.viewState.h + NODE_GAP.Y;
     }
     endVisitOutSequence = (node: Sequence): void => {
-        this.position.y += NODE_DIMENSIONS.END.HEIGHT;
+        this.position.y += (node?.mediatorList?.length === 0 ? NODE_GAP.Y : 0) + NODE_DIMENSIONS.END.HEIGHT;
     }
 
     beginVisitFaultSequence = (node: Sequence): void => {
@@ -253,7 +254,7 @@ export class PositionVisitor implements Visitor {
         const { outSequenceAttribute, viewState } = node;
 
         if (outSequenceAttribute) {
-            this.position.y = viewState.y + NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+            this.position.y += NODE_GAP.SEQUENCE_Y + NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
         }
     }
 
@@ -346,6 +347,11 @@ export class PositionVisitor implements Visitor {
         this.setAdvancedMediatorPosition(node, {
             Target: node.target.sequence
         }, NodeTypes.GROUP_NODE);
+
+        if (node.target?.sequenceAttribute) {
+            node.target.viewState.x = this.position.x - (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2);
+            node.target.viewState.y = node.viewState.y + node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
+        }
     }
     endVisitIterate = (node: Iterate): void => this.setSkipChildrenVisit(false);
     beginVisitForeach = (node: Foreach): void => {
