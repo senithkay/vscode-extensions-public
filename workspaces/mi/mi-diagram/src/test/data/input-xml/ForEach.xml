@@ -10,4 +10,11 @@
 		<faultSequence>
 		</faultSequence>
 	</resource>
+	<resource methods="GET" uri-template="/namedSequence">
+        <inSequence>
+            <foreach expression="$ctx" sequence="s1" />
+            <respond />
+        </inSequence>
+        <faultSequence />
+    </resource>
 </api>
