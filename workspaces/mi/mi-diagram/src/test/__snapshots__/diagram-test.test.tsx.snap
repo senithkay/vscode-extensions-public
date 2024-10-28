@@ -752,10 +752,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -1299,10 +1299,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -1846,10 +1846,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -2251,10 +2251,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -2658,10 +2658,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -3063,10 +3063,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -3470,10 +3470,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -3875,10 +3875,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -4282,10 +4282,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -4829,10 +4829,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -5378,10 +5378,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -5783,10 +5783,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -6188,10 +6188,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-187vtyh"
+      class="css-s0c7c1"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="260"
     >
       <div
@@ -6659,10 +6659,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-187vtyh"
+      class="css-s0c7c1"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="260"
     >
       <div
@@ -7132,10 +7132,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -7537,10 +7537,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -7942,10 +7942,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -8347,10 +8347,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -8754,10 +8754,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -9159,10 +9159,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -9566,10 +9566,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -9971,10 +9971,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -10378,10 +10378,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-14ko949"
+      class="css-1apqd9f"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="200"
     >
       <div
@@ -10961,10 +10961,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-14ko949"
+      class="css-1apqd9f"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="200"
     >
       <div
@@ -11546,10 +11546,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -11951,10 +11951,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -12358,10 +12358,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -12763,10 +12763,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -13170,10 +13170,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -13575,10 +13575,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -13982,10 +13982,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -14387,10 +14387,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -14794,10 +14794,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -15199,10 +15199,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -15604,10 +15604,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -16009,10 +16009,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -16416,10 +16416,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -16821,10 +16821,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -17228,10 +17228,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -17633,10 +17633,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -18040,10 +18040,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -18445,10 +18445,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -18852,10 +18852,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mqdhdg"
+      class="css-12hp4pd"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="750"
     >
       <div
@@ -19801,10 +19801,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mqdhdg"
+      class="css-12hp4pd"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="750"
     >
       <div
@@ -20752,10 +20752,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -21157,10 +21157,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -21564,10 +21564,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -21969,10 +21969,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -22376,10 +22376,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -22781,10 +22781,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -23188,10 +23188,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-2ieyy1"
+      class="css-k70d27"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="445"
+      height="466"
       width="350"
     >
       <div
@@ -23902,10 +23902,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-2ieyy1"
+      class="css-k70d27"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="445"
+      height="466"
       width="350"
     >
       <div
@@ -24616,10 +24616,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -25080,6 +25080,769 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEach.xml - GET /namedSequence 1`] = `
+"<div>
+  <div
+    class="css-x0z1wx"
+    data-testid="diagram-container"
+  >
+    <div
+      class="css-v1leuj"
+    >
+      <div
+        class="css-gougeo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Zoom In"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-plus"
+              style="font-size: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+      <div
+        class="css-gougeo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Zoom Out"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-dash"
+              style="font-size: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+      <div
+        class="css-1qcscwo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Reset Zoom"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-layout-centered"
+              style="font-size: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+    </div>
+    <div
+      class="css-1vyegd"
+      color="var(--vscode-foreground)"
+      data-testid="diagram-canvas-flow"
+      height="716"
+      width="150"
+    >
+      <div
+        class="css-byrass"
+        cursor="Default"
+      >
+        <svg
+          class="css-poo601"
+          style="transform: translate(
+				22px,
+				0px)
+			scale(
+				1
+			);"
+        >
+          <g
+            data-linkid="14,12"
+          >
+            <g
+              data-testid="link-14,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="foreach_seq_ref_start-14,12,foreach_seq_ref_reference-14,12"
+          >
+            <g
+              data-testid="link-foreach_seq_ref_start-14,12,foreach_seq_ref_reference-14,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="foreach_seq_ref_reference-14,12,foreach_seq_ref_end-14,12"
+          >
+            <g
+              data-testid="link-foreach_seq_ref_reference-14,12,foreach_seq_ref_end-14,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="15,12"
+          >
+            <g
+              data-testid="link-15,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="16,8"
+          >
+            <g
+              data-testid="link-16,8"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class="css-poo601"
+          style="transform: translate(
+				22px,
+				0px)
+			scale(
+				1
+			);"
+        >
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-resource-12-1"
+            style="top: 40px; left: 25px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-resource-12-1"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-resource-12-1"
+              />
+              <svg
+                height="40"
+                viewBox="0 0 100 40"
+                width="100"
+              >
+                <rect
+                  fill="var(--vscode-button-background)"
+                  height="40"
+                  rx="20"
+                  width="100"
+                  x="0"
+                  y="0"
+                />
+                <rect
+                  fill="var(--vscode-editor-background)"
+                  height="36"
+                  rx="18"
+                  width="96"
+                  x="2"
+                  y="2"
+                />
+                <text
+                  alignment-baseline="central"
+                  fill="var(--vscode-foreground)"
+                  text-anchor="middle"
+                  x="50%"
+                  y="50%"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-resource-12-1"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="foreach-14-12"
+            style="top: 130px; left: 0px;"
+          >
+            <div
+              data-testid="groupNode-foreach-14-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="foreach-14-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-q4be3z"
+                      >
+                        <i
+                          class="fw-ForEach"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            ForEach
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="css-as7ops"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-xfjg7s"
+                height="365"
+                width="150"
+              >
+                <div
+                  class="port css-1l1tlbe"
+                  data-name="out"
+                  data-nodeid="foreach-14-12"
+                  style="margin-left: 97px;"
+                />
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="foreach_seq_ref_start"
+            style="top: 240px; left: 63px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-foreach_seq_ref_start"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="foreach_seq_ref_start"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="10"
+                />
+                <path
+                  d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
+                  fill="var(--vscode-button-background)"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="foreach_seq_ref_start"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="foreach_seq_ref_reference"
+            style="top: 314px; left: 0px;"
+          >
+            <div
+              data-testid="referenceNode-foreach_seq_ref_reference"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="foreach_seq_ref_reference"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Call Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="foreach_seq_ref_reference"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="foreach_seq_ref_end"
+            style="top: 424px; left: 63.5px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-foreach_seq_ref_end"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="foreach_seq_ref_end"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="foreach_seq_ref_end"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="respond-15-12"
+            style="top: 545px; left: 0px;"
+          >
+            <div
+              data-testid="mediatorNode-respond-15-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="respond-15-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-Respond"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Respond
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="respond-15-12"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="inSequence-13-8"
+            style="top: 655px; left: 63px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-inSequence-13-8"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="inSequence-13-8"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="inSequence-13-8"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
 exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - ForEachWithDescription.xml - GET / 1`] = `
 "<div>
   <div
@@ -25163,10 +25926,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -25712,10 +26475,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -26117,10 +26880,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -26524,10 +27287,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -26988,6 +27751,771 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
 </div>"
 `;
 
+exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - Iterate.xml - GET /namedSequence 1`] = `
+"<div>
+  <div
+    class="css-x0z1wx"
+    data-testid="diagram-container"
+  >
+    <div
+      class="css-v1leuj"
+    >
+      <div
+        class="css-gougeo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Zoom In"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-plus"
+              style="font-size: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+      <div
+        class="css-gougeo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Zoom Out"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-dash"
+              style="font-size: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+      <div
+        class="css-1qcscwo"
+      >
+        <vscode-button
+          appearance="icon"
+          aria-label="Icon Button"
+          current-value=""
+          title="Reset Zoom"
+        >
+          <div
+            class="css-pk5gz1"
+          >
+            <i
+              class="codicon codicon-layout-centered"
+              style="font-size: 18px;"
+            />
+          </div>
+          <input
+            slot="form-associated-proxy"
+            style="display: none;"
+            type="undefined"
+          />
+        </vscode-button>
+      </div>
+    </div>
+    <div
+      class="css-1vyegd"
+      color="var(--vscode-foreground)"
+      data-testid="diagram-canvas-flow"
+      height="716"
+      width="150"
+    >
+      <div
+        class="css-byrass"
+        cursor="Default"
+      >
+        <svg
+          class="css-poo601"
+          style="transform: translate(
+				22px,
+				0px)
+			scale(
+				1
+			);"
+        >
+          <g
+            data-linkid="16,12"
+          >
+            <g
+              data-testid="link-16,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="target_start-17,16,target_reference-17,16"
+          >
+            <g
+              data-testid="link-target_start-17,16,target_reference-17,16"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="target_reference-17,16,target_end-17,16"
+          >
+            <g
+              data-testid="link-target_reference-17,16,target_end-17,16"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="5,5"
+                stroke-width="2"
+              />
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="19,12"
+          >
+            <g
+              data-testid="link-19,12"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+          <g
+            data-linkid="20,8"
+          >
+            <g
+              data-testid="link-20,8"
+              pointer-events="auto"
+            >
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="transparent"
+                stroke-width="16"
+              />
+              <path
+                d="M -22 0 L -22 0"
+                fill="none"
+                stroke="var(--vscode-button-background)"
+                stroke-dasharray="0"
+                stroke-width="2"
+              />
+              <foreignobject
+                data-testid="add-mediator-button"
+                height="30"
+                width="20"
+                x="-32"
+                y="-15"
+              >
+                <div
+                  class="css-j9sfmh-NodeLinkWidget"
+                >
+                  <svg
+                    height="24"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
+                      fill="var(--vscode-editor-background)"
+                    />
+                    <path
+                      d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2m0 18a8 8 0 1 1 8-8a8 8 0 0 1-8 8m4-9h-3V8a1 1 0 0 0-2 0v3H8a1 1 0 0 0 0 2h3v3a1 1 0 0 0 2 0v-3h3a1 1 0 0 0 0-2"
+                      fill="var(--vscode-button-background)"
+                    />
+                  </svg>
+                </div>
+              </foreignobject>
+              <defs>
+                <marker
+                  markerHeight="4"
+                  markerWidth="4"
+                  orient="auto"
+                  refX="3"
+                  refY="2"
+                  viewBox="0 0 4 4"
+                >
+                  <polygon
+                    fill="var(--vscode-button-background)"
+                    points="0,4 0,0 4,2"
+                  />
+                </marker>
+              </defs>
+            </g>
+          </g>
+        </svg>
+        <div
+          class="css-poo601"
+          style="transform: translate(
+				22px,
+				0px)
+			scale(
+				1
+			);"
+        >
+          <div
+            class="node css-nlpftr"
+            data-nodeid="start-resource-14-1"
+            style="top: 40px; left: 25px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-start-resource-14-1"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="start-resource-14-1"
+              />
+              <svg
+                height="40"
+                viewBox="0 0 100 40"
+                width="100"
+              >
+                <rect
+                  fill="var(--vscode-button-background)"
+                  height="40"
+                  rx="20"
+                  width="100"
+                  x="0"
+                  y="0"
+                />
+                <rect
+                  fill="var(--vscode-editor-background)"
+                  height="36"
+                  rx="18"
+                  width="96"
+                  x="2"
+                  y="2"
+                />
+                <text
+                  alignment-baseline="central"
+                  fill="var(--vscode-foreground)"
+                  text-anchor="middle"
+                  x="50%"
+                  y="50%"
+                >
+                  Start
+                </text>
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="start-resource-14-1"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="iterate-16-12"
+            style="top: 130px; left: 0px;"
+          >
+            <div
+              data-testid="groupNode-iterate-16-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="iterate-16-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-1of8dar"
+                      >
+                        <i
+                          class="fw-Iterate"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Iterate
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="css-as7ops"
+                  />
+                </div>
+              </div>
+              <div
+                class="css-xfjg7s"
+                height="365"
+                width="150"
+              >
+                <div
+                  class="port css-1l1tlbe"
+                  data-name="out"
+                  data-nodeid="iterate-16-12"
+                  style="margin-left: 97px;"
+                />
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="target_start"
+            style="top: 240px; left: 63px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="startNode-target_start"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="target_start"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="10"
+                />
+                <path
+                  d="M16 30a14 14 0 1 1 14-14a14.016 14.016 0 0 1-14 14m0-26a12 12 0 1 0 12 12A12.014 12.014 0 0 0 16 4"
+                  fill="var(--vscode-button-background)"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="target_start"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="target_reference"
+            style="top: 314px; left: 0px;"
+          >
+            <div
+              data-testid="referenceNode-target_reference"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-1f8szr7"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="target_reference"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1wk9l6y"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-CallSequence"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-1f8ti7d"
+                        >
+                          <div
+                            class="css-h55zw6"
+                          >
+                            Call Sequence
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                            >
+                              seq1
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="target_reference"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="target_end"
+            style="top: 424px; left: 63.5px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-target_end"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="target_end"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="target_end"
+              />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="respond-19-12"
+            style="top: 545px; left: 0px;"
+          >
+            <div
+              data-testid="mediatorNode-respond-19-12"
+            >
+              <div
+                class="css-6hu434"
+              >
+                <div
+                  class="css-17lt5ih"
+                >
+                  <div
+                    class="port css-3hvpph"
+                    data-name="in"
+                    data-nodeid="respond-19-12"
+                  />
+                  <div
+                    style="display: flex; flex-direction: row; width: 150px;"
+                  >
+                    <div
+                      class="css-1gt6rr1"
+                    >
+                      <div
+                        class="css-14uaptq"
+                      >
+                        <i
+                          class="fw-Respond"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="css-18bfde4"
+                      >
+                        <div
+                          class="css-kyfez4"
+                        >
+                          <div
+                            class="css-h55zw6"
+                            data-testid="mediator-name"
+                          >
+                            Respond
+                          </div>
+                        </div>
+                        <div
+                          class="css-1p80e1b"
+                        >
+                          <div
+                            class="css-1t1qebt"
+                          >
+                            <div
+                              class="css-1vc2u59"
+                              data-testid="mediator-description"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="port css-1l1tlbe"
+                    data-name="out"
+                    data-nodeid="respond-19-12"
+                  />
+                </div>
+              </div>
+              <div />
+            </div>
+          </div>
+          <div
+            class="node css-nlpftr"
+            data-nodeid="inSequence-15-8"
+            style="top: 655px; left: 63px;"
+          >
+            <div
+              class="css-2ttski"
+              data-testid="endNode-inSequence-15-8"
+            >
+              <div
+                class="port "
+                data-name="in"
+                data-nodeid="inSequence-15-8"
+              />
+              <svg
+                height="24"
+                viewBox="0 0 32 32"
+                width="24"
+              >
+                <circle
+                  cx="16"
+                  cy="16"
+                  fill="var(--vscode-button-background)"
+                  r="14"
+                />
+              </svg>
+              <div
+                class="port "
+                data-name="out"
+                data-nodeid="inSequence-15-8"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div />
+  </div>
+</div>"
+`;
+
 exports[`Diagram component renders correctly with valid XML files Diagram work correctly for resource - IterateWithDescription.xml - GET / 1`] = `
 "<div>
   <div
@@ -27071,10 +28599,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -27620,10 +29148,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -28025,10 +29553,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -28432,10 +29960,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -28839,10 +30367,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -29246,10 +30774,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -29651,10 +31179,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -30058,10 +31586,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -30463,10 +31991,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -30870,10 +32398,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -31275,10 +32803,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -31682,10 +33210,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -32087,10 +33615,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -32494,10 +34022,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -32901,10 +34429,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -33306,10 +34834,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -33713,10 +35241,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -34120,10 +35648,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -34525,10 +36053,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -35281,10 +36809,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-h490oc"
+      class="css-in91d3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="301"
+      height="606"
       width="0"
     >
       <div
@@ -35881,10 +37409,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1qro4m0"
+      class="css-in91d3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="285"
+      height="606"
       width="0"
     >
       <div
@@ -36830,10 +38358,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-vqzgfs"
+      class="css-r9abei"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="220"
+      height="241"
       width="0"
     >
       <div
@@ -37099,10 +38627,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1bsbk6r"
+      class="css-1bp4lej"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="245"
+      height="546"
       width="0"
     >
       <div
@@ -37888,10 +39416,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-h490oc"
+      class="css-1bp4lej"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="301"
+      height="546"
       width="0"
     >
       <div
@@ -38408,10 +39936,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mcugm2"
+      class="css-1bp4lej"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="496"
+      height="546"
       width="0"
     >
       <div
@@ -38807,7 +40335,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-28-8"
-            style="top: 435px; left: -12px;"
+            style="top: 485px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -38928,10 +40456,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mcugm2"
+      class="css-1bp4lej"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="496"
+      height="546"
       width="0"
     >
       <div
@@ -39327,7 +40855,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-32-8"
-            style="top: 435px; left: -12px;"
+            style="top: 485px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -39797,10 +41325,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1qro4m0"
+      class="css-in91d3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="285"
+      height="606"
       width="0"
     >
       <div
@@ -40397,10 +41925,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-3v8ma0"
+      class="css-1aqpihi"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="415"
+      height="486"
       width="0"
     >
       <div
@@ -40679,7 +42207,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-47-8"
-            style="top: 280px; left: -12px;"
+            style="top: 301px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -40716,7 +42244,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-47-8"
-            style="top: 354px; left: -12px;"
+            style="top: 425px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -40837,10 +42365,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1j50iwo"
+      class="css-r9abei"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="228"
+      height="241"
       width="0"
     >
       <div
@@ -41106,10 +42634,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-3v8ma0"
+      class="css-1aqpihi"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="415"
+      height="486"
       width="0"
     >
       <div
@@ -41388,7 +42916,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-59-8"
-            style="top: 280px; left: -12px;"
+            style="top: 301px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -41425,7 +42953,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-59-8"
-            style="top: 354px; left: -12px;"
+            style="top: 425px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -41546,10 +43074,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1bsbk6r"
+      class="css-1bp4lej"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="245"
+      height="546"
       width="0"
     >
       <div
@@ -42066,10 +43594,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mcugm2"
+      class="css-1bp4lej"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="496"
+      height="546"
       width="0"
     >
       <div
@@ -42465,7 +43993,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-69-8"
-            style="top: 435px; left: -12px;"
+            style="top: 485px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -42586,10 +44114,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-3v8ma0"
+      class="css-1aqpihi"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="415"
+      height="486"
       width="0"
     >
       <div
@@ -42868,7 +44396,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-78-8"
-            style="top: 280px; left: -12px;"
+            style="top: 301px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -42905,7 +44433,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-78-8"
-            style="top: 354px; left: -12px;"
+            style="top: 425px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -43026,10 +44554,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-3v8ma0"
+      class="css-1aqpihi"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="415"
+      height="486"
       width="0"
     >
       <div
@@ -43308,7 +44836,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-84-8"
-            style="top: 280px; left: -12px;"
+            style="top: 301px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -43345,7 +44873,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-84-8"
-            style="top: 354px; left: -12px;"
+            style="top: 425px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -43466,10 +44994,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-3v8ma0"
+      class="css-1aqpihi"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="415"
+      height="486"
       width="0"
     >
       <div
@@ -43748,7 +45276,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-92-8"
-            style="top: 280px; left: -12px;"
+            style="top: 301px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -43785,7 +45313,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-92-8"
-            style="top: 354px; left: -12px;"
+            style="top: 425px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -43906,10 +45434,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-3v8ma0"
+      class="css-1aqpihi"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="415"
+      height="486"
       width="0"
     >
       <div
@@ -44188,7 +45716,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-104-8"
-            style="top: 280px; left: -12px;"
+            style="top: 301px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -44225,7 +45753,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-104-8"
-            style="top: 354px; left: -12px;"
+            style="top: 425px; left: -12px;"
           >
             <div
               class="css-2ttski"
@@ -44346,10 +45874,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -44753,10 +46281,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-j1gch5"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="245"
+      height="606"
       width="150"
     >
       <div
@@ -45818,10 +47346,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-a0ffy3"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="301"
+      height="606"
       width="150"
     >
       <div
@@ -46476,11 +48004,11 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-in91d3"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
       height="606"
-      width="0"
+      width="150"
     >
       <div
         class="css-byrass"
@@ -46489,7 +48017,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         <svg
           class="css-poo601"
           style="transform: translate(
-				0px,
+				-75px,
 				0px)
 			scale(
 				1
@@ -46503,13 +48031,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -46540,13 +48068,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -46577,13 +48105,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="5,5"
@@ -46614,13 +48142,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -46630,7 +48158,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="65"
                 y="-15"
               >
                 <div
@@ -46678,13 +48206,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -46694,7 +48222,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="65"
                 y="-15"
               >
                 <div
@@ -46738,7 +48266,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         <div
           class="css-poo601"
           style="transform: translate(
-				0px,
+				-75px,
 				0px)
 			scale(
 				1
@@ -46747,7 +48275,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_start"
-            style="top: 40px; left: -50px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -46799,7 +48327,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_reference"
-            style="top: 130px; left: -75px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="referenceNode-inSequence_reference"
@@ -46869,7 +48397,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_end"
-            style="top: 240px; left: -11.5px;"
+            style="top: 240px; left: 63.5px;"
           >
             <div
               class="css-2ttski"
@@ -46902,7 +48430,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-23-8"
-            style="top: 361px; left: -12px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -46939,7 +48467,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-24-12"
-            style="top: 435px; left: -75px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-24-12"
@@ -47013,7 +48541,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-23-8"
-            style="top: 545px; left: -12px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -47134,11 +48662,11 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-in91d3"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
       height="606"
-      width="0"
+      width="150"
     >
       <div
         class="css-byrass"
@@ -47147,7 +48675,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         <svg
           class="css-poo601"
           style="transform: translate(
-				0px,
+				-75px,
 				0px)
 			scale(
 				1
@@ -47161,13 +48689,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -47198,13 +48726,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -47235,13 +48763,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="5,5"
@@ -47272,13 +48800,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -47288,7 +48816,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="65"
                 y="-15"
               >
                 <div
@@ -47336,13 +48864,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -47352,7 +48880,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="65"
                 y="-15"
               >
                 <div
@@ -47396,7 +48924,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         <div
           class="css-poo601"
           style="transform: translate(
-				0px,
+				-75px,
 				0px)
 			scale(
 				1
@@ -47405,7 +48933,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_start"
-            style="top: 40px; left: -50px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -47457,7 +48985,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_reference"
-            style="top: 130px; left: -75px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="referenceNode-inSequence_reference"
@@ -47527,7 +49055,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_end"
-            style="top: 240px; left: -11.5px;"
+            style="top: 240px; left: 63.5px;"
           >
             <div
               class="css-2ttski"
@@ -47560,7 +49088,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-28-8"
-            style="top: 361px; left: -12px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -47597,7 +49125,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-29-12"
-            style="top: 435px; left: -75px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-29-12"
@@ -47671,7 +49199,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-28-8"
-            style="top: 545px; left: -12px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -48141,10 +49669,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w994n7"
+      class="css-in91d3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="338"
+      height="606"
       width="0"
     >
       <div
@@ -48741,10 +50269,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1otd4g4"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="585"
+      height="606"
       width="150"
     >
       <div
@@ -49225,7 +50753,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-47-8"
-            style="top: 340px; left: 63px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -49262,7 +50790,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-48-12"
-            style="top: 414px; left: 0px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-48-12"
@@ -49336,7 +50864,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-47-8"
-            style="top: 524px; left: 63px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -49864,10 +51392,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1otd4g4"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="585"
+      height="606"
       width="150"
     >
       <div
@@ -50348,7 +51876,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-63-8"
-            style="top: 340px; left: 63px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -50385,7 +51913,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-64-12"
-            style="top: 414px; left: 0px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-64-12"
@@ -50459,7 +51987,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-63-8"
-            style="top: 524px; left: 63px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -50580,10 +52108,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-zhwkcn"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="338"
+      height="606"
       width="150"
     >
       <div
@@ -51238,11 +52766,11 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-in91d3"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
       height="606"
-      width="0"
+      width="150"
     >
       <div
         class="css-byrass"
@@ -51251,7 +52779,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         <svg
           class="css-poo601"
           style="transform: translate(
-				0px,
+				-75px,
 				0px)
 			scale(
 				1
@@ -51265,13 +52793,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -51302,13 +52830,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -51339,13 +52867,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="5,5"
@@ -51376,13 +52904,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -51392,7 +52920,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="65"
                 y="-15"
               >
                 <div
@@ -51440,13 +52968,13 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
               pointer-events="auto"
             >
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="transparent"
                 stroke-width="16"
               />
               <path
-                d="M 0 0 L 0 0"
+                d="M 75 0 L 75 0"
                 fill="none"
                 stroke="var(--vscode-button-background)"
                 stroke-dasharray="0"
@@ -51456,7 +52984,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                 data-testid="add-mediator-button"
                 height="30"
                 width="20"
-                x="-10"
+                x="65"
                 y="-15"
               >
                 <div
@@ -51500,7 +53028,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
         <div
           class="css-poo601"
           style="transform: translate(
-				0px,
+				-75px,
 				0px)
 			scale(
 				1
@@ -51509,7 +53037,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_start"
-            style="top: 40px; left: -50px;"
+            style="top: 40px; left: 25px;"
           >
             <div
               class="css-2ttski"
@@ -51561,7 +53089,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_reference"
-            style="top: 130px; left: -75px;"
+            style="top: 130px; left: 0px;"
           >
             <div
               data-testid="referenceNode-inSequence_reference"
@@ -51631,7 +53159,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="inSequence_end"
-            style="top: 240px; left: -11.5px;"
+            style="top: 240px; left: 63.5px;"
           >
             <div
               class="css-2ttski"
@@ -51664,7 +53192,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-76-8"
-            style="top: 361px; left: -12px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -51701,7 +53229,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-77-12"
-            style="top: 435px; left: -75px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-77-12"
@@ -51775,7 +53303,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-76-8"
-            style="top: 545px; left: -12px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -51896,10 +53424,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1otd4g4"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="585"
+      height="606"
       width="150"
     >
       <div
@@ -52380,7 +53908,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-88-8"
-            style="top: 340px; left: 63px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -52417,7 +53945,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-89-12"
-            style="top: 414px; left: 0px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-89-12"
@@ -52491,7 +54019,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-88-8"
-            style="top: 524px; left: 63px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -52612,10 +54140,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1otd4g4"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="585"
+      height="606"
       width="150"
     >
       <div
@@ -53096,7 +54624,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-96-8"
-            style="top: 340px; left: 63px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -53133,7 +54661,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-97-12"
-            style="top: 414px; left: 0px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-97-12"
@@ -53207,7 +54735,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-96-8"
-            style="top: 524px; left: 63px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -53328,10 +54856,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1otd4g4"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="585"
+      height="606"
       width="150"
     >
       <div
@@ -53812,7 +55340,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-107-8"
-            style="top: 340px; left: 63px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -53849,7 +55377,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-108-12"
-            style="top: 414px; left: 0px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-108-12"
@@ -53923,7 +55451,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-107-8"
-            style="top: 524px; left: 63px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -54044,10 +55572,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-1otd4g4"
+      class="css-1xxcjdg"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="585"
+      height="606"
       width="150"
     >
       <div
@@ -54528,7 +56056,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="start-outSequence-124-8"
-            style="top: 340px; left: 63px;"
+            style="top: 361px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -54565,7 +56093,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="log-125-12"
-            style="top: 414px; left: 0px;"
+            style="top: 435px; left: 0px;"
           >
             <div
               data-testid="mediatorNode-log-125-12"
@@ -54639,7 +56167,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="outSequence-124-8"
-            style="top: 524px; left: 63px;"
+            style="top: 545px; left: 63px;"
           >
             <div
               class="css-2ttski"
@@ -54760,10 +56288,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -55165,10 +56693,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -55572,10 +57100,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -55977,10 +57505,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -56384,10 +57912,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -56789,10 +58317,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -57196,10 +58724,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -57601,10 +59129,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -58008,10 +59536,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-187vtyh"
+      class="css-s0c7c1"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="260"
     >
       <div
@@ -58479,10 +60007,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-187vtyh"
+      class="css-s0c7c1"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="260"
     >
       <div
@@ -58952,10 +60480,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -59357,10 +60885,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -59764,10 +61292,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -60169,10 +61697,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -60576,10 +62104,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -60981,10 +62509,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -61388,10 +62916,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-2ieyy1"
+      class="css-k70d27"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="445"
+      height="466"
       width="350"
     >
       <div
@@ -62138,10 +63666,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-2ieyy1"
+      class="css-k70d27"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="445"
+      height="466"
       width="350"
     >
       <div
@@ -62888,10 +64416,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-2ieyy1"
+      class="css-k70d27"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="445"
+      height="466"
       width="350"
     >
       <div
@@ -63600,10 +65128,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-2ieyy1"
+      class="css-k70d27"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="445"
+      height="466"
       width="350"
     >
       <div
@@ -64314,10 +65842,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -64719,10 +66247,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -65126,10 +66654,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -65673,10 +67201,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-w72lj"
+      class="css-17yitny"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="480"
+      height="501"
       width="150"
     >
       <div
@@ -66222,10 +67750,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -66627,10 +68155,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -67034,10 +68562,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div
@@ -67439,10 +68967,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-mdtqom"
+      class="css-a0ffy3"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="280"
+      height="301"
       width="150"
     >
       <div

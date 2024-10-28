@@ -147,7 +147,7 @@ export function VariablesView(props: VariablesViewProps) {
                 />
             </SearchWrapper>
             {!isSearching &&
-                <div style={{ height: "calc(100vh - 100px)", width: "380px", overflow: "scroll" }}>
+                <div style={{ height: "calc(100vh - 100px)", width: "380px", display: 'flex', flexDirection: 'column' }}>
                     <ScopeVariables
                         categories={variableTypes}
                         handleOnSelection={handleOnSelection}
@@ -159,8 +159,6 @@ export function VariablesView(props: VariablesViewProps) {
                         searchText={searchText}
                     />
                 </div>
-
-
             }
         </PanelBody>
     );
@@ -191,15 +189,18 @@ function ScopeVariables({
     }
 
     return (
-        <ListView>
+        <ListView style={{ maxHeight: '80vh' }}>
             <Title>Scope Variables</Title>
-            {filteredVariables.map((variable) => (
-                <VariableTree
-                    variable={variable}
-                    depth={1}
-                    handleOnSelection={handleOnSelection}
-                />
-            ))}
+            <div style={{ overflow: 'scroll' }}>
+                {filteredVariables.map((variable) => (
+                    <VariableTree
+                        variable={variable}
+                        depth={1}
+                        handleOnSelection={handleOnSelection}
+                    />
+                ))}
+            </div>
+
         </ListView>
     );
 }
@@ -226,13 +227,15 @@ function ConfigurableVariables({
     return (
         <ListView>
             <Title>Configurable Variables</Title>
-            {filteredVariables.map((variable) => (
-                <VariableTree
-                    variable={variable}
-                    depth={1}
-                    handleOnSelection={handleOnSelection}
-                />
-            ))}
+            <div style={{ overflow: 'scroll' }}>
+                {filteredVariables.map((variable) => (
+                    <VariableTree
+                        variable={variable}
+                        depth={1}
+                        handleOnSelection={handleOnSelection}
+                    />
+                ))}
+            </div>
         </ListView>
     );
 }

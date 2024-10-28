@@ -223,7 +223,7 @@ import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
-import { isEqual } from "lodash";
+import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
@@ -265,6 +265,8 @@ const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 const connectorsPath = path.join(".metadata", ".Connectors");
 
 const undoRedo = new UndoRedoManager();
+
+const connectorCache = new Map<string, any>();
 
 export class MiDiagramRpcManager implements MiDiagramAPI {
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
@@ -2876,12 +2878,8 @@ ${endpointAttributes}
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
-            const response = await fetch(APIS.CONNECTOR);
-            if (!response.ok) {
-                console.error('Failed to fetch connectors');
-            }
-            const data = await response.json();
-            const connector = data['outbound-connector-data']?.find(connector => connector.name === name);
+            const data = await this.getStoreConnectorJSON();
+            const connector = data?.outboundConnectors?.find(connector => connector.name === name);
             if (connector) {
                 return connector.download_url;
             } else {
@@ -3559,9 +3557,24 @@ ${endpointAttributes}
 
     async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
-            const connectorDataState = StateMachine.context().connectorData;
-            if (connectorDataState !== undefined) {
-                resolve({ data: connectorDataState });
+            try {
+                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data')) {
+                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data') });
+                    return;
+                }
+                const response = await fetch(APIS.CONNECTOR);
+                const data = await response.json();
+                if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
+                    connectorCache.set('inbound-connector-data', data['inbound-connector-data']);
+                    connectorCache.set('outbound-connector-data', data['outbound-connector-data']);
+                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'] });
+                } else {
+                    console.log("Failed to fetch connectors. Status: " + data.status + ", Reason: " + data.reason);
+                    reject("Failed to fetch connectors.");
+                }
+            } catch (error) {
+                console.log("User is offline.", error);
+                reject("Failed to fetch connectors.");
             }
         });
 

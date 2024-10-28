@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
-import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
 import { FormValues, ExpressionEditor, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
@@ -28,10 +28,11 @@ interface IfFormProps {
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    isActiveSubPanel?: boolean;
 }
 
 export function IfForm(props: IfFormProps) {
-    const { fileName, node, targetLineRange, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField } = props;
+    const { fileName, node, targetLineRange, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
     const { control, getValues, setValue, handleSubmit } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
@@ -250,8 +251,11 @@ export function IfForm(props: IfFormProps) {
         handleExpressionEditorCancel();
     }
 
-    const handleEditorFocus = (activeEditor: number) => {
-        setActiveEditor(activeEditor);
+    const handleEditorFocus = (currentActive: number) => {
+        if (isActiveSubPanel && activeEditor !== currentActive) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveEditor(currentActive);
     }
 
     useEffect(() => {

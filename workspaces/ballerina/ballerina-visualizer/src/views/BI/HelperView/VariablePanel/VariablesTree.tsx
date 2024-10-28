@@ -25,9 +25,9 @@ export function VariableTree(props: VariableTreeProps) {
         handleOnSelection(name);
     }
 
-    if (variable.type.typeName !== "record" && variable.type.typeName !== "object") {
-        return (<PrimitiveType variable={variable} handleOnClick={handleOnClick} />);
-    } else if (variable.type.typeName === "record") {
+    if (variable.type.typeName === "record") {
         return (<RecordTypeTree variable={variable} depth={depth} handleOnClick={handleOnClick} parentValue={parentValue} />);
+    } else {
+        return (<PrimitiveType variable={variable} handleOnClick={handleOnClick} />);
     }
 }
