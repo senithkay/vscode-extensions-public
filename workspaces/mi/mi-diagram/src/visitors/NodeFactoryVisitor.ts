@@ -224,8 +224,8 @@ export class NodeFactoryVisitor implements Visitor {
                 if (this.currentAddPosition != undefined) {
                     addPosition = this.currentAddPosition;
                 } else if (type === NodeTypes.CONDITION_NODE_END && previousNode instanceof EmptyNodeModel) {
-                    addPosition = { 
-                        position: previousStNode.range.endTagRange?.end ?? previousStNode.range.startTagRange.end, 
+                    addPosition = {
+                        position: previousStNode.range.endTagRange?.end ?? previousStNode.range.startTagRange.end,
                         trailingSpace: previousStNode.spaces.endingTagSpace?.trailingSpace?.space ?? previousStNode.spaces.startingTagSpace.trailingSpace.space
                     };
                 } else {
@@ -234,11 +234,18 @@ export class NodeFactoryVisitor implements Visitor {
                 }
 
                 const isBrokenLine = previousStNode.viewState.isBrokenLines ?? node.viewState.isBrokenLines;
+                let linkId;
+                if (addPosition.position?.line != undefined && addPosition.position?.character != undefined) {
+                    linkId = `${addPosition.position.line},${addPosition.position.character}${this.currentBranchData?.name ? `,${this.currentBranchData?.name}` : ''}`;
+                } else {
+                    linkId = `${previousStNode.viewState?.id}-${previousStNode.range.startTagRange.start.line},${previousStNode.range.startTagRange.start.character},${node.viewState?.id}-${node.range.startTagRange.start.line},${node.range.startTagRange.start.character}`;
+                }
 
                 const link = createNodesLink(
                     previousNode as SourceNodeModel,
                     diagramNode as TargetNodeModel,
                     {
+                        id: linkId,
                         label: this.currentBranchData?.name,
                         stRange: addPosition.position,
                         trailingSpace: addPosition.trailingSpace ?? "",
@@ -390,7 +397,7 @@ export class NodeFactoryVisitor implements Visitor {
     }
     endVisitInSequence(node: Sequence): void {
         node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
-        node.viewState.y = node.viewState.fh + NODE_GAP.Y;
+        node.viewState.y += node.viewState.fh;
         this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.pop();
         this.previousSTNodes = [node];
@@ -398,7 +405,7 @@ export class NodeFactoryVisitor implements Visitor {
 
     beginVisitOutSequence(node: Sequence): void {
         const space = node.spaces.startingTagSpace.trailingSpace;
-        this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
+        this.currentAddPosition = { position: undefined, trailingSpace: undefined };
         this.resource.viewState = node.viewState;
         this.createNodeAndLinks({ node, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
         this.currentAddPosition = { position: space.range.end, trailingSpace: space.space };
@@ -449,84 +456,52 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitRespond = (node: Respond): void => this.createNodeAndLinks({ node, name: MEDIATORS.RESPOND });
 
     beginVisitResource = (node: Resource): void => {
-        if (node.inSequenceAttribute) {
-            node.viewState.y = 40;
-            const startNode = structuredClone(node);
-            startNode.viewState.id = "inSequenceStart";
-            startNode.viewState.canAddAfter = false;
-            this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
-
-            const sequneceReferenceNode = structuredClone(node);
-            sequneceReferenceNode.viewState.id = "inSequenceNode";
-            sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-            sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            sequneceReferenceNode.viewState.canAddAfter = false;
-            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
-
-            const endNode = structuredClone(node);
-            endNode.viewState.id = "inSequenceEnd";
-            endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-            endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-            this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
-
-            node.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
+        if (node.faultSequenceAttribute) {
+            this.addSequenceReference(node, "faultSequence");
         }
-        if (node.outSequenceAttribute) {
-            const startNode = structuredClone(node);
-            startNode.viewState.id = "outSequence";
-            startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
-            this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
+        if (node.inSequenceAttribute) {
+            const endNode = this.addSequenceReference(node, "inSequence");
 
-            const sequneceReferenceNode = structuredClone(node);
-            sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-            sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-            this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
+            node.viewState.y = endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
+            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
 
-            const endNode = structuredClone(node);
-            endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-            endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-            this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+            if (node.outSequenceAttribute) {
+                this.addSequenceReference(node, "outSequence", StartNodeType.OUT_SEQUENCE);
+            }
+        }
+    }
+    endVisitResource(node: Resource): void {
+        if (!node.inSequenceAttribute && node.outSequenceAttribute) {
+            node.viewState.y += NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
+            this.addSequenceReference(node, "outSequence", StartNodeType.OUT_SEQUENCE);
         }
     }
 
     beginVisitTarget = (node: Target | ProxyTarget): void => {
         if (node.tag === "target") {
             const proxyTargetNode = node as ProxyTarget;
-            if (proxyTargetNode.inSequenceAttribute) {
-                proxyTargetNode.viewState.y = 40;
-                const startNode = structuredClone(proxyTargetNode);
-                startNode.viewState.id = "inSequenceStart";
-                this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.IN_SEQUENCE });
-
-                const sequneceReferenceNode = structuredClone(proxyTargetNode);
-                sequneceReferenceNode.viewState.id = "inSequenceNode";
-                sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-                sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: proxyTargetNode.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
-
-                const endNode = structuredClone(proxyTargetNode);
-                endNode.viewState.id = "inSequenceEnd";
-                endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-                endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-                this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
-
-                proxyTargetNode.viewState.y += endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT;
+            if (proxyTargetNode.faultSequenceAttribute) {
+                this.addSequenceReference(proxyTargetNode, "proxyFaultSequence");
             }
-            if (proxyTargetNode.outSequenceAttribute) {
-                const startNode = structuredClone(proxyTargetNode);
-                startNode.viewState.id = "outSequence";
-                startNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
-                this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: StartNodeType.OUT_SEQUENCE });
+            if (proxyTargetNode.inSequenceAttribute) {
+                const endNode = this.addSequenceReference(proxyTargetNode, "proxyInSequence");
 
-                const sequneceReferenceNode = structuredClone(proxyTargetNode);
-                sequneceReferenceNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
-                sequneceReferenceNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
-                this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: proxyTargetNode.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
+                node.viewState.y = endNode.viewState.y + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
+                node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
 
-                const endNode = structuredClone(proxyTargetNode);
-                endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
-                endNode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
-                this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+                if (proxyTargetNode.outSequenceAttribute) {
+                    this.addSequenceReference(proxyTargetNode, "proxyOutSequence", StartNodeType.OUT_SEQUENCE);
+                }
+            }
+        }
+    }
+    endVisitTarget(node: Target | ProxyTarget): void {
+        if (node.tag === "target") {
+            const proxyTargetNode = node as ProxyTarget;
+            if (!proxyTargetNode.inSequenceAttribute  && proxyTargetNode.outSequenceAttribute) {
+                // proxyTargetNode.viewState.y += NODE_DIMENSIONS.START.EDITABLE.HEIGHT + proxyTargetNode.inSequence.viewState.fh + NODE_DIMENSIONS.END.HEIGHT + NODE_GAP.SEQUENCE_Y;
+                proxyTargetNode.viewState.x -= NODE_DIMENSIONS.END.WIDTH / 2;
+                this.addSequenceReference(proxyTargetNode, "proxyOutSequence", StartNodeType.OUT_SEQUENCE);
             }
         }
     }
@@ -1020,5 +995,30 @@ export class NodeFactoryVisitor implements Visitor {
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
+    }
+
+    private addSequenceReference(node: Resource | ProxyTarget, id: string, startNodeType: StartNodeType = StartNodeType.IN_SEQUENCE): STNode {
+        const startNodeDimentions = startNodeType === StartNodeType.IN_SEQUENCE ? NODE_DIMENSIONS.START.EDITABLE : NODE_DIMENSIONS.START.DISABLED;
+        const startNode = structuredClone(node);
+        startNode.viewState.id = `${id}_start`;
+        startNode.viewState.canAddAfter = false;
+        this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        this.createNodeAndLinks({ node: startNode, type: NodeTypes.START_NODE, data: startNodeType });
+
+        const sequneceReferenceNode = structuredClone(node);
+        sequneceReferenceNode.viewState.id = `${id}_reference`;
+        sequneceReferenceNode.viewState.y += startNodeDimentions.HEIGHT + NODE_GAP.Y;
+        sequneceReferenceNode.viewState.x += (startNodeDimentions.WIDTH - NODE_DIMENSIONS.REFERENCE.WIDTH) / 2;
+        sequneceReferenceNode.viewState.canAddAfter = false;
+        this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        this.createNodeAndLinks({ node: sequneceReferenceNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.REFERENCE_NODE, data: { referenceName: node.inSequenceAttribute, openViewName: OPEN_SEQUENCE_VIEW } });
+
+        const endNode = structuredClone(node);
+        endNode.viewState.id = `${id}_end`;
+        endNode.viewState.y = sequneceReferenceNode.viewState.y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y;
+        endNode.viewState.x += (startNodeDimentions.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
+        this.currentAddPosition = { position: undefined, trailingSpace: "" };
+        this.createNodeAndLinks({ node: endNode, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE });
+        return endNode;
     }
 }
