@@ -217,7 +217,7 @@ import {
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
-    ListRegistryArtifactsResponse
+    RegistryArtifact
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3517,11 +3517,12 @@ ${endpointAttributes}
             for (let i = 0; i < artifacts.length; i++) {
                 tempArtifactNames.push(artifacts[i].name);
             }
-            resolve({ artifacts: tempArtifactNames });
+            let artifactsWithAdditionalData: RegistryArtifact[] = [];
+            if (params.withAdditionalData) {
+                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+            }
+            resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });
-    }
-    async getAvailableRegistryResourcesData(params: ListRegistryArtifactsRequest): Promise<ListRegistryArtifactsResponse> {
-        return getAvailableRegistryResources(params.path);
     }
 
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
@@ -4846,11 +4847,11 @@ ${keyValuesXML}`;
             }
 
             const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
-            
+
             const xmlLineCount = sanitizedXml.split('\n').length;
             const insertRange = { start: position, end: position };
-            const formatRange = { 
-                start: position, 
+            const formatRange = {
+                start: position,
                 end: { line: position.line + xmlLineCount - 1, character: 0 }
             };
             await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });

@@ -198,8 +198,7 @@ import {
     DriverPathResponse,
     AddDriverToLibRequest,
     AddDriverToLibResponse,
-    APIContextsResponse,
-    ListRegistryArtifactsResponse
+    APIContextsResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -285,7 +284,6 @@ export interface MiDiagramAPI {
     getSelectiveArtifacts: (params: GetSelectiveArtifactsRequest) => Promise<GetSelectiveArtifactsResponse>;
     getBackendRootUrl: () => Promise<GetBackendRootUrlResponse>;
     getAvailableRegistryResources: (params: ListRegistryArtifactsRequest) => Promise<RegistryArtifactNamesResponse>;
-    getAvailableRegistryResourcesData: (params: ListRegistryArtifactsRequest) => Promise<ListRegistryArtifactsResponse>;
     updateRegistryMetadata: (params: UpdateRegistryMetadataRequest) => Promise<UpdateRegistryMetadataResponse>;
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;

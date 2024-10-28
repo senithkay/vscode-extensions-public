@@ -1371,12 +1371,14 @@ export interface GetBackendRootUrlResponse {
 }
 export interface ListRegistryArtifactsRequest {
     path: string;
+    withAdditionalData?:boolean
 }
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
 }
 export interface RegistryArtifactNamesResponse {
     artifacts: string[];
+    artifactsWithAdditionalData: RegistryArtifact[];
 }
 export interface RegistryArtifact {
     name: string;

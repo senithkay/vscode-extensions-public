@@ -429,11 +429,11 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
 
             const miDiagramRpcClient = rpcClient.getMiDiagramRpcClient();
             const [allRegistryResources, allRegistryPaths] = await Promise.all([
-                miDiagramRpcClient.getAvailableRegistryResourcesData({ path: projectUri }),
+                (await miDiagramRpcClient.getAvailableRegistryResources({ path: projectUri, withAdditionalData: true })).artifactsWithAdditionalData,
                 miDiagramRpcClient.getAllRegistryPaths({ path: projectUri }),
             ]);
 
-            const artifacts = allRegistryResources.artifacts.map((artifact) => ({
+            const artifacts = allRegistryResources.map((artifact) => ({
                 ...artifact,
                 key: buildKey(artifact),
             }));
