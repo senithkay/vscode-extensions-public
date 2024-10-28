@@ -536,7 +536,7 @@ export function AIChat() {
                         appearance="icon"
                         onClick={() => handleLogout()}
                         tooltip="Logout"
-                        disabled={isLoading}
+                        disabled={true}
                     >
                         <Codicon name="sign-out" />&nbsp;&nbsp;Logout
                     </Button>
