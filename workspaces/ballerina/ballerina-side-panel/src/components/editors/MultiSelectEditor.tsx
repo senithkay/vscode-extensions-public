@@ -9,12 +9,12 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Dropdown, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
-import styled from "@emotion/styled";
 
 namespace S {
     export const Container = styled.div({
@@ -36,6 +36,31 @@ namespace S {
     export const Description = styled.div({
         color: 'var(--vscode-list-deemphasizedForeground)',
     });
+
+    export const DropdownContainer = styled.div({
+        display: 'flex',
+        gap: '8px',
+        alignItems: 'center',
+        width: '100%',
+    });
+
+    export const AddNewButton = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-textLink-activeForeground);
+            border-radius: 0px;
+            padding: 3px 5px;
+            margin-top: 4px;
+        };
+        & > vscode-button > * {
+            margin-right: 6px;
+        };
+    `;
+
+    export const DeleteButton = styled(Button)`
+        & > vscode-button {
+            color: var(--vscode-editorGutter-deletedBackground);
+        }
+    `;
 }
 
 interface MultiSelectEditorProps {
@@ -75,6 +100,12 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         setDropdownCount((prev) => prev + 1);
     };
 
+    const onDelete = (indexToDelete: number) => {
+        // Remove the value at the specified index
+        setValue(field.key, values.filter((_, i) => i !== indexToDelete));
+        setDropdownCount(prev => prev - 1);
+    };
+
     return (
         <S.Container>
             <S.LabelContainer>
@@ -82,23 +113,39 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
             </S.LabelContainer>
             <S.Description>{field.documentation}</S.Description>
             {[...Array(dropdownCount)].map((_, index) => (
-                <Dropdown
-                    key={`${field.key}-${index}`}
-                    id={`${field.key}-${index}`}
-                    {...register(`${field.key}-${index}`, { 
-                        required: !field.optional && index === 0,
-                        value: getValueForDropdown(field, index)
-                    })}
-                    items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
-                    required={!field.optional && index === 0}
-                    disabled={!field.editable}
-                    sx={{ width: "100%" }}
-                    containerSx={{ width: "100%" }}
-                />
+                <S.DropdownContainer key={`${field.key}-${index}`}>
+                    <Dropdown
+                        id={`${field.key}-${index}`}
+                        {...register(`${field.key}-${index}`, { 
+                            required: !field.optional && index === 0,
+                            value: getValueForDropdown(field, index)
+                        })}
+                        items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
+                        required={!field.optional && index === 0}
+                        disabled={!field.editable}
+                        sx={{ width: "100%" }}
+                        containerSx={{ width: "100%" }}
+                    />
+                    {
+                        <S.DeleteButton
+                            appearance="icon"
+                            onClick={() => onDelete(index)}
+                            disabled={!field.editable}
+                            tooltip="Delete"
+                        >
+                            <Codicon name="trash" />
+                        </S.DeleteButton>
+                    }
+                </S.DropdownContainer>
             ))}
-            <LinkButton onClick={onAddAnother}>
+            <S.AddNewButton
+                appearance='icon'
+                aria-label="add"
+                onClick={onAddAnother}
+            >
+                <Codicon name="add" />
                 {label}
-            </LinkButton>
+            </S.AddNewButton>
         </S.Container>
     );
 }
