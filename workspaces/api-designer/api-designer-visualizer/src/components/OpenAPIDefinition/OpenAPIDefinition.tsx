@@ -85,11 +85,19 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const handlePathClick = (pathID: string) => {
         setSelectedPathID(pathID);
         if (pathID?.includes("Schemas-Components")) {
-            const firstSchemaName= Object.keys(openAPIDefinition.components?.schemas)[0];
-            setSelectedPathID(firstSchemaName + "-schema");
+            const firstSchemaName = openAPIDefinition.components?.schemas && Object.keys(openAPIDefinition.components?.schemas)[0];
+            if (firstSchemaName) {
+                setSelectedPathID(firstSchemaName + "-schema");
+            } else {
+                setSelectedPathID(undefined);
+            }
         } else if (pathID?.includes("Paths-Resources")) {
-            const firstPath = Object.keys(openAPIDefinition.paths)[0];
-            setSelectedPathID(firstPath);
+            const firstPath = openAPIDefinition.paths && Object.keys(openAPIDefinition.paths)[0];
+            if (firstPath) {
+                setSelectedPathID(firstPath);
+            } else {
+                setSelectedPathID(undefined);
+            }
         }
     };
 
@@ -430,7 +438,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
         getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
-    const currentPath = selectedPathID && openAPIDefinition?.paths[selectedPathID];
+    const currentPath = selectedPathID && openAPIDefinition?.paths && openAPIDefinition?.paths[selectedPathID];
 
     const isSchemaSelected = selectedPathID && selectedPathID?.includes("-schema");
     const schemaName = isSchemaSelected && selectedPathID?.split("-")[0];
