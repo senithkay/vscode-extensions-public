@@ -2,6 +2,21 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [1.1.3] - 2024-10-28
+
+### Fixed
+
+Fixed: Diagram not rendering when iterate mediator is added ([#440](https://github.com/wso2/mi-vscode/issues/440))  
+Fixed: Diagram breaks after certain proxy edit operations ([#457](https://github.com/wso2/mi-vscode/issues/457))  
+Fixed: Cannot execute a selected unit test ([#463](https://github.com/wso2/mi-vscode/issues/463))  
+Fixed: Cannot update an API ([#466](https://github.com/wso2/mi-vscode/issues/466))  
+Fixed: Source view option is missing in the data service artifact ([#467](https://github.com/wso2/mi-vscode/issues/467))  
+Fixed: Delay in starting the extension ([#481](https://github.com/wso2/mi-vscode/issues/481))  
+### Improvements
+
+Improved: Improve the API resource creation form ([#394](https://github.com/wso2/mi-vscode/issues/394))  
+
+
 ## [1.1.2] - 2024-10-15
 
 ### Fixed
