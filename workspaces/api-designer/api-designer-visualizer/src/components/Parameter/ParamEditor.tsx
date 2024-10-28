@@ -99,7 +99,7 @@ export function ParamEditor(props: OverviewProps) {
 
     const addNewParam = () => {
         if (!params) {
-            onParamsChange([{ name: newParamName, type: "string", description: "" }], Action.ADD);
+            onParamsChange([{ name: newParamName, isRequired: true, type: "string", description: "" }], Action.ADD);
             return;
         } else {
             onParamsChange([...params, {
