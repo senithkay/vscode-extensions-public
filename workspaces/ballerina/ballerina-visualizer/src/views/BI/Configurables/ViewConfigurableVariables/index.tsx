@@ -141,7 +141,7 @@ export function ViewConfigurableVariables() {
                                     configVariables.map((variable, index) => {
                                         return (
                                             <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}-{index}</VSCodeDataGridCell>
+                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.type.value}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`}>
                                                     {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
