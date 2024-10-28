@@ -10,7 +10,7 @@
 import { TypeWithIdentifier, VarIcon } from '@wso2-enterprise/ballerina-core';
 
 import { IconContainer, VariableComponent, VariableName, VariableType } from '../VariablesView';
-import { getTypeName } from './utils';
+import { getIcon, getTypeName } from './utils';
 
 interface PrimitiveTypeProps {
     variable: TypeWithIdentifier;
@@ -23,7 +23,7 @@ export function PrimitiveType(props: PrimitiveTypeProps) {
         <div style={{ display: 'flex', alignItems: 'center' }}>
             <VariableComponent onClick={() => handleOnClick(variable.name)}>
                 <IconContainer>
-                    <VarIcon />
+                    {getIcon(variable.type.typeName)}
                 </IconContainer>
                 <VariableName>
                     {variable.name}
