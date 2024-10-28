@@ -77,9 +77,9 @@ export function activateURIHandlers() {
 				}
 				getUserInfoForCmd("open project").then(async (userInfo) => {
 					const org = userInfo?.organizations.find((item) => item.handle === orgHandle);
-					if (!org){
-						window.showErrorMessage(`Failed to find project organization for ${orgHandle}`)
-						return
+					if (!org) {
+						window.showErrorMessage(`Failed to find project organization for ${orgHandle}`);
+						return;
 					}
 					const cacheProjects = dataCacheStore.getState().getProjects(orgHandle);
 					let project = cacheProjects?.find((item) => item.handler === projectHandle);
@@ -91,7 +91,7 @@ export function activateURIHandlers() {
 						project = projects?.find((item) => item.handler === projectHandle);
 					}
 					if (!project) {
-						window.showErrorMessage(`Failed to find project for ${projectHandle}`)
+						window.showErrorMessage(`Failed to find project for ${projectHandle}`);
 						return;
 					}
 

@@ -347,7 +347,7 @@ const EnvItem: FC<{
 			<Divider />
 			<div>
 				<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
-					<h3 className="text-base capitalize lg:text-lg">{env.name} Environment</h3>
+					<h3 className="text-base capitalize lg:text-lg">{capitalizeFirstLetter(env.name)} Environment</h3>
 					{!loadingDeploymentStatus && (
 						<Button
 							onClick={() => refetchDeploymentStatus()}
@@ -616,7 +616,7 @@ const ProxyEnvItem: FC<{
 			<Divider />
 			<div>
 				<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
-					<h3 className="text-base capitalize lg:text-lg">{env.name} Environment</h3>
+					<h3 className="text-base capitalize lg:text-lg">{capitalizeFirstLetter(env.name)} Environment</h3>
 					{!isLoadingProxyDeploymentData && (
 						<Button
 							onClick={() => refetchProxyDeploymentData()}
@@ -1084,9 +1084,10 @@ const DeployButton: FC<{
 							<Button
 								appearance="icon"
 								disabled={isLoadingCancelReq || promotion?.isLoadingWorkflowStatus}
+								title={`Cancel request to promote to ${capitalizeFirstLetter(env.name)} environment`}
 								onClick={() => {
 									ChoreoWebViewAPI.getInstance()
-										.showConfirmMessage({ buttonText: "Cancel Request", message: "Are you sure you want to cancel your request to promote" })
+										.showConfirmMessage({ buttonText: "Cancel Request", message: "Are you sure you want to cancel your request to promote?" })
 										.then((res) => {
 											if (res) {
 												reqCancelApproval(promotion?.workflowStatus?.wkfInstanceId);
@@ -1097,19 +1098,25 @@ const DeployButton: FC<{
 								{isLoadingCancelReq ? "Cancelling" : "Cancel"} Request to {promotion ? "Promote" : "Deploy"}
 							</Button>
 						) : (
-							<Button appearance="secondary" disabled={promotion?.isLoadingWorkflowStatus} onClick={() => setIsDeployRequestPanelOpen(true)}>
+							<Button appearance="icon" disabled={promotion?.isLoadingWorkflowStatus} onClick={() => setIsDeployRequestPanelOpen(true)}>
 								Request to {promotion ? "Promote" : "Deploy"}
 							</Button>
 						)}
 					</>
 				) : (
 					<Button
-						title={promotion ? `Promote to ${env.name} environment` : `Deploy to ${env.name} environment`}
+						title={
+							promotion ? `Promote to ${capitalizeFirstLetter(env.name)} environment` : `Deploy to ${capitalizeFirstLetter(env.name)} environment`
+						}
 						disabled={isDeploying || promotion?.isLoadingWorkflowStatus}
 						onClick={() => selectBuildToDeploy(componentType === ChoreoComponentType.ScheduledTask)}
 						appearance="secondary"
 					>
-						{promotion ? <>{isDeploying ? "Promoting..." : "Promote"}</> : <>{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}</>}
+						{promotion ? (
+							<>{isDeploying ? `Promoting to ${capitalizeFirstLetter(env.name)}...` : `Promote to ${capitalizeFirstLetter(env.name)}`}</>
+						) : (
+							<>{isDeploying ? "Deploying..." : isDeployed ? "Redeploy" : "Deploy"}</>
+						)}
 					</Button>
 				)}
 			</div>

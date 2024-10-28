@@ -35,12 +35,16 @@ import {
 	GetWebviewStoreState,
 	GoToSource,
 	HasDirtyLocalGitRepo,
+	JoinFsFilePaths,
+	JoinUriFilePaths,
 	OpenComponentViewDrawer,
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
 	OpenSubDialogRequest,
 	type OpenTestViewReq,
+	type ProxyConfig,
+	ReadFile,
 	ReadLocalEndpointsConfig,
 	ReadLocalProxyConfig,
 	RefreshContextState,
@@ -59,6 +63,7 @@ import {
 	ShowInfoMessage,
 	ShowInputBox,
 	ShowQuickPick,
+	ShowTextInOutputChannel,
 	SubmitComponentCreate,
 	TriggerGithubAuthFlow,
 	TriggerGithubInstallFlow,
@@ -68,12 +73,7 @@ import {
 	WebviewStateChangedNotification,
 	deepEqual,
 	getShortenedHash,
-	ShowTextInOutputChannel,
-	ReadFile,
 	makeURLSafe,
-	ProxyConfig,
-	JoinFsFilePaths,
-	JoinUriFilePaths,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, QuickPickItemKind, Uri, type WebviewPanel, type WebviewView, commands, env, window } from "vscode";
@@ -86,7 +86,7 @@ import { quickPickWithLoader } from "../cmds/cmd-utils";
 import { submitCreateComponentHandler } from "../cmds/create-component-cmd";
 import { choreoEnvConfig } from "../config";
 import { ext } from "../extensionVariables";
-import { getConfigFileDrifts, getGitHead, getGitRemotes, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
+import { getConfigFileDrifts, getGitHead, getGitRemotes, getGitRoot, hasDirtyRepo, removeCredentialsFromGitURL } from "../git/util";
 import { getLogger } from "../logger/logger";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
@@ -116,6 +116,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(GetLocalGitData, async (dirPath: string) => {
 		try {
+			const gitRoot = await getGitRoot(ext.context, dirPath);
 			const remotes = await getGitRemotes(ext.context, dirPath);
 			const head = await getGitHead(ext.context, dirPath);
 			let headRemoteUrl = "";
@@ -133,6 +134,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			return {
 				remotes: Array.from(remotesSet),
 				upstream: { name: head?.name, remote: head?.upstream?.remote, remoteUrl: headRemoteUrl },
+				gitRoot: gitRoot,
 			};
 		} catch (error: any) {
 			getLogger().error(error.message);
@@ -202,10 +204,10 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			},
 		});
 	});
-	const outputChanelMap: Map<string, vscode.OutputChannel> = new Map()
+	const outputChanelMap: Map<string, vscode.OutputChannel> = new Map();
 	messenger.onRequest(ShowTextInOutputChannel, async (params) => {
-		if(!outputChanelMap.has(params.key)){
-			outputChanelMap.set(params.key, window.createOutputChannel(params.key))
+		if (!outputChanelMap.has(params.key)) {
+			outputChanelMap.set(params.key, window.createOutputChannel(params.key));
 		}
 		outputChanelMap.get(params.key)?.replace(params.output);
 		outputChanelMap.get(params.key)?.show();
@@ -250,14 +252,15 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
 		if (existsSync(componentYamlPath)) {
 			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			endpointFileContent.endpoints = params.endpoints?.map((item, index)=>({
-				name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
-				service: { port: item.port, basePath: item.context },
-				type: item.type || "REST",
-				displayName: item.name,
-				networkVisibilities: [item.networkVisibility ?? "Public"],
-				schemaFilePath: item.schemaFilePath,
-			})) ?? [];
+			endpointFileContent.endpoints =
+				params.endpoints?.map((item, index) => ({
+					name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
+					service: { port: item.port, basePath: item.context },
+					type: item.type || "REST",
+					displayName: item.name,
+					networkVisibilities: [item.networkVisibility ?? "Public"],
+					schemaFilePath: item.schemaFilePath,
+				})) ?? [];
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 			if (!deepEqual(originalContent, endpointFileContent)) {
 				writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
@@ -268,14 +271,15 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			}
 			const endpointFileContent: ComponentYamlContent = {
 				schemaVersion: 1.1,
-				endpoints: params.endpoints?.map((item, index)=>({
-					name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
-					service: { port: item.port, basePath: item.context },
-					type: item.type || "REST",
-					displayName: item.name,
-					networkVisibilities: [item.networkVisibility ?? "Public"],
-					schemaFilePath: item.schemaFilePath
-				})) ?? []
+				endpoints:
+					params.endpoints?.map((item, index) => ({
+						name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
+						service: { port: item.port, basePath: item.context },
+						type: item.type || "REST",
+						displayName: item.name,
+						networkVisibilities: [item.networkVisibility ?? "Public"],
+						schemaFilePath: item.schemaFilePath,
+					})) ?? [],
 			};
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
 		}
@@ -292,12 +296,12 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			...params.proxy,
 			docPath: params.proxy?.docPath || undefined,
 			thumbnailPath: params.proxy?.thumbnailPath || undefined,
-		}
+		};
 
 		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
 		if (existsSync(componentYamlPath)) {
 			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			endpointFileContent.proxy = proxyConfig
+			endpointFileContent.proxy = proxyConfig;
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 			if (!deepEqual(originalContent, endpointFileContent)) {
 				writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));

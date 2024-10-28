@@ -262,16 +262,17 @@ const getComponentsInfoCache = async (selected?: ContextItemEnriched): Promise<C
 	return mapComponentList(componentCache, selected);
 };
 
-
 const updateProjectEnvCache = async (selected: ContextItemEnriched): Promise<void> => {
-	if(selected){
-		ext.clients.rpcClient.getEnvs({
-			orgId: selected?.org?.id.toString()!,
-			orgUuid: selected?.org?.uuid!,
-			projectId: selected?.project?.id!,
-		}).then(envs=>{
-			dataCacheStore.getState().setEnvs(selected?.orgHandle, selected?.projectHandle, envs);
-		})
+	if (selected) {
+		ext.clients.rpcClient
+			.getEnvs({
+				orgId: selected?.org?.id.toString()!,
+				orgUuid: selected?.org?.uuid!,
+				projectId: selected?.project?.id!,
+			})
+			.then((envs) => {
+				dataCacheStore.getState().setEnvs(selected?.orgHandle, selected?.projectHandle, envs);
+			});
 	}
 };
 
@@ -285,7 +286,7 @@ const getComponentsInfo = async (selected?: ContextItemEnriched): Promise<Contex
 		orgHandle: selected?.org?.handle,
 		projectHandle: selected.projectHandle,
 		projectId: selected.project?.id!,
-	})
+	});
 
 	dataCacheStore.getState().setComponents(selected.orgHandle, selected.projectHandle, components);
 	return mapComponentList(components, selected);
@@ -301,18 +302,18 @@ const mapComponentList = async (components: ComponentKind[], selected?: ContextI
 				if (gitRoot) {
 					const remotes = await getGitRemotes(ext.context, gitRoot);
 					const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
-					const parsedRepoUrl = parseGitURL(repoUrl)
-					if(parsedRepoUrl){
-						const [repoOrg, repoName, repoProvider]  = parsedRepoUrl
-						const hasMatchingRemote = remotes.some(remoteItem=>{
-							const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl)
-							if(parsedRemoteUrl){
-								const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl
-								return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider
+					const parsedRepoUrl = parseGitURL(repoUrl);
+					if (parsedRepoUrl) {
+						const [repoOrg, repoName, repoProvider] = parsedRepoUrl;
+						const hasMatchingRemote = remotes.some((remoteItem) => {
+							const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl);
+							if (parsedRemoteUrl) {
+								const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl;
+								return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider;
 							}
-						})
+						});
 
-						if(hasMatchingRemote){
+						if (hasMatchingRemote) {
 							const subPathDir = path.join(gitRoot, componentItem.spec.source.github?.path || componentItem.spec.source.bitbucket?.path || "");
 							const isSubPath = isSubpath(item.dirFsPath, subPathDir);
 							if (isSubPath && existsSync(subPathDir) && !comps.some((item) => item.component?.metadata?.id === componentItem.metadata?.id)) {

@@ -14,7 +14,7 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
 
-type IComponentCreateFormParams = Omit<NewComponentWebviewProps,'type'|'existingComponents'>
+export type IComponentCreateFormParams = Omit<NewComponentWebviewProps, "type" | "existingComponents">;
 
 export class ComponentFormView {
 	public static currentPanel: ComponentFormView | undefined;
@@ -70,10 +70,10 @@ export class ComponentFormView {
                 choreoWebviews.renderChoreoWebViews(
                   document.getElementById("root"),
                   	${JSON.stringify({
-						type: "NewComponentForm",
-						existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
-						...params,
-					} as NewComponentWebviewProps)}
+											type: "NewComponentForm",
+											existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
+											...params,
+										} as NewComponentWebviewProps)}
                 );
               }
               render();

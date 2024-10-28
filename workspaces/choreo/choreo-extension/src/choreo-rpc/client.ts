@@ -352,7 +352,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 			throw new Error("RPC client is not initialized");
 		}
 		const response: any = await this.client.sendRequest("build/getLogsForType", params);
-		return response.data ? response.data as ProjectBuildLogsData : null;
+		return response.data ? (response.data as ProjectBuildLogsData) : null;
 	}
 
 	async obtainGithubToken(params: { code: string; orgId: string }): Promise<void> {
@@ -461,7 +461,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		const response: {data: CheckWorkflowStatusResp} = await this.client.sendRequest("deployment/checkWorkflowStatus", params);
+		const response: { data: CheckWorkflowStatusResp } = await this.client.sendRequest("deployment/checkWorkflowStatus", params);
 		return response?.data;
 	}
 
@@ -478,7 +478,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		}
 		await this.client.sendRequest("deployment/requestPromoteApproval", params);
 	}
-	
+
 	async promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");

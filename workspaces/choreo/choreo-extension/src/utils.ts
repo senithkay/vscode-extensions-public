@@ -8,6 +8,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import * as os from "os";
 import { join } from "path";
 import * as path from "path";
 import {
@@ -22,15 +23,17 @@ import {
 import * as yaml from "js-yaml";
 import { Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
-import * as os from 'os';
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
-
 	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>
 		eps?.map((item) => {
 			if (item.schemaFilePath) {
 				const fileExists = existsSync(join(componentPath, item.schemaFilePath));
-				return { ...item, schemaFilePath: fileExists ? item.schemaFilePath : "", networkVisibility: item.networkVisibility || item.networkVisibilities?.[0] || "Public"  };
+				return {
+					...item,
+					schemaFilePath: fileExists ? item.schemaFilePath : "",
+					networkVisibility: item.networkVisibility || item.networkVisibilities?.[0] || "Public",
+				};
 			}
 			return { ...item, networkVisibility: item.networkVisibility || item.networkVisibilities?.[0] || "Public" };
 		});
@@ -39,14 +42,16 @@ export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpoi
 	if (existsSync(componentYamlPath)) {
 		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
 		return {
-			endpoints: filterEndpointSchemaPath(endpointFileContent?.endpoints?.map(item=>({
-				name: item.displayName || item.name,
-				port: item.service?.port,
-				context: item.service?.basePath,
-				networkVisibilities: item.networkVisibilities,
-				type: item.type,
-				schemaFilePath: item.schemaFilePath,
-			}))  ?? []),
+			endpoints: filterEndpointSchemaPath(
+				endpointFileContent?.endpoints?.map((item) => ({
+					name: item.displayName || item.name,
+					port: item.service?.port,
+					context: item.service?.basePath,
+					networkVisibilities: item.networkVisibilities,
+					type: item.type,
+					schemaFilePath: item.schemaFilePath,
+				})) ?? [],
+			),
 			filePath: componentYamlPath,
 		};
 	}
@@ -94,9 +99,9 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
 };
 
 export const convertFsPathToUriPath = (fsPath: string): string => {
-	if(os.platform() === 'win32'){
+	if (os.platform() === "win32") {
 		// Replace backslashes with forward slashes
-		let uriPath = fsPath.replace(/\\/g, '/');
+		let uriPath = fsPath.replace(/\\/g, "/");
 
 		// If the path starts with a drive letter, prepend a slash
 		if (/^[a-zA-Z]:/.test(uriPath)) {
@@ -105,7 +110,7 @@ export const convertFsPathToUriPath = (fsPath: string): string => {
 		return uriPath;
 	}
 	return fsPath;
-}
+};
 
 export const saveFile = async (
 	fileName: string,
@@ -204,12 +209,12 @@ export const getSubPath = (subPath: string, parentPath: string): string | null =
 };
 
 // TODO: use this for all normalize() operations
-export const getNormalizedPath = (filePath: string)=>{
-	if(os.platform() === 'win32'){
-		return filePath.replace(/^\//, '').replace(/\//g, '\\');
+export const getNormalizedPath = (filePath: string) => {
+	if (os.platform() === "win32") {
+		return filePath.replace(/^\//, "").replace(/\//g, "\\");
 	}
 	return path.normalize(filePath);
-}
+};
 
 export const createDirectory = (basePath: string, dirName: string) => {
 	let newDirName = dirName;
@@ -231,8 +236,11 @@ export const createDirectory = (basePath: string, dirName: string) => {
 	return { dirName: newDirName, dirPath };
 };
 
-export async function openDirectory(openingPath: string, message: string) {
+export async function openDirectory(openingPath: string, message: string, onSelect?: () => void) {
 	const openInCurrentWorkspace = await window.showInformationMessage(message, { modal: true }, "Current Window", "New Window");
+	if (openInCurrentWorkspace && onSelect) {
+		onSelect();
+	}
 	if (openInCurrentWorkspace === "Current Window") {
 		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
 			forceNewWindow: false,

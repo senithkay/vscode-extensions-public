@@ -25,9 +25,9 @@ import { getGitRoot } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
-import { delay, getSubPath, goTosource } from "../utils";
+import { convertFsPathToUriPath, delay, getSubPath, goTosource, isSubpath, openDirectory } from "../utils";
 import { showComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { ComponentFormView } from "../webviews/ComponentFormView";
+import { ComponentFormView, type IComponentCreateFormParams } from "../webviews/ComponentFormView";
 import { getUserInfoForCmd, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 import { updateContextFile } from "./create-directory-context-cmd";
 
@@ -73,59 +73,62 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						throw new Error("Component type is required");
 					}
 
-					let subPath: string | null = null;
-
-					if (params?.initialValues?.componentDir) {
-						const workspaceDir = workspace.workspaceFolders?.find((item) => !!getSubPath(params?.initialValues?.componentDir!, item.uri.path));
-						if (workspaceDir) {
-							subPath = getSubPath(params?.initialValues?.componentDir!, workspaceDir?.uri.path);
-						}
-					}
-
-					// todo: ask for the directory here itself
-					// if directory is outside of the vscode workspace, open it after creating the component
-
-
-					let dirName = "";
-					let dirPath = "";
-					let dirFsPath = "";
-					if (workspace.workspaceFile && workspace.workspaceFile.scheme !== "untitled") {
-						dirFsPath = path.dirname(workspace.workspaceFile.fsPath);
-						dirPath = path.dirname(workspace.workspaceFile.path);
-						dirName = path.basename(path.dirname(workspace.workspaceFile.path));
-					} else if (workspace.workspaceFolders && workspace.workspaceFolders?.length > 0) {
-						if (workspace.workspaceFolders?.length === 1) {
-							const firstFolder = workspace.workspaceFolders[0];
-							dirFsPath = firstFolder.uri.fsPath;
-							dirPath = firstFolder.uri.path;
-							dirName = firstFolder.name;
-						} else {
-							dirFsPath = Uri.file(os.homedir()).fsPath;
-							dirPath = Uri.file(os.homedir()).path;
-						}
+					let selectedUri: Uri;
+					if (params?.initialValues?.componentDir && existsSync(params.initialValues?.componentDir)) {
+						selectedUri = Uri.parse(convertFsPathToUriPath(params.initialValues?.componentDir));
 					} else {
-						dirFsPath = Uri.file(os.homedir()).fsPath;
-						dirPath = Uri.file(os.homedir()).path;
+						let defaultUri: Uri;
+						if (workspace.workspaceFile && workspace.workspaceFile.scheme !== "untitled") {
+							defaultUri = workspace.workspaceFile;
+						} else if (workspace.workspaceFolders && workspace.workspaceFolders?.length > 0) {
+							defaultUri = workspace.workspaceFolders[0].uri;
+						} else {
+							defaultUri = Uri.file(os.homedir());
+						}
+						const supPathUri = await window.showOpenDialog({
+							canSelectFolders: true,
+							canSelectFiles: false,
+							canSelectMany: false,
+							title: "Select component directory",
+							defaultUri: defaultUri,
+						});
+						if (!supPathUri || supPathUri.length === 0) {
+							throw new Error("Component directory selection is required");
+						}
+						selectedUri = supPathUri[0];
 					}
+					const dirName = path.basename(selectedUri.fsPath);
 
-					if (componentWizard) {
-						componentWizard.dispose();
-					}
+					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(item.uri?.fsPath, selectedUri?.fsPath));
 
-					componentWizard = new ComponentFormView(ext.context.extensionUri, {
-						directoryUriPath: dirPath,
-						directoryFsPath: dirFsPath,
+					const createCompParams: IComponentCreateFormParams = {
+						directoryUriPath: selectedUri.path,
+						directoryFsPath: selectedUri.fsPath,
 						directoryName: dirName,
 						organization: selectedOrg!,
 						project: selectedProject!,
 						initialValues: {
 							type: selectedType,
 							buildPackLang: params?.initialValues?.buildPackLang,
-							subPath: subPath || "",
 							name: params?.initialValues?.name,
 						},
-					});
-					componentWizard.getWebview()?.reveal();
+					};
+
+					if (isWithinWorkspace || workspace.workspaceFile) {
+						componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
+						componentWizard.getWebview()?.reveal();
+					} else {
+						let gitRoot: string | undefined;
+						try {
+							gitRoot = await getGitRoot(context, selectedUri.fsPath);
+						} catch (err) {
+							// ignore error
+						}
+						// TODO: check this on windows
+						openDirectory(gitRoot || selectedUri.path, "Where do you want to open the selected directory?", () => {
+							ext.context.globalState.update("create-comp-params", JSON.stringify(createCompParams));
+						});
+					}
 				}
 			} catch (err: any) {
 				console.error("Failed to create component", err);
@@ -134,6 +137,18 @@ export function createNewComponentCommand(context: ExtensionContext) {
 		}),
 	);
 }
+
+/** Continue create component flow if user chooses a directory outside his/her workspace. */
+export const continueCreateComponent = () => {
+	const compParams: string | null | undefined = ext.context.globalState.get("create-comp-params");
+	if (compParams) {
+		ext.context.globalState.update("create-comp-params", null);
+		const createCompParams: IComponentCreateFormParams = JSON.parse(compParams);
+		componentWizard = new ComponentFormView(ext.context.extensionUri, createCompParams);
+		componentWizard.getWebview()?.reveal();
+		commands.executeCommand(CommandIds.FocusChoreoProjectActivity);
+	}
+};
 
 export const submitCreateComponentHandler = async ({ createParams, org, project, autoBuildOnCommit, type }: SubmitComponentCreateReq) => {
 	const createdComponent = await window.withProgress(
@@ -149,7 +164,7 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 			const envs = dataCacheStore.getState().getEnvs(org.handle, project.handler);
 			const matchingTrack = createdComponent?.deploymentTracks.find((item) => item.branch === createParams.branch);
 			if (matchingTrack && envs.length > 0) {
-				try{
+				try {
 					await window.withProgress(
 						{ title: `Enabling auto build on commit for component ${createParams.displayName}...`, location: ProgressLocation.Notification },
 						() =>
@@ -160,8 +175,8 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 								envId: envs[0]?.id,
 							}),
 					);
-				}catch{
-					console.log("Failed to enable auto build on commit", )
+				} catch {
+					console.log("Failed to enable auto build on commit");
 				}
 			}
 		}
@@ -187,10 +202,13 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 			workspaceContent.folders = [
 				...workspaceContent.folders,
 				{
-					name: createdComponent.metadata.name,
+					name: createdComponent.metadata.name, // name not needed?
 					path: path.normalize(path.relative(path.dirname(workspace.workspaceFile.fsPath), createParams.componentDir)),
 				},
 			];
+
+			// todo: check if any of the entries match with the directory
+			// else add it without asking
 
 			if (workspace.workspaceFile.scheme !== "untitled" && path.basename(workspace.workspaceFile.path) === `${project?.handler}.code-workspace`) {
 				// Automatically update the workspace if user is within a project workspace

@@ -17,7 +17,7 @@ import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspa
 import { ext } from "../extensionVariables";
 import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
-import { convertFsPathToUriPath, isSubpath } from "../utils";
+import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";
 
 export function createDirectoryContextCommand(context: ExtensionContext) {
@@ -28,51 +28,23 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 				let gitRoot: string | undefined = "";
 				if (userInfo) {
 					let directoryUrl: Uri;
-					if (!workspace.workspaceFile) {
-						// is within a standard directory
-						if (workspace.workspaceFolders?.length === 1) {
-							directoryUrl = workspace.workspaceFolders[0].uri;
-
-							try {
-								gitRoot = await getGitRoot(context, directoryUrl.fsPath);
-							} catch (err) {
-								// ignore error
-							}
-
-							if (!gitRoot) {
-								// if user is not within a git repo,
-								// let user pick a sub directory
-								const componentDir = await window.showOpenDialog({
-									canSelectFolders: true,
-									canSelectFiles: false,
-									canSelectMany: false,
-									title: "Select directory that needs to be linked with Choreo",
-									defaultUri: Uri.file(convertFsPathToUriPath(directoryUrl.fsPath)),
-								});
-
-								if (componentDir === undefined || componentDir.length === 0) {
-									throw new Error("Directory is required to link with Choreo");
-								}
-
-								directoryUrl = componentDir[0];
-
-								if (!isSubpath(workspace.workspaceFolders[0].uri.fsPath, componentDir[0].fsPath)) {
-									// todo: we should show a prompt to open up the directory instead of existing here
-									throw new Error("Selected directory is not a sub directory within the opened workspace");
-								}
-							}
-						} else {
-							const wd = await resolveWorkspaceDirectory();
-							directoryUrl = wd.uri;
+					if (!workspace.workspaceFile && workspace.workspaceFolders?.length === 1) {
+						try {
+							gitRoot = await getGitRoot(context, workspace.workspaceFolders[0].uri?.fsPath);
+						} catch (err) {
+							// ignore error
 						}
+					}
+
+					if (gitRoot) {
+						directoryUrl = Uri.parse(convertFsPathToUriPath(gitRoot));
 					} else {
-						// let user pick the directory
 						const componentDir = await window.showOpenDialog({
 							canSelectFolders: true,
 							canSelectFiles: false,
 							canSelectMany: false,
 							title: "Select directory that needs to be linked with Choreo",
-							defaultUri: Uri.file(os.homedir()),
+							defaultUri: workspace.workspaceFolders?.[0]?.uri || Uri.file(os.homedir()),
 						});
 
 						if (componentDir === undefined || componentDir.length === 0) {
@@ -89,7 +61,7 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 
 					const remotes = await getGitRemotes(context, gitRoot);
 					if (remotes.length === 0) {
-						throw new Error("The directory does not any Git remotes");
+						throw new Error("The Selected directory does not have any Git remotes");
 					}
 
 					const selectedOrg = await selectOrg(userInfo, "Select organization");
@@ -104,45 +76,63 @@ export function createDirectoryContextCommand(context: ExtensionContext) {
 						ext?.clients?.rpcClient?.changeOrgContext(selectedOrg?.id?.toString()!),
 					);
 
-					const components = await window.withProgress({ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification }, () =>
-						ext?.clients?.rpcClient?.getComponentList({orgId: selectedOrg?.id?.toString(), orgHandle: selectedOrg.handle, projectHandle: selectedProject.handler, projectId: selectedProject.id}),
+					const components = await window.withProgress(
+						{ title: `Fetching components of ${selectedProject.name}...`, location: ProgressLocation.Notification },
+						() =>
+							ext?.clients?.rpcClient?.getComponentList({
+								orgId: selectedOrg?.id?.toString(),
+								orgHandle: selectedOrg.handle,
+								projectHandle: selectedProject.handler,
+								projectId: selectedProject.id,
+							}),
 					);
 
-					if(components.length > 0){
+					if (components.length > 0) {
 						// Check if user is trying to link with the correct Git directory
-						const hasMatchingRemote = components.some(componentItem=>{
+						const hasMatchingRemote = components.some((componentItem) => {
 							const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
-							const parsedRepoUrl = parseGitURL(repoUrl)
-							if(parsedRepoUrl){
-								const [repoOrg, repoName, repoProvider]  = parsedRepoUrl
-								return remotes.some(remoteItem=>{
-									const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl)
-									if(parsedRemoteUrl){
-										const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl
-										return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider
+							const parsedRepoUrl = parseGitURL(repoUrl);
+							if (parsedRepoUrl) {
+								const [repoOrg, repoName, repoProvider] = parsedRepoUrl;
+								return remotes.some((remoteItem) => {
+									const parsedRemoteUrl = parseGitURL(remoteItem.fetchUrl);
+									if (parsedRemoteUrl) {
+										const [repoRemoteOrg, repoRemoteName, repoRemoteProvider] = parsedRemoteUrl;
+										return repoOrg === repoRemoteOrg && repoName === repoRemoteName && repoRemoteProvider === repoProvider;
 									}
-								})
+								});
 							}
-						})
-	
-						if(!hasMatchingRemote){
-							const resp = await window.showInformationMessage("The selected directory does not have any Git remotes that match with the repositories associated with the selected project. Do you wish to continue?",{modal: true},"Continue")
-							if(resp !== 'Continue'){
-								return
+						});
+
+						if (!hasMatchingRemote) {
+							const resp = await window.showInformationMessage(
+								"The selected directory does not have any Git remotes that match with the repositories associated with the selected project. Do you wish to continue?",
+								{ modal: true },
+								"Continue",
+							);
+							if (resp !== "Continue") {
+								return;
 							}
 						}
 					}
 
 					const contextFilePath = updateContextFile(gitRoot, userInfo, selectedProject, selectedOrg, projectList);
 
-					await waitForContextStoreToLoad();
+					// todo: check this in windows
+					const isWithinWorkspace = workspace.workspaceFolders?.some((item) => isSubpath(item.uri?.fsPath, gitRoot!));
 
-					contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
-						contextFileFsPath: contextFilePath,
-						dirFsPath: directoryUrl.fsPath,
-						workspaceName: path.basename(gitRoot),
-						projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
-					});
+					if (isWithinWorkspace) {
+						await waitForContextStoreToLoad();
+
+						contextStore.getState().onSetNewContext(selectedOrg, selectedProject, {
+							contextFileFsPath: contextFilePath,
+							dirFsPath: directoryUrl.fsPath,
+							workspaceName: path.basename(gitRoot),
+							projectRootFsPath: path.dirname(path.dirname(contextFilePath)),
+						});
+					} else {
+						openDirectory(gitRoot, "Where do you want to open the project directory?");
+					}
 				}
 			} catch (err: any) {
 				console.error("Failed to link directory with Choreo project", err);

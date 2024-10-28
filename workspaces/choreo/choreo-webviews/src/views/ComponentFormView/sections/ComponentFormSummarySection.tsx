@@ -74,26 +74,21 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		isFetching: isFetchingConfigDrift,
 		refetch: refetchConfigDrift,
 	} = useQuery({
-		queryKey: ["get-config-drift", { dirPath: genDetails?.subPath }],
-		queryFn: async () => {
-			const directoryFsFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, genDetails.subPath]);
-			return ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
+		queryKey: ["get-config-drift", { directoryFsPath }],
+		queryFn: () =>
+			ChoreoWebViewAPI.getInstance().getConfigFileDrifts({
 				type,
-				repoDir: directoryFsFullPath,
+				repoDir: directoryFsPath,
 				branch: genDetails.branch,
 				repoUrl: genDetails.repoUrl,
-			});
-		},
+			}),
 		refetchOnWindowFocus: true,
 		enabled: genDetails?.repoUrl?.length > 0,
 	});
 
 	const { data: hasLocalChanges } = useQuery({
-		queryKey: ["has-local-changes", { dirPath: genDetails?.subPath }],
-		queryFn: async () => {
-			const directoryFsFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, genDetails.subPath]);
-			return ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryFsFullPath);
-		},
+		queryKey: ["has-local-changes", { directoryFsPath }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().hasDirtyLocalGitRepo(directoryFsPath),
 		refetchOnWindowFocus: true,
 	});
 

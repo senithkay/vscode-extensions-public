@@ -51,7 +51,7 @@ type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
 type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
-	const { project, organization, directoryFsPath, directoryUriPath, initialValues, existingComponents } = props;
+	const { project, organization, directoryFsPath, directoryUriPath, initialValues, existingComponents, directoryName } = props;
 	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
 
@@ -60,19 +60,15 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const genDetailsForm = useForm<ComponentFormGenDetailsType>({
 		resolver: zodResolver(getComponentFormSchemaGenDetails(existingComponents), { async: true }, { mode: "async" }),
 		mode: "all",
-		defaultValues: {
-			name: initialValues?.name || "",
-			subPath: initialValues?.subPath || "",
-			repoUrl: "",
-			branch: "",
-		},
+		defaultValues: { name: initialValues?.name || "", subPath: "", gitRoot: "", repoUrl: "", branch: "" },
 	});
 
-	const subPath = genDetailsForm.watch("subPath");
 	const name = genDetailsForm.watch("name");
+	const gitRoot = genDetailsForm.watch("gitRoot");
+	const subPath = genDetailsForm.watch("subPath");
 
 	const buildDetailsForm = useForm<ComponentFormBuildDetailsType>({
-		resolver: zodResolver(getComponentFormSchemaBuildDetails(type, directoryFsPath, subPath), { async: true }, { mode: "async" }),
+		resolver: zodResolver(getComponentFormSchemaBuildDetails(type, directoryFsPath, gitRoot), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: {
 			buildPackLang: initialValues?.buildPackLang ?? "",
@@ -91,13 +87,13 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const buildPackLang = buildDetailsForm.watch("buildPackLang");
 
 	const endpointDetailsForm = useForm<ComponentFormEndpointsType>({
-		resolver: zodResolver(getComponentEndpointsFormSchema(directoryFsPath, subPath), { async: true }, { mode: "async" }),
+		resolver: zodResolver(getComponentEndpointsFormSchema(directoryFsPath), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: { endpoints: [] },
 	});
 
 	const gitProxyForm = useForm<ComponentFormGitProxyType>({
-		resolver: zodResolver(getComponentGitProxyFormSchema(directoryFsPath, subPath), { async: true }, { mode: "async" }),
+		resolver: zodResolver(getComponentGitProxyFormSchema(directoryFsPath), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: {
 			proxyTargetUrl: "",
@@ -107,22 +103,9 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		},
 	});
 
-	const { data: compUriPath = directoryUriPath } = useQuery({
-		queryKey: ["comp-create-path", { directoryUriPath, subPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().joinUriFilePaths([directoryUriPath, subPath]),
-	});
-
-	// // TODO: uri.parse expects path & file read/write expects fsPath. Need to updated and check on windows
-	// todo: check path on windows
-	// for fspath use path.join, for uri path use vscode.Uri.joinPath
-	const { data: compFsPath = directoryFsPath } = useQuery({
-		queryKey: ["comp-create-fs-path", { directoryFsPath, subPath }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]),
-	});
-
 	useQuery({
-		queryKey: ["service-dir-endpoints", { compFsPath, type }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(compFsPath),
+		queryKey: ["service-dir-endpoints", { directoryFsPath, type }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(directoryFsPath),
 		select: (resp) => resp?.endpoints,
 		refetchOnWindowFocus: false,
 		enabled: type === ChoreoComponentType.Service,
@@ -132,8 +115,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	});
 
 	useQuery({
-		queryKey: ["read-local-proxy-config", { compFsPath, type }],
-		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(compFsPath),
+		queryKey: ["read-local-proxy-config", { directoryFsPath, type }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(directoryFsPath),
 		select: (resp) => resp?.proxy,
 		refetchOnWindowFocus: false,
 		enabled: type === ChoreoComponentType.ApiProxy,
@@ -155,8 +138,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 
 			const componentName = makeURLSafe(genDetails.name);
 
-			const componentDir = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
-
 			const createCompCommandParams: SubmitComponentCreateReq = {
 				org: organization,
 				project: project,
@@ -171,7 +152,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					displayName: genDetails.name,
 					type,
 					buildPackLang: buildDetails.buildPackLang,
-					componentDir,
+					componentDir: directoryFsPath,
 					repoUrl: genDetails.repoUrl,
 					branch: genDetails.branch,
 					langVersion: buildDetails.langVersion,
@@ -197,7 +178,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 
 	const { mutate: submitEndpoints, isLoading: isSubmittingEndpoints } = useMutation({
 		mutationFn: (endpoints: Endpoint[] = []) => {
-			return ChoreoWebViewAPI.getInstance().createLocalEndpointsConfig({ componentDir: compFsPath, endpoints });
+			return ChoreoWebViewAPI.getInstance().createLocalEndpointsConfig({ componentDir: directoryFsPath, endpoints });
 		},
 		onSuccess: () => setStepIndex(stepIndex + 1),
 	});
@@ -205,7 +186,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const { mutate: submitProxyConfig, isLoading: isSubmittingProxyConfig } = useMutation({
 		mutationFn: (data: ComponentFormGitProxyType) => {
 			return ChoreoWebViewAPI.getInstance().createLocalProxyConfig({
-				componentDir: compFsPath,
+				componentDir: directoryFsPath,
 				proxy: {
 					type: data.componentConfig?.type,
 					schemaFilePath: data.componentConfig?.schemaFilePath,
@@ -252,9 +233,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					form={buildDetailsForm}
 					selectedType={type}
 					subPath={subPath}
-					baseFsPath={directoryFsPath}
+					gitRoot={gitRoot}
 					baseUriPath={directoryUriPath}
-					compFsPath={compFsPath}
 				/>
 			),
 		});
@@ -269,8 +249,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 						{...props}
 						key="endpoints-step"
 						componentName={name || "component"}
-						compUriPath={compUriPath}
-						compFsPath={compFsPath}
 						onNextClick={(data) => submitEndpoints(data.endpoints as Endpoint[])}
 						onBackClick={() => setStepIndex(stepIndex - 1)}
 						isSaving={isSubmittingEndpoints}
@@ -291,8 +269,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					onBackClick={() => setStepIndex(stepIndex - 1)}
 					isSaving={isSubmittingProxyConfig}
 					form={gitProxyForm}
-					compUriPath={compUriPath}
-					compFsPath={compFsPath}
 				/>
 			),
 		});
@@ -322,8 +298,9 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 			<div className="container">
 				<form className="mx-auto flex max-w-4xl flex-col gap-2 p-4">
 					<HeaderSection
-						title={`Create ${["a", "e", "i", "o", "u"].includes(componentTypeText[0].toLowerCase()) ? `an ${componentTypeText}` : `a ${componentTypeText}`}`}
+						title={`Create ${["a", "e", "i", "o", "u"].includes(componentTypeText[0].toLowerCase()) ? "an" : "a"} ${componentTypeText}`}
 						tags={[
+							{ label: "Source Directory", value: subPath || directoryName },
 							{ label: "Project", value: project.name },
 							{ label: "Organization", value: organization.name },
 						]}

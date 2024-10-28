@@ -13,11 +13,18 @@ import React, { type FC, type ReactNode } from "react";
 import { Button } from "../Button";
 import { Divider } from "../Divider";
 
+export interface HeaderTag {
+	label: string;
+	value: string;
+	onClick?: () => void;
+	onClickTitle?: string;
+	tooltip?: string;
+}
 interface Props {
 	title: string;
 	secondaryTitle?: string;
 	secondaryIcon?: ReactNode;
-	tags?: { label: string; value: string; onClick?: () => void; onClickTitle?: string }[];
+	tags?: HeaderTag[];
 	buttons?: { onClick: () => any; label: string }[];
 }
 
@@ -44,7 +51,7 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 										{item.value}
 									</VSCodeLink>
 								) : (
-									item.value
+									<span title={item.tooltip}>{item.value}</span>
 								)}
 							</div>
 							{index !== tags.length - 1 && <div className="hidden font-thin opacity-50 md:block">|</div>}

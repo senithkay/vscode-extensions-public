@@ -48,7 +48,7 @@ export const Banner: FC<Props> = ({ className, title, subTitle, type, refreshBtn
 		>
 			<div className="flex items-center gap-2">
 				<Codicon name="warning" />
-				<div className="line-clamp-1 flex-1">{title}</div>
+				<div className="flex-1">{title}</div>
 				{actionLink && (
 					<VSCodeLink
 						className={classNames({

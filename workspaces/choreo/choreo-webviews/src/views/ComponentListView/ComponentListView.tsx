@@ -15,10 +15,9 @@ import { useExtWebviewContext } from "../../providers/ext-vewview-ctx-provider";
 import { useLinkedDirStateContext } from "../../providers/linked-dir-state-ctx-provider";
 import { ComponentListItem } from "./ComponentListItem";
 import { ComponentsEmptyView } from "./ComponentsEmptyView";
-import { InvalidWorkspaceView } from "./InvalidWorkspaceView";
 import { NoContextView } from "./NoContextView";
 
-export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directoryFsPath }) => {
+export const ComponentListView: FC<ComponentsListActivityViewProps> = () => {
 	const webviewState = useExtWebviewContext();
 
 	const { state: linkedDirState, isLoading } = useLinkedDirStateContext();
@@ -26,10 +25,6 @@ export const ComponentListView: FC<ComponentsListActivityViewProps> = ({ directo
 	const [componentListRef] = useAutoAnimate();
 
 	const validContextItems = Object.values(linkedDirState?.items ?? {}).filter((item) => item.project && item.org);
-
-	if (!directoryFsPath) {
-		return <InvalidWorkspaceView loading={isLoading || linkedDirState.loading} />;
-	}
 
 	if (validContextItems.length === 0) {
 		return <NoContextView loading={isLoading || linkedDirState.loading} />;

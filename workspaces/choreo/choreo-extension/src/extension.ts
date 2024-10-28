@@ -14,6 +14,7 @@ import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { ChoreoRPCClient } from "./choreo-rpc";
 import { initRPCServer } from "./choreo-rpc/activate";
 import { activateCmds } from "./cmds";
+import { continueCreateComponent } from "./cmds/create-component-cmd";
 import { activateCodeLenses } from "./code-lens";
 import { ext } from "./extensionVariables";
 import { getLogger, initLogger } from "./logger/logger";
@@ -48,13 +49,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand("setContext", "hasSelectedProject", !!state.selected);
 	});
 	workspace.onDidChangeWorkspaceFolders(() => {
-		const isValidWorkspace = workspace.workspaceFile || !!workspace.workspaceFolders?.length;
-		vscode.commands.executeCommand("setContext", "isValidWorkspace", isValidWorkspace);
 		vscode.commands.executeCommand("setContext", "notUsingWorkspaceFile", !workspace.workspaceFile);
 	});
-
-	const isValidWorkspace = workspace.workspaceFile || !!workspace.workspaceFolders?.length;
-	vscode.commands.executeCommand("setContext", "isValidWorkspace", isValidWorkspace);
 	vscode.commands.executeCommand("setContext", "notUsingWorkspaceFile", !workspace.workspaceFile);
 
 	const rpcClient = new ChoreoRPCClient();
@@ -70,6 +66,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			activateActivityWebViews(context); // activity web views
 			activateURIHandlers();
 			activateCodeLenses(context);
+			continueCreateComponent();
 
 			getLogger().debug("Choreo Extension activated");
 		})

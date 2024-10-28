@@ -67,7 +67,7 @@ export const VerticalStepperItem: FC<StepItemProps> = ({
 					ref={stepperItemIconRef}
 					className={classNames(
 						"flex h-5 w-5 items-center justify-center rounded-[100px] font-thin text-xs transition-colors duration-500",
-						index <= currentStep ? "bg-vsc-button-background" : "bg-vsc-editorIndentGuide-background",
+						index <= currentStep ? "bg-vsc-button-background text-vsc-button-foreground" : "bg-vsc-editorIndentGuide-background",
 					)}
 				>
 					{index < currentStep ? <Codicon name="check" className="!text-xs" /> : <span>{index + 1}</span>}

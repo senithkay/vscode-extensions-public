@@ -214,6 +214,7 @@ export interface SetWebviewCacheRequestParam {
 export interface GetLocalGitDataResp {
 	remotes?: string[];
 	upstream?: { name?: string; remote?: string; remoteUrl?: string };
+	gitRoot?: string;
 }
 
 export interface SendTelemetryExceptionParams {

@@ -26,14 +26,12 @@ type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 interface Props extends NewComponentWebviewProps {
 	isSaving?: boolean;
-	compFsPath?: string;
-	compUriPath?: string;
 	onNextClick: (data: ComponentFormGitProxyType) => void;
 	onBackClick: () => void;
 	form: UseFormReturn<ComponentFormGitProxyType>;
 }
 
-export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextClick, isSaving, form, compFsPath, compUriPath }) => {
+export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextClick, isSaving, form, directoryFsPath, directoryUriPath }) => {
 	const [proxyDetailsSections] = useAutoAnimate();
 
 	const onSubmitForm: SubmitHandler<ComponentFormGitProxyType> = (data) => onNextClick(data);
@@ -44,20 +42,23 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 	const { openFile } = useGoToSource();
 
 	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
-		compFsPath,
+		directoryFsPath,
 		onSuccess: (subPath) => form.setValue("componentConfig.schemaFilePath", subPath, { shouldValidate: true }),
 	});
 
 	// automatically detect open api files and select if only one available within the selected directory
 	useQuery({
-		queryKey: ["get-possible-openapi-schemas", { compFsPath }],
-		queryFn: async () => getOpenApiFiles(compFsPath),
+		queryKey: ["get-possible-openapi-schemas", { directoryFsPath }],
+		queryFn: async () => getOpenApiFiles(directoryFsPath),
 		onSuccess: async (fileNames) => {
 			if (fileNames.length === 1) {
 				if (form.getValues("componentConfig.schemaFilePath") === "") {
 					form.setValue("componentConfig.schemaFilePath", fileNames[0], { shouldValidate: true });
 				} else {
-					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, form.getValues("componentConfig.schemaFilePath")]);
+					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([
+						directoryFsPath,
+						form.getValues("componentConfig.schemaFilePath"),
+					]);
 					const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFullPath);
 					if (!fileExists) {
 						form.setValue("componentConfig.schemaFilePath", "");
@@ -71,7 +72,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 	useQuery({
 		queryKey: ["get-possible-target-url", { schemaFilePath }],
 		queryFn: async () => {
-			const schemaFileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, schemaFilePath]);
+			const schemaFileFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, schemaFilePath]);
 			const fileContent = await getOpenApiContent(schemaFileFullPath);
 			if (fileContent && fileContent.servers?.length > 0) {
 				return fileContent.servers.filter((item) => httpsUrlSchema.safeParse(item.url).success);
@@ -110,12 +111,15 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 							label="Schema File Path"
 							required
 							control={form.control}
-							baseUriPath={compUriPath}
+							baseUriPath={directoryUriPath}
 							type="file"
 							promptTitle="Select Schema File Path"
 						/>
 						{schemaFilePath && (
-							<VSCodeLink className="mt-0.5 font-semibold text-[11px] text-vsc-foreground" onClick={() => openFile([compFsPath, schemaFilePath])}>
+							<VSCodeLink
+								className="mt-0.5 font-semibold text-[11px] text-vsc-foreground"
+								onClick={() => openFile([directoryFsPath, schemaFilePath])}
+							>
 								Edit Schema File
 							</VSCodeLink>
 						)}
@@ -133,7 +137,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					name="componentConfig.docPath"
 					label="Documentation File Path"
 					control={form.control}
-					baseUriPath={compUriPath}
+					baseUriPath={directoryUriPath}
 					type="file"
 					promptTitle="Select Documentation File Path"
 				/>
@@ -141,7 +145,7 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					name="componentConfig.thumbnailPath"
 					label="Thumbnail File Path"
 					control={form.control}
-					baseUriPath={compUriPath}
+					baseUriPath={directoryUriPath}
 					type="file"
 					promptTitle="Select Thumbnail File Path"
 				/>

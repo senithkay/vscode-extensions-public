@@ -32,6 +32,7 @@ export const componentGeneralDetailsSchema = z.object({
 		.regex(/^[A-Za-z]/, "Needs to start with alphabetic letter")
 		.regex(/^[A-Za-z\s\d\-_]+$/, "Cannot have special characters"),
 	subPath: z.string(),
+	gitRoot: z.string(),
 	repoUrl: z.string().min(1, "Required"),
 	branch: z.string().min(1, "Required"),
 });
@@ -83,12 +84,11 @@ export const componentEndpointsFormSchema = z.object({
 		}),
 });
 
-export const getComponentEndpointsFormSchema = (directoryFsPath: string, subPath: string) =>
+export const getComponentEndpointsFormSchema = (directoryFsPath: string) =>
 	componentEndpointsFormSchema.partial().superRefine(async (data, ctx) => {
-		const compFsPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
 		for (const [index, endpointItem] of data.endpoints.entries()) {
 			if (endpointItem.type === EndpointType.REST) {
-				const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, endpointItem.schemaFilePath]);
+				const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, endpointItem.schemaFilePath]);
 				const schemaFileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFilePath);
 				if (!schemaFileExists) {
 					ctx.addIssue({ path: [`endpoints.${index}.schemaFilePath`], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -106,7 +106,7 @@ export const httpsUrlSchema = z
 	.string()
 	.url() // Ensure it's a valid URL
 	.min(1, { message: "Required" })
-	.regex(/^https:\/\/[^\/]+/) // Check for the "https://" prefix
+	.regex(/^https?:\/\/[^\/]+/) // Check for either "http://" or "https://" prefix
 	.refine(
 		(url) => {
 			try {
@@ -116,11 +116,8 @@ export const httpsUrlSchema = z
 				return false;
 			}
 		},
-		{
-			message: "Invalid URL",
-		},
+		{ message: "Invalid URL" },
 	);
-
 export const componentGitProxyFormSchema = z.object({
 	proxyTargetUrl: httpsUrlSchema,
 	// todo: check if duplicate exist if its returned from API
@@ -150,10 +147,9 @@ export const componentGitProxyFormSchema = z.object({
 		}),
 });
 
-export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath: string) =>
+export const getComponentGitProxyFormSchema = (directoryFsPath: string) =>
 	componentGitProxyFormSchema.partial().superRefine(async (data, ctx) => {
-		const compFsPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
-		const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, data.componentConfig?.schemaFilePath]);
+		const schemaFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, data.componentConfig?.schemaFilePath]);
 		const schemaFileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFilePath);
 		if (!schemaFileExists) {
 			ctx.addIssue({ path: ["componentConfig.schemaFilePath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -165,7 +161,7 @@ export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath:
 		}
 
 		if (data.componentConfig?.thumbnailPath?.length > 0) {
-			const thumbnailPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, data.componentConfig?.thumbnailPath]);
+			const thumbnailPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, data.componentConfig?.thumbnailPath]);
 			const thumbnailExists = await ChoreoWebViewAPI.getInstance().fileExist(thumbnailPath);
 			if (!thumbnailExists) {
 				ctx.addIssue({ path: ["componentConfig.thumbnailPath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -173,7 +169,7 @@ export const getComponentGitProxyFormSchema = (directoryFsPath: string, subPath:
 		}
 
 		if (data.componentConfig?.docPath?.length > 0) {
-			const docPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([compFsPath, data.componentConfig?.docPath]);
+			const docPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, data.componentConfig?.docPath]);
 			const docPathExists = await ChoreoWebViewAPI.getInstance().fileExist(docPath);
 			if (!docPathExists) {
 				ctx.addIssue({ path: ["componentConfig.docPath"], code: z.ZodIssueCode.custom, message: "Invalid Path" });
@@ -188,9 +184,8 @@ export const getComponentFormSchemaGenDetails = (existingComponents: ComponentKi
 		}
 	});
 
-export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath: string, subPath: string) =>
+export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath: string, gitRoot: string) =>
 	componentBuildDetailsSchema.partial().superRefine(async (data, ctx) => {
-		const compFsPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
 		if (
 			[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles, ChoreoBuildPackNames.Prism].includes(
 				data.buildPackLang as ChoreoBuildPackNames,
@@ -227,7 +222,7 @@ export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath
 		if (type && data.buildPackLang) {
 			const expectedFiles = getExpectedFilesForBuildPack(data.buildPackLang);
 			if (expectedFiles.length > 0) {
-				const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(compFsPath);
+				const files = await ChoreoWebViewAPI.getInstance().getDirectoryFileNames(directoryFsPath);
 				if (!expectedFiles.some((item) => containsMatchingElement(files, item))) {
 					ctx.addIssue({
 						path: ["buildPackLang"],
@@ -238,7 +233,7 @@ export const getComponentFormSchemaBuildDetails = (type: string, directoryFsPath
 			}
 
 			if (data.buildPackLang === ChoreoImplementationType.Docker) {
-				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, data.dockerFile]);
+				const dockerFilePath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([gitRoot, data.dockerFile]);
 				const isDockerFileExist = await ChoreoWebViewAPI.getInstance().fileExist(dockerFilePath);
 				if (!isDockerFileExist) {
 					ctx.addIssue({ path: ["dockerFile"], code: z.ZodIssueCode.custom, message: "Invalid Path" });

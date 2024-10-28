@@ -30,6 +30,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 					quickPickOptions.push(
 						{ kind: QuickPickItemKind.Separator, label: "Selected Project" },
 						{ label: selected?.project?.name!, detail: selected?.org?.name, picked: true },
+						{ label: "Open in Console", detail: `Open the project '${selected.project?.name}' in Choreo console` },
 					);
 				}
 
@@ -67,7 +68,9 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 					title: "Manage Project",
 				});
 
-				if (selection?.label === "Link with a different project" || selection?.label === "Link with a project") {
+				if (selection?.label === "Open in Console") {
+					commands.executeCommand(CommandIds.OpenInConsole, { project: selected?.project, organization: selected?.org });
+				} else if (selection?.label === "Link with a different project" || selection?.label === "Link with a project") {
 					commands.executeCommand(CommandIds.CreateDirectoryContext);
 				} else if ((selection as any)?.item) {
 					const selectedItem: ContextItemEnriched = (selection as any)?.item;

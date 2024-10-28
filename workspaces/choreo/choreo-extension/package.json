@@ -55,8 +55,7 @@
         "command": "wso2.choreo.create.component",
         "title": "Create Component",
         "category": "Choreo",
-        "icon": "$(add)",
-        "enablement": "isValidWorkspace"
+        "icon": "$(add)"
       },
       {
         "command": "wso2.choreo.open.external",
@@ -86,22 +85,20 @@
         "command": "wso2.choreo.project.create.context",
         "title": "Select Project",
         "category": "Choreo",
-        "icon": "$(link)",
-        "enablement": "isValidWorkspace"
+        "icon": "$(link)"
       },
       {
         "command": "wso2.choreo.project.manage.context",
         "title": "Manage Project",
         "category": "Choreo",
-        "icon": "$(settings-gear)",
-        "enablement": "isValidWorkspace"
+        "icon": "$(settings-gear)"
       },
       {
         "command": "wso2.choreo.project.refresh",
         "title": "Refresh Workspace",
         "category": "Choreo",
         "icon": "$(refresh)",
-        "enablement": "isValidWorkspace && !isLoadingContextDirs"
+        "enablement": "!isLoadingContextDirs"
       },
       {
         "command": "wso2.choreo.project.create.workspace",
@@ -109,7 +106,7 @@
         "shortTitle": "Create workspace file",
         "category": "Choreo",
         "icon": "$(new-file)",
-        "enablement": "isLoggedIn && isValidWorkspace && hasSelectedProject && notUsingWorkspaceFile"
+        "enablement": "isLoggedIn && hasSelectedProject && notUsingWorkspaceFile"
       },
       {
         "command": "wso2.choreo.component.create.dependency",

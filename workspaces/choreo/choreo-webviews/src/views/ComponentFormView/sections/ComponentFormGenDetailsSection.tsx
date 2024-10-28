@@ -9,14 +9,13 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ChoreoComponentType, type NewComponentWebviewProps } from "@wso2-enterprise/choreo-core";
+import type { NewComponentWebviewProps } from "@wso2-enterprise/choreo-core";
 import React, { type FC, type ReactNode, useEffect } from "react";
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
 import { Banner } from "../../../components/Banner";
 import { Button } from "../../../components/Button";
 import { Dropdown } from "../../../components/FormElements/Dropdown";
-import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
 import { useGetGitBranches } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
@@ -31,19 +30,10 @@ interface Props extends NewComponentWebviewProps {
 	componentType: string;
 }
 
-export const ComponentFormGenDetailsSection: FC<Props> = ({
-	onNextClick,
-	organization,
-	directoryFsPath,
-	directoryUriPath,
-	directoryName,
-	form,
-	componentType,
-}) => {
+export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organization, directoryFsPath, form }) => {
 	const [compDetailsSections] = useAutoAnimate();
 	const [sourceDetailsSections] = useAutoAnimate();
 
-	const subPath = form.watch("subPath");
 	const repoUrl = form.watch("repoUrl");
 
 	const {
@@ -51,14 +41,19 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 		isLoading: isLoadingGitData,
 		refetch: refetchGitData,
 	} = useQuery({
-		queryKey: ["git-data", { subPath }],
+		queryKey: ["git-data", { directoryFsPath }],
 		queryFn: async () => {
-			const dir = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryFsPath, subPath]);
-			const gitData = await ChoreoWebViewAPI.getInstance().getLocalGitData(dir);
+			const gitData = await ChoreoWebViewAPI.getInstance().getLocalGitData(directoryFsPath);
 			return gitData ?? null;
 		},
 		refetchOnWindowFocus: true,
 		cacheTime: 0,
+	});
+
+	const { data: subPath } = useQuery({
+		queryKey: ["sub-path", { gitRoot: gitData?.gitRoot }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().getSubPath({ subPath: directoryFsPath, parentPath: gitData?.gitRoot }),
+		enabled: !!gitData?.gitRoot,
 	});
 
 	useEffect(() => {
@@ -69,7 +64,14 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 				form.setValue("repoUrl", gitData?.remotes[0], { shouldValidate: true });
 			}
 		}
+		if (gitData?.gitRoot) {
+			form.setValue("gitRoot", gitData?.gitRoot);
+		}
 	}, [gitData]);
+
+	useEffect(() => {
+		form.setValue("subPath", subPath || "");
+	}, [subPath]);
 
 	const {
 		isLoading: isLoadingBranches,
@@ -124,8 +126,14 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 		onSuccess: () => refetchGitData(),
 	});
 
+	const { mutate: pushChanges } = useMutation({
+		mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("git.push"),
+		onSuccess: () => refetchGitData(),
+	});
+
 	let invalidRepoMsg: ReactNode = "";
 	let invalidRepoAction = "";
+	let invalidRepoBannerType: "error" | "warning" | "info" = "warning";
 	let onInvalidRepoActionClick: () => void;
 	let onInvalidRepoRefreshClick: () => void;
 	let onInvalidRepoRefreshing: boolean;
@@ -148,7 +156,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 		if (isRepoAuthorizedResp?.retrievedRepos) {
 			invalidRepoMsg = (
 				<span>
-					Choreo lacks access to this repository. <span className="font-thin">(Only public repos are allowed within the free tier.)</span>
+					Choreo lacks access to the selected repository. <span className="font-thin">(Only public repos are allowed within the free tier.)</span>
 				</span>
 			);
 			invalidRepoAction = "Grant Access";
@@ -157,6 +165,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 			invalidRepoMsg = "Please authorize Choreo to access your GitHub repositories.";
 			invalidRepoAction = "Authorize";
 			onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().triggerGithubAuthFlow(organization.id?.toString());
+			invalidRepoBannerType = "info";
 		}
 		onInvalidRepoRefreshClick = refetchRepoAccess;
 		onInvalidRepoRefreshing = isFetchingRepoAccess;
@@ -174,18 +183,6 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 					control={form.control}
 					wrapClassName="col-span-full"
 				/>
-				<PathSelect
-					name="subPath"
-					key="gen-details-path"
-					label={componentType === ChoreoComponentType.ApiProxy ? "Source Directory" : "Source/Docker Context Directory"}
-					required
-					control={form.control}
-					baseUriPath={directoryUriPath}
-					directoryName={directoryName}
-					type="directory"
-					promptTitle="Select Component Directory"
-					wrapClassName="col-span-full"
-				/>
 				<div className="col-span-full grid gap-4 md:grid-cols-2" ref={sourceDetailsSections}>
 					{gitData?.remotes?.length > 0 && (
 						<Dropdown
@@ -200,7 +197,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 					)}
 					{invalidRepoMsg && (
 						<Banner
-							type="warning"
+							type={invalidRepoBannerType}
 							className="col-span-full md:order-last"
 							key="invalid-repo-banner"
 							title={invalidRepoMsg}
@@ -215,6 +212,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({
 							className="col-span-full md:order-last"
 							title={"The selected remote repository has no branches. Please publish your local branch to the remote repository."}
 							refreshBtn={{ onClick: refetchBranches, isRefreshing: isFetchingBranches }}
+							actionLink={{ title: "Push Changes", onClick: pushChanges }}
 						/>
 					)}
 					{!invalidRepoMsg && gitData?.remotes?.length > 0 && (

@@ -29,8 +29,6 @@ type ComponentFormEndpointItemType = z.infer<typeof componentEndpointItemSchema>
 
 interface Props extends NewComponentWebviewProps {
 	componentName: string;
-	compFsPath?: string;
-	compUriPath?: string;
 	isSaving?: boolean;
 	onNextClick: (data: ComponentFormEndpointsType) => void;
 	onBackClick: () => void;
@@ -38,12 +36,11 @@ interface Props extends NewComponentWebviewProps {
 }
 
 export const ComponentFormEndpointsSection: FC<Props> = ({
-	directoryName,
+	directoryFsPath,
+	directoryUriPath,
 	componentName,
 	onBackClick,
 	onNextClick,
-	compFsPath,
-	compUriPath,
 	isSaving,
 	form,
 }) => {
@@ -62,14 +59,13 @@ export const ComponentFormEndpointsSection: FC<Props> = ({
 					key={item.id}
 					append={append}
 					remove={remove}
-					directoryName={directoryName}
 					endpoints={endpoints}
 					form={form}
 					index={index}
 					item={{ ...watchedForm?.endpoints?.[index], id: item.id }}
 					componentName={componentName}
-					compFsPath={compFsPath}
-					compUriPath={compUriPath}
+					directoryFsPath={directoryFsPath}
+					directoryUriPath={directoryUriPath}
 				/>
 			))}
 
@@ -85,7 +81,7 @@ export const ComponentFormEndpointsSection: FC<Props> = ({
 	);
 };
 
-interface ComponentEndpointItemProps extends Pick<Props, "directoryName" | "componentName" | "compFsPath" | "compUriPath"> {
+interface ComponentEndpointItemProps extends Pick<Props, "componentName" | "directoryFsPath" | "directoryUriPath"> {
 	item: ComponentFormEndpointItemType & { id: string };
 	endpoints: ComponentFormEndpointItemType[];
 	form: UseFormReturn<ComponentFormEndpointsType, any, undefined>;
@@ -102,27 +98,27 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 	componentName,
 	append,
 	remove,
-	compUriPath,
-	compFsPath,
+	directoryFsPath,
+	directoryUriPath,
 }) => {
 	const [endpointListItemRef] = useAutoAnimate();
 
 	const { createNewOpenApiFile } = useCreateNewOpenApiFile({
-		compFsPath,
+		directoryFsPath,
 		onSuccess: (subPath) => form.setValue(`endpoints.${index}.schemaFilePath`, subPath, { shouldValidate: true }),
 	});
 
 	// automatically detect open api files and select if only one available within the selected directory
 	useQuery({
-		queryKey: ["get-possible-openapi-schemas", { compFsPath }],
-		queryFn: async () => getOpenApiFiles(compFsPath),
+		queryKey: ["get-possible-openapi-schemas", { directoryFsPath }],
+		queryFn: async () => getOpenApiFiles(directoryFsPath),
 		onSuccess: async (fileNames) => {
 			if (fileNames.length === 1) {
 				if (form.getValues(`endpoints.${index}.schemaFilePath`) === "") {
 					form.setValue(`endpoints.${index}.schemaFilePath`, fileNames[0], { shouldValidate: true });
 				} else {
 					const schemaFullPath = await ChoreoWebViewAPI.getInstance().joinFsFilePaths([
-						compFsPath,
+						directoryFsPath,
 						form.getValues(`endpoints.${index}.schemaFilePath`),
 					]);
 					const fileExists = await ChoreoWebViewAPI.getInstance().fileExist(schemaFullPath);
@@ -201,12 +197,15 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 					label="Schema File Path"
 					required
 					control={form.control}
-					baseUriPath={compUriPath}
+					baseUriPath={directoryUriPath}
 					type="file"
 					promptTitle="Select Schema File Path"
 				/>
 				{item.schemaFilePath && (
-					<VSCodeLink className="mt-0.5 font-semibold text-[11px] text-vsc-foreground" onClick={() => openFile([compFsPath, item.schemaFilePath])}>
+					<VSCodeLink
+						className="mt-0.5 font-semibold text-[11px] text-vsc-foreground"
+						onClick={() => openFile([directoryFsPath, item.schemaFilePath])}
+					>
 						Edit Schema File
 					</VSCodeLink>
 				)}
