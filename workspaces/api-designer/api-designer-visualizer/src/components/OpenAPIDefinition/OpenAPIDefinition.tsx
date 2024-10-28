@@ -413,6 +413,21 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         })
     }
 
+    const handleDeteteSchema = (schemaName: string) => {
+        const clonedSchemas = { ...openAPIDefinition.components?.schemas };
+        delete clonedSchemas[schemaName];
+        const updatedOpenAPIDefinition: OpenAPI = {
+            ...openAPIDefinition,
+            components: {
+                ...openAPIDefinition.components,
+                schemas: clonedSchemas
+            }
+        };
+        setSelectedPathID(undefined);
+        setOpenAPIDefinition(updatedOpenAPIDefinition);
+        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+    };
+
     const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
     const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
     const operation = selectedPath && selectedMethod &&
@@ -459,6 +474,7 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                             onPathRename={handleRenamePath}
                             onDeleteMethod={onDeleteResource}
                             onAddSchema={handleAddSchema}
+                            onDeleteSchema={handleDeteteSchema}
                         />
                     }
                 </NavigationPanelContainer>
