@@ -31,6 +31,7 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
+    ConfigVariableResponse,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
@@ -48,11 +49,14 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
+    BI_COMMANDS,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -64,7 +68,6 @@ import {
 import { ballerinaExtInstance } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
-import { title } from "process";
 import { extension } from "../../BalExtensionContext";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 
@@ -572,6 +575,24 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async getConfigVariables(): Promise<ConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const variables = await StateMachine.langClient().getConfigVariables( { projectPath: projectPath }) as ConfigVariableResponse;
+            resolve(variables);
+        });
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequest = params;
+            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
+            const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
+            this.updateSource(response, false);
+            resolve(response);
+        });
+    }
+    
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
@@ -683,7 +704,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     openAIChat(params: AIChatRequest): void {
-        commands.executeCommand("kolab.open.ai.panel");
+        if (params.readme) {
+            commands.executeCommand("kolab.open.ai.panel", "Generate an integration according to the given Readme file");
+        } else {
+            commands.executeCommand("kolab.open.ai.panel");
+        }
     }
 
     async getModuleNodes(): Promise<BIModuleNodesResponse> {
@@ -801,8 +826,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     runProject(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        commands.executeCommand(BI_COMMANDS.BI_RUN_PROJECT);
     }
 
     async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {

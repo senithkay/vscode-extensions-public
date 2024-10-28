@@ -13,6 +13,7 @@ import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
 import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
+
 const simpleModel: Project = {
     id: "110ec58a-a0f2-4ac4-8393-c866d813b8d1",
     name: "A",
