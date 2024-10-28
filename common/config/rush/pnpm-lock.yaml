@@ -160,15 +160,11 @@ importers:
       '@types/vscode-webview': ^1.57.3
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
-      '@wso2-enterprise/mi-syntax-tree': workspace:*
       eslint: ^8.52.0
       typescript: ^5.2.2
-      vscode-languageserver-types: ~3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
       '@types/vscode-webview': 1.57.5
-      '@wso2-enterprise/mi-syntax-tree': link:../../mi/syntax-tree
-      vscode-languageserver-types: 3.17.5
       vscode-messenger-common: 0.4.5
     devDependencies:
       '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
@@ -180,7 +176,6 @@ importers:
     specifiers:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       '@babel/core': ^7.24.4
-      '@playwright/test': ~1.37.1
       '@types/js-yaml': ~4.0.9
       '@types/json-schema': 7.0.15
       '@types/lodash': ~4.14.199
@@ -195,13 +190,11 @@ importers:
       '@wso2-enterprise/api-designer-rpc-client': workspace:*
       '@wso2-enterprise/api-designer-visualizer': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
-      '@wso2-enterprise/playwright-vscode-tester': workspace:*
       adm-zip: ~0.5.14
       axios: ~1.5.1
       copyfiles: ^2.4.1
       cors-anywhere: ^0.4.4
       eslint: ^8.47.0
-      fast-xml-parser: ~4.3.2
       js-yaml: ~4.1.0
       json-schema: 0.4.0
       jsonix: ~3.0.0
@@ -213,9 +206,6 @@ importers:
       to-json-schema: 0.2.5
       ts-loader: ^9.4.4
       typescript: ^5.1.6
-      vscode-extension-tester: ~5.9.1
-      vscode-languageclient: ^8.0.2
-      vscode-languageserver-protocol: ^3.17.2
       vscode-messenger: ^0.4.5
       vscode-messenger-common: ^0.4.5
       webpack: ^5.88.2
@@ -224,7 +214,6 @@ importers:
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       '@babel/core': 7.24.4
-      '@playwright/test': 1.37.1
       '@types/json-schema': 7.0.15
       '@types/lodash': 4.14.202
       '@types/xml2js': 0.4.14
@@ -233,12 +222,10 @@ importers:
       '@wso2-enterprise/api-designer-rpc-client': link:../api-designer-rpc-client
       '@wso2-enterprise/api-designer-visualizer': link:../api-designer-visualizer
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
-      '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       adm-zip: 0.5.14
       axios: 1.5.1
       copyfiles: 2.4.1
       cors-anywhere: 0.4.4
-      fast-xml-parser: 4.3.6
       js-yaml: 4.1.0
       json-schema: 0.4.0
       jsonix: 3.0.0
@@ -247,9 +234,6 @@ importers:
       node-loader: 2.0.0_webpack@5.90.1
       portfinder: 1.0.32
       to-json-schema: 0.2.5
-      vscode-extension-tester: 5.9.1_typescript@5.3.3
-      vscode-languageclient: 8.1.0
-      vscode-languageserver-protocol: 3.17.5
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
       xstate: 4.38.3
@@ -300,13 +284,9 @@ importers:
     specifiers:
       '@babel/plugin-syntax-flow': ~7.22.5
       '@babel/preset-typescript': ~7.22.11
-      '@codemirror/lang-xml': ~6.0.2
-      '@codemirror/lint': ~6.5.0
-      '@codemirror/theme-one-dark': ~6.1.2
       '@emotion/css': ^11.10.5
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.11.0
-      '@headlessui/react': ~1.7.18
       '@hookform/resolvers': ~3.3.4
       '@mdxeditor/editor': ~3.14.0
       '@storybook/addon-actions': ~7.4.0
@@ -318,51 +298,35 @@ importers:
       '@tanstack/react-query': 4.0.10
       '@types/js-yaml': ~4.0.9
       '@types/lodash': ~4.14.198
-      '@types/mustache': ~4.2.5
       '@types/node': ^20.10.6
       '@types/react': ^18.2.33
-      '@types/react-collapse': ~5.0.4
       '@types/react-dom': ^18.2.14
-      '@types/swagger-ui-react': ^4.18.3
-      '@types/uuid': ~9.0.1
       '@types/vscode-webview': ~1.57.2
-      '@uiw/react-codemirror': ~4.21.22
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/api-designer-core': workspace:*
       '@wso2-enterprise/api-designer-rpc-client': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
-      '@wso2-enterprise/service-designer': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
-      fast-xml-parser: ~4.3.6
       js-yaml: ~4.1.0
       lodash: ~4.17.21
       path: ~0.12.7
       process: ~0.11.10
       react: ~18.2.0
-      react-collapse: ~5.1.1
       react-dom: ~18.2.0
       react-hook-form: ~7.51.2
       react-markdown: ~9.0.1
       sass-loader: ^13.2.0
       source-map-loader: ^4.0.1
       style-loader: ^1.3.0
-      swagger-ui-react: 5.17.4
       ts-loader: ^9.5.0
       typescript: ^5.2.2
-      uuid: ~9.0.1
-      vscode-languageserver-types: ~3.17.5
       webpack: ~5.88.2
       webpack-cli: ~5.1.4
       webpack-dev-server: ~4.15.1
-      xmlbuilder2: ~3.1.1
-      yaml: ~2.4.3
       yup: ~1.4.0
     dependencies:
-      '@codemirror/lang-xml': 6.0.2
-      '@codemirror/lint': 6.5.0
-      '@codemirror/theme-one-dark': 6.1.2
       '@emotion/css': 11.11.2
       '@emotion/react': 11.11.4_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_ihbmxtfl4qsypabejwwqftkmtq
@@ -370,34 +334,23 @@ importers:
       '@mdxeditor/editor': 3.14.0_jq2v3mgqnxhjqzsfthu2a3rfwm
       '@tanstack/query-core': 4.36.1
       '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
-      '@types/react-collapse': 5.0.4
-      '@types/swagger-ui-react': 4.18.3
-      '@types/uuid': 9.0.8
-      '@uiw/react-codemirror': 4.21.24_4ndsyykedba3u2psgexaldpule
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/api-designer-core': link:../api-designer-core
       '@wso2-enterprise/api-designer-rpc-client': link:../api-designer-rpc-client
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
-      '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
-      fast-xml-parser: 4.3.6
       js-yaml: 4.1.0
       lodash: 4.17.21
       path: 0.12.7
       process: 0.11.10
       react: 18.2.0
-      react-collapse: 5.1.1_react@18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.51.2_react@18.2.0
       react-markdown: 9.0.1_eteh3so6nztr56vqc4nbg6qqla
-      swagger-ui-react: 5.17.4_jczjbtsmbzi7zofs22bstoer6y
-      uuid: 9.0.1
-      xmlbuilder2: 3.1.1
       yup: 1.4.0
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5
       '@babel/preset-typescript': 7.22.15
-      '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
       '@storybook/addon-actions': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
       '@storybook/addon-essentials': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
       '@storybook/cli': 7.6.17
@@ -405,7 +358,6 @@ importers:
       '@storybook/react-webpack5': 7.4.6_ctp73pvjvd7jwhbnyft5x65shq
       '@types/js-yaml': 4.0.9
       '@types/lodash': 4.14.202
-      '@types/mustache': 4.2.5
       '@types/node': 20.11.27
       '@types/react': 18.2.55
       '@types/react-dom': 18.2.19
@@ -417,11 +369,9 @@ importers:
       style-loader: 1.3.0_webpack@5.88.2
       ts-loader: 9.5.1_agrs654gu7r7hszw6atq2y3ksu
       typescript: 5.3.3
-      vscode-languageserver-types: 3.17.5
       webpack: 5.88.2_webpack-cli@5.1.4
       webpack-cli: 5.1.4_55ctblq7vmnkc7msvxpxtdxasq
       webpack-dev-server: 4.15.1_w46lltld4evug5kpkz4iei6qt4
-      yaml: 2.4.3
 
   ../../workspaces/apk/apk-extension:
     specifiers:
@@ -13206,18 +13156,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /@playwright/test/1.37.1:
-    resolution: {integrity: sha512-bq9zTli3vWJo8S3LwB91U0qDNQDpEXnw7knhxLM0nwDvexQAwx9tO8iKDZSqqneVq+URd/WIoz+BALMqUTgdSg==}
-    engines: {node: '>=16'}
-    deprecated: Please update to the latest version of Playwright to test up-to-date browsers.
-    hasBin: true
-    dependencies:
-      '@types/node': 20.11.27
-      playwright-core: 1.37.1
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
 
   /@playwright/test/1.46.1:
     resolution: {integrity: sha512-Fq6SwLujA/DOIvNC2EL/SojJnkKf/rAwJ//APpJJHRyMi1PdKrY3Az+4XNQ51N4RTbItbIByQ0jgd1tayq1aeA==}
@@ -28283,7 +28221,7 @@ packages:
       webpack-cli: 5.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@5.1.4
-      webpack-cli: 5.1.4_webpack@5.90.1
+      webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/configtest/2.1.1_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -28311,7 +28249,7 @@ packages:
       webpack-cli: 5.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@5.1.4
-      webpack-cli: 5.1.4_webpack@5.90.1
+      webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/info/2.0.2_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -28360,6 +28298,7 @@ packages:
     dependencies:
       webpack: 5.90.1_webpack-cli@5.1.4
       webpack-cli: 5.1.4_webpack@5.90.1
+    dev: true
 
   /@webpack-cli/serve/2.0.5_gag4a66gwlfq2gue7dr242kzuq:
     resolution: {integrity: sha512-lqaoKnRYBdo1UgDX8uF24AfGMifWK19TxPmM5FHc2vAGxrJ/qtyUyFBWoY1tISZdelsQ5fBcOusifo5o5wSJxQ==}
@@ -28390,7 +28329,6 @@ packages:
       webpack: 5.90.1_webpack-cli@5.1.4
       webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_fsfaki5eyzmxu77y2afce3sch4
-    dev: true
 
   /@xmldom/xmldom/0.7.13:
     resolution: {integrity: sha512-lm2GW5PkosIzccsaZIz7tp8cPADSIlIHWDFTR1N0SzfinhhYgeIQjFMz4rYzanCScr3DqQLeomUDArp6MWKm+g==}
@@ -46289,12 +46227,6 @@ packages:
       find-up: 3.0.0
     dev: true
 
-  /playwright-core/1.37.1:
-    resolution: {integrity: sha512-17EuQxlSIYCmEMwzMqusJ2ztDgJePjrbttaefgdsiqeLWidjYz9BxXaTaZWxH1J95SHGk6tjE+dwgWILJoUZfA==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: false
-
   /playwright-core/1.46.1:
     resolution: {integrity: sha512-h9LqIQaAv+CYvWzsZ+h3RsrqCStkBHlgo6/TJlFst3cOTlLghBQlJwPOZKQJTKNaD3QIB7aAVQ+gfWbN3NXB7A==}
     engines: {node: '>=18'}
@@ -55659,34 +55591,6 @@ packages:
       - utf-8-validate
     dev: false
 
-  /vscode-extension-tester/5.9.1_typescript@5.3.3:
-    resolution: {integrity: sha512-dWUUZWiLbjch9yXrdd1GH/LdjZodn4FbNDraffFyON1qEIVio0Z3hwUunKmLBNFQWRseCJfFs5peBqoF5bGo0g==}
-    hasBin: true
-    peerDependencies:
-      mocha: '>=5.2.0'
-      typescript: '>=4.6.2'
-    dependencies:
-      '@types/selenium-webdriver': 4.1.21
-      '@vscode/vsce': 2.23.0
-      commander: 11.1.0
-      compare-versions: 6.1.0
-      fs-extra: 11.2.0
-      glob: 8.1.0
-      got: 13.0.0
-      hpagent: 1.2.0
-      js-yaml: 4.1.0
-      monaco-page-objects: 3.12.0_m6rge2u3viyau4fcmifu5jmob4
-      sanitize-filename: 1.6.3
-      selenium-webdriver: 4.10.0
-      targz: 1.0.1
-      typescript: 5.3.3
-      unzipper: 0.10.14
-      vscode-extension-tester-locators: 3.10.0_dp4u7hlirxltbnrbbmcfgcjbmy
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-    dev: false
-
   /vscode-jsonrpc/5.0.1:
     resolution: {integrity: sha512-JvONPptw3GAQGXlVV2utDcHx0BiY34FupW/kI6mZ5x06ER5DdPG/tXWMVHjTNULF5uKPOUUD0SaXg5QaubJL0A==}
     engines: {node: '>=8.0.0 || >=10.0.0'}
@@ -56057,7 +55961,6 @@ packages:
       webpack: 5.90.1_webpack-cli@5.1.4
       webpack-dev-server: 4.15.1_fsfaki5eyzmxu77y2afce3sch4
       webpack-merge: 5.10.0
-    dev: true
 
   /webpack-cli/5.1.4_webpack@5.90.1:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -56090,6 +55993,7 @@ packages:
       rechoir: 0.8.0
       webpack: 5.90.1_webpack-cli@5.1.4
       webpack-merge: 5.10.0
+    dev: true
 
   /webpack-dev-middleware/1.12.2_webpack@3.8.1:
     resolution: {integrity: sha512-FCrqPy1yy/sN6U/SaEZcHKRXGlqU0DUaEBL45jkUYoB8foVb6wCnbIJ1HKIx+qUFTW+3JpVcCJCxZ8VATL4e+A==}
@@ -56159,7 +56063,6 @@ packages:
       range-parser: 1.2.1
       schema-utils: 4.2.0
       webpack: 5.90.1_webpack-cli@4.10.0
-    dev: true
 
   /webpack-dev-middleware/6.1.1_webpack@5.90.1:
     resolution: {integrity: sha512-y51HrHaFeeWir0YO4f0g+9GwZawuigzcAdRNon6jErXy/SqV/+O6eaVAzDqE6t3e3NpGeR5CS+cCDaTC+V3yEQ==}
@@ -56317,7 +56220,6 @@ packages:
       - debug
       - supports-color
       - utf-8-validate
-    dev: true
 
   /webpack-dev-server/4.15.1_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
@@ -56909,7 +56811,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.10_webpack@5.90.1
       watchpack: 2.4.0
-      webpack-cli: 5.1.4_webpack@5.90.1
+      webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'
