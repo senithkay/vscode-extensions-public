@@ -13,9 +13,9 @@ export function isDropdownField(field: FormField) {
     return field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT" || field.type?.toUpperCase() === "ENUM";
 }
 
-export function getValueForDropdown(field: FormField) {
+export function getValueForDropdown(field: FormField, multiSelectIndex: number = 0) {
     if (field.type === "MULTIPLE_SELECT") {
-        return field.value?.length > 0 ? field.value[0] : field.items[0];
+        return field.value?.length > 0 ? field.value[0] : field.items[multiSelectIndex];
     }
     return field.value !== "" ? field.value : field.items[0];
 }

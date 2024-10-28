@@ -315,8 +315,9 @@ export function Form(props: FormProps) {
     const contextValue = {
         form: {
             control,
+            setValue,
             watch,
-            register,
+            register
         },
         expressionEditor,
         targetLineRange,
@@ -366,6 +367,7 @@ export function Form(props: FormProps) {
                                     <EditorFactory
                                         ref={exprRef}
                                         field={field}
+                                        selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
