@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertNodePropertiesToFormFields,
     enrichFormPropertiesWithValueConstraint,
@@ -32,15 +32,29 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     onSubmit: (node?: FlowNode) => void;
-    openSubPanel: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
+    openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
-        onRetrieveCompletions: (value: string, offset: number) => any;
+        retrieveCompletions: (
+            value: string,
+            offset: number,
+            triggerCharacter?: string,
+            onlyVariables?: boolean
+        ) => Promise<void>;
+        retrieveVisibleTypes: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        }>;
         onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
         onBlur: () => void;
     };
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
 }
 
 export function FormGenerator(props: FormProps) {
@@ -55,7 +69,10 @@ export function FormGenerator(props: FormProps) {
         editForm,
         onSubmit,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
+        updatedExpressionField,
+        resetUpdatedExpressionField,
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -165,7 +182,16 @@ export function FormGenerator(props: FormProps) {
 
     // handle if node form
     if (node.codedata.node === "IF") {
-        return <IfForm fileName={fileName} node={node} targetLineRange={targetLineRange} onSubmit={onSubmit} />;
+        return <IfForm
+            fileName={fileName}
+            node={node}
+            targetLineRange={targetLineRange}
+            onSubmit={onSubmit}
+            openSubPanel={openSubPanel}
+            updatedExpressionField={updatedExpressionField}
+            isActiveSubPanel={isActiveSubPanel}
+            resetUpdatedExpressionField={resetUpdatedExpressionField}
+        />;
     }
 
     // default form
@@ -180,7 +206,12 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
+                    isActiveSubPanel={isActiveSubPanel}
                     expressionEditor={expressionEditor}
+                    targetLineRange={targetLineRange}
+                    fileName={fileName}
+                    updatedExpressionField={updatedExpressionField}
+                    resetUpdatedExpressionField={resetUpdatedExpressionField}
                 />
             )}
             {showRecordEditor && (

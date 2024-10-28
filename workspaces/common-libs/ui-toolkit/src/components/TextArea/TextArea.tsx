@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ComponentProps } from 'react';
+import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
@@ -26,6 +26,13 @@ export interface TextAreaProps extends ComponentProps<"textarea"> {
     validationMessage?: string;
     sx?: any;
     onTextChange?: (text: string) => void;
+}
+
+export interface AutoResizeTextAreaProps extends TextAreaProps {
+    growRange: {
+        start: number;
+        offset: number;
+    }
 }
 
 interface ContainerProps {
@@ -79,3 +86,38 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         );
     }
 );
+
+export const AutoResizeTextArea = React.forwardRef<HTMLTextAreaElement, AutoResizeTextAreaProps>(
+    (props, ref) => {
+        const { growRange, onChange, ...rest } = props;
+        const [rows, setRows] = useState<number>(props.rows || growRange.start || 1);
+        const initialRender = useRef<boolean>(true);
+
+        const growTextArea = useCallback((text: string) => {
+            const { start, offset } = growRange;
+            const lineCount = text.split("\n").length;
+            const newRows = Math.max(start, Math.min(start + offset, lineCount));
+            setRows(newRows);
+        }, [growRange]);
+    
+        const handleChange = useCallback((e: any) => {
+            if (growRange) {
+                growTextArea(e.target.value);
+            }
+            onChange && onChange(e);
+        }, [growRange, growTextArea, onChange]);
+
+        // Initial row calculation
+        useEffect(() => {
+            if (props.value && initialRender.current && growRange) {
+                growTextArea(props.value.toString());
+                initialRender.current = false;
+            }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [growRange, props.value])
+
+        return <TextArea {...rest} ref={ref} rows={rows} onChange={handleChange} />
+    }
+)
+
+AutoResizeTextArea.displayName = 'AutoResizeTextArea';

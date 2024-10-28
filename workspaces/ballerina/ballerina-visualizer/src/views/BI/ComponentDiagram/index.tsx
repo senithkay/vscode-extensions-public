@@ -14,7 +14,6 @@ import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-en
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -63,10 +62,15 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         handleAddArtifact();
     };
 
-    const handleGoToConnection = (connection: Connection) => {
-        if (connection.location) {
-            goToView(connection.location.filePath, connection.location.position);
-        }
+    const handleGoToConnection = async (connection: Connection) => {
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.EditConnectionWizard,
+                identifier: connection.name,
+            },
+            isPopup: true
+        });
     };
 
     if (!projectStructure) {
@@ -76,8 +80,6 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             </SpinnerContainer>
         );
     }
-
-    console.log(">>> project structure", { projectStructure });
 
     const project: Project = {
         name: projectName,
@@ -112,16 +114,23 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         const isScheduleTask =
             (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(2)?.valueExpr?.literalToken
                 ?.value === '"SCHEDULED"';
+        let taskName = (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(0)?.valueExpr
+            ?.literalToken?.value;
+        if (taskName) {
+            taskName = taskName.replace(/['"]/g, "");
+        }
 
         project.entryPoints.push({
             id: task.name,
-            name: task.name,
+            name: taskName || task.name,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,
                 position: task.position,
             },
-            connections: (task.st as any)?.functionBody?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
+            connections:
+                (task.st as any)?.functionBody?.VisibleEndpoints?.map((endpoint: { name: string }) => endpoint.name) ||
+                [],
         });
     });
 

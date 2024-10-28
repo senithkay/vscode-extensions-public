@@ -10,11 +10,11 @@
 import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
-import { BallerinaExtension } from "../../core";
+import { BallerinaExtension, ballerinaExtInstance, ExtendedLangClient } from "../../core";
 import { getCurrentBallerinaProject } from "../../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
-import { BallerinaProject, PackageConfigSchema } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, PackageConfigSchema, ProjectDiagnosticsResponse } from "@wso2-enterprise/ballerina-core";
 
 const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
@@ -34,7 +34,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
         if (!isCommand && currentProject.kind === 'SINGLE_FILE_PROJECT') {
             // TODO: How to pass config values to single files
-            executeRunCommand(ballerinaExtInstance, isBi);
+            executeRunCommand(ballerinaExtInstance, configFile, isBi);
             return;
         }
 
@@ -57,7 +57,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
             const configSchema = data.configSchema;
             if (!isCommand && Object.keys(configSchema.properties).length === 0) {
-                executeRunCommand(ballerinaExtInstance, isBi);
+                executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 return;
             }
 
@@ -71,14 +71,14 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
 
             if (!isCommand && !orgName) {
-                executeRunCommand(ballerinaExtInstance, isBi);
+                executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 return;
             }
 
             const configs: Property = orgName[packageName];
 
             if (!isCommand && configs.required?.length === 0) {
-                executeRunCommand(ballerinaExtInstance, isBi);
+                executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 return;
             }
 
@@ -110,7 +110,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand);
             } else {
                 if (!isCommand) {
-                    executeRunCommand(ballerinaExtInstance, isBi);
+                    executeRunCommand(ballerinaExtInstance, configFile, isBi);
                 }
             }
         } catch (error) {
@@ -215,18 +215,34 @@ export async function handleNewValues(packageName: string, newValues: ConfigProp
             window.showTextDocument(document, { preview: false });
         });
     } else if (!isCommand && result === ignoreButton) {
-        executeRunCommand(ballerinaExtInstance);
+        executeRunCommand(ballerinaExtInstance, configFile);
     }
 }
 
-function executeRunCommand(ballerinaExtInstance: BallerinaExtension, isBi?: boolean): void {
+async function executeRunCommand(ballerinaExtInstance: BallerinaExtension, filePath: string, isBi?: boolean) {
     if (ballerinaExtInstance.enabledRunFast() || isBi) {
-        commands.executeCommand(DEBUG_RUN_COMMAND_ID);
+        const projectHasErrors = await hasProjectContainsErrors(ballerinaExtInstance.langClient, filePath);
+        if (projectHasErrors) {
+            window.showErrorMessage("Project contains errors. Please fix them and try again.");
+        } else {
+            commands.executeCommand(DEBUG_RUN_COMMAND_ID);
+        }
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
     }
 }
 
+async function hasProjectContainsErrors(langClient: ExtendedLangClient, path: string) : Promise<boolean> {
+    const res = await langClient.getProjectDiagnostics({
+        projectRootIdentifier: {
+            uri: "file://" + ballerinaExtInstance.getDocumentContext().getCurrentProject().path
+        }
+    }) as ProjectDiagnosticsResponse;
+    if (res.errorDiagnosticMap && Object.keys(res.errorDiagnosticMap).length > 0) {
+        return true;
+    }
+    return false;
+}
 
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
     newValues.forEach(obj => {

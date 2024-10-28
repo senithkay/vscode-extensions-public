@@ -6,9 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { STModification, FunctionParameters } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ParamConfig } from "@wso2-enterprise/ui-toolkit";
 import { URI } from "vscode-uri";
 
 export function transformNodePosition(position: NodePosition) {
@@ -108,3 +109,41 @@ export const applyModifications = async (rpcClient: BallerinaRpcClient, modifica
         });
     }
 };
+
+// Parameter object for ParamManager
+export const parameterConfig: ParamConfig = {
+    paramValues: [],
+    paramFields: [
+        {
+            type: "Dropdown",
+            label: "Type",
+            defaultValue: "string",
+            values: ["string", "int", "float", "anydata"],
+            isRequired: true
+        },
+        {
+            type: "TextField",
+            label: "Name",
+            defaultValue: "",
+            isRequired: true
+        },
+        {
+            type: "TextField",
+            label: "Default Value",
+            defaultValue: "",
+            isRequired: false
+        }
+    ]
+};
+
+export const getFunctionParametersList = (params: ParamConfig) => {
+    const paramList: FunctionParameters[] = [];
+    params.paramValues.forEach(param => {
+        paramList.push({
+            type: param.parameters[0].value as string,
+            name: param.parameters[1].value as string,
+            defaultValue: param.parameters[2].value as string
+        });
+    })
+    return paramList;
+}

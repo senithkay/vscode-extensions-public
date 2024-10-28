@@ -10,7 +10,7 @@
 import { FormField } from "../Form/types";
 
 export function isDropdownField(field: FormField) {
-    return field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT";
+    return field.type === "MULTIPLE_SELECT" || field.type === "SINGLE_SELECT" || field.type?.toUpperCase() === "ENUM";
 }
 
 export function getValueForDropdown(field: FormField) {

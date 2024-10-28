@@ -78,7 +78,7 @@ export class RPCLayer {
         // ----- Inline Data Mapper Webview RPC Methods
         registerInlineDataMapperRpcHandlers(RPCLayer._messenger);
 
-         // ----- Popup Views RPC Methods
+        // ----- Popup Views RPC Methods
         RPCLayer._messenger.onRequest(getPopupVisualizerState, () => getPopupContext());
     }
 
@@ -97,6 +97,7 @@ async function getContext(): Promise<VisualizerLocation> {
             projectUri: context.projectUri,
             haveServiceType: context.haveServiceType,
             metadata: {
+                haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),
                 enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
             },
@@ -110,7 +111,9 @@ async function getPopupContext(): Promise<PopupVisualizerLocation> {
         resolve({
             documentUri: context.documentUri,
             view: context.view,
-            recentIdentifier: context.recentIdentifier
+            recentIdentifier: context.recentIdentifier,
+            identifier: context.identifier,
+            metadata: context.metadata,
         });
     });
 }

@@ -9,13 +9,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
-import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
-import { FormValues, ExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
+import { FormValues, ExpressionEditor, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertBalCompletion, convertNodePropertyToFormField } from "../../../../utils/bi";
+import { convertBalCompletion, convertNodePropertyToFormField, convertToFnSignature } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -25,10 +25,14 @@ interface IfFormProps {
     node: FlowNode;
     targetLineRange: LineRange;
     onSubmit: (node?: FlowNode) => void;
+    openSubPanel: (subPanel: SubPanel) => void;
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
+    isActiveSubPanel?: boolean;
 }
 
 export function IfForm(props: IfFormProps) {
-    const { fileName, node, targetLineRange, onSubmit } = props;
+    const { fileName, node, targetLineRange, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
     const { control, getValues, setValue, handleSubmit } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
@@ -41,15 +45,32 @@ export function IfForm(props: IfFormProps) {
 
     console.log(">>> form fields", { node, values: getValues(), branches });
 
-    const clearExpressionEditor = () => {
-        // clear memory for expression editor
-        setCompletions([]);
+    const exprRef = useRef<ExpressionBarRef>(null);
+
+    useEffect(() => {
+        if (updatedExpressionField) {
+            const currentValue = getValues(updatedExpressionField.key);
+
+            if (currentValue !== undefined) {
+                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                const newValue = currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
+                setValue(updatedExpressionField.key, newValue);
+                resetUpdatedExpressionField && resetUpdatedExpressionField();
+            }
+        }
+    }, [updatedExpressionField]);
+
+    const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
         triggerCompletionOnNextRequest.current = false;
-    }
+    };
 
     const handleOnSave = (data: FormValues) => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
@@ -87,7 +108,7 @@ export function IfForm(props: IfFormProps) {
     };
 
     const addNewCondition = () => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
@@ -164,7 +185,14 @@ export function IfForm(props: IfFormProps) {
                 }
 
                 // Convert completions to the ExpressionBar format
-                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                let convertedCompletions: CompletionItem[] = [];
+                completions?.forEach((completion) => {
+                    if (completion.detail) {
+                        // HACK: Currently, completion with additional edits apart from imports are not supported
+                        // Completions that modify the expression itself (ex: member access)
+                        convertedCompletions.push(convertBalCompletion(completion));
+                    }
+                });
                 setCompletions(convertedCompletions);
 
                 if (triggerCharacter) {
@@ -199,10 +227,20 @@ export function IfForm(props: IfFormProps) {
         }
     }
 
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-    };
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: fileName,
+            expression: value,
+            startLine: targetLineRange.startLine,
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            }
+        });
+
+        return convertToFnSignature(signatureHelp);
+    }
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
@@ -213,8 +251,11 @@ export function IfForm(props: IfFormProps) {
         handleExpressionEditorCancel();
     }
 
-    const handleEditorFocus = (activeEditor: number) => {
-        setActiveEditor(activeEditor);
+    const handleEditorFocus = (currentActive: number) => {
+        if (isActiveSubPanel && activeEditor !== currentActive) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveEditor(currentActive);
     }
 
     useEffect(() => {
@@ -235,15 +276,20 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={branch.label}>
                             <ExpressionEditor
+                                ref={exprRef}
                                 control={control}
                                 field={field}
                                 completions={activeEditor === index ? filteredCompletions : []}
                                 triggerCharacters={TRIGGER_CHARACTERS}
-                                onRetrieveCompletions={handleGetCompletions}
+                                retrieveCompletions={handleGetCompletions}
+                                extractArgsFromFunction={extractArgsFromFunction}
                                 onCompletionSelect={handleCompletionSelect}
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}
                                 onBlur={handleExpressionEditorBlur}
+                                openSubPanel={openSubPanel}
+                                targetLineRange={targetLineRange}
+                                fileName={fileName}
                             />
                         </FormStyles.Row>
                     );
