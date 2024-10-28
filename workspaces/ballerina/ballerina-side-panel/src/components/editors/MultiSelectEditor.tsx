@@ -47,7 +47,9 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     const { field, label } = props;
     const { form } = useFormContext();
     const { register, setValue, watch } = form;
-    const [dropdownCount, setDropdownCount] = useState(1);
+
+    const noOfSelectedValues = field.value === "" ? 1 : field.value.length;
+    const [dropdownCount, setDropdownCount] = useState(noOfSelectedValues);
 
     // Get the default value
     const defaultValue = getValueForDropdown(field, 0);
@@ -85,7 +87,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                     id={`${field.key}-${index}`}
                     {...register(`${field.key}-${index}`, { 
                         required: !field.optional && index === 0,
-                        value: index === 0 ? getValueForDropdown(field) : undefined 
+                        value: getValueForDropdown(field, index)
                     })}
                     items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
                     required={!field.optional && index === 0}

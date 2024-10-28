@@ -15,7 +15,7 @@ export function isDropdownField(field: FormField) {
 
 export function getValueForDropdown(field: FormField, multiSelectIndex: number = 0) {
     if (field.type === "MULTIPLE_SELECT") {
-        return field.value?.length > 0 ? field.value[0] : field.items[multiSelectIndex];
+        return field.value?.length > 0 ? field.value[multiSelectIndex] : field.items[0];
     }
     return field.value !== "" ? field.value : field.items[0];
 }
