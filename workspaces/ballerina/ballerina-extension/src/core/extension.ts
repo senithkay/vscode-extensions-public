@@ -498,7 +498,7 @@ export class BallerinaExtension {
                 await window.withProgress(
                     {
                         location: ProgressLocation.Notification,
-                        title: `Downloading Kola version`,
+                        title: `Downloading Kola distribution`,
                         cancellable: false,
                     },
                     async (progress) => {
