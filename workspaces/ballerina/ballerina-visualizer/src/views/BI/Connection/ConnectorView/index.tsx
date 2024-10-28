@@ -59,11 +59,12 @@ const TopBar = styled.div`
 
 interface ConnectorViewProps {
     onSelectConnector: (connector: AvailableNode) => void;
+    fetchingInfo: boolean;
     onClose?: () => void;
 }
 
 export function ConnectorView(props: ConnectorViewProps) {
-    const { onSelectConnector, onClose } = props;
+    const { onSelectConnector, onClose, fetchingInfo } = props;
     const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
@@ -166,7 +167,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                     sx={{ width: "100%" }}
                 />
             </Row>
-            {isSearching && (
+            {(isSearching || fetchingInfo) && (
                 <ListContainer>
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
                         <ProgressRing />
