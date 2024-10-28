@@ -8,6 +8,8 @@
  */
 
 import { TypeField } from "@wso2-enterprise/ballerina-core";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
+
 
 export function getTypeName(typeField: TypeField): string {
     if (typeField.typeName === "record") {
@@ -36,3 +38,16 @@ export function getTypeName(typeField: TypeField): string {
         return typeField?.typeName;
     }
 }
+
+
+export const getIcon = (kind: string) => {
+    if (kind === "record") {
+        return <Codicon name="symbol-structure" />;
+    }
+    const validKinds = ["array", "boolean", "class", "enum", "interface", "field"];
+    if (validKinds.includes(kind)) {
+        return <Codicon name={`symbol-${kind}`} />;
+    }
+
+    return <Codicon name="symbol-variable" />;
+};
