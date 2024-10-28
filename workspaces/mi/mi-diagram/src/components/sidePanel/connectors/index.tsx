@@ -123,11 +123,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
     const fetchConnectors = async () => {
         try {
-            const response = await fetch(APIS.CONNECTOR);
-            const data = await response.json();
+            const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+            const data = response.outboundConnectors;
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
-                connectors: data['outbound-connector-data'],
+                connectors: data,
             });
         } catch (e) {
             console.error("Error fetching connectors", e);

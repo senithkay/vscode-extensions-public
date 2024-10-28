@@ -13,7 +13,7 @@ import { VariableTree } from "./VariablesTree";
 import styled from "@emotion/styled";
 import { useState } from "react";
 import { IconContainer, VariableComponent, VariableName, VariableType } from "../VariablesView";
-import { getTypeName } from "./utils";
+import { getIcon, getTypeName } from "./utils";
 
 interface RecordTypeTreeProps {
     variable: TypeWithIdentifier;
@@ -62,7 +62,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                             }}>
                                 <VariableComponent onClick={() => handleFieldClick(`${fullPath}`)}>
                                     <IconContainer>
-                                        <Codicon name="symbol-field" iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                                        {getIcon(field.typeName === 'record' ? field.typeName : 'field')}
                                     </IconContainer>
                                     <VariableName>
                                         {field.name}
@@ -91,16 +91,16 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
 
                 <VariableComponent onClick={() => handleFieldClick(parentValue ? `${parentValue}` : `${variable.name}`)}>
 
-                    {!parentValue &&
+                    {!parentValue && (
                         <IconContainer>
-                            <VarIcon />
+                            {getIcon(variable?.type?.typeName)}
                         </IconContainer>
-                    }
-                    {parentValue &&
+                    )}
+                    {parentValue && (
                         <IconContainer>
-                            <Codicon name="symbol-field" iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                            {getIcon(variable?.type?.typeName === 'record' ? variable?.type?.typeName : 'field')}
                         </IconContainer>
-                    }
+                    )}
                     <VariableName>
                         {variable.name}
                     </VariableName>
