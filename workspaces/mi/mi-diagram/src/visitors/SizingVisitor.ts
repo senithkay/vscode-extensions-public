@@ -268,13 +268,29 @@ export class SizingVisitor implements Visitor {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
 
         if (node.mediatorList && node.mediatorList.length > 0) {
+            let fh = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y;
             for (const mediator of node.mediatorList) {
                 if (mediator.viewState) {
                     this.diagramDimensions.l = Math.max(this.diagramDimensions.l, mediator.viewState?.l ?? 0);
                     this.diagramDimensions.width = Math.max(this.diagramDimensions.width, mediator.viewState?.fw ?? mediator.viewState.w);
                     this.diagramDimensions.r = Math.max(this.diagramDimensions.r, mediator.viewState?.r ?? 0);
+                    fh += (mediator.viewState.fh || mediator.viewState.h) + NODE_GAP.Y;
                 }
             }
+            node.viewState = {
+                ...node.viewState,
+                fw: this.diagramDimensions.width,
+                l: this.diagramDimensions.l,
+                r: this.diagramDimensions.r,
+                fh
+            };
+        } else {
+            const fh = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y * 2;
+
+            node.viewState = {
+                ...node.viewState,
+                fh
+            };
         }
     }
 
@@ -309,43 +325,13 @@ export class SizingVisitor implements Visitor {
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
 
     endVisitResource = (node: Resource): void => {
-        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
-        if (node.inSequenceAttribute) {
-            node.viewState = {
-                x: 0,
-                y: 0,
-                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
-                h: 0,
-                fh: namedSequenceHeight
-            };
-        }
-        if (node.outSequenceAttribute) {
-            node.viewState = {
-                ...node.viewState,
-                fh: node.viewState.fh + namedSequenceHeight
-            };
-        }
+        this.calculateNamedSequences(node);
     }
 
     endVisitTarget = (node: Target | ProxyTarget): void => {
         if (node.tag === "target") {
             const proxyTargetNode = node as ProxyTarget;
-            const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
-            if (proxyTargetNode.inSequenceAttribute) {
-                proxyTargetNode.viewState = {
-                    x: 0,
-                    y: 0,
-                    w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
-                    h: 0,
-                    fh: namedSequenceHeight
-                };
-            }
-            if (proxyTargetNode.outSequenceAttribute) {
-                proxyTargetNode.viewState = {
-                    ...proxyTargetNode.viewState,
-                    fh: proxyTargetNode.viewState.fh + namedSequenceHeight
-                };
-            }
+            this.calculateNamedSequences(proxyTargetNode);
         }
     }
 
@@ -399,7 +385,15 @@ export class SizingVisitor implements Visitor {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
     }
-    endVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
+
+    beginVisitDataServiceCall(node: DataServiceCall): void {
+        this.skipChildrenVisit = true;
+    }
+    endVisitDataServiceCall = (node: DataServiceCall): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
     endVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
     endVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
@@ -453,7 +447,15 @@ export class SizingVisitor implements Visitor {
             ...cases, default: node._default
         }, NodeTypes.CONDITION_NODE, true, "default");
     }
-    endVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
+
+    beginVisitConditionalRouter = (node: ConditionalRouter): void => {
+        this.skipChildrenVisit = true;
+    }
+    endVisitConditionalRouter = (node: ConditionalRouter): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false
+    }
+
     endVisitThrottle = (node: Throttle): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         this.calculateAdvancedMediator(node, {
@@ -496,7 +498,15 @@ export class SizingVisitor implements Visitor {
 
     //Transformation Mediators
     endVisitDatamapper = (node: Datamapper): void => this.calculateBasicMediator(node);
-    endVisitEnrich = (node: Enrich): void => this.calculateBasicMediator(node);
+
+    beginVisitEnrich(node: Enrich): void {
+        this.skipChildrenVisit = true;
+    }
+    endVisitEnrich = (node: Enrich): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitFastXSLT = (node: FastXSLT): void => this.calculateBasicMediator(node);
     endVisitMakefault = (node: Makefault): void => this.calculateBasicMediator(node);
     endVisitJsontransform = (node: Jsontransform): void => this.calculateBasicMediator(node);
@@ -530,10 +540,48 @@ export class SizingVisitor implements Visitor {
     // query
     endVisitQuery(node: Query): void {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
-        node.viewState.fh = 500;
+        node.viewState.fh = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + (NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y) * 4 + NODE_DIMENSIONS.END.HEIGHT;
     }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
+
+    private calculateNamedSequences(node: Resource | ProxyTarget) {
+        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        if (node.inSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        } else if (node.inSequence) {
+            const sequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + (node.inSequence.viewState?.fh ?? node.inSequence.viewState.h) + NODE_DIMENSIONS.END.HEIGHT;
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: node.inSequence.viewState?.fw ?? node.inSequence.viewState.w,
+                h: 0,
+                fh: sequenceHeight
+            };
+        }
+        if (node.outSequenceAttribute) {
+            node.viewState = {
+                ...node.viewState,
+                fh: node.viewState.fh + namedSequenceHeight
+            };
+        }
+        if (node.faultSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        }
+    }
+
 }

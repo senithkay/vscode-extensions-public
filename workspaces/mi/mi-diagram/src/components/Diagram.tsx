@@ -26,7 +26,7 @@ import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
 import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
-import { Colors } from "../resources/constants";
+import { Colors, NODE_GAP } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -158,15 +158,30 @@ export function Diagram(props: DiagramProps) {
         const { engine: faultEngine } = fault;
         const flows: DiagramData[] = [];
 
-        const modelCopy = structuredClone(model);
+        let flowModel = structuredClone(model);
         if (model.tag !== "sequence") {
+            let faultModel = structuredClone(model);
             let faultSequence;
-            if (modelCopy.tag === "proxy") {
-                faultSequence = (model as Proxy).target.faultSequence
-                delete (modelCopy as Proxy).target.faultSequence;
+            if (model.tag === "proxy") {
+                flowModel = flowModel as Proxy;
+                faultModel = faultModel as Proxy;
+                faultSequence = faultModel.target.faultSequenceAttribute ? faultModel.target : faultModel.target.faultSequence;
+                delete faultModel?.target?.inSequence;
+                delete faultModel?.target?.inSequenceAttribute;
+                delete faultModel?.target?.outSequence;
+                delete faultModel?.target?.outSequenceAttribute;
+                delete flowModel?.target?.faultSequence;
+                delete flowModel?.target?.faultSequenceAttribute;
             } else {
-                faultSequence = (model as APIResource).faultSequence;
-                delete (modelCopy as APIResource).faultSequence;
+                flowModel = flowModel as APIResource;
+                faultModel = faultModel as APIResource;
+                faultSequence = (faultModel as APIResource).faultSequenceAttribute ? faultModel : faultModel.faultSequence;
+                delete faultModel?.inSequence;
+                delete faultModel?.inSequenceAttribute;
+                delete faultModel?.outSequence;
+                delete faultModel?.outSequenceAttribute;
+                delete flowModel?.faultSequence;
+                delete flowModel?.faultSequenceAttribute;
             }
 
             if (faultSequence) {
@@ -181,7 +196,7 @@ export function Diagram(props: DiagramProps) {
         flows.push({
             engine: flowEngine,
             modelType: DiagramType.FLOW,
-            model: modelCopy
+            model: flowModel
         });
         updateDiagramData(flows);
 
@@ -275,7 +290,7 @@ export function Diagram(props: DiagramProps) {
         const positionVisitor = new PositionVisitor(dimensions.width);
         traversNode(model, positionVisitor);
         const height = positionVisitor.getSequenceHeight();
-        dimensions.height = height;
+        dimensions.height = height + NODE_GAP.END_Y;
 
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any, breakpoints);
