@@ -28,6 +28,7 @@ interface PathsNavigatorProps {
     onPathRename?: (path: string, index: number, prevPath: string) => void;
     onDeleteMethod?: (path: string, method: string) => void;
     onAddSchema?: () => void;
+    onDeleteSchema?: (schema: string) => void;
 }
 
 const PathsContainer = styled.div`
@@ -129,6 +130,10 @@ const SchemaItemWrapper = styled.div`
     cursor: pointer;
     margin-left: 5px;
     margin-top: 5px;
+    position: relative;
+    &:hover div.buttons-container {
+        opacity: 1;
+    }
 `;
 
 export const PathSummary = styled.div`
@@ -144,7 +149,7 @@ const AddNewLink = styled(VSCodeLink)`
 `;
 
 export function PathsNavigator(props: PathsNavigatorProps) {
-    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename, onDeleteMethod, onAddSchema } = props;
+    const { paths, components, selectedPathID, onAddPath, onAddResources, onDeletePath, onPathChange, onPathRename, onDeleteMethod, onAddSchema, onDeleteSchema } = props;
     const { rpcClient } = useVisualizerContext();
     const pathContinerRef = useRef<HTMLDivElement>(null);
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
@@ -198,6 +203,19 @@ export function PathsNavigator(props: PathsNavigatorProps) {
             onDeleteMethod(path, method)
         }
     }
+
+    const handleDeleteSchema = (evt: React.MouseEvent, schema: string) => {
+        evt.stopPropagation();
+        if (onDeleteMethod) {
+            if (onDeletePath) {
+                rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Schema '${schema}'?`, buttonText: "Delete" }).then(res => {
+                    if (res) {
+                        onDeleteSchema(schema)
+                    }
+                })
+            }
+        }
+    };
 
     const handleAddPathMethod = (evt: React.MouseEvent) => {
         evt.stopPropagation();
@@ -380,8 +398,11 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                                         fontWeight: 300
                                     }}
                                     variant="h4">
-                                    {schema}
+                                    {schema}ss
                                 </Typography>
+                                <RightPathContainerButtons className="buttons-container">
+                                    <Button tooltip="Delete Schema" appearance="icon" onClick={(e) => handleDeleteSchema(e, schema)}><Codicon name="trash" /></Button>
+                                </RightPathContainerButtons>
                             </SchemaItemWrapper>
                         </TreeViewItem>
                     );
