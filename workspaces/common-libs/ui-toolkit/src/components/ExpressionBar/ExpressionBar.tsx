@@ -18,6 +18,7 @@ import { Icon } from '../Icon/Icon';
 // Types
 export const COMPLETION_ITEM_KIND = {
     Array: 'array',
+    Alias: 'alias',
     Boolean: 'boolean',
     Class: 'class',
     Color: 'color',

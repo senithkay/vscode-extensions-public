@@ -643,9 +643,15 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            await handleExpressionSaveMutation(value);
-            textAreaRef.current?.shadowRoot.querySelector('textarea').blur();
+            console.log('ExpressionEditor: handleInputKeyDown: Enter');
+            // await handleExpressionSaveMutation(value);
+            // // 
+            // 
+            await onBlur?.(e);
+            // textAreaRef.current?.blur();
+            // textAreaRef.current?.shadowRoot.querySelector('textarea').blur();
             // await handleRefBlur(value);
+            // document.getElementById('data-mapper-canvas-container').click();
             return;
         }
     };

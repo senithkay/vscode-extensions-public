@@ -196,6 +196,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             setLastFocusedPort(focusedPort);
+            console.log('updateST', focusedPort, text);
         } else if (focusedFilter) {
             const filter = focusedFilter.replaceWithText(text);
             setLastFocusedFilter(filter);
@@ -268,8 +269,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             setTextFieldValue(value);
             setSavedNodeValue(value);
             triggerAction(!action);
+            console.log('disabled memo inside');
         }
-        console.log('disabled memo', focusedPort,value);
+        console.log('disabled memo1',{value,disabled,portChanged});
+        console.log('disabled memo2',focusedPort);
+        console.log('disabled memo3',lastFocusedPort);
+
         return disabled;
     }, [focusedPort, focusedFilter, views]);
 
@@ -406,6 +411,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const handleCancelCompletions = () => {
         setCompletions([]);
+
+        // const textField = textFieldRef.current.shadowRoot.querySelector('textarea');
+        // textField.focus();
+        // textField.setSelectionRange(
+        //     cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
+        // );
+
     };
 
     const handleFocus = async () => {

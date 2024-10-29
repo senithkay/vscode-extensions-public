@@ -127,6 +127,11 @@ function getCompletions(filePath: string, fileContent: string, cursorPosition: n
     const languageService = project.getLanguageService().compilerObject;
     const completions = languageService.getCompletionsAtPosition(filePath, cursorPosition, completionOptions);
 
+    // console.log("zzzzzzzz");
+    // console.log(fileContent.slice(0, cursorPosition)+'@'+fileContent.slice(cursorPosition));
+    // console.log(cursorPosition,fileContent.length);
+    // console.log(completions);
+
     return { completions, languageService };
 }
 
