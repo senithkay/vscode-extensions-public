@@ -129,7 +129,7 @@ bi = true
     const connectionsBalPath = path.join(projectRoot, 'connections.bal');
     fs.writeFileSync(connectionsBalPath, EMPTY);
 
-    // Create connections.bal file
+    // Create config.bal file
     const configurationsBalPath = path.join(projectRoot, 'config.bal');
     fs.writeFileSync(configurationsBalPath, EMPTY);
 
