@@ -54,7 +54,7 @@ export const componentEndpointItemSchema = z
 		name: z.string().min(1, "Required"),
 		port: z.number({ coerce: true }).min(1, "Required"),
 		type: z.string().min(1, "Required"),
-		networkVisibility: z.string().min(1, "Required"),
+		networkVisibilities: z.array(z.string()),
 		context: z.string(),
 		schemaFilePath: z.string(),
 	})
@@ -135,7 +135,7 @@ export const componentGitProxyFormSchema = z.object({
 		.object({
 			type: z.string().min(1, "Required"),
 			// TODO: Re-enable this once networkVisibility is supported in the git proxy schema
-			// networkVisibility: z.string().min(1, "Required"),
+			// networkVisibilities: z.array(z.string()),
 			schemaFilePath: z.string().min(1, "Required"),
 			thumbnailPath: z.string(),
 			docPath: z.string(),
@@ -316,12 +316,12 @@ const getExpectedFilesForBuildPack = (buildpackType: string) => {
 	}
 };
 
-export const sampleEndpointItem = {
+export const sampleEndpointItem: z.infer<typeof componentEndpointItemSchema> = {
 	context: "/",
 	port: 8080,
 	type: EndpointType.REST,
 	schemaFilePath: "",
-	networkVisibility: "Public",
+	networkVisibilities: ["Public"],
 };
 
 export const isValidOpenApiSpec = async (filePath: string): Promise<boolean> => {

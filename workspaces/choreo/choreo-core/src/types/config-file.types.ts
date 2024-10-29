@@ -17,11 +17,10 @@ export interface InboundConfig {
 
 export interface Endpoint extends InboundConfig {
 	networkVisibilities?: string[];
-	networkVisibility?: string;
 }
 
 export interface Inbound extends InboundConfig {
-	visibility?: string;
+	networkVisibility?: string;
 }
 
 export interface Outbound {
@@ -43,7 +42,11 @@ export interface ServiceReference {
 // endpoint.yaml
 export interface EndpointYamlContent {
 	version: string;
-	endpoints: Endpoint[];
+	endpoints: EndpointYamlContentEndpoint[];
+}
+
+export interface EndpointYamlContentEndpoint extends InboundConfig {
+	networkVisibility?: string;
 }
 
 export interface ComponentMetadata {

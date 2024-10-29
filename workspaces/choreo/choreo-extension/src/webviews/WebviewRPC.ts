@@ -258,7 +258,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 					service: { port: item.port, basePath: item.context },
 					type: item.type || "REST",
 					displayName: item.name,
-					networkVisibilities: [item.networkVisibility ?? "Public"],
+					networkVisibilities: item.networkVisibilities && item.networkVisibilities?.length > 0 ? item.networkVisibilities : undefined,
 					schemaFilePath: item.schemaFilePath,
 				})) ?? [];
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
@@ -277,7 +277,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 						service: { port: item.port, basePath: item.context },
 						type: item.type || "REST",
 						displayName: item.name,
-						networkVisibilities: [item.networkVisibility ?? "Public"],
+						networkVisibilities: item.networkVisibilities && item.networkVisibilities?.length > 0 ? item.networkVisibilities : undefined,
 						schemaFilePath: item.schemaFilePath,
 					})) ?? [],
 			};

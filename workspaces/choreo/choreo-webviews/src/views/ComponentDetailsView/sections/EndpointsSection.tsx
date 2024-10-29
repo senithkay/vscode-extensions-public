@@ -42,10 +42,16 @@ export const EndpointsSection: FC<Props> = ({ endpointFilePath, endpoints = [], 
 				>
 					<RightPanelSectionItem label="Port" value={item.port} />
 					{item.type && <RightPanelSectionItem label="Type" value={item.type} />}
-					{item.networkVisibilities && <RightPanelSectionItem label="Network Visibility" value={item.networkVisibilities?.join(",")} />}
+					{item.networkVisibilities && (
+						<RightPanelSectionItem
+							label={item.networkVisibilities?.length > 1 ? "Visibilities" : "Visibility"}
+							value={item.networkVisibilities?.join(",")}
+						/>
+					)}
 					{item.schemaFilePath && (
 						<RightPanelSectionItem
 							label="API Schema"
+							tooltip="View API Schema"
 							value={
 								<VSCodeLink onClick={() => openFile([directoryFsPath, item.schemaFilePath])} className="text-vsc-foreground">
 									View File

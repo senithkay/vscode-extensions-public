@@ -103,8 +103,8 @@ export const ComponentFormSummarySection: FC<Props> = ({
 		items.push(<ComponentSummaryItem title="Type" text={gitProxyDetails?.componentConfig?.type} />);
 		items.push(<ComponentSummaryItem title="API Context" text={gitProxyDetails?.proxyContext} />);
 		items.push(<ComponentSummaryItem title="Version" text={gitProxyDetails?.proxyVersion} />);
-		// TODO: Re-enable this once networkVisibility is supported in the git proxy schema
-		// items.push(<ComponentSummaryItem title="Visibility" text={gitProxyDetails?.componentConfig?.networkVisibility} />);
+		// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema
+		// items.push(<ComponentSummaryItem title={gitProxyDetails?.componentConfig?.networkVisibilities?.length>1 ?"Visibilities" :"Visibility"} text={gitProxyDetails?.componentConfig?.networkVisibilities?.join(",")} />);
 		if (gitProxyDetails?.componentConfig?.type === "REST" && gitProxyDetails?.componentConfig?.schemaFilePath) {
 			items.push(<ComponentSummaryItem title="Schema Path" text={gitProxyDetails?.componentConfig?.schemaFilePath} />);
 		}

@@ -51,6 +51,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryFsPath, configFilePath,
 					{proxyConfig?.schemaFilePath && (
 						<RightPanelSectionItem
 							label="API Schema"
+							tooltip="View API Schema"
 							value={
 								<VSCodeLink onClick={() => openFile([directoryFsPath, proxyConfig?.schemaFilePath])} className="text-vsc-foreground">
 									View File
@@ -61,6 +62,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryFsPath, configFilePath,
 					{proxyConfig?.docPath && (
 						<RightPanelSectionItem
 							label="Documentation"
+							tooltip="View API Documentation"
 							value={
 								<VSCodeLink onClick={() => openFile([directoryFsPath, proxyConfig?.docPath])} className="text-vsc-foreground">
 									View File
@@ -71,6 +73,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryFsPath, configFilePath,
 					{proxyConfig?.thumbnailPath && (
 						<RightPanelSectionItem
 							label="Thumbnail"
+							tooltip="View Thumbnail image"
 							value={
 								<VSCodeLink onClick={() => openFile([directoryFsPath, proxyConfig?.thumbnailPath])} className="ext-vsc-foreground">
 									View File
@@ -80,7 +83,7 @@ export const ProxyConfigSection: FC<Props> = ({ directoryFsPath, configFilePath,
 					)}
 					{proxyConfig?.networkVisibilities?.length > 0 && (
 						<RightPanelSectionItem
-							label={proxyConfig?.networkVisibilities?.length > 1 ? "Network Visibilities" : "Network Visibility"}
+							label={proxyConfig?.networkVisibilities?.length > 1 ? "Visibilities" : "Visibility"}
 							value={proxyConfig?.networkVisibilities?.join(",")}
 						/>
 					)}

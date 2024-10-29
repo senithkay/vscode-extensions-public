@@ -98,7 +98,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 		defaultValues: {
 			proxyTargetUrl: "",
 			proxyVersion: "v1.0",
-			// TODO: Re-enable this once networkVisibility is supported in the git proxy schema. add back networkVisibility: "Public"
+			// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema. add back networkVisibilities: "Public"
 			componentConfig: { type: "REST", schemaFilePath: "", docPath: "", thumbnailPath: "" },
 		},
 	});
@@ -125,8 +125,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 			gitProxyForm.setValue("componentConfig.schemaFilePath", resp?.schemaFilePath ?? "");
 			gitProxyForm.setValue("componentConfig.thumbnailPath", resp?.thumbnailPath ?? "");
 			gitProxyForm.setValue("componentConfig.docPath", resp?.docPath ?? "");
-			// TODO: Re-enable this once networkVisibility is supported in the git proxy schema
-			// gitProxyForm.setValue("componentConfig.networkVisibility", resp?.networkVisibilities?.[0] ?? "Public");
+			// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema
+			// gitProxyForm.setValue("componentConfig.networkVisibilities", resp?.networkVisibilities ?? []);
 		},
 	});
 
@@ -192,8 +192,8 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					schemaFilePath: data.componentConfig?.schemaFilePath,
 					docPath: data.componentConfig?.docPath,
 					thumbnailPath: data.componentConfig?.thumbnailPath,
-					// TODO: Re-enable this once networkVisibility is supported in the git proxy schema
-					// networkVisibilities: data.componentConfig?.networkVisibility ? [data.componentConfig?.networkVisibility] : undefined,
+					// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema
+					// networkVisibilities: data.componentConfig?.networkVisibilities?.length>0 ? data.componentConfig?.networkVisibilities : undefined,
 				},
 			});
 		},

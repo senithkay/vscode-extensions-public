@@ -17,6 +17,7 @@ import type { z } from "zod";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { Divider } from "../../../components/Divider";
+import { CheckBoxGroup } from "../../../components/FormElements/CheckBoxGroup";
 import { Dropdown } from "../../../components/FormElements/Dropdown";
 import { PathSelect } from "../../../components/FormElements/PathSelect";
 import { TextField } from "../../../components/FormElements/TextField";
@@ -165,29 +166,22 @@ const ComponentEndpointItem: FC<ComponentEndpointItemProps> = ({
 			]}
 			control={form.control}
 		/>,
-		<Dropdown
-			label="Visibility"
-			required
-			name={`endpoints.${index}.networkVisibility`}
-			key="ep-visibility"
-			items={[{ value: "Public" }, { value: "Organization" }, { value: "Project" }]}
-			control={form.control}
-		/>,
 	];
 
 	if (item.type === EndpointType.REST || item.type === EndpointType.GraphQL) {
-		fields.push(
-			<TextField
-				label="Context (Base path of the API)"
-				required
-				name={`endpoints.${index}.context`}
-				key="ep-context"
-				placeholder="/"
-				control={form.control}
-				wrapClassName="col-span-2"
-			/>,
-		);
+		fields.push(<TextField label="Base Path" required name={`endpoints.${index}.context`} key="ep-context" placeholder="/" control={form.control} />);
 	}
+
+	fields.push(
+		<CheckBoxGroup
+			label="Network Visibilities"
+			wrapClassName="col-span-2"
+			name={`endpoints.${index}.networkVisibilities`}
+			key="ep-visibility"
+			items={["Public", "Organization", "Project"]}
+			control={form.control}
+		/>,
+	);
 
 	if (item.type === EndpointType.REST) {
 		fields.push(

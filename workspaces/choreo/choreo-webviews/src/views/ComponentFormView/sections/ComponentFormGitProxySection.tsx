@@ -95,12 +95,12 @@ export const ComponentFormGitProxySection: FC<Props> = ({ onBackClick, onNextCli
 					items={[{ value: "REST" }, { value: "GraphQL" }, { value: "WS" }]}
 					control={form.control}
 				/>
-				{/** TODO: Re-enable this once networkVisibility is supported in the schema */}
-				{/* <Dropdown
-					label="Visibility"
-					required
-					name="componentConfig.networkVisibility"
-					items={[{ value: "Public" }, { value: "Organization" }]}
+				{/** TODO: Re-enable this once networkVisibilities is supported in the schema */}
+				{/* <CheckBoxGroup
+					label="Network Visibilities"
+					name={`componentConfig.networkVisibilities`}
+					key="proxy-visibility"
+					items={["Public", "Organization"]}
 					control={form.control}
 				/> */}
 				<TextField label="Version" required name="proxyVersion" placeholder="v1.0" control={form.control} />

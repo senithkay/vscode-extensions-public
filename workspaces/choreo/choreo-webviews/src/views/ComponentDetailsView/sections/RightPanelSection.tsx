@@ -30,13 +30,17 @@ export const RightPanelSection: FC<Props> = ({ title, children }) => {
 export interface IRightPanelSectionItem {
 	label: string;
 	value: ReactNode;
+	tooltip?: string;
 }
 
-export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value }) => {
+export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value, tooltip }) => {
 	return (
-		<div className="flex flex-wrap items-center gap-0.5">
-			<p className="flex-1 font-extralight opacity-80">{label}</p>
-			<p>{value}</p>
+		<div
+			className="line-clamp-1 flex w-full! items-center justify-between gap-0.5 break-all marker:flex-row"
+			title={tooltip || ["string", "number"].includes(typeof value) ? `${label}: ${value}` : label}
+		>
+			<p className="line-clamp-1 break-all font-extralight opacity-80">{label}</p>
+			<p className="line-clamp-1 break-all text-right">{value}</p>
 		</div>
 	);
 };

@@ -203,7 +203,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind; onViewBuildDetails: () => void
 		<div
 			className="grid cursor-pointer grid-cols-2 gap-x-5 py-1 duration-200 hover:bg-vsc-editorHoverWidget-background md:grid-cols-3"
 			onClick={() => onViewBuildDetails()}
-			title="View Build Details"
+			title={`View Build Details: Build Id:${item.status?.runId || "-"}`}
 		>
 			<GridColumnItem label="Build ID" index={0}>
 				{item.status?.runId || "-"}
