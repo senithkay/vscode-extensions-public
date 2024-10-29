@@ -10,7 +10,7 @@
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
     IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor,
-    ConfigurationTarget
+    ConfigurationTarget, ProgressLocation
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -422,7 +422,6 @@ export class BallerinaExtension {
     }
 
     private async downloadAndUnzipBallerina() {
-        window.showInformationMessage(`Downloading Ballerina Kola version`);
         try {
             // Get the latest successful daily build run and artifacts
             let res: DownloadProgress = {
@@ -496,27 +495,43 @@ export class BallerinaExtension {
                 };
                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                 const sizeMB = 1024 * 1024;
-                response = await axios({
-                    url: artifactUrl,
-                    method: 'GET',
-                    responseType: 'arraybuffer',
-                    onDownloadProgress: (progressEvent) => {
-                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        console.log(`Total Size: ${progressEvent.total / (1024 * 1024)}MB`);
-                        console.log(`Download progress: ${percentCompleted}%`);
+                await window.withProgress(
+                    {
+                        location: ProgressLocation.Notification,
+                        title: `Downloading Kola distribution`,
+                        cancellable: false,
+                    },
+                    async (progress) => {
+                        let lastPercentageReported = 0;
+                
+                        response = await axios({
+                            url: artifactUrl,
+                            method: 'GET',
+                            responseType: 'arraybuffer',
+                            onDownloadProgress: (progressEvent) => {
+                                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                                console.log(`Total Size: ${progressEvent.total / sizeMB}MB`);
+                                console.log(`Download progress: ${percentCompleted}%`);
 
-                        // Sizes will be sent as MB
-                        res = {
-                            downloadedSize: progressEvent.loaded / sizeMB,
-                            message: "Downloading...",
-                            percentage: percentCompleted,
-                            success: false,
-                            totalSize: progressEvent.total / sizeMB,
-                            step: 2
-                        };
-                        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                                if (percentCompleted > lastPercentageReported) {
+                                    progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${Math.round(progressEvent.total / sizeMB)}MB` });
+                                    lastPercentageReported = percentCompleted;
+                                }
+                      
+                                // Sizes will be sent as MB
+                                res = {
+                                    downloadedSize: progressEvent.loaded / sizeMB,
+                                    message: "Downloading...",
+                                    percentage: percentCompleted,
+                                    success: false,
+                                    totalSize: progressEvent.total / sizeMB,
+                                    step: 2
+                                };
+                                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                            }
+                        });
                     }
-                });
+                );
                 // ... existing code to handle the response ...
             } catch (error) {
                 // Sizes will be sent as MB
@@ -532,7 +547,6 @@ export class BallerinaExtension {
             const zipFilePath = path.join(this.getBallerinaUserHome(), asset.name);
             await fs.writeFileSync(zipFilePath, response.data);
             console.log(`Downloaded artifact to ${zipFilePath}`);
-            window.showInformationMessage(`Downloaded artifact to ${zipFilePath}`);
 
             res = {
                 ...res,
@@ -597,16 +611,17 @@ export class BallerinaExtension {
             };
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
-            await fs.promises.chmod(this.getBallerinaCmd(), 0o755);
+            // Set permissions for the ballerina command
+            await fs.promises.chmod(this.getBallerinaCmd(), 0o555);
 
-            let exeExtension = "";
-            if (isWindows()) {
-                exeExtension = ".bat";
-            }
-            await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaKolaVersion, 'bin', 'bal' + exeExtension), 0o755);
+            // Set permissions for lib
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o555);
 
-            // Set executable permissions for all files in the jre
-            this.setExecPermissionsForDirectory(path.join(this.getBallerinaHome(), 'dependencies'));
+            // Set permissions for all files in the distributions
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'distributions'), 0o555);
+
+            // Set permissions for all files in the dependencies
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 0o555);
 
             console.log('Command files are now executable.');
         } catch (error) {
@@ -614,14 +629,14 @@ export class BallerinaExtension {
         }
     }
 
-    private async setExecPermissionsForDirectory(directory: string) {
+    private async setPermissionsForDirectory(directory: string, permissions: number) {
         const files = fs.readdirSync(directory);
         for (const file of files) {
             const fullPath = path.join(directory, file);
             if (fs.statSync(fullPath).isDirectory()) {
-                this.setExecPermissionsForDirectory(fullPath);
+                this.setPermissionsForDirectory(fullPath, permissions);
             } else {
-                await fs.promises.chmod(fullPath, 0o755);
+                await fs.promises.chmod(fullPath, permissions);
             }
         }
     }
