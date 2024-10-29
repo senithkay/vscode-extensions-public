@@ -18,7 +18,7 @@ import { ExpressionBar, CompletionItem, ExpressionBarRef, InputProps, Button, Co
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 import { READONLY_MAPPING_FUNCTION_NAME } from './constants';
-import { filterCompletions, getInnermostPropAsmtNode } from './utils';
+import { filterCompletions, getInnermostPropAsmtNode, shouldCompletionsAppear } from './utils';
 import { View } from '../Views/DataMapperView';
 import { DataMapperNodeModel } from '../../../components/Diagram/Node/commons/DataMapperNode';
 import { getDefaultValue, getEditorLineAndColumn } from '../../../components/Diagram/utils/common-utils';
@@ -52,7 +52,16 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const classes = useStyles();
     const textFieldRef = useRef<ExpressionBarRef>(null);
     const cursorPositionBeforeSaving = useRef<number | undefined>();
-    const [textFieldValue, setTextFieldValue] = useState<string>("");
+
+    // const [textFieldValue, setTextFieldValue] = useState<string>("");
+    const textFieldValueRef = useRef<string>("");
+    let textFieldValue = textFieldValueRef.current;
+    const setTextFieldValue = (value: string) => {
+        textFieldValueRef.current = value;
+        textFieldValue = value;
+    };
+    
+    
     const [placeholder, setPlaceholder] = useState<string>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [action, triggerAction] = useState<boolean>(false);
@@ -79,6 +88,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const portChanged = !!(focusedPort && lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort.fieldFQN);
 
     const getCompletions = async (): Promise<CompletionItem[]> => {
+
         if (!focusedPort && !focusedFilter) {
             return [];
         }
@@ -99,8 +109,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 nodeValue = nodeForSuggestions.getText();
             }
 
-            const fileContent = nodeForSuggestions.getSourceFile().getFullText();
             const relativeCursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
+            
+            if (!shouldCompletionsAppear(nodeValue, relativeCursorPosition)){
+                return [];
+            }
+
+            const partialTextMatcher = nodeValue.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
+            const partialText = (partialTextMatcher && partialTextMatcher.length) ? partialTextMatcher[partialTextMatcher.length-1] : undefined;
+
+            let fileContent = nodeForSuggestions.getSourceFile().getFullText();
+
+            // fileContent+=`/*
+            // nodeValue: |${nodeValue}|
+            // */`;
+
             const offset = nodeValue.length - relativeCursorPosition;
             const cursorPosition = nodeForSuggestions.getEnd() - offset;
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
@@ -123,7 +146,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             const filteredCompletions: CompletionItem[] = [];
             for (const completion of completions) {
-                const details = filterCompletions(completion.entry, completion.details, localFunctionNames);
+                const details = filterCompletions(completion.entry, completion.details, localFunctionNames, partialText);
                 if (details) {
                     filteredCompletions.push(details);
                 }
@@ -154,18 +177,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     initializer: text
                 });
 
-                if (parent.getProperties().some(prop => prop.isKind(SyntaxKind.ShorthandPropertyAssignment))) {
-                    /** 
-                     * Creating a PropertyAssignment with invalid or incomplete text can result in unexpected
-                     * ShorthandPropertyAssignments in ts-morph. To avoid this issue, we do not update the
-                     * project at this stage. Instead, we revert the operations and return to the previous state.
-                     */
-                    const prevParent = parent.replaceWithText(parentContent) as ObjectLiteralExpression;
-                    const prevFocusedFieldValue = prevParent.getProperties()[propertyCount - 1];
-                    focusedPort.typeWithValue.setValue(prevFocusedFieldValue);
-                } else {
-                    focusedPort.typeWithValue.setValue(propertyAssignment);
-                }
+                focusedPort.typeWithValue.setValue(propertyAssignment);
+
+
+                // if (parent.getProperties().some(prop => prop.isKind(SyntaxKind.ShorthandPropertyAssignment))) {
+                //     /** 
+                //      * Creating a PropertyAssignment with invalid or incomplete text can result in unexpected
+                //      * ShorthandPropertyAssignments in ts-morph. To avoid this issue, we do not update the
+                //      * project at this stage. Instead, we revert the operations and return to the previous state.
+                //      */
+                //     const prevParent = parent.replaceWithText(parentContent) as ObjectLiteralExpression;
+                //     const prevFocusedFieldValue = prevParent.getProperties()[propertyCount - 1];
+                //     focusedPort.typeWithValue.setValue(prevFocusedFieldValue);
+                // } else {
+                //     focusedPort.typeWithValue.setValue(propertyAssignment);
+                // }
             }
 
             setLastFocusedPort(focusedPort);
@@ -369,11 +395,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyChanges(value);
     };
 
+    const handleCompletionSelect = async (value: string) => {
+        console.log('handleCompletionSelect', value);
+        setCompletions([]);
+    }
+
     const handleCancelCompletions = () => {
         setCompletions([]);
     };
 
     const handleFocus = async () => {
+        console.log('handleFocus');
         const focusedNode = focusedPort?.typeWithValue.value;
         if (!focusedNode && !focusedFilter) {
             await initializeValue();
@@ -381,7 +413,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions(await getCompletions());
 
         // Set the cursor position to the last saved position
-        textFieldRef.current.shadowRoot.querySelector('textarea').setSelectionRange(
+
+        const textField = textFieldRef.current.shadowRoot.querySelector('textarea');
+        textField.focus();
+        textField.setSelectionRange(
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
         );
 
@@ -391,14 +426,18 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setLastSavedNodeValue(savedNodeValue);
     };
 
-    const handleBlur = async () => {
-        // Reset the last focused port and filter
-        resetLastFocusedPort();
-        resetLastFocusedFilter();
-        resetLastSavedNodeValue();
+    const handleBlur = async (e: any) => {
+        console.log('handleBlur', e);
+        // if(e.target.closest('[id^="recordfield-subMappingInput"]') || e.target.closest('[id^="recordfield-input"]'))
+        //     return;
 
-        // Reset text field value
-        setTextFieldValue("");
+        // Reset the last focused port and filter
+        // resetLastFocusedPort();
+        // resetLastFocusedFilter();
+        // resetLastSavedNodeValue();
+
+        // // Reset text field value
+        // setTextFieldValue("");
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -442,13 +481,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 inputProps={inputProps}
                 onChange={handleChange}
                 extractArgsFromFunction={extractArgsFromFunction}
-                onCompletionSelect={updateSource}
+                onCompletionSelect={handleCompletionSelect}
                 onSave={updateSource}
                 onCancel={handleCancelCompletions}
                 useTransaction={useDisableOnChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 sx={{ display: 'flex', alignItems: 'center' }}
+                
             />
         </div>
     );

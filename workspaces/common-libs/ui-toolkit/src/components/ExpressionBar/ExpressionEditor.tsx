@@ -65,7 +65,7 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
         font-family: monospace;
         font-size: 12px;
-        min-height: 26px;
+        min-height: 20px;
         padding: 5px 8px;
     }
 `;
@@ -641,7 +641,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            await handleExpressionSaveMutation(value);
+            // await handleExpressionSaveMutation(value);
+            textAreaRef.current?.blur();
             return;
         }
     };
@@ -692,7 +693,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 !textAreaRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target)
             ) {
-                await onBlur?.();
+                await onBlur?.(e);
             }
         }
 
@@ -713,7 +714,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 onFocus={handleTextFieldFocus}
                 onBlur={handleTextFieldBlur}
                 sx={{ width: '100%', ...sx }}
-                disabled={disabled || (shouldDisableOnSave && (isSelectingCompletion || isSavingExpression))}
+                disabled={disabled || (shouldDisableOnSave && isSavingExpression)}
                 growRange={{ start: 1, offset: 7 }}
                 resize='vertical'
             />

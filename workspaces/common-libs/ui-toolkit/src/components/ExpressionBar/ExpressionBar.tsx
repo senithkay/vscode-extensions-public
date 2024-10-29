@@ -79,7 +79,7 @@ export type ExpressionBarBaseProps = {
     inputProps?: InputProps;
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: () => void | Promise<void>;
-    onBlur?: () => void | Promise<void>;
+    onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
