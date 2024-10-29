@@ -96,6 +96,7 @@ export enum NodeTypes {
     COMMENT_NODE = "comment-node",
     BUTTON_NODE = "button-node",
     CODE_BLOCK_NODE = "code-block-node",
+    END_NODE = "end-node",
 }
 
 export const NODE_LINK = "node-link";
@@ -123,6 +124,7 @@ export const WHILE_NODE_WIDTH = 50;
 export const FOREACH_NODE_WIDTH = 50;
 export const EMPTY_NODE_WIDTH = 16;
 export const EMPTY_NODE_CONTAINER_WIDTH = NODE_WIDTH / 2;
+export const END_NODE_WIDTH = 20;
 
 // draft node
 export const DRAFT_NODE_WIDTH = NODE_WIDTH;
