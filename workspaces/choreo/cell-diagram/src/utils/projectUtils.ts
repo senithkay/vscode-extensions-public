@@ -78,6 +78,11 @@ export function getDiagramDataFromProject(project: Project): ProjectDiagramData 
     const connectorLinks: Map<string, ExternalLinkModel> = generateConnectorLinks(emptyNodes, connectorNodes);
     const connectionLinks: Map<string, ExternalLinkModel> = generateConnectionLinks(emptyNodes, connectionNodes);
     const externalLinks: Map<string, ExternalLinkModel> = generateExternalLinks(emptyNodes, externalNodes, gateways);
+    const externalConnectionLinks: Map<string, ExternalLinkModel> = generateExternalConnectionLinks(
+        project,
+        componentNodes,
+        connectionNodes
+    );
 
     return {
         nodes: {
@@ -93,6 +98,7 @@ export function getDiagramDataFromProject(project: Project): ProjectDiagramData 
             connectorLinks,
             connectionLinks,
             externalLinks,
+            externalConnectionLinks,
         },
         gateways,
         observationSummary,
@@ -182,7 +188,7 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
     model.getNodes().forEach((node) => {
         if (node instanceof ComponentModel && node.isExternalConsumer()) {
             const cellPosition = cellNode.getPosition();
-            node.setPosition(cellPosition.x - 200 - externalConsumerOffset, cellPosition.y - 100);
+            node.setPosition(cellPosition.x - 200 - externalConsumerOffset, cellPosition.y - 200);
             externalConsumerOffset += node.width + 50; // Add some spacing between external consumers
         }
     });
@@ -273,7 +279,7 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
 
 export function isRenderInsideCell(node: BaseModel<BaseModelGenerics>): boolean {
     return (
-        (node.getType() === COMPONENT_NODE && !((node as ComponentModel).isExternalConsumer())) ||
+        (node.getType() === COMPONENT_NODE && !(node as ComponentModel).isExternalConsumer()) ||
         (node.getType() === CONNECTION_NODE &&
             isConnectorConnection((node as ConnectionModel).connection) &&
             (node as ConnectionModel).connection.onPlatform)
@@ -704,6 +710,10 @@ function generateCellLinks(
                     }
                 }
             } else if (isExternalConnection(project.id, connection, true)) {
+                if (targetComponent && targetComponent.isExternalConsumer()) {
+                    // Skip external consumer connections and handle them separately
+                    return;
+                }
                 const eastBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.EastBound, connection.id));
                 if (targetComponent && eastBoundEmptyNode) {
                     const sourcePort: ComponentPortModel | null = targetComponent.getPort(
@@ -774,7 +784,7 @@ function generateCellLinks(
                         link.setDestinationNode(destinationComponentNode);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     } else {
-                        console.warn('Unable to create link: sourcePort or targetPort is null');
+                        console.warn("Unable to create link: sourcePort or targetPort is null");
                         // You might want to add additional error handling or logging here
                         // depending on your application's requirements
                     }
@@ -833,6 +843,51 @@ function generateExternalLinks(
             links.set(westBoundLink.getID(), westBoundLink);
         }
     }
+    return links;
+}
+
+function generateExternalConnectionLinks(
+    project: Project,
+    nodes: Map<string, CommonModel>,
+    connectionNodes: Map<string, ConnectionModel>
+): Map<string, ExternalLinkModel> {
+    const links: Map<string, ExternalLinkModel> = new Map();
+    project.components?.forEach((component, _key) => {
+        const componentId = getComponentName(component);
+        const targetComponent: ComponentModel | undefined = nodes.get(componentId) as ComponentModel;
+        component.connections.forEach((connection) => {
+            if (
+                isExternalConnection(project.id, connection, true) &&
+                targetComponent &&
+                targetComponent.isExternalConsumer()
+            ) {
+                // external consumer connections with another project components in the same organization
+                const connectionNode = connectionNodes.get(getConnectionNameById(connection.id));
+                if (targetComponent && connectionNode) {
+                    const sourcePort: ComponentPortModel | null = targetComponent.getPort(
+                        `right-${targetComponent.getID()}`
+                    );
+                    const targetPort: ConnectionPortModel | null = connectionNode.getPort(
+                        getNodePortId(connectionNode.getID(), PortModelAlignment.LEFT)
+                    );
+
+                    if (sourcePort && targetPort) {
+                        const linkId = getCellLinkName(sourcePort.getID(), targetPort.getID());
+                        const link: ExternalLinkModel = new ExternalLinkModel(linkId, true);
+                        links.set(linkId, createLinks(sourcePort, targetPort, link) as ExternalLinkModel);
+                        link.setSourceNode(targetComponent.getID());
+                        link.setTargetNode(connectionNode.getID());
+                        if (connection.observations?.length > 0) {
+                            link.setObservations(connection.observations, connection.observationOnly);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
+                        }
+                    }
+                }
+            }
+        });
+    });
     return links;
 }
 

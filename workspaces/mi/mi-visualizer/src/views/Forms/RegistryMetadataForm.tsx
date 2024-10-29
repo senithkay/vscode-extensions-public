@@ -41,14 +41,14 @@ export function RegistryMetadataForm(props: RegistryMetadataProps) {
                 id: 0,
                 type: "TextField",
                 label: "Key",
-                defaultValue: "property key",
+                placeholder: "property key",
                 isRequired: true
             },
             {
                 id: 1,
                 type: "TextField",
                 label: "Value",
-                defaultValue: "property value",
+                placeholder: "property value",
                 isRequired: true
             }]
     }

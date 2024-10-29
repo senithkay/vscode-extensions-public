@@ -54,10 +54,12 @@ export function ViewConfigurableVariables() {
 
     const handleEditConfigFormClose = () => {
         setEditConfigVariableFormOpen(false);
+        getConfigVariables();
     };
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
+        getConfigVariables();
     };
 
     const handleOnDeleteConfigVariable = async (index: number) => {
@@ -85,13 +87,14 @@ export function ViewConfigurableVariables() {
             })
             .finally(() => {
                 setShowProgressIndicator(false);
+                getConfigVariables();
             });
     };
 
     useEffect(() => {
         console.log(">>> Get Config Variables");
         getConfigVariables();
-    }, [configVariables]);
+    }, []);
 
     const getConfigVariables = () => {
         rpcClient
@@ -141,7 +144,7 @@ export function ViewConfigurableVariables() {
                                     configVariables.map((variable, index) => {
                                         return (
                                             <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}-{index}</VSCodeDataGridCell>
+                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.type.value}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`1 + 1`}>
                                                     {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
