@@ -8,12 +8,14 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Icon, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
+import { colors } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -54,6 +56,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
+    const { rpcClient } = useVisualizerContext();
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
@@ -66,6 +69,20 @@ export function FormGenerator(props: FormGeneratorProps) {
             setValue("onError", "");
         }
     };
+
+    const openFile = async () => {
+        const request = {
+            canSelectFiles: true,
+            canSelectFolders: false,
+            canSelectMany: false,
+            defaultUri: "",
+            title: "Select a file to be imported."
+        }
+        await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
+            setValue("trustStoreCertificatePath", response.filePath, { shouldDirty: true });
+
+        }).catch(e => { console.log(e); })
+    }
 
     const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
 
@@ -212,6 +229,22 @@ export function FormGenerator(props: FormGeneratorProps) {
                         required={element.required === 'true'}
                         allowItemCreate={allowItemCreate}
                     />
+                );
+            case 'file':
+                return (
+                    <div>
+                        <Typography>{element.displayName}</Typography>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
+                            <Button appearance="secondary" onClick={openFile}>
+                                <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
+                                <div style={{ color: colors.editorForeground }}>Browse file</div>
+                            </Button>
+                            <Typography variant="body3">
+                                {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch("trustStoreCertificatePath")}
+                            </Typography>
+                        </div>
+                        
+                    </div>
                 );
             default:
                 return null;
