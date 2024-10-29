@@ -99,6 +99,15 @@ jobs:
         if: ${{ github.event.inputs.openVSX == 'true' && github.event.inputs.isPreRelease == 'false' }}
         run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
+      - name: Set Chat API
+        id: chat
+        run: |
+          if [ "${{ inputs.extension }}" == "micro-integrator" ]; then
+            echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          else
+            echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: "Release Notification"
         if: ${{ github.event.inputs.notify == 'true' }}
         run: |
@@ -158,5 +167,5 @@ jobs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.event.inputs.workflowRunId }}" \
+            "${{ steps.chat.outputs.chatAPI }}" \
             -d "$body"
