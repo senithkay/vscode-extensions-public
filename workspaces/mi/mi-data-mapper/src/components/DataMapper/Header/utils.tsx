@@ -90,15 +90,18 @@ export function extractLastPartFromLabel(targetLabel: string): string | null {
 export function filterCompletions(
     entry: ts.CompletionEntry,
     details: ts.CompletionEntryDetails,
-    localFunctionNames: string[]
+    localFunctionNames: string[],
+    partialText?: string
 ): CompletionItem {
     const isParameter = details.kind === ts.ScriptElementKind.parameterElement;
     const isMemberVariable = details.kind === ts.ScriptElementKind.memberVariableElement;
     const isFunction =  details.kind === ts.ScriptElementKind.functionElement;
     const isMethod =  details.kind === ts.ScriptElementKind.memberFunctionElement;
 
+    let completionItem: CompletionItem | undefined = undefined;
+
     if (isParameter || isMemberVariable) {
-        return {
+        completionItem = {
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
             value: entry.insertText || entry.name,
@@ -106,7 +109,7 @@ export function filterCompletions(
             replacementSpan: entry.replacementSpan?.length
         }
     } else if (isFunction || isMethod) {
-        if (isMethod || (isFunction && details.sourceDisplay)) {
+        if (isMethod || (isFunction && (details.source || details.sourceDisplay))) {
             const params: string[] = [];
             let param: string = '';
     
@@ -122,7 +125,7 @@ export function filterCompletions(
             const action = details.codeActions?.[0].changes[0].textChanges[0].newText || "";
             const itemTag = action.substring(0, action.length - 1);
     
-            return {
+            completionItem = {
                 tag: itemTag,
                 label: entry.name,
                 description: details.documentation?.[0]?.text,
@@ -131,7 +134,7 @@ export function filterCompletions(
                 args: params
             }
         } else if (localFunctionNames.includes(entry.name)) {
-            return  {
+            completionItem = {
                 label: entry.name,
                 description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
                 value: entry.name,
@@ -140,7 +143,13 @@ export function filterCompletions(
         }
     }
 
-    return undefined;
+    if(partialText && completionItem) {
+        if (!completionItem.label.toLocaleLowerCase().startsWith(partialText.toLocaleLowerCase()) || completionItem.label === partialText) {
+            return undefined;
+         }
+    }
+
+    return completionItem;
 }
 
 // Function to get the innermost property assignment node from the given property assignment node
@@ -160,4 +169,20 @@ export function getInnermostPropAsmtNode(propertyAssignment: PropertyAssignment)
     }
 
     return currentNode as PropertyAssignment;
+}
+
+export function shouldCompletionsAppear(
+    value: string,
+    cursorPosition: number,
+): boolean {
+    const termBeforeCursor = value.substring(0, cursorPosition).trim();
+
+    if (termBeforeCursor.length === 0) return true;
+
+    const lastChar = termBeforeCursor[termBeforeCursor.length - 1];
+    if (!isNaN(Number(lastChar)) || ['"', ')', ']', '}'].includes(lastChar)) return false;
+
+    if (termBeforeCursor.split('"').length % 2 == 0) return false;
+
+    return true;
 }
