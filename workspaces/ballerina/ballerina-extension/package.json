@@ -74,7 +74,7 @@
                 "properties": {
                     "kolab.pluginDevMode": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable plugin development mode."
                     },
                     "kolab.home": {
