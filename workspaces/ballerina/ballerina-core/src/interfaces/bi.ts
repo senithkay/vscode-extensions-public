@@ -171,7 +171,9 @@ export type NodePropertyKey =
     | "comment"
     | "connection"
     | "collection"
-    | "view";
+    | "view"
+    | "variable"
+    | "defaultable";
 
 export type BranchKind = "block" | "worker";
 
@@ -210,7 +212,8 @@ export type NodeKind =
     | "FUNCTION"
     | "FUNCTION_CALL"
     | "ASSIGN"
-    | "DATA_MAPPER";
+    | "DATA_MAPPER"
+    | "CONFIG_VARIABLE";
 
 
 export type OverviewFlow = {
@@ -247,36 +250,11 @@ export type Line = {
     offset: number;
 };
 
-export type ConfigVariableLineRange = {
-    fileName: string;
-    startLine: Line;
-    endLine: Line;
-};
-
-export type ConfigVariableMetadata = {
-    label: string;
-    description?: string;
-};
-
-export type ConfigVariableProperty = {
-    metadata: Metadata;
-    valueType: string;
-    value: string;
-    optional: boolean;
-    editable: boolean;
-};
-
-export type ConfigVariableCodeData = {
-    node: string;
-    lineRange: ConfigVariableLineRange;
-};
-
 export type ConfigVariable = {
-    metadata: ConfigVariableMetadata;
-    codedata: ConfigVariableCodeData;
-    properties: {
-        type: ConfigVariableProperty;
-        variable: ConfigVariableProperty;
-        defaultable: ConfigVariableProperty;
-    };
+    metadata: Metadata;
+    codedata: CodeData;
+    properties: NodeProperties;
+    branches: Branch[];
+    id: string;
+    returning: boolean;
 };

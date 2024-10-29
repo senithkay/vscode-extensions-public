@@ -6,9 +6,9 @@ inputs:
   fileName:
     description: 'File name'
     required: true
-  api:
-    description: 'Google chat link'
-    required: true 
+  chatAPI:
+    description: 'Google chat API'
+    required: true
 
 runs:
   using: "composite"
@@ -78,5 +78,5 @@ runs:
           curl \
           -X POST \
           -H 'Content-Type: application/json' \
-          "${{ inputs.api }}" \
+          "${{ inputs.chatAPI }}" \
           -d "$body"

@@ -75,6 +75,7 @@ import {
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 import { Diagnostic } from "vscode-languageserver-types";
+import { StartNodeType } from "../components/nodes/StartNode/StartNodeModel";
 
 export interface DiagramDimensions {
     width: number;
@@ -266,20 +267,12 @@ export class SizingVisitor implements Visitor {
     endVisitHeader = (node: Header): void => this.calculateBasicMediator(node);
     endVisitInSequence = (node: Sequence): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
-
-        if (node.mediatorList && node.mediatorList.length > 0) {
-            for (const mediator of node.mediatorList) {
-                if (mediator.viewState) {
-                    this.diagramDimensions.l = Math.max(this.diagramDimensions.l, mediator.viewState?.l ?? 0);
-                    this.diagramDimensions.width = Math.max(this.diagramDimensions.width, mediator.viewState?.fw ?? mediator.viewState.w);
-                    this.diagramDimensions.r = Math.max(this.diagramDimensions.r, mediator.viewState?.r ?? 0);
-                }
-            }
-        }
+        this.calculateSequenceHeight(node, StartNodeType.IN_SEQUENCE);
     }
 
     endVisitOutSequence = (node: Sequence): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.START.DISABLED.WIDTH, NODE_DIMENSIONS.START.DISABLED.HEIGHT)
+        this.calculateSequenceHeight(node, StartNodeType.OUT_SEQUENCE);
     }
 
     endVisitFaultSequence = (node: Sequence): void => {
@@ -309,44 +302,11 @@ export class SizingVisitor implements Visitor {
     endVisitRespond = (node: Respond): void => this.calculateBasicMediator(node);
 
     endVisitResource = (node: Resource): void => {
-        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
-        if (node.inSequenceAttribute) {
-            node.viewState = {
-                x: 0,
-                y: 0,
-                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
-                h: 0,
-                fh: namedSequenceHeight
-            };
-        }
-        if (node.outSequenceAttribute) {
-            node.viewState = {
-                ...node.viewState,
-                fh: node.viewState.fh + namedSequenceHeight
-            };
-        }
+        this.calculateNamedSequences(node);
     }
 
     endVisitTarget = (node: Target | ProxyTarget): void => {
-        if (node.tag === "target") {
-            const proxyTargetNode = node as ProxyTarget;
-            const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
-            if (proxyTargetNode.inSequenceAttribute) {
-                proxyTargetNode.viewState = {
-                    x: 0,
-                    y: 0,
-                    w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
-                    h: 0,
-                    fh: namedSequenceHeight
-                };
-            }
-            if (proxyTargetNode.outSequenceAttribute) {
-                proxyTargetNode.viewState = {
-                    ...proxyTargetNode.viewState,
-                    fh: proxyTargetNode.viewState.fh + namedSequenceHeight
-                };
-            }
-        }
+        this.calculateNamedSequences(node);
     }
 
     beginVisitSend = (node: Send): void => { this.skipChildrenVisit = true; }
@@ -399,7 +359,43 @@ export class SizingVisitor implements Visitor {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
     }
-    endVisitDataServiceCall = (node: DataServiceCall): void => this.calculateBasicMediator(node);
+
+    private calculateSequenceHeight(node: Sequence, startNodeType: StartNodeType) {
+        if (node.mediatorList && node.mediatorList.length > 0) {
+            let fh = (startNodeType === StartNodeType.IN_SEQUENCE ? NODE_DIMENSIONS.START.EDITABLE.HEIGHT : NODE_DIMENSIONS.START.DISABLED.HEIGHT) + NODE_GAP.Y;
+            for (const mediator of node.mediatorList) {
+                if (mediator.viewState) {
+                    this.diagramDimensions.l = Math.max(this.diagramDimensions.l, mediator.viewState?.l ?? 0);
+                    this.diagramDimensions.width = Math.max(this.diagramDimensions.width, mediator.viewState?.fw ?? mediator.viewState.w);
+                    this.diagramDimensions.r = Math.max(this.diagramDimensions.r, mediator.viewState?.r ?? 0);
+                    fh += (mediator.viewState.fh || mediator.viewState.h) + NODE_GAP.Y;
+                }
+            }
+            node.viewState = {
+                ...node.viewState,
+                fw: this.diagramDimensions.width,
+                l: this.diagramDimensions.l,
+                r: this.diagramDimensions.r,
+                fh
+            };
+        } else {
+            const fh = (startNodeType === StartNodeType.IN_SEQUENCE ? NODE_DIMENSIONS.START.EDITABLE.HEIGHT : NODE_DIMENSIONS.START.DISABLED.HEIGHT) + NODE_GAP.Y * 2;
+
+            node.viewState = {
+                ...node.viewState,
+                fh
+            };
+        }
+    }
+
+    beginVisitDataServiceCall(node: DataServiceCall): void {
+        this.skipChildrenVisit = true;
+    }
+    endVisitDataServiceCall = (node: DataServiceCall): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitEnqueue = (node: Enqueue): void => this.calculateBasicMediator(node);
     endVisitTransaction = (node: Transaction): void => this.calculateBasicMediator(node);
     endVisitEvent = (node: Event): void => this.calculateBasicMediator(node);
@@ -426,14 +422,22 @@ export class SizingVisitor implements Visitor {
     endVisitIterate = (node: Iterate): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
         this.calculateAdvancedMediator(node, {
-            Target: node.target.sequence
+            Target: node.target?.sequenceAttribute ? node.target : node.target?.sequence
         }, NodeTypes.GROUP_NODE);
     }
     endVisitForeach = (node: Foreach): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT);
-        this.calculateAdvancedMediator(node, {
+
+        this.calculateAdvancedMediator(node, node.sequenceAttribute ? {} : {
             Sequence: node.sequence
         }, NodeTypes.GROUP_NODE);
+
+        if (node.sequenceAttribute) {
+            const topGap = node.viewState.h + NODE_GAP.GROUP_NODE_START_Y;
+            const bottomGap = NODE_GAP.GROUP_NODE_END_Y;
+            const sequenceFullHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+            node.viewState.fh = topGap + sequenceFullHeight + bottomGap;
+        }
     }
     //Filter Mediators
     endVisitFilter = (node: Filter): void => {
@@ -453,7 +457,15 @@ export class SizingVisitor implements Visitor {
             ...cases, default: node._default
         }, NodeTypes.CONDITION_NODE, true, "default");
     }
-    endVisitConditionalRouter = (node: ConditionalRouter): void => this.calculateBasicMediator(node);
+
+    beginVisitConditionalRouter = (node: ConditionalRouter): void => {
+        this.skipChildrenVisit = true;
+    }
+    endVisitConditionalRouter = (node: ConditionalRouter): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false
+    }
+
     endVisitThrottle = (node: Throttle): void => {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.CONDITION.WIDTH, NODE_DIMENSIONS.CONDITION.HEIGHT);
         this.calculateAdvancedMediator(node, {
@@ -496,7 +508,15 @@ export class SizingVisitor implements Visitor {
 
     //Transformation Mediators
     endVisitDatamapper = (node: Datamapper): void => this.calculateBasicMediator(node);
-    endVisitEnrich = (node: Enrich): void => this.calculateBasicMediator(node);
+
+    beginVisitEnrich(node: Enrich): void {
+        this.skipChildrenVisit = true;
+    }
+    endVisitEnrich = (node: Enrich): void => {
+        this.calculateBasicMediator(node);
+        this.skipChildrenVisit = false;
+    }
+
     endVisitFastXSLT = (node: FastXSLT): void => this.calculateBasicMediator(node);
     endVisitMakefault = (node: Makefault): void => this.calculateBasicMediator(node);
     endVisitJsontransform = (node: Jsontransform): void => this.calculateBasicMediator(node);
@@ -530,10 +550,58 @@ export class SizingVisitor implements Visitor {
     // query
     endVisitQuery(node: Query): void {
         this.calculateBasicMediator(node, NODE_DIMENSIONS.START.EDITABLE.WIDTH, NODE_DIMENSIONS.START.EDITABLE.HEIGHT);
-        node.viewState.fh = 500;
+        node.viewState.fh = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + (NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y) * 4 + NODE_DIMENSIONS.END.HEIGHT;
     }
 
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
+
+    private calculateNamedSequences(node: Resource | ProxyTarget | Target) {
+        const namedSequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+        if ((node as Resource | ProxyTarget).inSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        } else if ((node as Resource | ProxyTarget).inSequence) {
+            const sequenceHeight = NODE_DIMENSIONS.START.EDITABLE.HEIGHT + ((node as Resource | ProxyTarget).inSequence.viewState?.fh ?? (node as Resource | ProxyTarget).inSequence.viewState.h) + NODE_DIMENSIONS.END.HEIGHT;
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: (node as Resource | ProxyTarget).inSequence.viewState?.fw ?? (node as Resource | ProxyTarget).inSequence.viewState.w,
+                h: 0,
+                fh: sequenceHeight
+            };
+        }
+        if ((node as Resource | ProxyTarget).outSequenceAttribute) {
+            node.viewState = {
+                ...node.viewState,
+                fh: node.viewState.fh + namedSequenceHeight
+            };
+        }
+        if ((node as Resource | ProxyTarget).faultSequenceAttribute) {
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.START.EDITABLE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        }
+        if ((node as Target).sequenceAttribute) {
+            const namedSequenceHeight = NODE_DIMENSIONS.START.DISABLED.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.REFERENCE.HEIGHT + NODE_GAP.Y + NODE_DIMENSIONS.END.HEIGHT;
+            node.viewState = {
+                x: 0,
+                y: 0,
+                w: NODE_DIMENSIONS.REFERENCE.WIDTH,
+                h: 0,
+                fh: namedSequenceHeight
+            };
+        }
+    }
+
 }
