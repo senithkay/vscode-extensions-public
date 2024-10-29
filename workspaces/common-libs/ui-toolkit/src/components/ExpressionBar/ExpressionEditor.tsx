@@ -644,10 +644,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         if (e.key === 'Enter') {
             e.preventDefault();
             console.log('ExpressionEditor: handleInputKeyDown: Enter');
-            // await handleExpressionSaveMutation(value);
+            await handleExpressionSaveMutation(value);
             // // 
             // 
-            await onBlur?.(e);
+            // await onBlur?.(e);
             // textAreaRef.current?.blur();
             // textAreaRef.current?.shadowRoot.querySelector('textarea').blur();
             // await handleRefBlur(value);
