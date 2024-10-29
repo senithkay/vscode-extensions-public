@@ -36,5 +36,6 @@ export function activate(context: BallerinaExtension) {
 
     commands.registerCommand(BI_COMMANDS.ADD_CONFIGURATION, () => {
         // Trigger to open the configuration setup view
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ViewConfigVariables });
     });
 }
