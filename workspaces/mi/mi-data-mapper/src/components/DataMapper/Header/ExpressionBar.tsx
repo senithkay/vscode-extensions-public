@@ -59,6 +59,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
+        console.log('setTextFieldValue', value);
     };
     
     
@@ -222,6 +223,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                         inputAccessExpr +
                         textFieldValue.substring(cursorPosition);
                     await handleChange(updatedText);
+                    cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
                     resetInputPort();
                 }
             }
@@ -260,12 +262,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
 
         // Set cursor position
-        cursorPositionBeforeSaving.current = value.length;
-
-        setTextFieldValue(value);
-        setSavedNodeValue(value);
-        triggerAction(!action);
-
+        if (focusedPort || focusedFilter) {
+            cursorPositionBeforeSaving.current = value.length;
+            
+            setTextFieldValue(value);
+            setSavedNodeValue(value);
+            triggerAction(!action);
+        }
+        console.log('disabled memo', focusedPort,value);
         return disabled;
     }, [focusedPort, focusedFilter, views]);
 
@@ -427,17 +431,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleBlur = async (e: any) => {
-        console.log('handleBlur', e);
-        // if(e.target.closest('[id^="recordfield-subMappingInput"]') || e.target.closest('[id^="recordfield-input"]'))
-        //     return;
-
+        
+        // 
+        if(e.target.closest('[id^="recordfield-"]'))
+            return;
+        console.log('handleBlur', e, textFieldValue, textFieldValueRef);
         // Reset the last focused port and filter
-        // resetLastFocusedPort();
-        // resetLastFocusedFilter();
-        // resetLastSavedNodeValue();
+        
+        await textFieldRef.current.saveExpression(textFieldValue, textFieldValueRef);
+        
+        resetLastFocusedPort();
+        resetLastFocusedFilter();
+        resetLastSavedNodeValue();
 
         // // Reset text field value
-        // setTextFieldValue("");
+        setTextFieldValue("");
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -121,7 +121,7 @@ export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
-    saveExpression: (value?: string) => Promise<void>; // Saves the expression with the provided value
+    saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
 };
 
 // Styled Components

@@ -474,7 +474,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         return { newTextValue, newCursorPosition };
     };
 
-    const handleExpressionSave = async (value: string) => {
+    const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
+        if(ref) value = ref.current;
+        console.log('ExpressionEditor: handleExpressionSave', value);
         const valueWithClosingBracket = addClosingBracketIfNeeded(value);
         onSave && await onSave(valueWithClosingBracket);
         handleClose();
@@ -641,8 +643,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            // await handleExpressionSaveMutation(value);
-            textAreaRef.current?.blur();
+            await handleExpressionSaveMutation(value);
+            textAreaRef.current?.shadowRoot.querySelector('textarea').blur();
+            // await handleRefBlur(value);
             return;
         }
     };
@@ -680,8 +683,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         shadowRoot: textAreaRef.current?.shadowRoot,
         focus: handleRefFocus,
         blur: handleRefBlur,
-        saveExpression: async (value?: string) => {
-            await handleExpressionSaveMutation(value);
+        saveExpression: async (value?: string, ref?: React.MutableRefObject<string>) => {
+            await handleExpressionSaveMutation(value, ref);
         }
     }));
 
