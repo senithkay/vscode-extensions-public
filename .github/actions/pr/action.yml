@@ -93,7 +93,6 @@ runs:
           git tag ${{ inputs.version }}
           git push origin "refs/heads/${{ inputs.version }}" "refs/tags/${{ inputs.version }}"
           pr=$(gh pr create -B release-mi -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into release-mi' --body '$subject')
-          gh pr create -B "main" -H "release-mi" --title 'Merge "release-mi" into "main"' --body '$subject'
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ inputs.bot_token }}
