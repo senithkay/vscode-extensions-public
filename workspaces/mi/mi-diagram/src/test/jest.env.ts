@@ -11,6 +11,8 @@ global.structuredClone = (val: any) => {
     return JSON.parse(JSON.stringify(val))
 }
 
+global.setImmediate = global.setImmediate || ((fn: any, ...args: any) => global.setTimeout(fn, 0, ...args)) as any;
+
 jest.mock('resize-observer-polyfill', () => {
     return {
         default: jest.fn().mockImplementation(() => {

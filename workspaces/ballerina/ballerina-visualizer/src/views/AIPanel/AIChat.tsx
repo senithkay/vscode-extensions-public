@@ -9,7 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW, ProjectSource, SourceFile, ProjectDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW, ProjectSource, SourceFile, ProjectDiagnostics, InitialPrompt } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
@@ -181,6 +181,11 @@ export function AIChat() {
             projectUuid = response;
             const localStorageFile = `chatArray-AIGenerationChat-${projectUuid}`;
             const storedChatArray = localStorage.getItem(localStorageFile);
+            rpcClient.getAiPanelRpcClient().getInitialPrompt().then((initPrompt: InitialPrompt) => {
+                if (initPrompt.exists) {
+                    setUserInput(initPrompt.text);
+                }
+            })
             rpcClient.getAiPanelRpcClient().getAiPanelState().then((machineView: any) => {
                 if (storedChatArray) {
                     const chatArrayFromStorage = JSON.parse(storedChatArray);
@@ -266,6 +271,7 @@ export function AIChat() {
         if (userInput === "") {
             return;
         }
+        rpcClient.getAiPanelRpcClient().clearInitialPrompt()
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
@@ -530,7 +536,7 @@ export function AIChat() {
                         appearance="icon"
                         onClick={() => handleLogout()}
                         tooltip="Logout"
-                        disabled={isLoading}
+                        disabled={true}
                     >
                         <Codicon name="sign-out" />&nbsp;&nbsp;Logout
                     </Button>

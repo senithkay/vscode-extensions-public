@@ -13,11 +13,12 @@ import {
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
-    Diagnostics,
     DiagnosticEntry,
+    Diagnostics,
     ErrorCode,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
+    InitialPrompt,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
     ProjectDiagnostics,
@@ -32,6 +33,7 @@ import * as os from 'os';
 import path from "path";
 import { Uri, window, workspace } from 'vscode';
 
+import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
 import { StateMachine, updateView } from "../../stateMachine";
@@ -44,7 +46,7 @@ export let hasStopped: boolean = false;
 export class AiPanelRpcManager implements AIPanelAPI {
     async getBackendURL(): Promise<string> {
         return new Promise(async (resolve) => {
-            const config = workspace.getConfiguration('ballerina');
+            const config = getPluginConfig();
             const BACKEND_URL = config.get('rootUrl') as string;
             resolve(BACKEND_URL);
         });
@@ -372,6 +374,25 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return {
             diagnostics: filteredDiags
         };
+    }
+
+    async getInitialPrompt(): Promise<InitialPrompt> {
+        const initialPrompt = extension.initialPrompt;
+        if (initialPrompt) {
+            return {
+                exists: true,
+                text: initialPrompt
+            };
+        } else {
+            return {
+                exists: false,
+                text: ""
+            };
+        }
+    }
+
+    async clearInitialPrompt(): Promise<void> {
+        extension.initialPrompt = undefined;
     }
 }
 
