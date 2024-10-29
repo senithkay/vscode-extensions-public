@@ -2851,6 +2851,7 @@ importers:
       '@types/vscode-webview': ^1.57.4
       '@uiw/react-codemirror': ~4.21.22
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/component-diagram': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-data-mapper': workspace:*
       '@wso2-enterprise/mi-diagram': workspace:*
@@ -2906,6 +2907,7 @@ importers:
       '@types/vscode-webview': 1.57.5
       '@uiw/react-codemirror': 4.21.24_4ndsyykedba3u2psgexaldpule
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@wso2-enterprise/component-diagram': link:../../common-libs/component-diagram
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-data-mapper': link:../mi-data-mapper
       '@wso2-enterprise/mi-diagram': link:../mi-diagram
@@ -8387,6 +8389,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -25509,7 +25522,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

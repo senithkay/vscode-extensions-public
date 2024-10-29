@@ -8,38 +8,41 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { View, ViewContent, ViewHeader } from "../../components/View";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import ComponentDiagram from "./ComponentDiagram";
 
 interface OverviewProps {
-    stateUpdated: boolean;
 }
 
-export function Overview(props: OverviewProps) {
+function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
     const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
+    const [projectOverview, setProjectOverview] = React.useState<ProjectOverviewResponse>(undefined);
 
     useEffect(() => {
         rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
-                setWorkspaces(response.workspaces);
-                setActiveWorkspaces(response.workspaces[0]);
-                changeWorkspace(response.workspaces[0].fsPath);
-                console.log(response.workspaces[0]);
-            });
+            setWorkspaces(response.workspaces);
+            setActiveWorkspaces(response.workspaces[0]);
+            changeWorkspace(response.workspaces[0].fsPath);
+        });
     }, []);
 
     useEffect(() => {
         if (workspaces && selected) {
             rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
-                    console.log(response);
-                    setProjectStructure(response);
-                });
+                setProjectStructure(response);
+            });
+
+            rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
+                setProjectOverview(response);
+            });
         }
     }, [selected, props]);
 
@@ -72,7 +75,7 @@ export function Overview(props: OverviewProps) {
             <ViewHeader
                 title={"Project: " + activeWorkspaces?.name}
                 icon="project"
-                iconSx={{ fontSize: "15px"}}
+                iconSx={{ fontSize: "15px" }}
             >
                 <Button
                     appearance="primary"
@@ -100,8 +103,12 @@ export function Overview(props: OverviewProps) {
                 </Button>
             </ViewHeader>
             <ViewContent padding>
+                <ComponentDiagram projectStructure={projectOverview} projectName={activeWorkspaces?.name} />
+            </ViewContent>
+            <ViewContent padding>
                 {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
             </ViewContent>
         </View>
     );
 }
+export default React.memo(Overview);
