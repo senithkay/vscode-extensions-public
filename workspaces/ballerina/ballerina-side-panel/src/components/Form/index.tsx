@@ -230,10 +230,15 @@ export function Form(props: FormProps) {
             const currentValue = getValues(updatedExpressionField.key);
 
             if (currentValue !== undefined) {
-                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                const newValue = currentValue.slice(0, cursorPosition) +
-                    updatedExpressionField.value +
-                    currentValue.slice(cursorPosition);
+                let newValue;
+                if (updatedExpressionField?.isConfigured) {
+                    newValue = updatedExpressionField.value;
+                } else {
+                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                    newValue = currentValue.slice(0, cursorPosition) +
+                        updatedExpressionField.value +
+                        currentValue.slice(cursorPosition);
+                }
 
                 setValue(updatedExpressionField.key, newValue);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
