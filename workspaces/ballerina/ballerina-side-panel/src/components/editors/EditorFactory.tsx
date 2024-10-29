@@ -9,10 +9,10 @@
 
 import React from "react";
 
-import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
-import { DropdownEditor } from "./DropdownEditor";
+import { MultiSelectEditor } from "./MultiSelectEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
@@ -20,6 +20,7 @@ import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
 
 interface FormFieldEditorProps {
     field: FormField;
+    selectedNode?: NodeKind;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
@@ -27,11 +28,20 @@ interface FormFieldEditorProps {
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
+    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
 
     if (field.type === "MULTIPLE_SELECT" || field.type?.toUpperCase() === "ENUM") {
         // Enum is a dropdown field
-        return <DropdownEditor field={field} />;
+        let label: string;
+        switch (selectedNode) {
+            case "DATA_MAPPER":
+                label = "Add Another Input";
+                break;
+            default:
+                label = "Add Another";
+                break;
+        }
+        return <MultiSelectEditor field={field} label={label} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
         return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
