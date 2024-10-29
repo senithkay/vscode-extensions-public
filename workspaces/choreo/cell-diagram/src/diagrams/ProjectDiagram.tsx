@@ -151,7 +151,8 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
             ...diagramData.links.connectorLinks.values(),
             ...diagramData.links.externalLinks.values(),
             ...diagramData.links.componentLinks.values(),
-            ...diagramData.links.cellLinks.values()
+            ...diagramData.links.cellLinks.values(),
+            ...diagramData.links.externalConnectionLinks.values()
         );
 
         models.forEach((item) => {
