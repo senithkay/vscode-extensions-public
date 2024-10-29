@@ -54,10 +54,12 @@ export function ViewConfigurableVariables() {
 
     const handleEditConfigFormClose = () => {
         setEditConfigVariableFormOpen(false);
+        getConfigVariables();
     };
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
+        getConfigVariables();
     };
 
     const handleOnDeleteConfigVariable = async (index: number) => {
@@ -85,13 +87,14 @@ export function ViewConfigurableVariables() {
             })
             .finally(() => {
                 setShowProgressIndicator(false);
+                getConfigVariables();
             });
     };
 
     useEffect(() => {
         console.log(">>> Get Config Variables");
         getConfigVariables();
-    }, [configVariables]);
+    }, []);
 
     const getConfigVariables = () => {
         rpcClient
