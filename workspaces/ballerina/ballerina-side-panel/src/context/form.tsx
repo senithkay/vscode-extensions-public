@@ -18,6 +18,7 @@ export interface FormContext {
         setValue: UseFormSetValue<FieldValues>;
         watch: UseFormWatch<any>;
         register: UseFormRegister<FieldValues>;
+        unregister: UseFormUnregister<FieldValues>;
     };
     expressionEditor?: {
         completions: CompletionItem[];

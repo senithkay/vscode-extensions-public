@@ -202,7 +202,7 @@ export function Form(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -317,7 +317,8 @@ export function Form(props: FormProps) {
             control,
             setValue,
             watch,
-            register
+            register,
+            unregister
         },
         expressionEditor,
         targetLineRange,

@@ -71,19 +71,15 @@ interface MultiSelectEditorProps {
 export function MultiSelectEditor(props: MultiSelectEditorProps) {
     const { field, label } = props;
     const { form } = useFormContext();
-    const { register, setValue, watch } = form;
+    const { register, unregister, setValue, watch } = form;
 
     const noOfSelectedValues = field.value === "" ? 1 : field.value.length;
     const [dropdownCount, setDropdownCount] = useState(noOfSelectedValues);
 
-    // Get the default value
-    const defaultValue = getValueForDropdown(field, 0);
-
     // Watch all the individual dropdown values, including the default value
     const values = [...Array(dropdownCount)].map((_, index) => {
         const value = watch(`${field.key}-${index}`);
-        // Return default value for first dropdown if no value is selected
-        return index === 0 && !value ? defaultValue : value;
+        return value || getValueForDropdown(field, index);
     }).filter(Boolean);
 
     // Update the main field with the array of values
@@ -101,8 +97,19 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
     };
 
     const onDelete = (indexToDelete: number) => {
-        // Remove the value at the specified index
-        setValue(field.key, values.filter((_, i) => i !== indexToDelete));
+        // Unregister the deleted field
+        unregister(`${field.key}-${indexToDelete}`);
+
+        // Unregister and re-register fields after the deleted index to shift them up
+        for (let i = indexToDelete + 1; i < dropdownCount; i++) {
+            const value = watch(`${field.key}-${i}`);
+            unregister(`${field.key}-${i}`);
+            setValue(`${field.key}-${i-1}`, value);
+        }
+
+        // Update the main field value
+        const newValues = values.filter((_, i) => i !== indexToDelete);
+        setValue(field.key, newValues);
         setDropdownCount(prev => prev - 1);
     };
 
