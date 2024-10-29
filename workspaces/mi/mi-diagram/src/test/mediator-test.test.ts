@@ -290,32 +290,41 @@ describe('Test MI Mediators', () => {
 
     mediatorTestCases.forEach(({ type, expectedDescription, expectedDefaultDescription }) => {
         const fileName = type.replace(/ /g, '');
-        test(`Test ${type} Mediator`, async (done) => {
-            try {
-                const uri = path.join(dataRoot, "input-xml", `${fileName}.xml`);
-                const syntaxTree = await langClient.getSyntaxTree({
-                    documentIdentifier: {
-                        uri
-                    }
-                });
-                const mediatorST = syntaxTree.syntaxTree.api.resource[0].inSequence.mediatorList[0];
+        test(`Test ${type} Mediator`, async () => {
+            const uri = path.join(dataRoot, "input-xml", `${fileName}.xml`);
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri
+                }
+            });
+            const mediatorST = syntaxTree.syntaxTree.api.resource[0].inSequence.mediatorList[0];
 
-                const mediatorData = await getDataFromST(type, mediatorST);
-                const generatedXml = getXML(type, mediatorData);
+            const mediatorData = await getDataFromST(type, mediatorST);
+            const generatedXml = getXML(type, mediatorData);
 
-                const dataDirectory = path.join(process.cwd(), "src", "test", "data");
-                // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
-                const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${fileName}.xml`));
-                expect(generatedXml).toEqual(outputFileContent);
-                done();
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            const dataDirectory = path.join(process.cwd(), "src", "test", "data");
+            // await writeXMLFile(path.join(dataDirectory, 'expected-xml' , `${mediatorType}.xml`), generatedXml); // Uncomment to update expected XML files
+            const outputFileContent = await readXMLFile(path.join(dataDirectory, 'expected-xml', `${fileName}.xml`));
+            expect(generatedXml).toEqual(outputFileContent);
         }, 20000);
 
-        test(`Test ${type} Mediator Default Description`, async (done) => {
-            try {
-                const uri = path.join(dataRoot, "input-xml", `${fileName}.xml`);
+        test(`Test ${type} Mediator Default Description`, async () => {
+            const uri = path.join(dataRoot, "input-xml", `${fileName}.xml`);
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri
+                }
+            });
+            if (!syntaxTree) {
+                throw new Error("Syntax tree is undefined");
+            }
+            const res = await getMediatorDescription(type, syntaxTree);
+            expect(res).toEqual(expectedDefaultDescription);
+        }, 20000);
+
+        if (expectedDescription) {
+            test(`Test ${type} Mediator Description`, async () => {
+                const uri = path.join(dataRoot, "input-xml", `${fileName}WithDescription.xml`);
                 const syntaxTree = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri
@@ -325,31 +334,7 @@ describe('Test MI Mediators', () => {
                     throw new Error("Syntax tree is undefined");
                 }
                 const res = await getMediatorDescription(type, syntaxTree);
-                expect(res).toEqual(expectedDefaultDescription);
-                done();
-            } catch (e) {
-                done.fail(e as string);
-            }
-        }, 20000);
-
-        if (expectedDescription) {
-            test(`Test ${type} Mediator Description`, async (done) => {
-                try {
-                    const uri = path.join(dataRoot, "input-xml", `${fileName}WithDescription.xml`);
-                    const syntaxTree = await langClient.getSyntaxTree({
-                        documentIdentifier: {
-                            uri
-                        }
-                    });
-                    if (!syntaxTree) {
-                        throw new Error("Syntax tree is undefined");
-                    }
-                    const res = await getMediatorDescription(type, syntaxTree);
-                    expect(res).toEqual(expectedDescription);
-                    done();
-                } catch (e) {
-                    done.fail(e as string);
-                }
+                expect(res).toEqual(expectedDescription);
             }, 20000);
         }
     });
