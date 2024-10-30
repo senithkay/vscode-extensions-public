@@ -45,7 +45,7 @@ export interface AddConnectionProps {
     handlePopupClose?: () => void;
 }
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion', 'file'];
 
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes, handlePopupClose } = props;
@@ -143,7 +143,11 @@ export function AddConnection(props: AddConnectionProps) {
                                 const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
                                     prefix: prefix.split(':')[1], uri: uri
                                 })) : [];
-                                setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
+                                if (inputType === 'file') {
+                                    setValue(param.name, value);
+                                } else {
+                                    setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
+                                }
                             }
                         });
                     }
@@ -220,6 +224,22 @@ export function AddConnection(props: AddConnectionProps) {
         return inputType;
     }
 
+    function getFileName(filePath: string): string {
+        const fileNameWithExt = filePath.split('/').pop();
+        return fileNameWithExt.split('.')[0];
+    }
+
+    function isValidConfigFormat(input: string): boolean {
+        const trimmedInput = input.trim();
+        const regex = /^\$config:[a-zA-Z]*/;
+        return regex.test(trimmedInput);
+    }
+
+    function isCertificateFilePath(path: string): boolean {
+        const extensionPattern = /\.crt$/;
+        return extensionPattern.test(path);
+      }
+
     const onAddConnection = async (values: any) => {
 
         const template = create();
@@ -230,6 +250,9 @@ export function AddConnection(props: AddConnectionProps) {
         if (errors && Object.keys(errors).length > 0) {
             console.error("Errors in saving connection form", errors);
         }
+
+        const visualizerState = await rpcClient.getVisualizerState();
+        const projectUri = visualizerState.projectUri;
 
         // Fill the values
         Object.keys(values).forEach((key: string) => {
@@ -257,7 +280,16 @@ export function AddConnection(props: AddConnectionProps) {
                         }
                     }
                 } else {
-                    const value = values[key];
+                    let value = values[key];
+                    if (typeof value === 'string' && isCertificateFilePath(value)) {
+                        const configPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+                        const envFilePath = projectUri + "/.env";
+
+                        const fileName = getFileName(value);
+                        rpcClient.getMiVisualizerRpcClient().appendContentToFile({ filePath: configPropertiesFilePath, content: `${fileName}:cert\n` });
+                        rpcClient.getMiVisualizerRpcClient().appendContentToFile({ filePath: envFilePath, content: `${fileName}=${value}\n` });
+                        value = `{$config:${fileName}}`;
+                    }
                     if (typeof value === 'string' && value.includes('<![CDATA[')) {
                         // Handle CDATA
                         const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
@@ -271,8 +303,6 @@ export function AddConnection(props: AddConnectionProps) {
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
-        const visualizerState = await rpcClient.getVisualizerState();
-        const projectUri = visualizerState.projectUri;
         const sep = visualizerState.pathSeparator;
         const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 

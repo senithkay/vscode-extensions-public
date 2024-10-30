@@ -70,7 +70,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const openFile = async () => {
+    const openFile = async (filePathPropertyName: string | number) => {
         const request = {
             canSelectFiles: true,
             canSelectFolders: false,
@@ -78,9 +78,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             defaultUri: "",
             title: "Select a file to be imported."
         }
-        await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
-            setValue("trustStoreCertificatePath", response.filePath, { shouldDirty: true });
-
+        await rpcClient.getMiDiagramRpcClient().browseFile(request).then(async (response) =>{
+            setValue(filePathPropertyName, response.filePath, { shouldDirty: true });
         }).catch(e => { console.log(e); })
     }
 
@@ -235,7 +234,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     <div>
                         <Typography>{element.displayName}</Typography>
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
-                            <Button appearance="secondary" onClick={openFile}>
+                            <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
                                 <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
                                 <div style={{ color: colors.editorForeground }}>Browse file</div>
                             </Button>
@@ -243,7 +242,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch("trustStoreCertificatePath")}
                             </Typography>
                         </div>
-                        
                     </div>
                 );
             default:
