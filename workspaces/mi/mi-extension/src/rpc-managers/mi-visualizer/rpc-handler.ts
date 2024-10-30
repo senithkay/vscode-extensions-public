@@ -20,12 +20,14 @@ import {
     SampleDownloadRequest,
     SwaggerProxyRequest,
     UpdateContextRequest,
+    FileAppendRequest,
     addToHistory,
     toggleDisplayOverview,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     getAvailableRuntimeServices,
     getCurrentThemeKind,
+    appendContentToFile,
     getHistory,
     getProjectStructure,
     getWorkspaces,
@@ -57,6 +59,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
+    messenger.onRequest(appendContentToFile, (args: FileAppendRequest) => rpcManger.appendContentToFile(args));
     messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());

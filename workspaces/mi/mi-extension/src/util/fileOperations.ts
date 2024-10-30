@@ -76,6 +76,18 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
     progress.report({ message: "Download finished" });
 }
 
+export function appendContent(path: string, content: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.writeFileSync(path, content, { flag: 'a' }); 
+            resolve(true);
+        } catch (error) {
+            console.error('Error appending content:', error);
+            resolve(false);
+        }
+    });
+}
+
 export async function handleOpenFile(sampleName: string, repoUrl: string) {
     const rawFileLink = repoUrl + sampleName + '/' + sampleName + '.zip';
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path

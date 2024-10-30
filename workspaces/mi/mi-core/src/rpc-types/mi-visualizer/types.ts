@@ -139,6 +139,11 @@ export interface SampleDownloadRequest {
     zipFileName: string;
 }
 
+export interface FileAppendRequest {
+    filePath: string;
+    content: string;
+}
+
 export interface OpenViewRequest {
     type: EVENT_TYPE | POPUP_EVENT_TYPE;
     location: VisualizerLocation | AIVisualizerLocation | PopupVisualizerLocation;

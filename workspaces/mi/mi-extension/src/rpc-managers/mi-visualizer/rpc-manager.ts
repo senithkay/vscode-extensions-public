@@ -31,6 +31,7 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     UpdateContextRequest,
@@ -47,7 +48,7 @@ import fetch from 'node-fetch';
 import { workspace, window, commands, env, Uri } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
@@ -162,6 +163,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async appendContentToFile(params: FileAppendRequest): Promise<boolean> {
+        return appendContent(params.filePath, params.content);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {

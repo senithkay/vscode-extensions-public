@@ -28,6 +28,7 @@ import {
     SwaggerProxyResponse,
     OpenExternalRequest,
     OpenExternalResponse,
+    FileAppendRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
@@ -39,6 +40,7 @@ export interface MIVisualizerAPI {
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
+    appendContentToFile: (params: FileAppendRequest) => Promise<boolean>;
     getHistory: () => Promise<HistoryEntryResponse>;
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;

@@ -27,6 +27,7 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     UpdateContextRequest,
@@ -37,6 +38,7 @@ import {
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     getCurrentThemeKind,
+    appendContentToFile,
     getHistory,
     getProjectStructure,
     getWorkspaces,
@@ -95,6 +97,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         return this._messenger.sendNotification(downloadSelectedSampleFromGithub, HOST_EXTENSION, params);
+    }
+
+    appendContentToFile(params: FileAppendRequest): Promise<boolean> {
+        return this._messenger.sendRequest(appendContentToFile, HOST_EXTENSION, params);
     }
 
     getHistory(): Promise<HistoryEntryResponse> {
