@@ -445,7 +445,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const handleBlur = async (e: any) => {
         
         // 
-        if(e.target.closest('[id^="recordfield-"]'))
+        if(e.target.closest('[id^="recordfield-input"]') || e.target.closest('[id^="recordfield-subMappingInput"]'))
             return;
         console.log('handleBlur', e, textFieldValue, textFieldValueRef);
         // Reset the last focused port and filter
@@ -508,7 +508,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 sx={{ display: 'flex', alignItems: 'center' }}
-                
+                handleHelperPaneOpen={gotoSource}
+                getExpressionBarIcon={() => <Codicon name="code" />}
             />
         </div>
     );
