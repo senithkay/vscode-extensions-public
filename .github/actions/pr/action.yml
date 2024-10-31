@@ -3,8 +3,8 @@ inputs:
   version:
     description: 'Publish version'
     required: true 
-  threadId:
-    description: 'Google chat thread ID'
+  chatAPI:
+    description: 'Google chat API'
     required: true
   bot_username:
     description: 'Ballerina bot username'
@@ -93,7 +93,6 @@ runs:
           git tag ${{ inputs.version }}
           git push origin "refs/heads/${{ inputs.version }}" "refs/tags/${{ inputs.version }}"
           pr=$(gh pr create -B release-mi -H "${{ inputs.version }}" --title 'Merge "${{ inputs.version }}" into release-mi' --body '$subject')
-          gh pr create -B "main" -H "release-mi" --title 'Merge "release-mi" into "main"' --body '$subject'
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ inputs.bot_token }}
@@ -138,5 +137,5 @@ runs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ inputs.threadId }}" \
+            "${{ inputs.chatAPI }}" \
             -d "$body"
