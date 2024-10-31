@@ -8,12 +8,12 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
-import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
-import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
-import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
+import React from 'react';
+import { ExpressionFieldValue, ExpressionField } from '.';
+import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 
 const Field = styled.div`
     margin-bottom: 12px;

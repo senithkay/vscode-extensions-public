@@ -15,8 +15,7 @@ import { create } from 'xmlbuilder2';
 import { useForm, Controller } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
-import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
-import FormGenerator from '../Commons/FormGenerator';
+import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
 
 const cardStyle = {
     display: "block",
