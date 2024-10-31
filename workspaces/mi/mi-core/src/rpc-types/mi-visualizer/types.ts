@@ -240,7 +240,7 @@ export interface Response {
     body?: string;
     obj?: string;
     headers?: Record<string, string>;
-  }
+}
 
 export interface SwaggerProxyRequest {
     command: string;
@@ -268,4 +268,23 @@ export interface OpenExternalRequest {
 
 export interface OpenExternalResponse {
     success: boolean;
+}
+
+export interface ProjectOverviewResponse {
+    name: string;
+    connections: Connection[];
+    entrypoints: Entrypoint[];
+}
+
+export interface Connection {
+    name: string;
+}
+
+export interface Entrypoint {
+    id: string;
+    name: string;
+    type: string;
+    path: string;
+    dependencies: string[];
+    connections: string[];
 }

@@ -28,11 +28,13 @@ import {
     SwaggerProxyResponse,
     OpenExternalRequest,
     OpenExternalResponse,
+    ProjectOverviewResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
+    getProjectOverview: (params: ProjectStructureRequest) => Promise<ProjectOverviewResponse>;
     getCurrentThemeKind: () => Promise<ColorThemeKind>;
     openView: (params: OpenViewRequest) => void;
     reloadWindow: () => Promise<void>;
