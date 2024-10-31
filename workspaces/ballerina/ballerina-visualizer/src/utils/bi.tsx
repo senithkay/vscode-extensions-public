@@ -171,7 +171,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
         if (values.hasOwnProperty(key) && updatedNodeProperties.hasOwnProperty(key)) {
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
-                expression.value = expression.valueType === "MULTIPLE_SELECT" ? [values[key]] : values[key];
+                expression.value = values[key];
             }
         }
     }

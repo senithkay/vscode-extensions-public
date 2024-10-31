@@ -39,11 +39,13 @@ export function AddForm(props: ConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     let variable: ConfigVariable = {
+        id: "",
         "metadata": {
-            "label": ""
+            "label": "",
+            "description": ""
         },
         "codedata": {
-            "node": "",
+            "node": "CONFIG_VARIABLE",
             "lineRange": {
                 "fileName": "config.bal",
                 "startLine": {
@@ -87,7 +89,9 @@ export function AddForm(props: ConfigFormProps) {
                 "optional": false,
                 "editable": true
             }
-        }
+        },
+        "branches": [],
+        "returning": false
     };
 
     // Map variables data to form fields
@@ -145,9 +149,10 @@ export function AddForm(props: ConfigFormProps) {
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
+            })
+            .finally(() => {
+                onClose();
             });
-
-        onClose();
     };
 
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {

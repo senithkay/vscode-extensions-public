@@ -47,7 +47,7 @@ export function EditForm(props: ConfigFormProps) {
             optional: false,
             editable: variable?.properties?.variable?.editable || false,
             documentation: '',
-            value: variable?.properties?.variable?.value || '',
+            value: typeof variable?.properties?.variable?.value === 'string' ? variable?.properties?.variable?.value : '',
         },
         {
             key: `type`,
@@ -56,7 +56,7 @@ export function EditForm(props: ConfigFormProps) {
             optional: false,
             editable: variable?.properties?.type?.editable || false,
             documentation: '',
-            value: variable?.properties?.type?.value || ''
+            value: typeof variable?.properties?.type?.value === 'string' ? variable?.properties?.type?.value : ''
         },
         {
             key: `defaultable`,
@@ -65,13 +65,12 @@ export function EditForm(props: ConfigFormProps) {
             optional: true,
             editable: variable?.properties?.defaultable?.editable || false,
             documentation: '',
-            value: variable?.properties?.defaultable?.value === '' || variable?.properties?.defaultable?.value === '?' ? '' : variable?.properties?.defaultable?.value.replaceAll('"', '') || ''
+            value: typeof variable?.properties?.defaultable?.value === 'string' && (variable?.properties?.defaultable?.value === '' || variable?.properties?.defaultable?.value === '?') ? ''
+                : typeof variable?.properties?.defaultable?.value === 'string' ? variable?.properties?.defaultable?.value.replace(/"/g, '') : ''
         }
     ];
 
     const [fields, setFields] = useState<FormField[]>(currentFields);
-    // const [model, setModel] = useState<Flow>();
-
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
 
@@ -95,9 +94,10 @@ export function EditForm(props: ConfigFormProps) {
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
+            })
+            .finally(() => {
+                onClose();
             });
-
-        onClose();
     };
 
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -122,7 +122,7 @@ export function EditForm(props: ConfigFormProps) {
 
         setFilteredTypes(filteredTypes);
     }, 250);
-    
+
     const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
         await debouncedGetVisibleTypes(value, cursorPosition);
     };
@@ -151,7 +151,7 @@ export function EditForm(props: ConfigFormProps) {
                     formFields={fields}
                     onSubmit={handleSave}
                     fileName={variable.codedata.lineRange.fileName}
-                    targetLineRange={{startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine}}
+                    targetLineRange={{ startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine }}
                     expressionEditor={{
                         completions: filteredTypes,
                         retrieveVisibleTypes: handleGetVisibleTypes,

@@ -60,7 +60,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
             </defs>
             <path
                 id={link.getID()}
-                d={link.getCurvePath()}
+                d={link.withRightOffset ? link.getCurvePathWithOffset() : link.getCurvePath()}
                 fill={"none"}
                 stroke={isSelected ? Colors.SECONDARY : Colors.OUTLINE}
                 strokeWidth={2}

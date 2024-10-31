@@ -46,6 +46,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
     const [connection, setConnection] = useState<FlowNode>();
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [showSubPanel, setShowSubPanel] = useState(false);
+    const [updatingContent, setUpdatingContent] = useState(false);
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
 
     useEffect(() => {
@@ -74,6 +75,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
     const handleOnFormSubmit = async (data: FormValues) => {
         console.log(">>> on form submit", data);
         if (connection) {
+            setUpdatingContent(true);
             let updatedNode: FlowNode = cloneDeep(connection);
 
             if (connection.properties) {
@@ -87,6 +89,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
 
             if (fileName === "") {
                 console.error(">>> Error updating source code. No connections.bal file found");
+                setUpdatingContent(false);
                 return;
             }
 
@@ -111,6 +114,9 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                         console.error(">>> Error updating source code", response);
                         // handle error
                     }
+                })
+                .finally(() => {
+                    setUpdatingContent(false);
                 });
         }
     };
@@ -150,6 +156,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
+                        configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
                     />
                 );
             default:
@@ -178,16 +185,22 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                     subPanel={findSubPanelComponent(subPanel)}
                 >
-                    <ConnectionConfigView
-                        fileName={fileName}
-                        fields={fields}
-                        onSubmit={handleOnFormSubmit}
-                        updatedExpressionField={updatedExpressionField}
-                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                        openSubPanel={handleSubPanel}
-                        isActiveSubPanel={showSubPanel}
+                    {updatingContent ? (
+                        <SpinnerContainer>
+                            <ProgressRing color={Colors.PRIMARY} />
+                        </SpinnerContainer>
+                    ) : (
+                        <ConnectionConfigView
+                            fileName={fileName}
+                            fields={fields}
+                            onSubmit={handleOnFormSubmit}
+                            updatedExpressionField={updatedExpressionField}
+                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                            openSubPanel={handleSubPanel}
+                            isActiveSubPanel={showSubPanel}
 
-                    />
+                        />
+                    )}
                 </PanelContainer>
             )}
         </Container>

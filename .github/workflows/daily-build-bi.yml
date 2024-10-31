@@ -29,11 +29,11 @@ jobs:
         with:
           title: KolaB
           fileName: kolab
-          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
+          chatAPI: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
 
       - name: Notification - Kola
         uses: ./.github/actions/dailyBuildNotification
         with:
           title: Kola
           fileName: kola-extension
-          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
+          chatAPI: ${{ secrets.EGGPLANT_EXT_CHAT_API }}

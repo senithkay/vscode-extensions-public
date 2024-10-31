@@ -206,7 +206,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -234,10 +234,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
             const currentValue = getValues(updatedExpressionField.key);
 
             if (currentValue !== undefined) {
-                const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                const newValue = currentValue.slice(0, cursorPosition) +
-                    updatedExpressionField.value +
-                    currentValue.slice(cursorPosition);
+                let newValue;
+                if (updatedExpressionField?.isConfigured) {
+                    newValue = updatedExpressionField.value;
+                } else {
+                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                    newValue = currentValue.slice(0, cursorPosition) +
+                        updatedExpressionField.value +
+                        currentValue.slice(cursorPosition);
+                }
 
                 setValue(updatedExpressionField.key, newValue);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
@@ -324,8 +329,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const contextValue = {
         form: {
             control,
+            setValue,
             watch,
             register,
+            unregister
         },
         expressionEditor,
         targetLineRange,
@@ -375,6 +382,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                     <EditorFactory
                                         ref={exprRef}
                                         field={field}
+                                        selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
