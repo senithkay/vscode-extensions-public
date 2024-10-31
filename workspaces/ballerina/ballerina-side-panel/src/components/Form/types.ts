@@ -26,4 +26,5 @@ export type ExpressionFormField = {
     key: string;
     value: string;
     cursorPosition: number;
+    isConfigured?: boolean
 };
