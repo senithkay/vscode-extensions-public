@@ -11,6 +11,7 @@ import {
     COMMENT_NODE_WIDTH,
     EMPTY_NODE_CONTAINER_WIDTH,
     EMPTY_NODE_WIDTH,
+    END_NODE_WIDTH,
     FOREACH_NODE_WIDTH,
     IF_NODE_WIDTH,
     LABEL_HEIGHT,
@@ -142,6 +143,10 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     endVisitEmpty(node: FlowNode, parent?: FlowNode): void {
+        if (node.id.endsWith("-last")) {
+            this.setNodeSize(node, END_NODE_WIDTH, END_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
+            return;
+        }
         this.setNodeSize(node, EMPTY_NODE_WIDTH, EMPTY_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
     }
 

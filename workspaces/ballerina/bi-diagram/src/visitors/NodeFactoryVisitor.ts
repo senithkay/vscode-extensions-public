@@ -18,17 +18,12 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import {
-    BUTTON_NODE_HEIGHT,
-    EMPTY_NODE_WIDTH,
-    NODE_GAP_X,
-    NODE_HEIGHT,
-    VSCODE_MARGIN,
-} from "../resources/constants";
+import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_GAP_X, NODE_HEIGHT, VSCODE_MARGIN } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
+import { EndNodeModel } from "../components/nodes/EndNode";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -259,7 +254,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     }
 
     endVisitBody(node: Branch, parent?: FlowNode): void {
-        // `Body` is inside `Foreach` node 
+        // `Body` is inside `Foreach` node
         this.lastNodeModel = undefined;
     }
 
@@ -364,7 +359,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         // add empty node end of the block
         if (node.id.endsWith("-last")) {
-            const lastNodeModel = this.createEmptyNode(node.id, node.viewState.x, node.viewState.y, false);
+            const lastNodeModel = new EndNodeModel(node.id);
+            lastNodeModel.setPosition(node.viewState.x, node.viewState.y);
+            this.nodes.push(lastNodeModel);
             this.updateNodeLinks(node, lastNodeModel, { showArrow: true });
             return;
         }

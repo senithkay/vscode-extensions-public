@@ -89,7 +89,7 @@ export class LinkTargetVisitor implements BaseVisitor {
             // set target position
             if (outLink && node.codedata?.lineRange?.endLine) {
                 outLink.setTarget({
-                    line: node.codedata.lineRange.endLine.line - 1, // HACK: need to fix with LS extension
+                    line: node.codedata.lineRange.endLine.line + 1, // HACK: add 1 line to avoid merging with comment
                     offset: 0,
                 });
                 outLink.setTopNode(node);
