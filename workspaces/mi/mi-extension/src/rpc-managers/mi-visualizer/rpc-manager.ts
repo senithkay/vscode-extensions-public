@@ -168,9 +168,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
         const fileName = getFileName(params.certificateFilePath);
-        await this.appendContentToFile({filePath: params.configPropertiesFilePath, content: `${fileName}:cert\n`});
-        await this.appendContentToFile({filePath: params.envFilePath, content: `${fileName}=${params.certificateFilePath}\n`});
-        vscode.window.showInformationMessage(`Certificate file ${fileName} added successfully. Entries were added to the config and env files.`);
+        await this.appendContentToFile({filePath: params.configPropertiesFilePath, content: `${params.certificateAlias}:cert\n`});
+        await this.appendContentToFile({filePath: params.envFilePath, content: `${params.certificateAlias}=${params.certificateFilePath}\n`});
+        vscode.window.showInformationMessage(`Certificate file '${params.certificateAlias}' added successfully. Entries were added to the config and env files.`);
         vscode.window.showInformationMessage("Do you want to view added entries in config file?", "Open Config File").then(selection => {
             if (selection === "Open Config File") {
                 const uri = vscode.Uri.file(params.configPropertiesFilePath);

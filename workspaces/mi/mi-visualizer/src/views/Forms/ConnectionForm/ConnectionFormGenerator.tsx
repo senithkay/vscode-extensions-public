@@ -256,7 +256,7 @@ export function AddConnection(props: AddConnectionProps) {
 
         // Fill the values
         Object.keys(values).forEach((key: string) => {
-            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
+            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'trustStoreCertificateAlias' && key !== 'trustStoreCertificatePath') && values[key]) {
                 if (typeof values[key] === 'object' && values[key] !== null) {
                     // Handle expression input type
                     const namespaces = values[key].namespaces;
@@ -280,15 +280,8 @@ export function AddConnection(props: AddConnectionProps) {
                         }
                     }
                 } else {
-                    let value = values[key];
-                    if (typeof value === 'string' && isCertificateFilePath(value)) {
-                        const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-                        const currentEnvFilePath = projectUri + "/.env";
-
-                        const fileName = getFileName(value);
-                        rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateFilePath: value, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
-                        value = `{#[config:${fileName}]}`;
-                    }
+                    const value = values[key];
+                    
                     if (typeof value === 'string' && value.includes('<![CDATA[')) {
                         // Handle CDATA
                         const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
@@ -299,6 +292,20 @@ export function AddConnection(props: AddConnectionProps) {
                 }
             }
         });
+
+        if (values['trustStoreCertificateAlias'] && values['trustStoreCertificatePath']) {
+            const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+            const currentEnvFilePath = projectUri + "/.env";
+
+            const currentCertificateAlias = values['trustStoreCertificateAlias'];
+            const currentCertificateFilePath = values['trustStoreCertificatePath'];
+
+            rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateAlias: currentCertificateAlias, certificateFilePath: currentCertificateFilePath, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
+            const configValue = `{#[config:${currentCertificateAlias}]}`;
+            
+            connectorTag.ele('trustStoreCertificateAlias').txt(currentCertificateAlias);
+            connectorTag.ele('trustStoreCertificatePath').txt(configValue);
+        }
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
