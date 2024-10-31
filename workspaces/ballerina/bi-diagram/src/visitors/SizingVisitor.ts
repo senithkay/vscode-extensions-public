@@ -31,7 +31,7 @@ export class SizingVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
 
     constructor() {
-        console.log(">>> sizing visitor started");
+        // console.log(">>> sizing visitor started");
     }
 
     private setNodeSize(

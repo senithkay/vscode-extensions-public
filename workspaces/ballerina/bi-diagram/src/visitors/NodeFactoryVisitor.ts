@@ -33,7 +33,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     private hasSuggestedNode = false;
 
     constructor() {
-        console.log(">>> node factory visitor started");
+        // console.log(">>> node factory visitor started");
     }
 
     private updateNodeLinks(node: FlowNode, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {

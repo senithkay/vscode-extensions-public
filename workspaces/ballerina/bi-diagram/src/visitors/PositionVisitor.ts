@@ -17,7 +17,7 @@ export class PositionVisitor implements BaseVisitor {
     private lastNodeY = 200;
 
     constructor() {
-        console.log(">>> position visitor started");
+        // console.log(">>> position visitor started");
     }
 
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {
