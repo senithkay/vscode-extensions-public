@@ -193,7 +193,7 @@ export async function createBIService(params: ComponentRequest): Promise<CreateC
 
         } else {
             const serviceFile = await handleServiceCreation(params);
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 3, startColumn: 0, endLine: 15, endColumn: 1 } });
         }
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
@@ -239,6 +239,7 @@ export async function handleServiceCreation(params: ComponentRequest) {
         params.serviceType.path = `/${params.serviceType.path}`;
     }
     const balContent = `import ballerina/http;
+import ballerina/log;
 
 service ${params.serviceType.path} on new http:Listener(${params.serviceType.port}) {
 
@@ -248,6 +249,7 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
         do {
            
         } on fail error e {
+            log:printError(e.message());
             return http:INTERNAL_SERVER_ERROR;
         }
     }
