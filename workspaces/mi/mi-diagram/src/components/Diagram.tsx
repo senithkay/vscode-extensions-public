@@ -290,7 +290,7 @@ export function Diagram(props: DiagramProps) {
         const positionVisitor = new PositionVisitor(dimensions.width);
         traversNode(model, positionVisitor);
         const height = positionVisitor.getSequenceHeight();
-        dimensions.height = height + NODE_GAP.END_Y;
+        dimensions.height = NODE_GAP.START_Y + height + NODE_GAP.END_Y;
 
         // run node visitor
         const nodeVisitor = new NodeFactoryVisitor(props.documentUri, model as any, breakpoints);

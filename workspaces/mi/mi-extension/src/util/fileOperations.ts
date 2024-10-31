@@ -602,6 +602,7 @@ export function getAvailableRegistryResources(projectDir: string): ListRegistryA
                     name: artifact["@name"],
                     path: artifact.item.path,
                     file: artifact.item.file,
+                    mediaType: artifact.item.mediaType,
                     isCollection: false
                 };
                 result.push(registryArtifact);
@@ -662,6 +663,7 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
     const artifactXMLData = artifactData[0];
     const artifacts = artifactData[1];
     let updated = false;
+    let updatedArtifact: { artifact: any, properties: { key: string, value: string }[] } = { artifact: null, properties: [] };
     if (artifacts) {
         for (const artifact of artifacts) {
             if (artifact.item && (artifact.item.path.endsWith("/") ? artifact.item.path +
@@ -672,8 +674,10 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
                 const propertiesArray = Object.entries(request.properties);
                 for (const [key, value] of propertiesArray) {
                     artifact.item.properties.property.push({ "@key": key, "@value": value });
+                    updatedArtifact.properties.push({ "key": key, "value": value });
                 }
                 updated = true;
+                updatedArtifact.artifact = artifact;
                 break;
             } else if (artifact.collection && artifact.collection.path === request.registryPath) {
                 artifact.collection.properties = {};
@@ -681,8 +685,10 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
                 const propertiesArray = Object.entries(request.properties);
                 for (const [key, value] of propertiesArray) {
                     artifact.collection.properties.property.push({ "@key": key, "@value": value });
+                    updatedArtifact.properties.push({ "key": key, "value": value });
                 }
                 updated = true;
+                updatedArtifact.artifact = artifact;
                 break;
             }
         }
@@ -696,12 +702,21 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
             const builder = new XMLBuilder(options);
             const updatedXmlString = builder.build(artifactXMLData);
             fs.writeFileSync(artifactData[2], updatedXmlString);
+            updatePropertiesFileForRegistry(request.projectDirectory, updatedArtifact);
             return "Metadata updated successfully";
         } else {
             window.showErrorMessage("Could not update the registry resource metadata. Please check the artifact.xml file");
         }
     }
     return "Could not read the artifact.xml file";
+}
+function updatePropertiesFileForRegistry(projectDir: string, artifact: { artifact: any, properties: { key: string, value: string }[] }) {
+    const properties = artifact.properties;
+    const propertiesFilePath = projectDir + '.properties';
+    if (properties.length > 0) {
+        const propertiesContent = properties.map((property) => property.key + "=" + property.value).join('\n');
+        fs.writeFileSync(propertiesFilePath, propertiesContent);
+    }
 }
 
 function getArtifactData(projectDir: string): [any, any[], string] {
