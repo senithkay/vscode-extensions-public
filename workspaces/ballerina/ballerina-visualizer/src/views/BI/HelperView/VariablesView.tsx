@@ -91,6 +91,7 @@ const ListView = styled.div<{}>`
     flex-direction: column;
     justify-content: flex-start;
     min-height: 32px;
+    max-width: '100%'
     `;
 
 
