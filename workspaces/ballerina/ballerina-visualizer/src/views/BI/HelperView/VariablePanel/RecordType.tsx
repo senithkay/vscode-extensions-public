@@ -13,13 +13,14 @@ import { VariableTree } from "./VariablesTree";
 import styled from "@emotion/styled";
 import { useState } from "react";
 import { IconContainer, VariableComponent, VariableName, VariableType } from "../VariablesView";
-import { getIcon, getTypeName } from "./utils";
+import { getIcon, getName, getTypeName } from "./utils";
 
 interface RecordTypeTreeProps {
     variable: TypeWithIdentifier;
     depth: number;
     handleOnClick: (variable: string) => void;
     parentValue?: string;
+    isOptional?: boolean;
 }
 
 namespace VariableStyles {
@@ -33,7 +34,7 @@ namespace VariableStyles {
 
 
 export function RecordTypeTree(props: RecordTypeTreeProps) {
-    const { variable, depth, handleOnClick, parentValue } = props;
+    const { variable, depth, handleOnClick, parentValue, isOptional } = props;
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -53,7 +54,9 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
         return (
             <VariableStyles.SubList>
                 {variable.type.fields.map((field, index) => {
-                    const fullPath = parentValue ? `${parentValue}.${field.name}` : `${variable.name}.${field.name}`;
+                    const fullPath = parentValue 
+                        ? `${parentValue}${field.optional ? '?' : ''}.${field.name}` 
+                        : `${variable.name}${field.optional ? '?' : ''}.${field.name}`;
                     if (field.typeName && field.name && field.typeName !== 'record') {
                         return (
                             <div key={index} style={{
@@ -65,7 +68,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                                         {getIcon(field.typeName === 'record' ? field.typeName : 'field')}
                                     </IconContainer>
                                     <VariableName>
-                                        {field.name}
+                                        {getName(field.name, field?.optional)}
                                     </VariableName>
                                     <VariableType>
                                         {getTypeName(field)}
@@ -76,7 +79,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                     } else {
                         return (
                             <div key={index}>
-                                <VariableTree variable={{ name: field.name, type: field }} depth={depth + 1} parentValue={fullPath} handleOnSelection={handleOnClick} />
+                                <VariableTree variable={{ name: field.name, type: field }} depth={depth + 1} parentValue={fullPath} handleOnSelection={handleOnClick} isOptional={field?.optional} />
                             </div>
                         );
                     }
@@ -102,7 +105,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                         </IconContainer>
                     )}
                     <VariableName>
-                        {variable.name}
+                        {getName(variable.name, isOptional)}
                     </VariableName>
                     <VariableType>
                         {getTypeName(variable.type)}
