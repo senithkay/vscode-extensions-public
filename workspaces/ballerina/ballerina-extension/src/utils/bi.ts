@@ -193,7 +193,7 @@ export async function createBIService(params: ComponentRequest): Promise<CreateC
 
         } else {
             const serviceFile = await handleServiceCreation(params);
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 3, startColumn: 0, endLine: 15, endColumn: 1 } });
         }
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");

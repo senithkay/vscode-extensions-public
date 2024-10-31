@@ -170,7 +170,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Entry Points",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'folder',
+        'home',
         true
     );
     entryPoints.contextValue = "entryPoint";
@@ -185,8 +185,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Connections",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'folder',
-        true
+        'connection',
+        false
     );
     connections.contextValue = "connections";
     connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS]);
@@ -197,8 +197,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Types",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'folder',
-        true
+        'type',
+        false
     );
     types.contextValue = "types";
     types.children = getComponents([
@@ -212,8 +212,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Functions",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'folder',
-        true
+        'function',
+        false
     );
     functions.contextValue = "functions";
     functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.FUNCTIONS]);
@@ -224,8 +224,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Configurations",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'folder',
-        true
+        'config',
+        false
     );
     configs.contextValue = "configurations";
     configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS]);
