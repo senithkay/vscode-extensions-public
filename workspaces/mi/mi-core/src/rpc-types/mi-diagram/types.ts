@@ -1371,7 +1371,7 @@ export interface GetBackendRootUrlResponse {
 }
 export interface ListRegistryArtifactsRequest {
     path: string;
-    withAdditionalData?:boolean
+    withAdditionalData?: boolean
 }
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
@@ -1527,8 +1527,8 @@ export interface GetConnectorConnectionsResponse {
 }
 
 export interface SaveInboundEPUischemaRequest {
-    connectorName:string;
-    uiSchema:string;
+    connectorName: string;
+    uiSchema: string;
 }
 
 export interface GetInboundEPUischemaRequest {
@@ -1751,4 +1751,37 @@ export interface GetSubFoldersResponse {
 export interface FileRenameRequest {
     existingPath: string;
     newPath: string;
+}
+
+export interface GetMediatorsRequest {
+    document: TextDocumentIdentifier;
+    position: Position;
+}
+
+export interface GetMediatorsResponse {
+    [key: string]: {
+        type: string;
+        mediators: Mediator[];
+    };
+}
+
+export interface Mediator {
+    type: string;
+    description: string;
+    icon: string;
+}
+
+export interface GetMediatorRequest {
+    type: string;
+    range?: Range;
+}
+
+export interface GetMediatorResponse {
+    form: string;
+}
+
+export interface UpdateMediatorRequest {
+    type: string;
+    range?: Range;
+    form: string;
 }

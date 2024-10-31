@@ -11,6 +11,10 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
+    APIContextsResponse,
+    AddDriverRequest,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -57,6 +61,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
@@ -72,7 +78,9 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
+    ExtendedDSSQueryGenRequest,
     FileDirResponse,
+    FileRenameRequest,
     FileStructure,
     GenerateAPIResponse,
     GetAllArtifactsRequest,
@@ -102,12 +110,18 @@ import {
     GetFailoverEPResponse,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
     GetLoadBalanceEPResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
     GetMessageStoreRequest,
     GetMessageStoreResponse,
     GetProjectRootRequest,
@@ -116,6 +130,7 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSTFromUriRequest,
     GetSelectiveArtifactsRequest,
     GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
@@ -145,6 +160,7 @@ import {
     ProjectRootResponse,
     Property,
     RangeFormatRequest,
+    RegistryArtifact,
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
@@ -160,6 +176,7 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveInboundEPUischemaRequest,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     StoreConnectorJsonResponse,
@@ -183,6 +200,7 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMediatorRequest,
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
@@ -201,35 +219,20 @@ import {
     WriteContentToFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
-    GetSTFromUriRequest,
     getSTResponse,
-    onSwaggerSpecReceived,
-    FileRenameRequest,
-    SaveInboundEPUischemaRequest,
-    GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse,
     onDownloadProgress,
-    AddDriverRequest,
-    ExtendedDSSQueryGenRequest,
-    DSSFetchTablesRequest,
-    DSSFetchTablesResponse,
-    DSSQueryGenRequest,
-    AddDriverToLibResponse,
-    AddDriverToLibRequest,
-    APIContextsResponse,
-    RegistryArtifact
+    onSwaggerSpecReceived
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy } from 'fs-extra';
+import { copy, remove } from 'fs-extra';
 import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
-import { remove } from 'fs-extra';
 import * as vscode from 'vscode';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
@@ -246,6 +249,7 @@ import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/
 import { UndoRedoManager } from "../../undoRedoManager";
 import { copyDockerResources, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { importCapp } from "../../util/importCapp";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
@@ -257,7 +261,6 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
-import { importCapp } from "../../util/importCapp";
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -4885,6 +4888,20 @@ ${keyValuesXML}`;
         });
     }
 
+    async getMediators(param: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getMediator(param: GetMediatorRequest): Promise<GetMediatorResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async updateMediator(param: UpdateMediatorRequest): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
 }
 
 export async function askProjectPath() {
