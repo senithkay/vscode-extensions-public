@@ -36,7 +36,7 @@ export class NodePortModel extends DefaultPortModel {
         if (!link && factory) {
             return factory.generateModel({});
         }
-        return link || new NodeLinkModel();
+        return link;
     }
 
 }

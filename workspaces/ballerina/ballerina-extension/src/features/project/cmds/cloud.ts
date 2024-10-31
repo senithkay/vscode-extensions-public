@@ -47,7 +47,7 @@ export function activateCloudCommand() {
                             value: isDiagram ? ballerinaExtInstance.getDocumentContext().getLatestDocument()?.toString()
                                 : window.activeTextEditor!.document.uri.toString()
                         };
-                        commands.executeCommand('ballerina.create.cloud.exec', commandArgs);
+                        commands.executeCommand('kolab.create.cloud.exec', commandArgs);
                         outputChannel.appendLine(`Cloud.toml created in ${currentProject.path}`);
                     } else {
                         const message = `Cloud.toml already exists in the project.`;

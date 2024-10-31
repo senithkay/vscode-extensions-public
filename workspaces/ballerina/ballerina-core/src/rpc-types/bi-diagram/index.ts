@@ -24,10 +24,20 @@ import {
     BISourceCodeResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
+    BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ConfigVariableResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
+    SignatureHelpRequest,
+    SignatureHelpResponse,
+    BIGetVisibleVariableTypesRequest,
+    BIGetVisibleVariableTypesResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, CreateComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
+import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 
 export interface BIDiagramAPI {
     getFlowModel: () => Promise<BIFlowModelResponse>;
@@ -41,13 +51,21 @@ export interface BIDiagramAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: () => Promise<ProjectStructureResponse>;
     getProjectComponents: () => Promise<ProjectComponentsResponse>;
-    createComponent: (params: CreateComponentRequest) => Promise<CreateComponentResponse>;
+    createComponent: (params: ComponentRequest) => Promise<CreateComponentResponse>;
     getBIConnectors: (params: BIConnectorsRequest) => Promise<BIConnectorsResponse>;
     handleReadmeContent: (params: ReadmeContentRequest) => Promise<ReadmeContentResponse>;
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
+    getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
-    getReadmeContent:() => Promise<ReadmeContentResponse>;
-    openReadme:() => void;
+    getConfigVariables:() => Promise<ConfigVariableResponse>;
+    updateConfigVariables:(params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
+    getModuleNodes: () => Promise<BIModuleNodesResponse>;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
     deployProject: () => void;
     openAIChat: (params: AIChatRequest) => void;
+    getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
+    buildProject: () => void;
+    runProject: () => void;
+    getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
 }

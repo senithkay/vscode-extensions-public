@@ -91,6 +91,16 @@ function getTestSuiteMustacheTemplate() {
             <artifact>{{{.}}}</artifact>
             {{/supportiveArtifacts}}
         </supportive-artifacts>
+        <registry-resources>
+            {{#registryResources}}
+            <registry-resource>
+                <file-name>{{fileName}}</file-name>
+                <artifact>{{artifact}}</artifact>
+                <registry-path>{{registryPath}}</registry-path>
+                <media-type>{{mediaType}}</media-type>
+            </registry-resource>
+            {{/registryResources}}
+        </registry-resources>
     </artifacts>
     <test-cases>
         {{#testCases}}

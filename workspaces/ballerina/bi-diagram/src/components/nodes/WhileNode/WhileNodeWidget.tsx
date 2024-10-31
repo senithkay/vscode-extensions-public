@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
-import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
+import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH, NODE_GAP_X } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
@@ -106,15 +106,37 @@ export namespace NodeStyles {
         justify-content: space-between;
         align-items: center;
         border: ${NODE_BORDER_WIDTH}px solid
-        ${(props: NodeStyleProp) =>
-            props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 50px;
+        background-color: ${Colors.SURFACE_DIM};
         width: ${NODE_HEIGHT}px;
         height: ${NODE_HEIGHT}px;
     `;
 
     export const Hr = styled.hr`
         width: 100%;
+    `;
+
+    export type ContainerStyleProp = {
+        width: number;
+        height: number;
+        top: number;
+        left: number;
+    };
+    export const Container = styled.div<ContainerStyleProp>`
+        position: absolute;
+        width: ${(props) => props.width}px;
+        height: ${(props) => props.height}px;
+        top: ${(props) => props.top}px;
+        left: ${(props) => props.left}px;
+
+        border: 2px dashed ${Colors.OUTLINE_VARIANT};
+        border-radius: 10px;
+        background-color: transparent;
+        z-index: -1;
+        display: flex;
+        align-items: flex-end;
+        pointer-events: none;
     `;
 }
 
@@ -124,7 +146,7 @@ interface WhileNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> {}
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -160,7 +182,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
@@ -181,6 +203,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
+    const viewState = model.node.viewState;
 
     return (
         <NodeStyles.Node>
@@ -232,6 +255,12 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
+            <NodeStyles.Container
+                width={viewState.cw}
+                height={viewState.ch - viewState.h}
+                top={viewState.h}
+                left={viewState.x - ((viewState.cw) / 2) + WHILE_NODE_WIDTH}
+            ></NodeStyles.Container>
         </NodeStyles.Node>
     );
 }

@@ -143,8 +143,12 @@ const ProjectStructureView = (props: { projectStructure: any, workspaceDir: stri
     const [connectorData, setConnectorData] = useState<any[]>([]);
 
     const fetchConnectors = async () => {
-        const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
-        setConnectorData(connectorDataResponse.data);
+        try {
+            const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+            setConnectorData(connectorDataResponse.outboundConnectors);
+        } catch (error) {
+            console.error("Failed to fetch connector data:", error);
+        }
     };
 
     function getConnectorIconUrl(connectorName: string): string | undefined {

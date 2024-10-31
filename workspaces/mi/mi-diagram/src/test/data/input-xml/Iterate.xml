@@ -12,4 +12,13 @@
 		<faultSequence>
 		</faultSequence>
 	</resource>
+	<resource methods="GET" uri-template="/namedSequence">
+        <inSequence>
+            <iterate expression="$ctx">
+                <target sequence="seq1" />
+            </iterate>
+            <respond />
+        </inSequence>
+        <faultSequence />
+    </resource>
 </api>

@@ -100,7 +100,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             const fileContent = nodeForSuggestions.getSourceFile().getFullText();
-            const relativeCursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+            const relativeCursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
             const offset = nodeValue.length - relativeCursorPosition;
             const cursorPosition = nodeForSuggestions.getEnd() - offset;
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
@@ -182,14 +182,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (inputPort) {
                 // Keep the text field focused when an input port is selected
                 if (textFieldRef.current) {
-                    const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
+                    const inputElement = textFieldRef.current.shadowRoot.querySelector('textarea');
                     if (focusedPort || focusedFilter) {
                         inputElement.focus();
                     } else {
                         inputElement.blur();
                     }
                     // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
                     const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
                     const updatedText =
                         textFieldValue.substring(0, cursorPosition) +
@@ -300,7 +300,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setSavedNodeValue(value);
 
         // Save the cursor position before saving
-        cursorPositionBeforeSaving.current = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+        cursorPositionBeforeSaving.current = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
 
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
@@ -356,6 +356,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await updateST(text);
     };
 
+    // TODO: Implement arg extraction logic using getSignatureHelp method of ts-morph language server
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    const extractArgsFromFunction = async (text: string, cursorPosition: number): Promise<any> => {
+        return undefined;
+    }
+
     const updateSource = async (value: string) => {
         if (savedNodeValue === value || (portChanged && lastSavedNodeValue === value)) {
             return;
@@ -375,7 +381,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions(await getCompletions());
 
         // Set the cursor position to the last saved position
-        textFieldRef.current.shadowRoot.querySelector('input').setSelectionRange(
+        textFieldRef.current.shadowRoot.querySelector('textarea').setSelectionRange(
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
         );
 
@@ -435,6 +441,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 completions={completions}
                 inputProps={inputProps}
                 onChange={handleChange}
+                extractArgsFromFunction={extractArgsFromFunction}
                 onCompletionSelect={updateSource}
                 onSave={updateSource}
                 onCancel={handleCancelCompletions}

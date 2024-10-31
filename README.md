@@ -1,4 +1,4 @@
-# WSO2 VSCode Extentions
+# WSO2 VSCode Extensions
 This repository contains VSCode extensions developed by WSO2. The repository houses several extensions along with a set of shared libraries.
 - [Ballerina] (https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
 - [Choreo] (https://marketplace.visualstudio.com/items?itemName=WSO2.choreo)
@@ -51,7 +51,7 @@ rush build -o <package name>
 
 Replace <package name> with the name of the package you want to build.
 
-Example: To build ballerina-low-code-editor, you can run the followind command:
+Example: To build ballerina-low-code-editor, you can run the following command:
 ```bash
 rush build -o @wso2-enterprise/ballerina-low-code-editor
 ```

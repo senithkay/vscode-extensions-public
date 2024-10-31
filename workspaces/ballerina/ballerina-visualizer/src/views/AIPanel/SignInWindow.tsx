@@ -43,7 +43,7 @@ export const SignInToCopilotMessage = (props: { showProjectHeader?: boolean }) =
                 subTitle={
                     "Please sign in to enable Copilot Artifical Intelligence features"
                 }
-                title={"Ballerina Copilot Account Not Found"}
+                title={"WSO2 Copilot Account Not Found"}
             />
         </Container>
     );

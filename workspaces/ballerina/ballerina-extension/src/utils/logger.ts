@@ -8,9 +8,10 @@
  */
 
 import * as vscode from 'vscode';
+import {getPluginConfig} from'../utils/config';
 
 export const outputChannel = vscode.window.createOutputChannel("Ballerina");
-const logLevelDebug: boolean = vscode.workspace.getConfiguration('ballerina').get('debugLog') === true;
+const logLevelDebug: boolean = getPluginConfig().get('debugLog') === true;
 
 function withNewLine(value: string) {
     if (typeof value === 'string' && !value.endsWith('\n')) {

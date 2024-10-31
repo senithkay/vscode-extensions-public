@@ -247,59 +247,61 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
-            <S.CircleContainer
-                onMouseEnter={() => setIsHoveredConnector(true)}
-                onMouseLeave={() => setIsHoveredConnector(false)}
-                onClick={(e) => handleOnClick(e)}
-            >
-                <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
-                    <svg width="110" height="50" viewBox="0 0 103 40">
-                        <circle
-                            cx="80"
-                            cy="20"
-                            r="22"
-                            fill={Colors.SURFACE_BRIGHT}
-                            stroke={(isHoveredConnector || isConnectorSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
-                            strokeWidth={2}
-                        />
+            {(node.stNode as Connector).configKey &&
+                <S.CircleContainer
+                    onMouseEnter={() => setIsHoveredConnector(true)}
+                    onMouseLeave={() => setIsHoveredConnector(false)}
+                    onClick={(e) => handleOnClick(e)}
+                >
+                    <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
+                        <svg width="110" height="50" viewBox="0 0 103 40">
+                            <circle
+                                cx="80"
+                                cy="20"
+                                r="22"
+                                fill={Colors.SURFACE_BRIGHT}
+                                stroke={(isHoveredConnector || isConnectorSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
+                                strokeWidth={2}
+                            />
 
-                        {iconPath && <g transform="translate(68,7)">
-                            <foreignObject width="25" height="25">
-                                <img src={iconPath} alt="Icon" />
-                            </foreignObject>
-                        </g>}
+                            {iconPath && <g transform="translate(68,7)">
+                                <foreignObject width="25" height="25">
+                                    <img src={iconPath} alt="Icon" />
+                                </foreignObject>
+                            </g>}
 
-                        <line
-                            x1="0"
-                            y1="20"
-                            x2="57"
-                            y2="20"
-                            style={{
-                                stroke: Colors.PRIMARY,
-                                strokeWidth: 2,
-                                markerEnd: `url(#${node.getID()}-arrow-head)`,
-                            }}
-                        />
-                        <defs>
-                            <marker
-                                markerWidth="4"
-                                markerHeight="4"
-                                refX="3"
-                                refY="2"
-                                viewBox="0 0 4 4"
-                                orient="auto"
-                                id={`${node.getID()}-arrow-head`}
-                            >
-                                <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
-                            </marker>
-                        </defs>
-                    </svg>
-                </Tooltip>
-            </S.CircleContainer>
+                            <line
+                                x1="0"
+                                y1="20"
+                                x2="57"
+                                y2="20"
+                                style={{
+                                    stroke: Colors.PRIMARY,
+                                    strokeWidth: 2,
+                                    markerEnd: `url(#${node.getID()}-arrow-head)`,
+                                }}
+                            />
+                            <defs>
+                                <marker
+                                    markerWidth="4"
+                                    markerHeight="4"
+                                    refX="3"
+                                    refY="2"
+                                    viewBox="0 0 4 4"
+                                    orient="auto"
+                                    id={`${node.getID()}-arrow-head`}
+                                >
+                                    <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </Tooltip>
+                </S.CircleContainer>
+            }
             {(node.stNode as Connector).configKey &&
                 <S.ConnectionContainer>
                     <S.ConnectionText>
-                        {FirstCharToUpperCase((node.stNode as Connector).configKey)}
+                        {(node.stNode as Connector).configKey}
                     </S.ConnectionText>
                 </S.ConnectionContainer>}
             <Popover

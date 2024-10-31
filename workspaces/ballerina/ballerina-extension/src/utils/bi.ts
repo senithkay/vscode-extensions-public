@@ -10,8 +10,10 @@ import { exec } from "child_process";
 import { window, commands, workspace, Uri } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { CreateComponentRequest, CreateComponentResponse, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { ComponentRequest, CreateComponentResponse, createFunctionSignature, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
+import { applyModifications, modifyFileContent } from "./modification";
+import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export const README_FILE = "readme.md";
 
@@ -66,6 +68,7 @@ export function createBIProject(name: string, isService: boolean) {
 export function createBIProjectPure(name: string, projectPath: string) {
     const projectLocation = projectPath;
 
+    name = sanitizeName(name);
     const projectRoot = path.join(projectLocation, name);
     // Create project root directory
     if (!fs.existsSync(projectRoot)) {
@@ -83,6 +86,41 @@ version = "0.1.0"
 bi = true  
 `;
 
+    const launchJsonContent = `
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Ballerina Run/Debug",
+            "type": "ballerina",
+            "request": "launch",
+            "programArgs": [],
+            "commandOptions": [],
+            "env": {}
+        },
+        {
+            "name": "Ballerina Test",
+            "type": "ballerina",
+            "request": "launch",
+            "debugTests": true,
+            "programArgs": [],
+            "commandOptions": [],
+            "env": {}
+        },
+        {
+            "name": "Ballerina Remote",
+            "type": "ballerina",
+            "request": "attach",
+            "debuggeeHost": "127.0.0.1",
+            "debuggeePort": "5005"
+        }
+    ]
+}
+`;
+
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
     fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
@@ -90,6 +128,10 @@ bi = true
     // Create connections.bal file
     const connectionsBalPath = path.join(projectRoot, 'connections.bal');
     fs.writeFileSync(connectionsBalPath, EMPTY);
+
+    // Create config.bal file
+    const configurationsBalPath = path.join(projectRoot, 'config.bal');
+    fs.writeFileSync(configurationsBalPath, EMPTY);
 
     // Create types.bal file
     const typesBalPath = path.join(projectRoot, 'types.bal');
@@ -99,12 +141,25 @@ bi = true
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     fs.writeFileSync(datamappingsBalPath, EMPTY);
 
+    // Create a .vscode folder
+    const vscodeDir = path.join(projectRoot, '.vscode');
+    if (!fs.existsSync(vscodeDir)) {
+        fs.mkdirSync(vscodeDir);
+    }
+
+    // Create launch.json file
+    const launchPath = path.join(vscodeDir, 'launch.json');
+    fs.writeFileSync(launchPath, launchJsonContent.trim());
+
+    // Create settings.json file
+    const settingsPath = path.join(vscodeDir, 'settings.json');
+
     console.log(`BI project created successfully at ${projectRoot}`);
     commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
 }
 
 
-export async function createBIService(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+export async function createBIService(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         if (params.serviceType.specPath) {
             // Call LS to create the service and get the serviceFile URI and the position of the serviceDeclaration.
@@ -146,17 +201,40 @@ export async function createBIService(params: CreateComponentRequest): Promise<C
     });
 }
 
-export async function createBITask(params: CreateComponentRequest): Promise<CreateComponentResponse> {
+export async function createBIAutomation(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
-        const taskFile = await handleTaskCreation(params);
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: taskFile, position: { startLine: 5, startColumn: 0, endLine: 11, endColumn: 1 } });
+        const functionFile = await handleAutomationCreation(params);
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 4, startColumn: 0, endLine: 10, endColumn: 1 } });
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
     });
 }
 
-export async function handleServiceCreation(params: CreateComponentRequest) {
+export async function createBIFunction(params: ComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        const projectDir = path.join(StateMachine.context().projectUri);
+        const targetFile = path.join(projectDir, `functions.bal`);
+        if (!fs.existsSync(targetFile)) {
+            fs.writeFileSync(targetFile, '');
+        }
+        const response = await handleFunctionCreation(targetFile, params);
+        await modifyFileContent({ filePath: targetFile, content: response.source });
+        const modulePart: ModulePart = response.syntaxTree as ModulePart;
+        let targetPosition: NodePosition = response.syntaxTree?.position;
+        modulePart.members.forEach(member => {
+            if (STKindChecker.isFunctionDefinition(member) && member.functionName.value === params.functionType.name.trim()) {
+                targetPosition = member.position;
+            }
+        });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
+        history.clear();
+        commands.executeCommand("BI.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
+}
+
+export async function handleServiceCreation(params: ComponentRequest) {
     if (!params.serviceType.path.startsWith('/')) {
         params.serviceType.path = `/${params.serviceType.path}`;
     }
@@ -185,16 +263,23 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
 }
 
 // <---------- Task Source Generation START-------->
-export async function handleTaskCreation(params: CreateComponentRequest) {
+export async function handleAutomationCreation(params: ComponentRequest) {
     const displayAnnotation = `@display {
-    label: "${params.taskType.name}",
-    triggerType: "${params.taskType.triggerType}",
-    cron: "${params.taskType.cron}"
+    label: "${params.functionType.name}",
+    cron: "${params.functionType.cron}"
 }`;
-    let funcSignature = "public function main() returns error? {";
-    if (params.taskType.argName) {
-        funcSignature = `public function main(${params.taskType.argType} ${params.taskType.argName}) returns error? {`;
+    let paramList = '';
+    const paramLength = params.functionType.parameters.length;
+    if (paramLength > 0) {
+        params.functionType.parameters.forEach((param, index) => {
+            let paramValue = param.defaultValue ? `${param.type} ${param.name} = ${param.defaultValue}, ` : `${param.type} ${param.name}, `;
+            if (paramLength === index + 1) {
+                paramValue = param.defaultValue ? `${param.type} ${param.name} = ${param.defaultValue}` : `${param.type} ${param.name}`;
+            }
+            paramList += paramValue;
+        });
     }
+    let funcSignature = `public function main(${paramList}) returns error? {`;
     const balContent = `${displayAnnotation}
 ${funcSignature}
     do {
@@ -213,6 +298,50 @@ ${funcSignature}
     return taskFile;
 }
 // <---------- Task Source Generation END-------->
+
+// <---------- Function Source Generation START-------->
+export async function handleFunctionCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
+    const modifications: STModification[] = [];
+    const parametersStr = params.functionType.parameters
+        .map((item) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ''}`)
+        .join(",");
+
+    const returnTypeStr = `returns ${params.functionType.returnType === "void" ? 'error?' : `${params.functionType.returnType}|error?`}`;
+
+    const expBody = `{
+    do {
+
+    } on fail error e {
+        return e;
+    }
+}`;
+
+    const document = await workspace.openTextDocument(Uri.file(targetFile));
+    const lastPosition = document.lineAt(document.lineCount - 1).range.end;
+
+    const targetPosition: NodePosition = {
+        startLine: lastPosition.line,
+        startColumn: 0,
+        endLine: lastPosition.line,
+        endColumn: 0
+    };
+    modifications.push(
+        createFunctionSignature(
+            "",
+            params.functionType.name,
+            parametersStr,
+            returnTypeStr,
+            targetPosition,
+            false,
+            false,
+            expBody
+        )
+    );
+
+    const res = await applyModifications(targetFile, modifications) as SyntaxTreeResponse;
+    return res;
+}
+// <---------- Function Source Generation END-------->
 
 export function sanitizeName(name: string): string {
     return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); // Replace invalid characters with underscores
