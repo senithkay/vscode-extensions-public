@@ -24,11 +24,13 @@ import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
         disabled: boolean;
         hovered: boolean;
+        hasError: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -44,7 +46,7 @@ export namespace NodeStyles {
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         cursor: pointer;
     `;
@@ -59,10 +61,23 @@ export namespace NodeStyles {
         padding: 8px;
     `;
 
-    export const StyledButton = styled(Button)`
+    export const ActionButtonGroup = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 2px;
+    `;
+
+    export const MenuButton = styled(Button)`
         border-radius: 5px;
-        position: absolute;
-        right: 6px;
+    `;
+
+    export const ErrorIcon = styled.div`
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: ${Colors.ERROR};
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -125,28 +140,6 @@ export namespace NodeStyles {
         align-items: center;
         gap: 8px;
     `;
-
-    export type PillStyleProp = {
-        color: string;
-    };
-    export const Pill = styled.div<PillStyleProp>`
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        color: ${(props: PillStyleProp) => props.color};
-        padding: 2px 4px;
-        border-radius: 20px;
-        border: 1px solid ${(props: PillStyleProp) => props.color};
-        font-size: 12px;
-        font-family: monospace;
-        svg {
-            fill: ${(props: PillStyleProp) => props.color};
-            stroke: ${(props: PillStyleProp) => props.color};
-            height: 12px;
-            width: 12px;
-        }
-    `;
 }
 
 export interface BaseNodeWidgetProps {
@@ -162,8 +155,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
-    const isMenuOpen = Boolean(anchorEl);
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
@@ -183,25 +176,25 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const onNodeClick = () => {
         onClick && onClick(model.node);
         onNodeSelect && onNodeSelect(model.node);
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const onGoToSource = () => {
         goToSource && goToSource(model.node);
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
-        setAnchorEl(event.currentTarget);
+        setMenuAnchorEl(event.currentTarget);
     };
 
     const handleOnMenuClose = () => {
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const openDataMapper = () => {
@@ -262,12 +255,32 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         });
     }
 
+    // show module name in the title if org is ballerina
+    const nodeTitle =
+        model.node.codedata?.org === "ballerina"
+            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
+            : model.node.metadata.label;
+
     const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
+
+    let nodeDescription = hasFullAssignment
+        ? `${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`
+        : model.node.properties?.variable?.value || model.node.properties?.expression?.value;
+
+    // HACK: add descriptions for log nodes
+    if (
+        model.node.codedata?.org === "ballerina" &&
+        model.node.codedata?.module === "log" &&
+        model.node.properties?.msg?.value
+    ) {
+        nodeDescription = model.node.properties.msg.value;
+    }
 
     return (
         <NodeStyles.Node
             hovered={isHovered}
             disabled={model.node.suggested}
+            hasError={model.node.diagnostics?.hasDiagnostics ?? false}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -279,23 +292,23 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                         <NodeStyles.Description>{model.node.properties.variable.value}</NodeStyles.Description>
                     )} */}
                 </NodeStyles.Icon>
-                <NodeStyles.Header onClick={handleOnClick}>
-                    <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                    {hasFullAssignment && (
-                        <NodeStyles.Description>{`${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`}</NodeStyles.Description>
-                    )}
-                    {!hasFullAssignment && (
-                        <NodeStyles.Description>
-                            {model.node.properties?.variable?.value || model.node.properties?.expression?.value}
-                        </NodeStyles.Description>
-                    )}
-                </NodeStyles.Header>
-                <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.StyledButton>
+                <NodeStyles.Row>
+                    <NodeStyles.Header onClick={handleOnClick}>
+                        <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
+                        <NodeStyles.Description>{nodeDescription}</NodeStyles.Description>
+                    </NodeStyles.Header>
+                    <NodeStyles.ActionButtonGroup>
+                        {model.node.diagnostics?.hasDiagnostics && (
+                            <DiagnosticsPopUp node={model.node} />
+                        )}
+                        <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </NodeStyles.MenuButton>
+                    </NodeStyles.ActionButtonGroup>
+                </NodeStyles.Row>
                 <Popover
                     open={isMenuOpen}
-                    anchorEl={anchorEl}
+                    anchorEl={menuAnchorEl}
                     handleClose={handleOnMenuClose}
                     sx={{
                         padding: 0,

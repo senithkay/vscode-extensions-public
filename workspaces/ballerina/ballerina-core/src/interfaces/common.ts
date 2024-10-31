@@ -71,6 +71,14 @@ export interface SidePanelData {
     filePath: string;
     range: LineRange;
     editorKey: string;
+    configurePanelData?: ConfigurePanelData;
+}
+
+export interface ConfigurePanelData {
+    isEnable: boolean;
+    name?: string;
+    documentation?: string;
+    value?: string;
 }
 
 interface InlineDataMapperProps {

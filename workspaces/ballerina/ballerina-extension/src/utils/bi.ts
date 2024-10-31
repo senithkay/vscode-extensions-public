@@ -249,7 +249,7 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
         do {
            
         } on fail error e {
-            log:printError(e.message());
+            log:printError("Error: ", 'error = e);
             return http:INTERNAL_SERVER_ERROR;
         }
     }
@@ -282,11 +282,14 @@ export async function handleAutomationCreation(params: ComponentRequest) {
         });
     }
     let funcSignature = `public function main(${paramList}) returns error? {`;
-    const balContent = `${displayAnnotation}
+    const balContent = `import ballerina/log;
+
+${displayAnnotation}
 ${funcSignature}
     do {
 
     } on fail error e {
+        log:printError("Error: ", 'error = e);
         return e;
     }
 }
