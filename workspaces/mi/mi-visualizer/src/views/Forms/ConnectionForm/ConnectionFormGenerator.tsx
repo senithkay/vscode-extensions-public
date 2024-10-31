@@ -287,7 +287,7 @@ export function AddConnection(props: AddConnectionProps) {
 
                         const fileName = getFileName(value);
                         rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateFilePath: value, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
-                        value = `{$config:${fileName}}`;
+                        value = `{#[config:${fileName}]}`;
                     }
                     if (typeof value === 'string' && value.includes('<![CDATA[')) {
                         // Handle CDATA
