@@ -282,12 +282,11 @@ export function AddConnection(props: AddConnectionProps) {
                 } else {
                     let value = values[key];
                     if (typeof value === 'string' && isCertificateFilePath(value)) {
-                        const configPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-                        const envFilePath = projectUri + "/.env";
+                        const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+                        const currentEnvFilePath = projectUri + "/.env";
 
                         const fileName = getFileName(value);
-                        rpcClient.getMiVisualizerRpcClient().appendContentToFile({ filePath: configPropertiesFilePath, content: `${fileName}:cert\n` });
-                        rpcClient.getMiVisualizerRpcClient().appendContentToFile({ filePath: envFilePath, content: `${fileName}=${value}\n` });
+                        rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateFilePath: value, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
                         value = `{$config:${fileName}}`;
                     }
                     if (typeof value === 'string' && value.includes('<![CDATA[')) {

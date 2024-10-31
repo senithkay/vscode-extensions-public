@@ -24,6 +24,11 @@ interface ProgressMessage {
     increment?: number;
 }
 
+export function getFileName(filePath: string): string {
+    const fileNameWithExt = filePath.split('/').pop();
+    return fileNameWithExt?.split('.')[0] || '';
+}
+
 async function selectFileDownloadPath(): Promise<string> {
     const folderPath = await window.showOpenDialog({ title: 'Sample download directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' });
     if (folderPath && folderPath.length > 0) {

@@ -29,7 +29,8 @@ import {
     SwaggerProxyResponse,
     OpenExternalRequest,
     OpenExternalResponse,
-    FileAppendRequest
+    FileAppendRequest,
+    HandleCertificateFileRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -43,6 +44,7 @@ export const reloadWindow: RequestType<void, void> = { method: `${_preFix}/reloa
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const fetchSamplesFromGithub: RequestType<void, GettingStartedData> = { method: `${_preFix}/fetchSamplesFromGithub` };
 export const downloadSelectedSampleFromGithub: NotificationType<SampleDownloadRequest> = { method: `${_preFix}/downloadSelectedSampleFromGithub` };
+export const handleCertificateFile: RequestType<HandleCertificateFileRequest, void> = { method: `${_preFix}/handleCertificateFile` };
 export const appendContentToFile: RequestType<FileAppendRequest, boolean> = { method: `${_preFix}/appendContentToFile` };
 export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };

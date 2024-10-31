@@ -31,6 +31,7 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    HandleCertificateFileRequest,
     FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
@@ -48,7 +49,7 @@ import fetch from 'node-fetch';
 import { workspace, window, commands, env, Uri } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile, appendContent } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
@@ -163,6 +164,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
+        const fileName = getFileName(params.certificateFilePath);
+        await this.appendContentToFile({filePath: params.configPropertiesFilePath, content: `${fileName}:cert`});
+        await this.appendContentToFile({filePath: params.envFilePath, content: `${fileName}=${params.certificateFilePath}`});
     }
 
     async appendContentToFile(params: FileAppendRequest): Promise<boolean> {

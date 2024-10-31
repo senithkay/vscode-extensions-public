@@ -139,6 +139,12 @@ export interface SampleDownloadRequest {
     zipFileName: string;
 }
 
+export interface HandleCertificateFileRequest {
+    certificateFilePath: string;
+    configPropertiesFilePath: string;
+    envFilePath: string
+}
+
 export interface FileAppendRequest {
     filePath: string;
     content: string;
