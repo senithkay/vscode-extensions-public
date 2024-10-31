@@ -18,12 +18,13 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Icon, Item, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import NodeIcon from "../../NodeIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -154,8 +155,8 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
-    const isMenuOpen = Boolean(anchorEl);
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
@@ -175,25 +176,25 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const onNodeClick = () => {
         onClick && onClick(model.node);
         onNodeSelect && onNodeSelect(model.node);
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const onGoToSource = () => {
         goToSource && goToSource(model.node);
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
-        setAnchorEl(event.currentTarget);
+        setMenuAnchorEl(event.currentTarget);
     };
 
     const handleOnMenuClose = () => {
-        setAnchorEl(null);
+        setMenuAnchorEl(null);
     };
 
     const openDataMapper = () => {
@@ -254,7 +255,26 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         });
     }
 
+    // show module name in the title if org is ballerina
+    const nodeTitle =
+        model.node.codedata?.org === "ballerina"
+            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
+            : model.node.metadata.label;
+
     const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
+
+    let nodeDescription = hasFullAssignment
+        ? `${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`
+        : model.node.properties?.variable?.value || model.node.properties?.expression?.value;
+
+    // HACK: add descriptions for log nodes
+    if (
+        model.node.codedata?.org === "ballerina" &&
+        model.node.codedata?.module === "log" &&
+        model.node.properties?.msg?.value
+    ) {
+        nodeDescription = model.node.properties.msg.value;
+    }
 
     return (
         <NodeStyles.Node
@@ -274,21 +294,12 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                 </NodeStyles.Icon>
                 <NodeStyles.Row>
                     <NodeStyles.Header onClick={handleOnClick}>
-                        <NodeStyles.Title>{model.node.metadata.label || model.node.codedata.node}</NodeStyles.Title>
-                        {hasFullAssignment && (
-                            <NodeStyles.Description>{`${model.node.properties.variable?.value} = ${model.node.properties?.expression?.value}`}</NodeStyles.Description>
-                        )}
-                        {!hasFullAssignment && (
-                            <NodeStyles.Description>
-                                {model.node.properties?.variable?.value || model.node.properties?.expression?.value}
-                            </NodeStyles.Description>
-                        )}
+                        <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
+                        <NodeStyles.Description>{nodeDescription}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
                         {model.node.diagnostics?.hasDiagnostics && (
-                            <NodeStyles.ErrorIcon>
-                                <Icon name="error-outline-rounded" />
-                            </NodeStyles.ErrorIcon>
+                            <DiagnosticsPopUp node={model.node} />
                         )}
                         <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                             <MoreVertIcon />
@@ -297,7 +308,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                 </NodeStyles.Row>
                 <Popover
                     open={isMenuOpen}
-                    anchorEl={anchorEl}
+                    anchorEl={menuAnchorEl}
                     handleClose={handleOnMenuClose}
                     sx={{
                         padding: 0,

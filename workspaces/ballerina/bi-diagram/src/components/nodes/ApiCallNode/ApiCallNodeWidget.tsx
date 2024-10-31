@@ -21,12 +21,13 @@ import {
     NODE_PADDING,
     NODE_WIDTH,
 } from "../../../resources/constants";
-import { Button, Icon, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, XIcon } from "../../../resources";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -245,6 +246,12 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
 
     const disabled = model.node.suggested;
 
+    // show module name in the title if org is ballerina or ballerinax
+    const nodeTitle =
+        model.node.codedata?.org === "ballerina" || model.node.codedata?.org === "ballerinax"
+            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
+            : model.node.metadata.label;
+
     return (
         <NodeStyles.Node>
             <NodeStyles.Box
@@ -261,14 +268,12 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     </NodeStyles.Icon>
                     <NodeStyles.Row>
                         <NodeStyles.Header onClick={handleOnClick}>
-                            <NodeStyles.Title>{model.node.metadata.label}</NodeStyles.Title>
+                            <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
                             <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
                         </NodeStyles.Header>
                         <NodeStyles.ActionButtonGroup>
                             {model.node.diagnostics?.hasDiagnostics && (
-                                <NodeStyles.ErrorIcon>
-                                    <Icon name="error-outline-rounded" />
-                                </NodeStyles.ErrorIcon>
+                                <DiagnosticsPopUp node={model.node} />
                             )}
                             <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                                 <MoreVertIcon />

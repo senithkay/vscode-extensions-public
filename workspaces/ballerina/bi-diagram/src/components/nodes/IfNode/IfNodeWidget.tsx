@@ -12,10 +12,11 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { IfNodeModel } from "./IfNodeModel";
 import { Colors, IF_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH } from "../../../resources/constants";
-import { Button, Icon, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -51,11 +52,6 @@ export namespace NodeStyles {
         position: absolute;
         bottom: -6px;
         left: 48px;
-
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-        color: ${Colors.ERROR};
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -228,7 +224,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                 </NodeStyles.Header>
                 {model.node.diagnostics?.hasDiagnostics && (
                     <NodeStyles.ErrorIcon>
-                        <Icon name="error-outline-rounded" />
+                        <DiagnosticsPopUp node={model.node} />
                     </NodeStyles.ErrorIcon>
                 )}
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>

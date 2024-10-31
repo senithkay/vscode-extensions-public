@@ -179,6 +179,7 @@ export type NodePropertyKey =
     | "variable"
     | "type"
     | "expression"
+    | "msg"
     | "statement"
     | "comment"
     | "connection"
