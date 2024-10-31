@@ -36,6 +36,11 @@
             },
             {
                 "view": "BI.project-explorer",
+                "contents": "Welcome to Kola Integrator. The Kola distribution was not found. Please set up the Kola distribution first to get started.\n[Set Up Kola](command:kolab.open.bi.welcome)\n",
+                "when": "BI.status == 'noLS'"
+            },
+            {
+                "view": "BI.project-explorer",
                 "contents": "Loading your workspace, please wait...",
                 "when": "BI.status == 'loading'"
             }
