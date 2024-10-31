@@ -23,22 +23,19 @@ interface RecordTypeTreeProps {
     isOptional?: boolean;
 }
 
-namespace VariableStyles {
-    export const SubList = styled.div`
+const SubList = styled.div`
         margin-left: 20px;
         margin-bottom: 8px;
         padding-left: 20px;
         flex-direction: column;
-    `;
-}
+`;
 
-export const InfoContainer = styled.div`
+const InfoContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     white-space: nowrap;
 `;
-
 
 export function RecordTypeTree(props: RecordTypeTreeProps) {
     const { variable, depth, handleOnClick, parentValue, isOptional } = props;
@@ -59,11 +56,11 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
         }
 
         return (
-            <VariableStyles.SubList>
+            <SubList>
                 {variable.type.fields.map((field, index) => {
                     const fullPath = parentValue
-                        ? `${parentValue}${field.optional ? '?' : ''}.${field.name}`
-                        : `${variable.name}${field.optional ? '?' : ''}.${field.name}`;
+                        ? `${parentValue}${field?.optional ? '?' : ''}.${field.name}`
+                        : `${variable.name}${field?.optional ? '?' : ''}.${field.name}`;
                     if (field.typeName && field.name && field.typeName !== 'record') {
                         return (
                             <div key={index} style={{
@@ -86,12 +83,18 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                     } else {
                         return (
                             <div key={index}>
-                                <VariableTree variable={{ name: field.name, type: field }} depth={depth + 1} parentValue={fullPath} handleOnSelection={handleOnClick} isOptional={field?.optional} />
+                                <VariableTree
+                                variable={{ name: field.name, type: field }}
+                                depth={depth + 1}
+                                parentValue={fullPath}
+                                handleOnSelection={handleOnClick}
+                                isOptional={field?.optional}
+                                />
                             </div>
                         );
                     }
                 })}
-            </VariableStyles.SubList>
+            </SubList>
         );
     };
 
