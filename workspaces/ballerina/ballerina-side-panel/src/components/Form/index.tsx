@@ -202,7 +202,7 @@ export function Form(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [createNewVariable, setCreateNewVariable] = useState(true);
@@ -320,8 +320,10 @@ export function Form(props: FormProps) {
     const contextValue = {
         form: {
             control,
+            setValue,
             watch,
             register,
+            unregister
         },
         expressionEditor,
         targetLineRange,
@@ -371,6 +373,7 @@ export function Form(props: FormProps) {
                                     <EditorFactory
                                         ref={exprRef}
                                         field={field}
+                                        selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
