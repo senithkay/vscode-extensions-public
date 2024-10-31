@@ -25,12 +25,6 @@ import ResourceHeader from './ResourceHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { BaseTypes } from '../../constants';
 
-const HorizontalFieldWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-`;
-
 const DescriptionWrapper = styled.div`
     display: flex;
     flex-direction: column;
@@ -42,7 +36,6 @@ interface ResourceProps {
     path: string;
     resourceOperation: Operation;
     openAPI: OpenAPI;
-    onPathChange: (pathObject: Path) => void;
     onOperationChange: (path: string, method: string, operation: Operation) => void;
 }
 
@@ -59,7 +52,7 @@ type InputsFields = {
 const moreOptions = ["Summary", "Description", "OperationId"];
 
 export function Resource(props: ResourceProps) {
-    const { resourceOperation, openAPI, method, path, onPathChange, onOperationChange } = props;
+    const { resourceOperation, openAPI, method, path, onOperationChange } = props;
     const [initailPath, setInitailPath] = useState<string>(path);
     const [initialMethod, setInitialMethod] = useState<string>(method);
     const { rpcClient } = useVisualizerContext();
@@ -171,16 +164,6 @@ export function Resource(props: ResourceProps) {
     //     };
     //     onPathChange(newPath);
     // };
-
-    const handleMethodChange = (value: string) => {
-        const currentPath = getPath();
-        const newPath = {
-            ...currentPath,
-            method: value
-        }
-        onPathChange(newPath);
-    };
-
     const handleOptionChange = (options: string[]) => {
         let operation = resourceOperation;
         if (!options.includes("Summary") && defaultOptions.includes("Summary")) {

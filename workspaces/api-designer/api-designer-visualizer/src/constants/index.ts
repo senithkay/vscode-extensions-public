@@ -148,3 +148,8 @@ export const SchemaTypes = [
 export const APIResources = [
     "get", "post", "put", "delete", "patch", "head", "options", "trace"
 ];
+
+export enum Views {
+    READ_ONLY = "READ_ONLY",
+    EDIT = "EDIT"
+}

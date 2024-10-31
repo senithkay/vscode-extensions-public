@@ -10,21 +10,15 @@
 import { useEffect, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
-import styled from "@emotion/styled";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDefinition";
 import { debounce } from "lodash";
+import { APIDesignerContext } from "../../APIDesignerContext";
+import { Views } from "../../constants";
 
 interface ServiceDesignerProps {
     fileUri: string;
 }
-
-// Add emotional styling to the component
-const APIDesignerWrapper = styled.div`
-    /* padding: 20px;
-    max-height: 90vh;
-    overflow-y: auto; */
-`;
 
 export function APIDesigner(props: ServiceDesignerProps) {
     const { fileUri } = props;
@@ -32,6 +26,8 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const [ apiDefinition, setApiDefinition ] = useState<OpenAPI | undefined>(undefined);
     const [ documentType, setDocumentType ] = useState<string | undefined>(undefined);
     const [ isNewFile, setIsNewFile ] = useState<boolean>(false);
+    const [currentView, setCurrentView] = useState<Views>(isNewFile ? Views.EDIT : Views.READ_ONLY);
+    const [selectedComponent, setSelectedComponent] = useState<string | undefined>(undefined);
 
     const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
@@ -40,25 +36,44 @@ export function APIDesigner(props: ServiceDesignerProps) {
         });
         if (resp.success) {
             setApiDefinition(openApiDefinition);
-            // const serDesModel = convertOpenAPItoService(openApiDefinition);
-            // setServiceDesModel(serDesModel);
         }
     };
     const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 300);
+
+    const contextValue = {
+        props: {
+            openAPIVersion: apiDefinition?.openapi || "3.0.1",
+            openAPI: apiDefinition,
+            selectedComponent,
+            isNewFile,
+            currentView,
+        },
+        api: {
+            onOpenAPIDefinitionChange: (openAPI: OpenAPI, selectedComponent?: string, currentView?: Views) => {
+                setApiDefinition(openAPI);
+                if (selectedComponent) {
+                    setSelectedComponent(selectedComponent);
+                }
+                if (currentView) {
+                    setCurrentView(currentView);
+                }
+                debouncedOpenApiDefinitionChange(openAPI);
+            },
+            onSelectedComponentChange: (component: string) => {
+                setSelectedComponent(component);
+            },
+            onCurrentViewChange: (view: Views) => {
+                setCurrentView(view);
+            },
+        },
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
                 filePath: fileUri,
             });
-            console.log("resp", resp);
             let convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
-            // let serDesModel: Service | undefined;
-            // if (convertedApiDefinition) {
-            //     serDesModel = convertOpenAPIStringToObject(resp.content, resp.type);
-            // }
-            // setServiceDesModel(serDesModel);
-            // If openapi field is not present in the response, then set the openapi field to the convertedApiDefinition
             if (!convertedApiDefinition) {
                 convertedApiDefinition = {
                     openapi: "3.0.1",
@@ -68,6 +83,7 @@ export function APIDesigner(props: ServiceDesignerProps) {
                     },
                     paths: {},
                 };
+                setCurrentView(Views.EDIT);
                 setIsNewFile(true);
             }
             // If no Info field is present in the response, then set the Info field
@@ -82,10 +98,9 @@ export function APIDesigner(props: ServiceDesignerProps) {
         };
         fetchData();
     }, [fileUri]);
-    console.log("isNewFile", isNewFile);
     return (
-        <APIDesignerWrapper>
-            <OpenAPIDefinition openAPIDefinition={apiDefinition} isNewFile={isNewFile} onOpenApiDefinitionChange={debouncedOpenApiDefinitionChange} />
-        </APIDesignerWrapper>
+        <APIDesignerContext.Provider value={contextValue}>
+            <OpenAPIDefinition />
+        </APIDesignerContext.Provider>
     )
 }

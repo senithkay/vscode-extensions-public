@@ -6,13 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { useEffect, useState } from "react";
-import { OpenAPI, Operation, Path, PathItem, Paths } from "../../Definitions/ServiceDefinitions";
+import { useContext } from "react";
+import { OpenAPI, Operation, PathItem, Paths } from "../../Definitions/ServiceDefinitions";
 import styled from "@emotion/styled";
 import { PathsNavigator } from "../PathsNavigator/PathsNavigator";
 import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
-import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getPathParametersFromParameters, getResourceID } from "../Utils/OpenAPIUtils";
+import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
 import { SplitView } from "../SplitView/SplitView";
 import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
@@ -24,12 +24,8 @@ import { ReadOnlyPathItem } from "../PathItem/ReadOnlyPathItem";
 import { Schema, SchemaEditor } from "../SchemaEditor/SchemaEditor";
 import { ReadOnlySchemaEditor } from "../SchemaEditor/ReadOnlySchemaEditor";
 import { Codicon, Button, Typography } from "@wso2-enterprise/ui-toolkit";
-
-interface OpenAPIDefinitionProps {
-    openAPIDefinition: OpenAPI;
-    isNewFile?: boolean;
-    onOpenApiDefinitionChange: (openApiDefinition: OpenAPI) => void;
-}
+import { APIDesignerContext } from "../../APIDesignerContext";
+import { Views } from "../../constants";
 
 const NavigationContainer = styled.div`
     display: flex;
@@ -68,127 +64,54 @@ const NavigationPanelContainer = styled.div`
     padding: 10px;
 `;
 
-// Views Enum
-enum Views {
-    READ_ONLY = "READ_ONLY",
-    EDIT = "EDIT"
-}
-
-export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
-    const { openAPIDefinition: initialOpenAPIDefinition, isNewFile: newF, onOpenApiDefinitionChange } = props;
-    const [openAPIDefinition, setOpenAPIDefinition] = useState<OpenAPI>(initialOpenAPIDefinition);
-    const [currentView, setCurrentView] = useState<Views>(newF ? Views.EDIT : Views.READ_ONLY);
-    const [selectedPathID, setSelectedPathID] = useState<string | undefined>(undefined);
-    const [isNewFile, setIsNewFile] = useState<boolean>(newF);
+export function OpenAPIDefinition() {
     const { rpcClient } = useVisualizerContext();
+    const {
+        props: { 
+            openAPIVersion,
+            openAPI,
+            isNewFile,
+            selectedComponent,
+            currentView
+        },
+        api: {
+            onOpenAPIDefinitionChange,
+            onCurrentViewChange,
+            onSelectedComponentChange
+        }
+    } = useContext(APIDesignerContext);
+
+    console.log("openAPIVersion", openAPIVersion);
+    console.log("openAPI", openAPI);
+    console.log("currentView", currentView);
+    console.log("selectedComponent", selectedComponent);
 
     const handlePathClick = (pathID: string) => {
-        setSelectedPathID(pathID);
+        onSelectedComponentChange(pathID);
         if (pathID?.includes("Schemas-Components")) {
-            const firstSchemaName = openAPIDefinition.components?.schemas && Object.keys(openAPIDefinition.components?.schemas)[0];
+            const firstSchemaName = openAPI.components?.schemas && Object.keys(openAPI.components?.schemas)[0];
             if (firstSchemaName) {
-                setSelectedPathID(firstSchemaName + "-schema");
+                onSelectedComponentChange(firstSchemaName + "-schema");
             } else {
-                setSelectedPathID(undefined);
+                onSelectedComponentChange(undefined);
             }
         } else if (pathID?.includes("Paths-Resources")) {
-            const firstPath = openAPIDefinition.paths && Object.keys(openAPIDefinition.paths)[0];
+            const firstPath = openAPI.paths && Object.keys(openAPI.paths)[0];
             if (firstPath) {
-                setSelectedPathID(firstPath);
+                onSelectedComponentChange(firstPath);
             } else {
-                setSelectedPathID(undefined);
+                onSelectedComponentChange(undefined);
             }
         }
-    };
-
-    const handlePathChange = (path: Path) => {
-        // if (path.path === "") {
-        //     path.path = "/";
-        // }
-        // // Update the OpenAPI definition with the new path
-        // const initialPath = Object.keys(openAPIDefinition.paths).find((key) => key === path.initialPath);
-        // const initialPathItems = initialPath && openAPIDefinition.paths[initialPath];
-        // let updatedOpenAPIDefinition = { ...openAPIDefinition };
-        // const initialPathParamaters = path?.initialPath && path?.initialMethod &&
-        //     openAPIDefinition.paths[path?.initialPath]?.[path?.initialMethod];
-
-        // if (isOperation(initialPathParamaters)) {
-        //     const parameters = getPathParametersFromParameters(initialPathParamaters.parameters);
-        //     const newPathParameters = getPathParametersFromParameters(path.initialOperation.parameters);
-        //     if (parameters?.length === newPathParameters?.length) {
-        //         // ... existing code ...
-        //     }
-        // }
-        // const newPathParameters = getPathParametersFromParameters(path.initialOperation.parameters);
-        // if (initialPathParamaters?.length === newPathParameters?.length) {
-        //     // Update the existing path
-        //     const initialPathItem = initialPathItems && initialPathItems[path.method];
-        //     // Update the currentPathItem directly
-        //     if (initialPathItem) {
-        //         // If updatedOpenAPIDefinition.paths[path.path] does not exist, create it delete the initial path
-        //         if (!updatedOpenAPIDefinition.paths[path.path]) {
-        //             // Add new path with path.method
-        //             updatedOpenAPIDefinition.paths[path.path] = {
-        //                 [path.method]: {
-        //                     ...path.initialOperation // Update with new operation details
-        //                 }
-        //             };
-        //         }
-        //         // Delete path.path with path.method
-        //         if ((path.initialPath !== path.path) &&
-        //             updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) 
-        //         {
-        //             delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
-        //             // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
-        //             if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {
-        //                 delete updatedOpenAPIDefinition.paths[path.initialPath];
-        //             }
-        //         }
-        //         updatedOpenAPIDefinition.paths[path.path][path.method] = {
-        //             ...path.initialOperation // Update with new operation details
-        //         };
-        //         // delete updatedOpenAPIDefinition.paths[path.initialPath];
-        //     } else {
-        //         updatedOpenAPIDefinition.paths[path.path][path.method] = {
-        //             ...path.initialOperation
-        //         };
-        //         if (updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod]) {
-        //             delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
-        //             // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
-        //             if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {
-        //                 delete updatedOpenAPIDefinition.paths[path.initialPath];
-        //             }
-        //         }
-        //     }
-        // } else {
-        //     // If the method does not exist, add it
-        //     if (updatedOpenAPIDefinition.paths[path.initialPath] && [path.initialMethod]) {
-        //         delete updatedOpenAPIDefinition.paths[path.initialPath][path.initialMethod];
-        //         // Delete updatedOpenAPIDefinition.paths[path.initialPath] if it is empty
-        //         if (Object.keys(updatedOpenAPIDefinition.paths[path.initialPath]).length === 0) {
-        //             delete updatedOpenAPIDefinition.paths[path.initialPath];
-        //         }
-        //     }
-        //     // Add a new path
-        //     updatedOpenAPIDefinition.paths[path.path] = {
-        //         ...updatedOpenAPIDefinition.paths[path.path],
-        //         [path.method]: {
-        //             ...path.initialOperation
-        //         }
-        //     };
-        // }
-        // setSelectedPathID(getResourceID(path.path, path.method));
-        // setOpenAPIDefinition(updatedOpenAPIDefinition);
-        // onOpenApiDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const handleAddPath = () => {
-        if (openAPIDefinition.paths === undefined) {
-            openAPIDefinition.paths = {};
+        if (openAPI.paths === undefined) {
+            openAPI.paths = {};
         }
 
-        const newPathVal = Object.keys(openAPIDefinition.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPIDefinition.paths).length + 1}` : "/path";
-        openAPIDefinition.paths[newPathVal] = {
+        const newPathVal = Object.keys(openAPI.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPI.paths).length + 1}` : "/path";
+        openAPI.paths[newPathVal] = {
             get: {
                 parameters: [],
                 responses: {
@@ -205,78 +128,37 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                 }
             }
         };
-        setOpenAPIDefinition(openAPIDefinition);
-        onOpenApiDefinitionChange(openAPIDefinition);
-        setSelectedPathID(newPathVal);
-        setCurrentView(Views.EDIT);
-        // rpcClient.showInputBox({
-        //     title: "Add New Path",
-        //     placeholder: "/path",
-        //     value: newPathVal,
-        // }).then(newPath=>{
-        //     if(newPath){
-        //         if(Object.keys(openAPIDefinition.paths).includes(newPath)){
-        //             rpcClient.showErrorNotification(`Path ${newPath} already exists in the OpenAPI schema`)
-        //             return
-        //         }
-        //         rpcClient.selectQuickPickItems({title:`Select methods of path ${newPath}`,items: APIResources.map(item=>({
-        //             label: item,
-        //             picked: item === "get"
-        //         }))}).then(methodSelection=>{
-        //             if(!methodSelection || methodSelection.length<1){
-        //                 rpcClient.showErrorNotification("Need to select at least one method for the path")
-        //             }else{
-        //                 const pathObj: PathItem = {};
-        //                 methodSelection.forEach(method=>{
-        //                     pathObj[method.label]={parameters:[]}
-        //                 })
-        //                 const updatedOpenAPIDefinition: OpenAPI = {
-        //                     ...openAPIDefinition,
-        //                     paths: {
-        //                         [newPath]: pathObj,
-        //                         ...openAPIDefinition.paths,
-        //                     }
-        //                 };
-        //                 setOpenAPIDefinition(updatedOpenAPIDefinition);
-        //                 onOpenApiDefinitionChange(updatedOpenAPIDefinition);
-        //                 if(methodSelection.length === 1){
-        //                     setSelectedPathID(getResourceID(newPath, methodSelection[0]?.label));
-        //                 }
-        //             }
-        //         })
-        //     }
-        // })
+        onOpenAPIDefinitionChange(openAPI, newPathVal, Views.EDIT);
     };
 
     const handleAddSchema = () => {
-        if (openAPIDefinition.components === undefined) {
-            openAPIDefinition.components = {};
+        if (openAPI.components === undefined) {
+            openAPI.components = {};
         }
-        if (openAPIDefinition.components.schemas === undefined) {
-            openAPIDefinition.components.schemas = {};
+        if (openAPI.components.schemas === undefined) {
+            openAPI.components.schemas = {};
         }
-        const newSchemaName = Object.keys(openAPIDefinition.components.schemas).find((key) => key.toLocaleLowerCase() === "schema") ? `Schema${Object.keys(openAPIDefinition.components.schemas).length + 1}` : "Schema";
-        openAPIDefinition.components.schemas[newSchemaName] = {
+        const newSchemaName = Object.keys(openAPI.components.schemas).find((key) => 
+            key.toLocaleLowerCase() === "schema") ? `Schema${Object.keys(openAPI.components.schemas).length + 1}` : 
+                "Schema";
+        openAPI.components.schemas[newSchemaName] = {
             type: "object",
             properties: {}
         };
-        setOpenAPIDefinition(openAPIDefinition);
-        onOpenApiDefinitionChange(openAPIDefinition);
-        setSelectedPathID(newSchemaName + "-schema");
-        setCurrentView(Views.EDIT);
+        onOpenAPIDefinitionChange(openAPI, newSchemaName + "-schema", Views.EDIT);
     }
 
     const handleAddResources = (path: string, methods: string[] = []) => {
-        const pathParameters = openAPIDefinition.paths[path] &&
-            Object.keys(openAPIDefinition.paths[path]).map((key: string) => {
-                const item = (openAPIDefinition.paths[path] as PathItem)[key];
+        const pathParameters = openAPI.paths[path] &&
+            Object.keys(openAPI.paths[path]).map((key: string) => {
+                const item = (openAPI.paths[path] as PathItem)[key];
                 // Check if item is of type Operation to access parameters
                 return (item as Operation)?.parameters?.find((param) => param.in === "path");
             });
         const distinctPathParameters = pathParameters && pathParameters.filter((param: { name: any; }, index: any, self: any[]) =>
             index === self.findIndex((t) => param && t?.name === param?.name));
         // Get current path
-        const currentPath = openAPIDefinition.paths[path];
+        const currentPath = openAPI.paths[path];
         // Add a new method to the current path
         methods?.forEach(method => {
             (currentPath as PathItem)[method] = { // Type assertion added here
@@ -284,9 +166,9 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
             };
         })
         const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
+            ...openAPI,
             paths: {
-                ...openAPIDefinition.paths,
+                ...openAPI.paths,
                 [path]: currentPath
             }
         };
@@ -294,121 +176,110 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
         const oldMethods = Object.keys(currentPath);
         const newMethods = methods?.filter(item => !oldMethods.includes(item))
         if (newMethods.length === 1) {
-            setSelectedPathID(getResourceID(path, newMethods[0]));
+            onSelectedComponentChange(getResourceID(path, newMethods[0]));
         }
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        onOpenAPIDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const onDeleteResource = (p: string, method: string) => {
-        const methodCount = Object.keys(openAPIDefinition.paths[p]).length;
+        const methodCount = Object.keys(openAPI.paths[p]).length;
         rpcClient.showConfirmMessage({ buttonText: "Delete", message: `Are you sure you want to delete this method '${method}' ${methodCount === 1 ? `and the path '${p}'?` : "?"}` }).then(res => {
             if (res) {
                 // If p with path and method exists, delete the perticular method
-                const pathItem = openAPIDefinition.paths[p] as PathItem;
+                const pathItem = openAPI.paths[p] as PathItem;
                 if (pathItem && pathItem[method]) {
                     delete pathItem[method];
                 }
                 // If no more methods are available for the path, delete the path
-                if (Object.keys(openAPIDefinition.paths[p]).length === 0) {
-                    delete openAPIDefinition.paths[p];
+                if (Object.keys(openAPI.paths[p]).length === 0) {
+                    delete openAPI.paths[p];
                 }
-                setSelectedPathID(undefined);
-                setOpenAPIDefinition({ ...openAPIDefinition });
-                onOpenApiDefinitionChange(openAPIDefinition);
+                onOpenAPIDefinitionChange(openAPI);
+                onSelectedComponentChange(undefined);
             }
         })
     };
 
     const onDeletePath = (p: string) => {
         // If p with path and method exists, delete the perticular method
-        if (openAPIDefinition.paths[p]) {
-            delete openAPIDefinition.paths[p];
-            setOpenAPIDefinition({ ...openAPIDefinition });
-            onOpenApiDefinitionChange(openAPIDefinition);
+        if (openAPI.paths[p]) {
+            delete openAPI.paths[p];
+            onOpenAPIDefinitionChange(openAPI);
         }
     };
 
     const handleRenamePath = (path: string, pathIndex: number, prevPath: string) => {
         // Get path by index
-        const pathKey = Object.keys(openAPIDefinition.paths).find((key) => key === prevPath);
+        const pathKey = Object.keys(openAPI.paths).find((key) => key === prevPath);
         // Store the existing path item
-        const pathItem = openAPIDefinition.paths[pathKey];
+        const pathItem = openAPI.paths[pathKey];
         const newPaths: { [key: string]: PathItem } = {};
-        Object.keys(openAPIDefinition.paths).forEach((key, index) => {
+        Object.keys(openAPI.paths).forEach((key, index) => {
             if (index === pathIndex) {
                 newPaths[path] = pathItem as PathItem;
             } else {
-                newPaths[key] = openAPIDefinition.paths[key] as PathItem;
+                newPaths[key] = openAPI.paths[key] as PathItem;
             }
         });
-        setOpenAPIDefinition({ ...openAPIDefinition, paths: newPaths });
-        onOpenApiDefinitionChange({ ...openAPIDefinition, paths: newPaths });
+        onOpenAPIDefinitionChange({ ...openAPI, paths: newPaths });
     }
 
     const handleOperationChange = (path: string, method: string, operation: Operation) => {
         // Get current path
-        const currentPath = openAPIDefinition.paths[path] as PathItem;
+        const currentPath = openAPI.paths[path] as PathItem;
         // Add a new method to the current path
         currentPath[method] = operation;
         const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
+            ...openAPI,
             paths: {
-                ...openAPIDefinition.paths,
+                ...openAPI.paths,
                 [path]: currentPath
             }
         };
-        setSelectedPathID(getResourceID(path, method));
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        onOpenAPIDefinitionChange(updatedOpenAPIDefinition, getResourceID(path, method));
     }
 
     const handleViewChange = (view: string) => {
-        setCurrentView(view as Views);
+        onCurrentViewChange(view as Views);
     };
 
     const handlePathItemChange = (pathItem: Paths, currentPath: string) => {
         // Update the OpenAPI definition with the new path
         const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
+            ...openAPI,
             paths: pathItem
         };
-        selectedPathID && setSelectedPathID(currentPath || selectedPathID);
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        selectedComponent && onSelectedComponentChange(currentPath || selectedComponent);
+        onOpenAPIDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const handleSchemaNameChange = (newName: string, oldSchemaName: string) => {
-        const component = openAPIDefinition.components[oldSchemaName];
         const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
+            ...openAPI,
             components: {
-                ...openAPIDefinition.components,
-                schemas: Object.keys(openAPIDefinition.components?.schemas || {}).reduce((acc, key) => {
-                    acc[key === oldSchemaName ? newName : key] = openAPIDefinition.components?.schemas?.[key];
+                ...openAPI.components,
+                schemas: Object.keys(openAPI.components?.schemas || {}).reduce((acc, key) => {
+                    acc[key === oldSchemaName ? newName : key] = openAPI.components?.schemas?.[key];
                     return acc;
                 }, {} as { [key: string]: Schema })
             }
         };
-        setSelectedPathID(selectedPathID?.replace(oldSchemaName, newName));
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        onOpenAPIDefinitionChange(updatedOpenAPIDefinition, selectedComponent?.replace(oldSchemaName, newName));
     }
 
     const handleSchemaChange = (schema: Schema) => {
         // Update the OpenAPI definition with the new schema
         const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
+            ...openAPI,
             components: {
-                ...openAPIDefinition.components,
+                ...openAPI.components,
                 schemas: {
-                    ...openAPIDefinition.components?.schemas,
+                    ...openAPI.components?.schemas,
                     [schemaName]: schema
                 }
             }
         };
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        onOpenAPIDefinitionChange(updatedOpenAPIDefinition);
     };
 
     const handleImportJSON = (schemaName: string) => {
@@ -420,50 +291,38 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
     }
 
     const handleDeteteSchema = (schemaName: string) => {
-        const clonedSchemas = { ...openAPIDefinition.components?.schemas };
+        const clonedSchemas = { ...openAPI.components?.schemas };
         delete clonedSchemas[schemaName];
         const updatedOpenAPIDefinition: OpenAPI = {
-            ...openAPIDefinition,
+            ...openAPI,
             components: {
-                ...openAPIDefinition.components,
+                ...openAPI.components,
                 schemas: clonedSchemas
             }
         };
-        setSelectedPathID(undefined);
-        setOpenAPIDefinition(updatedOpenAPIDefinition);
-        onOpenApiDefinitionChange(updatedOpenAPIDefinition);
+        onOpenAPIDefinitionChange(updatedOpenAPIDefinition);
+        selectedComponent && onSelectedComponentChange(undefined);
     };
 
-    const selectedMethod = selectedPathID && getMethodFromResourceID(selectedPathID);
-    const selectedPath = selectedPathID && getPathFromResourceID(selectedPathID);
+    const selectedMethod = selectedComponent && getMethodFromResourceID(selectedComponent);
+    const selectedPath = selectedComponent && getPathFromResourceID(selectedComponent);
     const operation = selectedPath && selectedMethod &&
-        getOperationFromOpenAPI(selectedPath, selectedMethod, openAPIDefinition);
-    const currentPath = selectedPathID && openAPIDefinition?.paths && openAPIDefinition?.paths[selectedPathID];
+        getOperationFromOpenAPI(selectedPath, selectedMethod, openAPI);
+    const currentPath = selectedComponent && openAPI?.paths && openAPI?.paths[selectedComponent];
 
-    const isSchemaSelected = selectedPathID && selectedPathID?.includes("-schema");
-    const schemaName = isSchemaSelected && selectedPathID?.split("-")[0];
-    const schema = schemaName && openAPIDefinition?.components?.schemas[schemaName];
-    console.log("schema-out", schema);
-    console.log("schemaName-out", schemaName);
-    console.log("selectedPathID-out", selectedPathID);
-
-    useEffect(() => {
-        setOpenAPIDefinition(initialOpenAPIDefinition);
-    }, [initialOpenAPIDefinition]);
-    useEffect(() => {
-        setIsNewFile(newF);
-        setCurrentView(newF ? Views.EDIT : Views.READ_ONLY);
-    }, [newF]);
+    const isSchemaSelected = selectedComponent && selectedComponent?.includes("-schema");
+    const schemaName = isSchemaSelected && selectedComponent?.split("-")[0];
+    const schema = schemaName && openAPI?.components?.schemas[schemaName];
 
     return (
         <NavigationContainer>
             <SplitView defaultWidths={[18, 82]} sx={{ maxWidth: 1200 }} dynamicContainerSx={{ height: "96vh" }}>
                 <NavigationPanelContainer>
-                    {openAPIDefinition &&
+                    {openAPI &&
                         <PathsNavigator
-                            paths={openAPIDefinition.paths}
-                            components={openAPIDefinition.components}
-                            selectedPathID={selectedPathID}
+                            paths={openAPI.paths}
+                            components={openAPI.components}
+                            selectedPathID={selectedComponent}
                             onPathChange={handlePathClick}
                             onAddPath={handleAddPath}
                             onAddResources={handleAddResources}
@@ -493,25 +352,24 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                     onViewChange={handleViewChange}
                 >
                     <div id={Views.EDIT} style={{ minHeight: "90vh" }}>
-                        {(selectedPathID === undefined) && (
+                        {(selectedComponent === undefined) && (
                             <Overview
                                 isNewFile={isNewFile}
-                                openAPIDefinition={openAPIDefinition}
-                                onOpenApiDefinitionChange={onOpenApiDefinitionChange}
+                                openAPIDefinition={openAPI}
+                                onOpenApiDefinitionChange={(openAPI: OpenAPI) => onOpenAPIDefinitionChange(openAPI)}
                             />
                         )}
-                        {currentView === Views.EDIT && operation && selectedPathID !== undefined && (
+                        {currentView === Views.EDIT && operation && selectedComponent !== undefined && (
                             <Resource
-                                openAPI={openAPIDefinition}
+                                openAPI={openAPI}
                                 resourceOperation={operation}
                                 method={selectedMethod}
                                 path={selectedPath}
-                                onPathChange={handlePathChange}
                                 onOperationChange={handleOperationChange}
                             />
                         )}
-                        {currentView === Views.EDIT && selectedPathID && currentPath && (
-                            <PI path={selectedPathID} pathItem={openAPIDefinition?.paths} onChange={handlePathItemChange} />
+                        {currentView === Views.EDIT && selectedComponent && currentPath && (
+                            <PI path={selectedComponent} pathItem={openAPI?.paths} onChange={handlePathItemChange} />
                         )}
                         {currentView === Views.EDIT && isSchemaSelected && schema && (
                             <>
@@ -521,47 +379,24 @@ export function OpenAPIDefinition(props: OpenAPIDefinitionProps) {
                                         <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
                                     </Button>
                                 </div>
-                                <SchemaEditor openAPI={openAPIDefinition} schema={schema} schemaName={schemaName} onNameChange={handleSchemaNameChange} onSchemaChange={handleSchemaChange} />
+                                <SchemaEditor openAPI={openAPI} schema={schema} schemaName={schemaName} onNameChange={handleSchemaNameChange} onSchemaChange={handleSchemaChange} />
                             </>
                         )}
                     </div>
                     <div id={Views.READ_ONLY}>
-                        {(selectedPathID === undefined) && (
-                            <ReadOnlyOverview openAPIDefinition={openAPIDefinition} />
+                        {(selectedComponent === undefined) && (
+                            <ReadOnlyOverview openAPIDefinition={openAPI} />
                         )}
-                        {(operation && selectedPathID !== undefined) && (
+                        {(operation && selectedComponent !== undefined) && (
                             <ReadOnlyResource resourceOperation={operation} method={selectedMethod} path={selectedPath} />
                         )}
-                        {selectedPathID && currentPath && (
-                            <ReadOnlyPathItem currentPath={selectedPathID} pathItem={openAPIDefinition?.paths} />
+                        {selectedComponent && currentPath && (
+                            <ReadOnlyPathItem currentPath={selectedComponent} pathItem={openAPI?.paths} />
                         )}
                         {isSchemaSelected && schema && (
                             <ReadOnlySchemaEditor schema={schema} schemaName={schemaName} />
                         )}
                     </div>
-                    {/* {(selectedPathID === undefined || !operation) && (
-                        <>
-                            <Overview
-                                openAPIDefinition={openAPIDefinition}
-                                onOpenApiDefinitionChange={onOpenApiDefinitionChange}
-                            />
-                            <ReadOnlyOverview openAPIDefinition={openAPIDefinition} />
-                        </>
-                    )} */}
-                    {/* {operation && selectedPathID !== undefined && (
-                        <>
-                            <Resource
-                                openAPI={openAPIDefinition}
-                                resourceOperation={operation}
-                                method={selectedMethod}
-                                path={selectedPath}
-                                onPathChange={handlePathChange}
-                                onOperationChange={handleOperationChange}
-                                onDelete={onDeleteResource}
-                            />
-                            <ReadOnlyResource resourceOperation={operation} method={selectedMethod} path={selectedPath} />
-                        </>
-                    )} */}
                 </Tabs>
             </SplitView>
         </NavigationContainer>

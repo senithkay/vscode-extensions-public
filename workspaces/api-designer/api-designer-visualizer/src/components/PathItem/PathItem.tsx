@@ -280,41 +280,7 @@ export function PathItem(props: PathItemProps) {
                 handleOptionChange(resp.map(item => item.label))
             }
         })
-    }
-    const handlePathParamNameOutFocus = (params: Param[], name: string) => {
-        const pathParamters = convertParamsToParameters(params, "path");
-        const queryParams = convertParamsToParameters(queryParameters, "query");
-        const headerParams = convertParamsToParameters(headerParameters, "header");
-        const p = isNameNotInParams(name, pathPramFromPath) ?
-            path.endsWith("/") ? `${path}{${name}}` : `${path}/{${name}}` : path;
-        const clonedPathItem = { ...pathItem };
-        let deletedIndex = -1;
-        let existingPathItems: string | PI | Parameter[];
-        pathItem && Object.entries(pathItem).forEach(([key, value], i) => {
-            if (key === path && typeof value === "object" && key !== "servers" && key !== "parameters") {
-                existingPathItems = clonedPathItem[path];
-                deletedIndex = i;
-                delete clonedPathItem[path];
-            }
-        });
-        // Add the new path to the pathItem to the deleted index
-        pathItem && Object.keys(pathItem).forEach((_, i) => {
-            if (i === deletedIndex) {
-                clonedPathItem[p] = existingPathItems;
-            }
-        });
-        const currentPathItem: Paths = clonedPathItem[p] as Paths;
-        const updatedPath = {
-            ...currentPathItem,
-            parameters: [...pathParamters, ...queryParams, ...headerParams],
-        };
-        // Update the path parameters
-        const updatedPathItem = {
-            ...clonedPathItem,
-            [p]: updatedPath,
-        };
-        onChange(updatedPathItem, p);
-    }
+    };
 
     useEffect(() => {
         setDescription(currentPathItem?.description);
@@ -343,7 +309,7 @@ export function PathItem(props: PathItemProps) {
                         id="summary"
                         sx={{ width: "100%" }}
                         value={String(summary)}
-                        onTextChange={handleSummaryChange}
+                        onBlur={(e) => handleSummaryChange(e.target.value)}
                     />
                 )}
                 {selectedOptions.includes("Description") && (
@@ -374,7 +340,6 @@ export function PathItem(props: PathItemProps) {
                     newParamName={getIdenticalParamName(finalPathParameters, "param")}
                     params={finalPathParameters}
                     onParamsChange={handlePathParametersChange}
-                    paramNameOutFocus={handlePathParamNameOutFocus}
                     paramTypes={BaseTypes}
                     title="Path Parameters"
                     type="Path"

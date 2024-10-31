@@ -32,7 +32,7 @@ const getOperation: Operation = pathItem.get as Operation;
 export const APIDesignerStory = () => {
     return (
         <Container>
-            <Resource openAPI={apiDefinition} resourceOperation={getOperation} method="get" path={path} onPathChange={() => {}} onOperationChange={() => {}} />
+            <Resource openAPI={apiDefinition} resourceOperation={getOperation} method="get" path={path} onOperationChange={() => {}} />
         </Container>
     );
 };

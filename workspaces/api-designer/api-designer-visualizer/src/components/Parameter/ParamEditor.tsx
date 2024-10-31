@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { TextField, Button, Codicon, Typography, Dropdown, RequiredFormInput, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { TextField, Button, Codicon, Typography, Dropdown, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Param } from '../../Definitions/ServiceDefinitions';
 import SectionHeader from '../Resource/SectionHeader';
@@ -154,8 +154,7 @@ export function ParamEditor(props: OverviewProps) {
                             name={`params[${index}].name`}
                             value={param.name || ""}
                             sx={{ width: "35%" }}
-                            onTextChange={(value) => updateParentComponent(index, "name", value)}
-                            onBlur={() => props.paramNameOutFocus && props.paramNameOutFocus(params, param.name)}
+                            onBlur={(evt) => updateParentComponent(index, "name", evt.target.value)}
                         />
                         <Dropdown
                             id={`param-type-${index}`}
@@ -168,7 +167,7 @@ export function ParamEditor(props: OverviewProps) {
                             placeholder="Description"
                             value={param.description || ""}
                             sx={{ width: "40%" }}
-                            onTextChange={(value) => updateParentComponent(index, "description", value)}
+                            onBlur={(evt) => updateParentComponent(index, "description", evt.target.value)}
                         />
                         <ButtonWrapperParams>
                             <Tooltip content="Make this parameter optional/required">
