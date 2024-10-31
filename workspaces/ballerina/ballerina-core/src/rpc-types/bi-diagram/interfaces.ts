@@ -59,7 +59,8 @@ export interface ComponentTriggerType {
 
 export interface FunctionField {
     required: boolean;
-    checked: boolean;
+    checked?: boolean;
+    radioValues?: string[];
     serviceType?: ServiceType;
     functionType?: RemoteFunction;
     fields?: TriggerFormField[];

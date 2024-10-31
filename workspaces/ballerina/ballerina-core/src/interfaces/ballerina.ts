@@ -230,6 +230,8 @@ export interface ServiceType {
     name: string;
     description?: string;
     functions?: RemoteFunction[];
+    // Editor Related
+    isImplemented?: boolean;
 }
 
 export interface RemoteFunction {
@@ -240,6 +242,9 @@ export interface RemoteFunction {
     parameters?: Parameter[];
     qualifiers?: string[];
     returnType?: ReturnType;
+    // Editor Related
+    isImplemented?: boolean;
+    group?: any;
 }
 
 export interface Parameter {

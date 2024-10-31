@@ -493,6 +493,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
+        const test = await this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 

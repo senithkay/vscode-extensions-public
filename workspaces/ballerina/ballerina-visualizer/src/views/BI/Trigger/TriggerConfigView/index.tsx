@@ -9,7 +9,7 @@
 
 import React, { useRef } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { BallerinaTrigger, ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
@@ -18,9 +18,11 @@ import { Colors } from "../../../../resources/constants";
 const Container = styled.div`
     padding: 0 20px 20px;
     max-width: 600px;
+    height: 100%;
+    overflow: auto;
     > div:last-child {
         padding: 20px 0;
-        height: calc(100vh - 160px);
+        height: calc(35vh - 160px);
         > div:last-child {
             justify-content: flex-start;
         }
@@ -29,7 +31,7 @@ const Container = styled.div`
 
 const FormContainer = styled.div`
     padding-top: 15px;
-    paddding-bottom: 15px;
+    padding-bottom: 15px;
 `;
 
 const LoadingContainer = styled.div`
@@ -141,11 +143,11 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
 
             {name &&
                 <>
-                    <FormContainer>
+                    {/* <FormContainer>
                         <FormGroup title="Listener Configuration" isCollapsed={false}>
                             <Form ref={listenerFieldsRef} hideSave={true} formFields={listenerFields} onSubmit={handleListenerSubmit} />
                         </FormGroup>
-                    </FormContainer>
+                    </FormContainer> */}
 
                     {serviceFields.length > 0 &&
                         <FormContainer>
@@ -191,15 +193,27 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                                     }
                                     return (
                                         <>
-                                            <CheckBox
-                                                checked={functionFields[functionName].required}
-                                                disabled={functionFields[functionName].required}
-                                                label={functionName}
-                                                onChange={(checked) => {
-                                                    functionFields[functionName].checked = checked
-                                                }}
-                                                value={functionName}
-                                            />
+                                            {functionFields[functionName].radioValues?.length > 0 ?
+                                                <RadioButtonGroup
+                                                    id="options"
+                                                    label="Select one of the functions"
+                                                    options={functionFields[functionName].radioValues.map(value => ({ content: value, value: value }))}
+                                                    onChange={(e) => {
+                                                        functionFields[functionName].functionType = { name: e.target.value }
+                                                    }}
+                                                />
+                                                :
+                                                <CheckBox
+                                                    checked={functionFields[functionName].required}
+                                                    disabled={functionFields[functionName].required}
+                                                    label={functionName}
+                                                    onChange={(checked) => {
+                                                        functionFields[functionName].checked = checked
+                                                    }}
+                                                    value={functionName}
+                                                />
+                                            }
+
                                             {/* <FormGroup key={functionName} title={functionName} isCollapsed={false}>
                                 <Form refKey={functionName} ref={functionFieldsRefs[functionName]} hideSave={true} formFields={functionFields[functionName].fields} onSubmit={handleFunctionsSubmit} />
                             </FormGroup> */}

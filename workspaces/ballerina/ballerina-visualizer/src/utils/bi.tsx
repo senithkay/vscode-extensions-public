@@ -344,7 +344,15 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
                     formFields.push(formField);
                 }
             }
-            response[triggerFunction.name] = { checked: !triggerFunction.optional, required: !triggerFunction.optional, fields: formFields, functionType: triggerFunction };
+            const isRadio = !!triggerFunction.group;
+            if (isRadio) {
+                if (!response[triggerFunction.group.name]) {
+                    response[triggerFunction.group.name] = { radioValues: [], required: !triggerFunction.optional };
+                }
+                response[triggerFunction.group.name].radioValues.push(triggerFunction.name);
+            } else {
+                response[triggerFunction.name] = { checked: !triggerFunction.optional, required: !triggerFunction.optional, fields: formFields, functionType: triggerFunction };
+            }
         }
     }
     return response;

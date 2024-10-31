@@ -132,23 +132,35 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     {{/if}}
 
         {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
+    {{#if (checkConfigurable listenerParams)}}
         listener {{triggerType}}:Listener webhookListener =  new({{#if (checkConfigurable listenerParams)}}config{{/if}}{{#if (checkConfigurable listenerParams)}}{{#if httpBased }},{{/if}}{{/if}}{{#if httpBased }}httpListener{{/if}});
-
-        {{#each serviceTypes}}
+    {{/if}}
+    {{#if (checkBootstrapServers listenerParams)}}
+        listener {{triggerType}}:Listener webhookListener =  new({{triggerType}}:DEFAULT_URL);
+    {{/if}}
+    {{#each serviceTypes}}
+    {{#if (checkConfigurable ../listenerParams)}}
         service {{../triggerType}}:{{ this.name }} on webhookListener {
-
+    {{/if}}
+    {{#if (checkBootstrapServers ../listenerParams)}}
+        service on webhookListener {
+    {{/if}}
+    {{#unless (checkConfigurable ../listenerParams)}}
+    {{#unless (checkBootstrapServers ../listenerParams)}}
+        service {{../triggerType}}:{{ this.name }} on webhookListener {
+    {{/unless}}
+    {{/unless}}
           {{#each this.functions}}
-            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}},
-            {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}} {{/each}}) returns error? {
+            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{#if this.defaultTypeName}}{{this.defaultTypeName}}{{else}}{{../../../triggerType}}:{{this.typeInfo.name}}{{/if}} {{this.name}} {{/each}}) returns error? {
                 do {
-                    //Not Implemented
+                    // Not Implemented
                 } on fail error e {
                     return e;
                 }
             }
           {{/each}}
         }
-        {{/each}}
+    {{/each}}
 
         {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
     TRIGGER_UPDATE: `

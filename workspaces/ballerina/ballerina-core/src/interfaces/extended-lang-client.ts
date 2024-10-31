@@ -164,7 +164,7 @@ export interface Connector extends BallerinaConnectorInfo {
 }
 
 export interface TriggerParams {
-    id: string;
+    id?: string;
     orgName?: string;
     packageName?: string;
 }

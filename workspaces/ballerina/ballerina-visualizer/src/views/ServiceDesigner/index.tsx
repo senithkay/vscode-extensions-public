@@ -38,6 +38,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 rpcClients={{
                     serviceDesignerRpcClient: rpcClient.getServiceDesignerRpcClient(),
                     commonRpcClient: rpcClient.getCommonRpcClient(),
+                    triggerWizardRpcClient: rpcClient.getTriggerWizardRpcClient()
                 }}
                 applyModifications={applyModifications}
                 goToSource={handleOpenDiagram}

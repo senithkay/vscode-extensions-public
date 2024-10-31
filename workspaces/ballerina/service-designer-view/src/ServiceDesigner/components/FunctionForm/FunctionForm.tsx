@@ -12,8 +12,8 @@
 import React, { useEffect, useState } from 'react';
 import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator, TextField } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
-import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
-import { ResourceParam } from '../ResourceParam/ResourceParam';
+import { FunctionResponse } from '../FunctionResponse/FunctionResponse';
+import { FunctionParam } from '../FunctionParam/FunctionParam';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
@@ -205,11 +205,11 @@ export function FunctionForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
-					<ResourceParam parameters={parameters} onChange={handleParamChange} />
+					<FunctionParam parameters={parameters} onChange={handleParamChange} />
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Returns</Typography>
-					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
+					<FunctionResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: () => { }, tooltip: "Save" }}

@@ -9,7 +9,7 @@
 
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { TriggerModel, FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField, BallerinaTrigger, SubPanelView, Trigger } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField, BallerinaTrigger, SubPanelView, Trigger } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import TriggerView from "../TriggerView";
 import TriggerConfigView from "../TriggerConfigView";
@@ -68,7 +68,6 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
         selectedTriggerRef.current = response;
         setListenerFields(convertTriggerListenerConfig(response));
         setServiceTypes(convertTriggerServiceTypes(response));
-        // setServiceFields(convertTriggerServiceConfig(response));
         if (response.serviceTypes.length === 1) {
             setFunctionFields(convertTriggerFunctionsConfig(response));
         }

@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { ComponentInfo } from "../interfaces/ballerina";
 import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse } from "../interfaces/bi";
-import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree } from "../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, ExtendedLangClientInterface, SyntaxTree, Trigger } from "../interfaces/extended-lang-client";
 import { URI, Utils } from "vscode-uri";
 
 export async function buildProjectStructure(projectDir: string, langClient: ExtendedLangClientInterface): Promise<ProjectStructureResponse> {
@@ -48,6 +49,7 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
 
 async function getComponents(langClient: ExtendedLangClientInterface, components: ComponentInfo[], projectPath: string, icon: string, dtype?: DIRECTORY_MAP): Promise<ProjectStructureArtifactResponse[]> {
     const entries: ProjectStructureArtifactResponse[] = [];
+    let compType = "HTTP";
     for (const comp of components) {
         const componentFile = Utils.joinPath(URI.parse(projectPath), comp.filePath).fsPath;
         let stNode: SyntaxTree;
@@ -65,6 +67,19 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
                     }
                 }
             }) as SyntaxTree;
+
+            // Check for trigger type
+            if (STKindChecker.isServiceDeclaration(stNode?.syntaxTree)) {
+                const typeSymbol = stNode?.syntaxTree?.expressions.at(0).typeData.typeSymbol;
+                if (typeSymbol?.moduleID) {
+                    const orgName = typeSymbol.moduleID.orgName;
+                    const packageName = typeSymbol.moduleID.moduleName;
+                    if (packageName !== "http") {
+                        const triggerResponse = await langClient.getTrigger({ orgName, packageName }) as Trigger;
+                        compType = triggerResponse.displayName;
+                    }
+                }
+            }
         } catch (error) {
             console.log(error);
         }
@@ -72,9 +87,9 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
         const iconValue = comp.name.includes('-') ? `${comp.name.split('-')[0]}-api` : icon;
 
         const fileEntry: ProjectStructureArtifactResponse = {
-            name: dtype === DIRECTORY_MAP.SERVICES ? comp.filePath.replace(".bal", "") : comp.name,
+            name: dtype === DIRECTORY_MAP.SERVICES ? comp.name || compType || comp.filePath.replace(".bal", "") : comp.name,
             path: componentFile,
-            type: 'HTTP',
+            type: compType,
             icon: iconValue,
             context: comp.name,
             st: stNode.syntaxTree,

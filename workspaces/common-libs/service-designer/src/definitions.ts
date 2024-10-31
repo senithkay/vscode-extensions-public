@@ -23,6 +23,7 @@ export interface ResponseConfig {
 
 export enum PARAM_TYPES {
     DEFAULT = 'Query',
+    PARAM = 'Param',
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
     CALLER = 'Caller',

@@ -249,7 +249,7 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
         const modulePart: ModulePart = response.syntaxTree as ModulePart;
         let targetPosition: NodePosition = response.syntaxTree?.position;
         modulePart.members.forEach(member => {
-            if (STKindChecker.isServiceDeclaration(member) && member.source.toLowerCase().includes(params.triggerType.name.toLowerCase())) {
+            if (STKindChecker.isServiceDeclaration(member) && Object.keys(params.triggerType.functions).some(key => member.source.toLowerCase().includes(key.toLowerCase()))) {
                 targetPosition = member.position;
             }
         });
@@ -453,7 +453,7 @@ const createMessageTriggerCode = (triggerInfo: ComponentTriggerType, targetPosit
     }
 
     return modifications;
-}
+};
 
 const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
     let httpBased: boolean = true;
@@ -462,8 +462,16 @@ const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPositio
     const serviceTypes = triggerInfo.trigger.serviceTypes.filter((sType) => {
         return Object.entries(triggerInfo.serviceTypes).some(([key, value]) => value.checked && key === sType.name);
     });
+
+    // Check the selected functions for single service types
+    if (triggerInfo.trigger.serviceTypes.length === 1) {
+        serviceTypes[0].functions = serviceTypes[0].functions.filter((func) => {
+            return Object.entries(triggerInfo.functions).some(([key, value]) => (value.checked && key === func.name) || (value.required && value.functionType.name === func.name));
+        });
+    }
+
     // TODO: This is a temporary fix till the central API supports the httpBased parameter
-    if (triggerAlias === 'asb' || triggerAlias === 'salesforce') {
+    if (triggerAlias === 'asb' || triggerAlias === 'salesforce' || triggerAlias === 'kafka') {
         httpBased = false;
     }
     const newTriggerInfo = {
@@ -474,14 +482,14 @@ const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPositio
     };
     // This is for initial imports only. Initially stModification import for nonHttpBased triggers
     const stModification = [
-        createImportStatement("ballerinax", triggerInfo.trigger.moduleName),
+        createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
         createTrigger(newTriggerInfo, targetPosition)
     ];
     if (httpBased) {
-        stModification.push(createImportStatement("ballerina", "http"))
+        stModification.push(createImportStatement("ballerina", "http"));
     }
     return stModification;
-}
+};
 // <---------- Trigger Source Generation END-------->
 
 export function sanitizeName(name: string): string {

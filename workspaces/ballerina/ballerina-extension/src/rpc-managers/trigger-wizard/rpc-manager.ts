@@ -29,8 +29,12 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
     async getTrigger(params: TriggerParams): Promise<Trigger> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
-            const res: Trigger = await context.langClient.getTrigger(params) as Trigger;
-            resolve(res);
+            try {
+                const res: Trigger = await context.langClient.getTrigger(params) as Trigger;
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
         });
     }
 }

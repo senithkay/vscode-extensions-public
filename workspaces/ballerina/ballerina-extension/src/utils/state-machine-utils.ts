@@ -52,7 +52,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             const connectionName = node.syntaxTree.typedBindingPattern.bindingPattern.variableName.value;
             if (!connectionName) {
                 // tslint:disable-next-line
-                console.error("Couldn't capture connection from STNode", {STNode : node.syntaxTree});
+                console.error("Couldn't capture connection from STNode", { STNode: node.syntaxTree });
             } else {
                 return {
                     location: {
