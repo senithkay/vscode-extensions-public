@@ -108,8 +108,7 @@ export const EnvironmentSetup = () => {
                 location: {},
             });
         } catch (err) {
-            console.error("Error downloading Java/MI:", err);
-            setError("Failed to download Java or MI. Please try again.");
+            setError((err as Error).message);
         } finally {
             setIsDownloading(false);
         }

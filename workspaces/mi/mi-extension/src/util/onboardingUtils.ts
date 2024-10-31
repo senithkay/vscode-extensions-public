@@ -195,7 +195,8 @@ export async function downloadJava(miVersion: string): Promise<string> {
             return path.join(javaPath, releaseName);
         }
     } catch (error) {
-        throw new Error('Failed to download Java.');
+        throw new Error(`Failed to download Java.
+            ${error instanceof Error ? error.message : error}`);
     }
 }
 
@@ -410,7 +411,12 @@ export async function ensureMISetup(projectUri: string, miVersion: string): Prom
             if (miZipPath) {
                 const extractPath = path.join(projectUri, '.wso2mi', 'runtime');
                 fs.mkdirSync(extractPath, { recursive: true });
-                await extractWithProgress(miZipPath, extractPath, 'Extracting Micro Integrator');
+                try{
+                    await extractWithProgress(miZipPath, extractPath, 'Extracting Micro Integrator');
+                }catch(e){
+                    fs.unlinkSync(miZipPath);
+                    return false;
+                }
                 await config.update(CONFIG_SERVER_PATH, miPath, vscode.ConfigurationTarget.Workspace);
                 return true;
             } else {

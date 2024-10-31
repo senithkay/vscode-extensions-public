@@ -111,6 +111,14 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const handleCancel = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
+    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (isDirty && !isProjectCreating) {
+            handleSubmit(handleCreateProject)();
+          }
+        }
+      };
 
     return (
         <FormView title="Create New Project" onClose={handleCancel}>
@@ -120,6 +128,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 required
                 errorMsg={errors.name?.message.toString()}
                 {...register("name")}
+                onKeyDown={onKeyDown}
             />
             <LocationSelector
                 label="Project Directory"
