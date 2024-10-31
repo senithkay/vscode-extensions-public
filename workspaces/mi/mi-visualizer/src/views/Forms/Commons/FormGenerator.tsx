@@ -235,8 +235,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         <Typography>{element.displayName}</Typography>
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
                             <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
-                                <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
-                                <div style={{ color: colors.editorForeground }}>Browse file</div>
+                                <div style={{ color: colors.editorForeground }}>Add file</div>
                             </Button>
                             <Typography variant="body3">
                                 {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch("trustStoreCertificatePath")}
