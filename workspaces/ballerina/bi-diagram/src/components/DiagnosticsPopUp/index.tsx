@@ -24,7 +24,9 @@ const PopupContainer = styled.div`
     max-width: ${NODE_WIDTH}px;
     font-family: "GilmerMedium";
     font-size: 12px;
-    text-wrap: pretty;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
     background-color: ${Colors.SURFACE_DIM};
     color: ${Colors.ON_SURFACE};
     padding: 8px;
