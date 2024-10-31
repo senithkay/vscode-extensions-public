@@ -277,6 +277,7 @@ function generateArtifacts(
 		let label = key;
 		let folderName = key;
 		let contextValue = key
+		let parentEntry: ProjectExplorerEntry | undefined;
 
 		switch (key) {
 			case 'apis':
@@ -347,55 +348,51 @@ function generateArtifacts(
 				icon = 'class';
 				label = 'Class Mediators'
 				contextValue = 'class-mediator'
+
+				const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
+				const mediators = findJavaFiles(javaPath);
+				parentEntry = new ProjectExplorerEntry(
+					'Class Mediators',
+					isCollapsibleState(mediators.size > 0),
+					{ name: 'java', path: javaPath, type: 'java' },
+				);
+
+				parentEntry.id = 'class-mediator';
+
+				const children = generateTreeDataOfClassMediator(project, projectStructure);
+				parentEntry.children = children;
+				parentEntry.contextValue = contextValue;
+				break;
+			case 'Data Mappers':
+				const directoryMap = projectStructure.directoryMap;
+				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
+				const govResources = resources['gov'];
+				const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+
+				const datamapperResourcePath = path.join(govResources.path, 'datamapper');
+				parentEntry = new ProjectExplorerEntry(
+					'Data Mappers',
+					isCollapsibleState(dataMapperResources?.folders?.length > 0),
+					{ name: 'datamapper', path: datamapperResourcePath, type: 'datamapper' }
+				);
+				parentEntry.contextValue = 'data-mappers';
+				parentEntry.id = 'data-mapper';
+				parentEntry.contextValue = contextValue;
+				
+				if (govResources && govResources.folders.length > 0) {
+					const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+					if (dataMapperResources) {
+						const children = generateTreeDataOfDataMappings(projectStructure);
+						parentEntry.children = children;
+					}
+				}
+				break;
 			default:
 		}
 
 		data[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', folderName);
 
-		// TODO: Will introduce back when both data services and data sources are supported
-		// if (key === 'dataServices' || key === 'dataSources') {
-		// 	continue;
-		// }
-
-		let parentEntry: ProjectExplorerEntry;
-
-		if (key === 'Class Mediators') {
-			const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
-			const mediators = findJavaFiles(javaPath);
-			parentEntry = new ProjectExplorerEntry(
-				'Class Mediators',
-				isCollapsibleState(mediators.size > 0),
-				{ name: 'java', path: javaPath, type: 'java' },
-			);
-
-			parentEntry.id = 'class-mediator';
-
-			const children = generateTreeDataOfClassMediator(project, projectStructure);
-			parentEntry.children = children;
-			parentEntry.contextValue = contextValue;
-			result.push(parentEntry);
-		} else if (key === 'Data Mappers') {
-			const directoryMap = projectStructure.directoryMap;
-			const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
-			const govResources = resources['gov'];
-			if (govResources && govResources.folders.length > 0) {
-				const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
-				if (dataMapperResources) {
-					const parentEntry = new ProjectExplorerEntry(
-						'Data Mappers',
-						isCollapsibleState(dataMapperResources.folders.length > 0),
-						{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' }
-					);
-					parentEntry.contextValue = 'data-mappers';
-					parentEntry.id = 'data-mapper';
-
-					const children = generateTreeDataOfDataMappings(projectStructure);
-					parentEntry.children = children;
-					parentEntry.contextValue = contextValue;
-					result.push(parentEntry);
-				}
-			}
-		} else {
+		if (!parentEntry) {
 			parentEntry = new ProjectExplorerEntry(
 				label,
 				isCollapsibleState(data[key].length > 0),
@@ -405,8 +402,8 @@ function generateArtifacts(
 			const children = genProjectStructureEntry(data[key]);
 			parentEntry.children = children;
 			parentEntry.contextValue = contextValue;
-			result.push(parentEntry);
 		}
+		result.push(parentEntry);
 	}
 
 	return result;
