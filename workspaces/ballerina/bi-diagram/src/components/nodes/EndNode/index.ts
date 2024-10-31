@@ -7,24 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type FormValues = {
-    [key: string]: any;
-};
-
-export type FormField = {
-    key: string;
-    label: string;
-    type: null | string;
-    optional: boolean;
-    editable: boolean;
-    documentation: string;
-    value: string;
-    items?: string[];
-};
-
-export type ExpressionFormField = {
-    key: string;
-    value: string;
-    cursorPosition: number;
-    isConfigured?: boolean
-};
+export * from "./EndNodeModel";
+export * from "./EndNodeWidget";
+export * from "./EndNodeFactory";

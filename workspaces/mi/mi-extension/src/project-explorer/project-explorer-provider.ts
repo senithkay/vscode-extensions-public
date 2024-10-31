@@ -9,7 +9,7 @@
 
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
-import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse, getInboundEndpoint, getMessageProcessor } from '@wso2-enterprise/mi-core';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse, getInboundEndpoint, getMessageProcessor, DataIntegrationResponse, CommonArtifactsResponse, AdvancedArtifactsResponse } from '@wso2-enterprise/mi-core';
 import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
@@ -122,7 +122,7 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 			for (const workspace of workspaceFolders) {
 				const rootPath = workspace.uri.fsPath;
 
-				const resp = await langClient.getProjectStructure(rootPath);
+				const resp = await langClient.getProjectExplorerModel(rootPath);
 				registryDetails = getAvailableRegistryResources(rootPath);
 				const projectTree = generateTreeData(workspace, resp);
 				if (projectTree) {
@@ -154,27 +154,18 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 
 		projectRoot.contextValue = 'project';
 		generateTreeDataOfArtifacts(project, data, projectRoot);
-		generateTreeDataOfClassMediator(project, data, projectRoot);
-		generateTreeDataOfDataMappings(project, data, projectRoot);
 		return projectRoot;
 	}
 }
 
-function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+function generateTreeDataOfDataMappings(data: ProjectStructureResponse) {
+	const result: ProjectExplorerEntry[] = [];
 	const directoryMap = data.directoryMap;
 	const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
 	const govResources = resources['gov'];
 	if (govResources && govResources.folders.length > 0) {
 		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
 		if (dataMapperResources) {
-			const parentEntry = new ProjectExplorerEntry(
-				'Data Mappers',
-				isCollapsibleState(dataMapperResources.folders.length > 0),
-				{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' }
-			);
-			parentEntry.contextValue = 'data-mappers';
-			parentEntry.id = 'data-mapper';
-			parentEntry.children = parentEntry.children ?? [];
 			for (const folder of dataMapperResources.folders) {
 				for (const file of folder.files) {
 					if (!file.name.endsWith('.ts') || file.name.substring(0, file.name.length - 3) !== folder.name) {
@@ -193,81 +184,55 @@ function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: P
 						"command": COMMANDS.SHOW_DATA_MAPPER,
 						"arguments": [file.path]
 					};
-					parentEntry.children.push(dataMapperEntry);
+					result.push(dataMapperEntry);
 				}
 			}
-			projectRoot.children?.push(parentEntry);
 		}
 	}
+	return result;
 }
 
 function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
 	const directoryMap = data.directoryMap;
-	const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
-	if (artifacts) {
-		for (const key in artifacts) {
+	const topLevelEntries = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
+	if (topLevelEntries) {
+		for (const key in topLevelEntries) {
 
-			artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
 			let icon = 'folder';
 			let label = key;
-			let connectionEntry;
+			let folderName = '';
+			let contextValue = key;
 
 			switch (key) {
-				case 'apis':
+				case 'APIs':
 					icon = 'APIResource';
 					label = 'APIs';
+					folderName = 'apis';
+					contextValue = 'apis';
 					break;
-				case 'endpoints':
-					icon = 'endpoint';
-					label = 'Endpoints';
-					break;
-				case 'inboundEndpoints':
+				case 'Triggers':
 					icon = 'inbound-endpoint';
-					label = 'Inbound Endpoints';
+					label = 'Triggers';
+					folderName = 'inbound-endpoints';
+					contextValue = 'inboundEndpoints'
 					break;
-				case 'localEntries':
-					icon = 'local-entry';
-					label = 'Local Entries';
-					break;
-				case 'connections':
-					icon = 'vm-connect';
-					label = 'Connections';
-					break;
-				case 'messageStores':
-					icon = 'message-store';
-					label = 'Message Stores';
-					break;
-				case 'messageProcessors':
-					icon = 'message-processor';
-					label = 'Message Processors';
-					break;
-				case 'proxyServices':
-					icon = 'arrow-swap';
-					label = 'Proxy Services';
-					break;
-				case 'sequences':
-					icon = 'Sequence';
-					label = 'Sequences';
-					break;
-				case 'tasks':
+				case 'Scheduled Tasks':
 					icon = 'task';
-					label = 'Tasks';
+					label = 'Scheduled Tasks';
+					folderName = 'tasks';
+					contextValue = 'tasks';
 					break;
-				case 'templates':
-					icon = 'template';
-					label = 'Templates';
+				case 'Common Artifacts':
+					icon = 'endpoint';
+					label = 'Common Artifacts';
 					break;
-				case 'resources':
-					icon = 'APIResource';
-					label = 'Resources';
+				case 'Data Integration':
+					icon = 'Data Sources';
+					label = 'Data Integration';
 					break;
-				case 'dataServices':
-					icon = 'data-service';
-					label = 'Data Services';
-					break;
-				case 'dataSources':
-					icon = 'data-source';
-					label = 'Data Sources';
+				case 'Advanced Artifacts':
+					icon = 'endpoint';
+					label = 'Advanced Artifacts';
 					break;
 				default:
 			}
@@ -276,16 +241,22 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			// 	continue;
 			// }
 
+			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', folderName);
+
 			const parentEntry = new ProjectExplorerEntry(
 				label,
-				isCollapsibleState(artifacts[key].length > 0 || key === "localEntries"),
-				artifacts[key]
+				isCollapsibleState(topLevelEntries[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts'].includes(key)),
+				topLevelEntries[key]
 			);
-			const children = genProjectStructureEntry(artifacts[key]);
+
+			const children =
+				(key === "APIs" || key === "Triggers" || key === "Scheduled Tasks")
+					? genProjectStructureEntry(topLevelEntries[key])
+					: generateArtifacts(topLevelEntries[key], data, project);
 
 			parentEntry.children = children;
-			parentEntry.contextValue = key;
-			parentEntry.id = `${project.name}/${key}`;
+			parentEntry.contextValue = contextValue;
+			parentEntry.id = `${project.name}/${contextValue}`;
 
 			projectRoot.children = projectRoot.children ?? [];
 			projectRoot.children.push(parentEntry);
@@ -293,20 +264,158 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 	}
 }
 
-function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+
+function generateArtifacts(
+	data: DataIntegrationResponse | CommonArtifactsResponse | AdvancedArtifactsResponse,
+	projectStructure: ProjectStructureResponse,
+	project: vscode.WorkspaceFolder
+): ProjectExplorerEntry[] {
+	const result: ProjectExplorerEntry[] = [];
+	for (const key in data) {
+		if (key === 'path') continue;
+		let icon = 'folder';
+		let label = key;
+		let folderName = key;
+		let contextValue = key
+		let parentEntry: ProjectExplorerEntry | undefined;
+
+		switch (key) {
+			case 'apis':
+				icon = 'APIResource';
+				label = 'APIs';
+				break;
+			case 'Endpoints':
+				icon = 'endpoint';
+				label = 'Endpoints';
+				folderName = 'endpoints';
+				contextValue = 'endpoints';
+				break;
+			case 'Local Entries':
+				icon = 'local-entry';
+				label = 'Local Entries';
+				folderName = 'local-entries';
+				contextValue = 'localEntries';
+				break;
+			case 'Connections':
+				icon = 'vm-connect';
+				label = 'Connections';
+				folderName = 'connections';
+				contextValue = 'connections';
+				break;
+			case 'Message Stores':
+				icon = 'message-store';
+				label = 'Message Stores';
+				folderName = 'message-stores';
+				contextValue = 'messageStores';
+				break;
+			case 'Message Processors':
+				icon = 'message-processor';
+				label = 'Message Processors';
+				folderName = 'message-processors';
+				contextValue = 'messageProcessors';
+				break;
+			case 'Proxy Services':
+				icon = 'arrow-swap';
+				label = 'Proxy Services';
+				folderName = 'proxy-services';
+				contextValue = 'proxyServices';
+				break;
+			case 'Sequences':
+				icon = 'Sequence';
+				label = 'Sequences';
+				folderName = 'sequences';
+				contextValue = 'sequences';
+				break;
+			case 'Templates':
+				icon = 'template';
+				label = 'Templates';
+				folderName = 'templates';
+				contextValue = 'templates';
+				break;
+			case 'Data Services':
+				icon = 'data-service';
+				label = 'Data Services';
+				folderName = 'data-services';
+				contextValue = 'dataServices';
+				break;
+			case 'Data Sources':
+				icon = 'data-source';
+				label = 'Data Sources';
+				folderName = 'data-sources';
+				contextValue = 'dataSources';
+				break;
+			case 'Class Mediators':
+				icon = 'class';
+				label = 'Class Mediators'
+				contextValue = 'class-mediator'
+
+				const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
+				const mediators = findJavaFiles(javaPath);
+				parentEntry = new ProjectExplorerEntry(
+					'Class Mediators',
+					isCollapsibleState(mediators.size > 0),
+					{ name: 'java', path: javaPath, type: 'java' },
+				);
+
+				parentEntry.id = 'class-mediator';
+
+				const children = generateTreeDataOfClassMediator(project, projectStructure);
+				parentEntry.children = children;
+				parentEntry.contextValue = contextValue;
+				break;
+			case 'Data Mappers':
+				const directoryMap = projectStructure.directoryMap;
+				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
+				const govResources = resources['gov'];
+				const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+
+				const datamapperResourcePath = path.join(govResources.path, 'datamapper');
+				parentEntry = new ProjectExplorerEntry(
+					'Data Mappers',
+					isCollapsibleState(dataMapperResources?.folders?.length > 0),
+					{ name: 'datamapper', path: datamapperResourcePath, type: 'datamapper' }
+				);
+				parentEntry.contextValue = 'data-mappers';
+				parentEntry.id = 'data-mapper';
+				parentEntry.contextValue = contextValue;
+				
+				if (govResources && govResources.folders.length > 0) {
+					const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+					if (dataMapperResources) {
+						const children = generateTreeDataOfDataMappings(projectStructure);
+						parentEntry.children = children;
+					}
+				}
+				break;
+			default:
+		}
+
+		data[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', folderName);
+
+		if (!parentEntry) {
+			parentEntry = new ProjectExplorerEntry(
+				label,
+				isCollapsibleState(data[key].length > 0),
+				data[key]
+			);
+
+			const children = genProjectStructureEntry(data[key]);
+			parentEntry.children = children;
+			parentEntry.contextValue = contextValue;
+		}
+		result.push(parentEntry);
+	}
+
+	return result;
+}
+
+function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry[] {
 	const directoryMap = data.directoryMap;
 	const main = (directoryMap as any)?.src?.main;
+	const result: ProjectExplorerEntry[] = [];
 	if (main && main['java']) {
 		const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
 		const mediators = findJavaFiles(javaPath);
-		const parentEntry = new ProjectExplorerEntry(
-			'Class Mediators',
-			isCollapsibleState(mediators.size > 0),
-			{ name: 'java', path: javaPath, type: 'java' },
-		);
-		parentEntry.contextValue = 'class-mediator';
-		parentEntry.id = 'class-mediator';
-		parentEntry.children = parentEntry.children ?? [];
 		for (var entry of mediators.entries()) {
 			const filePath = entry[0];
 			const packageName = entry[1];
@@ -321,10 +430,10 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
-			parentEntry.children.push(resourceEntry);
+			result.push(resourceEntry);
 		}
-		projectRoot.children?.push(parentEntry);
 	}
+	return result;
 }
 
 function isCollapsibleState(state: boolean): vscode.TreeItemCollapsibleState {

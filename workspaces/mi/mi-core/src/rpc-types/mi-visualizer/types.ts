@@ -65,10 +65,43 @@ export interface ProjectStructureResponse {
     };
 }
 
+export interface TreeViewStructureArtifactsResponse {
+    APIs: ProjectStructureArtifactResponse[],
+    Triggers: ProjectStructureArtifactResponse[],
+    'Scheduled Tasks': ProjectStructureArtifactResponse[],
+    'Data Integration': DataIntegrationResponse,
+    'Common Artifacts': CommonArtifactsResponse[],
+    'Advanced Artifacts': AdvancedArtifactsResponse[]
+}
+
 export interface ProjectStructureArtifactResponse {
     name: string;
     path: string;
     type: string;
+}
+
+export interface DataIntegrationResponse {
+    'Data Sources': ProjectStructureArtifactResponse[];
+    'Data Servies': ProjectStructureArtifactResponse[];
+    path: string;
+}
+
+export interface CommonArtifactsResponse {
+    'Sequences': ProjectStructureArtifactResponse[];
+    'Connections': ProjectStructureArtifactResponse[];
+    'Data Mappers': ProjectStructureArtifactResponse[];
+    'Class Mediators': ProjectStructureArtifactResponse[];
+    path: string;
+}
+
+export interface AdvancedArtifactsResponse {
+    'Proxy Services': ProjectStructureArtifactResponse[];
+    'Endpoints': ProjectStructureArtifactResponse[];
+    'Message Stores': ProjectStructureArtifactResponse[];
+    'Message Processors': ProjectStructureArtifactResponse[];
+    'Local Entries': ProjectStructureArtifactResponse[];
+    'Templates': ProjectStructureArtifactResponse[];
+    path: string;
 }
 
 export interface ProjectDirectoryMap {

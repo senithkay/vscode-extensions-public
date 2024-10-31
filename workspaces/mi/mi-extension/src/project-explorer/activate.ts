@@ -45,16 +45,16 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		});
 	});
 	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-        const projectUri = StateMachine.context().projectUri;
-        if (!projectUri) {
-            window.showErrorMessage(
-                'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-            );
-            return;
-        }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-        console.log('Add Registry Resource');
+		const projectUri = StateMachine.context().projectUri;
+		if (!projectUri) {
+			window.showErrorMessage(
+				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
+			);
+			return;
+		}
+		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
+		console.log('Add Registry Resource');
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
@@ -169,17 +169,39 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					if (!projectResources) return;
 
 					for (const projectResource of projectResources) {
-						const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
-						if (fileEntry) {
-							projectTree.reveal(fileEntry, { select: true });
+						if (projectResource.label === "Data Integration" || projectResource.label === "Common Artifacts" ||
+							projectResource.label === "Advanced Artifacts") {
+							const projectArtifacts = projectResource?.children;
+							if (projectArtifacts) {
+								for (const artifact of projectArtifacts) {
+									const fileEntry = artifact.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+									if (fileEntry) {
+										projectTree.reveal(fileEntry, { select: true });
 
-							if (viewLocation.identifier !== undefined) {
-								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
-								if (resourceEntry) {
-									projectTree.reveal(resourceEntry, { select: true });
+										if (viewLocation.identifier !== undefined) {
+											const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+											if (resourceEntry) {
+												projectTree.reveal(resourceEntry, { select: true });
+											}
+										}
+										break;
+									}
 								}
 							}
-							break;
+
+						} else {
+							const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+							if (fileEntry) {
+								projectTree.reveal(fileEntry, { select: true });
+
+								if (viewLocation.identifier !== undefined) {
+									const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+									if (resourceEntry) {
+										projectTree.reveal(resourceEntry, { select: true });
+									}
+								}
+								break;
+							}
 						}
 					}
 				}
