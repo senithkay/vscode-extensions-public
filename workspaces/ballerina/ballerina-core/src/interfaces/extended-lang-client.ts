@@ -14,7 +14,7 @@ import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range 
 import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
-import { Category, Flow, FlowNode, CodeData } from "./bi";
+import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 
@@ -435,6 +435,30 @@ export interface BallerinaServerCapability {
     [key: string]: boolean | string;
 }
 
+export interface ProjectDiagnosticsRequest {
+    projectRootIdentifier: DocumentIdentifier;
+}
+
+export interface ProjectDiagnosticsResponse {
+    errorDiagnosticMap?: Map<string, Diagnostic[]>;
+}
+
+export interface MainFunctionParamsRequest {
+    projectRootIdentifier: DocumentIdentifier;
+}
+
+export interface MainFunctionParamsResponse {
+    hasMain: boolean;
+    params?: TypeBindingPair[];
+    restParams?: TypeBindingPair;
+}
+
+export interface TypeBindingPair {
+    type: string;
+    paramName: string;
+    defaultValue?: string;
+}
+
 // <------------ EXTENDED LANG CLIENT INTERFACE --------->
 
 
@@ -477,6 +501,15 @@ export type BIAvailableNodesResponse = {
     categories: Category[];
 };
 
+export interface BIGetVisibleVariableTypesRequest {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface BIGetVisibleVariableTypesResponse {
+    categories: VisibleType[];
+};
+
 export interface BINodeTemplateRequest {
     position: LinePosition;
     filePath: string;
@@ -486,6 +519,14 @@ export interface BINodeTemplateRequest {
 
 export type BINodeTemplateResponse = {
     flowNode: FlowNode;
+};
+
+export interface BIModuleNodesRequest {
+    filePath: string;
+}
+
+export type BIModuleNodesResponse = {
+    flowModel: Flow;
 };
 
 export type SearchQueryParams = {
@@ -528,6 +569,23 @@ export type ServiceFromOASResponse = {
     errorMsg?: string;
 }
 
+export interface ConfigVariableRequest {
+    projectPath: string;
+}
+
+export type ConfigVariableResponse = {
+    configVariables: ConfigVariable[];
+}
+
+export interface UpdateConfigVariableRequest {
+    configFilePath: string;
+    configVariable: ConfigVariable;
+}
+
+export interface UpdateConfigVariableResponse {
+    
+}
+
 export interface BICopilotContextRequest {
     position: LinePosition;
     filePath: string;
@@ -547,6 +605,10 @@ export interface SequenceModelRequest {
 export type SequenceModelResponse = {
     sequenceDiagram: SqFlow;
 };
+
+export interface ComponentsFromContent {
+    content: string;
+}
 
 export enum TriggerKind {
     INVOKED = 1,
@@ -585,6 +647,48 @@ export interface ExpressionCompletionItem {
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
+export interface SignatureHelpRequest {
+    filePath: string;
+    expression: string;
+    startLine: LinePosition;
+    offset: number;
+    context: {
+        isRetrigger: boolean;
+        triggerCharacter?: TriggerCharacter;
+        triggerKind: number;
+    }
+}
+
+export interface SignatureInfo {
+    label: string;
+    documentation: {
+        kind: string;
+        value: string;
+    };
+    parameters: {
+        label: number[];
+        documentation: {
+            kind: string;
+            value: string;
+        }
+    }[];
+}
+
+export interface SignatureHelpResponse {
+    signatures: SignatureInfo[];
+    activeSignature: number;
+    activeParameter: number;
+}
+
+export interface VisibleTypesRequest {
+    filePath: string;
+    position: LinePosition;
+}
+
+export interface VisibleTypesResponse {
+    types: string[];
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -606,6 +710,11 @@ export interface BIInterface extends BaseLangClientInterface {
     getSequenceDiagramModel: (params: SequenceModelRequest) => Promise<SequenceModelResponse>;
     generateServiceFromOAS: (params: ServiceFromOASRequest) => Promise<ServiceFromOASResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getConfigVariables: (params: ConfigVariableRequest) => Promise<ConfigVariableResponse>;
+    updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
+    getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
+    getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
+    getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

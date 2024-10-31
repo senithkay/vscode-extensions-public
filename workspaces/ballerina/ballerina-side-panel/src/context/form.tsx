@@ -7,31 +7,42 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { LineRange } from '@wso2-enterprise/ballerina-core';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import React, { createContext, FC, useContext } from 'react';
-import { Control, FieldValues, UseFormWatch, UseFormRegister } from 'react-hook-form';
+import { Control, FieldValues, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormUnregister } from 'react-hook-form';
 
 export interface FormContext {
     form: {
         control: Control<FieldValues, any>;
+        setValue: UseFormSetValue<FieldValues>;
         watch: UseFormWatch<any>;
         register: UseFormRegister<FieldValues>;
+        unregister: UseFormUnregister<FieldValues>;
     };
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        onRetrieveCompletions: (
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
-        ) => any;
+        ) => Promise<void>;
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
+            label: string;
+            args: string[];
+            currentArgIndex: number;
+        }>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
         onCompletionSelect?: (value: string) => void | Promise<void>;
         onSave?: (value: string) => void | Promise<void>;
         onCancel: () => void;
     };
+    targetLineRange: LineRange;
+    fileName: string;
 }
 
 const defaultState: any = {};

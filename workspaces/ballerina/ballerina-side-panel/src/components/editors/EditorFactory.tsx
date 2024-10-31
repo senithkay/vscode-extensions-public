@@ -9,39 +9,62 @@
 
 import React from "react";
 
-import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
-import { DropdownEditor } from "./DropdownEditor";
+import { MultiSelectEditor } from "./MultiSelectEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
-import { isDropdownField } from "./utils";
+import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
 
 interface FormFieldEditorProps {
     field: FormField;
+    selectedNode?: NodeKind;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
+    handleOnFieldFocus?: (key: string) => void;
 }
 
-export function EditorFactory(props: FormFieldEditorProps) {
-    const { field, openRecordEditor, openSubPanel } = props;
+export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
+    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
 
-    if (isDropdownField(field)) {
-        return <DropdownEditor field={field} />;
-    } else if (!field.items && (field.key === "type")) {
+    if (field.type === "MULTIPLE_SELECT" || field.type?.toUpperCase() === "ENUM") {
+        // Enum is a dropdown field
+        let label: string;
+        switch (selectedNode) {
+            case "DATA_MAPPER":
+                label = "Add Another Input";
+                break;
+            default:
+                label = "Add Another";
+                break;
+        }
+        return <MultiSelectEditor field={field} label={label} />;
+    } else if (field.type === "SINGLE_SELECT" && field.editable) {
+        // HACK:Single select field is treat as type editor for now
+        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+    } else if (!field.items && field.key === "type" && field.editable) {
+        // Type field is a type editor
+        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+    } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
+        // Expression field is a inline expression editor
         return (
-            <TypeEditor field={field} openRecordEditor={openRecordEditor} />
+            <ContextAwareExpressionEditor
+                ref={ref}
+                field={field}
+                openSubPanel={openSubPanel}
+                isActiveSubPanel={isActiveSubPanel}
+                handleOnFieldFocus={handleOnFieldFocus}
+            />
         );
-    } else if (!field.items && (field.key === "expression" || field.type === "EXPRESSION")) {
-        return (
-            <ContextAwareExpressionEditor field={field} openSubPanel={openSubPanel} />
-        );
-    } else if (!field.items && (field.key !== "type")) {
-        return (
-            <TextEditor field={field} />
-        );
+    } else if (field.type === "VIEW") {
+        // Skip this property
+        return <></>;
     } else {
-        return <TextEditor field={field} />;
+        // Default to text editor
+        // Readonly fields are also treated as text editor
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     }
-}
+});

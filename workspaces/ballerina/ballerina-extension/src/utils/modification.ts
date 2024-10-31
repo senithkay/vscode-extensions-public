@@ -20,9 +20,10 @@ interface UpdateFileContentRequest {
 }
 
 export async function applyModifications(fileName: string, modifications: STModification[]): Promise<SyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
+    const ast = await InsertorDelete(modifications);
     return await StateMachine.langClient().stModify({
         documentIdentifier: { uri: Uri.file(fileName).toString() },
-        astModifications: await InsertorDelete(modifications)
+        astModifications: ast
     });
 }
 

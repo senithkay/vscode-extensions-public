@@ -24,12 +24,13 @@ import {
     Flow,
     Branch,
     LineRange,
-    ExpressionCompletionItem
+    ExpressionCompletionItem,
+    SignatureHelpResponse
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
-import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
 function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     return {
@@ -168,7 +169,7 @@ export function updateNodeProperties(values: FormValues, nodeProperties: NodePro
         if (values.hasOwnProperty(key) && updatedNodeProperties.hasOwnProperty(key)) {
             const expression = updatedNodeProperties[key as NodePropertyKey];
             if (expression) {
-                expression.value = expression.valueType === "MULTIPLE_SELECT" ? [values[key]] : values[key];
+                expression.value = values[key];
             }
         }
     }
@@ -268,4 +269,31 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         kind,
         sortText
     }
+}
+
+export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
+    const fnText = signatureHelp.signatures[0].label;
+    const fnRegex = /^(?<label>[a-zA-Z0-9_']+)\((?<args>.*)\)$/;
+    const fnMatch = fnText.match(fnRegex);
+
+    if (!fnMatch) {
+        return undefined;
+    }
+    const label = fnMatch.groups?.label;
+    const args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+
+    return {
+        label,
+        args,
+        currentArgIndex: signatureHelp.activeParameter
+    }
+}
+
+export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
+    return visibleTypes.map((type) => ({
+        label: type,
+        description: `Type: ${type}`,
+        value: type,
+        kind: COMPLETION_ITEM_KIND.TypeParameter
+    }));
 }

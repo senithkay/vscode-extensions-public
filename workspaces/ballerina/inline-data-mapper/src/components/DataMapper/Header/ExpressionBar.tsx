@@ -106,14 +106,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (inputPort) {
                 // Keep the text field focused when an input port is selected
                 if (textFieldRef.current) {
-                    const inputElement = textFieldRef.current.shadowRoot.querySelector('input');
+                    const inputElement = textFieldRef.current.shadowRoot.querySelector('textarea');
                     if (focusedPort || focusedFilter) {
                         inputElement.focus();
                     } else {
                         inputElement.blur();
                     }
                     // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('input').selectionStart;
+                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
                     const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
                     const updatedText =
                         textFieldValue.substring(0, cursorPosition) +

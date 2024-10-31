@@ -117,7 +117,6 @@ const ComboboxInputWrapper = styled.div<DropdownProps>`
     height: 100%;
     display: flex;
     flex-direction: row;
-    margin-right: 10px;
     border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-dropdown-border);
     &:focus-within {
         border-right: ${(props: DropdownProps) => props.hideDropdown ? '1px' : '0px'} solid var(--vscode-focusBorder);
