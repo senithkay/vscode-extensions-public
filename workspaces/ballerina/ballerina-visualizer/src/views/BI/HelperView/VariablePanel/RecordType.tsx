@@ -32,6 +32,13 @@ namespace VariableStyles {
     `;
 }
 
+export const InfoContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    white-space: nowrap;
+`;
+
 
 export function RecordTypeTree(props: RecordTypeTreeProps) {
     const { variable, depth, handleOnClick, parentValue, isOptional } = props;
@@ -54,8 +61,8 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
         return (
             <VariableStyles.SubList>
                 {variable.type.fields.map((field, index) => {
-                    const fullPath = parentValue 
-                        ? `${parentValue}${field.optional ? '?' : ''}.${field.name}` 
+                    const fullPath = parentValue
+                        ? `${parentValue}${field.optional ? '?' : ''}.${field.name}`
                         : `${variable.name}${field.optional ? '?' : ''}.${field.name}`;
                     if (field.typeName && field.name && field.typeName !== 'record') {
                         return (
@@ -90,10 +97,13 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-
+            <InfoContainer>
+                {depth > 1 && (
+                    <Button appearance="icon" onClick={toggleExpand} >
+                        {isExpanded ? <Codicon name="chevron-up" /> : <Codicon name="chevron-down" />}
+                    </Button>
+                )}
                 <VariableComponent onClick={() => handleFieldClick(parentValue ? `${parentValue}` : `${variable.name}`)}>
-
                     {!parentValue && (
                         <IconContainer>
                             {getIcon(variable?.type?.typeName)}
@@ -111,12 +121,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
                         {getTypeName(variable.type)}
                     </VariableType>
                 </VariableComponent>
-                {depth > 1 && (
-                    <Button appearance="icon" onClick={toggleExpand} >
-                        {isExpanded ? <Codicon name="chevron-up" /> : <Codicon name="chevron-down" />}
-                    </Button>
-                )}
-            </div>
+            </InfoContainer>
             {variable.type.fields.length > 0 && renderFields()}
         </div>
     );
