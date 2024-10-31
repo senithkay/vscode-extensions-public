@@ -691,7 +691,7 @@
     },
     {
       "packageName": "@wso2-enterprise/component-diagram",
-      "projectFolder": "workspaces/ballerina/component-diagram",
+      "projectFolder": "workspaces/common-libs/component-diagram",
       "versionPolicyName": "ballerina-extension"
     },
     // {
