@@ -10,10 +10,14 @@
  */
 import {
     AddToProjectRequest,
+    GetFromFileRequest,
+    DeleteFromProjectRequest,
     GenerateMappingsRequest,
     NotifyAIMappingsRequest,
     ProjectSource,
     addToProject,
+    getFromFile,
+    deleteFromProject,
     clearInitialPrompt,
     generateMappings,
     getAccessToken,
@@ -46,6 +50,8 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
+    messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
+    messenger.onRequest(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
