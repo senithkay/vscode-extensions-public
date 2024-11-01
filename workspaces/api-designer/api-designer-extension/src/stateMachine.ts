@@ -56,6 +56,9 @@ const stateMachine = createMachine<MachineContext>({
                                 projectUri: (context, event) => event.viewLocation.projectUri,
                                 position: (context, event) => event.viewLocation.position
                             })
+                        },
+                        NAVIGATE: {
+                            target: "viewUpdated"
                         }
                     }
                 },
@@ -63,7 +66,7 @@ const stateMachine = createMachine<MachineContext>({
                     invoke: {
                         src: 'openWebPanel',
                         onDone: {
-                            target: 'viewReady'
+                            target: 'viewFinding'
                         }
                     }
                 },
@@ -174,16 +177,16 @@ const stateMachine = createMachine<MachineContext>({
                 if (event.data.type === EVENT_TYPE.REPLACE_VIEW) {
                     history.pop();
                 }
-                if (!context.view?.includes("Form")) {
-                    history.push({
-                        location: {
-                            view: context.view,
-                            documentUri: context.documentUri,
-                            position: context.position,
-                            identifier: context.identifier
-                        }
-                    });
-                }
+
+                history.push({
+                    location: {
+                        view: context.view,
+                        documentUri: context.documentUri,
+                        position: context.position,
+                        identifier: context.identifier
+                    }
+                });
+
                 StateMachinePopup.resetState();
                 resolve(true);
             });
@@ -237,8 +240,8 @@ export function navigate(entry?: HistoryEntry) {
             history.push({ location: entry.location });
             stateService.send({ type: "NAVIGATE", viewLocation: entry!.location });
         } else {
-            history.push({ location: { view: MACHINE_VIEW.Overview } });
-            stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
+            history.push({ location: { view: MACHINE_VIEW.Welcome } });
+            stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Welcome } });
         }
     } else {
         const location = historyStack[historyStack.length - 1].location;

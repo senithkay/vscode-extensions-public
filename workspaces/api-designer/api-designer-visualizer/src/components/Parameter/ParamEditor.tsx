@@ -60,7 +60,7 @@ const RequiredElementWrapper = styled.div`
     }
 `;
 
-interface OverviewProps {
+interface ParamEditorProps {
     params: Param[];
     paramTypes: string[];
     newParamName?: string;
@@ -72,7 +72,7 @@ interface OverviewProps {
     onParamsChange: (params: Param[], action?: Action) => void;
 }
 
-export function ParamEditor(props: OverviewProps) {
+export function ParamEditor(props: ParamEditorProps) {
     const { params, paramTypes, newParamName = "", type, title, addButtonText, disableCollapse, onParamsChange } = props;
 
     const paramTypeOptions = paramTypes.map((type) => ({ id: type, content: type, value: type }));

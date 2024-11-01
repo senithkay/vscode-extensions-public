@@ -15,6 +15,7 @@ import { OpenAPIDefinition } from "../../components/OpenAPIDefinition/OpenAPIDef
 import { debounce } from "lodash";
 import { APIDesignerContext } from "../../APIDesignerContext";
 import { Views } from "../../constants";
+import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
 
 interface ServiceDesignerProps {
     fileUri: string;
@@ -29,6 +30,12 @@ export function APIDesigner(props: ServiceDesignerProps) {
     const [currentView, setCurrentView] = useState<Views>(isNewFile ? Views.EDIT : Views.READ_ONLY);
     const [selectedComponent, setSelectedComponent] = useState<string | undefined>(undefined);
 
+    rpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === 'viewReady') {
+            fetchData();
+        }
+    });
+    
     const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
             filePath: fileUri,
@@ -68,34 +75,35 @@ export function APIDesigner(props: ServiceDesignerProps) {
         },
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
-                filePath: fileUri,
-            });
-            let convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
-            if (!convertedApiDefinition) {
-                convertedApiDefinition = {
-                    openapi: "3.0.1",
-                    info: {
-                        title: "",
-                        version: "",
-                    },
-                    paths: {},
-                };
-                setCurrentView(Views.EDIT);
-                setIsNewFile(true);
-            }
-            // If no Info field is present in the response, then set the Info field
-            if (!convertedApiDefinition.info) {
-                convertedApiDefinition.info = {
+    const fetchData = async () => {
+        const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
+            filePath: fileUri,
+        });
+        let convertedApiDefinition = convertOpenAPIStringToOpenAPI(resp.content, resp.type);
+        if (!convertedApiDefinition) {
+            convertedApiDefinition = {
+                openapi: "3.0.1",
+                info: {
                     title: "",
                     version: "",
-                };
-            }
-            setApiDefinition(convertedApiDefinition);
-            setDocumentType(resp.type);
-        };
+                },
+                paths: {},
+            };
+            setCurrentView(Views.EDIT);
+            setIsNewFile(true);
+        }
+        // If no Info field is present in the response, then set the Info field
+        if (!convertedApiDefinition.info) {
+            convertedApiDefinition.info = {
+                title: "",
+                version: "",
+            };
+        }
+        setApiDefinition(convertedApiDefinition);
+        setDocumentType(resp.type);
+    };
+
+    useEffect(() => {
         fetchData();
     }, [fileUri]);
     return (

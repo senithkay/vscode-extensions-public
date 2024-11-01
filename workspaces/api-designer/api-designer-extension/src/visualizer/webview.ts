@@ -32,6 +32,12 @@ export class VisualizerWebview {
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
 
+        const sendUpdateNotificationToWebview = debounce(() => {
+            if (this._panel) {
+                console.log('Sending update notification to webview');
+            }
+        }, 500);
+
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(async () => {
             if (this.getWebview()) {
@@ -53,13 +59,24 @@ export class VisualizerWebview {
 
         this._panel.onDidChangeViewState((e) => {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
-            vscode.commands.executeCommand('setContext', 'isViewOpenAPI', e.webviewPanel.active);
+            if (this._panel?.active) {
+                refreshDiagram();
+                vscode.commands.executeCommand('setContext', 'isViewOpenAPI', true);
+            }
         });
 
         this._panel.onDidDispose(() => {
             // Enable the Run and Build Project, Open AI Panel commands when the webview is active
             vscode.commands.executeCommand('setContext', 'isViewOpenAPI', undefined);
         });
+
+        // this._panel.onDidChangeViewState(() => {
+        //     vscode.commands.executeCommand('setContext', 'isBalVisualizerActive', this._panel?.active);
+        //     // Refresh the webview when becomes active
+        //     if (this._panel?.active) {
+        //         sendUpdateNotificationToWebview();
+        //     }
+        // });
     }
 
     private static createWebview(beside: boolean): vscode.WebviewPanel {
