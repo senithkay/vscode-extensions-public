@@ -13,7 +13,6 @@ import { TextField } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
-import { TIcon } from "../../resources";
 
 const AddTypeContainer = styled.div<{}>`
     display: flex;
@@ -52,14 +51,7 @@ export function TextEditor(props: TextEditorProps) {
     const { form } = useFormContext();
     const { register } = form;
 
-    const typeLabel = (type: string) => (
-        <AddTypeContainer>
-            <Pill>
-                <TIcon />
-                {type}
-            </Pill>
-        </AddTypeContainer>
-    );
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
     return (
         <TextField
@@ -69,9 +61,9 @@ export function TextEditor(props: TextEditorProps) {
             label={field.label}
             required={!field.optional}
             description={field.documentation}
-            // labelAdornment={typeLabel(field.type)}
             readOnly={!field.editable}
             sx={{ width: "100%" }}
+            errorMsg={errorMsg}
             onFocus={() => handleOnFieldFocus?.(field.key)}
         />
     );

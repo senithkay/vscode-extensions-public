@@ -18,9 +18,11 @@ interface LinkOrigins {
 export class ExternalLinkModel extends SharedLinkModel {
     sourceNode: LinkOrigins;
     targetNode: LinkOrigins;
+    withRightOffset: boolean;
 
-    constructor(id: string) {
+    constructor(id: string, withRightOffset: boolean = false) {
         super(id, "externalLink");
+        this.withRightOffset = withRightOffset;
     }
 
     setSourceNode(nodeId: string) {
@@ -57,24 +59,54 @@ export class ExternalLinkModel extends SharedLinkModel {
         if (this.getSourcePort() && this.getTargetPort()) {
             const markerSpace: number = 60;
 
-            lineCurve.setSource(this.getSourcePort().getPosition());
-            lineCurve.setTarget(this.getTargetPort().getPosition());
-
             // With a leeway space for the marker
             const sourcePoint: Point = this.getSourcePort().getPosition().clone();
             const targetPoint: Point = this.getTargetPort().getPosition().clone();
 
             if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-                targetPoint.x = targetPoint.x - markerSpace;
+                targetPoint.x -= markerSpace;
             } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-                targetPoint.x = targetPoint.x + markerSpace;
+                targetPoint.x += markerSpace;
             } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-                targetPoint.y = targetPoint.y + markerSpace;
+                targetPoint.y += markerSpace;
             } else {
-                targetPoint.y = targetPoint.y - markerSpace;
+                targetPoint.y -= markerSpace;
             }
 
+            lineCurve.setSource(this.getSourcePort().getPosition());
+            lineCurve.setTarget(this.getTargetPort().getPosition());
             lineCurve.setSourceControl(sourcePoint);
+            lineCurve.setTargetControl(targetPoint);
+            lineCurve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
+            lineCurve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
+        }
+
+        return lineCurve.getSVGCurve();
+    };
+
+    getCurvePathWithOffset = (): string => {
+        const lineCurve = new BezierCurve();
+
+        if (this.getSourcePort() && this.getTargetPort()) {
+            const markerSpace: number = 60;
+
+            const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+            const targetPoint: Point = this.getTargetPort().getPosition().clone();
+            const middlePoint = new Point(targetPoint.x + 100, sourcePoint.y - 100);
+
+            if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
+                targetPoint.x -= markerSpace;
+            } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
+                targetPoint.x += markerSpace;
+            } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+                targetPoint.y += markerSpace;
+            } else {
+                targetPoint.y -= markerSpace;
+            }
+
+            lineCurve.setSource(this.getSourcePort().getPosition());
+            lineCurve.setTarget(this.getTargetPort().getPosition());
+            lineCurve.setSourceControl(middlePoint);
             lineCurve.setTargetControl(targetPoint);
             lineCurve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
             lineCurve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));

@@ -149,9 +149,10 @@ export function AddForm(props: ConfigFormProps) {
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
+            })
+            .finally(() => {
+                onClose();
             });
-
-        onClose();
     };
 
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -220,3 +221,5 @@ export function AddForm(props: ConfigFormProps) {
         </>
     );
 }
+
+export default AddForm;

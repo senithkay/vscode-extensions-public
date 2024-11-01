@@ -11,7 +11,7 @@
 import React, { useState } from 'react';
 import { debounce } from "lodash";
 import styled from '@emotion/styled';
-import { ConfigVariable, Flow } from '@wso2-enterprise/ballerina-core';
+import { ConfigVariable, EVENT_TYPE, Flow, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
@@ -28,7 +28,7 @@ namespace S {
 
 export interface ConfigFormProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose?: () => void;
     variable: ConfigVariable;
     title: string;
 }
@@ -94,9 +94,23 @@ export function EditForm(props: ConfigFormProps) {
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
+            })
+            .finally(() => {
+                if (onClose) {
+                    onClose();
+                } else {
+                    goToViewConfig();
+                }
             });
+    };
 
-        onClose();
+    const goToViewConfig = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ViewConfigVariables,
+            },
+        });
     };
 
     const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
@@ -144,7 +158,7 @@ export function EditForm(props: ConfigFormProps) {
             <PanelContainer
                 title={title}
                 show={props.isOpen}
-                onClose={onClose}>
+                onClose={onClose ? onClose : goToViewConfig}>
 
                 <Form
                     formFields={fields}
@@ -163,3 +177,5 @@ export function EditForm(props: ConfigFormProps) {
         </>
     );
 }
+
+export default EditForm;
