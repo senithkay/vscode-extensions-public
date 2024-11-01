@@ -12,7 +12,6 @@ import { PathItem, Paths } from '../../Definitions/ServiceDefinitions';
 import { ContentWrapper, PanelBody } from '../Overview/Overview';
 import { getColorByMethod, resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { MarkdownRenderer } from '../Resource/ReadOnlyResource';
-import React from 'react';
 
 const ParamWrapper = styled.div`
     display: flex;
@@ -141,87 +140,6 @@ export function ReadOnlyPathItem(props: ReadOnlyPathItemProps) {
                         </ContentWrapper>
                     </>
                 )}
-                {/* {(pathParamaters?.length > 0 || queryParamaters?.length > 0 || headerParamaters?.length > 0  || !!requestMediaTypes) && <>
-                    <Typography sx={{ margin: 0 }} variant='h2'> Request </Typography>
-                    <ContentWrapper>
-                        {pathParamaters?.length > 0 && (
-                            <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> Path Parameters </Typography>
-                                <ContentTypeWrapper>
-                                    {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
-                                        <ParamContainer>
-                                            <ParamWrapper>
-                                                <Typography sx={{ margin: 0 }} variant='body2'> {parameter.name} </Typography>
-                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                            </ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                        </ParamContainer>
-                                    ))}
-                                </ContentTypeWrapper>
-                            </>
-                        )}
-                        {queryParamaters?.length > 0 && (
-                            <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> Query Parameters </Typography>
-                                <ContentWrapper>
-                                    {queryParamaters.length > 0 && queryParamaters.map((parameter) => (
-                                        <ParamContainer>
-                                            <
-
-                {/* {(pathParamaters?.length > 0 || queryParamaters?.length > 0 || headerParamaters?.length > 0  || !!requestMediaTypes) && <>
-                    <Typography sx={{ margin: 0 }} variant='h2'> Request </Typography>
-                    <ContentWrapper>
-                        {pathParamaters?.length > 0 && (
-                            <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> Path Parameters </Typography>
-                                <ContentTypeWrapper>
-                                    {pathParamaters.length > 0 && pathParamaters.map((parameter) => (
-                                        <ParamContainer>
-                                            <ParamWrapper>
-                                                <Typography sx={{ margin: 0 }} variant='body2'> {parameter.name} </Typography>
-                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                            </ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                        </ParamContainer>
-                                    ))}
-                                </ContentTypeWrapper>
-                            </>
-                        )}
-                        {queryParamaters?.length > 0 && (
-                            <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> Query Parameters </Typography>
-                                <ContentWrapper>
-                                    {queryParamaters.length > 0 && queryParamaters.map((parameter) => (
-                                        <ParamContainer>
-                                            <ParamWrapper>
-                                                <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
-                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                            </ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                        </ParamContainer>
-                                    ))}
-                                </ContentWrapper>
-                            </>
-                        )}
-                        {headerParamaters?.length > 0 && (
-                            <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> Header Parameters </Typography>
-                                <ContentWrapper>
-                                    {headerParamaters.length > 0 && headerParamaters.map((parameter) => (
-                                        <ParamContainer>
-                                            <ParamWrapper>
-                                                <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {parameter.name} </Typography>
-                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {`${resolveTypeFormSchema(parameter.schema)} ${parameter.schema.format ? `<${parameter.schema.format}>` : ""}`} </Typography>
-                                            </ParamWrapper>
-                                            <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'> {parameter.description} </Typography>
-                                        </ParamContainer>
-                                    ))}
-                                </ContentWrapper>
-                            </>
-                        )} */}
-                    {/* </ContentWrapper>
-                </>} */}
-
             </PanelBody>
         </>
     )

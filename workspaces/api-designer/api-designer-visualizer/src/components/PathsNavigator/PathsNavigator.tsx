@@ -155,22 +155,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
     const [currentDivWidth, setCurrentDivWidth] = useState<number>(pathContinerRef.current?.clientWidth || 0);
     const [, setSelPathID] = useState<string | undefined>(selectedPathID);
     const [pathEditIndex, setPathEditIndex] = useState<number>(-1);
-    const pathItemKeys = paths ? Object.keys(paths) : [];
-    // Finf pathItemKeys of type object
-    // const pathsArray: Array<keyof Paths> = pathItemKeys.filter((key) => (typeof paths[key] === "object" && key !== "servers" && key !== "parameters" && key !== "description") && key !== "summary");
     const schemaArray = components?.schemas ? Object.keys(components?.schemas) : [];
-    // Get PathItems from paths
-    // const pathItems = paths && pathsArray ? pathsArray
-    // .filter(path => {
-    //     const pathItem = paths[path];
-    //     return (
-    //         typeof pathItem === "object" && 
-    //         pathItem !== null && // Ensure it's not null
-    //         !('summary' in pathItem) && 
-    //         !('description' in pathItem)
-    //     );
-    // })
-    //     .map(path => paths[path]) as Paths[] : [];
     let pathItems: any[] = [];
     let pathsArray: string[] = [];
     if (paths) {
@@ -398,7 +383,7 @@ export function PathsNavigator(props: PathsNavigatorProps) {
                                         fontWeight: 300
                                     }}
                                     variant="h4">
-                                    {schema}ss
+                                    {schema}
                                 </Typography>
                                 <RightPathContainerButtons className="buttons-container">
                                     <Button tooltip="Delete Schema" appearance="icon" onClick={(e) => handleDeleteSchema(e, schema)}><Codicon name="trash" /></Button>

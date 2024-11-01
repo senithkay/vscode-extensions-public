@@ -81,11 +81,6 @@ export function OpenAPIDefinition() {
         }
     } = useContext(APIDesignerContext);
 
-    console.log("openAPIVersion", openAPIVersion);
-    console.log("openAPI", openAPI);
-    console.log("currentView", currentView);
-    console.log("selectedComponent", selectedComponent);
-
     const handlePathClick = (pathID: string) => {
         onSelectedComponentChange(pathID);
         if (pathID?.includes("Schemas-Components")) {

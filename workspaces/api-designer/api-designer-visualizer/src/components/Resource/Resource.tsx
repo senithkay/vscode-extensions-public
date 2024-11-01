@@ -78,26 +78,6 @@ export function Resource(props: ResourceProps) {
         headerParams: getHeaderParametersFromParameters(resourceOperation.parameters),
         responses: resourceOperation.responses
     };
-
-    // const handleQueryParamsChange = (params: Param[]) => {
-    //     let p: Parameter[] = convertParamsToParameters(values.pathParams, "path");
-    //     if (params) {
-    //         p = p.concat(convertParamsToParameters(params, "query"));
-    //     }
-    //     if (values?.headerParams) {
-    //         p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
-    //     }
-    //     const currentPath = getPath();
-    //     const newPath = {
-    //         ...currentPath,
-    //         initialOperation: {
-    //             ...currentPath.initialOperation,
-    //             parameters: p
-    //         }
-    //     };
-    //     onPathChange(newPath);
-    // };
-
     const handlePathParamsChange = (params: Param[]) => {
         let p: Parameter[] = convertParamsToParameters(params, "path");
         if (values?.queryParams) {
@@ -143,27 +123,6 @@ export function Resource(props: ResourceProps) {
         onOperationChange(path, method, operation);
     };
 
-    // const handlePathChange = (value: string) => {
-    //     const pathParams = value.split('/').filter((part: string) => part.startsWith('{') && part.endsWith('}')).map((part: string) => part.substring(1, part.length - 1));
-    //     const modifiedPathParams = pathParams.map((paramName: string) => ({ name: paramName, type: "", defaultValue: "", isArray: false, isRequired: false }));
-    //     let p: Parameter[] = convertParamsToParameters(modifiedPathParams, "path");
-    //     if (values?.queryParams) {
-    //         p = p.concat(convertParamsToParameters(values?.queryParams, "query"));
-    //     }
-    //     if (values?.headerParams) {
-    //         p = p.concat(convertParamsToParameters(values?.headerParams, "header"));
-    //     }
-    //     const currentPath = getPath();
-    //     const newPath = {
-    //         ...currentPath,
-    //         path: value,
-    //         initialOperation: {
-    //             ...currentPath.initialOperation,
-    //             parameters: p
-    //         }
-    //     };
-    //     onPathChange(newPath);
-    // };
     const handleOptionChange = (options: string[]) => {
         let operation = resourceOperation;
         if (!options.includes("Summary") && defaultOptions.includes("Summary")) {
@@ -183,35 +142,6 @@ export function Resource(props: ResourceProps) {
         }
         onOperationChange(path, method, operation);
         setDefaultOptions(options);
-    };
-
-    // Method to get Form values
-    const getPath = (): Path => {
-        const { method, path, summary, description, queryParams, pathParams, headerParams, responses } = values;
-        let params: Parameter[] = [];
-        if (queryParams) {
-            params = convertParamsToParameters(queryParams, "query");
-        }
-        if (pathParams) {
-            params = params.concat(convertParamsToParameters(pathParams, "path"));
-        }
-        if (headerParams) {
-            params = params.concat(convertParamsToParameters(headerParams, "header"));
-        }
-        const operation: Operation = {
-            summary: summary,
-            description: description,
-            parameters: params,
-            responses: responses
-        };
-        const pathObject: Path = {
-            method: method.toLowerCase(),
-            path: path,
-            initialOperation: operation,
-            initialMethod: initialMethod,
-            initialPath: initailPath
-        };
-        return pathObject;
     };
 
     const handleSummaryChange = (value: string) => {
