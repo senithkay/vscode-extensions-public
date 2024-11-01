@@ -146,8 +146,6 @@ const MainPanel = () => {
     const fetchContext = () => {
         setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
-            console.log(">>> Visualizer location", value);
-            
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
