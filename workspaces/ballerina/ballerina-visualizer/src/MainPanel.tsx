@@ -55,6 +55,7 @@ import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
+import EditConfigurableVariables from "./views/BI/Configurables/EditConfigurableVariables";
 
 const globalStyles = css`
     *,
@@ -145,6 +146,8 @@ const MainPanel = () => {
     const fetchContext = () => {
         setNavActive(true);
         rpcClient.getVisualizerLocation().then((value) => {
+            console.log(">>> Visualizer location", value);
+            
             if (!value?.view) {
                 setViewComponent(<LoadingRing />);
             } else {
@@ -240,6 +243,34 @@ const MainPanel = () => {
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
                         setViewComponent(<ViewConfigurableVariables />);
+                        break;
+                    case MACHINE_VIEW.EditConfigVariables:
+                        rpcClient.getVisualizerLocation().then((location) => {                            
+                            rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
+                                console.log(">>> Config variables rpc------", variables);
+
+                                if (variables.configVariables.length > 0) {
+                                    const variable = variables.configVariables.find(
+                                        (v) => {
+                                            const bindingPattern = value.syntaxTree.typedBindingPattern.bindingPattern;
+                                            if (bindingPattern.kind === "CaptureBindingPattern") {
+                                                return v.properties.variable.value === (bindingPattern as any).variableName.value;
+                                            }
+                                            return false;
+                                        }
+                                    );
+                                    console.log(">>> Config variables xxxx------", variable);
+
+                                    setViewComponent(
+                                        <EditConfigurableVariables
+                                            isOpen={true}
+                                            variable={variable}
+                                            title="Edit Configurable Variable"
+                                        />
+                                    );
+                                }
+                            });
+                        });
                         break;
                     default:
                         setNavActive(false);

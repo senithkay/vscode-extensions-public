@@ -23,6 +23,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
     if (node.parseSuccess) {
+        console.log("Node", node);
         if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
             const recordST = node.syntaxTree;
             const name = recordST.typeName?.value;
@@ -128,6 +129,19 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                 dataMapperDepth: 0
             };
 
+        }
+
+        // config variables
+
+        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) && 
+            STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.EditConfigVariables,
+                    documentUri: documentUri,
+                    position: position
+                },
+            };
         }
     }
 

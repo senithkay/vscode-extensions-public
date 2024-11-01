@@ -80,6 +80,8 @@ export interface VisibleEndpoint {
     leadingMinutiae: Minutiae[];
     trailingMinutiae: Minutiae[];
     isInSelectedPath?: boolean;
+    qualifiers?: STNode[];
+    typedBindingPattern?: TypedBindingPattern;
   }
   
   export interface ActionStatement extends STNode {
@@ -589,7 +591,7 @@ export interface VisibleEndpoint {
   }
   
   export interface CaptureBindingPattern extends STNode {
-    variableName: IdentifierToken;
+    variableName: IdentifierToken | STNode;
   }
   
   export interface CheckAction extends STNode {
