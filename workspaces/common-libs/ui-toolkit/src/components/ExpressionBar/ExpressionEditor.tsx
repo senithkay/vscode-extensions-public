@@ -485,7 +485,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     // Mutation functions
     const {
         data: completionSelectResponse,
-        isLoading: isSelectingCompletion,
+        // isLoading: isSelectingCompletion,
         mutate: handleCompletionSelectMutation
     } = useTransaction(handleCompletionSelect);
     const {

@@ -53,7 +53,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const classes = useStyles();
     const textFieldRef = useRef<ExpressionBarRef>(null);
     const cursorPositionBeforeSaving = useRef<number | undefined>();
-    const completionReqPosition = useRef<number>(0);
+    const completionReqPosStart = useRef<number>(0);
+    const completionReqPosEnd = useRef<number>(0);
 
     // const [textFieldValue, setTextFieldValue] = useState<string>("");
     const textFieldValueRef = useRef<string>("");
@@ -117,8 +118,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
             let fileContent = nodeForSuggestions.getSourceFile().getFullText();
 
-            fileContent = fileContent.slice(0, completionReqPosition.current) + ' ' + textFieldValueRef.current + fileContent.slice(completionReqPosition.current);
-            const cursorPosition = completionReqPosition.current + 1 + relativeCursorPosition;
+            fileContent = fileContent.slice(0, completionReqPosStart.current) + ' ' + textFieldValueRef.current + fileContent.slice(completionReqPosEnd.current);
+            const cursorPosition = completionReqPosStart.current + 1 + relativeCursorPosition;
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
                 filePath,
                 fileContent,
@@ -126,7 +127,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             });
 
             console.log(fileContent.slice(0, cursorPosition) + '@' + fileContent.slice(cursorPosition));
-            console.log(cursorPosition, fileContent.length);
+            console.log(cursorPosition, fileContent.length, {start: completionReqPosStart.current, end: completionReqPosEnd.current});
             console.log(response);
 
             if (!response.completions) {
@@ -194,8 +195,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             // setLastFocusedPort(focusedPort);
             // console.log('updateST', focusedPort, text);
         } else if (focusedFilter) {
-            const filter = focusedFilter.replaceWithText(text);
-            setLastFocusedFilter(filter);
+            // const filter = focusedFilter.replaceWithText(text);
+            // setLastFocusedFilter(filter);
         }
 
         setCompletions(await getCompletions());
@@ -233,18 +234,33 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
-            const focusedNode = focusedPort.typeWithValue.value;
-            if (focusedNode && !focusedNode.wasForgotten()) {
-                if (Node.isPropertyAssignment(focusedNode)) {
-                    value = focusedNode.getInitializer()?.getText();
+            const focusedPortValue = focusedPort.typeWithValue.value;
+            if (focusedPortValue && !focusedPortValue.wasForgotten()) {
+                if (Node.isPropertyAssignment(focusedPortValue)) {
+                    value = focusedPortValue.getInitializer()?.getText();
+                    completionReqPosStart.current = focusedPortValue.getInitializer()?.getStart() || 0;
+                    completionReqPosEnd.current = focusedPortValue.getInitializer()?.getEnd() || 0;
                 } else {
-                    value = focusedNode.getText();
+                    value = focusedPortValue.getText();
+                    completionReqPosStart.current = focusedPortValue.getStart();
+                    completionReqPosEnd.current = focusedPortValue.getEnd();
                 }
+            }else{
+                const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
+                const fnBody = focusedNode.context.functionST.getBody() as Block;
+    
+                const fnBodyText = fnBody.getText();
+                completionReqPosStart.current = fnBody.getEnd() - (fnBodyText.length - fnBodyText.lastIndexOf('}'));
+                completionReqPosEnd.current = completionReqPosStart.current
+    
+                console.log('fnBody', fnBody.getText());
             }
 
             disabled = focusedPort.isDisabled();
         } else if (focusedFilter) {
             value = focusedFilter.getText();
+            completionReqPosStart.current = focusedFilter.getStart();
+            completionReqPosEnd.current = focusedFilter.getEnd();
 
             disabled = false;
         } else {
@@ -261,14 +277,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         // Set cursor position
         if (focusedPort || focusedFilter) {
             cursorPositionBeforeSaving.current = value.length;
-
-            const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-            const fnBody = focusedNode.context.functionST.getBody() as Block;
-
-            const fnBodyText = fnBody.getText();
-            completionReqPosition.current = fnBody.getEnd() - (fnBodyText.length - fnBodyText.lastIndexOf('}'));
-
-            console.log('fnBody', fnBody.getText());
             
             setTextFieldValue(value);
             setSavedNodeValue(value);
