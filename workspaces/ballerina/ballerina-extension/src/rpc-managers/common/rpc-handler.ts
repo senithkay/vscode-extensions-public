@@ -21,6 +21,7 @@ import {
     getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
+    getWorkspaceRoot,
     goToSource,
     openExternalUrl,
     runBackgroundTerminalCommand,
@@ -40,4 +41,5 @@ export function registerCommonRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openExternalUrl, (args: OpenExternalUrlRequest) => rpcManger.openExternalUrl(args));
     messenger.onRequest(selectFileOrDirPath, (args: FileOrDirRequest) => rpcManger.selectFileOrDirPath(args));
     messenger.onRequest(experimentalEnabled, () => rpcManger.experimentalEnabled());
+    messenger.onRequest(getWorkspaceRoot, () => rpcManger.getWorkspaceRoot());
 }
