@@ -591,7 +591,7 @@ export interface VisibleEndpoint {
   }
   
   export interface CaptureBindingPattern extends STNode {
-    variableName: IdentifierToken | STNode;
+    variableName: IdentifierToken;
   }
   
   export interface CheckAction extends STNode {
