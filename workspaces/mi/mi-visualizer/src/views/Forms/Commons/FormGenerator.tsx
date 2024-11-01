@@ -246,6 +246,12 @@ export function FormGenerator(props: FormGeneratorProps) {
                         </div>
                     </div>
                 );
+            case 'link':
+                return (
+                    <div>
+                        <a href={element.helpTip}>{element.displayName}</a>
+                    </div>
+                )
             default:
                 return null;
         }
