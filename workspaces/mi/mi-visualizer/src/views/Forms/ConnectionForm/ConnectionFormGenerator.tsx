@@ -144,7 +144,11 @@ export function AddConnection(props: AddConnectionProps) {
                                     prefix: prefix.split(':')[1], uri: uri
                                 })) : [];
                                 if (inputType === 'file') {
-                                    setValue(param.name, `{${value}}`);
+                                    if (isCertificateFilePath(value)) {
+                                        setValue(param.name, value);
+                                    } else {
+                                        setValue(param.name, `{${value}}`);
+                                    }
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
                                 }
