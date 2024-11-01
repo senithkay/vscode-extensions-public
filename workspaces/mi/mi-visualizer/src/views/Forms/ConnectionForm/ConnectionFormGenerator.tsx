@@ -144,7 +144,7 @@ export function AddConnection(props: AddConnectionProps) {
                                     prefix: prefix.split(':')[1], uri: uri
                                 })) : [];
                                 if (inputType === 'file') {
-                                    setValue(param.name, value);
+                                    setValue(param.name, `{${value}}`);
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
                                 }
@@ -300,11 +300,17 @@ export function AddConnection(props: AddConnectionProps) {
             const currentCertificateAlias = values['trustStoreCertificateAlias'];
             const currentCertificateFilePath = values['trustStoreCertificatePath'];
 
-            rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateAlias: currentCertificateAlias, certificateFilePath: currentCertificateFilePath, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
-            const configValue = `{#[config:${currentCertificateAlias}]}`;
-            
             connectorTag.ele('trustStoreCertificateAlias').txt(currentCertificateAlias);
-            connectorTag.ele('trustStoreCertificatePath').txt(configValue);
+
+            if (currentCertificateFilePath) {
+                if (isCertificateFilePath(currentCertificateFilePath)) {
+                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateAlias: currentCertificateAlias, certificateFilePath: currentCertificateFilePath, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
+                    const configValue = `{#[config:${currentCertificateAlias}]}`;
+                    connectorTag.ele('trustStoreCertificatePath').txt(configValue);
+                } else {
+                    connectorTag.ele('trustStoreCertificatePath').txt(currentCertificateFilePath);
+                }
+            } 
         }
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
