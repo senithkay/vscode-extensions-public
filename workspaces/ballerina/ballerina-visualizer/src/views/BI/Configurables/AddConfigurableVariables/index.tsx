@@ -221,3 +221,5 @@ export function AddForm(props: ConfigFormProps) {
         </>
     );
 }
+
+export default AddForm;
