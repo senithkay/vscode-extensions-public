@@ -9,13 +9,17 @@
 
 import React, { useEffect, useState } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, ParamManager, ParamConfig, Parameters, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, Parameters, Dropdown, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
-import { getFunctionParametersList, parameterConfig } from "../../../utils/utils";
+import { getFunctionParametersList } from "../../../utils/utils";
+import { ParamManager, ParamConfig, FormField } from "@wso2-enterprise/ballerina-side-panel";
+import { debounce } from "lodash";
+import { convertToVisibleTypes } from "../../../utils/bi";
+import { URI, Utils } from "vscode-uri";
 
 const FormContainer = styled.div`
     display: flex;
@@ -58,6 +62,105 @@ export function FunctionForm() {
     const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
     const [returnType, setReturnType] = useState("void");
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [types, setTypes] = useState<CompletionItem[]>([]);
+
+    const currentFields: FormField[] = [
+        {
+            key: `variable`,
+            label: 'Name',
+            type: 'string',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: '',
+        },
+        {
+            key: `type`,
+            label: 'Type',
+            type: 'type',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: ''
+        },
+        {
+            key: `defaultable`,
+            label: 'Default Value',
+            type: 'string',
+            optional: true,
+            editable: true,
+            documentation: '',
+            value: ''
+        }
+    ];
+
+
+    // <------------- Expression Editor Util functions list start --------------->
+    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
+        let visibleTypes: CompletionItem[] = types;
+        if (!types.length) {
+            const context = await rpcClient.getVisualizerLocation();
+            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                filePath: functionFilePath.fsPath,
+                position: { line: 0, offset: 0 },
+            });
+
+            visibleTypes = convertToVisibleTypes(response.types);
+            setTypes(visibleTypes);
+        }
+
+        const effectiveText = value.slice(0, cursorPosition);
+        const filteredTypes = visibleTypes.filter((type) => {
+            const lowerCaseText = effectiveText.toLowerCase();
+            const lowerCaseLabel = type.label.toLowerCase();
+
+            return lowerCaseLabel.includes(lowerCaseText);
+        });
+
+        setFilteredTypes(filteredTypes);
+        return { visibleTypes, filteredTypes };
+    }, 250);
+
+    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
+        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
+    };
+
+    const handleCompletionSelect = async () => {
+        handleExpressionEditorCancel();
+    };
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredTypes([]);
+        setTypes([]);
+    };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    };
+    // <------------- Expression Editor Util functions list end --------------->
+
+    const parameterConfig: ParamConfig = {
+        paramValues: [],
+        formConfig: {
+            formFields: currentFields,
+            onSubmit: null,
+            fileName: null,
+            targetLineRange: {
+                startLine: null,
+                endLine: null
+            },
+            expressionEditor: {
+                completions: filteredTypes,
+                retrieveVisibleTypes: handleGetVisibleTypes,
+                onCompletionSelect: handleCompletionSelect,
+                onCancel: handleExpressionEditorCancel,
+                onBlur: handleExpressionEditorBlur,
+            }
+        }
+    }
+
     const [params, setParams] = useState(parameterConfig);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +168,7 @@ export function FunctionForm() {
 
     const handleFunctionCreate = async () => {
         setIsLoading(true);
-        const paramList = getFunctionParametersList(params);
+        const paramList = getFunctionParametersList(null);
         const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
         setIsLoading(res.response);
         setError(res.error);
@@ -76,20 +179,24 @@ export function FunctionForm() {
     }
 
     const handleParamChange = (params: ParamConfig) => {
+        const modifiedParamValues = params.paramValues.map((param) => {
+            const name = `${param.formValues['variable']}`;
+            const type = `${param.formValues['type']}`;
+            const defaultValue = `${param.formValues['defaultable']}`;
+            let value = `${type} ${name}`;
+            if (defaultValue) {
+                value += ` = ${defaultValue}`;
+            }
+            return {
+                ...param,
+                key: name,
+                value: value
+            }
+        });
         const modifiedParams = {
-            ...params, paramValues: params.paramValues.map((param, index) => {
-                const defaultValue = `${param.parameters[2].value}`;
-                let value = `${param.parameters[1].value}`
-                if (defaultValue) {
-                    value += ` = ${defaultValue}`;
-                }
-                return {
-                    ...param,
-                    key: param.parameters[0].value as string,
-                    value: value
-                }
-            })
-        };
+            ...params,
+            paramValues: modifiedParamValues
+        }
         setParams(modifiedParams);
     };
 
