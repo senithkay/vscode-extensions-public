@@ -46,6 +46,7 @@ export interface AddConnectionProps {
 }
 
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion', 'file'];
+const certificateDirPath = 'src/main/wso2mi/resources/certificates/'
 
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes, handlePopupClose } = props;
@@ -300,6 +301,7 @@ export function AddConnection(props: AddConnectionProps) {
         if (values['trustStoreCertificateAlias'] && values['trustStoreCertificatePath']) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
             const currentEnvFilePath = projectUri + "/.env";
+            const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
 
             const currentCertificateAlias = values['trustStoreCertificateAlias'];
             const currentCertificateFilePath = values['trustStoreCertificatePath'];
@@ -308,7 +310,7 @@ export function AddConnection(props: AddConnectionProps) {
 
             if (currentCertificateFilePath) {
                 if (isCertificateFilePath(currentCertificateFilePath)) {
-                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateAlias: currentCertificateAlias, certificateFilePath: currentCertificateFilePath, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
+                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateAlias: currentCertificateAlias, certificateFilePath: currentCertificateFilePath, storedProjectCertificateDirPath: projectCertificateDirPath, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
                     const configValue = `{#[config:${currentCertificateAlias}]}`;
                     connectorTag.ele('trustStoreCertificatePath').txt(configValue);
                 } else {

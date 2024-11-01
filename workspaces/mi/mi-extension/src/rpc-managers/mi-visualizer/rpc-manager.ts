@@ -49,7 +49,7 @@ import fetch from 'node-fetch';
 import { workspace, window, commands, env, Uri } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent, getFileName, copyFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
@@ -168,6 +168,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
         const fileName = getFileName(params.certificateFilePath);
+        await copyFile(params.certificateFilePath, params.storedProjectCertificateDirPath + fileName + '.crt');
         await this.appendContentToFile({filePath: params.configPropertiesFilePath, content: `${params.certificateAlias}:cert\n`});
         await this.appendContentToFile({filePath: params.envFilePath, content: `${params.certificateAlias}=${params.certificateFilePath}\n`});
         vscode.window.showInformationMessage(`Certificate file '${params.certificateAlias}' added successfully. Entries were added to the config and env files.`);

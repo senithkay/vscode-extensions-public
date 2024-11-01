@@ -81,6 +81,18 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
     progress.report({ message: "Download finished" });
 }
 
+export function copyFile(sourcePath: string, destinationPath: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.copyFileSync(sourcePath, destinationPath, fs.constants.COPYFILE_EXCL);
+            resolve(true);
+        } catch (error) {
+            console.error("Error copying file:", error);
+            resolve(false);
+        }
+    })
+}
+
 export function appendContent(path: string, content: string): Promise<boolean> {
     return new Promise((resolve) => {
         try {
