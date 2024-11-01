@@ -14,7 +14,9 @@ import { Button, CompletionItem, ExpressionBar, ExpressionBarRef, InputProps, Re
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
-import { LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import { debounce } from 'lodash';
+import { Colors } from '../../resources/constants';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -69,13 +71,17 @@ namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)',
     });
 
+    export const Error = styled.div({
+        color: Colors.ERROR,
+    });
+
     export const EndAdornment = styled(Button)`
         & > vscode-button {
             color: var(--vscode-button-secondaryForeground);
             font-size: 10px;
         }
     `;
-    
+
     export const EndAdornmentText = styled.p`
         font-size: 10px;
         margin: 0;
@@ -85,7 +91,7 @@ namespace S {
 export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
     const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-    return <ExpressionEditor ref={ref} fileName={fileName} {...targetLineRange} {...props} {...form} {...expressionEditor}  />;
+    return <ExpressionEditor ref={ref} fileName={fileName} {...targetLineRange} {...props} {...form} {...expressionEditor} />;
 });
 
 export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorProps>((props, ref) => {
@@ -117,7 +123,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const exprRef = useRef<ExpressionBarRef>(null);
 
     useImperativeHandle(ref, () => exprRef.current);
-    
+
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
     // Use to disable the expression editor on save and completion selection
@@ -183,18 +189,57 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     };
 
     const handleHelperPaneOpen = () => {
-        if(effectiveTargetLineRange && effectiveFileName) {
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
-                filePath: effectiveFileName,
-                range: {
-                    startLine: effectiveTargetLineRange.startLine,
-                    endLine: effectiveTargetLineRange.endLine,
-                },
-                editorKey: field.key
-            }});
+        if (effectiveTargetLineRange && effectiveFileName) {
+            const subPanelProps: SubPanelViewProps = {
+                sidePanelData: {
+                    filePath: effectiveFileName,
+                    range: {
+                        startLine: effectiveTargetLineRange.startLine,
+                        endLine: effectiveTargetLineRange.endLine,
+                    },
+                    editorKey: field.key
+                }
+            };
+            if (field.type === 'RECORD_EXPRESSION') { // TODO: update the type based on the LS API
+                const configurePanelData: ConfigurePanelData = {
+                    isEnable: true,
+                    name: field.label,
+                    documentation: field.documentation,
+                    value: field.value
+                };
+                subPanelProps.sidePanelData.configurePanelData = configurePanelData;
+            }
+
+            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
             handleOnFieldFocus?.(field.key);
         }
     };
+
+    const updateSubPanelData = (value: string) => {
+        if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
+            const subPanelProps: SubPanelViewProps = {
+                sidePanelData: {
+                    filePath: effectiveFileName,
+                    range: {
+                        startLine: effectiveTargetLineRange.startLine,
+                        endLine: effectiveTargetLineRange.endLine,
+                    },
+                    editorKey: field.key,
+                    configurePanelData: {
+                        isEnable: true,
+                        name: field.label,
+                        documentation: field.documentation,
+                        value: value
+                    }
+                }
+            };
+
+            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
+        };
+    };
+
+    const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
     return (
         <S.Container>
@@ -216,6 +261,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         value={value}
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
+                            debouncedUpdateSubPanelData(value);
+
+                            // HACK: Fix diagnostics from the expression editor
+                            field.diagnostics = [];
 
                             // Check if the current character is a trigger character
                             cursorPositionRef.current = updatedCursorPosition;
@@ -243,6 +292,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     />
                 )}
             />
+            {errorMsg && <S.Error>{errorMsg}</S.Error>}
         </S.Container>
     );
 });

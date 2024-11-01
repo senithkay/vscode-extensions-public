@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { DiagnosticMessage } from "@wso2-enterprise/ballerina-core";
+
 export type FormValues = {
     [key: string]: any;
 };
@@ -19,6 +21,7 @@ export type FormField = {
     editable: boolean;
     documentation: string;
     value: string;
+    diagnostics?: DiagnosticMessage[];
     items?: string[];
 };
 
@@ -26,4 +29,5 @@ export type ExpressionFormField = {
     key: string;
     value: string;
     cursorPosition: number;
+    isConfigured?: boolean
 };

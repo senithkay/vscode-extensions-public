@@ -16,7 +16,7 @@ export class RemoveNodeVisitor implements BaseVisitor {
     private nodeId: string;
 
     constructor(originalFlowModel: Flow, nodeId: string) {
-        console.log(">>> remove node visitor started", { nodeId });
+        // console.log(">>> remove node visitor started", { nodeId });
         this.flow = originalFlowModel;
         this.nodeId = nodeId;
     }
