@@ -645,6 +645,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             e.preventDefault();
             console.log('ExpressionEditor: handleInputKeyDown: Enter');
             await handleExpressionSaveMutation(value);
+            skipFocusCallback.current = true;
             // // 
             // 
             // await onBlur?.(e);
@@ -727,7 +728,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 growRange={{ start: 1, offset: 7 }}
                 resize='vertical'
             />
-            {shouldDisableOnSave && (isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
+            {shouldDisableOnSave && isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
                 createPortal(
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
