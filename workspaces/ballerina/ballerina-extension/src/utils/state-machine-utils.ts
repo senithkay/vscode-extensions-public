@@ -23,7 +23,6 @@ export async function getView(documentUri: string, position: NodePosition): Prom
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
     if (node.parseSuccess) {
-        console.log("Node", node);
         if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
             const recordST = node.syntaxTree;
             const name = recordST.typeName?.value;
