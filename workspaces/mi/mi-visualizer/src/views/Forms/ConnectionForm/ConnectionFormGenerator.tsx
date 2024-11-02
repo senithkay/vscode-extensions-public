@@ -54,6 +54,7 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
+    const [certificatePath, setCertificatePath] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -153,6 +154,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
                                 }
+                            }
+                            if (param.name === 'trustStoreCertificatePath') {
+                                setCertificatePath(param.value);
                             }
                         });
                     }
@@ -310,9 +314,19 @@ export function AddConnection(props: AddConnectionProps) {
 
             if (currentCertificateFilePath) {
                 if (isCertificateFilePath(currentCertificateFilePath)) {
-                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({ certificateAlias: currentCertificateAlias, certificateFilePath: currentCertificateFilePath, storedProjectCertificateDirPath: projectCertificateDirPath, configPropertiesFilePath: currentConfigPropertiesFilePath, envFilePath: currentEnvFilePath});
-                    const configValue = `{#[config:${currentCertificateAlias}]}`;
-                    connectorTag.ele('trustStoreCertificatePath').txt(configValue);
+                    // const configValue = `{#[config:${currentCertificateAlias}]}`;
+                    const fileName = currentCertificateFilePath.split('/').pop();
+                    if (certificatePath !== currentCertificateFilePath) {
+                        connectorTag.ele('trustStoreCertificatePath').txt(fileName);
+                        rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
+                            certificateAlias: currentCertificateAlias, 
+                            currentCertificateFileName: certificatePath,
+                            certificateFilePath: currentCertificateFilePath, 
+                            storedProjectCertificateDirPath: projectCertificateDirPath, 
+                            configPropertiesFilePath: currentConfigPropertiesFilePath, 
+                            envFilePath: currentEnvFilePath
+                        });
+                    }
                 } else {
                     connectorTag.ele('trustStoreCertificatePath').txt(currentCertificateFilePath);
                 }

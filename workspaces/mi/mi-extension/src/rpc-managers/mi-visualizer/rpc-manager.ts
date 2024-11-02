@@ -49,7 +49,7 @@ import fetch from 'node-fetch';
 import { workspace, window, commands, env, Uri } from "vscode";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile, appendContent, getFileName, copyFile } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent, getFileName, copyFile, deleteFile, deleteLineFromFile } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
@@ -167,10 +167,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
+        const inProjectCertificateValue = "IN_PROJECT";
         const fileName = getFileName(params.certificateFilePath);
+        if (params.currentCertificateFileName !== "") {
+            await deleteFile(params.storedProjectCertificateDirPath + params.currentCertificateFileName);
+            await deleteLineFromFile(params.configPropertiesFilePath, `${params.certificateAlias}:cert\n`);
+            await deleteLineFromFile(params.envFilePath, `${params.certificateAlias}=${inProjectCertificateValue}\n`);
+        }
         await copyFile(params.certificateFilePath, params.storedProjectCertificateDirPath + fileName + '.crt');
         await this.appendContentToFile({filePath: params.configPropertiesFilePath, content: `${params.certificateAlias}:cert\n`});
-        await this.appendContentToFile({filePath: params.envFilePath, content: `${params.certificateAlias}=${params.certificateFilePath}\n`});
+        await this.appendContentToFile({filePath: params.envFilePath, content: `${params.certificateAlias}=${inProjectCertificateValue}\n`});
         vscode.window.showInformationMessage(`Certificate file '${params.certificateAlias}' added successfully. Entries were added to the config and env files.`);
         vscode.window.showInformationMessage("Do you want to view added entries in config file?", "Open Config File").then(selection => {
             if (selection === "Open Config File") {
