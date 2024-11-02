@@ -93,6 +93,20 @@ export function deleteFile(filePath: string): Promise<boolean> {
     });
 }
 
+export function deleteLineFromFile(filePath: string, lineContent: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            const fileData = fs.readFileSync(filePath, 'utf8').split('\n');
+            const updatedData = fileData.filter(line => line.trim() !== lineContent.trim()).join('\n');
+            fs.writeFileSync(filePath, updatedData, 'utf8');
+            resolve(true);
+        } catch (error) {
+            console.error("Error deleting line:", error);
+            resolve(false);
+        }
+    });
+}
+
 export function copyFile(sourcePath: string, destinationPath: string): Promise<boolean> {
     return new Promise((resolve) => {
         try {
