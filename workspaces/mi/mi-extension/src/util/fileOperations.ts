@@ -81,6 +81,18 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
     progress.report({ message: "Download finished" });
 }
 
+export function deleteFile(filePath: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.unlinkSync(filePath);
+            resolve(true);
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            resolve(false);
+        }
+    });
+}
+
 export function copyFile(sourcePath: string, destinationPath: string): Promise<boolean> {
     return new Promise((resolve) => {
         try {
