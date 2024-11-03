@@ -12,6 +12,8 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
+    GetFromFileRequest,
+    DeleteFromProjectRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
     InitialPrompt,
@@ -19,6 +21,8 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     addToProject,
+    getFromFile,
+    deleteFromProject,
     clearInitialPrompt,
     generateMappings,
     getAccessToken,
@@ -81,6 +85,14 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     addToProject(params: AddToProjectRequest): void {
         return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
+    }
+
+    getFromFile(params: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, params);
+    }
+
+    deleteFromProject(params: DeleteFromProjectRequest): Promise<string> {
+        return this._messenger.sendRequest(deleteFromProject, HOST_EXTENSION, params);
     }
 
     getRefreshToken(): Promise<string> {
