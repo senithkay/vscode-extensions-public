@@ -8,14 +8,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { debounce } from "lodash";
 import styled from '@emotion/styled';
 import { ConfigVariable, EVENT_TYPE, Flow, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
-import { convertToVisibleTypes } from '../../../../utils/bi';
+import { convertNodePropertiesToFormFields, convertToVisibleTypes, getFormProperties } from '../../../../utils/bi';
 
 namespace S {
     export const FormContainer = styled.div`
@@ -38,41 +38,16 @@ export function EditForm(props: ConfigFormProps) {
 
     const { rpcClient } = useRpcContext();
 
-    // Map variables data to form fields
-    const currentFields: FormField[] = [
-        {
-            key: `variable`,
-            label: 'Variable',
-            type: 'string',
-            optional: false,
-            editable: variable?.properties?.variable?.editable || false,
-            documentation: '',
-            value: typeof variable?.properties?.variable?.value === 'string' ? variable?.properties?.variable?.value : '',
-        },
-        {
-            key: `type`,
-            label: 'Type',
-            type: 'string',
-            optional: false,
-            editable: variable?.properties?.type?.editable || false,
-            documentation: '',
-            value: typeof variable?.properties?.type?.value === 'string' ? variable?.properties?.type?.value : ''
-        },
-        {
-            key: `defaultable`,
-            label: 'Value',
-            type: 'string',
-            optional: true,
-            editable: variable?.properties?.defaultable?.editable || false,
-            documentation: '',
-            value: typeof variable?.properties?.defaultable?.value === 'string' && (variable?.properties?.defaultable?.value === '' || variable?.properties?.defaultable?.value === '?') ? ''
-                : typeof variable?.properties?.defaultable?.value === 'string' ? variable?.properties?.defaultable?.value.replace(/"/g, '') : ''
-        }
-    ];
-
-    const [fields, setFields] = useState<FormField[]>(currentFields);
+    const [fields, setFields] = useState<FormField[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
+
+    useEffect(() => {
+        variable.properties.defaultable.optional = true;
+        const formProperties = getFormProperties(variable);
+        console.log(">>> Edit config form properties", formProperties);
+        setFields(convertNodePropertiesToFormFields(formProperties));
+    }, []);
 
     const handleSave = (data: FormValues) => {
 
