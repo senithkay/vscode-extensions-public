@@ -135,6 +135,8 @@ export const BaseTypes = [
     "object",
 ];
 
+export type ParameterSchemaTypes = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null' | ('string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null')[];
+
 export const SchemaTypes = [
     "string",
     "number",
