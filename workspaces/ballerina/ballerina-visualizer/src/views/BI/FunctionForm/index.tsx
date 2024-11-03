@@ -142,7 +142,7 @@ export function FunctionForm() {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleFunctionCreate = async (data: FormValues) => {
-        console.log("data", data)
+        console.log("Function Form Data: ", data)
         setIsLoading(true);
         const name = data['functionName'];
         const returnType = data['type'];
