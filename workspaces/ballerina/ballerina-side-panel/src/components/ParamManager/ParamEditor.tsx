@@ -15,70 +15,39 @@ import { Parameter } from './ParamManager';
 import Form, { FormProps } from '../Form';
 import { FormField, FormValues } from '../Form/types';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
+import { useFormContext } from '../../context';
 
 export interface ParamProps {
     parameter: Parameter;
-    paramFields: FormProps;
-    isTypeReadOnly?: boolean;
-    onSave?: (param: Parameter) => void;
-    onCancel?: (param?: Parameter) => void;
+    paramFields: FormField[];
+    onSave: (param: Parameter) => void;
+    onCancelEdit: (param?: Parameter) => void;
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { parameter, paramFields, onSave, onCancel } = props;
+    const { parameter, paramFields, onSave, onCancelEdit } = props;
+    const { expressionEditor: { completions, retrieveCompletions, retrieveVisibleTypes, onCancel } } = useFormContext();
 
-    const [fields, setFields] = useState<FormField[]>(paramFields.formFields);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
-
-    // <------------- Expression Editor Util functions list start --------------->
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        const { visibleTypes, filteredTypes } = await paramFields.expressionEditor.retrieveVisibleTypes(value, cursorPosition) as any;
-        setTypes(visibleTypes);
-        setFilteredTypes(filteredTypes);
-    };
-
-    const handleCompletionSelect = async () => {
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-    // <------------- Expression Editor Util functions list end --------------->
-
+    const [fields, setFields] = useState<FormField[]>(paramFields);
 
     const handleOnSave = (data: FormValues) => {
         setFields([]);
         parameter.formValues = data;
-        console.log("paramFields", paramFields);
         onSave(parameter);
     }
-
-    fields.forEach(field => {
-        field.value = parameter.formValues[field.key];
-    })
 
     return (
         <EditorContainer>
             <Form
-                {...paramFields}
-                expressionEditor={
-                    {
-                        completions: filteredTypes,
-                        retrieveVisibleTypes: handleGetVisibleTypes,
-                        onCompletionSelect: handleCompletionSelect,
-                        onCancel: handleExpressionEditorCancel,
-                        onBlur: handleExpressionEditorBlur
-                    }
-                }
                 formFields={fields}
                 onSubmit={handleOnSave}
+                onCancelForm={() => onCancelEdit(parameter)}
+                expressionEditor={{
+                    completions,
+                    onCancel,
+                    retrieveCompletions,
+                    retrieveVisibleTypes
+                }}
             />
         </EditorContainer >
     );

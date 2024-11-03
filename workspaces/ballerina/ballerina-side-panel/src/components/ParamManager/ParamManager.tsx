@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import styled from '@emotion/styled';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
-import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FormProps } from '../Form';
 import { FormField, FormValues } from '../Form/types';
+import { Controller } from 'react-hook-form';
+import { useFormContext } from '../../context';
 
 export interface Parameter {
     id: number;
@@ -27,7 +29,8 @@ export interface Parameter {
 
 export interface ParamConfig {
     paramValues: Parameter[];
-    formConfig: FormProps;
+    formFields: FormField[];
+    handleParameter: (parameter: Parameter) => Parameter;
 }
 
 export interface ParamManagerProps {
@@ -40,11 +43,46 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
+const ParamContainer = styled.div`
+	display: block;
+    width: 100%;
+`;
+
+export interface ParamManagerEditorProps {
+    field: FormField;
+    handleOnFieldFocus?: (key: string) => void;
+}
+
+export function ParamManagerEditor(props: ParamManagerEditorProps) {
+    const { field } = props;
+    const { form } = useFormContext();
+    const { control, setValue } = form;
+    return (
+        <ParamContainer>
+            <Typography variant='h4'>Parameters</Typography>
+            <Controller
+                control={control}
+                name={field.key}
+                render={({ field: { onChange } }) => (
+                    <ParamManager
+                        paramConfigs={field.paramManagerProps}
+                        onChange={async (config: ParamConfig) => {
+                            onChange(config.paramValues);
+                        }}
+                    />
+                )}
+            />
+        </ParamContainer>
+    );
+
+}
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
+    const [parameters, setParameters] = useState<Parameter[]>(paramConfigs.paramValues);
+    const [paramComponents, setParamComponents] = useState<React.ReactElement[]>([]);
 
     const onEdit = (param: Parameter) => {
         setEditingSegmentId(param.id);
@@ -65,16 +103,16 @@ export function ParamManager(props: ParamManagerProps) {
     };
 
     const onAddClick = () => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters = [...parameters];
         setEditingSegmentId(updatedParameters.length);
-        const newParams: Parameter = getNewParam(paramConfigs.formConfig.formFields, updatedParameters.length);
+        const newParams: Parameter = getNewParam(paramConfigs.formFields, updatedParameters.length);
         updatedParameters.push(newParams);
-        onChange({ ...paramConfigs, paramValues: updatedParameters });
+        setParameters(updatedParameters);
         setIsNew(true);
     };
 
     const onDelete = (param: Parameter) => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters = [...parameters];
         const indexToRemove = param.id;
         if (indexToRemove >= 0 && indexToRemove < updatedParameters.length) {
             updatedParameters.splice(indexToRemove, 1);
@@ -83,15 +121,17 @@ export function ParamManager(props: ParamManagerProps) {
             ...item,
             id: index
         }));
+        setParameters(reArrangedParameters);
         onChange({ ...paramConfigs, paramValues: reArrangedParameters });
     };
 
     const onChangeParam = (updatedParams: Parameter) => {
-        const updatedParameters = [...paramConfigs.paramValues];
+        const updatedParameters = [...parameters];
         const index = updatedParameters.findIndex(param => param.id === updatedParams.id);
         if (index !== -1) {
-            updatedParameters[index] = updatedParams;
+            updatedParameters[index] = paramConfigs.handleParameter(updatedParams);
         }
+        setParameters(updatedParameters);
         onChange({ ...paramConfigs, paramValues: updatedParameters });
     };
 
@@ -109,30 +149,39 @@ export function ParamManager(props: ParamManagerProps) {
         setIsNew(false);
     };
 
-    const paramComponents: React.ReactElement[] = [];
-    paramConfigs?.paramValues
-        .forEach((param, index) => {
-            if (editingSegmentId === index) {
-                paramComponents.push(
-                    <ParamEditor
-                        parameter={param}
-                        paramFields={paramConfigs.formConfig}
-                        isTypeReadOnly={false}
-                        onSave={onSaveParam}
-                        onCancel={onParamEditCancel}
-                    />
-                )
-            } else if ((editingSegmentId !== index)) {
-                paramComponents.push(
-                    <ParamItem
-                        params={param}
-                        readonly={editingSegmentId !== -1 || readonly}
-                        onDelete={onDelete}
-                        onEditClick={onEdit}
-                    />
-                );
-            }
-        });
+    useEffect(() => {
+        renderParams();
+    }, [parameters, editingSegmentId]);
+
+    const renderParams = () => {
+        const render: React.ReactElement[] = [];
+        parameters
+            .forEach((param, index) => {
+                if (editingSegmentId === index) {
+                    paramConfigs.formFields.forEach(field => {
+                        field.value = param.formValues[field.key];
+                    })
+                    render.push(
+                        <ParamEditor
+                            parameter={param}
+                            paramFields={paramConfigs.formFields}
+                            onSave={onSaveParam}
+                            onCancelEdit={onParamEditCancel}
+                        />
+                    )
+                } else if ((editingSegmentId !== index)) {
+                    render.push(
+                        <ParamItem
+                            params={param}
+                            readonly={editingSegmentId !== -1 || readonly}
+                            onDelete={onDelete}
+                            onEditClick={onEdit}
+                        />
+                    );
+                }
+            });
+        setParamComponents(render);
+    }
 
     return (
         <div>

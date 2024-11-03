@@ -8,6 +8,7 @@
  */
 
 import { DiagnosticMessage } from "@wso2-enterprise/ballerina-core";
+import { ParamConfig } from "../ParamManager/ParamManager";
 
 export type FormValues = {
     [key: string]: any;
@@ -23,6 +24,7 @@ export type FormField = {
     value: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    paramManagerProps?: ParamConfig;
 };
 
 export type ExpressionFormField = {
