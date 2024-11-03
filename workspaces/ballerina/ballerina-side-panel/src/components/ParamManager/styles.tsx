@@ -113,37 +113,11 @@ export const ValueTextWrapper = styled.div`
     height: 100%;
 `;
 
-// export const headerLabelStyles = cx(css`
-//     height: 100%;
-//     width: 100%;
-//     display: flex;
-//     margin-left: 10px;
-//     align-items: center;
-//     justify-content: flex-start;
-//     width: calc(100% - 75px);
-//     cursor: pointer;
-//     line-height: 14px;
-//     border: 1px solid var(--vscode-dropdown-border);
-//     border-left: none;
-// `);
-
 export const OptionLabel = styled.div`
     font-size: 12px;
     line-height: 14px;
     margin-left: 5px;
 `;
-
-// export const disabledHeaderLabel = cx(css`
-//     height: 100%;
-//     display: flex;
-//     margin-left: 10px;
-//     align-items: center;
-//     justify-content: flex-start;
-//     width: calc(100% - 75px);
-//     line-height: 14px;
-//     border: 1px solid var(--vscode-dropdown-border);
-//     border-left: none;
-// `);
 
 export const HeaderLabel = styled.div`
     display: flex;
