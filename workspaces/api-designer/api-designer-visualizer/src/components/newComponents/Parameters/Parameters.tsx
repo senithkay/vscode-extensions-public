@@ -8,10 +8,11 @@
  */
 import { Button, Codicon, Dropdown, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Parameter as P } from '../../../Definitions/ServiceDefinitions';
+import { Parameter as P, ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { BaseTypes } from '../../../constants';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Parameter } from '../Parameter/Parameter';
+import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 
 export const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -23,10 +24,11 @@ export const PanelBody = styled.div`
 `;
 
 interface ParameterProps {
-    parameters: P[];
+    parameters: (P | R) [];
     paramTypes?: string[];
+    currentReferences?: R[];
     title?: string;
-    onParametersChange: (parameter: P[]) => void;
+    onParametersChange: (parameter: (P | R) []) => void;
 }
 const ButtonWrapperParams = styled.div`
     display: flex;
@@ -38,11 +40,15 @@ const ButtonWrapperParams = styled.div`
     justify-content: flex-end;
 `;
 
+function isReferenceObject(obj: (P | R)): obj is R {
+    return obj && typeof obj === 'object' && '$ref' in obj;
+}
+
 // Title, Vesrion are mandatory fields
 export function Parameters(props: ParameterProps) {
-    const { parameters, paramTypes = BaseTypes, title, onParametersChange } = props;
+    const { parameters, paramTypes = BaseTypes, title, currentReferences, onParametersChange } = props;
 
-    const handleParameterChange = (parameters: P[]) => {
+    const handleParameterChange = (parameters: (P | R)[]) => {
         onParametersChange(parameters);
     };
 
@@ -60,32 +66,73 @@ export function Parameters(props: ParameterProps) {
         parameterCopy.push(newParam);
         handleParameterChange([...parameterCopy]);
     };
-    const getAddButton = () => (
+    const getAddParamButton = () => (
         <Button appearance="icon" onClick={() => addNewParam()}>
             <Codicon sx={{ marginRight: 5 }} name="add" />
-            Add
+            Add Parameter
+        </Button>
+    );
+    const addNewReferenceObject = () => {
+        const parameterCopy = [...parameters];
+        const newParam: R = {
+            $ref: currentReferences?.[0]?.$ref || "",
+            summary: "",
+            description: ""
+        };
+        parameterCopy.push(newParam);
+        handleParameterChange([...parameterCopy]);
+    }
+    const getAddReferenceObjectButton = () => (
+        <Button appearance="icon" onClick={() => addNewReferenceObject()}>
+            <Codicon sx={{ marginRight: 5 }} name="add" />
+            Add Reference
         </Button>
     );
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            <SectionHeader title={title} actionButtons={getAddButton()} />
-            {parameters.map((parameter, index) => (
-                <Parameter
-                    key={index}
-                    id={index}
-                    parameter={parameter}
-                    paramTypes={paramTypes}
-                    onRemoveParameter={(id: number) => {
-                        parameters.splice(id, 1);
-                        handleParameterChange([...parameters]);
-                    }}
-                    onParameterChange={(parameter: P) => {
-                        parameters[index] = parameter;
-                        handleParameterChange([...parameters]);
-                    }}
-                />
-            ))}
+            <SectionHeader title={title} actionButtons={[getAddParamButton(), getAddReferenceObjectButton()]} />
+            {parameters.map((parameter, index) => {
+                if (isReferenceObject(parameter)) {
+                    return (
+                        <ReferenceObject
+                            key={index}
+                            id={index}
+                            referenceObject={parameter}
+                            referenceObjects={currentReferences?.map((item) => item.$ref)}
+                            onRemoveReferenceObject={(id) => {
+                                const parametersCopy = [...parameters];
+                                parametersCopy.splice(id, 1);
+                                handleParameterChange(parametersCopy as P[]);
+                            }}
+                            onRefernceObjectChange={(parameter) => {
+                                const parametersCopy = [...parameters];
+                                parametersCopy[index] = parameter;
+                                handleParameterChange(parametersCopy as P[]);
+                            }}
+                        />
+                    );
+                } else {
+                    return (
+                        <Parameter
+                            key={index}
+                            id={index}
+                            parameter={parameter}
+                            paramTypes={paramTypes}
+                            onRemoveParameter={(id) => {
+                                const parametersCopy = [...parameters];
+                                parametersCopy.splice(id, 1);
+                                handleParameterChange(parametersCopy as P[]);
+                            }}
+                            onParameterChange={(parameter) => {
+                                const parametersCopy = [...parameters];
+                                parametersCopy[index] = parameter;
+                                handleParameterChange(parametersCopy as P[]);
+                            }}
+                        />
+                    );
+                }
+            })}
         </div>
     )
 }

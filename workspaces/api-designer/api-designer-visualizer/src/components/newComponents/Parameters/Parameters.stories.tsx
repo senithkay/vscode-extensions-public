@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { Parameter as P } from "../../../Definitions/ServiceDefinitions";
+import { Parameter as P, ReferenceObject as R } from "../../../Definitions/ServiceDefinitions";
 import { Parameters } from "./Parameters";
 
 export default {
@@ -30,11 +30,43 @@ const parameters: P[] = [parameter];
 
 export const ParametersStory = () => {
     const [parameters, setParameters] = useState<P[]>([parameter]);
-    const onParametersChange = (parameters: P[]) => {
+    const onParametersChange = (parameters: (P | R) []) => {
         console.log(parameters);
-        setParameters(parameters);
+        setParameters(parameters as P[]);
     }
     return (
-        <Parameters title="Query Parameters" parameters={parameters} onParametersChange={onParametersChange} />
+        <Parameters title="Query Parameters" parameters={parameters} onParametersChange={onParametersChange} currentReferences={currentReferenceObjects} />
     );
 };
+
+const referenceObj: R = {
+    $ref: "http://example.com",
+    description: "description",
+    summary: "summary",
+};
+
+const currentReferenceObjects: R[] = [
+    {
+        $ref: "http://example1.com",
+        description: "description",
+        summary: "summary",
+    },
+    {
+        $ref: "http://example2.com",
+        description: "description",
+        summary: "summary",
+    },
+];
+
+const referenceObject: R[] = [referenceObj];
+
+export const ParametersStoryWithReferenceObject = () => {
+    const [referenceObjects, setReferenceObjects] = useState<R[]>([referenceObj]);
+    const onReferenceObjectsChange = (referenceObjects: (P | R) []) => {
+        console.log(referenceObjects);
+        setReferenceObjects(referenceObjects as R[]);
+    }
+    return (
+        <Parameters title="Query Parameters" parameters={referenceObjects} onParametersChange={onReferenceObjectsChange} currentReferences={currentReferenceObjects} />
+    );
+}

@@ -51,7 +51,7 @@ export interface Paths {
 export interface PathItem {
     description?: string; // Description of the path item
     summary?: string; // Summary of the path item
-    parameters?: Parameter[]; // Parameters defined at the PathItem level
+    parameters?: Parameter[] | ReferenceObject[]; // Parameters defined at the PathItem level
     get?: Operation; // GET operation for the path
     put?: Operation; // PUT operation for the path
     post?: Operation; // POST operation for the path
@@ -70,7 +70,7 @@ export interface Operation {
     summary?: string;
     description?: string;
     operationId?: string;
-    parameters?: Parameter[];
+    parameters?: [Parameter | ReferenceObject][];
     requestBody?: RequestBody;
     responses?: Responses;
     [key: string]: any; // To accommodate extensions and additional properties
@@ -83,6 +83,13 @@ export interface Parameter {
     required?: boolean;
     deprecated?: boolean;
     schema?: Schema;
+    [key: string]: any;
+}
+
+export interface ReferenceObject {
+    $ref: string;
+    description?: string;
+    summary?: string;
     [key: string]: any;
 }
 
