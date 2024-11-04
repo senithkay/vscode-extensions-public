@@ -109,16 +109,16 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             
             const relativeCursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
 
-            if (!shouldCompletionsAppear(textFieldValue, relativeCursorPosition)){
+            if (!shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition)){
                 return [];
             }
 
-            const partialTextMatcher = textFieldValue.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
+            const partialTextMatcher = textFieldValueRef.current.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
             const partialText = (partialTextMatcher && partialTextMatcher.length) ? partialTextMatcher[partialTextMatcher.length-1] : undefined;
 
             let fileContent = nodeForSuggestions.getSourceFile().getFullText();
 
-            fileContent = fileContent.slice(0, completionReqPosStart.current) + ' ' + textFieldValue + fileContent.slice(completionReqPosEnd.current);
+            fileContent = fileContent.slice(0, completionReqPosStart.current) + ' ' + textFieldValueRef.current + fileContent.slice(completionReqPosEnd.current);
             const cursorPosition = completionReqPosStart.current + 1 + relativeCursorPosition;
             const response = await rpcClient.getMiDataMapperRpcClient().getCompletions({
                 filePath,
