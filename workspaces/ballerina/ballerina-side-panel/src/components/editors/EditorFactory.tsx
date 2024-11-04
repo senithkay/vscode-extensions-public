@@ -18,6 +18,7 @@ import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
+import { DropdownEditor } from "./DropdownEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -31,7 +32,7 @@ interface FormFieldEditorProps {
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
     const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
 
-    if (field.type === "MULTIPLE_SELECT" || field.type?.toUpperCase() === "ENUM") {
+    if (field.type === "MULTIPLE_SELECT" ) {
         // Enum is a dropdown field
         let label: string;
         switch (selectedNode) {
@@ -43,6 +44,9 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 break;
         }
         return <MultiSelectEditor field={field} label={label} />;
+    } else if (field.type.toUpperCase() === "ENUM") {
+        // Enum is a dropdown field
+        return <DropdownEditor field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
         return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
