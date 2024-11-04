@@ -288,6 +288,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}
                         handleHelperPaneOpen={handleHelperPaneOpen}
+                        placeholder={field.placeholder}
                         sx={{ paddingInline: '0' }}
                     />
                 )}

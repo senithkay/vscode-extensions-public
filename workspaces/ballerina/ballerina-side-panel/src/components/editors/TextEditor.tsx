@@ -61,6 +61,7 @@ export function TextEditor(props: TextEditorProps) {
             label={field.label}
             required={!field.optional}
             description={field.documentation}
+            placeholder={field.placeholder}
             readOnly={!field.editable}
             sx={{ width: "100%" }}
             errorMsg={errorMsg}

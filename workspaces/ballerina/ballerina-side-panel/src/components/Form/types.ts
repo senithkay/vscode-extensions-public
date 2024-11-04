@@ -21,6 +21,7 @@ export type FormField = {
     optional: boolean;
     advanced?: boolean;
     editable: boolean;
+    placeholder?: string;
     documentation: string;
     value: string;
     diagnostics?: DiagnosticMessage[];
