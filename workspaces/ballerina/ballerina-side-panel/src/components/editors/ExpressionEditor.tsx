@@ -23,12 +23,14 @@ type ContextAwareExpressionEditorProps = {
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
     handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
     triggerCharacters?: readonly string[];
+    autoFocus?: boolean;
     retrieveCompletions?: (
         value: string,
         offset: number,
@@ -111,7 +113,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         isActiveSubPanel,
         targetLineRange,
         fileName,
-        handleOnFieldFocus
+        handleOnFieldFocus,
+        autoFocus
     } = props as ExpressionEditorProps;
 
 
@@ -259,6 +262,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         name={name}
                         completions={completions}
                         value={value}
+                        autoFocus={props.autoFocus}
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
                             debouncedUpdateSubPanelData(value);

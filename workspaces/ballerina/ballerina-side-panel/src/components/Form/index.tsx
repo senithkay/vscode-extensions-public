@@ -323,6 +323,9 @@ export function Form(props: FormProps) {
         fileName
     };
 
+    // Find the first editable field
+    const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
+
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
@@ -333,6 +336,7 @@ export function Form(props: FormProps) {
                             <EditorFactory
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
+                                autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                             />
                         }
                         {typeField && (
@@ -365,6 +369,7 @@ export function Form(props: FormProps) {
                                         openSubPanel={openSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
                                         handleOnFieldFocus={handleOnFieldFocus}
+                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                     />
                                 </S.Row>
                             );
