@@ -20,7 +20,7 @@ interface ReferenceObjectsProps {
     id: number;
     referenceObject: R;
     referenceObjects?: string[];
-    onRemoveReferenceObject: (id: number) => void;
+    onRemoveReferenceObject?: (id: number) => void;
     onRefernceObjectChange: (parameter: R) => void;
 }
 const ButtonWrapperParams = styled.div`

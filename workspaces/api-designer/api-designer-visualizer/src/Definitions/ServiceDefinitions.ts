@@ -113,7 +113,7 @@ export interface MediaType {
 }
 
 export interface Responses {
-    [statusCode: string]: Response;
+    [statusCode: string]: Response | ReferenceObject;
 }
 
 export interface Response {

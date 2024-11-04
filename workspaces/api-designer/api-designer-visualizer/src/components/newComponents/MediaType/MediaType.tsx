@@ -25,10 +25,10 @@ export function MediaType(props: MediaTypeProps) {
     return (
         <>
             <SchemaEditor
-                schema={mediaType.schema}
+                schema={mediaType?.schema}
                 variant='h3'
                 openAPI={null} // Provide OpenAPI definition throught context
-                schemaName={mediaType.schema?.type as string}
+                schemaName={mediaType?.schema?.type as string}
                 onSchemaChange={(schema) => handleContactChange({ ...mediaType, schema })}
             />
             {/* TODO: Add Support for examples and other fields */}

@@ -275,40 +275,6 @@ export function Response(props: ReadOnlyResourceProps) {
         onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
     };
 
-    const updateArray = () => {
-        let clonedSchema = { ...responseSchema };
-        if (isResponseSchemaArray && clonedSchema.type) {
-            if (BaseTypes.includes(clonedSchema.type)) {
-                clonedSchema.type = responseMediaType;
-            } else {
-                clonedSchema = { $ref: `#/components/schemas/${responseMediaType}` };
-            }
-            // Delete schema.items if it is an array
-            delete clonedSchema.items;
-        } else {
-            clonedSchema.type = "array";
-            if (BaseTypes.includes(responseMediaType)) {
-                clonedSchema.items = { responseType: responseMediaType };
-            } else {
-                clonedSchema.items = { $ref: `#/components/schemas/${responseMediaType}` };
-            }
-            delete clonedSchema.$ref;
-        }
-        const newResponseBody: Responses = {
-            ...resourceOperation.responses,
-            [selectedResponseType]: {
-                ...resourceOperation.responses[selectedResponseType],
-                content: {
-                    ...selectedContentFromResponseMediaType.content,
-                    [selectedMediaType]: {
-                        ...selectedContentFromResponseMediaType.content[selectedMediaType],
-                        schema: clonedSchema
-                    }
-                }
-            }
-        };
-        onOperationChange(path, method, { ...resourceOperation, responses: newResponseBody });
-    };
     const removeType = () => {
         const newResponseBody: Responses = {
             ...resourceOperation?.responses,
@@ -442,7 +408,7 @@ export function Response(props: ReadOnlyResourceProps) {
                                     <div id={selectedMediaType}>
                                         <SchemaEditor
                                             schema={responseSchema}
-                                            schemaName={responseSchema?.title || responseSchema?.type}
+                                            schemaName={responseSchema?.title || responseSchema?.type as string}
                                             onSchemaChange={handleSchemaChange}
                                             openAPI={openAPI}
                                         />
