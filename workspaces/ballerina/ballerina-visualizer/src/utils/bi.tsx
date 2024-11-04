@@ -348,8 +348,10 @@ export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, 
             const isRadio = !!triggerFunction.group;
             if (isRadio) {
                 if (!response[triggerFunction.group.name]) {
-                    response[triggerFunction.group.name] = { radioValues: [], required: !triggerFunction.optional };
+                    response[triggerFunction.group.name] = { radioValues: [], required: !triggerFunction.optional, functionType: { name: "" } };
                 }
+                // Always set the first function as default
+                response[triggerFunction.group.name].functionType.name = functions[0].name;
                 response[triggerFunction.group.name].radioValues.push(triggerFunction.name);
             } else {
                 response[triggerFunction.name] = { checked: !triggerFunction.optional, required: !triggerFunction.optional, fields: formFields, functionType: triggerFunction };

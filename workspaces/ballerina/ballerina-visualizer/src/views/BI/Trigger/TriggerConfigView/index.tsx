@@ -192,6 +192,7 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                                                 <RadioButtonGroup
                                                     id="options"
                                                     label="Select one of the functions"
+                                                    value={functionFields[functionName].functionType.name}
                                                     options={functionFields[functionName].radioValues.map(value => ({ content: value, value: value }))}
                                                     onChange={(e) => {
                                                         functionFields[functionName].functionType = { name: e.target.value }
