@@ -9,7 +9,7 @@
 
 import React, { useRef } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { BallerinaTrigger, ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
@@ -17,9 +17,8 @@ import { Colors } from "../../../../resources/constants";
 
 const Container = styled.div`
     padding: 0 20px 20px;
-    max-width: 600px;
+    max-width: 100%;
     height: 100%;
-    overflow: auto;
     > div:last-child {
         padding: 20px 0;
         height: calc(35vh - 160px);
@@ -143,12 +142,6 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
 
             {name &&
                 <>
-                    {/* <FormContainer>
-                        <FormGroup title="Listener Configuration" isCollapsed={false}>
-                            <Form ref={listenerFieldsRef} hideSave={true} formFields={listenerFields} onSubmit={handleListenerSubmit} />
-                        </FormGroup>
-                    </FormContainer> */}
-
                     {serviceFields.length > 0 &&
                         <FormContainer>
                             <FormGroup title="Service Configuration" isCollapsed={false}>
@@ -176,6 +169,8 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                                                 }}
                                                 value={serviceType}
                                             />
+                                            <Typography variant="caption">{serviceTypes[serviceType].serviceType.description}</Typography>
+                                            <Divider />
                                         </>
                                     )
                                 })}
@@ -203,20 +198,20 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                                                     }}
                                                 />
                                                 :
-                                                <CheckBox
-                                                    checked={functionFields[functionName].required}
-                                                    disabled={functionFields[functionName].required}
-                                                    label={functionName}
-                                                    onChange={(checked) => {
-                                                        functionFields[functionName].checked = checked
-                                                    }}
-                                                    value={functionName}
-                                                />
+                                                <>
+                                                    <CheckBox
+                                                        checked={functionFields[functionName].required}
+                                                        disabled={functionFields[functionName].required}
+                                                        label={functionName}
+                                                        onChange={(checked) => {
+                                                            functionFields[functionName].checked = checked
+                                                        }}
+                                                        value={functionName}
+                                                    />
+                                                    <Typography variant="caption">{functionFields[functionName].functionType.documentation}</Typography>
+                                                    <Divider />
+                                                </>
                                             }
-
-                                            {/* <FormGroup key={functionName} title={functionName} isCollapsed={false}>
-                                <Form refKey={functionName} ref={functionFieldsRefs[functionName]} hideSave={true} formFields={functionFields[functionName].fields} onSubmit={handleFunctionsSubmit} />
-                            </FormGroup> */}
                                         </>
                                     )
                                 })}

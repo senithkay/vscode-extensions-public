@@ -16,9 +16,10 @@ import TriggerConfigView from "../TriggerConfigView";
 import { convertTriggerFunctionsConfig, convertTriggerListenerConfig, convertTriggerServiceConfig, convertTriggerServiceTypes, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
 import { FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
 import { BodyText } from "../../../styles";
+import { BIHeader } from "../../BIHeader";
 
 const Container = styled.div`
     width: 100%;
@@ -88,41 +89,42 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
     };
 
     return (
-        <Container>
-            {isPullingConnector && (
-                <LoadingContainer>
-                    <PullingModuleLoader />
-                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the trigger</Typography>
-                    <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
-                </LoadingContainer>
-            )}
-            {!isPullingConnector && <TriggerView onTriggerSelect={handleOnSelect} />}
-            {!isPullingConnector && currentStep === WizardStep.TRIGGER_CONFIG && (
-
-                <PanelContainer
-                    show={true}
-                    title={`Configure ${selectedTriggerRef.current?.displayName || ''} `}
-                    onClose={onClose ? onClose : handleOnBack}
-                    width={400}
-                    onBack={handleOnBack}
-                >
-                    <>
-                        <BodyText style={{ padding: '20px 20px 0 20px' }}>
-                            Provide the necessary configuration details for the selected trigger to complete the setup.
-                        </BodyText>
-                        <TriggerConfigView
-                            name={selectedTriggerRef.current?.name}
-                            listenerFields={listenerFields}
-                            serviceTypes={serviceTypes}
-                            serviceFields={serviceFields}
-                            functionFields={functionFields}
-                            onSubmit={handleOnFormSubmit}
-                            onBack={handleOnBack}
-                        />
-                    </>
-                </PanelContainer>
-            )}
-        </Container>
+        <View>
+            <ViewContent padding>
+                <Container>
+                    <BIHeader />
+                    {isPullingConnector && (
+                        <LoadingContainer>
+                            <PullingModuleLoader />
+                            <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the trigger service</Typography>
+                            <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
+                        </LoadingContainer>
+                    )}
+                    {!isPullingConnector && currentStep !== WizardStep.TRIGGER_CONFIG &&
+                        <>
+                            <TriggerView onTriggerSelect={handleOnSelect} />
+                        </>
+                    }
+                    {!isPullingConnector && currentStep === WizardStep.TRIGGER_CONFIG && (
+                        <>
+                            <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Configure ${selectedTriggerRef.current?.displayName || ''} `}</Typography>
+                            <BodyText style={{ padding: '20px 20px 0 20px' }}>
+                                Provide the necessary configuration details for the selected trigger to complete the setup.
+                            </BodyText>
+                            <TriggerConfigView
+                                name={selectedTriggerRef.current?.name}
+                                listenerFields={listenerFields}
+                                serviceTypes={serviceTypes}
+                                serviceFields={serviceFields}
+                                functionFields={functionFields}
+                                onSubmit={handleOnFormSubmit}
+                                onBack={handleOnBack}
+                            />
+                        </>
+                    )}
+                </Container>
+            </ViewContent>
+        </View>
     );
 }
 
