@@ -89,6 +89,10 @@ namespace S {
         }
     `;
 
+    export const PrimaryButton = styled(Button)`
+        appearance: "primary";
+    `;
+
     export const BodyText = styled.div<{}>`
         font-size: 11px;
         opacity: 0.5;
@@ -300,6 +304,7 @@ export function Form(props: FormProps) {
     const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
     const isExistingDataMapper =
         isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
+    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
@@ -435,9 +440,17 @@ export function Form(props: FormProps) {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
+                    {isNewDataMapper ? (
+                        <S.PrimaryButton
+                            onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                        >
+                            Create Mapping
+                        </S.PrimaryButton>
+                    ) : (
+                        <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
                             Save
-                        </Button>
+                        </S.PrimaryButton>
+                    )}
                     </S.Footer>
                 )}
             </S.Container>
