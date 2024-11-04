@@ -137,7 +137,11 @@ export class SizingVisitor implements BaseVisitor {
         this.createBlockNode(node);
     }
 
-    endVisitActionCall(node: FlowNode, parent?: FlowNode): void {
+    endVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {
+        this.createApiCallNode(node);
+    }
+
+    endVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
         this.createApiCallNode(node);
     }
 
