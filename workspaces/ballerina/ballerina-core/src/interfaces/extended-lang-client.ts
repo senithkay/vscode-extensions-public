@@ -484,6 +484,7 @@ export interface BISourceCodeRequest {
     filePath: string;
     flowNode: FlowNode;
     isConnector?: boolean;
+    isDataMapperFormUpdate?: boolean;
 }
 
 export type BISourceCodeResponse = {
