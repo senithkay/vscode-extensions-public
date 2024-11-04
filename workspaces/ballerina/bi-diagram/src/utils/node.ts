@@ -30,3 +30,33 @@ export function getBranchId(nodeId: string, branchLabel: string, branchIndex: nu
 export function getBranchInLinkId(nodeId: string, branchLabel: string, branchIndex: number) {
     return `${nodeId}-${branchLabel}-branch-${branchIndex}-in-link`;
 }
+
+export function nodeHasError(node: FlowNode) {
+    if (!node) {
+        return false;
+    }
+
+    // Check branch properties
+    if (node.branches) {
+        return node.branches.some((branch) => {
+            if (!branch.properties) {
+                return false;
+            }
+            return Object.values(branch.properties).some((property) =>
+                property?.diagnostics?.diagnostics?.some((diagnostic) => diagnostic.severity === "ERROR")
+            );
+        });
+    }
+
+    // Check properties
+    if (node.properties) {
+        const hasPropertyError = Object.values(node.properties).some((property) =>
+            property?.diagnostics?.diagnostics?.some((diagnostic) => diagnostic.severity === "ERROR")
+        );
+        if (hasPropertyError) {
+            return true;
+        }
+    }
+
+    return false;
+}
