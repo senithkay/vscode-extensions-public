@@ -396,7 +396,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
         } else if (lastFocusedFilter) {
-            await applyChangesOnFocusedFilter();
+            await applyChangesOnFocusedFilter(value);
         }
     };
 
@@ -439,7 +439,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         }
     };
 
-    const applyChangesOnFocusedFilter = async () => {
+    const applyChangesOnFocusedFilter = async (value: string) => {
+        lastFocusedFilter.replaceWithText(value);
         const updatedSourceContent = lastFocusedFilter.getSourceFile().getFullText();
         await applyModifications(updatedSourceContent);
     };
