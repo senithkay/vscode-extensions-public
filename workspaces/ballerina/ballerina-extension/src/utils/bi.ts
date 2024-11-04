@@ -253,7 +253,12 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
         const modulePart: ModulePart = response.syntaxTree as ModulePart;
         let targetPosition: NodePosition = response.syntaxTree?.position;
         modulePart.members.forEach(member => {
-            if (STKindChecker.isServiceDeclaration(member) && Object.keys(params.triggerType.functions).some(key => member.source.toLowerCase().includes(key.toLowerCase()))) {
+            const isMatchingMember = (member: any, params: ComponentRequest) => {
+                return STKindChecker.isServiceDeclaration(member) &&
+                    (Object.keys(params.triggerType.functions).some(key => member.source.toLowerCase().includes(key.toLowerCase())) ||
+                        Object.keys(params.triggerType.serviceTypes).some(key => member.source.toLowerCase().includes(key.toLowerCase())));
+            };
+            if (isMatchingMember(member, params)) {
                 targetPosition = member.position;
             }
         });
