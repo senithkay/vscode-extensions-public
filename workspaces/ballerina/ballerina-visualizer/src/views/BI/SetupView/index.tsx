@@ -125,11 +125,13 @@ export function SetupView(props: SetupViewProps) {
 
     const getIcon = (complete: boolean, loading: boolean) => {
         if (complete) {
-            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: Colors.PRIMARY }} />;
+            return (
+                <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: Colors.PRIMARY, cursor: "default" }} />
+            );
         } else if (loading) {
             return <ProgressRing sx={{ height: "16px", width: "16px" }} color={Colors.PRIMARY} />;
         } else {
-            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px" }} />;
+            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px", cursor: "default" }} />;
         }
     };
 
@@ -143,58 +145,62 @@ export function SetupView(props: SetupViewProps) {
                 </Caption>
             </TitleContainer>
             <StyledButton appearance="primary" onClick={() => downloadLS()} disabled={progress !== null}>
-                <ButtonContent>Set Up</ButtonContent>
+                <ButtonContent>Set Up Kola</ButtonContent>
             </StyledButton>
-            <StepContainer>
-                <Row>
-                    <IconContainer>
-                        {getIcon(progress?.step > 1 || progress?.success, progress?.step === 1)}
-                    </IconContainer>
+            {progress !== null && (
+                <StepContainer>
+                    <Row>
+                        <IconContainer>
+                            {getIcon(progress?.step > 1 || progress?.success, progress?.step === 1)}
+                        </IconContainer>
 
-                    <Column>
-                        <StepTitle>Check Latest Version</StepTitle>
-                        <StepDescription>Ensuring you have the latest version of the Kola runtime.</StepDescription>
-                    </Column>
-                </Row>
-                <Row>
-                    <IconContainer>
-                        {getIcon(progress?.step > 2 || progress?.success, progress?.step === 2)}
-                    </IconContainer>
-                    <Column>
-                        <StepTitle>
-                            Download Kola Runtime {progress?.percentage ? "( " + progress.percentage + "% )" : ""}
-                        </StepTitle>
-                        <StepDescription>Fetching the runtime required to run Kola.</StepDescription>
-                    </Column>
-                </Row>
-                <Row>
-                    <IconContainer>
-                        {getIcon(progress?.step > 3 || progress?.success, progress?.step === 3)}
-                    </IconContainer>
-                    <Column>
-                        <StepTitle>Unzip Files</StepTitle>
-                        <StepDescription>Unpacking the downloaded files to prepare for installation.</StepDescription>
-                    </Column>
-                </Row>
-                <Row>
-                    <IconContainer>
-                        {getIcon(progress?.step > 4 || progress?.success, progress?.step === 4)}
-                    </IconContainer>
-                    <Column>
-                        <StepTitle>Install Kola Runtime</StepTitle>
-                        <StepDescription>Integrating the Kola runtime with your VSCode setup.</StepDescription>
-                    </Column>
-                </Row>
-                <Row>
-                    <IconContainer>
-                        {getIcon(progress?.step > 5 || progress?.success, progress?.step === 5)}
-                    </IconContainer>
-                    <Column>
-                        <StepTitle>Clean Up</StepTitle>
-                        <StepDescription>Cleaning up temporary files and finalizing the setup.</StepDescription>
-                    </Column>
-                </Row>
-            </StepContainer>
+                        <Column>
+                            <StepTitle>Check Latest Version</StepTitle>
+                            <StepDescription>Ensuring you have the latest version of the Kola runtime.</StepDescription>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <IconContainer>
+                            {getIcon(progress?.step > 2 || progress?.success, progress?.step === 2)}
+                        </IconContainer>
+                        <Column>
+                            <StepTitle>
+                                Download Kola Runtime {progress?.percentage ? "( " + progress.percentage + "% )" : ""}
+                            </StepTitle>
+                            <StepDescription>Fetching the runtime required to run Kola.</StepDescription>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <IconContainer>
+                            {getIcon(progress?.step > 3 || progress?.success, progress?.step === 3)}
+                        </IconContainer>
+                        <Column>
+                            <StepTitle>Unzip Files</StepTitle>
+                            <StepDescription>
+                                Unpacking the downloaded files to prepare for installation.
+                            </StepDescription>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <IconContainer>
+                            {getIcon(progress?.step > 4 || progress?.success, progress?.step === 4)}
+                        </IconContainer>
+                        <Column>
+                            <StepTitle>Install Kola Runtime</StepTitle>
+                            <StepDescription>Integrating the Kola runtime with your VSCode setup.</StepDescription>
+                        </Column>
+                    </Row>
+                    <Row>
+                        <IconContainer>
+                            {getIcon(progress?.step > 5 || progress?.success, progress?.step === 5)}
+                        </IconContainer>
+                        <Column>
+                            <StepTitle>Clean Up</StepTitle>
+                            <StepDescription>Cleaning up temporary files and finalizing the setup.</StepDescription>
+                        </Column>
+                    </Row>
+                </StepContainer>
+            )}
             {progress && progress.step && progress.step === -1 && (
                 <StepContainer>
                     <Row>
