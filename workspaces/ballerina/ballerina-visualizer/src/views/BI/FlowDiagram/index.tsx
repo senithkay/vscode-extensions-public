@@ -415,6 +415,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     valueType: "STRING",
                     value: `\n${comment}\n\n`, // HACK: add extra new lines to get last position right
                     optional: false,
+                    advanced: false,
                     editable: true,
                 },
             },

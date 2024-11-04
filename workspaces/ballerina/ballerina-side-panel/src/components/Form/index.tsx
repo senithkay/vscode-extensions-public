@@ -297,6 +297,9 @@ export function Form(props: FormProps) {
     // has optional fields
     const hasOptionalFields = formFields.some((field) => field.optional);
 
+    // has advance fields
+    const hasAdvanceFields = formFields.some((field) => field.advanced);
+
     const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
     const isExistingDataMapper =
         isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
@@ -312,6 +315,7 @@ export function Form(props: FormProps) {
         label: "Variable",
         type: "IDENTIFIER",
         optional: false,
+        advanced: false,
         editable: true,
         documentation: "Select a variable to assign",
         value: "name",
@@ -364,7 +368,7 @@ export function Form(props: FormProps) {
                         .map((field) => {
                             if (
                                 ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
-                                field.optional
+                                field.advanced
                             ) {
                                 return;
                             }
@@ -389,9 +393,9 @@ export function Form(props: FormProps) {
                             </S.UseDataMapperButton>
                         </S.DataMapperRow>
                     )}
-                    {hasOptionalFields && (
+                    {hasAdvanceFields && (
                         <S.Row>
-                            Optional Parameters
+                            Advance Parameters
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
@@ -414,10 +418,10 @@ export function Form(props: FormProps) {
                             </S.ButtonContainer>
                         </S.Row>
                     )}
-                    {hasOptionalFields &&
+                    {hasAdvanceFields &&
                         showAdvancedOptions &&
                         formFields.map((field) => {
-                            if (field.optional) {
+                            if (field.advanced) {
                                 return (
                                     <S.Row key={field.key}>
                                         <EditorFactory

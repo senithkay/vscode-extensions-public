@@ -18,6 +18,7 @@ export type FormField = {
     label: string;
     type: null | string;
     optional: boolean;
+    advanced?: boolean;
     editable: boolean;
     documentation: string;
     value: string;
