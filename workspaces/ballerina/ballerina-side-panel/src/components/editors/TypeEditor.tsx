@@ -142,6 +142,7 @@ export function TypeEditor(props: TypeEditorProps) {
             <Controller
                 control={control}
                 name={field.key}
+                defaultValue={field.value}
                 rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
@@ -156,7 +157,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
                             cursorPositionRef.current = updatedCursorPosition;
-                            
+
                             // Retrieve visible types
                             await retrieveVisibleTypes(value, updatedCursorPosition);
                         }}
