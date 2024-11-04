@@ -25,6 +25,7 @@ import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -276,11 +277,13 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         nodeDescription = model.node.properties.msg.value;
     }
 
+    const hasError = nodeHasError(model.node);
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
             disabled={model.node.suggested}
-            hasError={model.node.diagnostics?.hasDiagnostics ?? false}
+            hasError={hasError}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -298,9 +301,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                         <NodeStyles.Description>{nodeDescription}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
-                        {model.node.diagnostics?.hasDiagnostics && (
-                            <DiagnosticsPopUp node={model.node} />
-                        )}
+                        {hasError && <DiagnosticsPopUp node={model.node} />}
                         <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                             <MoreVertIcon />
                         </NodeStyles.MenuButton>
