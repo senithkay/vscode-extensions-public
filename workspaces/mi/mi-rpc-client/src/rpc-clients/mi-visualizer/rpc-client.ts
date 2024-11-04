@@ -28,6 +28,7 @@ import {
     RuntimeServicesResponse,
     SampleDownloadRequest,
     HandleCertificateFileRequest,
+    HandleCertificateConfigurableRequest,
     FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
@@ -40,6 +41,7 @@ import {
     fetchSamplesFromGithub,
     getCurrentThemeKind,
     handleCertificateFile,
+    handleCertificateConfigurable,
     appendContentToFile,
     getHistory,
     getProjectStructure,
@@ -103,6 +105,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
         return this._messenger.sendRequest(handleCertificateFile, HOST_EXTENSION, params);
+    }
+
+    handleCertificateConfigurable(params: HandleCertificateConfigurableRequest): Promise<void> {
+        return this._messenger.sendRequest(handleCertificateConfigurable, HOST_EXTENSION, params);
     }
 
     appendContentToFile(params: FileAppendRequest): Promise<boolean> {

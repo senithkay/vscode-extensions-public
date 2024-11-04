@@ -32,6 +32,7 @@ import {
     RuntimeServicesResponse,
     SampleDownloadRequest,
     HandleCertificateFileRequest,
+    HandleCertificateConfigurableRequest,
     FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
@@ -164,6 +165,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async handleCertificateConfigurable(params: HandleCertificateConfigurableRequest): Promise<void> {
+        if (params.currentConfigurableName !== "") {
+            await deleteLineFromFile(params.configPropertiesFilePath, `${params.currentConfigurableName}:cert\n`);
+            await deleteLineFromFile(params.envFilePath, `${params.currentConfigurableName}\n`);
+        }
+        await appendContent(params.configPropertiesFilePath, `${params.configurableName}:cert\n`);
+        await appendContent(params.envFilePath, `${params.configurableName}\n`);
     }
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {

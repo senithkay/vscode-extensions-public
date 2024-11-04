@@ -147,6 +147,13 @@ export interface HandleCertificateFileRequest {
     envFilePath: string
 }
 
+export interface HandleCertificateConfigurableRequest {
+    configurableName: string;
+    currentConfigurableName: string;
+    configPropertiesFilePath: string;
+    envFilePath: string
+}
+
 export interface FileAppendRequest {
     filePath: string;
     content: string;
