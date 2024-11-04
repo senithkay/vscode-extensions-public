@@ -186,7 +186,8 @@ export type NodePropertyKey =
     | "collection"
     | "view"
     | "variable"
-    | "defaultable";
+    | "defaultable"
+    | "functionName";
 
 export type BranchKind = "block" | "worker";
 
