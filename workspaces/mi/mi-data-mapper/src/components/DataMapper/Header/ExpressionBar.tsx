@@ -234,26 +234,44 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
-            const focusedPortValue = focusedPort.typeWithValue.value;
+
+            // let tmpNode = focusedPort.typeWithValue;
+            // console.log('tmpNode1', tmpNode);;
+            // while (tmpNode && !tmpNode.value) {
+            //     tmpNode = tmpNode.parentType;
+            //     console.log('tmpNode2', tmpNode);
+            // }
+            // console.log('tmpNode3', tmpNode);
+            // console.log('tmpNode4', tmpNode?.value);
+            // console.log('tmpNode5', tmpNode?.value?.getText());
+            // console.log('tmpNode6', tmpNode?.value?.getParent());
+            // console.log('tmpNode7', tmpNode?.value?.getParent()?.getText());
+            
+            let focusedPortTypeWithValue = focusedPort.typeWithValue;
+            let hasValue = !!focusedPortTypeWithValue.value;
+            while(!focusedPortTypeWithValue.value && focusedPortTypeWithValue.parentType){
+                focusedPortTypeWithValue = focusedPortTypeWithValue.parentType;
+            }
+            const focusedPortValue = focusedPortTypeWithValue.value;
+
             if (focusedPortValue && !focusedPortValue.wasForgotten()) {
                 if (Node.isPropertyAssignment(focusedPortValue)) {
-                    value = focusedPortValue.getInitializer()?.getText();
+                    value = hasValue ? focusedPortValue.getInitializer()?.getText() : "";
                     completionReqPosStart.current = focusedPortValue.getInitializer()?.getStart() || 0;
                     completionReqPosEnd.current = focusedPortValue.getInitializer()?.getEnd() || 0;
                 } else {
-                    value = focusedPortValue.getText();
+                    value = hasValue ? focusedPortValue.getText() : "";
                     completionReqPosStart.current = focusedPortValue.getStart();
                     completionReqPosEnd.current = focusedPortValue.getEnd();
                 }
             }else{
+                
                 const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
                 const fnBody = focusedNode.context.functionST.getBody() as Block;
     
                 const fnBodyText = fnBody.getText();
                 completionReqPosStart.current = fnBody.getEnd() - (fnBodyText.length - fnBodyText.lastIndexOf('}'));
-                completionReqPosEnd.current = completionReqPosStart.current
-    
-                console.log('fnBody', fnBody.getText());
+                completionReqPosEnd.current = completionReqPosStart.current;
             }
 
             disabled = focusedPort.isDisabled();
@@ -283,9 +301,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             triggerAction(!action);
             console.log('disabled memo inside');
         }
-        console.log('disabled memo1',{value,disabled,portChanged});
-        console.log('disabled memo2',focusedPort);
-        console.log('disabled memo3',lastFocusedPort);
+        // console.log('disabled memo1',{value,disabled,portChanged});
+        // console.log('disabled memo2',focusedPort);
+        // console.log('disabled memo3',lastFocusedPort);
 
         return disabled;
     }, [focusedPort, focusedFilter, views]);
