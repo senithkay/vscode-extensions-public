@@ -55,6 +55,7 @@ interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
     handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
 }
 
 const getDefaultCompletion = () => (
@@ -69,7 +70,7 @@ const getDefaultCompletion = () => (
 const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor, handleOnFieldFocus } = props;
+    const { field, openRecordEditor, handleOnFieldFocus, autoFocus } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
@@ -169,6 +170,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
                         placeholder={field.placeholder}
+                        autoFocus={autoFocus}
                         sx={{ paddingInline: '0' }}
                     />
                 )}
