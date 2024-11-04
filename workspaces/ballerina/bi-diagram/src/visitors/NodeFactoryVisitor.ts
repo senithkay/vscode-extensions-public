@@ -357,11 +357,15 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
-    beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {
+    beginVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {
         if (node.id) {
             this.createApiCallNode(node);
             this.addSuggestionsButton(node);
         }
+    }
+
+    beginVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitRemoteActionCall(node, parent);
     }
 
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
