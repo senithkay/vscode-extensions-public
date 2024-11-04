@@ -16,6 +16,7 @@ import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
 import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
 import { debounce } from 'lodash';
+import { Colors } from '../../resources/constants';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -68,6 +69,10 @@ namespace S {
 
     export const Description = styled.div({
         color: 'var(--vscode-list-deemphasizedForeground)',
+    });
+
+    export const Error = styled.div({
+        color: Colors.ERROR,
     });
 
     export const EndAdornment = styled(Button)`
@@ -234,7 +239,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     };
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
-
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
 
     return (
         <S.Container>
@@ -257,6 +262,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
                             debouncedUpdateSubPanelData(value);
+
+                            // HACK: Fix diagnostics from the expression editor
+                            field.diagnostics = [];
 
                             // Check if the current character is a trigger character
                             cursorPositionRef.current = updatedCursorPosition;
@@ -284,6 +292,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     />
                 )}
             />
+            {errorMsg && <S.Error>{errorMsg}</S.Error>}
         </S.Container>
     );
 });

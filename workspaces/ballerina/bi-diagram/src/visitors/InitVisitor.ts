@@ -16,7 +16,7 @@ export class InitVisitor implements BaseVisitor {
     private flow;
 
     constructor(model: Flow) {
-        console.log(">>> init visitor started");
+        // console.log(">>> init visitor started");
         this.flow = model;
     }
 

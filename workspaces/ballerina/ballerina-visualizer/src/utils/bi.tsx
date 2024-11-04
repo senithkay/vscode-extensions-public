@@ -118,6 +118,7 @@ export function convertNodePropertyToFormField(
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
         items: getFormFieldItems(property, connections),
+        diagnostics: property.diagnostics?.diagnostics || [],
     };
     return formField;
 }
@@ -139,12 +140,12 @@ function getFormFieldValue(expression: Property, clientName?: string) {
         console.log(">>> client name as set field value", clientName);
         return clientName;
     }
-    return expression.value;
+    return expression.value as string;
 }
 
 function getFormFieldItems(expression: Property, connections: FlowNode[]) {
     if (expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
-        return connections.map((connection) => connection.properties?.variable?.value);
+        return connections.map((connection) => connection.properties?.variable?.value as string);
     } else if (expression.valueType === "MULTIPLE_SELECT" || expression.valueType === "SINGLE_SELECT") {
         return expression.valueTypeConstraint;
     }

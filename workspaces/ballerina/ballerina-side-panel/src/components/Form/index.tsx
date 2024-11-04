@@ -65,6 +65,7 @@ namespace S {
 
     export const Footer = styled.div<{}>`
         display: flex;
+        gap: 8px;
         flex-direction: row;
         justify-content: flex-end;
         align-items: center;
@@ -164,6 +165,8 @@ export interface FormProps {
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
+    onCancelForm?: () => void;
+    oneTimeForm?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters?: readonly string[];
@@ -195,6 +198,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         projectPath,
         selectedNode,
         onSubmit,
+        onCancelForm,
+        oneTimeForm,
         openRecordEditor,
         openView,
         openSubPanel,
@@ -215,18 +220,21 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const exprRef = useRef<ExpressionBarRef>(null);
 
     useEffect(() => {
-        // Reset form with new values when formFields change
-        const defaultValues: FormValues = {};
-        formFields.forEach((field) => {
-            if (isDropdownField(field)) {
-                defaultValues[field.key] = getValueForDropdown(field) ?? "";
-            } else if (typeof field.value === 'string') {
-                defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
-            } else {
-                defaultValues[field.key] = field.value ?? "";
-            }
-        });
-        reset(defaultValues);
+        // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
+        if (!oneTimeForm) {
+            // Reset form with new values when formFields change
+            const defaultValues: FormValues = {};
+            formFields.forEach((field) => {
+                if (isDropdownField(field)) {
+                    defaultValues[field.key] = getValueForDropdown(field) ?? "";
+                } else if (typeof field.value === 'string') {
+                    defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
+                } else {
+                    defaultValues[field.key] = field.value ?? "";
+                }
+            });
+            reset(defaultValues);
+        }
     }, [formFields, reset]);
 
     useEffect(() => {
@@ -444,6 +452,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 </S.CategoryRow>
                 {!hideSave && onSubmit && (
                     <S.Footer>
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
                         <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
                             Save
                         </Button>

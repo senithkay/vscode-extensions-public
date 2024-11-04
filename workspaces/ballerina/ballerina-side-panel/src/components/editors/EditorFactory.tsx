@@ -17,6 +17,7 @@ import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
+import { ParamManagerEditor } from "../ParamManager/ParamManager";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -62,6 +63,8 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
     } else if (field.type === "VIEW") {
         // Skip this property
         return <></>;
+    } else if (field.type === "PARAM_MANAGER") {
+        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor
