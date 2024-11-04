@@ -383,7 +383,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 };
                 const requestOptions = {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}`},
+                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(requestBody),
                 };
                 console.log(">>> request ai suggestion", { request: requestBody });
@@ -396,7 +396,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         resolve(undefined);
                     });
                 }
-                if (!response.ok){
+                if (!response.ok) {
                     console.log(">>> ai completion api call failed ", response);
                     return new Promise((resolve) => {
                         resolve(undefined);
@@ -593,7 +593,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     async getConfigVariables(): Promise<ConfigVariableResponse> {
         return new Promise(async (resolve) => {
             const projectPath = path.join(StateMachine.context().projectUri);
-            const variables = await StateMachine.langClient().getConfigVariables( { projectPath: projectPath }) as ConfigVariableResponse;
+            const variables = await StateMachine.langClient().getConfigVariables({ projectPath: projectPath }) as ConfigVariableResponse;
             resolve(variables);
         });
     }
@@ -607,7 +607,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             resolve(response);
         });
     }
-    
+
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
@@ -674,14 +674,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             .showQuickPick(
                 [
                     {
-                        label: "$(package) Deploy with an executable",
-                        detail: "Create a standalone executable for your Ballerina Integrator project",
-                    },
-                    {
-                        label: "$(package) Deploy with Docker",
-                        detail: "Containerize your Ballerina Integrator project using Docker",
-                    },
-                    {
                         label: "$(cloud) Deploy on Choreo",
                         detail: "Deploy your project to Choreo cloud platform",
                         key: "deploy-on-choreo",
@@ -699,16 +691,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 }
 
                 switch (selection.label) {
-                    case "Deploy with an executable":
-                        // Logic for deploying with an executable
-                        console.log("Deploying with an executable");
-                        // TODO: Implement executable deployment
-                        break;
-                    case "Deploy with Docker":
-                        // Logic for deploying with Docker
-                        console.log("Deploying with Docker");
-                        // TODO: Implement Docker deployment
-                        break;
                     case "$(cloud) Deploy on Choreo":
                         this.createChoreoComponent("test", "service");
                         break;
