@@ -147,6 +147,9 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
 
+        // LS Extension fails
+        commands.executeCommand('setContext', 'BI.status', 'noLS');
+
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();

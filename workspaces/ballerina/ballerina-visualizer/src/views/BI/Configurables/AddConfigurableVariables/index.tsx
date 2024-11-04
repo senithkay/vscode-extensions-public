@@ -8,14 +8,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { debounce } from 'lodash';
-import { convertToVisibleTypes } from '../../../../utils/bi';
+import { convertNodePropertiesToFormFields, convertToVisibleTypes, getFormProperties } from '../../../../utils/bi';
 
 
 namespace S {
@@ -38,11 +38,11 @@ export function AddForm(props: ConfigFormProps) {
 
     const { rpcClient } = useRpcContext();
 
-    let variable: ConfigVariable = {
-        id: "",
+    const variable: ConfigVariable = {
+        "id": "",
         "metadata": {
-            "label": "",
-            "description": ""
+            "label": "Config",
+            "description": "Create a configurable variable"
         },
         "codedata": {
             "node": "CONFIG_VARIABLE",
@@ -58,11 +58,12 @@ export function AddForm(props: ConfigFormProps) {
                 }
             }
         },
+        "returning": false,
         "properties": {
             "type": {
                 "metadata": {
-                    "label": "",
-                    "description": ""
+                    "label": "Type",
+                    "description": "Type of the variable"
                 },
                 "valueType": "TYPE",
                 "value": "",
@@ -71,63 +72,37 @@ export function AddForm(props: ConfigFormProps) {
             },
             "variable": {
                 "metadata": {
-                    "label": "",
-                    "description": ""
+                    "label": "Variable",
+                    "description": "Name of the variable"
                 },
-                "valueType": "",
+                "valueType": "IDENTIFIER",
                 "value": "",
                 "optional": false,
                 "editable": true
             },
             "defaultable": {
                 "metadata": {
-                    "label": "",
-                    "description": ""
+                    "label": "Default value",
+                    "description": "Default value for the config, if empty your need to provide a value at runtime"
                 },
-                "valueType": "",
+                "valueType": "EXPRESSION",
                 "value": "",
-                "optional": false,
+                "optional": true,
                 "editable": true
             }
         },
-        "branches": [],
-        "returning": false
+        branches: []
     };
 
-    // Map variables data to form fields
-    const currentFields: FormField[] = [
-        {
-            key: `variable`,
-            label: 'Variable',
-            type: 'string',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: '',
-        },
-        {
-            key: `type`,
-            label: 'Type',
-            type: 'string',
-            optional: false,
-            editable: true,
-            documentation: '',
-            value: ''
-        },
-        {
-            key: `defaultable`,
-            label: 'Value',
-            type: 'string',
-            optional: true,
-            editable: true,
-            documentation: '',
-            value: ''
-        }
-    ];
-
-    const [fields, setFields] = useState<FormField[]>(currentFields);
+    const [fields, setFields] = useState<FormField[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
+
+    useEffect(() => {
+        const formProperties = getFormProperties(variable);
+        console.log(">>> Edit config form properties", formProperties);
+        setFields(convertNodePropertiesToFormFields(formProperties));
+    }, []);
 
     const handleSave = (data: FormValues) => {
 
@@ -137,6 +112,7 @@ export function AddForm(props: ConfigFormProps) {
             data.defaultable === "" || data.defaultable === null ?
                 "?"
                 : data.type === "string" ? '"' + data.defaultable + '"' : data.defaultable;
+        variable.properties.defaultable.optional = true;
 
         variable.properties.type.value = data.type;
         variable.properties.variable.value = data.variable;
@@ -178,7 +154,7 @@ export function AddForm(props: ConfigFormProps) {
         setFilteredTypes(filteredTypes);
     }, 250);
 
-    
+
     const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
         await debouncedGetVisibleTypes(value, cursorPosition);
     };
@@ -207,7 +183,7 @@ export function AddForm(props: ConfigFormProps) {
                     formFields={fields}
                     onSubmit={handleSave}
                     fileName={variable.codedata.lineRange.fileName}
-                    targetLineRange={{startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine}}
+                    targetLineRange={{ startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine }}
                     expressionEditor={{
                         completions: filteredTypes,
                         retrieveVisibleTypes: handleGetVisibleTypes,
@@ -221,3 +197,5 @@ export function AddForm(props: ConfigFormProps) {
         </>
     );
 }
+
+export default AddForm;

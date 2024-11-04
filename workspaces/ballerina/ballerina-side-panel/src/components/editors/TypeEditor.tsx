@@ -8,7 +8,7 @@
  */
 
 import React, { useRef, useState } from "react";
-import { Codicon, COMPLETION_ITEM_KIND, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
@@ -16,6 +16,7 @@ import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { TIcon } from "@wso2-enterprise/ballerina-core";
+import { Colors } from "../../resources/constants";
 
 namespace S {
     export const Container = styled.div({
@@ -37,6 +38,10 @@ namespace S {
 
     export const Description = styled.div({
         color: 'var(--vscode-list-deemphasizedForeground)',
+    });
+
+    export const Error = styled.div({
+        color: Colors.ERROR,
     });
 
     export const TitleContainer = styled.div`
@@ -125,6 +130,8 @@ export function TypeEditor(props: TypeEditorProps) {
         handleCancel();
     }
 
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
+
     return (
         <S.Container>
             <S.LabelContainer>
@@ -165,6 +172,7 @@ export function TypeEditor(props: TypeEditorProps) {
                     />
                 )}
             />
+            {errorMsg && <S.Error>{errorMsg}</S.Error>}
         </S.Container>
     );
 }
