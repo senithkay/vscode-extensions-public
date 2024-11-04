@@ -65,6 +65,7 @@ namespace S {
 
     export const Footer = styled.div<{}>`
         display: flex;
+        gap: 8px;
         flex-direction: row;
         justify-content: flex-end;
         align-items: center;
@@ -87,6 +88,10 @@ namespace S {
         &:first {
             margin-top: 0;
         }
+    `;
+
+    export const PrimaryButton = styled(Button)`
+        appearance: "primary";
     `;
 
     export const BodyText = styled.div<{}>`
@@ -162,6 +167,8 @@ export interface FormProps {
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
+    onCancelForm?: () => void;
+    oneTimeForm?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
         triggerCharacters?: readonly string[];
@@ -192,6 +199,8 @@ export function Form(props: FormProps) {
         projectPath,
         selectedNode,
         onSubmit,
+        onCancelForm,
+        oneTimeForm,
         openRecordEditor,
         openView,
         openSubPanel,
@@ -211,18 +220,21 @@ export function Form(props: FormProps) {
     const exprRef = useRef<ExpressionBarRef>(null);
 
     useEffect(() => {
-        // Reset form with new values when formFields change
-        const defaultValues: FormValues = {};
-        formFields.forEach((field) => {
-            if (isDropdownField(field)) {
-                defaultValues[field.key] = getValueForDropdown(field) ?? "";
-            } else if (typeof field.value === 'string') {
-                defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
-            } else {
-                defaultValues[field.key] = field.value ?? "";
-            }
-        });
-        reset(defaultValues);
+        // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
+        if (!oneTimeForm) {
+            // Reset form with new values when formFields change
+            const defaultValues: FormValues = {};
+            formFields.forEach((field) => {
+                if (isDropdownField(field)) {
+                    defaultValues[field.key] = getValueForDropdown(field) ?? "";
+                } else if (typeof field.value === 'string') {
+                    defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
+                } else {
+                    defaultValues[field.key] = field.value ?? "";
+                }
+            });
+            reset(defaultValues);
+        }
     }, [formFields, reset]);
 
     useEffect(() => {
@@ -303,6 +315,7 @@ export function Form(props: FormProps) {
     const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
     const isExistingDataMapper =
         isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
+    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
@@ -388,7 +401,10 @@ export function Form(props: FormProps) {
                         })}
                     {isExistingDataMapper && (
                         <S.DataMapperRow>
-                            <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
+                            <S.UseDataMapperButton
+                                appearance="secondary"
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
                         </S.DataMapperRow>
@@ -439,9 +455,18 @@ export function Form(props: FormProps) {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
-                            Save
-                        </Button>
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
+                        {isNewDataMapper ? (
+                            <S.PrimaryButton
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
+                                Create Mapping
+                            </S.PrimaryButton>
+                        ) : (
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                                Save
+                            </S.PrimaryButton>
+                        )}
                     </S.Footer>
                 )}
             </S.Container>

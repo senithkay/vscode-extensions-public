@@ -31,7 +31,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     editForm?: boolean;
-    onSubmit: (node?: FlowNode) => void;
+    onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
@@ -154,7 +154,9 @@ export function FormGenerator(props: FormProps) {
             traverseNode(updatedNode, removeEmptyNodeVisitor);
             const updatedNodeWithoutEmptyNodes = removeEmptyNodeVisitor.getNode();
 
-            onSubmit(updatedNodeWithoutEmptyNodes);
+            const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
+
+            onSubmit(updatedNodeWithoutEmptyNodes, isDataMapperFormUpdate);
         }
     };
 
