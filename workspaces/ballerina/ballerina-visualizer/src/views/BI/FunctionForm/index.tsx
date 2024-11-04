@@ -133,6 +133,7 @@ export function FunctionForm() {
             label: 'Default Value',
             type: 'string',
             optional: true,
+            advanced: true,
             editable: true,
             documentation: '',
             value: ''
@@ -172,9 +173,10 @@ export function FunctionForm() {
         {
             key: `functionName`,
             label: 'Function Name',
-            type: 'string',
+            type: 'IDENTIFIER',
             optional: false,
             editable: true,
+            advanced: false,
             documentation: '',
             value: '',
         },
@@ -184,6 +186,7 @@ export function FunctionForm() {
             type: 'PARAM_MANAGER',
             optional: false,
             editable: true,
+            advanced: false,
             documentation: '',
             value: '',
             paramManagerProps: {
@@ -193,10 +196,11 @@ export function FunctionForm() {
             }
         },
         {
-            key: `type`,
+            key: `return`,
             label: 'Return Type',
             type: 'Type',
             optional: true,
+            advanced: true,
             editable: true,
             documentation: '',
             value: ''
