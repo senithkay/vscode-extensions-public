@@ -214,7 +214,6 @@ export function Form(props: FormProps) {
     const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-    const [createNewVariable, setCreateNewVariable] = useState(true);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
@@ -298,17 +297,6 @@ export function Form(props: FormProps) {
         }
     };
 
-    // HACK: hide some fields if the form. need to fix from LS
-    formFields.forEach((field) => {
-        // hide http scope
-        if (field.key === "scope") {
-            field.optional = true;
-        }
-    });
-
-    // has optional fields
-    const hasOptionalFields = formFields.some((field) => field.optional);
-
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
 
@@ -321,18 +309,6 @@ export function Form(props: FormProps) {
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
     const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
-
-    //TODO: get assign variable field from model. need to fix from LS
-    const updateVariableField = {
-        key: "update-variable",
-        label: "Variable",
-        type: "IDENTIFIER",
-        optional: false,
-        advanced: false,
-        editable: true,
-        documentation: "Select a variable to assign",
-        value: "name",
-    };
 
     const contextValue = {
         form: {
@@ -347,19 +323,23 @@ export function Form(props: FormProps) {
         fileName
     };
 
+    // Find the first editable field
+    const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
+
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {variableField && createNewVariable &&
+                        {variableField &&
                             <EditorFactory
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
+                                autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                             />
                         }
-                        {typeField && createNewVariable && (
+                        {typeField && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
@@ -367,12 +347,6 @@ export function Form(props: FormProps) {
                                 handleOnFieldFocus={handleOnFieldFocus}
                             />
                         )}
-                        {updateVariableField && !createNewVariable &&
-                            <EditorFactory
-                                field={updateVariableField}
-                                openSubPanel={openSubPanel}
-                                handleOnFieldFocus={handleOnFieldFocus}
-                            />}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -395,6 +369,7 @@ export function Form(props: FormProps) {
                                         openSubPanel={openSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
                                         handleOnFieldFocus={handleOnFieldFocus}
+                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                     />
                                 </S.Row>
                             );

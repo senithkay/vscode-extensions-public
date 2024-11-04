@@ -45,7 +45,7 @@ export function DiagnosticsPopUp(props: DiagnosticsPopUpProps) {
 
     const [diagnosticsAnchorEl, setDiagnosticsAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isDiagnosticsOpen = Boolean(diagnosticsAnchorEl);
-    const diagnosticMessages: DiagnosticMessage[] = node.diagnostics.diagnostics || [];
+    const diagnosticMessages: DiagnosticMessage[] = node.diagnostics?.diagnostics || [];
 
     const handleOnDiagnosticsClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setDiagnosticsAnchorEl(event.currentTarget);
