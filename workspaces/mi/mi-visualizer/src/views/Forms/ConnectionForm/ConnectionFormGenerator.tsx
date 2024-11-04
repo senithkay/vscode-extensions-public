@@ -309,12 +309,15 @@ export function AddConnection(props: AddConnectionProps) {
         if (values['certificateConfigurableName']) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
             const currentEnvFilePath = projectUri + "/.env";
+            const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
 
             const certificateConfigurableName = values['certificateConfigurableName'];
             if (certificateConfigurableName) {
                 rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
                     configurableName: certificateConfigurableName,
                     currentConfigurableName: currentCertificateConfigurableName,
+                    currentCertificateFileName: certificatePath,
+                    storedProjectCertificateDirPath: projectCertificateDirPath,
                     configPropertiesFilePath: currentConfigPropertiesFilePath,
                     envFilePath: currentEnvFilePath
                 })

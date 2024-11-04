@@ -150,6 +150,8 @@ export interface HandleCertificateFileRequest {
 export interface HandleCertificateConfigurableRequest {
     configurableName: string;
     currentConfigurableName: string;
+    currentCertificateFileName: string;
+    storedProjectCertificateDirPath: string;
     configPropertiesFilePath: string;
     envFilePath: string
 }
