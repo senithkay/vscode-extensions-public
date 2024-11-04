@@ -125,11 +125,11 @@ export function SetupView(props: SetupViewProps) {
 
     const getIcon = (complete: boolean, loading: boolean) => {
         if (complete) {
-            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: Colors.PRIMARY }} />;
+            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: Colors.PRIMARY, cursor: "default" }} />;
         } else if (loading) {
             return <ProgressRing sx={{ height: "16px", width: "16px" }} color={Colors.PRIMARY} />;
         } else {
-            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px" }} />;
+            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px", cursor: "default" }} />;
         }
     };
 
