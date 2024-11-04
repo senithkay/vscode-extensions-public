@@ -369,8 +369,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (node.id.endsWith("-last")) {
             const lastNodeModel = new EndNodeModel(node.id);
             lastNodeModel.setPosition(node.viewState.x, node.viewState.y);
-            this.nodes.push(lastNodeModel);
             this.updateNodeLinks(node, lastNodeModel, { showArrow: true });
+            if (Object.keys(lastNodeModel.getInPort().getLinks()).length > 0) {
+                // only render the last node model if it has links
+                this.nodes.push(lastNodeModel);
+            }
             return;
         }
         // skip node creation
