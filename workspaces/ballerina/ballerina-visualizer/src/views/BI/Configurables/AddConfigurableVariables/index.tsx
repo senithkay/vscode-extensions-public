@@ -68,6 +68,7 @@ export function AddForm(props: ConfigFormProps) {
                 "valueType": "TYPE",
                 "value": "",
                 "optional": false,
+                "advanced": false,
                 "editable": true
             },
             "variable": {
@@ -78,7 +79,8 @@ export function AddForm(props: ConfigFormProps) {
                 "valueType": "IDENTIFIER",
                 "value": "",
                 "optional": false,
-                "editable": true
+                "advanced": false,
+                "editable": true,
             },
             "defaultable": {
                 "metadata": {
@@ -88,6 +90,7 @@ export function AddForm(props: ConfigFormProps) {
                 "valueType": "EXPRESSION",
                 "value": "",
                 "optional": true,
+                "advanced": false,
                 "editable": true
             }
         },

@@ -44,6 +44,7 @@ export function EditForm(props: ConfigFormProps) {
 
     useEffect(() => {
         variable.properties.defaultable.optional = true;
+        variable.properties.defaultable.advanced = false;
         const formProperties = getFormProperties(variable);
         console.log(">>> Edit config form properties", formProperties);
         setFields(convertNodePropertiesToFormFields(formProperties));
