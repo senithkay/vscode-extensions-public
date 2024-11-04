@@ -9,13 +9,17 @@
 
 import React, { useEffect, useState } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, ProjectStructureArtifactResponse } from "@wso2-enterprise/ballerina-core";
-import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, ParamManager, ParamConfig, Parameters, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, TextField, Typography, View, ViewContent, ErrorBanner, FormGroup, Parameters, Dropdown, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { BIHeader } from "../BIHeader";
 import { BodyText } from "../../styles";
-import { getFunctionParametersList, parameterConfig } from "../../../utils/utils";
+import { getFunctionParametersList } from "../../../utils/utils";
+import { FormField, Form, FormValues, Parameter } from "@wso2-enterprise/ballerina-side-panel";
+import { debounce } from "lodash";
+import { convertToVisibleTypes } from "../../../utils/bi";
+import { URI, Utils } from "vscode-uri";
 
 const FormContainer = styled.div`
     display: flex;
@@ -56,42 +60,148 @@ const Link = styled.a`
 
 export function FunctionForm() {
     const { rpcClient } = useRpcContext();
-    const [name, setName] = useState("");
-    const [returnType, setReturnType] = useState("void");
-    const [params, setParams] = useState(parameterConfig);
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [types, setTypes] = useState<CompletionItem[]>([]);
+
+
+    // <------------- Expression Editor Util functions list start --------------->
+    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
+        let visibleTypes: CompletionItem[] = types;
+        if (!types.length) {
+            const context = await rpcClient.getVisualizerLocation();
+            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                filePath: functionFilePath.fsPath,
+                position: { line: 0, offset: 0 },
+            });
+
+            visibleTypes = convertToVisibleTypes(response.types);
+            setTypes(visibleTypes);
+        }
+
+        const effectiveText = value.slice(0, cursorPosition);
+        const filteredTypes = visibleTypes.filter((type) => {
+            const lowerCaseText = effectiveText.toLowerCase();
+            const lowerCaseLabel = type.label.toLowerCase();
+
+            return lowerCaseLabel.includes(lowerCaseText);
+        });
+
+        setFilteredTypes(filteredTypes);
+        return { visibleTypes, filteredTypes };
+    }, 250);
+
+    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
+        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
+    };
+
+    const handleCompletionSelect = async () => {
+        handleExpressionEditorCancel();
+    };
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredTypes([]);
+        setTypes([]);
+    };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    };
+    // <------------- Expression Editor Util functions list end --------------->
+
+    const paramFiels: FormField[] = [
+        {
+            key: `variable`,
+            label: 'Name',
+            type: 'string',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: '',
+        },
+        {
+            key: `type`,
+            label: 'Type',
+            type: 'Type',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: '',
+        },
+        {
+            key: `defaultable`,
+            label: 'Default Value',
+            type: 'string',
+            optional: true,
+            editable: true,
+            documentation: '',
+            value: ''
+        }
+    ];
 
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
 
-    const handleFunctionCreate = async () => {
+    const handleFunctionCreate = async (data: FormValues) => {
+        console.log("Function Form Data: ", data)
         setIsLoading(true);
-        const paramList = getFunctionParametersList(params);
+        const name = data['functionName'];
+        const returnType = data['type'];
+        const params = data['params'];
+        const paramList = params ? getFunctionParametersList(params) : [];
         const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.FUNCTIONS, functionType: { name, returnType, parameters: paramList } });
         setIsLoading(res.response);
-        setError(res.error);
     };
 
-    const validate = () => {
-        return !name || isLoading;
-    }
-
-    const handleParamChange = (params: ParamConfig) => {
-        const modifiedParams = {
-            ...params, paramValues: params.paramValues.map((param, index) => {
-                const defaultValue = `${param.parameters[2].value}`;
-                let value = `${param.parameters[1].value}`
-                if (defaultValue) {
-                    value += ` = ${defaultValue}`;
-                }
-                return {
-                    ...param,
-                    key: param.parameters[0].value as string,
-                    value: value
-                }
-            })
-        };
-        setParams(modifiedParams);
+    // Helper function to modify and set the visual information
+    const handleParamChange = (param: Parameter) => {
+        const name = `${param.formValues['variable']}`;
+        const type = `${param.formValues['type']}`;
+        const defaultValue = Object.keys(param.formValues).indexOf('defaultable') > -1 && `${param.formValues['defaultable']}`;
+        let value = `${type} ${name}`;
+        if (defaultValue) {
+            value += ` = ${defaultValue}`;
+        }
+        return {
+            ...param,
+            key: name,
+            value: value
+        }
     };
+
+    const currentFields: FormField[] = [
+        {
+            key: `functionName`,
+            label: 'Function Name',
+            type: 'string',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: '',
+        },
+        {
+            key: `params`,
+            label: 'Parameters',
+            type: 'PARAM_MANAGER',
+            optional: false,
+            editable: true,
+            documentation: '',
+            value: '',
+            paramManagerProps: {
+                paramValues: [],
+                formFields: paramFiels,
+                handleParameter: handleParamChange
+            }
+        },
+        {
+            key: `type`,
+            label: 'Return Type',
+            type: 'Type',
+            optional: true,
+            editable: true,
+            documentation: '',
+            value: ''
+        }
+    ];
 
     return (
         <View>
@@ -103,34 +213,20 @@ export function FunctionForm() {
                         Define a function that can be used within the integration.
                     </BodyText>
                     <FormContainer>
-                        <TextField
-                            onTextChange={setName}
-                            value={name}
-                            label="Function Name"
-                            placeholder="Enter function name"
+                        <Form
+                            formFields={currentFields}
+                            oneTimeForm={true}
+                            expressionEditor={
+                                {
+                                    completions: filteredTypes,
+                                    retrieveVisibleTypes: handleGetVisibleTypes,
+                                    onCompletionSelect: handleCompletionSelect,
+                                    onCancel: handleExpressionEditorCancel,
+                                    onBlur: handleExpressionEditorBlur
+                                }
+                            }
+                            onSubmit={!isLoading && handleFunctionCreate}
                         />
-                        <FormGroup title="Parameters" isCollapsed={true}>
-                            <ParamManager paramConfigs={params} readonly={false} onChange={handleParamChange} />
-                        </FormGroup>
-                        <FormGroup title="Return Type" isCollapsed={true}>
-                            <Dropdown
-                                id="return"
-                                label="Return Type"
-                                items={[{ value: "string" }, { value: "int" }]} // FIXME: Replace this with type editor
-                                onChange={(value) => setReturnType(value.target.value)}
-                                value={returnType}
-                            />
-                        </FormGroup>
-                        <ButtonWrapper>
-                            <Button
-                                disabled={validate()}
-                                onClick={handleFunctionCreate}
-                                appearance="primary"
-                            >
-                                Create Function
-                            </Button>
-                        </ButtonWrapper>
-                        {error && <ErrorBanner errorMsg={error} />}
                     </FormContainer>
                 </Container>
             </ViewContent>
