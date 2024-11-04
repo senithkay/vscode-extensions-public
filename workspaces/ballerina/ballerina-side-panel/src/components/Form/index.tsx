@@ -90,6 +90,10 @@ namespace S {
         }
     `;
 
+    export const PrimaryButton = styled(Button)`
+        appearance: "primary";
+    `;
+
     export const BodyText = styled.div<{}>`
         font-size: 11px;
         opacity: 0.5;
@@ -308,6 +312,7 @@ export function Form(props: FormProps) {
     const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
     const isExistingDataMapper =
         isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
+    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
@@ -392,7 +397,10 @@ export function Form(props: FormProps) {
                         })}
                     {isExistingDataMapper && (
                         <S.DataMapperRow>
-                            <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
+                            <S.UseDataMapperButton
+                                appearance="secondary"
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
                         </S.DataMapperRow>
@@ -444,9 +452,17 @@ export function Form(props: FormProps) {
                 {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
-                            Save
-                        </Button>
+                        {isNewDataMapper ? (
+                            <S.PrimaryButton
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
+                                Create Mapping
+                            </S.PrimaryButton>
+                        ) : (
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                                Save
+                            </S.PrimaryButton>
+                        )}
                     </S.Footer>
                 )}
             </S.Container>
