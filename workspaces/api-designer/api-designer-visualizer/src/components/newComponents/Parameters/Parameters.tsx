@@ -53,9 +53,9 @@ export function Parameters(props: ParameterProps) {
     };
 
     const addNewParam = () => {
-        const parameterCopy = [...parameters];
+        const parameterCopy = parameters?.length > 0 ? [...parameters] : [];
         const newParam: P = {
-            name: `param${parameters.length + 1}`,
+            name: parameters?.length > 0 ? `param${parameters.length + 1}` : "param1",
             in: type,
             required: true,
             description: "",
@@ -73,7 +73,7 @@ export function Parameters(props: ParameterProps) {
         </Button>
     );
     const addNewReferenceObject = () => {
-        const parameterCopy = [...parameters];
+        const parameterCopy = parameters?.length > 0 ? [...parameters] : [];
         const newParam: R = {
             $ref: currentReferences?.[0]?.$ref || "",
             summary: "",
@@ -92,8 +92,8 @@ export function Parameters(props: ParameterProps) {
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             <SectionHeader title={title} actionButtons={[getAddParamButton(), getAddReferenceObjectButton()]} />
-            {parameters.map((parameter, index) => {
-                if (type === parameter.in) {
+            {parameters?.map((parameter, index) => {
+                if (type === parameter.in || isReferenceObject(parameter)) {
                     if (isReferenceObject(parameter)) {
                         return (
                             <ReferenceObject
