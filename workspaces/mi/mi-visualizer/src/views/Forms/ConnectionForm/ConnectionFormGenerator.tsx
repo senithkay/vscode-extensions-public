@@ -338,8 +338,9 @@ export function AddConnection(props: AddConnectionProps) {
                     if (certificatePath !== currentCertificateFilePath) {
                         connectorTag.ele('trustStoreCertificatePath').txt(fileName);
                         rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
-                            currentCertificateFileName: certificatePath,
                             certificateFilePath: currentCertificateFilePath, 
+                            currentCertificateFileName: certificatePath,
+                            currentConfigurableName: currentCertificateConfigurableName,
                             storedProjectCertificateDirPath: projectCertificateDirPath, 
                             configPropertiesFilePath: currentConfigPropertiesFilePath, 
                             envFilePath: currentEnvFilePath
