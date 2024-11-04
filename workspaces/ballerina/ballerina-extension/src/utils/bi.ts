@@ -204,7 +204,7 @@ export async function createBIService(params: ComponentRequest): Promise<CreateC
 export async function createBIAutomation(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const functionFile = await handleAutomationCreation(params);
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 4, startColumn: 0, endLine: 10, endColumn: 1 } });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 5, startColumn: 0, endLine: 12, endColumn: 1 } });
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
@@ -267,8 +267,7 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
     const displayAnnotation = `@display {
-    label: "${params.functionType.name}",
-    cron: "${params.functionType.cron}"
+    label: "${params.functionType.name}"
 }`;
     let paramList = '';
     const paramLength = params.functionType.parameters.length;
@@ -311,7 +310,7 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
         .map((item) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ''}`)
         .join(",");
 
-    const returnTypeStr = `returns ${params.functionType.returnType === "void" ? 'error?' : `${params.functionType.returnType}|error?`}`;
+    const returnTypeStr = `returns ${!params.functionType.returnType ? 'error?' : `${params.functionType.returnType}|error?`}`;
 
     const expBody = `{
     do {
