@@ -142,7 +142,6 @@ export function TypeEditor(props: TypeEditorProps) {
             <Controller
                 control={control}
                 name={field.key}
-                defaultValue={field.value}
                 rules={{ required: !field.optional }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
@@ -169,6 +168,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         onCancel={handleCancel}
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
+                        placeholder={field.placeholder}
                         sx={{ paddingInline: '0' }}
                     />
                 )}
