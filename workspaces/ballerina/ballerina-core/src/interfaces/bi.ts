@@ -60,6 +60,8 @@ export type Property = {
     value: string | ELineRange;
     optional: boolean;
     editable: boolean;
+    advanced?: boolean;
+    placeholder?: string;
     valueTypeConstraint?: string[];
 };
 
