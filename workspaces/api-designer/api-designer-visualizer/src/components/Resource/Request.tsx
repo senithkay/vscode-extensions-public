@@ -8,7 +8,7 @@
  */
 import { Button, CheckBox, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { OpenAPI, Operation, RequestBody } from '../../Definitions/ServiceDefinitions';
+import { OpenAPI, Operation, RequestBody, SchemaTypes } from '../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
@@ -159,7 +159,7 @@ export function Request(props: ReadOnlyResourceProps) {
         let clonedSchema = { ...schema };
         // If type is not a BaseType, set it as a type else delete the type
         if (BaseTypes.includes(type)) {
-            clonedSchema.type = type;
+            clonedSchema.type = type as SchemaTypes;
             delete clonedSchema.$ref;
             delete clonedSchema.items;
         } else {
@@ -188,8 +188,8 @@ export function Request(props: ReadOnlyResourceProps) {
     const updateArray = () => {
         let clonedSchema = { ...schema };
         if (isSchemaArray && clonedSchema.type) {
-            if (BaseTypes.includes(clonedSchema.type)) {
-                clonedSchema.type = type;
+            if (BaseTypes.includes(clonedSchema.type as string)) {
+                clonedSchema.type = type as SchemaTypes;
             } else {
                 clonedSchema = { $ref: `#/components/schemas/${type}` };
             }
@@ -198,7 +198,7 @@ export function Request(props: ReadOnlyResourceProps) {
         } else {
             clonedSchema.type = "array";
             if (BaseTypes.includes(type)) {
-                clonedSchema.items = { type };
+                clonedSchema.items = { type: type as SchemaTypes };
             } else {
                 clonedSchema.items = { $ref: `#/components/schemas/${type}` };
             }
@@ -293,7 +293,7 @@ export function Request(props: ReadOnlyResourceProps) {
             {selectedMediaType && selectedContentFromMediaType?.schema && (
                 <SchemaEditor
                     schema={selectedContentFromMediaType?.schema}
-                    schemaName={selectedContentFromMediaType?.schema.type}
+                    schemaName={selectedContentFromMediaType?.schema.type as string}
                     variant="h3"
                     onSchemaChange={onSchemaChange}
                     openAPI={openAPI}

@@ -105,8 +105,7 @@ export interface Content {
 }
 
 export interface MediaType {
-    // schema?: Schema;
-    schema?: any; // TODO: Fix this to use Schema
+    schema?: Schema;
     example?: any;
     examples?: { [exampleName: string]: Example };
     encoding?: Encoding;
@@ -139,10 +138,16 @@ export interface Link {
     operationRef?: string;
     operationId?: string;
     parameters?: { [parameterName: string]: any };
-    requestBody?: any;
+    requestBody?: RequestBody;
     description?: string;
     server?: Server;
     [key: string]: any;
+}
+
+export interface RequestBody {
+    description?: string;
+    content: { [mediaType: string]: MediaType };
+    required?: boolean;
 }
 
 export interface Schema {
@@ -284,3 +289,5 @@ export type Path = {
     initialOperation: Operation;
     [key: string]: any;
 };
+
+export type SchemaTypes = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null' | ('string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null')[];
