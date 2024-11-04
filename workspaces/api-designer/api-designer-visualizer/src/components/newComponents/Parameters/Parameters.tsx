@@ -44,7 +44,6 @@ function isReferenceObject(obj: (P | R)): obj is R {
     return obj && typeof obj === 'object' && '$ref' in obj;
 }
 
-// Title, Vesrion are mandatory fields
 export function Parameters(props: ParameterProps) {
     const { parameters, paramTypes = BaseTypes, title, currentReferences, onParametersChange } = props;
 

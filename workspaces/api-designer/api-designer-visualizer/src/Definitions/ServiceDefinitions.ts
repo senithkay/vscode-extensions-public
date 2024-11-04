@@ -125,7 +125,7 @@ export interface Response {
 }
 
 export interface Headers {
-    [headerName: string]: Header;
+    [headerName: string]: Header | ReferenceObject | HeaderDefinition;
 }
 
 export interface Header extends Parameter { }
@@ -291,3 +291,10 @@ export type Path = {
 };
 
 export type SchemaTypes = 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null' | ('string' | 'number' | 'integer' | 'boolean' | 'array' | 'object' | 'null')[];
+
+export interface HeaderDefinition {
+    description?: string;
+    required?: boolean;
+    deprecated?: boolean;
+    schema?: Schema;
+}

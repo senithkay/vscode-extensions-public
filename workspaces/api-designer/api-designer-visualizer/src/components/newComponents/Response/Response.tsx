@@ -6,14 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
 import { MediaType as M, Response as R, Schema } from '../../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
-import SectionHeader from '../SectionHeader/SectionHeader';
 import { SubSectionWrapper } from '../Contact/Contact';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
+import { Headers } from '../Headers/Headers';
+import SectionHeader from '../SectionHeader/SectionHeader';
+import { Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
 
 interface ResponseProps {
     response: R;
@@ -60,7 +61,6 @@ export function Response(props: ResponseProps) {
         setDescription(evt.target.value);
         handleResponsesChange({ ...response, description: evt.target.value });
     };
-
     const allMediaTypes = Object.keys(response?.content);
 
     return (
@@ -70,6 +70,11 @@ export function Response(props: ResponseProps) {
                 onChange={handleDescriptionChange}
                 resize="vertical"
                 growRange={{ start: 2, offset: 10 }}
+            />
+            <Headers
+                headers={response?.headers}
+                onHeadersChange={(headers) => handleResponsesChange({ ...response, headers })}
+                title='Headers'
             />
             <SectionHeader
                 title="Body"
