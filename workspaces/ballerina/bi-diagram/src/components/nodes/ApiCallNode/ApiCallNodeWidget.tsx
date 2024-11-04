@@ -28,6 +28,7 @@ import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -252,12 +253,14 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
             ? `${model.node.codedata.module} : ${model.node.metadata.label}`
             : model.node.metadata.label;
 
+    const hasError = nodeHasError(model.node);
+
     return (
         <NodeStyles.Node>
             <NodeStyles.Box
                 disabled={disabled}
                 hovered={isBoxHovered}
-                hasError={model.node.diagnostics?.hasDiagnostics}
+                hasError={hasError}
                 onMouseEnter={() => setIsBoxHovered(true)}
                 onMouseLeave={() => setIsBoxHovered(false)}
             >
@@ -272,9 +275,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                             <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
                         </NodeStyles.Header>
                         <NodeStyles.ActionButtonGroup>
-                            {model.node.diagnostics?.hasDiagnostics && (
-                                <DiagnosticsPopUp node={model.node} />
-                            )}
+                            {hasError && <DiagnosticsPopUp node={model.node} />}
                             <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                                 <MoreVertIcon />
                             </NodeStyles.MenuButton>

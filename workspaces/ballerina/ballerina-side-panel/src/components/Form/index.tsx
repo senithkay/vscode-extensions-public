@@ -90,6 +90,10 @@ namespace S {
         }
     `;
 
+    export const PrimaryButton = styled(Button)`
+        appearance: "primary";
+    `;
+
     export const BodyText = styled.div<{}>`
         font-size: 11px;
         opacity: 0.5;
@@ -314,9 +318,13 @@ export const Form = forwardRef((props: FormProps, ref) => {
     // has optional fields
     const hasOptionalFields = formFields.some((field) => field.optional);
 
+    // has advance fields
+    const hasAdvanceFields = formFields.some((field) => field.advanced);
+
     const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
     const isExistingDataMapper =
         isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
+    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
@@ -329,6 +337,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         label: "Variable",
         type: "IDENTIFIER",
         optional: false,
+        advanced: false,
         editable: true,
         documentation: "Select a variable to assign",
         value: "name",
@@ -381,7 +390,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         .map((field) => {
                             if (
                                 ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
-                                field.optional
+                                field.advanced
                             ) {
                                 return;
                             }
@@ -401,14 +410,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         })}
                     {isExistingDataMapper && (
                         <S.DataMapperRow>
-                            <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
+                            <S.UseDataMapperButton
+                                appearance="secondary"
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
                         </S.DataMapperRow>
                     )}
-                    {hasOptionalFields && (
+                    {hasAdvanceFields && (
                         <S.Row>
-                            Optional Parameters
+                            Advance Parameters
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
@@ -431,10 +443,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             </S.ButtonContainer>
                         </S.Row>
                     )}
-                    {hasOptionalFields &&
+                    {hasAdvanceFields &&
                         showAdvancedOptions &&
                         formFields.map((field) => {
-                            if (field.optional) {
+                            if (field.advanced) {
                                 return (
                                     <S.Row key={field.key}>
                                         <EditorFactory
@@ -453,9 +465,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {!hideSave && onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
-                            Save
-                        </Button>
+                        {isNewDataMapper ? (
+                            <S.PrimaryButton
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
+                                Create Mapping
+                            </S.PrimaryButton>
+                        ) : (
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                                Save
+                            </S.PrimaryButton>
+                        )}
                     </S.Footer>
                 )}
             </S.Container>

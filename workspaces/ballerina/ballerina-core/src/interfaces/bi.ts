@@ -186,7 +186,8 @@ export type NodePropertyKey =
     | "collection"
     | "view"
     | "variable"
-    | "defaultable";
+    | "defaultable"
+    | "functionName";
 
 export type BranchKind = "block" | "worker";
 
@@ -199,7 +200,8 @@ export type NodeKind =
     | "DRAFT"
     | "EVENT_START"
     | "IF"
-    | "ACTION_CALL"
+    | "REMOTE_ACTION_CALL"
+    | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
     | "ERROR_HANDLER"
