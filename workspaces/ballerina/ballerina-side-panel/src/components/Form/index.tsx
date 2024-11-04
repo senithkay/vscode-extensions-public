@@ -389,7 +389,10 @@ export function Form(props: FormProps) {
                         })}
                     {isExistingDataMapper && (
                         <S.DataMapperRow>
-                            <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
+                            <S.UseDataMapperButton
+                                appearance="secondary"
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
                         </S.DataMapperRow>
