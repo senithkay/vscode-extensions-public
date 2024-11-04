@@ -22,7 +22,7 @@ interface RequestBodyProps {
 export function RequestBody(props: RequestBodyProps) {
     const { requestBody, onRequestBodyChange } = props;
     const { rpcClient } = useVisualizerContext();
-    const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(Object.keys(requestBody.content)[0]);
+    const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(requestBody?.content && Object.keys(requestBody.content)[0]);
 
     const handleRequestBodyChange = (requestBody: R) => {
         onRequestBodyChange(requestBody);
@@ -67,7 +67,7 @@ export function RequestBody(props: RequestBodyProps) {
         }
     };
 
-    const allMediaTypes = Object.keys(requestBody.content);
+    const allMediaTypes = requestBody?.content && Object.keys(requestBody.content);
 
     return (
         <>
@@ -82,7 +82,7 @@ export function RequestBody(props: RequestBodyProps) {
                         <Dropdown
                             id="media-type-dropdown"
                             value={selectedMediaType || "application/json"}
-                            items={allMediaTypes.map(mediaType => ({ label: mediaType, value: mediaType }))}
+                            items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
                             onValueChange={(value) => setSelectedMediaType(value)}
                         />
                         <Button tooltip='Configure Content Types' onClick={null} appearance='icon'>

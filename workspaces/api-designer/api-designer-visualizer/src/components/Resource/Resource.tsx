@@ -73,9 +73,9 @@ export function Resource(props: ResourceProps) {
         path: path,
         summary: resourceOperation.summary,
         description: resourceOperation.description,
-        queryParams: getQueryParametersFromParameters(resourceOperation.parameters),
-        pathParams: getPathParametersFromParameters(resourceOperation.parameters),
-        headerParams: getHeaderParametersFromParameters(resourceOperation.parameters),
+        queryParams: getQueryParametersFromParameters(resourceOperation.parameters as Parameter[]),
+        pathParams: getPathParametersFromParameters(resourceOperation.parameters as Parameter[]),
+        headerParams: getHeaderParametersFromParameters(resourceOperation.parameters as Parameter[]),
         responses: resourceOperation.responses
     };
     const handlePathParamsChange = (params: Param[]) => {

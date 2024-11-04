@@ -28,6 +28,7 @@ interface ParameterProps {
     paramTypes?: string[];
     currentReferences?: R[];
     title?: string;
+    type: "query" | "header" | "path" | "cookie";
     onParametersChange: (parameter: (P | R) []) => void;
 }
 const ButtonWrapperParams = styled.div`
@@ -45,7 +46,7 @@ function isReferenceObject(obj: (P | R)): obj is R {
 }
 
 export function Parameters(props: ParameterProps) {
-    const { parameters, paramTypes = BaseTypes, title, currentReferences, onParametersChange } = props;
+    const { parameters, paramTypes = BaseTypes, title, type, currentReferences, onParametersChange } = props;
 
     const handleParameterChange = (parameters: (P | R)[]) => {
         onParametersChange(parameters);
@@ -55,7 +56,7 @@ export function Parameters(props: ParameterProps) {
         const parameterCopy = [...parameters];
         const newParam: P = {
             name: `param${parameters.length + 1}`,
-            in: "query",
+            in: type,
             required: true,
             description: "",
             schema: {
@@ -92,44 +93,46 @@ export function Parameters(props: ParameterProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             <SectionHeader title={title} actionButtons={[getAddParamButton(), getAddReferenceObjectButton()]} />
             {parameters.map((parameter, index) => {
-                if (isReferenceObject(parameter)) {
-                    return (
-                        <ReferenceObject
-                            key={index}
-                            id={index}
-                            referenceObject={parameter}
-                            referenceObjects={currentReferences?.map((item) => item.$ref)}
-                            onRemoveReferenceObject={(id) => {
-                                const parametersCopy = [...parameters];
-                                parametersCopy.splice(id, 1);
-                                handleParameterChange(parametersCopy as P[]);
-                            }}
-                            onRefernceObjectChange={(parameter) => {
-                                const parametersCopy = [...parameters];
-                                parametersCopy[index] = parameter;
-                                handleParameterChange(parametersCopy as P[]);
-                            }}
-                        />
-                    );
-                } else {
-                    return (
-                        <Parameter
-                            key={index}
-                            id={index}
-                            parameter={parameter}
-                            paramTypes={paramTypes}
-                            onRemoveParameter={(id) => {
-                                const parametersCopy = [...parameters];
-                                parametersCopy.splice(id, 1);
-                                handleParameterChange(parametersCopy as P[]);
-                            }}
-                            onParameterChange={(parameter) => {
-                                const parametersCopy = [...parameters];
-                                parametersCopy[index] = parameter;
-                                handleParameterChange(parametersCopy as P[]);
-                            }}
-                        />
-                    );
+                if (type === parameter.in) {
+                    if (isReferenceObject(parameter)) {
+                        return (
+                            <ReferenceObject
+                                key={index}
+                                id={index}
+                                referenceObject={parameter}
+                                referenceObjects={currentReferences?.map((item) => item.$ref)}
+                                onRemoveReferenceObject={(id) => {
+                                    const parametersCopy = [...parameters];
+                                    parametersCopy.splice(id, 1);
+                                    handleParameterChange(parametersCopy as P[]);
+                                }}
+                                onRefernceObjectChange={(parameter) => {
+                                    const parametersCopy = [...parameters];
+                                    parametersCopy[index] = parameter;
+                                    handleParameterChange(parametersCopy as P[]);
+                                }}
+                            />
+                        );
+                    } else {
+                        return (
+                            <Parameter
+                                key={index}
+                                id={index}
+                                parameter={parameter}
+                                paramTypes={paramTypes}
+                                onRemoveParameter={(id) => {
+                                    const parametersCopy = [...parameters];
+                                    parametersCopy.splice(id, 1);
+                                    handleParameterChange(parametersCopy as P[]);
+                                }}
+                                onParameterChange={(parameter) => {
+                                    const parametersCopy = [...parameters];
+                                    parametersCopy[index] = parameter;
+                                    handleParameterChange(parametersCopy as P[]);
+                                }}
+                            />
+                        );
+                    }
                 }
             })}
         </div>

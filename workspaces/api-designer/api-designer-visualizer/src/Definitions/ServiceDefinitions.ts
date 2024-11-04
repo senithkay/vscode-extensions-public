@@ -70,7 +70,7 @@ export interface Operation {
     summary?: string;
     description?: string;
     operationId?: string;
-    parameters?: [Parameter | ReferenceObject][];
+    parameters?: (Parameter | ReferenceObject)[];
     requestBody?: RequestBody;
     responses?: Responses;
     [key: string]: any; // To accommodate extensions and additional properties

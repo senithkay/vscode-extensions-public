@@ -35,7 +35,7 @@ export const ParametersStory = () => {
         setParameters(parameters as P[]);
     }
     return (
-        <Parameters title="Query Parameters" parameters={parameters} onParametersChange={onParametersChange} currentReferences={currentReferenceObjects} />
+        <Parameters title="Query Parameters" type="query" parameters={parameters} onParametersChange={onParametersChange} currentReferences={currentReferenceObjects} />
     );
 };
 
@@ -67,6 +67,6 @@ export const ParametersStoryWithReferenceObject = () => {
         setReferenceObjects(referenceObjects as R[]);
     }
     return (
-        <Parameters title="Query Parameters" parameters={referenceObjects} onParametersChange={onReferenceObjectsChange} currentReferences={currentReferenceObjects} />
+        <Parameters title="Query Parameters" type="query" parameters={referenceObjects} onParametersChange={onReferenceObjectsChange} currentReferences={currentReferenceObjects} />
     );
 }
