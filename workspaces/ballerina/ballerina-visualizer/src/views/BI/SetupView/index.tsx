@@ -143,7 +143,7 @@ export function SetupView(props: SetupViewProps) {
                 </Caption>
             </TitleContainer>
             <StyledButton appearance="primary" onClick={() => downloadLS()} disabled={progress !== null}>
-                <ButtonContent>Set Up</ButtonContent>
+                <ButtonContent>Set Up Kola</ButtonContent>
             </StyledButton>
             {progress &&
                 <StepContainer>
