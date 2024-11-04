@@ -170,10 +170,13 @@ export function Diagram(props: DiagramProps) {
 
         // diagram paint with timeout
         setTimeout(() => {
-            if (diagramEngine && newDiagramModel) {
-                diagramEngine.zoomToFit();
+            try {
+                if (diagramEngine && newDiagramModel) {
+                    diagramEngine.zoomToFit();
+                }
+                diagramEngine.repaintCanvas();
+            } catch (error) {
             }
-            diagramEngine.repaintCanvas();
         }, 200);
     };
 

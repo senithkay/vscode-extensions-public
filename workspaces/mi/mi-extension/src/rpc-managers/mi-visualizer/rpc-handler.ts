@@ -19,30 +19,31 @@ import {
     RetrieveContextRequest,
     SampleDownloadRequest,
     SwaggerProxyRequest,
+    ToggleDisplayOverviewRequest,
     UpdateContextRequest,
     addToHistory,
-    toggleDisplayOverview,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    focusOutput,
     getAvailableRuntimeServices,
     getCurrentThemeKind,
     getHistory,
+    getProjectOverview,
     getProjectStructure,
     getWorkspaces,
     goBack,
     goHome,
     goSelected,
-    openView,
-    ToggleDisplayOverviewRequest,
     goToSource,
     log,
     openExternal,
-    focusOutput,
-    updateContext,
+    openView,
+    reloadWindow,
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
-    reloadWindow
+    toggleDisplayOverview,
+    updateContext
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -51,9 +52,10 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiVisualizerRpcManager();
     messenger.onRequest(getWorkspaces, () => rpcManger.getWorkspaces());
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
+    messenger.onRequest(getProjectOverview, (args: ProjectStructureRequest) => rpcManger.getProjectOverview(args));
     messenger.onRequest(getCurrentThemeKind, () => rpcManger.getCurrentThemeKind());
     messenger.onNotification(openView, (args: OpenViewRequest) => rpcManger.openView(args));
-    messenger.onRequest(reloadWindow, () => rpcManger.reloadWindow());
+    messenger.onNotification(reloadWindow, () => rpcManger.reloadWindow());
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
@@ -61,11 +63,11 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());
     messenger.onNotification(goSelected, (args: number) => rpcManger.goSelected(args));
-    messenger.onRequest(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
+    messenger.onNotification(toggleDisplayOverview, (args: ToggleDisplayOverviewRequest) => rpcManger.toggleDisplayOverview(args));
     messenger.onNotification(goToSource, (args: GoToSourceRequest) => rpcManger.goToSource(args));
     messenger.onNotification(focusOutput, () => rpcManger.focusOutput());
     messenger.onNotification(log, (args: LogRequest) => rpcManger.log(args));
-    messenger.onRequest(updateContext, (args: UpdateContextRequest) => rpcManger.updateContext(args));
+    messenger.onNotification(updateContext, (args: UpdateContextRequest) => rpcManger.updateContext(args));
     messenger.onRequest(retrieveContext, (args: RetrieveContextRequest) => rpcManger.retrieveContext(args));
     messenger.onRequest(showNotification, (args: NotificationRequest) => rpcManger.showNotification(args));
     messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
