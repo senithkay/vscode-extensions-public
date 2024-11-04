@@ -33,7 +33,7 @@ interface FormFieldEditorProps {
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
     const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
 
-    if (field.type === "MULTIPLE_SELECT" ) {
+    if (field.type === "MULTIPLE_SELECT") {
         // Enum is a dropdown field
         let label: string;
         switch (selectedNode) {
@@ -53,7 +53,7 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
         return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
-    } else if (!field.items && field.key === "type" && field.editable) {
+    } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
         return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
