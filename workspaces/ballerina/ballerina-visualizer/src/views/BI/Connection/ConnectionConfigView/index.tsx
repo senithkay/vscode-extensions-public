@@ -19,6 +19,8 @@ import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     max-width: 600px;
+    max-height: calc(100% - 110px);
+    overflow: scroll;
 `;
 
 export interface SidePanelProps {

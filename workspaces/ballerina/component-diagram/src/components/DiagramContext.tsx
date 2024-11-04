@@ -16,6 +16,7 @@ export interface DiagramContextState {
     onAddConnection: () => void;
     onEntryPointSelect: (entryPoint: EntryPoint) => void;
     onConnectionSelect: (connection: Connection) => void;
+    onDeleteComponent: (component: EntryPoint | Connection) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -24,6 +25,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     onAddConnection: () => {},
     onEntryPointSelect: () => {},
     onConnectionSelect: () => {},
+    onDeleteComponent: () => {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
