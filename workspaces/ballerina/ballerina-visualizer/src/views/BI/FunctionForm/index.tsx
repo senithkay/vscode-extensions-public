@@ -122,7 +122,7 @@ export function FunctionForm() {
         {
             key: `type`,
             label: 'Type',
-            type: 'Type',
+            type: 'TYPE',
             optional: false,
             editable: true,
             documentation: '',
@@ -198,7 +198,7 @@ export function FunctionForm() {
         {
             key: `return`,
             label: 'Return Type',
-            type: 'Type',
+            type: 'TYPE',
             optional: true,
             advanced: true,
             editable: true,
