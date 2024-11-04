@@ -233,16 +233,12 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (
                     <div>
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
-                            <TextField {...field}
-                                label={element.displayName}
-                                size={50}
-                                placeholder={element.helpTip}
-                                required={element.required === 'true'}
-                                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                            />
                             <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
                                 <div style={{ color: colors.editorForeground }}>Add file</div>
                             </Button>
+                            <Typography variant="body3">
+                                {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch(element.name)}
+                            </Typography>
                         </div>
                     </div>
                 );
