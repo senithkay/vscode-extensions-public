@@ -55,6 +55,7 @@ export function AddConnection(props: AddConnectionProps) {
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
     const [certificatePath, setCertificatePath] = useState('');
+    const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -157,6 +158,9 @@ export function AddConnection(props: AddConnectionProps) {
                             }
                             if (param.name === 'trustStoreCertificatePath') {
                                 setCertificatePath(param.value);
+                            }
+                            if (param.name === 'certificateConfigurableName') {
+                                setCurrentCertificateConfigurableName(param.value)
                             }
                         });
                     }
@@ -265,7 +269,7 @@ export function AddConnection(props: AddConnectionProps) {
 
         // Fill the values
         Object.keys(values).forEach((key: string) => {
-            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'trustStoreCertificatePath') && values[key]) {
+            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'trustStoreCertificatePath' && key !== 'certificateConfigurableName') && values[key]) {
                 if (typeof values[key] === 'object' && values[key] !== null) {
                     // Handle expression input type
                     const namespaces = values[key].namespaces;
@@ -301,6 +305,22 @@ export function AddConnection(props: AddConnectionProps) {
                 }
             }
         });
+
+        if (values['certificateConfigurableName']) {
+            const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+            const currentEnvFilePath = projectUri + "/.env";
+
+            const certificateConfigurableName = values['certificateConfigurableName'];
+            if (certificateConfigurableName) {
+                rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
+                    configurableName: certificateConfigurableName,
+                    currentConfigurableName: currentCertificateConfigurableName,
+                    configPropertiesFilePath: currentConfigPropertiesFilePath,
+                    envFilePath: currentEnvFilePath
+                })
+                connectorTag.ele('certificateConfigurableName').txt(certificateConfigurableName);
+            }
+        }
 
         if (values['trustStoreCertificatePath']) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
