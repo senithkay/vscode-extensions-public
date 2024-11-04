@@ -15,6 +15,7 @@ import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/u
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
+import { useVisualizerContext } from "../../../../Context";
 
 const Container = styled.div`
     padding: 0 20px;
@@ -60,23 +61,36 @@ export function TriggerView(props: TriggerViewProps) {
     const [searchText, setSearchText] = useState<string>("");
     const [isSearching, setIsSearching] = useState(true);
 
+    const { cacheTriggers, setCacheTriggers } = useVisualizerContext();
+
     useEffect(() => {
         getTriggers();
     }, []);
 
     const getTriggers = () => {
-        rpcClient
-            .getTriggerWizardRpcClient()
-            .getTriggers({ query: "" })
-            .then((model) => {
-                console.log(">>> bi triggers", model);
-                setTriggers(model);
-                setIsSearching(false);
-            });
+        if (cacheTriggers.central.length > 0) {
+            setTriggers(cacheTriggers);
+            setIsSearching(false);
+        } else {
+            rpcClient
+                .getTriggerWizardRpcClient()
+                .getTriggers({ query: "" })
+                .then((model) => {
+                    console.log(">>> bi triggers", model);
+                    setTriggers(model);
+                    setCacheTriggers(model);
+                    setIsSearching(false);
+                });
+        }
     };
 
     useEffect(() => {
         setIsSearching(true);
+        if (!searchText && cacheTriggers.central.length > 0) {
+            setTriggers(cacheTriggers);
+            setIsSearching(false);
+            return;
+        }
         debouncedSearch(searchText);
         return () => debouncedSearch.cancel();
     }, [searchText]);
