@@ -46,6 +46,9 @@ export interface BaseVisitor {
     beginVisitRemoteActionCall?(node: FlowNode, parent?: FlowNode): void;
     endVisitRemoteActionCall?(node: FlowNode, parent?: FlowNode): void;
 
+    beginVisitResourceActionCall?(node: FlowNode, parent?: FlowNode): void;
+    endVisitResourceActionCall?(node: FlowNode, parent?: FlowNode): void;
+
     beginVisitReturn?(node: FlowNode, parent?: FlowNode): void;
     endVisitReturn?(node: FlowNode, parent?: FlowNode): void;
 

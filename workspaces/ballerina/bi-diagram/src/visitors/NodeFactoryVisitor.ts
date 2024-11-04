@@ -364,6 +364,10 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
     }
 
+    beginVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitRemoteActionCall(node, parent);
+    }
+
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         // add empty node end of the block
         if (node.id.endsWith("-last")) {

@@ -42,6 +42,7 @@ export function NodeIcon(props: NodeIconProps) {
         case "EXPRESSION":
             return <CodeIcon />;
         case "REMOTE_ACTION_CALL":
+        case "RESOURCE_ACTION_CALL":    
             return <CallIcon />;
         case "RETURN":
             return <ReturnIcon />;
