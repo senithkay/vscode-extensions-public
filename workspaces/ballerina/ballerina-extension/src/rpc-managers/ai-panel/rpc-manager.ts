@@ -369,59 +369,27 @@ export class AiPanelRpcManager implements AIPanelAPI {
     }
 
     async getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
-
-        //TODO: Move this to LS
-        const projectRoot = await getBallerinaProjectRoot();
-
-        if (!projectRoot) {
-            return null;
+        const environment = await setupProjectEnvironment(project);
+        if (!environment) {
+            return { diagnostics: [] };
         }
-        const randomNum = Math.floor(Math.random() * 90000) + 10000;
-        const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `bal-proj-${randomNum}-`));
-        //Copy project
-        const langClient = StateMachine.langClient();
-        fs.cpSync(projectRoot, tempDir, { recursive: true });
-        //Apply edits
-        // const diagnostics: Diagnostic[] = [];
-        for (const sourceFile of project.sourceFiles) {
-            // Update lastUpdatedBalFile if it's a .bal file
-            if (sourceFile.filePath.endsWith('.bal')) {
-                const tempFilePath = path.join(tempDir, sourceFile.filePath);
-
-                // Write content to file
-                fs.writeFileSync(tempFilePath, sourceFile.content, 'utf8');
-
-                //Open Project
-                langClient.didOpen({
-                    textDocument: {
-                        uri: Uri.file(tempFilePath).toString(),
-                        languageId: 'ballerina',
-                        version: 1,
-                        text: sourceFile.content
-                    }
-                });
-            }
-        }
-
-        //remove unused imports?
-
+    
+        const { langClient, tempDir } = environment;
         // check project diagnostics
         let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-
-        let projectModified = await addMissingImports(projectDiags);
+    
+        const projectModified = await addMissingImports(projectDiags);
         if (projectModified) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
-
-        let isDiagsRefreshed: boolean = await isModuleNotFoundDiagsExist(projectDiags, langClient);
+    
+        const isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
         if (isDiagsRefreshed) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
+    
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
-
-        return {
-            diagnostics: filteredDiags
-        };
+        return { diagnostics: filteredDiags };
     }
 
     async getInitialPrompt(): Promise<InitialPrompt> {
@@ -442,11 +410,70 @@ export class AiPanelRpcManager implements AIPanelAPI {
     async clearInitialPrompt(): Promise<void> {
         extension.initialPrompt = undefined;
     }
+
+    async checkSyntaxError(project: ProjectSource): Promise<boolean> {
+        const environment = await setupProjectEnvironment(project);
+        if (!environment) {
+            return false;
+        }
+    
+        const { langClient, tempDir } = environment;
+        // check project diagnostics
+        const projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+    
+        for (const diagnostic of projectDiags) {
+            for (const diag of diagnostic.diagnostics) {
+                if (typeof diag.code === 'string' && diag.code.startsWith('BCE')) {
+                    const codeNumber = parseInt(diag.code.slice(3), 10);
+                    if (!isNaN(codeNumber) && codeNumber < 2000) {
+                        return true;
+                    }
+                }
+            }
+        }
+    
+        return false;
+    }
+    
 }
 
 interface BalModification {
     fileUri: string;
     moduleName: string;
+}
+
+async function setupProjectEnvironment(project: ProjectSource): Promise<{ langClient: any, tempDir: string } | null> {
+    //TODO: Move this to LS
+    const projectRoot = await getBallerinaProjectRoot();
+    if (!projectRoot) {
+        return null;
+    }
+    
+    const randomNum = Math.floor(Math.random() * 90000) + 10000;
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `bal-proj-${randomNum}-`));
+    fs.cpSync(projectRoot, tempDir, { recursive: true });
+    //Copy project
+    const langClient = StateMachine.langClient();
+    //Apply edits
+    for (const sourceFile of project.sourceFiles) {
+        // Update lastUpdatedBalFile if it's a .bal file
+        if (sourceFile.filePath.endsWith('.bal')) {
+            const tempFilePath = path.join(tempDir, sourceFile.filePath);
+            // Write content to file
+            fs.writeFileSync(tempFilePath, sourceFile.content, 'utf8');
+            //Open Project
+            langClient.didOpen({
+                textDocument: {
+                    uri: Uri.file(tempFilePath).toString(),
+                    languageId: 'ballerina',
+                    version: 1,
+                    text: sourceFile.content
+                }
+            });
+        }
+    }
+    
+    return { langClient, tempDir };
 }
 
 async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {

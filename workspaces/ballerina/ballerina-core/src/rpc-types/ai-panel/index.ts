@@ -28,6 +28,7 @@ export interface AIPanelAPI {
     promptLogin: () => Promise<boolean>;
     getProjectSource: () => Promise<ProjectSource>;
     getShadowDiagnostics: (project: ProjectSource) => Promise<ProjectDiagnostics>;
+    checkSyntaxError: (project: ProjectSource) => Promise<boolean>;
     getInitialPrompt: () => Promise<InitialPrompt>;
     clearInitialPrompt: () => void;
 }
