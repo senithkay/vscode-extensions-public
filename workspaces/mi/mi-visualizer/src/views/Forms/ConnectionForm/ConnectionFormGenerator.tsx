@@ -265,7 +265,7 @@ export function AddConnection(props: AddConnectionProps) {
 
         // Fill the values
         Object.keys(values).forEach((key: string) => {
-            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'trustStoreCertificateAlias' && key !== 'trustStoreCertificatePath') && values[key]) {
+            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'trustStoreCertificatePath') && values[key]) {
                 if (typeof values[key] === 'object' && values[key] !== null) {
                     // Handle expression input type
                     const namespaces = values[key].namespaces;
@@ -302,24 +302,19 @@ export function AddConnection(props: AddConnectionProps) {
             }
         });
 
-        if (values['trustStoreCertificateAlias'] && values['trustStoreCertificatePath']) {
+        if (values['trustStoreCertificatePath']) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
             const currentEnvFilePath = projectUri + "/.env";
             const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
 
-            const currentCertificateAlias = values['trustStoreCertificateAlias'];
             const currentCertificateFilePath = values['trustStoreCertificatePath'];
-
-            connectorTag.ele('trustStoreCertificateAlias').txt(currentCertificateAlias);
 
             if (currentCertificateFilePath) {
                 if (isCertificateFilePath(currentCertificateFilePath)) {
-                    // const configValue = `{#[config:${currentCertificateAlias}]}`;
                     const fileName = currentCertificateFilePath.split('/').pop();
                     if (certificatePath !== currentCertificateFilePath) {
                         connectorTag.ele('trustStoreCertificatePath').txt(fileName);
                         rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
-                            certificateAlias: currentCertificateAlias, 
                             currentCertificateFileName: certificatePath,
                             certificateFilePath: currentCertificateFilePath, 
                             storedProjectCertificateDirPath: projectCertificateDirPath, 

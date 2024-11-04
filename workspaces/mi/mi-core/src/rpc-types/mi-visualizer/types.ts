@@ -140,7 +140,6 @@ export interface SampleDownloadRequest {
 }
 
 export interface HandleCertificateFileRequest {
-    certificateAlias: string;
     currentCertificateFileName: string;
     certificateFilePath: string;
     storedProjectCertificateDirPath: string;
