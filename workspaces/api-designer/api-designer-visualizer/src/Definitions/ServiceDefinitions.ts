@@ -42,10 +42,10 @@ export interface License {
 }
 
 export interface Paths {
-    [path: string]: PathItem | string | Parameter[] | undefined;
-    description?: string; // Description of the path item
-    summary?: string; // Summary of the path item
-    parameters?: Parameter[]; // Parameters defined at the PathItem level
+    [path: string]: PathItem;
+    // description?: string; // Description of the path item
+    // summary?: string; // Summary of the path item
+    // parameters?: Parameter[]; // Parameters defined at the PathItem level
 }
 
 export interface PathItem {

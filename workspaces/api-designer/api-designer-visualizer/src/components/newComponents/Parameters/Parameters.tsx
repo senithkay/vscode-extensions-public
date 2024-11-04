@@ -55,7 +55,7 @@ export function Parameters(props: ParameterProps) {
     const addNewParam = () => {
         const parameterCopy = parameters?.length > 0 ? [...parameters] : [];
         const newParam: P = {
-            name: parameters?.length > 0 ? `param${parameters.length + 1}` : "param1",
+            name: parameters?.length > 0 ? `param${parameters.length}` : "param1",
             in: type,
             required: true,
             description: "",
