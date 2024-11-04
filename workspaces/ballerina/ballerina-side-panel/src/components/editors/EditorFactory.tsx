@@ -28,10 +28,12 @@ interface FormFieldEditorProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
     handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus } = props;
+    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
+        props;
 
     if (field.type === "MULTIPLE_SELECT") {
         // Enum is a dropdown field
@@ -55,7 +57,14 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
     } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
-        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+        return (
+            <TypeEditor
+                field={field}
+                openRecordEditor={openRecordEditor}
+                handleOnFieldFocus={handleOnFieldFocus}
+                autoFocus={autoFocus}
+            />
+        );
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {
         // Expression field is a inline expression editor
         return (
@@ -65,16 +74,17 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 openSubPanel={openSubPanel}
                 isActiveSubPanel={isActiveSubPanel}
                 handleOnFieldFocus={handleOnFieldFocus}
+                autoFocus={autoFocus}
             />
         );
     } else if (field.type === "VIEW") {
         // Skip this property
         return <></>;
     } else if (field.type === "PARAM_MANAGER") {
-        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />
+        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor
-        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} autoFocus={autoFocus} />;
     }
 });
