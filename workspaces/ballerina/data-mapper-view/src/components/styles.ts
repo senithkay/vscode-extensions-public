@@ -28,6 +28,18 @@ const addElementButton = {
     lineHeight: "24px",
 };
 
+const treeLabel = {
+    verticalAlign: "middle",
+    padding: "5px",
+    minWidth: "100px",
+    display: "flex",
+    width: "100%",
+    height: `${IO_NODE_FIELD_HEIGHT}px`,
+    '&:hover': {
+        backgroundColor: 'var(--vscode-list-hoverBackground)',
+    },
+};
+
 export const useIONodesStyles = () => ({
     inputTypeLabel: css({
         ...typeLabel
@@ -104,10 +116,7 @@ export const useIONodesStyles = () => ({
 		fontWeight: 800,
 		fontSize: "14px",
 	}),
-    typeLabelDisabled: css({
-		opacity: 0.5
-	}),
-    valueLabelDisabled: css({
+    labelDisabled: css({
 		opacity: 0.5
 	}),
     treeLabelPortSelected: css({
@@ -122,6 +131,8 @@ export const useIONodesStyles = () => ({
         backgroundColor: 'var(--vscode-list-hoverBackground)',
     }),
     treeLabelArray: css({
+        ...treeLabel,
+        height: 'fit-content',
         flexDirection: "column"
     }),
     ArrayFieldRow: css({
@@ -132,9 +143,8 @@ export const useIONodesStyles = () => ({
         }
     }),
     ArrayFieldRowDisabled: css({
-        '&:hover': {
-            backgroundColor: 'var(--vscode-editorWidget-background)'
-        }
+        cursor: 'not-allowed',
+        opacity: 0.5
     }),
     innerTreeLabel: css({
         display: "flex",
@@ -194,15 +204,7 @@ export const useIONodesStyles = () => ({
         fontSize: '13px'
     }),
     treeLabel: css({
-        verticalAlign: "middle",
-        padding: "5px",
-        minWidth: "100px",
-        display: "flex",
-        width: "100%",
-        height: `${IO_NODE_FIELD_HEIGHT}px`,
-        '&:hover': {
-            backgroundColor: 'var(--vscode-list-hoverBackground)',
-        },
+        ...treeLabel
     }),
     enumHeaderTreeLabel: css({
         verticalAlign: "middle",
