@@ -133,8 +133,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const showEditForm = useRef<boolean>(false);
 
     useEffect(() => {
-        console.log(">>> Updating sequence model...", syntaxTree);
-        getSequenceModel();
+        getFlowModel();
     }, [syntaxTree]);
 
     rpcClient.onParentPopupSubmitted(() => {
@@ -144,7 +143,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         fetchNodesAndAISuggestions(parent, target);
     });
 
-    const getSequenceModel = () => {
+    const getFlowModel = () => {
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -182,7 +181,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (originalFlowModel.current) {
             // const updatedModel = removeDraftNodeFromDiagram(model);
             // setModel(updatedModel);
-            getSequenceModel();
+            getFlowModel();
             originalFlowModel.current = undefined;
             setSuggestedModel(undefined);
             suggestedText.current = undefined;

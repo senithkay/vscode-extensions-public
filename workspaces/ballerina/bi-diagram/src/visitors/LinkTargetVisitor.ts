@@ -21,7 +21,7 @@ export class LinkTargetVisitor implements BaseVisitor {
     private topDoBranch: string;
 
     constructor(originalFlowModel: Flow, nodeModels: NodeModel[], topDoBranch?: string) {
-        console.log(">>> add link targets visitor started");
+        // console.log(">>> add link targets visitor started");
         this.flow = originalFlowModel;
         this.nodeModels = nodeModels;
         if (topDoBranch !== undefined) {
@@ -48,7 +48,6 @@ export class LinkTargetVisitor implements BaseVisitor {
 
         const outPort = model.getOutPort();
         if (!outPort) {
-            console.log(">>> out port not found", { model });
             return;
         }
 
@@ -125,7 +124,6 @@ export class LinkTargetVisitor implements BaseVisitor {
                 return;
             }
         } else {
-            console.log(">>> top level do block not found", node);
             outLinks.forEach((outLink) => {
                 outLink.setTarget({
                     line: node.codedata.lineRange.startLine.line,

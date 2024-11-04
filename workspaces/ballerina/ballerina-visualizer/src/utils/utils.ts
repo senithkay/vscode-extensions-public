@@ -8,6 +8,7 @@
  */
 import { STModification, FunctionParameters } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { ParamConfig } from "@wso2-enterprise/ui-toolkit";
 import { URI } from "vscode-uri";
@@ -136,13 +137,13 @@ export const parameterConfig: ParamConfig = {
     ]
 };
 
-export const getFunctionParametersList = (params: ParamConfig) => {
+export const getFunctionParametersList = (params: Parameter[]) => {
     const paramList: FunctionParameters[] = [];
-    params.paramValues.forEach(param => {
+    params.forEach(param => {
         paramList.push({
-            type: param.parameters[0].value as string,
-            name: param.parameters[1].value as string,
-            defaultValue: param.parameters[2].value as string
+            type: param.formValues['type'] as string,
+            name: param.formValues['variable'] as string,
+            defaultValue: param.formValues['defaultable'] as string
         });
     })
     return paramList;
