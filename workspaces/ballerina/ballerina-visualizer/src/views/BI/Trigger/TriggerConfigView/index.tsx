@@ -7,13 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
 import { BallerinaTrigger, ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
+import { debounce } from "lodash";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { URI, Utils } from "vscode-uri";
+import { convertToVisibleTypes } from "../../../../utils/bi";
 
 const Container = styled.div`
     padding: 0 20px 20px;
@@ -61,6 +65,8 @@ interface TriggerConfigViewProps {
 }
 
 export function TriggerConfigView(props: TriggerConfigViewProps) {
+    const { rpcClient } = useRpcContext();
+
     const listenerFieldsRef = useRef<{ triggerSave: () => void }>(null);
     const serviceFieldsRef = useRef<{ triggerSave: () => void }>(null);
     const functionFieldsRefs: Record<string, React.RefObject<{ triggerSave: () => void }>> = {};
@@ -83,16 +89,6 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
             }
         })
     };
-
-    // const handleFunctionsSubmit = async (data: FormValues, key?: string) => {
-    //     if (functionFields[key]) {
-    //         functionFields[key].fields.forEach(val => {
-    //             if (data[val.key]) {
-    //                 val.value = data[val.key]
-    //             }
-    //         })
-    //     }
-    // };
 
     const handleTriggerSave = async () => {
         if (listenerFieldsRef.current) {
@@ -130,6 +126,55 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
         onSubmit(response);
     };
 
+
+    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [types, setTypes] = useState<CompletionItem[]>([]);
+
+    // <------------- Expression Editor Util functions list start --------------->
+    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
+        let visibleTypes: CompletionItem[] = types;
+        if (!types.length) {
+            const context = await rpcClient.getVisualizerLocation();
+            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'triggers.bal');
+            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
+                filePath: functionFilePath.fsPath,
+                position: { line: 0, offset: 0 },
+            });
+
+            visibleTypes = convertToVisibleTypes(response.types);
+            setTypes(visibleTypes);
+        }
+
+        const effectiveText = value.slice(0, cursorPosition);
+        const filteredTypes = visibleTypes.filter((type) => {
+            const lowerCaseText = effectiveText.toLowerCase();
+            const lowerCaseLabel = type.label.toLowerCase();
+
+            return lowerCaseLabel.includes(lowerCaseText);
+        });
+
+        setFilteredTypes(filteredTypes);
+        return { visibleTypes, filteredTypes };
+    }, 250);
+
+    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
+        return await debouncedGetVisibleTypes(value, cursorPosition) as any;
+    };
+
+    const handleCompletionSelect = async () => {
+        handleExpressionEditorCancel();
+    };
+
+    const handleExpressionEditorCancel = () => {
+        setFilteredTypes([]);
+        setTypes([]);
+    };
+
+    const handleExpressionEditorBlur = () => {
+        handleExpressionEditorCancel();
+    };
+    // <------------- Expression Editor Util functions list end --------------->
+
     return (
         <Container>
 
@@ -145,7 +190,43 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                     {serviceFields.length > 0 &&
                         <FormContainer>
                             <FormGroup title="Service Configuration" isCollapsed={false}>
-                                <Form ref={serviceFieldsRef} hideSave={true} formFields={serviceFields} onSubmit={handleServiceSubmit} />
+                                <Form
+                                    ref={serviceFieldsRef}
+                                    hideSave={true}
+                                    formFields={serviceFields}
+                                    onSubmit={handleServiceSubmit}
+                                    expressionEditor={
+                                        {
+                                            completions: filteredTypes,
+                                            retrieveVisibleTypes: handleGetVisibleTypes,
+                                            onCompletionSelect: handleCompletionSelect,
+                                            onCancel: handleExpressionEditorCancel,
+                                            onBlur: handleExpressionEditorBlur
+                                        }
+                                    }
+                                />
+                            </FormGroup>
+                        </FormContainer>
+                    }
+
+                    {listenerFields.length > 0 &&
+                        <FormContainer>
+                            <FormGroup title="Listener Configuration" isCollapsed={false}>
+                                <Form
+                                    ref={listenerFieldsRef}
+                                    hideSave={true}
+                                    formFields={listenerFields}
+                                    onSubmit={handleListenerSubmit}
+                                    expressionEditor={
+                                        {
+                                            completions: filteredTypes,
+                                            retrieveVisibleTypes: handleGetVisibleTypes,
+                                            onCompletionSelect: handleCompletionSelect,
+                                            onCancel: handleExpressionEditorCancel,
+                                            onBlur: handleExpressionEditorBlur
+                                        }
+                                    }
+                                />
                             </FormGroup>
                         </FormContainer>
                     }

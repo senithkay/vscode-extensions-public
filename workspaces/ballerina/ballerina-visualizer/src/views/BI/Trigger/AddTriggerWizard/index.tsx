@@ -69,6 +69,7 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
         selectedTriggerRef.current = response;
         setListenerFields(convertTriggerListenerConfig(response));
         setServiceTypes(convertTriggerServiceTypes(response));
+        setServiceFields(convertTriggerServiceConfig(response));
         if (response.serviceTypes.length === 1) {
             setFunctionFields(convertTriggerFunctionsConfig(response));
         }

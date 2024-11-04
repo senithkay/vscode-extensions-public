@@ -396,11 +396,11 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
         endColumn: 0
     };
     const modifications: STModification[] = [];
-    // if (Object.keys(params.triggerType.functions).length > 0) {
-    //     modifications.push(...createMessageTriggerCode(triggerInfo, targetPosition, document));
-    // } else {
-    modifications.push(...createAsyncTriggerCode(triggerInfo, targetPosition));
-    // }
+    if (triggerInfo.trigger?.type === 'inbuilt') {
+        modifications.push(...createInbuiltTriggerCode(triggerInfo, targetPosition));
+    } else {
+        modifications.push(...createAsyncTriggerCode(triggerInfo, targetPosition));
+    }
 
     let res;
     try {
@@ -411,61 +411,36 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
     return res;
 }
 
-const createMessageTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition, document: TextDocument) => {
-    const functionsList = triggerInfo.functions;
-    const modifications: STModification[] = [];
-
-    let endpoint = "";
-    triggerInfo.listener.forEach(val => {
-        if (!val.optional && val.value) {
-            endpoint = val.value;
-        }
+const createInbuiltTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
+    let httpBased: boolean = false;
+    const triggerId = triggerInfo.trigger.moduleName.split(".");
+    const triggerAlias = triggerId[triggerId.length - 1];
+    const serviceTypes = triggerInfo.trigger.serviceTypes.filter((sType) => {
+        return Object.entries(triggerInfo.serviceTypes).some(([key, value]) => value.checked && key === sType.name);
     });
 
-    interface FunctionParam {
-        NAME: string;
-        TYPE: string;
-    }
-    interface FunctionDetail {
-        NAME: string;
-        PARAMS: FunctionParam[];
+    // Check the selected functions for single service types
+    if (triggerInfo.trigger.serviceTypes.length === 1) {
+        serviceTypes[0].functions = serviceTypes[0].functions.filter((func) => {
+            return Object.entries(triggerInfo.functions).some(([key, value]) => (value.checked && key === func.name) || (value.required && value.functionType.name === func.name));
+        });
     }
 
-    const functionsConfig: FunctionDetail[] = [];
-    for (const key in functionsList) {
-        if (functionsList[key] && functionsList[key].checked) {
-            const parameters: FunctionParam[] = [];
-            let paramName = "param";
-            functionsList[key].fields.forEach((val, index) => {
-                if (!val.optional && val.value) {
-                    parameters.push({
-                        NAME: `${paramName}${index}`,
-                        TYPE: val.value
-                    });
-                }
-            });
-            functionsConfig.push({ NAME: key, PARAMS: parameters });
-        }
+    const newTriggerInfo = {
+        ...triggerInfo.trigger,
+        serviceTypes,
+        triggerType: triggerAlias,
+        httpBased
+    };
+    // This is for initial imports only. Initially stModification import for nonHttpBased triggers
+    const stModification = [
+        createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
+        createTrigger(newTriggerInfo, targetPosition)
+    ];
+    if (httpBased) {
+        stModification.push(createImportStatement("ballerina", "http"));
     }
-
-    modifications.push(
-        {
-            ...targetPosition,
-            type: "KAFKA",
-            config: {
-                ENDPOINT: endpoint,
-                FUNCTIONS: functionsConfig
-            },
-        }
-    );
-
-    const org = "ballerinax";
-    const module = "kafka";
-    if (!document.getText().includes(`${org}/${module}`)) {
-        modifications.push(createImportStatement(org, module));
-    }
-
-    return modifications;
+    return stModification;
 };
 
 const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
@@ -484,7 +459,7 @@ const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPositio
     }
 
     // TODO: This is a temporary fix till the central API supports the httpBased parameter
-    if (triggerAlias === 'asb' || triggerAlias === 'salesforce' || triggerAlias === 'kafka') {
+    if (triggerAlias === 'asb' || triggerAlias === 'salesforce') {
         httpBased = false;
     }
     const newTriggerInfo = {

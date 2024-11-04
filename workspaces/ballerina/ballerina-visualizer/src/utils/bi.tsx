@@ -289,16 +289,32 @@ export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
     for (const key in trigger.listenerParams) {
         if (trigger.listenerParams.hasOwnProperty(key)) {
             const expression = trigger.listenerParams[key];
-            const formField: FormField = {
-                key: expression.name,
-                label: expression.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                documentation: expression.name,
-                optional: expression.optional,
-                type: expression.typeName,
-                editable: true,
-                value: expression.defaultValue
+            if (expression.fields?.length > 0) {
+                for (const field in expression.fields) {
+                    const fieldExp = expression.fields[field];
+                    const formField: FormField = {
+                        key: fieldExp.name,
+                        label: fieldExp.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                        documentation: fieldExp.name,
+                        optional: fieldExp.optional,
+                        type: fieldExp.typeName,
+                        editable: true,
+                        value: ""
+                    }
+                    formFields.push(formField);
+                }
+            } else {
+                const formField: FormField = {
+                    key: expression.name,
+                    label: expression.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                    documentation: expression.name,
+                    optional: expression.optional,
+                    type: expression.typeName,
+                    editable: true,
+                    value: expression.defaultValue
+                }
+                formFields.push(formField);
             }
-            formFields.push(formField);
         }
     }
 
@@ -307,18 +323,18 @@ export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
 
 export function convertTriggerServiceConfig(trigger: Trigger): FormField[] {
     const formFields: FormField[] = [];
-    // const formField: FormField = {
-    //     key: "basePath",
-    //     label: "Base Path",
-    //     documentation: trigger.service.basePath.description,
-    //     optional: false,
-    //     type: "string",
-    //     editable: true,
-    //     value: trigger.service.basePath.value
-    // }
-    // if (trigger.service.basePath.required) {
-    //     formFields.push(formField);
-    // }
+    if (trigger.serviceTypes[0].basePath) {
+        const formField: FormField = {
+            key: "basePath",
+            label: "Base Path",
+            documentation: trigger.serviceTypes[0].basePath.documentation,
+            optional: false,
+            type: trigger.serviceTypes[0].basePath.typeName,
+            editable: true,
+            value: ""
+        }
+        formFields.push(formField);
+    }
     return formFields;
 }
 

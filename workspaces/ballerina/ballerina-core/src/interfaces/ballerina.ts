@@ -175,6 +175,7 @@ export interface PartialSTModification {
 
 export interface BallerinaModule {
     id?: string;
+    type?: string;
     name: string;
     displayName?: string;
     moduleName?: string;
@@ -230,6 +231,7 @@ export interface ServiceType {
     name: string;
     description?: string;
     functions?: RemoteFunction[];
+    basePath?: Parameter;
     // Editor Related
     isImplemented?: boolean;
 }
