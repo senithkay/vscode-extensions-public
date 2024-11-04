@@ -200,7 +200,7 @@ export type NodeKind =
     | "DRAFT"
     | "EVENT_START"
     | "IF"
-    | "ACTION_CALL"
+    | "REMOTE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
     | "ERROR_HANDLER"
