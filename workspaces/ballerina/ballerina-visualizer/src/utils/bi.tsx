@@ -184,7 +184,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
-            if (activeNode.codedata?.node === "REMOTE_ACTION_CALL") {
+            if (activeNode.codedata?.node === "REMOTE_ACTION_CALL" 
+                || activeNode.codedata?.node === "RESOURCE_ACTION_CALL") {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${

@@ -201,6 +201,7 @@ export type NodeKind =
     | "EVENT_START"
     | "IF"
     | "REMOTE_ACTION_CALL"
+    | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
     | "ERROR_HANDLER"

@@ -141,6 +141,10 @@ export class SizingVisitor implements BaseVisitor {
         this.createApiCallNode(node);
     }
 
+    endVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
+        this.createApiCallNode(node);
+    }
+
     endVisitEmpty(node: FlowNode, parent?: FlowNode): void {
         if (node.id.endsWith("-last")) {
             this.setNodeSize(node, END_NODE_WIDTH, END_NODE_WIDTH, EMPTY_NODE_CONTAINER_WIDTH, NODE_HEIGHT);
