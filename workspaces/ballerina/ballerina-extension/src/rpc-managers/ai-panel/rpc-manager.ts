@@ -378,18 +378,19 @@ export class AiPanelRpcManager implements AIPanelAPI {
         // check project diagnostics
         let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
     
-        const projectModified = await addMissingImports(projectDiags);
+        let projectModified = await addMissingImports(projectDiags);
         if (projectModified) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
     
-        const isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
+        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
         if (isDiagsRefreshed) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
-    
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
-        return { diagnostics: filteredDiags };
+        return { 
+            diagnostics: filteredDiags 
+        };
     }
 
     async getInitialPrompt(): Promise<InitialPrompt> {
@@ -423,10 +424,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
     
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
-                if (typeof diag.code === 'string' && diag.code.startsWith('BCE')) {
-                    const codeNumber = parseInt(diag.code.slice(3), 10);
-                    if (!isNaN(codeNumber) && codeNumber < 2000) {
-                        return true;
+                console.log(diag.code);
+                if (typeof diag.code === "string" && diag.code.startsWith("BCE")) {
+                    const match = diag.code.match(/^BCE(\d+)$/);
+                    if (match) {
+                        const codeNumber = Number(match[1]);
+                        if (codeNumber < 2000) {
+                            return true;
+                        }
                     }
                 }
             }
