@@ -9,7 +9,7 @@
  */
 
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
+import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
 
 interface Record {
     name: string;
@@ -1754,7 +1754,7 @@ export interface FileRenameRequest {
 }
 
 export interface GetMediatorsRequest {
-    document: TextDocumentIdentifier;
+    documentUri: string;
     position: Position;
 }
 
@@ -1766,22 +1766,33 @@ export interface GetMediatorsResponse {
 }
 
 export interface Mediator {
+    displayName: string
     type: string;
     description: string;
     icon: string;
 }
 
 export interface GetMediatorRequest {
-    type: string;
+    mediatorType: string;
+    documentUri?: string;
     range?: Range;
 }
 
 export interface GetMediatorResponse {
     form: string;
+    rawData?: any;
 }
 
 export interface UpdateMediatorRequest {
-    type: string;
-    range?: Range;
-    form: string;
+    documentUri: string;
+    mediatorType: string;
+    oldValues?: any;
+    newValues: any;
+    dirtyFields?: string[];
+    rawData?: any;
+    trailingSpace?: string;
+}
+
+export interface UpdateMediatorResponse {
+    textEdits: TextEdit[];
 }

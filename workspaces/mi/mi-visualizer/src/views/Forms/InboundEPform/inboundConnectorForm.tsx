@@ -289,6 +289,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 control={control}
                 errors={errors}
                 setValue={setValue}
+                reset={reset}
                 watch={watch}
                 getValues={getValues} />
             {formData && formData.additionalParameters && (

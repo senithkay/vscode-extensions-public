@@ -425,6 +425,7 @@ export function AddConnection(props: AddConnectionProps) {
                             control={control}
                             errors={errors}
                             setValue={setValue}
+                            reset={reset}
                             watch={watch}
                             getValues={getValues}
                             skipGeneralHeading={true}
