@@ -62,7 +62,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
-        console.log('setTextFieldValue', value);
+
     };
     
     
@@ -125,11 +125,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 fileContent,
                 cursorPosition
             });
-
-            console.log(fileContent.slice(0, cursorPosition) + '@' + fileContent.slice(cursorPosition));
-            console.log(cursorPosition, fileContent.length, {start: completionReqPosStart.current, end: completionReqPosEnd.current});
-            console.log(response);
-
             if (!response.completions) {
                 return [];
             }
@@ -245,7 +240,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             setTextFieldValue(value);
             setSavedNodeValue(value);
             triggerAction(!action);
-            console.log('disabled memo inside');
         }
 
         return disabled;
@@ -333,8 +327,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // Save the cursor position before saving
         cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
-
-        console.log('applyChanges', value, lastFocusedPort, lastFocusedFilter);
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
         } else if (lastFocusedFilter) {
@@ -398,17 +390,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }
 
     const updateSource = async (value: string) => {
-        console.log('updateSource-before condition', value);
         if (savedNodeValue === value || (portChanged && lastSavedNodeValue === value)) {
             return;
         }
-        console.log('updateSource-after condition', value);
-
         await applyChanges(value);
     };
 
     const handleCompletionSelect = async (value: string) => {
-        console.log('handleCompletionSelect', value);
         setCompletions([]);
     }
 
@@ -417,8 +405,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleFocus = async () => {
-        console.log('handleFocus');
-
         // Set the cursor position to the last saved position
         const textField = textFieldRef.current.inputElement;
         textField.focus();
@@ -435,13 +421,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleBlur = async (e: any) => {
-        console.log('handleBlur', e, textFieldValue, textFieldValueRef);
-
         if(e.target.closest('[id^="recordfield-input"]') || e.target.closest('[id^="recordfield-subMappingInput"]'))
             return;
-        console.log('handleBlur accepted', e, textFieldValue, textFieldValueRef);
-        
-        
         await textFieldRef.current.saveExpression(textFieldValue, textFieldValueRef);
         
         // Reset the last focused port and filter
