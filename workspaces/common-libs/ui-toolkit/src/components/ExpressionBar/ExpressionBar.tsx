@@ -157,13 +157,15 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
-                {getExpressionBarIcon ? (
-                    getExpressionBarIcon()
-                ) : (
-                    <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                )}
-            </Button>
+            {(handleHelperPaneOpen || getExpressionBarIcon) && (
+                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+                    {getExpressionBarIcon ? (
+                        getExpressionBarIcon()
+                    ) : (
+                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                    )}
+                </Button>
+            )}
         </Ex.Container>
     );
 });
