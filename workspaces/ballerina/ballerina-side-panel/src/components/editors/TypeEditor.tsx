@@ -143,7 +143,8 @@ export function TypeEditor(props: TypeEditorProps) {
             <Controller
                 control={control}
                 name={field.key}
-                rules={{ required: !field.optional }}
+                defaultValue={field.value}
+                rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
                         key={field.key}
