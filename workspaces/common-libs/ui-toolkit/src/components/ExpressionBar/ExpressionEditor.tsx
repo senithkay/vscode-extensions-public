@@ -661,7 +661,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             e.preventDefault();
             console.log('ExpressionEditor: handleInputKeyDown: Enter');
             await handleExpressionSaveMutation(value);
-            skipFocusCallback.current = true; // need to re-check
+            //skipFocusCallback.current = true; // need to re-check
             // // 
             // 
             // await onBlur?.(e);
@@ -674,7 +674,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const handleRefFocus = () => {
+        console.log('ExpressionEditor: handleRefFocus');
         if (document.activeElement !== elementRef.current) {
+            console.log('ExpressionEditor: handleRefFocus: focus()');
             textBoxRef.current?.focus();
         }
     }
@@ -690,10 +692,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     }
 
     const handleTextFieldFocus = async () => {
+        console.log('ExpressionEditor: handleTextFieldFocus');
         if (skipFocusCallback.current) {
             skipFocusCallback.current = false;
             return;
         }
+        console.log('ExpressionEditor: handleTextFieldFocus: onFocus()');
         await onFocus?.();
     }
 
