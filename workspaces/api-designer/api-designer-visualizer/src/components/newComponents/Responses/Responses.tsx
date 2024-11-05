@@ -26,7 +26,7 @@ const isRefereceObject = (value: Rs | R): value is R => {
 // Title, Vesrion are mandatory fields
 export function Responses(props: ResponsesProps) {
     const { responses, onResponsesChange } = props;
-    const [selectedStatusCode, setSelectedStatusCode] = useState<string | undefined>(Object.keys(responses)[0]);
+    const [selectedStatusCode, setSelectedStatusCode] = useState<string | undefined>(responses && Object.keys(responses)[0]);
 
     const handleResponsesChange = (responses: Rs) => {
         onResponsesChange(responses);
@@ -48,13 +48,13 @@ export function Responses(props: ResponsesProps) {
         handleResponsesChange(newResponses);
     };
 
-    const statusCodes = Object.keys(responses);
-    const statusTabViewItems: ViewItem[] = statusCodes.map(statusCode => ({ id: statusCode, name: statusCode }));
+    const statusCodes = responses && Object.keys(responses);
+    const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ id: statusCode, name: statusCode }));
     const referenceObjects: string[] = null; // TODO: Use context to find the reference objects
 
     return (
         <>
-            {statusTabViewItems.length > 0 ? (
+            {statusTabViewItems?.length > 0 ? (
                 <Tabs views={statusTabViewItems} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
                     {responses && Object.keys(responses)?.map((status) => (
                         <div id={status} style={{ display: "flex", flexDirection: "column", gap: 10 }}>

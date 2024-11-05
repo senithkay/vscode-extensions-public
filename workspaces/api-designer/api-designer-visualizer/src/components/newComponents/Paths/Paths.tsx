@@ -6,45 +6,46 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from "@emotion/styled";
-import { Paths as P, PathItem as PI } from '../../../Definitions/ServiceDefinitions';
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { useState } from 'react';
-import { getColorByMethod } from '../../Utils/OpenAPIUtils';
-import { Parameters } from '../Parameters/Parameters';
+import { Paths as P, PathItem as PI, Operation as O } from '../../../Definitions/ServiceDefinitions';
 import { PathItem } from '../PathItem/PathItem';
-
-const PanelBody = styled.div`
-    height: calc(100% - 87px);
-    overflow-y: auto;
-    padding: 16px;
-    gap: 15px;
-    display: flex;
-    flex-direction: column;
-`;
-
-const ButtonWrapper = styled.div`
-    display: flex;
-    flex-direction: flex-grow;
-    justify-content: flex-end;
-`;
+import { Operation } from "../Operation/Operation";
 
 interface PathsProps {
     paths: P;
-    selectedPath?: string;
-    onPathsChange: (pathItem: P) => void;
+    selectedComponent?: string;
+    onPathsChange: (path: P, newPath?: string) => void;
 }
 
 export function Paths(props: PathsProps) {
-    const { paths, selectedPath, onPathsChange } = props;
+    const { paths, selectedComponent, onPathsChange } = props;
     const handlePathsChange = (pathItem: PI, path: string) => {
         onPathsChange({ ...paths, [path]: pathItem });
     };
+    const handleOperationsChange = (operation: O) => {
+        onPathsChange({ 
+            ...paths, 
+            [selectedPath]: {
+                ...paths[selectedPath], 
+                [selectedMethod]: operation
+            }
+        });
+    };
+    const selectedPath = selectedComponent.split("-")[2];
+    const selectedMethod = selectedComponent.split("-")[3];
+    const selectedOperation: O = paths[selectedPath][selectedMethod] as O;
     return (
         <>
             {Object.keys(paths).map((key) => {
-                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key) {
+                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key && selectedMethod) {
+                    return (
+                        <Operation
+                            operation={selectedOperation}
+                            method={selectedMethod}
+                            path={selectedPath}
+                            onOperationChange={handleOperationsChange}
+                        />
+                    )
+                } else if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key) {
                     return (
                         <PathItem
                             pathItem={paths[key]}

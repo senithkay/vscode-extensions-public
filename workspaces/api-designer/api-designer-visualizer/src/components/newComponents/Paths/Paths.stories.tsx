@@ -26,6 +26,6 @@ export const PathsStory = () => {
         setPI(pathItem);
     }
     return (
-        <Paths paths={pi} selectedPath="/pets" onPathsChange={handlePathItemChange} />
+        <Paths paths={pi} selectedComponent="/pets" onPathsChange={handlePathItemChange} />
     );
 };
