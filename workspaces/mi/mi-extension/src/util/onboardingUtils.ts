@@ -11,8 +11,8 @@ import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH } from '../debugger/constants';
 import { COMMANDS } from '../constants';
 
 // Add Latest MI version as the first element in the array
-export const supportedJavaVersionsForMI: { [key: string]: string[] } = {
-    '4.3.0': ['17']
+export const supportedJavaVersionsForMI: { [key: string]: string } = {
+    '4.3.0': '17.0.11'
 };
 export const LATEST_MI_VERSION = "4.3.0";
 
@@ -131,9 +131,12 @@ export async function downloadJava(miVersion: string): Promise<string> {
             };
         }[];
         release_name: string;
+        version_data: {
+            openjdk_version: string;
+        };
     }
 
-    const javaVersion = supportedJavaVersionsForMI[miVersion][0];
+    const javaVersion = supportedJavaVersionsForMI[miVersion];
     const javaPath = path.join(CACHED_FOLDER, 'java');
     const osType = os.type();
 
@@ -168,18 +171,26 @@ export async function downloadJava(miVersion: string): Promise<string> {
             fs.mkdirSync(javaPath, { recursive: true });
         }
 
-        const apiUrl = `https://api.adoptium.net/v3/assets/feature_releases/${javaVersion}/ga?architecture=${archName}&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=${osName}&page=1&page_size=1&project=jdk&sort_method=DEFAULT&sort_order=DESC&vendor=eclipse`;
+        const majorVersion = javaVersion.split('.')[0];
+        const apiUrl = `https://api.adoptium.net/v3/assets/feature_releases/${majorVersion}/ga?architecture=${archName}&heap_size=normal&image_type=jdk&jvm_impl=hotspot&os=${osName}&project=jdk&vendor=eclipse`;
 
-        const response = await axios.get<AdoptiumApiResponse[]>(apiUrl, {
-            timeout: 60000,
-        }
-        );
+        const response = await axios.get<AdoptiumApiResponse[]>(apiUrl);
         if (response.data.length === 0) {
-            throw new Error('Failed to find Java binaries.');
+            throw new Error(`Failed to find Java binaries for version ${javaVersion}.`);
         }
 
-        const downloadUrl = response.data[0].binaries[0].package.link;
-        const releaseName = response.data[0].release_name;
+        const targetRelease = response.data.find(
+            (release) => release.version_data.openjdk_version.startsWith(javaVersion)
+        );
+
+        if (!targetRelease) {
+            throw new Error(
+                `Java version ${javaVersion} not found for the specified OS and architecture.`
+            );
+        }
+
+        const downloadUrl = targetRelease.binaries[0].package.link;
+        const releaseName = targetRelease.release_name;
 
         const javaDownloadPath = path.join(
             javaPath,
@@ -195,8 +206,11 @@ export async function downloadJava(miVersion: string): Promise<string> {
             return path.join(javaPath, releaseName);
         }
     } catch (error) {
-        throw new Error(`Failed to download Java.
-            ${error instanceof Error ? error.message : error}`);
+        throw new Error(
+            `Failed to download Java. ${
+                error instanceof Error ? error.message : error
+            }`
+        );
     }
 }
 
@@ -221,38 +235,8 @@ export function isJavaHomePathValid(javaHome: string): boolean {
     return fs.existsSync(javaExecutable);
 }
 
-export async function setupJavaAndMI(miVersion: string, targetPath: string): Promise<void> {
-    const miZipPathPromise = (async () => {
-        const existingMiZipPath = getMIZipPath(miVersion);
-        if (!existingMiZipPath) {
-            return await downloadMI(miVersion);
-        }
-        return existingMiZipPath;
-
-    })();
-
-    const javaPathPromise = (async () => {
-        const existingJavaPath = getInstalledJavaPathForMIVersion(miVersion);
-        if (!existingJavaPath) {
-            return await downloadJava(miVersion);
-        }
-        return existingJavaPath;
-    })();
-    try {
-        const [miZipPath, javaPath] = await Promise.all([miZipPathPromise, javaPathPromise]);
-
-        const extractPath = path.join(targetPath, '.wso2mi', 'runtime');
-        fs.mkdirSync(extractPath, { recursive: true });
-        await extractWithProgress(miZipPath, extractPath, 'Extracting Micro Integrator');
-    } catch (error) {
-        await vscode.window.showWarningMessage('Failed to set up Java and Micro Integrator.', { modal: true }, "Okay");
-    }
-
-}
-
-
 function isSupportedMIVersion(version: string): boolean {
-    return supportedJavaVersionsForMI[version] !== undefined;
+    return getSupportedMIVersions().includes(version);
 }
 
 function getJavaVersion(javaBinPath: string): string | null {
@@ -268,7 +252,8 @@ function getJavaVersion(javaBinPath: string): string | null {
 }
 
 function isJavaVersionCompatibleWithMI(javaVersion: string, miVersion: string): boolean {
-    return supportedJavaVersionsForMI[miVersion].includes(javaVersion);
+    const majorJavaVersion = javaVersion.split('.')[0];
+    return supportedJavaVersionsForMI[miVersion]?.startsWith(majorJavaVersion) ?? false;
 }
 
 function isMIInstalledInProjectPath(projectPath: string): boolean {
@@ -313,7 +298,7 @@ export function getInstalledJavaPathForMIVersion(miVersion: string): string | nu
 }
 
 function getJavaInstallations(): { version: string; path: string }[] {
-    const javaPaths = getJavaHomePathsFromSystem();
+    const javaPaths: string[] = [];
 
     const javaCachedPath = path.join(CACHED_FOLDER, 'java');
     if (fs.existsSync(javaCachedPath)) {
@@ -334,59 +319,6 @@ function getJavaInstallations(): { version: string; path: string }[] {
             return { version, path: javaPath };
         })
         .filter((javaInstallation): javaInstallation is { version: string; path: string } => javaInstallation.version !== null);
-}
-
-function getJavaHomePathsFromSystem(): string[] {
-    const javaPathsSet = new Set<string>();
-    const isWindows = process.platform === 'win32';
-    const command = isWindows ? 'where' : 'which';
-    const args = isWindows ? ['java'] : ['-a', 'java'];
-
-    const result = spawnSync(command, args, { encoding: 'utf8' });
-
-    if (result.error || result.status !== 0) {
-        return [];
-    }
-
-    const javaExecutablePaths = result.stdout
-        .split(/\r?\n/)
-        .map((p) => p.trim())
-        .filter((p) => p);
-
-    javaExecutablePaths.forEach(javaPath => {
-        try {
-
-            const realJavaPath = fs.realpathSync(javaPath);
-
-            const binDir = path.dirname(realJavaPath);
-            const javaHomeFromPath = path.dirname(binDir);
-
-            // Execute 'java -XshowSettings:properties -version' to get java.home
-            const result = spawnSync(javaPath, ["-XshowSettings:properties", "-version"], {
-                encoding: 'utf8'
-            });
-            if (result.error || result.status !== 0) {
-                return [];
-            }
-            const javaHomeMatch = result.stderr.match(/^\s*java\.home\s*=\s*(.*)$/m);
-            let javaHomeFromCommand = '';
-            if (javaHomeMatch && javaHomeMatch[1]) {
-                javaHomeFromCommand = javaHomeMatch[1].trim();
-            }
-
-            if (javaHomeFromCommand) {
-                javaPathsSet.add(javaHomeFromCommand);
-            }
-        } catch (e) {
-            // Ignore errors and continue with the next path
-        }
-    });
-
-    if (process.env.JAVA_HOME) {
-        javaPathsSet.add(process.env.JAVA_HOME);
-    }
-
-    return Array.from(javaPathsSet);
 }
 
 export async function ensureMISetup(projectUri: string, miVersion: string): Promise<boolean> {
@@ -411,9 +343,9 @@ export async function ensureMISetup(projectUri: string, miVersion: string): Prom
             if (miZipPath) {
                 const extractPath = path.join(projectUri, '.wso2mi', 'runtime');
                 fs.mkdirSync(extractPath, { recursive: true });
-                try{
+                try {
                     await extractWithProgress(miZipPath, extractPath, 'Extracting Micro Integrator');
-                }catch(e){
+                } catch (e) {
                     fs.unlinkSync(miZipPath);
                     return false;
                 }

@@ -73,7 +73,6 @@ export enum MACHINE_VIEW {
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
     UpdateExtension = "Update Extension",
-    MI_NOT_SETUP = "MI not Setup",
 }
 
 export enum AI_MACHINE_VIEW {

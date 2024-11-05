@@ -46,7 +46,6 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
 
     const [dirContent, setDirContent] = useState([]);
 
-    const [isProjectCreating, setIsProjectCreating] = useState(false);
     const [supportedMIVersions, setSupportedMIVersions] = useState<OptionProps[]>([]);
 
     const schema = yup.object({
@@ -103,9 +102,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
             ...values,
             open: true,
         }
-        setIsProjectCreating(true);
         await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
-        setIsProjectCreating(false);
     };
 
     const handleCancel = () => {
@@ -113,12 +110,12 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     };
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-          e.preventDefault();
-          if (isDirty && !isProjectCreating) {
-            handleSubmit(handleCreateProject)();
-          }
+            e.preventDefault();
+            if (isDirty) {
+                handleSubmit(handleCreateProject)();
+            }
         }
-      };
+    };
 
     return (
         <FormView title="Create New Project" onClose={handleCancel}>
@@ -170,7 +167,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                     />
                 </React.Fragment>
             </FormGroup>
-            <DownloadLabel>If not available Runtime and necessary tools will download upon project creation</DownloadLabel>
+            <DownloadLabel>If the necessary Micro Integrator runtime and tools are not available, you will be prompted to download them after project creation.</DownloadLabel>
             <FormActions>
                 <Button
                     appearance="secondary"
@@ -181,7 +178,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateProject)}
-                    disabled={!isDirty || isProjectCreating}
+                    disabled={!isDirty}
                 >
                     Create
                 </Button>

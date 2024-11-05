@@ -258,7 +258,7 @@ import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
-import { getDefaultProjectPath, setupJavaAndMI } from "../../util/onboardingUtils";
+import { getDefaultProjectPath } from "../../util/onboardingUtils";
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2764,7 +2764,6 @@ ${endpointAttributes}
             createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), path.join(directory, name));
             copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), path.join(directory, name));
-            await setupJavaAndMI(miVersion, path.join(directory, name));
             await createGitignoreFile(path.join(directory, name));
 
             window.showInformationMessage(`Successfully created ${name} project`);

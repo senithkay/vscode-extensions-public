@@ -123,9 +123,6 @@ export class VisualizerWebview {
             case MACHINE_VIEW.UnsupportedProject:
                 title = MACHINE_VIEW.UnsupportedProject;
                 break;
-            case MACHINE_VIEW.MI_NOT_SETUP:
-                title = "Environment Setup";
-                break;
             default:
                 title = 'Design View';
                 break;

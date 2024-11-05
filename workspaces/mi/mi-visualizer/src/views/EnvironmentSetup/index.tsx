@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { EVENT_TYPE } from "@wso2-enterprise/mi-core";
+import { Button, Icon, ProgressRing, VSCodeColors } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { Button, FormGroup } from "@wso2-enterprise/ui-toolkit";
-import { useEffect, useState } from "react";
+import { DownloadProgressData, EVENT_TYPE } from "@wso2-enterprise/mi-core";
 
 const Container = styled.div`
     display: flex;
@@ -45,6 +44,48 @@ const ErrorMessage = styled.div`
     color: red;
 `;
 
+const StepContainer = styled.div`
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+`;
+
+const Row = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+`;
+
+const Column = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+`;
+
+const StepTitle = styled.div<{ color?: string }>`
+    font-size: 1.2em;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: ${(props: { color?: string }) => props.color || "inherit"};
+`;
+
+const StepDescription = styled.div<{ color?: string }>`
+    font-size: 1em;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: ${(props: { color?: string }) => props.color || "inherit"};
+`;
+
+const IconContainer = styled.div`
+    margin-top: 4px;
+`;
+
 export const EnvironmentSetup = () => {
     const { rpcClient } = useVisualizerContext();
     const [selectedMIVersion, setSelectedMIVersion] = useState<string>();
@@ -53,8 +94,9 @@ export const EnvironmentSetup = () => {
     const [isPomValid, setIsPomValid] = useState<boolean>(true);
     const [isJavaSetUp, setIsJavaSetUp] = useState<boolean>(false);
     const [isMISetUp, setIsMISetUp] = useState<boolean>(false);
+    const [javaProgress, setJavaProgress] = useState<number>(0);
+    const [miProgress, setMiProgress] = useState<number>(0);
 
-    // Fetch supported MI versions on component mount
     useEffect(() => {
         const checkSetUp = async () => {
             const javaSetUp = await rpcClient.getMiVisualizerRpcClient().isJavaHomeSet();
@@ -85,24 +127,22 @@ export const EnvironmentSetup = () => {
         }
     }, [isJavaSetUp, isMISetUp, rpcClient]);
 
-    // Handle the download of Java and MI
     const handleDownload = async () => {
         setIsDownloading(true);
         setError(undefined);
-
-        const downloadPromises = [];
-        if (!isJavaSetUp) {
-            downloadPromises.push(
-                rpcClient.getMiVisualizerRpcClient().downloadJava(selectedMIVersion)
-            );
-        }
-        if (!isMISetUp) {
-            downloadPromises.push(
-                rpcClient.getMiVisualizerRpcClient().downloadMI(selectedMIVersion)
-            );
-        }
         try {
-            await Promise.all(downloadPromises);
+            if (!isJavaSetUp) {
+                rpcClient.onDownloadProgress((data: DownloadProgressData) => {
+                    setJavaProgress(data.percentage);
+                });
+                await rpcClient.getMiVisualizerRpcClient().downloadJava(selectedMIVersion);
+            }
+            if (!isMISetUp) {
+                rpcClient.onDownloadProgress((data: DownloadProgressData) => {
+                    setMiProgress(data.percentage);
+                });
+                await rpcClient.getMiVisualizerRpcClient().downloadMI(selectedMIVersion);
+            }
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: EVENT_TYPE.REFRESH_ENVIRONMENT,
                 location: {},
@@ -113,6 +153,27 @@ export const EnvironmentSetup = () => {
             setIsDownloading(false);
         }
     };
+
+    const getIcon = (complete: boolean, loading: boolean) => {
+        if (complete) {
+            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: VSCodeColors.PRIMARY }} />;
+        } else if (loading) {
+            return <ProgressRing sx={{ height: "16px", width: "16px" }} color={VSCodeColors.PRIMARY} />;
+        } else {
+            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px" }} />;
+        }
+    };
+    const getDownloadButtonText = () => {
+        const values: string[] = [];
+        if (!isJavaSetUp) {
+            values.push("Java");
+        }
+        if (!isMISetUp) {
+            values.push("Micro Integrator");
+        }
+        return isDownloading ? `Downloading ${values.join(" and ")}...` :
+            `Download and Set Up ${values.join(" and ")}`;
+    }
 
     return (
         <Container>
@@ -133,11 +194,50 @@ export const EnvironmentSetup = () => {
                     </div>
                     <div>
                         <Button onClick={handleDownload} disabled={isDownloading}>
-                            {isDownloading
-                                ? "Downloading Java and MI runtime..."
-                                : "Download and Set Up MI runtime"}
+                            {getDownloadButtonText()}
                         </Button>
                     </div>
+
+                    <StepContainer>
+                        {isJavaSetUp ?
+                            <Row>
+                                <IconContainer>
+                                    {getIcon(true, false)}
+                                </IconContainer>
+                                <Column>
+                                    <StepTitle color={VSCodeColors.PRIMARY}>Java is set up.</StepTitle>
+                                    <StepDescription color={VSCodeColors.PRIMARY}>Java is already set up.</StepDescription>
+                                </Column>
+                            </Row> :
+                            <Row>
+                                <IconContainer>
+                                    {getIcon(javaProgress === 100, javaProgress > 0 && javaProgress < 100)}
+                                </IconContainer>
+                                <Column>
+                                    <StepTitle>Download Java {javaProgress ? `( ${javaProgress}% )` : ""}</StepTitle>
+                                    <StepDescription>Fetching the Java runtime required to run MI.</StepDescription>
+                                </Column>
+                            </Row>}
+                        {isMISetUp ?
+                            <Row>
+                                <IconContainer>
+                                    {getIcon(true, false)}
+                                </IconContainer>
+                                <Column>
+                                    <StepTitle color={VSCodeColors.PRIMARY}>Micro Integrator is set up.</StepTitle>
+                                    <StepDescription color={VSCodeColors.PRIMARY}>Micro Integrator is already set up.</StepDescription>
+                                </Column>
+                            </Row> :
+                            <Row>
+                                <IconContainer>
+                                    {getIcon(miProgress === 100, miProgress > 0 && miProgress < 100)}
+                                </IconContainer>
+                                <Column>
+                                    <StepTitle>Download Micro Integrator {miProgress ? `( ${miProgress}% )` : ""}</StepTitle>
+                                    <StepDescription>Fetching the MI runtime required to run MI.</StepDescription>
+                                </Column>
+                            </Row>}
+                    </StepContainer>
                 </>
             ) : (
                 <div>
@@ -150,21 +250,23 @@ export const EnvironmentSetup = () => {
                     </p>
                 </div>
             )}
-            <p>
-                <strong>Note:</strong> If you prefer to set up manually, follow these steps:
-                <ul>
-                    <li>Press <code>Cmd + Shift + P</code> (or <code>Ctrl + Shift + P</code> on Windows/Linux) to open the Command Palette.</li>
-                    <li>Type <code>MI: Set Java Home</code> and select the Java home directory.</li>
-                    <li>Type <code>MI: Add MI Server</code> and select the Micro Integrator installation location.</li>
-                    <li>After completing these steps, click "Reload Project" below to apply the changes.</li>
-                </ul>
-            </p>
-            <Button onClick={() => rpcClient.getMiVisualizerRpcClient().reloadWindow()}>
-                Reload Project
-            </Button>
+            {!isDownloading && <>
+                <p>
+                    <strong>Note:</strong> If you prefer to set up manually, follow these steps:
+                    <ul>
+                        <li>Press <code>Cmd + Shift + P</code> (or <code>Ctrl + Shift + P</code> on Windows/Linux) to open the Command Palette.</li>
+                        <li>Type <code>MI: Set Java Home</code> and select the Java home directory.</li>
+                        <li>Type <code>MI: Add MI Server</code> and select the Micro Integrator installation location.</li>
+                        <li>Or, You can use the <code>Set Java Home</code> and <code>Add MI Server</code> buttons in the side bar.</li>
+                        <li>After completing these steps, click "Reload Project" below to apply the changes.</li>
+                    </ul>
+                </p>
+                <Button disabled={isDownloading} onClick={() => rpcClient.getMiVisualizerRpcClient().reloadWindow()}>
+                    Reload Project
+                </Button>
+            </>}
 
             {error && <ErrorMessage>{error}</ErrorMessage>}
         </Container>
-
     );
 };

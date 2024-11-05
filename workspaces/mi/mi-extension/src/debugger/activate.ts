@@ -101,6 +101,9 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             if (isMIInstalledAtPath(selectedServerPath)) {
                 await config.update(CONFIG_SERVER_PATH, selectedServerPath, vscode.ConfigurationTarget.Workspace);
                 return true;
+            } else if (isMIInstalledAtPath(path.normalize(path.join(selectedServerPath, '..')))) { // If the user selects the bin directory
+                await config.update(CONFIG_SERVER_PATH, path.normalize(path.join(selectedServerPath, '..')), vscode.ConfigurationTarget.Workspace);
+                return false;
             } else {
                 vscode.window.showErrorMessage('Invalid Micro Integrator Server path.');
                 return false;

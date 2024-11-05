@@ -169,7 +169,7 @@
       {
         "view": "MI.project-explorer",
         "contents": "Loading...",
-        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
       },
       {
         "view": "MI.project-explorer",
@@ -183,12 +183,17 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
+        "contents": "Some errors occurred while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
       },
       {
         "view": "testing",
         "contents": "[Add Unit Test](command:MI.test.add.suite)"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Micro Integrator is not set up. Please set up the MI server and Java home to continue.\n[Set up MI server](command:MI.change.server)\n[Set Java Home](command:MI.change.java)",
+        "when": "MI.status == 'notSetUp'"
       }
     ],
     "commands": [

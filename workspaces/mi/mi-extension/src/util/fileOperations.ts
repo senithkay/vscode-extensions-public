@@ -15,10 +15,12 @@ import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
-import { ListRegistryArtifactsResponse, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
+import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
 import { spawn } from "child_process";
+import { RPCLayer } from "../RPCLayer";
+import { VisualizerWebview } from "../visualizer/webview";
 
 interface ProgressMessage {
     message: string;
@@ -34,19 +36,36 @@ async function selectFileDownloadPath(): Promise<string> {
     return "";
 }
 
-async function downloadFile(url: string, filePath: string, progressCallback?: (progress: number) => void) {
+async function downloadFile(url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
     const writer = fs.createWriteStream(filePath);
     let totalBytes = 0;
     try {
         const response = await axios.get(url, {
             responseType: 'stream',
-            timeout: 60000,
             onDownloadProgress: (progressEvent) => {
                 totalBytes = progressEvent.total!;
-                const progress = (progressEvent.loaded / totalBytes) * 100;
+                const formatSize = (sizeInBytes: number) => {
+                    const sizeInKB = sizeInBytes / 1024;
+                    if (sizeInKB < 1024) {
+                        return `${Math.floor(sizeInKB)} KB`;
+                    } else {
+                        return `${Math.floor(sizeInKB / 1024)} MB`;
+                    }
+                };
+                const progress: DownloadProgressData = {
+                    percentage: Math.round((progressEvent.loaded * 100) / totalBytes),
+                    downloadedAmount: formatSize(progressEvent.loaded),
+                    downloadSize: formatSize(totalBytes)
+                };
                 if (progressCallback) {
                     progressCallback(progress);
                 }
+                // Notify the visualizer
+                RPCLayer._messenger.sendNotification(
+                    onDownloadProgress,
+                    { type: 'webview', webviewType: VisualizerWebview.viewType },
+                    progress
+                );
             }
         });
         response.data.pipe(writer);
@@ -896,8 +915,13 @@ export async function downloadWithProgress(url: string, downloadPath: string, ti
         title: title,
         cancellable: false
     }, async (progress) => {
-        const handleProgress = (progressPercentage) => {
-            progress.report({ message: 'Downloading...', increment: progressPercentage });
+        let lastPercentageReported = 0;
+        const handleProgress = (downloadProgress: DownloadProgressData) => {
+            const percentCompleted = downloadProgress.percentage;
+            if (percentCompleted > lastPercentageReported) {
+                progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${downloadProgress.downloadSize}` });
+                lastPercentageReported = percentCompleted;
+            }
         };
         await downloadFile(url, downloadPath, handleProgress).catch((error) => {
             if (fs.existsSync(downloadPath)) {

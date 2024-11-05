@@ -296,12 +296,20 @@ const stateMachine = createMachine<MachineContext>({
             initial: "viewLoading",
             states: {
                 viewLoading: {
-                    invoke: {
-                        src: 'openWebPanel',
-                        onDone: {
-                            target: 'viewReady'
+                    invoke: [
+                        {
+                            src: 'openWebPanel',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        },
+                        {
+                            src: 'focusProjectExplorer',
+                            onDone: {
+                                target: 'viewReady'
+                            }
                         }
-                    }
+                    ]
                 },
                 viewReady: {
                     on: {
@@ -521,6 +529,12 @@ const stateMachine = createMachine<MachineContext>({
                 updateProjectExplorer(context);
                 resolve(true);
             });
+        },
+        focusProjectExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+                resolve(true);
+            });
         }
     }
 });
@@ -650,6 +664,9 @@ async function checkIfMiProject() {
 
     if (projectUri) {
         isEnvironmentSetUp = await setupEnvironment(projectUri);
+        if (!isEnvironmentSetUp) {
+            vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
+        }
         // Log project path
         log(`Current workspace path: ${projectUri}`);
     }
