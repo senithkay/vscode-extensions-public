@@ -165,6 +165,7 @@ export function MainForm() {
             label: 'Default Value',
             type: 'string',
             optional: true,
+            advanced: true,
             editable: true,
             documentation: '',
             value: ''
