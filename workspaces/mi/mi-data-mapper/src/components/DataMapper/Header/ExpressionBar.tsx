@@ -249,17 +249,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         requestAnimationFrame(async () => {
             // Get the value to be saved
             let value = "";
-            const focusedNode = lastFocusedPort?.typeWithValue.value;
-            if (focusedNode && !focusedNode.wasForgotten()) {
-                if (Node.isPropertyAssignment(focusedNode)) {
-                    value = focusedNode.getInitializer()?.getText();
-                } else {
-                    value = focusedNode.getText();
-                }
-            } else if (lastFocusedFilter && !lastFocusedFilter.wasForgotten() ) {
-                value = lastFocusedFilter.getText();
-            } else if (!lastFocusedPort && !lastFocusedFilter) {
+            if (!lastFocusedPort && !lastFocusedFilter) {
                 value = undefined;
+            } else {
+                value = textFieldValueRef.current;
             }
 
             if (disabled) {
