@@ -4889,18 +4889,121 @@ ${keyValuesXML}`;
     }
 
     async getMediators(param: GetMediatorsRequest): Promise<GetMediatorsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            // TODO: Replace with actual implementation with language server
+            const mediators = {
+                "most popular": {
+                    type: "mediator",
+                    mediators: [
+                        {
+                            displayName: "Call Endpoint",
+                            type: "call",
+                            description: "Invokes external services in blocking/non-blocking mode",
+                            icon: "call endpoint"
+                        },
+                        {
+                            displayName: "Property",
+                            type: "property",
+                            description: "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
+                            icon: "property"
+                        },
+                        {
+                            displayName: "Log",
+                            type: "Log",
+                            description: "Generates logs for messages. Log details are customisable",
+                            icon: "log"
+                        },
+                        {
+                            displayName: "Payload",
+                            type: "payload factory",
+                            description: "Replaces message payload with a new SOAP/JSON payload",
+                            icon: "payload factory"
+                        },
+                        {
+                            displayName: "Respond",
+                            type: "respond",
+                            description: "Terminates the processing of the current message flow and returns the message to the client",
+                            icon: "respond"
+                        },
+                        {
+                            displayName: "Data Mapper",
+                            type: "datamapper",
+                            description: "Transforms one data format to another, or changes the data structure in the message",
+                            icon: "datamapper"
+                        }
+                    ]
+                },
+                "flow control": {
+                    type: "mediator",
+                    mediators: [
+                        {
+                            displayName: "Filter",
+                            type: "filter",
+                            description: "Filters messages based on XPath/JSONPath/regex",
+                            icon: "filter"
+                        },
+                        {
+                            displayName: "Switch",
+                            type: "switch",
+                            description: "Routes messages based on XPath/JSONPath/regex matching",
+                            icon: "switch"
+                        },
+                        {
+                            displayName: "Foreach",
+                            type: "foreach",
+                            description: "Iterates over a list of items and processes each item",
+                            icon: "foreach"
+                        }
+                        // ... other flow control mediators
+                    ]
+                }
+            };
+
+            resolve(mediators);
+        });
     }
 
     async getMediator(param: GetMediatorRequest): Promise<GetMediatorResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            // TODO: Replace with actual implementation with language server
+            const fs = require('fs');
+            const path = require('path');
+
+            const logSchemaPath = path.join(__dirname, '../../../../syntax-tree/ui-schemas/mediators');
+            let logSchema;
+
+            const findJsonFile = (dir) => {
+                const entries = fs.readdirSync(dir, { withFileTypes: true });
+                for (const entry of entries) {
+                    const fullPath = path.join(dir, entry.name);
+                    if (entry.isDirectory()) {
+                        findJsonFile(fullPath);
+                    } else if (entry.isFile() && entry.name === `${param.mediatorType.toLowerCase()}.json`) {
+                        const file = fs.readFileSync(fullPath, 'utf8');
+                        logSchema = JSON.parse(file);
+                        break;
+                    }
+                }
+            };
+
+            findJsonFile(logSchemaPath);
+
+            resolve({ form: logSchema });
+        });
     }
 
     async updateMediator(param: UpdateMediatorRequest): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            // const textEdits = getXML(param.mediatorType, param.newValues, param.oldValues, param.dirtyFields);
+            // const trailingSpaces = param.trailingSpace || "\n";
+
+            // for (let i = 0; i < textEdits.length; i++) {
+            //     await this.applyEdit({
+            //         documentUri: param.documentUri, range: textEdits[i].range, text: `${textEdits[i].text}${trailingSpaces}`
+            //     });
+            // }
+            // resolve();
+        });
     }
 }
 
