@@ -402,11 +402,9 @@ export function AIChat() {
             } else if (event.event == "message_stop") {
                 //extract new source files from resp
                 const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
-                let checkError: boolean = await rpcClient.getAiPanelRpcClient().checkSyntaxError(newSourceFiles);
-                setIsSyntaxError(checkError);
                 // Check diagnostics
                 const diags: ProjectDiagnostics = await rpcClient.getAiPanelRpcClient().getShadowDiagnostics(newSourceFiles);
-                if (diags.diagnostics.length > 0 && checkError) {
+                if (diags.diagnostics.length > 0) {
                     console.log("Diagnostics : ")
                     console.log(diags.diagnostics)
                     //TODO: fill
