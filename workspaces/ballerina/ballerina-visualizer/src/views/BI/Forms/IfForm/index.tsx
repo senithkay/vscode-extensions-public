@@ -111,7 +111,7 @@ export function IfForm(props: IfFormProps) {
         handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
-            label: "branch-" + (branches.length - 1),
+            label: "branch-" + (branches.length),
             kind: "block",
             codedata: {
                 node: "CONDITIONAL",
@@ -125,15 +125,16 @@ export function IfForm(props: IfFormProps) {
                         description: "Add condition to evaluate if the previous conditions are false",
                     },
                     valueType: "EXPRESSION",
-                    value: "true",
+                    value: '',
+                    placeholder: "true",
                     optional: false,
                     editable: true,
                 },
             },
             children: [],
         };
-        // add new branch to branches and add branch to before last branch
-        setBranches([...branches.slice(0, -1), newBranch, branches[branches.length - 1]]);
+        // add new branch to end of the current branches
+        setBranches([...branches, newBranch]);
     };
 
     const debouncedGetCompletions = debounce(
@@ -265,9 +266,10 @@ export function IfForm(props: IfFormProps) {
                 const val = getValues(`branch-${index}`);
                 if (val) {
                     branch.properties.condition.value = val;
+                    setValue(`branch-${index}`, val);
+                } else {
+                    setValue(`branch-${index}`, '');
                 }
-                const field = convertNodePropertyToFormField(`branch-${index}`, branch.properties.condition);
-                setValue(field.key, field.value);
             }
         });
     }, [branches]);
