@@ -158,49 +158,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         return [];
     };
 
-    const updateST = useCallback(debounce(async (text: string) => {
-        let propertyAssignment: PropertyAssignment;
-        const focusedFieldValue = focusedPort?.typeWithValue.value;
-        if (focusedFieldValue) {
-            // if (focusedFieldValue.wasForgotten()) {
-            //     return;
-            // }
-
-            // if (Node.isPropertyAssignment(focusedFieldValue)) {
-            //     const parent = focusedFieldValue.getParent();
-            //     const propName = focusedFieldValue.getName();
-            //     const parentContent = parent.getFullText();
-            //     const propertyCount = parent.getProperties().length;
-            //     focusedFieldValue.remove();
-            //     propertyAssignment = parent.addPropertyAssignment({
-            //         name: propName,
-            //         initializer: text
-            //     });
-
-            //     focusedPort.typeWithValue.setValue(propertyAssignment);
-
-
-            //     // if (parent.getProperties().some(prop => prop.isKind(SyntaxKind.ShorthandPropertyAssignment))) {
-            //     //     /** 
-            //     //      * Creating a PropertyAssignment with invalid or incomplete text can result in unexpected
-            //     //      * ShorthandPropertyAssignments in ts-morph. To avoid this issue, we do not update the
-            //     //      * project at this stage. Instead, we revert the operations and return to the previous state.
-            //     //      */
-            //     //     const prevParent = parent.replaceWithText(parentContent) as ObjectLiteralExpression;
-            //     //     const prevFocusedFieldValue = prevParent.getProperties()[propertyCount - 1];
-            //     //     focusedPort.typeWithValue.setValue(prevFocusedFieldValue);
-            //     // } else {
-            //     //     focusedPort.typeWithValue.setValue(propertyAssignment);
-            //     // }
-            // }
-
-            // setLastFocusedPort(focusedPort);
-            // console.log('updateST', focusedPort, text);
-        } else if (focusedFilter) {
-            // const filter = focusedFilter.replaceWithText(text);
-            // setLastFocusedFilter(filter);
-        }
-
+    const updateCompletions = useCallback(debounce(async (text: string) => {
         setCompletions(await getCompletions());
     }, 300), [focusedPort, focusedFilter]);
 
@@ -389,7 +347,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
 
     const applyChanges = async (value: string) => {
-        await updateST.flush();
+        await updateCompletions.flush();
         setSavedNodeValue(value);
 
         // Save the cursor position before saving
@@ -411,31 +369,25 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             let targetExpr: Node;
-            if (Node.isPropertyAssignment(focusedFieldValue)) {
-                const parent = focusedFieldValue.getParent();
-
-                if (value === '') {
-                    focusedFieldValue.remove();
-                } else if (focusedFieldValue.getInitializer()?.getText() !== value) {
-                    const propName = focusedFieldValue.getName();
-                    focusedFieldValue.remove();
-                    parent.addPropertyAssignment({
-                        name: propName,
-                        initializer: value
-                    });
-                }
-
-                updatedSourceContent = parent.getSourceFile().getFullText();
-            } else {
-                targetExpr = focusedFieldValue;
-                const replaceWith = value === ''
-                    ? getDefaultValue(focusedPort.typeWithValue.type.kind)
+            const newValue = value === ''
+                    ? getDefaultValue(lastFocusedPort.typeWithValue.type.kind)
                     : value;
 
-                const updatedNode = targetExpr.replaceWithText(replaceWith);
+            if (Node.isPropertyAssignment(focusedFieldValue)) {
+
+                if (focusedFieldValue.getInitializer()?.getText() !== newValue) {
+                    focusedFieldValue.setInitializer(newValue);
+                    updatedSourceContent = focusedFieldValue.getParent().getSourceFile().getFullText();
+                    await applyModifications(updatedSourceContent);
+                }
+                
+            } else {
+                targetExpr = focusedFieldValue;
+                const updatedNode = targetExpr.replaceWithText(newValue);
                 updatedSourceContent = updatedNode.getSourceFile().getFullText();
+                await applyModifications(updatedSourceContent);
             }
-            await applyModifications(updatedSourceContent);
+            
         }else if(value!=='' && lastFocusedPort){
             await initPortWithValue(lastFocusedPort, value);
         }
@@ -449,7 +401,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const handleChange = async (text: string) => {
         setTextFieldValue(text);
-        await updateST(text);
+        await updateCompletions(text);
     };
 
     // TODO: Implement arg extraction logic using getSignatureHelp method of ts-morph language server
