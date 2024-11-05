@@ -13,6 +13,8 @@ import {
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
+    GetFromFileRequest,
+    DeleteFromProjectRequest,
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
@@ -140,6 +142,52 @@ export class AiPanelRpcManager implements AIPanelAPI {
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
+
+    async getFromFile(req: GetFromFileRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error("No workspaces found.");
+            }
+
+            const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
+            const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
+            if (!fs.existsSync(ballerinaProjectFile)) {
+                throw new Error("Not a Ballerina project.");
+            }
+
+            const balFilePath = path.join(workspaceFolderPath, req.filePath);
+            const content = fs.promises.readFile(balFilePath, 'utf-8');
+            resolve(content);
+        });
+    }
+
+    async deleteFromProject(req: DeleteFromProjectRequest): Promise<void> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error("No workspaces found.");
+        }
+    
+        const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
+        const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
+        if (!fs.existsSync(ballerinaProjectFile)) {
+            throw new Error("Not a Ballerina project.");
+        }
+    
+        const balFilePath = path.join(workspaceFolderPath, req.filePath);    
+        if (fs.existsSync(balFilePath)) {
+            try {
+                fs.unlinkSync(balFilePath); 
+            } catch (err) {
+                throw new Error("Could not delete the file.");
+            }
+        } else {
+            throw new Error("File does not exist.");
+        }
+    
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        updateView();
+    }    
 
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {

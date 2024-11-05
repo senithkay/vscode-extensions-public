@@ -11,9 +11,12 @@ import { StateMachine } from '../stateMachine';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, commands, window, workspace } from 'vscode';
 import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { extension } from '../biExtentionContext';
 
 export function activateProjectExplorer(context: ExtensionContext, isBI: boolean) {
-	commands.executeCommand('setContext', 'BI.status', 'loading');
+	if (extension.langClient) {
+		commands.executeCommand('setContext', 'BI.status', 'loading');
+	}
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isBI);
 	const projectTree = window.createTreeView(BI_COMMANDS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	if (isBI) {
@@ -26,7 +29,9 @@ export function activateProjectExplorer(context: ExtensionContext, isBI: boolean
 			if (isBI) {
 				projectExplorerDataProvider.refresh();
 			} else {
-				commands.executeCommand('setContext', 'BI.status', 'unknownProject');
+				if (extension.langClient) {
+					commands.executeCommand('setContext', 'BI.status', 'unknownProject');
+				}
 				commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
 			}
 		}

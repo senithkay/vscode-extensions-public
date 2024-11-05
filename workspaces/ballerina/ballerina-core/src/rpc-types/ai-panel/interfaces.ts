@@ -48,7 +48,12 @@ export interface AddToProjectRequest {
     filePath: string;
     content: string;
 }
-
+export interface GetFromFileRequest {
+    filePath: string;
+}
+export interface DeleteFromProjectRequest {
+    filePath: string;
+}
 export interface GenerateMappingsRequest {
     position: NodePosition;
     filePath: string;
