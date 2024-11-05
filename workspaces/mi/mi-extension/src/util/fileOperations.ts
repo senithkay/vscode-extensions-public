@@ -750,6 +750,11 @@ function getArtifactData(projectDir: string): [any, any[], string] {
 export function findJavaFiles(folderPath): Map<string, string> {
     const results = new Map();
     function traverse(currentPath) {
+        if (!fs.existsSync(currentPath)) {
+            console.error(`Directory does not exist: ${currentPath}`);
+            return results;
+        }
+        
         const files = fs.readdirSync(currentPath);
         for (const file of files) {
             const filePath = path.join(currentPath, file);
