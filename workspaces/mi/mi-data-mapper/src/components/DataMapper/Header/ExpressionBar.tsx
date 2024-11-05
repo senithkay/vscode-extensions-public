@@ -272,26 +272,22 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         requestAnimationFrame(async () => {
             // Get the value to be saved
             let value = "";
-            const focusedNode = lastFocusedPort?.typeWithValue.value;
-            if (focusedNode && !focusedNode.wasForgotten()) {
-                if (Node.isPropertyAssignment(focusedNode)) {
-                    value = focusedNode.getInitializer()?.getText();
-                } else {
-                    value = focusedNode.getText();
-                }
-            } else if (lastFocusedFilter && !lastFocusedFilter.wasForgotten() ) {
-                value = lastFocusedFilter.getText();
-            } else if (!lastFocusedPort && !lastFocusedFilter) {
+            if (!lastFocusedPort && !lastFocusedFilter) {
                 value = undefined;
+            } else {
+                value = textFieldValueRef.current;
             }
 
             if (disabled) {
                 await textFieldRef.current?.blur(value);
+                console.log('req animation frame disabled');
             } else if (portChanged) {
                 await textFieldRef.current?.saveExpression(value);
                 await textFieldRef.current?.focus();
+                console.log('req animation frame portChanged');
             } else {
                 await textFieldRef.current?.focus();
+                console.log('req animation frame else', textFieldRef.current);
             }
         });
     }, [disabled, action, lastFocusedPort, lastFocusedFilter]);
