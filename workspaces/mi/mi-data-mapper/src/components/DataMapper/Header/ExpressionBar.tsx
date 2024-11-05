@@ -109,7 +109,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         if (nodeForSuggestions && !nodeForSuggestions.wasForgotten()) {
             
-            const relativeCursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
+            const relativeCursorPosition = textFieldRef.current.inputElement.selectionStart;
 
             if (!shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition)){
                 return [];
@@ -167,14 +167,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             if (inputPort) {
                 // Keep the text field focused when an input port is selected
                 if (textFieldRef.current) {
-                    const inputElement = textFieldRef.current.shadowRoot.querySelector('textarea');
+                    const inputElement = textFieldRef.current.inputElement;
                     if (focusedPort || focusedFilter) {
                         inputElement.focus();
                     } else {
                         inputElement.blur();
                     }
                     // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
+                    const cursorPosition = textFieldRef.current.inputElement.selectionStart;
                     const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
                     const updatedText =
                         textFieldValue.substring(0, cursorPosition) +
@@ -351,7 +351,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setSavedNodeValue(value);
 
         // Save the cursor position before saving
-        cursorPositionBeforeSaving.current = textFieldRef.current.shadowRoot.querySelector('textarea').selectionStart;
+        cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
 
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
@@ -425,7 +425,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const handleCancelCompletions = () => {
         setCompletions([]);
 
-        // const textField = textFieldRef.current.shadowRoot.querySelector('textarea');
+        // const textField = textFieldRef.current.inputElement;
         // textField.focus();
         // textField.setSelectionRange(
         //     cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
@@ -452,7 +452,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // Set the cursor position to the last saved position
 
-        const textField = textFieldRef.current.shadowRoot.querySelector('textarea');
+        const textField = textFieldRef.current.inputElement;
         textField.focus();
         textField.setSelectionRange(
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
@@ -523,6 +523,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 placeholder={placeholder}
                 completions={completions}
                 inputProps={inputProps}
+                textBoxType='TextField'
                 onChange={handleChange}
                 extractArgsFromFunction={extractArgsFromFunction}
                 onCompletionSelect={handleCompletionSelect}

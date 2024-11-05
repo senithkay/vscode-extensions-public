@@ -78,6 +78,7 @@ export type ExpressionBarBaseProps = {
     placeholder?: string;
     sx?: React.CSSProperties;
     inputProps?: InputProps;
+    textBoxType?: 'TextField' | 'TextArea';
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
@@ -120,6 +121,7 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 
 export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
+    inputElement: HTMLInputElement | HTMLTextAreaElement;
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
