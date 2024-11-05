@@ -10,7 +10,7 @@
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
 import { BallerinaTrigger, ComponentTriggerType, FunctionField } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
@@ -21,7 +21,7 @@ import { convertToVisibleTypes } from "../../../../utils/bi";
 
 const Container = styled.div`
     padding: 0 20px 20px;
-    max-width: 100%;
+    max-width: 600px;
     height: 100%;
     > div:last-child {
         padding: 20px 0;

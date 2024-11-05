@@ -419,23 +419,35 @@ const createInbuiltTriggerCode = (triggerInfo: ComponentTriggerType, targetPosit
         return Object.entries(triggerInfo.serviceTypes).some(([key, value]) => value.checked && key === sType.name);
     });
 
+    let functions = [];
     // Check the selected functions for single service types
     if (triggerInfo.trigger.serviceTypes.length === 1) {
-        serviceTypes[0].functions = serviceTypes[0].functions.filter((func) => {
+        functions = serviceTypes[0].functions.filter((func) => {
             return Object.entries(triggerInfo.functions).some(([key, value]) => (value.checked && key === func.name) || (value.required && value.functionType.name === func.name));
         });
     }
-
-    const newTriggerInfo = {
-        ...triggerInfo.trigger,
-        serviceTypes,
+    const listenerConfig = triggerInfo.listener.map(item => item.value).filter(value => value && value.trim() !== '').join(',');
+    const listenerVariableName = `${triggerAlias}Listener`;
+    const basePath = triggerInfo?.service.length > 0 && triggerInfo?.service[0].value;
+    const config = {
         triggerType: triggerAlias,
-        httpBased
+        listenerVariableName,
+        listenerConfig,
+        basePath,
+        functions
     };
     // This is for initial imports only. Initially stModification import for nonHttpBased triggers
+    const triggerStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.endColumn,
+        endLine: targetPosition.startLine,
+        endColumn: targetPosition.endColumn,
+        type: "TRIGGER_NEW",
+        config
+    };
     const stModification = [
         createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
-        createTrigger(newTriggerInfo, targetPosition)
+        triggerStatement
     ];
     if (httpBased) {
         stModification.push(createImportStatement("ballerina", "http"));

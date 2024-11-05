@@ -163,6 +163,20 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     {{/each}}
 
         {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
+    TRIGGER_NEW: `
+    listener {{{triggerType}}}:Listener {{{listenerVariableName}}} =  new({{{listenerConfig}}});
+
+    service {{#if basePath}}{{{basePath}}} {{/if}}on {{{listenerVariableName}}} {
+            {{#each functions}}
+            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{#if this.defaultTypeName}}{{this.defaultTypeName}}{{else}}{{{../../triggerType}}}:{{this.typeInfo.name}}{{/if}} {{this.name}} {{/each}}) returns error? {
+                do {
+                    // Not Implemented
+                } on fail error e {
+                    return e;
+                }
+            }
+            {{/each}}
+    }`,
     TRIGGER_UPDATE: `
     service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`,
 

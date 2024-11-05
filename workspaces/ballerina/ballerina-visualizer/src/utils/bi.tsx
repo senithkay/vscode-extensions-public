@@ -187,7 +187,7 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
-            if (activeNode.codedata?.node === "REMOTE_ACTION_CALL" 
+            if (activeNode.codedata?.node === "REMOTE_ACTION_CALL"
                 || activeNode.codedata?.node === "RESOURCE_ACTION_CALL") {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             }
@@ -300,6 +300,7 @@ export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
                         label: fieldExp.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
                         documentation: fieldExp.name,
                         optional: fieldExp.optional,
+                        advanced: fieldExp.optional,
                         type: fieldExp.typeName,
                         editable: true,
                         value: ""
@@ -314,6 +315,7 @@ export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
                     optional: expression.optional,
                     type: expression.typeName,
                     editable: true,
+                    advanced: expression.optional,
                     value: expression.defaultValue
                 }
                 formFields.push(formField);
