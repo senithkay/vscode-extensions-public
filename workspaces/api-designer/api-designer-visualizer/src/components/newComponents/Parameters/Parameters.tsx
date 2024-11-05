@@ -13,6 +13,7 @@ import { BaseTypes } from '../../../constants';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Parameter } from '../Parameter/Parameter';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
+import { getUpdatedObjects } from '../Utils/OpenAPIUtils';
 
 export const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -53,7 +54,6 @@ export function Parameters(props: ParameterProps) {
     };
 
     const addNewParam = () => {
-        const parameterCopy = parameters?.length > 0 ? [...parameters] : [];
         const newParam: P = {
             name: parameters?.length > 0 ? `param${parameters.length}` : "param1",
             in: type,
@@ -63,8 +63,8 @@ export function Parameters(props: ParameterProps) {
                 type: "string"
             }
         };
-        parameterCopy.push(newParam);
-        handleParameterChange([...parameterCopy]);
+        const newParameters = getUpdatedObjects<P | R>(parameters, newParam);
+        handleParameterChange([...newParameters]);
     };
     const getAddParamButton = () => (
         <Button appearance="icon" onClick={() => addNewParam()}>
@@ -73,15 +73,14 @@ export function Parameters(props: ParameterProps) {
         </Button>
     );
     const addNewReferenceObject = () => {
-        const parameterCopy = parameters?.length > 0 ? [...parameters] : [];
         const newParam: R = {
             $ref: currentReferences?.[0]?.$ref || "",
             summary: "",
             description: ""
         };
-        parameterCopy.push(newParam);
-        handleParameterChange([...parameterCopy]);
-    }
+        const newParameters = getUpdatedObjects<P | R>(parameters, newParam);
+        handleParameterChange([...newParameters]);
+    };
     const getAddReferenceObjectButton = () => (
         <Button appearance="icon" onClick={() => addNewReferenceObject()}>
             <Codicon sx={{ marginRight: 5 }} name="add" />

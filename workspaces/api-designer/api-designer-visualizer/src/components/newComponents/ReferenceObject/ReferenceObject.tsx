@@ -27,7 +27,7 @@ const ButtonWrapperParams = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    min-width: 20px;
+    min-width: 40px;
     flex-grow: 1;
     gap: 5px;
     justify-content: flex-end;
@@ -44,7 +44,7 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
             <Dropdown
                 id={`paramType-${referenceObject.$ref}`}
                 value={referenceObject.$ref}
-                containerSx={{ width: "25%" }}
+                containerSx={{ width: "35%" }}
                 items={referenceObjects?.map((item) => ({ value: item, label: item }))}
                 onValueChange={(value) => handleParameterChange({ ...referenceObject, $ref: value })}
             />
@@ -52,7 +52,7 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
                 id={`paramName-${referenceObject.summary}`}
                 placeholder="Summary"
                 value={referenceObject.summary}
-                sx={{ width: "35%" }}
+                sx={{ width: "25%" }}
                 onBlur={(evt) => handleParameterChange({ ...referenceObject, summary: evt.target.value })}
             />
             <TextField

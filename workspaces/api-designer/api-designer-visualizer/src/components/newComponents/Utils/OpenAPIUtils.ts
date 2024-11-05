@@ -67,3 +67,9 @@ export function getChangedOverviewOperationOpenAPI(openAPIDefinition: OpenAPI, o
     // }
     return openAPIDefinition;
 }
+
+export function getUpdatedObjects<T>(existingObjects: T[], values: T): T[] {
+    const objectsCopy = existingObjects?.length > 0 ? [...existingObjects] : [];
+    objectsCopy.push(values);
+    return objectsCopy;
+}
