@@ -17,6 +17,7 @@ import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -173,6 +174,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
+    const hasError = nodeHasError(model.node);
 
     return (
         <NodeStyles.Node
@@ -194,7 +196,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             ry="5"
                             fill={Colors.SURFACE_DIM}
                             stroke={
-                                model.node.diagnostics?.hasDiagnostics
+                                hasError
                                     ? Colors.ERROR
                                     : isHovered && !disabled
                                     ? Colors.PRIMARY
@@ -222,7 +224,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                         {model.node.branches.at(0).properties.condition.value}
                     </NodeStyles.Description> */}
                 </NodeStyles.Header>
-                {model.node.diagnostics?.hasDiagnostics && (
+                {hasError && (
                     <NodeStyles.ErrorIcon>
                         <DiagnosticsPopUp node={model.node} />
                     </NodeStyles.ErrorIcon>

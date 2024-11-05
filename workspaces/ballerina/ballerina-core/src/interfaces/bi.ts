@@ -60,6 +60,8 @@ export type Property = {
     value: string | ELineRange;
     optional: boolean;
     editable: boolean;
+    advanced?: boolean;
+    placeholder?: string;
     valueTypeConstraint?: string[];
 };
 
@@ -200,7 +202,8 @@ export type NodeKind =
     | "DRAFT"
     | "EVENT_START"
     | "IF"
-    | "ACTION_CALL"
+    | "REMOTE_ACTION_CALL"
+    | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
     | "ERROR_HANDLER"

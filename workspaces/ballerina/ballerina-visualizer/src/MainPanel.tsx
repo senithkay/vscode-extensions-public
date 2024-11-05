@@ -243,7 +243,7 @@ const MainPanel = () => {
                         setViewComponent(<ViewConfigurableVariables />);
                         break;
                     case MACHINE_VIEW.EditConfigVariables:
-                        rpcClient.getVisualizerLocation().then((location) => {                            
+                        rpcClient.getVisualizerLocation().then((location) => {                
                             rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
                                 if (variables.configVariables.length > 0) {
                                     const variable = variables.configVariables.find(

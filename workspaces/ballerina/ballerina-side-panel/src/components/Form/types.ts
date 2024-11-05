@@ -19,7 +19,9 @@ export type FormField = {
     label: string;
     type: null | string;
     optional: boolean;
+    advanced?: boolean;
     editable: boolean;
+    placeholder?: string;
     documentation: string;
     value: string;
     diagnostics?: DiagnosticMessage[];
