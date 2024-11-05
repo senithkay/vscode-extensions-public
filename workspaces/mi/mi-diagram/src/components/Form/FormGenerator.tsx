@@ -12,10 +12,12 @@ import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Require
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField } from '.';
+import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField, Keylookup } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
+import { openPopup } from '../sidePanel/Pages/mediators/common';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -52,6 +54,7 @@ interface Element {
     comboValues?: any[];
     defaultValue?: any;
     allowedConnectionTypes?: string[];
+    keyType?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -61,6 +64,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
+    const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
@@ -174,6 +178,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     }
 
     const renderFormElement = (element: Element, field: any) => {
+        const name = getNameForController(element.name);
+        const isRequired = element.required === 'true';
+        const errorMsg = errors[name] && errors[name].message.toString();
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -184,8 +191,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                         label={element.displayName}
                         size={50}
                         placeholder={element.helpTip}
-                        required={element.required === 'true'}
-                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                        required={isRequired}
+                        errorMsg={errorMsg}
                     />
                 );
             case 'boolean':
@@ -210,13 +217,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                     <AutoComplete
                         name={getNameForController(element.name)}
                         label={element.displayName}
-                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                        errorMsg={errorMsg}
                         items={comboitems}
                         value={field.value}
                         onValueChange={(e: any) => {
                             field.onChange(e);
                         }}
-                        required={element.required === 'true'}
+                        required={isRequired}
                         allowItemCreate={false}
                     />
                 );
@@ -235,16 +242,32 @@ export function FormGenerator(props: FormGeneratorProps) {
                     <AutoComplete
                         name={getNameForController(element.name)}
                         label={element.displayName}
-                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                        errorMsg={errorMsg}
                         items={items}
                         value={field.value}
                         onValueChange={(e: any) => {
                             field.onChange(e);
                         }}
-                        required={element.required === 'true'}
+                        required={isRequired}
                         allowItemCreate={allowItemCreate}
                     />
                 );
+            case 'key':
+            case 'comboOrKey': {
+                return (<Keylookup
+                    value={field.value}
+                    filterType={element.keyType as any}
+                    label={element.displayName}
+                    allowItemCreate={element.inputType === 'comboOrKey'}
+                    onValueChange={field.onChange}
+                    required={isRequired}
+                    errorMsg={errorMsg}
+                    additionalItems={element.comboValues}
+                    onCreateButtonClick={(element.inputType === 'comboOrKey' && !Array.isArray(element.keyType)) ? (fetchItems: any, handleValueChange: any) => {
+                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange);
+                    } : undefined}
+                />)
+            }
             default:
                 return null;
         }
@@ -377,7 +400,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         !autoGenerate && sequenceFieldComponent({ element: element.value })
                     );
                 }
-                
+
                 if (element.value.enableCondition) {
                     return (
                         renderControllerIfConditionMet(element)
