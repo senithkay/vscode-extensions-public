@@ -191,7 +191,7 @@
                                 "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_redis_3.0.2.png"
                             },
                             "codedata": {
-                                "node": "ACTION_CALL",
+                                "node": "REMOTE_ACTION_CALL",
                                 "org": "ballerinax",
                                 "module": "redis",
                                 "object": "Client",
@@ -356,7 +356,7 @@
                                                 "icon": "https://bcentral-packageicons.azureedge.net/images/ballerina_http_2.12.0.png"
                                             },
                                             "codedata": {
-                                                "node": "ACTION_CALL",
+                                                "node": "REMOTE_ACTION_CALL",
                                                 "org": "ballerina",
                                                 "module": "http",
                                                 "object": "Client",
@@ -494,7 +494,7 @@
                                                 "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_redis_3.0.2.png"
                                             },
                                             "codedata": {
-                                                "node": "ACTION_CALL",
+                                                "node": "REMOTE_ACTION_CALL",
                                                 "org": "ballerinax",
                                                 "module": "redis",
                                                 "object": "Client",

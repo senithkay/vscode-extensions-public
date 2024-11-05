@@ -112,6 +112,8 @@ export function convertNodePropertyToFormField(
         label: property.metadata?.label || "",
         type: property.valueType,
         optional: property.optional,
+        advanced: property.advanced,
+        placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
@@ -183,7 +185,8 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
-            if (activeNode.codedata?.node === "ACTION_CALL") {
+            if (activeNode.codedata?.node === "REMOTE_ACTION_CALL" 
+                || activeNode.codedata?.node === "RESOURCE_ACTION_CALL") {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
