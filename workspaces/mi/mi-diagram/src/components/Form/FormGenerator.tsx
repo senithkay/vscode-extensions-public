@@ -373,9 +373,10 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
+            const name = getNameForController(element.value.name);
             if (element.type === 'attribute') {
                 if (element.value.hidden) {
-                    setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
+                    setValue(name, element.value.defaultValue ?? "");
                     return;
                 }
 
@@ -401,38 +402,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                     );
                 }
 
-                if (element.value.enableCondition) {
-                    return (
-                        renderControllerIfConditionMet(element)
-                    );
+                if (getValues(name) === undefined && element.value.defaultValue) {
+                    setValue(name, element.value.defaultValue)
                 }
 
-                if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
-                    setValue(getNameForController(element.value.name), element.value.defaultValue)
-                }
-
-                return <Controller
-                    name={getNameForController(element.value.name)}
-                    control={control}
-                    defaultValue={element.value.defaultValue ?? ""}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
-                        }
-                    }
-                    render={({ field }) => (
-                        <Field>
-                            {renderFormElement(element.value, field)}
-                        </Field>
-                    )}
-                />;
+                return (
+                    renderControllerIfConditionMet(element)
+                );
             } else if (element.type === 'attributeGroup') {
                 return (
                     <>
@@ -459,7 +435,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                             <Typography variant="h3">{element.value.displayName}</Typography>
                             <Typography variant="body3">{element.value.description}</Typography>
                             <Controller
-                                name={getNameForController(element.value.name)}
+                                name={name}
                                 control={control}
                                 render={({ field: { onChange, value } }) => (
                                     <ParamManager
@@ -486,45 +462,28 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const renderControllerIfConditionMet = (element: any) => {
-        let watchStatements: boolean;
+        const name = getNameForController(element.value.name);
+        let watchStatements: boolean = true;
 
         if (Array.isArray(element.value.enableCondition)) {
             const firstElement = element.value.enableCondition[0];
 
             if (firstElement === "AND") {
                 // Handle AND conditions
-                watchStatements = true;
-                const conditions = element.value.enableCondition.slice(1);
-                const statements = conditions.forEach((condition: any) => {
+                watchStatements = element.value.enableCondition.slice(1).every((condition: any) => {
                     const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    if (!(watch(conditionKey) === conditionValue && watchStatements)) {
-                        watchStatements = false;
-                    }
+                    return watch(getNameForController(key)) === condition[key];
                 });
             } else if (firstElement === "OR") {
                 // Handle OR conditions
-                watchStatements = false;
-                const conditions = element.value.enableCondition.slice(1);
-                const statements = conditions.forEach((condition: any) => {
+                watchStatements = element.value.enableCondition.slice(1).some((condition: any) => {
                     const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    if (watch(conditionKey) === conditionValue || watchStatements) {
-                        watchStatements = true;
-                    }
+                    return watch(getNameForController(key)) === condition[key];
                 });
             } else if (firstElement === "NOT") {
                 // Handle NOT conditions
-                watchStatements = false;
-                const condition = element.value.enableCondition.slice(1)[0];
-                if (condition) {
-                    const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    watchStatements = watch(conditionKey) !== conditionValue;
-                }
+                const condition = element.value.enableCondition[1];
+                watchStatements = condition ? watch(getNameForController(Object.keys(condition)[0])) !== condition[Object.keys(condition)[0]] : false;
             } else {
                 // Handle Single condition
                 const condition = element.value.enableCondition[0];
@@ -538,13 +497,13 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
 
         if (watchStatements) {
-            if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
-                setValue(getNameForController(element.value.name), element.value.defaultValue)
+            if (getValues(name) === undefined && element.value.defaultValue) {
+                setValue(name, element.value.defaultValue)
             }
 
             return (
                 <Controller
-                    name={getNameForController(element.value.name)}
+                    name={name}
                     control={control}
                     defaultValue={element.value.defaultValue ?? ""}
                     rules={
@@ -567,8 +526,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />
             );
         } else {
-            if (getValues(getNameForController(element.value.name))) {
-                setValue(getNameForController(element.value.name), "")
+            if (getValues(name)) {
+                setValue(name, "")
             }
         }
 
