@@ -8,14 +8,20 @@
  */
 import { MediaType as M, Response as R, Schema } from '../../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
-import { SubSectionWrapper } from '../Contact/Contact';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
 import { Headers } from '../Headers/Headers';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
 
+const SubSectionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
+    gap: 5px;
+`;
 interface ResponseProps {
     response: R;
     onResponseChange: (response: R) => void;

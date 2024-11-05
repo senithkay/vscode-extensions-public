@@ -7,51 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import styled from "@emotion/styled";
 import { Headers as Hs, HeaderDefinition as H, ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Header } from '../Header/Header';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
-
-const HorizontalFieldWrapper = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-`;
 
 interface HeadersProps {
     headers : Hs;
     title?: string;
     onHeadersChange: (headers: Hs) => void;
 }
-const ButtonWrapperParams = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    min-width: 40px;
-    flex-grow: 1;
-    gap: 5px;
-    justify-content: flex-end;
-`;
-
-interface RequiredFormInputProps {
-    color?: string;
-}
-const RequiredElement = styled.div<RequiredFormInputProps>`
-    font-size: 28px;
-    color: ${(props: RequiredFormInputProps) => props.color || "var(--vscode-editor-foreground)"};
-    font-weight: bold;
-    line-height: 24px; // Reduced line height to lower the asterisk
-    cursor: pointer;
-`;
-const RequiredElementWrapper = styled.div`
-    height: 15px;
-    padding: 2px;
-    border-radius: 4px;
-    &:hover {
-        background-color: var(--button-icon-hover-background)
-    }
-`;
 
 const isReferenceObject = (obj: H | R): obj is R => {
     return obj && typeof obj === 'object' && '$ref' in obj;
@@ -109,6 +74,11 @@ export function Headers(props: HeadersProps) {
                             referenceObject={header as R}
                             referenceObjects={null} // TODO: Use context to find the reference objects
                             onRefernceObjectChange={(referenceObject) => handleHeaderChange({ ...headers, [headerName]: referenceObject })}
+                            onRemoveReferenceObject={(id) => {
+                                const headersCopy = { ...headers };
+                                delete headersCopy[headerName];
+                                handleHeaderChange(headersCopy);
+                            }}
                         />
                     ) : (
                         <Header

@@ -29,12 +29,12 @@ const HorizontalFieldWrapper = styled.div`
     gap: 10px;
 `;
 
-interface OverviewProps {
+interface LicenseProps {
     lisense: L;
     onContactChange: (license: L) => void;
 }
 
-export function License(props: OverviewProps) {
+export function License(props: LicenseProps) {
     const { lisense } = props;
 
     const handleContactChange = (license: L) => {

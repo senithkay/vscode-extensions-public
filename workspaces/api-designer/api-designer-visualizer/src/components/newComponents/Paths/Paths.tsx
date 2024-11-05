@@ -32,7 +32,7 @@ export function Paths(props: PathsProps) {
     };
     const selectedPath = selectedComponent.split("-")[2];
     const selectedMethod = selectedComponent.split("-")[3];
-    const selectedOperation: O = paths[selectedPath][selectedMethod] as O;
+    const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath][selectedMethod] as O;
     return (
         <>
             {Object.keys(paths).map((key) => {

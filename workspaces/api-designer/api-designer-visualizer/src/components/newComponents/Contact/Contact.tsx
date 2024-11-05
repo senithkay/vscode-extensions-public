@@ -29,10 +29,10 @@ interface ContactProps {
 
 // Title, Vesrion are mandatory fields
 export function Contact(props: ContactProps) {
-    const { contact } = props;
+    const { contact, onContactChange } = props;
 
     const handleContactChange = (contact: C) => {
-        props.onContactChange(contact);
+        onContactChange(contact);
     };
 
     return (
