@@ -29,8 +29,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 	link: LinkModel;
 	temporaryLink: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({
