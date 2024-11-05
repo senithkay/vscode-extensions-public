@@ -6,44 +6,57 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from "@emotion/styled";
-import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { OpenAPI } from '../../../Definitions/ServiceDefinitions';
-
-export const PanelBody = styled.div`
-    height: calc(100% - 87px);
-    overflow-y: auto;
-    padding: 16px;
-    gap: 15px;
-    display: flex;
-    flex-direction: column;
-`;
-export const ContentWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-`;
-
-export const SubSectionWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding-top: 5px;
-    gap: 5px;
-`;
+import { OpenAPI as O } from '../../../Definitions/ServiceDefinitions';
+import { Overview } from '../Overview/Overview';
+import { Paths } from '../Paths/Paths';
+import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
 
 interface OverviewProps {
-    openAPIDefinition: OpenAPI;
+    openAPI: O;
+    selectedComponent: string;
+    onOpenAPIChange: (openAPIDefinition: O) => void;
 }
 
-// Title, Vesrion are mandatory fields
-export function Overview(props: OverviewProps) {
-    const { openAPIDefinition } = props;
-    const { rpcClient } = useVisualizerContext();
-    
+// Path parent component is represented with paths-component-path-method, 
+// Overview is represented with overview-component,
+// Schema is represented with schema-component-schema
+export function OpenAPI(props: OverviewProps) {
+    const { openAPI, selectedComponent, onOpenAPIChange } = props;
+    const componetName = selectedComponent.split("-")[0];
+
+    const handleOpenAPIChange = (openAPI: O) => {
+        onOpenAPIChange(openAPI);
+    };
+
     return (
-        <PanelBody>
-            
-        </PanelBody>
+        <>
+            {componetName === "overview" && (
+                <Overview openAPIDefinition={openAPI} onOpenApiDefinitionChange={handleOpenAPIChange} />
+            )}
+            {componetName === "paths" && (
+                <Paths 
+                    paths={openAPI.paths} 
+                    selectedComponent={selectedComponent}
+                    onPathsChange={(paths) => handleOpenAPIChange({ ...openAPI, paths })}
+                />
+            )}
+            {componetName === "schema" && (
+                <SchemaEditor 
+                    openAPI={openAPI}
+                    schema={openAPI.components.schemas[selectedComponent.split("-")[2]]}
+                    schemaName={selectedComponent.split("-")[2]}
+                    onSchemaChange={
+                        (schema) => handleOpenAPIChange({ 
+                            ...openAPI, components: { 
+                                ...openAPI.components, schemas: { 
+                                    ...openAPI.components.schemas, [selectedComponent.split("-")[2]]: schema 
+                                } 
+                            } 
+                        }
+                    )
+                }
+                />
+            )}
+        </>
     )
 }

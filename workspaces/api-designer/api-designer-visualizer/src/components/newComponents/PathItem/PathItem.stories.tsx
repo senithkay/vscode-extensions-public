@@ -65,15 +65,37 @@ const pathItem: P = {
             },
         },
     },
+    parameters: [
+        {
+            name: "name",
+            in: "query",
+            description: "description",
+            required: true,
+            schema: {
+                type: "string",
+            },
+        },
+        {
+            name: "id",
+            in: "path",
+            description: "description",
+            required: true,
+            schema: {
+                type: "string",
+            },
+        },
+    ],
 };
 
 export const PathItemStory = () => {
     const [pi, setPI] = useState<P>(pathItem);
-    const handlePathItemChange = (pathItem: P) => {
+    const [path, setPath] = useState<string>("/path");
+    const handlePathItemChange = (pathItem: P, path: string) => {
         console.log("PathItem changed", pathItem);
+        setPath(path);
         setPI(pathItem);
     }
     return (
-        <PathItem pathItem={pi} path="/path" onPathItemChange={handlePathItemChange} />
+        <PathItem pathItem={pi} path={path} onPathItemChange={handlePathItemChange} />
     );
 };
