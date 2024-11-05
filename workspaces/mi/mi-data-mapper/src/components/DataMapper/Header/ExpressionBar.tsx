@@ -57,6 +57,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const completionReqPosEnd = useRef<number>(0);
 
     // const [textFieldValue, setTextFieldValue] = useState<string>("");
+    // const [textFieldValueState, setTextFieldValueState] = useState<string>("");
+    const [,triggerRerender]=useState(false);
     const textFieldValueRef = useRef<string>("");
     let textFieldValue = textFieldValueRef.current;
     const setTextFieldValue = (value: string) => {
@@ -527,6 +529,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // // Reset text field value
         setTextFieldValue("");
+        triggerRerender((prev)=>!prev);
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
