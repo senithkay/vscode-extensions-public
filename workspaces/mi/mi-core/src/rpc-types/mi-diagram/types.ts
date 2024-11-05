@@ -1780,16 +1780,15 @@ export interface GetMediatorRequest {
 
 export interface GetMediatorResponse {
     form: string;
-    rawData?: any;
 }
 
 export interface UpdateMediatorRequest {
     documentUri: string;
+    range: Range;
     mediatorType: string;
     oldValues?: any;
     newValues: any;
     dirtyFields?: string[];
-    rawData?: any;
     trailingSpace?: string;
 }
 

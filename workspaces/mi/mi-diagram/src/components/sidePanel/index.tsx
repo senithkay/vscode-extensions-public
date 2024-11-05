@@ -4,12 +4,14 @@ import styled from '@emotion/styled';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import SidePanelContext, { SidePanelPage } from './SidePanelContexProvider';
 import { HomePage } from './mediators';
-import { getAllDataServiceForms, getAllMediators } from './mediators/Values';
+import { getAllDataServiceForms } from './mediators/Values';
 import AddConnector from './Pages/AddConnector';
 import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
+import { MediatorForm } from './mediators/Form';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -104,66 +106,60 @@ export const handleOpenExprEditor = (value: ExpressionFieldValue, setValue: any,
 const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const sidePanelContext = useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
 
     useEffect(() => {
         setLoading(sidePanelContext.pageStack == undefined);
     }, [sidePanelContext.pageStack]);
 
     useEffect(() => {
-        let mediatorsPage;
+        const fetchMediators = async () => {
+            setLoading(true);
+            let mediatorsPage;
 
-        if (sidePanelContext.isEditing && sidePanelContext.operationName) {
-            if (sidePanelContext.operationName === "connector") {
-                const form = <AddConnector
-                    formData={sidePanelContext.formValues.form}
-                    nodePosition={sidePanelContext.nodeRange}
-                    documentUri={props.documentUri}
-                    connectorName={sidePanelContext.formValues.connectorName}
-                    operationName={sidePanelContext.formValues.operationName} />;
-                mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
-            } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
-                const allForms = getAllDataServiceForms({
-                    nodePosition: props.nodePosition,
-                    trailingSpace: props.trailingSpace,
-                    documentUri: props.documentUri,
-                });
+            if (sidePanelContext.isEditing && sidePanelContext.operationName) {
+                if (sidePanelContext.operationName === "connector") {
+                    const form = <AddConnector
+                        formData={sidePanelContext.formValues.form}
+                        nodePosition={sidePanelContext.nodeRange}
+                        documentUri={props.documentUri}
+                        connectorName={sidePanelContext.formValues.connectorName}
+                        operationName={sidePanelContext.formValues.operationName} />;
+                    mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
+                } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
+                    const allForms = getAllDataServiceForms({
+                        nodePosition: props.nodePosition,
+                        trailingSpace: props.trailingSpace,
+                        documentUri: props.documentUri,
+                    });
 
-                const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
-                if (form) {
-                    mediatorsPage = { content: form.form, title: `Edit ${form.title}` };
+                    const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
+                    if (form) {
+                        mediatorsPage = { content: form.form, title: `Edit ${form.title}` };
+                    }
+                } else {
+
+                    const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+                        mediatorType: sidePanelContext.operationName,
+                    });
+
+                    if (!mediatorDetails) {
+                        return;
+                    }
+                    const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.operationName} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />;
+                    mediatorsPage = { content: form, title: `Edit ${sidePanelContext.operationName}` };
                 }
             } else {
-
-                const allMediators = getAllMediators({
-                    nodePosition: props.nodePosition,
-                    trailingSpace: props.trailingSpace,
-                    documentUri: props.documentUri,
-                    previousNode: sidePanelContext.previousNode,
-                    parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
-                });
-
-                const form = Object.keys(allMediators).reduce((acc: any, key: string) => {
-                    const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) =>
-                        mediator.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
-                    if (filtered.length > 0) {
-                        acc[key] = filtered;
-                    }
-                    return acc;
-                }, {});
-
-                if (form && Object.keys(form).length > 0) {
-                    const val = form[Object.keys(form)[0]][0];
-                    mediatorsPage = { content: val.form, title: `Edit ${val.title}` };
-                }
+                mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> };
             }
-        } else {
-            mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> };
-        }
 
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            pageStack: [mediatorsPage]
-        });
+            sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
+                pageStack: [mediatorsPage]
+            });
+            setLoading(false);
+        }
+        fetchMediators();
     }, []);
 
     const handleClose = () => {
@@ -178,21 +174,21 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const Icon = () => {
         if (sidePanelContext.pageStack.length > 0) {
-          const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
-          if (lastPage.icon !== undefined) {
-            if (typeof lastPage.icon === "string") {
-              return (
-                <IconContainer>
-                  <img src={lastPage.icon} alt="Icon" />
-                </IconContainer>
-              );
-            } else if (React.isValidElement(lastPage.icon)) {
-              return <div style={{width: 40}}>{lastPage.icon}</div>;
+            const lastPage = sidePanelContext.pageStack[sidePanelContext.pageStack.length - 1];
+            if (lastPage.icon !== undefined) {
+                if (typeof lastPage.icon === "string") {
+                    return (
+                        <IconContainer>
+                            <img src={lastPage.icon} alt="Icon" />
+                        </IconContainer>
+                    );
+                } else if (React.isValidElement(lastPage.icon)) {
+                    return <div style={{ width: 40 }}>{lastPage.icon}</div>;
+                }
             }
-          }
         }
         return null;
-      };
+    };
 
     const Title = () => {
         if (sidePanelContext.pageStack.length > 0) {

@@ -17,18 +17,20 @@ import SidePanelContext from "../SidePanelContexProvider";
 import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
 import { getParamManagerValues } from "../Pages/mediators/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export interface MediatorFormProps {
     mediatorData: GetMediatorResponse
     mediatorType: string;
     isUpdate: boolean;
+    documentUri: string;
+    range: Range
 }
 
 const FormContainer = styled.div`
-    padding: 20px;
 `;
 export function MediatorForm(props: MediatorFormProps) {
-    const { mediatorData, mediatorType, isUpdate } = props;
+    const { mediatorData, mediatorType, isUpdate, documentUri, range } = props;
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = useContext(SidePanelContext);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
@@ -47,7 +49,8 @@ export function MediatorForm(props: MediatorFormProps) {
             newValues: values as Record<string, any>,
             oldValues: sidePanelContext.formValues as Record<string, any>,
             dirtyFields: Object.keys(dirtyFields),
-            rawData: mediatorData.rawData
+            documentUri,
+            range
         });
     }
 

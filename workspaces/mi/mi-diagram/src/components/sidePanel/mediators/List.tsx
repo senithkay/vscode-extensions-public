@@ -62,8 +62,11 @@ export function Mediators(props: MediatorProps) {
         if (!mediatorDetails) {
             return;
         }
-        const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.type} isUpdate={false} />;
-        sidepanelAddPage(sidePanelContext, form, mediator.displayName, getMediatorIconsFromFont(mediator.icon, isMostPopular));
+        const form =
+            <div style={{ padding: '20px' }}>
+                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.type} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+            </div>;
+        sidepanelAddPage(sidePanelContext, form, `Add ${mediator.displayName}`, getMediatorIconsFromFont(mediator.icon, isMostPopular));
     }
 
     const searchForm = (value: string, search?: boolean) => {
