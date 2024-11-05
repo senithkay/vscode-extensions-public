@@ -6,30 +6,31 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
 import { useState } from "react";
 import { OpenAPI } from "../../../Definitions/ServiceDefinitions";
 import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
-import { Overview } from "./Overview";
+import { Info } from "./Info";
 
 export default {
-    component: Overview,
-    title: 'New Overview',
+    component: Info,
+    title: 'New Info',
 };
 
 const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 
-export const OverviewStory = () => {
-    const [apiDefinition, setApiDefinition] = useState<OpenAPI>(petstoreJSON as unknown as OpenAPI);
-    console.log("apiDefinition", apiDefinition);
-    const handleOpenApiDefinitionChange = (openAPIDefinition: OpenAPI) => {
-        console.log("change", openAPIDefinition);
-        setApiDefinition(openAPIDefinition);
-    }
+export const InfoStory = () => {
+    const [info, setInfo] = useState(apiDefinition.info);
+
     return (
-        <Overview
-            openAPIDefinition={apiDefinition}
-            onOpenApiDefinitionChange={handleOpenApiDefinitionChange}
-            isNewFile={false}
+        <Info
+            info={info}
+            onInfoChange={(newInfo) => {
+                setInfo(newInfo);
+                console.log(newInfo);
+            }}
+            selectedOptions={["Summary", "Description"]}
+            isNewFile
         />
     );
 };

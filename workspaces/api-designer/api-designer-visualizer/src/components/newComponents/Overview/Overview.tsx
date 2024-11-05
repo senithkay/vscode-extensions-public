@@ -6,15 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
 import { OpenAPI } from '../../../Definitions/ServiceDefinitions';
 import { getSelectedOverviewComponent, getChangedOverviewOperationOpenAPI } from '../Utils/OpenAPIUtils';
-import { Contact } from '../Contact/Contact';
-import { License } from '../License/Lisense';
 import { useState } from 'react';
+import { Info } from '../Info/Info';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -83,72 +81,15 @@ export function Overview(props: OverviewProps) {
                         Configure
                     </Button>
                 </HorizontalFieldWrapper>
-                <HorizontalFieldWrapper>
-                    <TextField
-                        label="Title"
-                        id="title"
-                        sx={{ width: "50%" }}
-                        value={openAPIDefinition?.info?.title}
-                        onBlur={(evt) => { 
-                            openAPIDefinition.info.title = evt.target.value; 
-                            onOpenApiDefinitionChange(openAPIDefinition); 
-                        }}
-                        autoFocus={isNewFile}
-                    />
-                    <TextField
-                        label="API Version"
-                        id="API Version"
-                        sx={{ width: "50%" }}
-                        value={openAPIDefinition?.info?.version}
-                        onBlur={(evt) => { 
-                            openAPIDefinition.info.version = evt.target.value; 
-                            onOpenApiDefinitionChange(openAPIDefinition); 
-                        }}
-                    />
-                </HorizontalFieldWrapper>
-                {selectedOptions.includes("Summary") && (
-                    <TextField
-                        label="Summary"
-                        id="summary"
-                        sx={{ width: "100%" }}
-                        value={openAPIDefinition?.info?.summary}
-                        onBlur={(evt) => { 
-                            openAPIDefinition.info.summary = evt.target.value; 
-                            onOpenApiDefinitionChange(openAPIDefinition); 
-                        }}
-                    />
-                )}
-                {selectedOptions.includes("Description") && (
-                    <CodeTextArea
-                        label='Decription'
-                        value={description}
-                        onChange={(evt) => {
-                            openAPIDefinition.info.description = evt.target.value;
-                            setDescription(evt.target.value);
-                            onOpenApiDefinitionChange(openAPIDefinition);
-                        }}
-                        resize="vertical"
-                        growRange={{ start: 5, offset: 10 }}
-                    />
-                )}
-                {openAPIDefinition?.info?.contact && (
-                    <Contact
-                        contact={openAPIDefinition.info.contact}
-                        onContactChange={(contact) => {
-                            openAPIDefinition.info.contact = contact;
-                            props.onOpenApiDefinitionChange(openAPIDefinition);
-                        }}
-                    />
-                )}
-                {openAPIDefinition?.info?.license && (
-                    <License
-                        lisense={openAPIDefinition.info.license}
-                        onContactChange={(license) => {
-                            openAPIDefinition.info.license = license;
-                            props.onOpenApiDefinitionChange(openAPIDefinition);
-                        }}
-                    />
-                )}
+                <Info
+                    info={openAPIDefinition.info}
+                    isNewFile={isNewFile}
+                    selectedOptions={selectedOptions}
+                    onInfoChange={(info) => {
+                        openAPIDefinition.info = info;
+                        props.onOpenApiDefinitionChange(openAPIDefinition);
+                    }}
+                />
             </PanelBody>
         </>
     )

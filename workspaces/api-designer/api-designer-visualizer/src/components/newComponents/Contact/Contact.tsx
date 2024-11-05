@@ -10,25 +10,10 @@ import { TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Contact as C } from '../../../Definitions/ServiceDefinitions';
 
-export const PanelBody = styled.div`
-    height: calc(100% - 87px);
-    overflow-y: auto;
-    padding: 16px;
-    gap: 15px;
-    display: flex;
-    flex-direction: column;
-`;
 export const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
-`;
-
-export const SubSectionWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding-top: 5px;
-    gap: 5px;
 `;
 
 const HorizontalFieldWrapper = styled.div`
