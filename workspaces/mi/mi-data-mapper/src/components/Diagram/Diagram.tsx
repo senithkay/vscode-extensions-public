@@ -36,7 +36,7 @@ import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { useDMArrayFilterStore, useDMExpressionBarStore } from '../../store/store';
+import { useDMArrayFilterStore, useDMExpressionBarStore, useDMSearchStore } from '../../store/store';
 import { isOutputNode } from './Actions/utils';
 import { InputOutputPortModel } from './Port';
 import * as Nodes from "./Node";
@@ -112,10 +112,15 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [, forceUpdate] = useState({});
 
 	const filtersCollapsed = useDMArrayFilterStore(state => state.isCollapsed);
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
 
 	useEffect(() => {
 		setFiltersCollapsedChanged(prev => !prev); // Toggle the state to trigger repositioning
 	}, [filtersCollapsed]);
+
+	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
