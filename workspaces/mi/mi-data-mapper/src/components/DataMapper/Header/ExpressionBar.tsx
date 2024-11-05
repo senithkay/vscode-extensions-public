@@ -160,7 +160,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const updateCompletions = useCallback(debounce(async (text: string) => {
         setCompletions(await getCompletions());
-    }, 300), [focusedPort, focusedFilter]);
+    }, 200), [focusedPort, focusedFilter]);
 
     useEffect(() => {
         (async () => {
@@ -353,6 +353,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         // Save the cursor position before saving
         cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
 
+        console.log('applyChanges', value, lastFocusedPort, lastFocusedFilter);
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
         } else if (lastFocusedFilter) {
@@ -369,19 +370,24 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             let targetExpr: Node;
-            const newValue = value === ''
-                    ? getDefaultValue(lastFocusedPort.typeWithValue.type.kind)
-                    : value;
 
             if (Node.isPropertyAssignment(focusedFieldValue)) {
-
-                if (focusedFieldValue.getInitializer()?.getText() !== newValue) {
-                    focusedFieldValue.setInitializer(newValue);
-                    updatedSourceContent = focusedFieldValue.getParent().getSourceFile().getFullText();
+                const parent = focusedFieldValue.getParent();
+                if (value === '') {
+                    focusedFieldValue.remove();
+                    lastFocusedPort.typeWithValue.value = undefined;
+                    updatedSourceContent = parent.getSourceFile().getFullText();
+                    await applyModifications(updatedSourceContent);
+                } else if (focusedFieldValue.getInitializer()?.getText() !== value) {
+                    focusedFieldValue.setInitializer(value);
+                    updatedSourceContent = parent.getSourceFile().getFullText();
                     await applyModifications(updatedSourceContent);
                 }
                 
             } else {
+                const newValue = value === ''
+                    ? getDefaultValue(lastFocusedPort.typeWithValue.type.kind)
+                    : value;
                 targetExpr = focusedFieldValue;
                 const updatedNode = targetExpr.replaceWithText(newValue);
                 updatedSourceContent = updatedNode.getSourceFile().getFullText();
@@ -411,9 +417,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     }
 
     const updateSource = async (value: string) => {
+        console.log('updateSource-before condition', value);
         if (savedNodeValue === value || (portChanged && lastSavedNodeValue === value)) {
             return;
         }
+        console.log('updateSource-after condition', value);
+
         await applyChanges(value);
     };
 
@@ -448,15 +457,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // console.log('fnBody',fnBody.getText());
 
-        setCompletions(await getCompletions());
-
-        // Set the cursor position to the last saved position
-
         const textField = textFieldRef.current.inputElement;
         textField.focus();
         textField.setSelectionRange(
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
         );
+
+        setCompletions(await getCompletions());
+
+        // Set the cursor position to the last saved position
+
+       
 
         // Update the last focused port and filter
         setLastFocusedPort(focusedPort);
