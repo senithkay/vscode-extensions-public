@@ -39,7 +39,7 @@ export enum HTTP_METHOD {
 
 export function generateNewResourceFunction(data: ResourceDefinition): string {
     // Your Handlebars template
-    const templateString = `resource function {{{ METHOD }}} {{{ PATH }}} ( {{{ PARAMETERS }}} ) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}|http:InternalServerError {{/if}} {do {} on fail error e { return http:INTERNAL_SERVER_ERROR; }}`;
+    const templateString = `resource function {{{ METHOD }}} {{{ PATH }}} ( {{{ PARAMETERS }}} ) returns {{#if ADD_RETURN}}{{{ADD_RETURN}}}|{{/if}}http:InternalServerError  {do {} on fail error e { log:printError(e.message()); return http:INTERNAL_SERVER_ERROR; }}`;
     // Compile the template
     const compiledTemplate = Handlebars.compile(templateString);
     // Apply data to the template

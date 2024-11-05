@@ -133,8 +133,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const showEditForm = useRef<boolean>(false);
 
     useEffect(() => {
-        console.log(">>> Updating sequence model...", syntaxTree);
-        getSequenceModel();
+        getFlowModel();
     }, [syntaxTree]);
 
     rpcClient.onParentPopupSubmitted(() => {
@@ -144,7 +143,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         fetchNodesAndAISuggestions(parent, target);
     });
 
-    const getSequenceModel = () => {
+    const getFlowModel = () => {
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -182,7 +181,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (originalFlowModel.current) {
             // const updatedModel = removeDraftNodeFromDiagram(model);
             // setModel(updatedModel);
-            getSequenceModel();
+            getFlowModel();
             originalFlowModel.current = undefined;
             setSuggestedModel(undefined);
             suggestedText.current = undefined;
@@ -338,7 +337,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
-    const handleOnFormSubmit = (updatedNode?: FlowNode) => {
+    const handleOnFormSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
         if (!updatedNode) {
             console.log(">>> No updated node found");
             updatedNode = selectedNodeRef.current;
@@ -349,6 +348,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .getSourceCode({
                 filePath: model.fileName,
                 flowNode: updatedNode,
+                isDataMapperFormUpdate: isDataMapperFormUpdate
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
@@ -416,6 +416,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     valueType: "STRING",
                     value: `\n${comment}\n\n`, // HACK: add extra new lines to get last position right
                     optional: false,
+                    advanced: false,
                     editable: true,
                 },
             },
@@ -666,6 +667,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
+                        configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
                     />
                 );
             default:

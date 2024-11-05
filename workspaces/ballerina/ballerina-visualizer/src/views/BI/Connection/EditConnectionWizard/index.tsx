@@ -156,6 +156,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
+                        configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
                     />
                 );
             default:

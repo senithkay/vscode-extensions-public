@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Flow, FlowNode, ViewState } from "../utils/types";
+import { FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 
 export class RemoveEmptyNodesVisitor implements BaseVisitor {
@@ -15,7 +15,7 @@ export class RemoveEmptyNodesVisitor implements BaseVisitor {
     private node;
 
     constructor(node: FlowNode) {
-        console.log(">>> remove empty nodes visitor started");
+        // console.log(">>> remove empty nodes visitor started");
         this.node = node;
     }
 

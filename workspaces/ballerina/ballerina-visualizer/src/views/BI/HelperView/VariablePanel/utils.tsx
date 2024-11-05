@@ -39,6 +39,12 @@ export function getTypeName(typeField: TypeField): string {
     }
 }
 
+export function getName(name: string, optional?: boolean): string {
+    if (optional) {
+        return `${name} (Optional)`;
+    }
+    return name;
+}
 
 export const getIcon = (kind: string) => {
     if (kind === "record") {
