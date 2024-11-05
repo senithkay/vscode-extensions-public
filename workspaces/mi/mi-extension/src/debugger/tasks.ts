@@ -153,3 +153,23 @@ export function getStopCommand(serverPath: string): string | undefined {
 
     return command;
 }
+
+// Function to load environment variables from .env file
+export function loadEnvVariables(filePath: string): void {
+    const absolutePath = path.resolve(filePath);
+    const fileContent = fs.readFileSync(absolutePath, { encoding: 'utf8' });
+
+    const lines = fileContent.split('\n');
+
+    lines.forEach(line => {
+        const trimmedLine = line.trim();
+
+        // Ignore empty lines or comments
+        if (trimmedLine && trimmedLine[0] !== '#') {
+            const [key, value] = trimmedLine.split('=');
+            if (key && value) {
+                process.env[key.trim()] = value.trim();
+            }
+        }
+    });
+}
