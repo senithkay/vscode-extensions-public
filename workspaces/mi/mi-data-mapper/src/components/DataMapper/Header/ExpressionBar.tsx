@@ -533,8 +533,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 sx={{ display: 'flex', alignItems: 'center' }}
-                handleHelperPaneOpen={gotoSource}
-                getExpressionBarIcon={() => <Codicon name="code" />}
             />
         </div>
     );
