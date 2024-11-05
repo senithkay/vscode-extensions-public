@@ -235,7 +235,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             disabled = focusedPort.isDisabled();
-        } else if (focusedFilter) {
+        } else if (focusedFilter && !focusedFilter.wasForgotten()) {
             value = focusedFilter.getText();
             completionReqPosStart.current = focusedFilter.getStart();
             completionReqPosEnd.current = focusedFilter.getEnd();
@@ -279,7 +279,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 } else {
                     value = focusedNode.getText();
                 }
-            } else if (lastFocusedFilter) {
+            } else if (lastFocusedFilter && !lastFocusedFilter.wasForgotten() ) {
                 value = lastFocusedFilter.getText();
             } else if (!lastFocusedPort && !lastFocusedFilter) {
                 value = undefined;
