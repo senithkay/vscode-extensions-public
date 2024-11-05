@@ -17,7 +17,9 @@
         "workspaceContains:**/Ballerina.toml"
     ],
     "main": "./out/extension",
-    "extensionDependencies": [ "wso2.kolab" ],
+    "extensionDependencies": [
+        "wso2.kolab"
+    ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -36,7 +38,7 @@
             },
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. The Kola distribution was not found. Please set up the Kola distribution first to get started.\n[Set Up Kola](command:kolab.open.bi.welcome)\n",
+                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
                 "when": "BI.status == 'noLS'"
             },
             {
