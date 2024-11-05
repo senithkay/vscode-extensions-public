@@ -13,9 +13,8 @@ import { Responses } from "./Responses";
 
 export default {
     component: Responses,
-    title: 'Responses',
+    title: 'New Responses',
 };
-
 
 const responses: R = {
     "200": {

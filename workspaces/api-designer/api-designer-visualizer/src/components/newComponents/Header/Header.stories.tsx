@@ -12,7 +12,7 @@ import { Header } from "./Header";
 
 export default {
     component: Header,
-    title: 'Header',
+    title: 'New Header',
 };
 
 const parameter: H = {

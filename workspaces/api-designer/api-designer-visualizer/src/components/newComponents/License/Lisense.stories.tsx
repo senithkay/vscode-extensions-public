@@ -13,7 +13,7 @@ import { License } from "./Lisense";
 
 export default {
     component: License,
-    title: 'Lisense',
+    title: 'New Lisense',
 };
 
 const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;

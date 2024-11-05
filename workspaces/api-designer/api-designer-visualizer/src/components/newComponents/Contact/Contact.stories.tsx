@@ -13,7 +13,7 @@ import { Contact } from "./Contact";
 
 export default {
     component: Contact,
-    title: 'Contact',
+    title: 'New Contact',
 };
 
 const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;

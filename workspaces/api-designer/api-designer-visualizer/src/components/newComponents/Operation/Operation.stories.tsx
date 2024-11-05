@@ -13,7 +13,7 @@ import { Operation } from "./Operation";
 
 export default {
     component: Operation,
-    title: 'Operation',
+    title: 'New Operation',
 };
 
 const Parameters: Parameter[] = [

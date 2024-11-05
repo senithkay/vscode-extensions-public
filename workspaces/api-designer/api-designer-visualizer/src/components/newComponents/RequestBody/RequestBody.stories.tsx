@@ -13,7 +13,7 @@ import { RequestBody } from "./RequestBody";
 
 export default {
     component: RequestBody,
-    title: 'RequestBody',
+    title: 'New RequestBody',
 };
 
 const MediaT: M = {

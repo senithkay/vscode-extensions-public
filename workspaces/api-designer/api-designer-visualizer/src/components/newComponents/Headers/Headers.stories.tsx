@@ -13,7 +13,7 @@ import { Headers } from "./Headers";
 
 export default {
     component: Headers,
-    title: 'Headers',
+    title: 'New Headers',
 };
 
 const HS: H = {

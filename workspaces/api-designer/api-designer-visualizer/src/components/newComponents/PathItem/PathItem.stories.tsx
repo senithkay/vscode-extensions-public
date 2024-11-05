@@ -91,7 +91,6 @@ export const PathItemStory = () => {
     const [pi, setPI] = useState<P>(pathItem);
     const [path, setPath] = useState<string>("/path");
     const handlePathItemChange = (pathItem: P, path: string) => {
-        console.log("PathItem changed", pathItem);
         setPath(path);
         setPI(pathItem);
     }

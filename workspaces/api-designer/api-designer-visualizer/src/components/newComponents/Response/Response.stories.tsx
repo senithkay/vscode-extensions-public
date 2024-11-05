@@ -13,7 +13,7 @@ import { Response } from "./Response";
 
 export default {
     component: Response,
-    title: 'Response',
+    title: 'New Response',
 };
 
 

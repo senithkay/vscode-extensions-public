@@ -12,7 +12,7 @@ import { MediaType } from "./MediaType";
 
 export default {
     component: MediaType,
-    title: 'MediaType',
+    title: 'New MediaType',
 };
 
 const MediaT: M = {
