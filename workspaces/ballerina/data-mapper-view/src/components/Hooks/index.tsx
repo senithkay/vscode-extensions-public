@@ -16,12 +16,12 @@ import {
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
-import { getErrorKind, getIONodeHeight } from '../Diagram/utils/dm-utils';
+import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { GAP_BETWEEN_FIELDS, GAP_BETWEEN_INPUT_NODES, GAP_BETWEEN_NODE_HEADER_AND_BODY, IO_NODE_DEFAULT_WIDTH, IO_NODE_FIELD_HEIGHT, IO_NODE_HEADER_HEIGHT, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -34,6 +34,7 @@ import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
+import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -157,6 +158,7 @@ export const useDiagramModel = (
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+
     let requiredParamFields = 0;
     let numberOfRequiredParamNodes = 0;
     let additionalSpace = 0;
