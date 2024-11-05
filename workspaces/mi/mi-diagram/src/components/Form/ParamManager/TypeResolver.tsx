@@ -43,7 +43,7 @@ export interface Param {
     filterType?: FilterType | ResourceType[]; // For KeyLookup
     artifactTypes?: { registryArtifacts: boolean, artifacts: boolean }; //For KeyLookup
     values?: string[]; // For Dropdown
-    openExpressionEditor?: () => void; // For ExpressionField
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: any) => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     openInDrawer?: boolean; // For ParamManager
     addParamText?: string; // For ParamManager

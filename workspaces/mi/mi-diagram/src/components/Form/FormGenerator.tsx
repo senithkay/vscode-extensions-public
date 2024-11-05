@@ -7,17 +7,27 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useState } from 'react';
-import { AutoComplete, CheckBox, FormCheckBox, FormGroup, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { useEffect, useRef, useState } from 'react';
+import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, ExpressionField } from '.';
+import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
+import { sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
+import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 
 const Field = styled.div`
     margin-bottom: 12px;
 `;
+
+const cardStyle = {
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+};
 
 export interface FormGeneratorProps {
     formData: any;
@@ -26,6 +36,7 @@ export interface FormGeneratorProps {
     control: any;
     errors: any;
     setValue: any;
+    reset: any;
     watch: any;
     getValues: any;
     skipGeneralHeading?: boolean;
@@ -50,10 +61,31 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading, ignoreFields } = props;
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const handleOnCancelExprEditorRef = useRef(() => { });
+
+    useEffect(() => {
+        const defaultValues = formData.elements.reduce((values: any, element: any) => {
+            const key = getNameForController(element.value.name);
+            values[key] = element.type === 'table'
+                ? getParamManagerConfig(element.value.elements, element.value.tableKey, element.value.tableValue)
+                : element.value.defaultValue ?? "";
+            return values;
+        }, {});
+        reset(defaultValues);
+        setIsLoading(false);
+    }, [props.formData]);
+
+    useEffect(() => {
+        handleOnCancelExprEditorRef.current = () => {
+            sidepanelGoBack(sidePanelContext);
+        };
+    }, [sidePanelContext.pageStack]);
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
@@ -218,6 +250,104 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
+    const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string) => {
+        let paramValues: any = [];
+        let paramFields: any = [];
+
+        const tableKeys: string[] = [];
+        elements.forEach((attribute: any, index: number) => {
+            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
+            let defaultValue: any = [];
+
+            tableKeys.push(name);
+            const isRequired = required == true || required == 'true';
+
+            let type;
+            if (attribute.type === 'table') {
+                type = 'ParamManager';
+            } else if (inputType === 'string' || inputType === 'registry') {
+                type = 'TextField';
+            } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
+                type = 'ExprField';
+                let isExpression = inputType === 'expression';
+                defaultValue = { isExpression: isExpression, value: defaultValue };
+            } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
+                type = 'Dropdown';
+            } else if (inputType === 'checkbox') {
+                type = "Checkbox";
+                if (!defaultValue) {
+                    defaultValue = false;
+                }
+            } else if (inputType == "key" || inputType == "keyOrExpression") {
+                type = "KeyLookup";
+            }
+
+            const paramField: ParamField =
+            {
+                type: type as any,
+                label: displayName,
+                defaultValue: defaultValue,
+                ...(helpTip && { placeholder: helpTip }),
+                isRequired: isRequired,
+                ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
+                ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                ...(type === 'KeyLookup') && { filterType: attribute.value.keyType },
+                ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
+            };
+
+            if (type === 'ExprField') {
+                paramField.openExpressionEditor = (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef);
+
+            } else if (type === 'ParamManager') {
+                const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue);
+                paramField.paramManager = {
+                    paramConfigs: {
+                        paramValues: paramValues2,
+                        paramFields: [paramFields2
+                        ]
+                    },
+                    openInDrawer: true,
+                    addParamText: `New ${displayName}`
+                };
+            }
+            paramFields.push(paramField);
+        })
+
+        return { paramValues, paramFields };
+
+        function generateParammanagerCondition(enableCondition: any[], keys: string[]) {
+            enableCondition.forEach((conditionElement: any) => {
+                if (Array.isArray(conditionElement)) {
+                    return generateParammanagerCondition(conditionElement, keys);
+                }
+                if (typeof conditionElement !== 'object') {
+                    return;
+                }
+                const condition = Object.keys(conditionElement)[0];
+                const conditionKey = keys.indexOf(condition);
+                const value = conditionElement[condition];
+                delete conditionElement[condition];
+                conditionElement[conditionKey] = value;
+            });
+
+            return enableCondition;
+        }
+
+        function handleOpenExprEditor(value: ExpressionFieldValue, setValue: any, handleOnCancelExprEditorRef: any) {
+            const content = <ExpressionEditor
+                value={value}
+                handleOnSave={(value) => {
+                    setValue(value);
+                    handleOnCancelExprEditorRef.current();
+                }}
+                handleOnCancel={() => {
+                    handleOnCancelExprEditorRef.current();
+                }}
+            />;
+            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
+        }
+    }
+
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
             if (element.type === 'attribute') {
@@ -299,6 +429,34 @@ export function FormGenerator(props: FormGeneratorProps) {
                         }
                     </>
                 );
+            } else if (element.type === 'table') {
+                return (
+                    <>
+                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                            <Typography variant="h3">{element.value.displayName}</Typography>
+                            <Typography variant="body3">{element.value.description}</Typography>
+                            <Controller
+                                name={getNameForController(element.value.name)}
+                                control={control}
+                                render={({ field: { onChange, value } }) => (
+                                    <ParamManager
+                                        paramConfigs={value}
+                                        readonly={false}
+                                        onChange={(values) => {
+                                            values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                                const property: ParamValue[] = param.paramValues;
+                                                param.key = property[0].value;
+                                                param.value = (property[1].value as ExpressionFieldValue).value;
+                                                param.icon = 'query';
+                                                return param;
+                                            });
+                                            onChange(values);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </ComponentCard>
+                    </>);
             }
             return null;
         });
@@ -395,7 +553,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     }
 
     return (
-        formData && formData.elements && formData.elements.length > 0 && (
+        formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             renderForm(formData.elements)
         )
     );
