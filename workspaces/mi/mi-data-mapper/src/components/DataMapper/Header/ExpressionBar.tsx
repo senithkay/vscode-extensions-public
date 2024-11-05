@@ -56,8 +56,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const completionReqPosStart = useRef<number>(0);
     const completionReqPosEnd = useRef<number>(0);
 
-    // const [textFieldValue, setTextFieldValue] = useState<string>("");
-    // const [textFieldValueState, setTextFieldValueState] = useState<string>("");
     const [,triggerRerender]=useState(false);
     const textFieldValueRef = useRef<string>("");
     let textFieldValue = textFieldValueRef.current;
@@ -194,18 +192,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         if (focusedPort) {
             setPlaceholder('Insert a value for the selected port.');
-
-            // let tmpNode = focusedPort.typeWithValue;
-            // console.log('tmpNode1', tmpNode);;
-            // while (tmpNode && !tmpNode.value) {
-            //     tmpNode = tmpNode.parentType;
-            //     console.log('tmpNode2', tmpNode);
-            // }
-            // console.log('tmpNode3', tmpNode);
-            // console.log('tmpNode4', tmpNode?.value);
-            // console.log('tmpNode5', tmpNode?.value?.getText());
-            // console.log('tmpNode6', tmpNode?.value?.getParent());
-            // console.log('tmpNode7', tmpNode?.value?.getParent()?.getText());
             
             let focusedPortTypeWithValue = focusedPort.typeWithValue;
             let hasValue = !!focusedPortTypeWithValue.value;
@@ -261,9 +247,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             triggerAction(!action);
             console.log('disabled memo inside');
         }
-        // console.log('disabled memo1',{value,disabled,portChanged});
-        // console.log('disabled memo2',focusedPort);
-        // console.log('disabled memo3',lastFocusedPort);
 
         return disabled;
     }, [focusedPort, focusedFilter, views]);
@@ -343,8 +326,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
         port.typeWithValue.setValue(portValue);
     }
-
-
 
     const applyChanges = async (value: string) => {
         await updateCompletions.flush();
@@ -433,30 +414,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const handleCancelCompletions = () => {
         setCompletions([]);
-
-        // const textField = textFieldRef.current.inputElement;
-        // textField.focus();
-        // textField.setSelectionRange(
-        //     cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
-        // );
-
     };
 
     const handleFocus = async () => {
         console.log('handleFocus');
-        // const focusedNode = focusedPort?.typeWithValue.value;
-        // if (!focusedNode && !focusedFilter) {
-        //     await initializeValue();
-        // }
 
-        // const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-        // const fnBody = focusedNode.context.functionST.getBody() as Block;
-
-        // const fnBodyText = fnBody.getText();
-        // completionReqPosition.current = fnBody.getEnd()-(fnBodyText.length-fnBodyText.lastIndexOf('}'));
-
-        // console.log('fnBody',fnBody.getText());
-
+        // Set the cursor position to the last saved position
         const textField = textFieldRef.current.inputElement;
         textField.focus();
         textField.setSelectionRange(
@@ -464,10 +427,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         );
 
         setCompletions(await getCompletions());
-
-        // Set the cursor position to the last saved position
-
-       
 
         // Update the last focused port and filter
         setLastFocusedPort(focusedPort);
@@ -477,20 +436,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const handleBlur = async (e: any) => {
         console.log('handleBlur', e, textFieldValue, textFieldValueRef);
-        
-        // 
+
         if(e.target.closest('[id^="recordfield-input"]') || e.target.closest('[id^="recordfield-subMappingInput"]'))
             return;
         console.log('handleBlur accepted', e, textFieldValue, textFieldValueRef);
-        // Reset the last focused port and filter
+        
         
         await textFieldRef.current.saveExpression(textFieldValue, textFieldValueRef);
         
+        // Reset the last focused port and filter
+
         resetLastFocusedPort();
         resetLastFocusedFilter();
         resetLastSavedNodeValue();
 
-        // // Reset text field value
+        // Reset text field value
         setTextFieldValue("");
         triggerRerender((prev)=>!prev);
     };

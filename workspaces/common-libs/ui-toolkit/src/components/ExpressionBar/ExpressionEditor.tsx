@@ -662,13 +662,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             console.log('ExpressionEditor: handleInputKeyDown: Enter');
             await handleExpressionSaveMutation(value);
             skipFocusCallback.current = true; // need to re-check
-            // // 
-            // 
-            // await onBlur?.(e);
-            // textAreaRef.current?.blur();
-            // textAreaRef.current?.shadowRoot.querySelector(inputElementType).blur();
-            // await handleRefBlur(value);
-            // document.getElementById('data-mapper-canvas-container').click();
             return;
         }
     };
