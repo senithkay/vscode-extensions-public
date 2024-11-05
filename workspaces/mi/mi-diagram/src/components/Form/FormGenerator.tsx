@@ -463,40 +463,13 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderControllerIfConditionMet = (element: any) => {
         const name = getNameForController(element.value.name);
-        let watchStatements: boolean = true;
+        let shouldRender: boolean = true;
 
         if (Array.isArray(element.value.enableCondition)) {
-            const firstElement = element.value.enableCondition[0];
-
-            if (firstElement === "AND") {
-                // Handle AND conditions
-                watchStatements = element.value.enableCondition.slice(1).every((condition: any) => {
-                    const key = Object.keys(condition)[0];
-                    return watch(getNameForController(key)) === condition[key];
-                });
-            } else if (firstElement === "OR") {
-                // Handle OR conditions
-                watchStatements = element.value.enableCondition.slice(1).some((condition: any) => {
-                    const key = Object.keys(condition)[0];
-                    return watch(getNameForController(key)) === condition[key];
-                });
-            } else if (firstElement === "NOT") {
-                // Handle NOT conditions
-                const condition = element.value.enableCondition[1];
-                watchStatements = condition ? watch(getNameForController(Object.keys(condition)[0])) !== condition[Object.keys(condition)[0]] : false;
-            } else {
-                // Handle Single condition
-                const condition = element.value.enableCondition[0];
-                if (condition) {
-                    const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    watchStatements = watch(conditionKey) === conditionValue;
-                }
-            }
+            shouldRender = getConditions(element.value.enableCondition);
         }
 
-        if (watchStatements) {
+        if (shouldRender) {
             if (getValues(name) === undefined && element.value.defaultValue) {
                 setValue(name, element.value.defaultValue)
             }
@@ -532,6 +505,30 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
 
         return null; // Return null if conditions are not met
+
+        function getConditions(conditions: any): boolean {
+            const evaluateCondition = (condition: any) => {
+                const key = Object.keys(condition)[0];
+                return watch(getNameForController(key)) === condition[key];
+            };
+
+            if (Array.isArray(conditions)) {
+                const firstElement = conditions[0];
+                const restConditions = conditions.slice(1);
+
+                if (firstElement === "AND") {
+                    return restConditions.every(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+                } else if (firstElement === "OR") {
+                    return restConditions.some(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+                } else if (firstElement === "NOT") {
+                    const condition = conditions[1];
+                    return Array.isArray(condition) ? !getConditions(condition) : !evaluateCondition(condition);
+                } else {
+                    return evaluateCondition(conditions[0]);
+                }
+            }
+            return false; // Default case if conditions are not met
+        }
     }
 
     return (
