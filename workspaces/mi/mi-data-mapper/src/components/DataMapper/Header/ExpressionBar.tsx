@@ -442,7 +442,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     };
 
-    const handleFocus = async () => {
+    const handleFocus = async (showCompletions: boolean = true) => {
         console.log('handleFocus');
         // const focusedNode = focusedPort?.typeWithValue.value;
         // if (!focusedNode && !focusedFilter) {
@@ -463,7 +463,8 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
         );
 
-        setCompletions(await getCompletions());
+        if (showCompletions) 
+            setCompletions(await getCompletions());
 
         // Set the cursor position to the last saved position
 

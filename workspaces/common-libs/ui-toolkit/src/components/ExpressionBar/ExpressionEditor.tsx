@@ -719,12 +719,22 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     useEffect(() => {
         // Prevent blur event when clicking on the dropdown
         const handleOutsideClick = async (e: any) => {
+            console.log('ExpressionEditor: handleOutsideClick');
             if (
                 document.activeElement === textBoxRef.current &&
                 !textBoxRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target)
             ) {
                 await onBlur?.(e);
+            }else if(
+                document.activeElement === textBoxRef.current &&
+                dropdownContainerRef.current?.contains(e.target)
+            ){
+                console.log('ExpressionEditor: handleOutsideClick: dropdownContainerRef5');
+                setTimeout(() => {
+                    onFocus(false);
+                }, 250);
+                
             }
         }
 
@@ -742,7 +752,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     value={value}
                     onTextChange={handleChange}
                     onKeyDown={handleInputKeyDown}
-                    onFocus={handleTextFieldFocus}
+                    // onFocus={handleTextFieldFocus}
                     onBlur={handleTextFieldBlur}
                     sx={{ width: '100%', ...sx }}
                     disabled={disabled || (shouldDisableOnSave && isSavingExpression)}
