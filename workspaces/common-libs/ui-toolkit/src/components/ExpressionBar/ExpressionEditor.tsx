@@ -714,10 +714,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 await onBlur?.(e);
             }else if(
                 document.activeElement === textBoxRef.current &&
-                document.body.querySelector('[id="expression-editor-close"]').contains(e.target)
+                document.body.querySelector('[id="expression-editor-close"]')?.contains(e.target)
             ){
                 setTimeout(() => {
-                    onFocus(false);
+                    onFocus?.(false);
                 }, 250);
                 //TODO: Need proper fix
             }
