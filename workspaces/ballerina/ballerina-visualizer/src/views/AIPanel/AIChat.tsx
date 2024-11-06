@@ -155,12 +155,12 @@ export function AIChat() {
     const [isLoading, setIsLoading] = useState(false);
     const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
     const messagesEndRef = React.createRef<HTMLDivElement>();
-    const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
     const [files, setFiles] = useState([]);
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
+    const [isSyntaxError, setIsSyntaxError] = useState(false);
     let codeSegmentRendered = false; 
     let tempStorage: { [filePath: string]: string } = {}; 
 
@@ -240,6 +240,10 @@ export function AIChat() {
         // This code will run after isCodeLoading updates
         console.log(isCodeLoading);
     }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
+
+    useEffect(() => {
+        console.log(isSyntaxError);
+    }, [isSyntaxError]);
 
     useEffect(() => {
         // Step 2: Scroll into view when messages state changes
@@ -397,7 +401,7 @@ export function AIChat() {
                 functions = event.body
             } else if (event.event == "message_stop") {
                 //extract new source files from resp
-                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response)
+                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
                 // Check diagnostics
                 const diags: ProjectDiagnostics = await rpcClient.getAiPanelRpcClient().getShadowDiagnostics(newSourceFiles);
                 if (diags.diagnostics.length > 0) {
@@ -424,11 +428,11 @@ export function AIChat() {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse)
+                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
-                        setIsCodeLoading(false)
+                        setIsCodeLoading(false);
                         assistant_response = fixedResponse;
                         setMessages(prevMessages => {
                             const newMessages = [...prevMessages];
@@ -437,7 +441,7 @@ export function AIChat() {
                         });
                     }
                 } else {
-                    setIsCodeLoading(false)
+                    setIsCodeLoading(false);
                 }
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
@@ -453,7 +457,8 @@ export function AIChat() {
         }
         removeAllFiles();
         addChatEntry("user", userInput);
-        console.log(assistant_response)
+        const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
+        setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles)); 
         addChatEntry("assistant", assistant_response);
     }
 
@@ -587,7 +592,6 @@ export function AIChat() {
                 {otherMessages.map((message, index) => {
                     const showGeneratingFiles = !codeSegmentRendered && index === currentGeneratingPromptIndex;
                     codeSegmentRendered = false;
-                    const isCurrentPrompt = index === currentGeneratingPromptIndex;
                     return (
                         <ChatMessage>
                             {message.type !== "question" && message.type !== "label" && <RoleContainer>
@@ -617,6 +621,7 @@ export function AIChat() {
                                                 isReady={!isCodeLoading}
                                                 message={message}
                                                 buttonsActive={showGeneratingFiles}
+                                                isSyntaxError={isSyntaxError}
                                             />
                                         );
                                     } else {
@@ -737,6 +742,7 @@ interface CodeSegmentProps {
     handleRevertChanges: (codeSegment: any, setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>) => void
     message: { role: string; content: string; type: string };
     buttonsActive: boolean;
+    isSyntaxError: boolean;
 }
 
 interface EntryContainerProps {
@@ -812,7 +818,7 @@ function identifyLanguage(segmentText: string): string {
     }
 }
 
-const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileName, isReady, handleAddAllCodeSegmentsToWorkspace, handleRevertChanges, message, buttonsActive }) => {
+const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileName, isReady, handleAddAllCodeSegmentsToWorkspace, handleRevertChanges, message, buttonsActive, isSyntaxError }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isCodeAdded, setIsCodeAdded] = useState(false);
 
@@ -847,31 +853,34 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                    {!loading && isReady &&language === 'ballerina' &&
-                         <>
-                        {!isCodeAdded ? (
-                            <Button
-                                appearance="icon"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded);
-                                }}
-                                disabled={!buttonsActive}>
-                                <Codicon name="add" />&nbsp;&nbsp;Add to Integration
-                            </Button>
-                        ) : (
-                            <Button
-                                appearance="icon"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRevertChanges(allCodeSegments, setIsCodeAdded);
-                                }}
-                                disabled={!buttonsActive}>
-                                <Codicon name="history" />&nbsp;&nbsp;Revert to Checkpoint
-                            </Button>
-                        )}
-                    </>
-                    }
+                    {!loading && isReady && language === 'ballerina' && (
+                        <>
+                            {!isCodeAdded ? (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded);
+                                    }}
+                                    tooltip={isSyntaxError ? "Syntax issues detected in generated integration. Reattempt required" : ""}
+                                    disabled={!buttonsActive || isSyntaxError}
+                                >
+                                    <Codicon name="add" />&nbsp;&nbsp;Add to Integration
+                                </Button>
+                            ) : (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded);
+                                    }}
+                                    disabled={!buttonsActive}
+                                >
+                                    <Codicon name="history" />&nbsp;&nbsp;Revert to Checkpoint
+                                </Button>
+                            )}
+                        </>
+                    )}
                     {/* {!loading && !isReady &&language === 'ballerina' &&
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%" }}>
                         <ProgressRing sx={{ position: "relative" }} />
