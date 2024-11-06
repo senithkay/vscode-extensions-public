@@ -2,6 +2,16 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [1.1.4] - 2024-11-06
+
+### Fixed
+
+Fixed: Issues in the Expression Editor of the Data Mapper component ([#477](https://github.com/wso2/mi-vscode/issues/477))  
+Fixed: Resizing window or zooming in and out causes issues in the data mapper field mappings ([#478](https://github.com/wso2/mi-vscode/issues/478))  
+Fixed: Issues in the Data Mapper component ([#479](https://github.com/wso2/mi-vscode/issues/479))  
+Fixed: Issues in the Data Mapper component ([#479](https://github.com/wso2/mi-vscode/issues/479))  
+
+
 ## [1.1.3] - 2024-10-28
 
 ### Fixed
