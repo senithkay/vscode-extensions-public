@@ -38,6 +38,7 @@ import {
     ExportProjectRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
+    GetCertificateFileMapRequest,
     GetAvailableConnectorRequest,
     GetAvailableResourcesRequest,
     GetConnectionFormRequest,
@@ -137,6 +138,7 @@ import {
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getCertificateFileMap,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -344,6 +346,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
+    messenger.onRequest(getCertificateFileMap, (args: GetCertificateFileMapRequest) => rpcManger.getCertificateFileMap(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts())

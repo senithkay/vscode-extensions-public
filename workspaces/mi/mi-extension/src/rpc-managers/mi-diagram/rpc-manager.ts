@@ -81,6 +81,8 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetCertificateFileMapRequest,
+    GetCertificateFileMapResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -3850,6 +3852,14 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
             resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
+        });
+    }
+
+    async getCertificateFileMap(params: GetCertificateFileMapRequest): Promise<GetCertificateFileMapResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getCertificateMap(params.connectorName);
+            resolve({ certificateFileMap: res });
         });
     }
 

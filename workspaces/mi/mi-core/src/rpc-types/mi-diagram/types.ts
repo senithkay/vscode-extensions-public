@@ -1548,6 +1548,15 @@ export interface GetAllRegistryPathsRequest {
 export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
+
+export interface GetCertificateFileMapRequest {
+    connectorName: string;
+}
+
+export interface GetCertificateFileMapResponse {
+    certificateFileMap: Map<string, string[]>;
+}
+
 export interface GetAllArtifactsRequest {
     path: string;
 }

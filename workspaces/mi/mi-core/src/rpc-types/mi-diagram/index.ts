@@ -64,6 +64,8 @@ import {
     UpdateRegistryMetadataResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetCertificateFileMapRequest,
+    GetCertificateFileMapResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -304,6 +306,7 @@ export interface MiDiagramAPI {
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
     logoutFromMIAccount: () => void;
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
+    getCertificateFileMap: (params: GetCertificateFileMapRequest) => Promise<GetCertificateFileMapResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
