@@ -155,12 +155,14 @@ export function AIChat() {
     const [isLoading, setIsLoading] = useState(false);
     const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
     const messagesEndRef = React.createRef<HTMLDivElement>();
-    const [isOpen, setIsOpen] = useState(false);
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
     const [files, setFiles] = useState([]);
-
+    const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
+    const [isSyntaxError, setIsSyntaxError] = useState(false);
+    let codeSegmentRendered = false; 
+    let tempStorage: { [filePath: string]: string } = {}; 
 
     async function fetchBackendUrl() {
         try {
@@ -240,6 +242,10 @@ export function AIChat() {
     }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
 
     useEffect(() => {
+        console.log(isSyntaxError);
+    }, [isSyntaxError]);
+
+    useEffect(() => {
         // Step 2: Scroll into view when messages state changes
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -267,6 +273,7 @@ export function AIChat() {
     }
 
     async function handleSend() {
+        setCurrentGeneratingPromptIndex(otherMessages.length);
         // Step 1: Add the user input to the chat array
         if (userInput === "") {
             return;
@@ -394,7 +401,7 @@ export function AIChat() {
                 functions = event.body
             } else if (event.event == "message_stop") {
                 //extract new source files from resp
-                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response)
+                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
                 // Check diagnostics
                 const diags: ProjectDiagnostics = await rpcClient.getAiPanelRpcClient().getShadowDiagnostics(newSourceFiles);
                 if (diags.diagnostics.length > 0) {
@@ -421,11 +428,11 @@ export function AIChat() {
                         const jsonBody = await response.json();
                         const repairResponse = jsonBody.repairResponse;
                         // replace original response with new code blocks
-                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse)
+                        const fixedResponse = replaceCodeBlocks(assistant_response, repairResponse);
                         const endTime = performance.now();
                         const executionTime = endTime - startTime;
                         console.log(`Repair call time: ${executionTime} milliseconds`);
-                        setIsCodeLoading(false)
+                        setIsCodeLoading(false);
                         assistant_response = fixedResponse;
                         setMessages(prevMessages => {
                             const newMessages = [...prevMessages];
@@ -434,7 +441,7 @@ export function AIChat() {
                         });
                     }
                 } else {
-                    setIsCodeLoading(false)
+                    setIsCodeLoading(false);
                 }
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
@@ -450,16 +457,42 @@ export function AIChat() {
         }
         removeAllFiles();
         addChatEntry("user", userInput);
+        const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
+        setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles)); 
         addChatEntry("assistant", assistant_response);
     }
 
-    const handleAddSelectiveCodetoWorkspace = async (codeSegment: string, filePath: string) => {
+    const handleAddAllCodeSegmentsToWorkspace = async (codeSegments: any, setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>) => {
+        for (const { segmentText, filePath } of codeSegments) {
+            if (!tempStorage[filePath]) {
+                try {
+                    const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+                    tempStorage[filePath] = originalContent;
+                } catch (error) {
+                    tempStorage[filePath] = ''; 
+                }
+            }
+            await rpcClient.getAiPanelRpcClient().addToProject({ filePath: filePath, content: segmentText });
+        }
+        setIsCodeAdded(true);
+    };    
 
-        // var selectiveCodeBlocks: string[] = [];
-        // selectiveCodeBlocks.push(codeSegment);
-        // console.log("TODO: Write to file");
-        await rpcClient.getAiPanelRpcClient().addToProject({ filePath: filePath, content: codeSegment });
-    }
+    const handleRevertChanges = async (codeSegments: any, setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>) => {
+        for (const { filePath } of codeSegments) {
+            const originalContent = tempStorage[filePath];
+            if (originalContent === '') {
+                try {
+                    await rpcClient.getAiPanelRpcClient().deleteFromProject({ filePath: filePath }); 
+                } catch (error) {
+                    console.error(`Error clearing file ${filePath}:`, error);
+                }
+            } else {
+                await rpcClient.getAiPanelRpcClient().addToProject({ filePath: filePath, content: originalContent });
+            }
+        }
+        tempStorage = {};
+        setIsCodeAdded(false);
+    };
 
     async function handleStop() {
         // Abort the fetch
@@ -494,6 +527,12 @@ export function AIChat() {
         localStorage.setItem(`Question-AIGenerationChat-${projectUuid}`, questionMessages[questionMessages.length - 1].content);
     }
     const otherMessages = messages.filter(message => message.type !== "question");
+    useEffect(() => {
+        // Set the currentGeneratingPromptIndex to the last prompt index whenever otherMessages updates
+        if (otherMessages.length > 0) {
+            setCurrentGeneratingPromptIndex(otherMessages.length - 1);
+        }
+    }, [otherMessages.length]); 
 
     const handleTextKeydown = (event: any) => {
         if (event.key === "Enter" && !event.shiftKey && userInput !== "") {
@@ -550,42 +589,57 @@ export function AIChat() {
                     </p>
                 </Welcome>
                 )}
-                {otherMessages.map((message, index) => (
-                    <ChatMessage>
-                        {message.type !== "question" && message.type !== "label" && <RoleContainer>
-                            {message.role === "User" ? <Codicon name="account" /> : <><Codicon name="hubot" /></>}
-                            {message.role === "User" ?
-                                <h3 style={{ margin: 0 }}>{message.role}</h3>
-                                :
-                                <>
+                {otherMessages.map((message, index) => {
+                    const showGeneratingFiles = !codeSegmentRendered && index === currentGeneratingPromptIndex;
+                    codeSegmentRendered = false;
+                    return (
+                        <ChatMessage>
+                            {message.type !== "question" && message.type !== "label" && <RoleContainer>
+                                {message.role === "User" ? <Codicon name="account" /> : <><Codicon name="hubot" /></>}
+                                {message.role === "User" ?
                                     <h3 style={{ margin: 0 }}>{message.role}</h3>
-                                    <PreviewContainer>Preview</PreviewContainer>
-                                </>
+                                    :
+                                    <>
+                                        <h3 style={{ margin: 0 }}>{message.role}</h3>
+                                        <PreviewContainer>Preview</PreviewContainer>
+                                    </>
+                                }
+                            </RoleContainer>
                             }
-                        </RoleContainer>
-                        }
-                        {splitContent(message.content).map((segment, i) =>
-                            segment.isCode ? (
-                                <CodeSegment
-                                    key={i}
-                                    segmentText={segment.text}
-                                    loading={segment.loading}
-                                    fileName={segment.fileName}
-                                    handleAddSelectiveCodetoWorkspace={handleAddSelectiveCodetoWorkspace}
-                                    isReady={!isCodeLoading}
-                                />
-                            ) : (
-                                message.type == "Error" ? (
-                                    <div style={{ color: 'red', marginTop: "10px" }}>{segment.text}</div>
-                                ) : (
-                                    <MarkdownRenderer key={i} markdownContent={segment.text} />
-                                )
+                            {splitContent(message.content).map((segment, i) => {
+                                if (segment.isCode) {
+                                    if (!codeSegmentRendered) {
+                                        codeSegmentRendered = true;
+                                        return (
+                                            <CodeSegment
+                                                key={i}
+                                                segmentText={segment.text}
+                                                loading={isLoading && showGeneratingFiles}
+                                                fileName={segment.fileName}
+                                                handleAddAllCodeSegmentsToWorkspace={handleAddAllCodeSegmentsToWorkspace}
+                                                handleRevertChanges={handleRevertChanges}
+                                                isReady={!isCodeLoading}
+                                                message={message}
+                                                buttonsActive={showGeneratingFiles}
+                                                isSyntaxError={isSyntaxError}
+                                            />
+                                        );
+                                    } else {
+                                        return null;
+                                    }
+                                } else {
+                                    return message.type === "Error" ? (
+                                        <div key={i} style={{ color: 'red', marginTop: "10px" }}>{segment.text}</div>
+                                    ) : (
+                                        <MarkdownRenderer key={i} markdownContent={segment.text} />
+                                    );
 
-                            )
-                        )}
+                                }
+                            })}
 
-                    </ChatMessage>
-                ))}
+                        </ChatMessage>
+                    );
+                })}
                 <div style={{ paddingTop: "15px", marginLeft: "10px" }}>
                     {isLoading && !isSuggestionLoading && (
                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%" }}>
@@ -684,7 +738,11 @@ interface CodeSegmentProps {
     loading: boolean;
     fileName?: string;
     isReady : boolean;
-    handleAddSelectiveCodetoWorkspace: (codeSegment: string, filePath: string) => void;
+    handleAddAllCodeSegmentsToWorkspace: (codeSegment: any, setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>) => void;
+    handleRevertChanges: (codeSegment: any, setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>) => void
+    message: { role: string; content: string; type: string };
+    buttonsActive: boolean;
+    isSyntaxError: boolean;
 }
 
 interface EntryContainerProps {
@@ -760,12 +818,13 @@ function identifyLanguage(segmentText: string): string {
     }
 }
 
-const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileName, handleAddSelectiveCodetoWorkspace, isReady }) => {
+const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileName, isReady, handleAddAllCodeSegmentsToWorkspace, handleRevertChanges, message, buttonsActive, isSyntaxError }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isCodeAdded, setIsCodeAdded] = useState(false);
 
     // const language = identifyLanguage(segmentText);
     const language = "ballerina";
-    let name = fileName || "Ballerina file";
+    let name = loading ? "Generating Integration..." : "Ballerina Integration";
 
     // switch (language) {
     //     case "xml":
@@ -783,30 +842,45 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
     //         break;
     // }
 
-    if (loading) {
-        name = "Generating " + name + "...";
-    }
+    const allCodeSegments = splitContent(message.content)
+        .filter(segment => segment.isCode)
+        .map(segment => ({ segmentText: segment.text, filePath: segment.fileName }));
 
     return (
         <div>
             <EntryContainer isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
-                <div style={{ width: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', marginRight: '10px' }}>
-                    <Codicon name={isOpen ? "chevron-down" : "chevron-right"} />
-                </div>
                 <div style={{ flex: 9, fontWeight: 'bold' }}>
                     {name}
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                    {!loading && isReady &&language === 'ballerina' &&
-                        <Button
-                            appearance="icon"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleAddSelectiveCodetoWorkspace(segmentText, fileName);
-                            }}>
-                            <Codicon name="add" />&nbsp;&nbsp;Add to Integration
-                        </Button>
-                    }
+                    {!loading && isReady && language === 'ballerina' && (
+                        <>
+                            {!isCodeAdded ? (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddAllCodeSegmentsToWorkspace(allCodeSegments, setIsCodeAdded);
+                                    }}
+                                    tooltip={isSyntaxError ? "Syntax issues detected in generated integration. Reattempt required" : ""}
+                                    disabled={!buttonsActive || isSyntaxError}
+                                >
+                                    <Codicon name="add" />&nbsp;&nbsp;Add to Integration
+                                </Button>
+                            ) : (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded);
+                                    }}
+                                    disabled={!buttonsActive}
+                                >
+                                    <Codicon name="history" />&nbsp;&nbsp;Revert to Checkpoint
+                                </Button>
+                            )}
+                        </>
+                    )}
                     {/* {!loading && !isReady &&language === 'ballerina' &&
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%" }}>
                         <ProgressRing sx={{ position: "relative" }} />
@@ -815,11 +889,6 @@ const CodeSegment: React.FC<CodeSegmentProps> = ({ segmentText, loading, fileNam
                     } */}
                 </div>
             </EntryContainer>
-            <Collapse isOpened={isOpen}>
-                <SyntaxHighlighter language={language} style={{ ...materialOceanic, 'pre[class*="language-"]': { ...materialOceanic['pre[class*="language-"]'], marginTop: 0 } }}>
-                    {segmentText.trim()}
-                </SyntaxHighlighter>
-            </Collapse>
         </div>
     );
 };

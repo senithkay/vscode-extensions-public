@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
@@ -17,7 +17,9 @@
         "workspaceContains:**/Ballerina.toml"
     ],
     "main": "./out/extension",
-    "extensionDependencies": [ "wso2.kolab" ],
+    "extensionDependencies": [
+        "wso2.kolab"
+    ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -31,8 +33,13 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://ei.docs.wso2.com).",
+                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
                 "when": "BI.status == 'unknownProject'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
+                "when": "BI.status == 'noLS'"
             },
             {
                 "view": "BI.project-explorer",

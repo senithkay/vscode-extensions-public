@@ -34,10 +34,11 @@ export interface DiagramProps {
     onAddConnection: () => void;
     onEntryPointSelect: (entryPoint: EntryPoint) => void;
     onConnectionSelect: (connection: Connection) => void;
+    onDeleteComponent: (component: EntryPoint | Connection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect } = props;
+    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -186,6 +187,7 @@ export function Diagram(props: DiagramProps) {
         onAddConnection,
         onEntryPointSelect,
         onConnectionSelect,
+        onDeleteComponent
     };
 
     return (

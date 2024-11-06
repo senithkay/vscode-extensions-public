@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
@@ -36,7 +36,7 @@ import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
-import { useDMArrayFilterStore, useDMExpressionBarStore } from '../../store/store';
+import { useDMArrayFilterStore, useDMExpressionBarStore, useDMSearchStore } from '../../store/store';
 import { isOutputNode } from './Actions/utils';
 import { InputOutputPortModel } from './Port';
 import * as Nodes from "./Node";
@@ -108,14 +108,21 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+	const getScreenWidthRef = useRef(() => screenWidth);
+	
 	const [filtersCollapsedChanged, setFiltersCollapsedChanged] = useState(false);
 	const [, forceUpdate] = useState({});
 
 	const filtersCollapsed = useDMArrayFilterStore(state => state.isCollapsed);
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
 
 	useEffect(() => {
 		setFiltersCollapsedChanged(prev => !prev); // Toggle the state to trigger repositioning
 	}, [filtersCollapsed]);
+
+	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
@@ -124,6 +131,17 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	useSearchScrollReset(diagramModel);
 
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+		getScreenWidthRef.current = () => screenWidth;
+	}, [screenWidth]);
+
+	const handleResize = throttle(() => {
+		const newScreenWidth = window.innerWidth;
+		if (newScreenWidth !== getScreenWidthRef.current()) {
+			setScreenWidth(newScreenWidth);
+		}
+	}, 100);
 
 	useEffect(() => {
         window.addEventListener('resize', handleResize);
@@ -169,13 +187,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			});
 		}
 	}, [diagramModel, isFetching, screenWidth]);
-
-	const handleResize = throttle(() => {
-		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== screenWidth) {
-			setScreenWidth(newScreenWidth);
-		}
-	}, 100);
 
 	return (
 		<>

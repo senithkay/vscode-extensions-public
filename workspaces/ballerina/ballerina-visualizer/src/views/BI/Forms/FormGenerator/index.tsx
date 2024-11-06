@@ -31,7 +31,7 @@ interface FormProps {
     targetLineRange: LineRange;
     projectPath?: string;
     editForm?: boolean;
-    onSubmit: (node?: FlowNode) => void;
+    onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
@@ -101,8 +101,8 @@ export function FormGenerator(props: FormProps) {
             return;
         }
 
-        // hide connection property if node is a ACTION_CALL node
-        if (node.codedata.node === "ACTION_CALL") {
+        // hide connection property if node is a REMOTE_ACTION_CALL or RESOURCE_ACTION_CALL node
+        if (node.codedata.node === "REMOTE_ACTION_CALL" || node.codedata.node === "RESOURCE_ACTION_CALL") {
             if (enrichedNodeProperties) {
                 enrichedNodeProperties.connection.optional = true;
             } else {
@@ -154,7 +154,9 @@ export function FormGenerator(props: FormProps) {
             traverseNode(updatedNode, removeEmptyNodeVisitor);
             const updatedNodeWithoutEmptyNodes = removeEmptyNodeVisitor.getNode();
 
-            onSubmit(updatedNodeWithoutEmptyNodes);
+            const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
+
+            onSubmit(updatedNodeWithoutEmptyNodes, isDataMapperFormUpdate);
         }
     };
 

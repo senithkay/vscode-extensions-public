@@ -696,9 +696,11 @@ export class BallerinaExtension {
         // message to display on Unknown errors.
         // ask to enable debug logs.
         // we can ask the user to report the issue.
-        this.updateStatusBar("Error");
-        this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
-        window.showErrorMessage(UNKNOWN_ERROR);
+
+        // HACK: Remove this for the Kola extension. This should handle with Ballerina setup page.
+        // this.updateStatusBar("Error");
+        // this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
+        // window.showErrorMessage(UNKNOWN_ERROR);
     }
 
     registerPreInitHandlers(): any {

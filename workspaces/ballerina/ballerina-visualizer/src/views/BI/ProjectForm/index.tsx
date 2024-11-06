@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -45,6 +45,14 @@ export function ProjectForm() {
         const projectDirectory = await rpcClient.getCommonRpcClient().selectFileOrDirPath({});
         setPath(projectDirectory.path);
     };
+
+    useEffect(() => {
+        (async () => {
+            const currentDir = await rpcClient.getCommonRpcClient().getWorkspaceRoot();
+            setPath(currentDir.path);
+        })();
+
+    }, []);
 
     return (
         <FormContainer>

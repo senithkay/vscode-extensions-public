@@ -43,7 +43,7 @@ export function IfForm(props: IfFormProps) {
 
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
 
-    console.log(">>> form fields", { node, values: getValues(), branches });
+    console.log(">>>IF-form fields", { node, values: getValues(), branches });
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -74,7 +74,7 @@ export function IfForm(props: IfFormProps) {
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
-            if(!updatedNode.codedata.lineRange){
+            if (!updatedNode.codedata.lineRange) {
                 updatedNode.codedata.lineRange = {
                     ...node.codedata.lineRange,
                     startLine: targetLineRange.startLine,
@@ -87,7 +87,7 @@ export function IfForm(props: IfFormProps) {
                 if (branch.label === "Else") {
                     return;
                 }
-                const conditionValue = data[branch.label]?.trim();
+                const conditionValue = data[`branch-${index}`]?.trim();
                 if (conditionValue) {
                     branch.properties.condition.value = conditionValue;
                     if (branch.label !== "Then") {
@@ -111,29 +111,30 @@ export function IfForm(props: IfFormProps) {
         handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
-            label: "branch-" + branches.length,
+            label: "branch-" + (branches.length),
             kind: "block",
             codedata: {
-            node: "CONDITIONAL",
-            lineRange: null,
+                node: "CONDITIONAL",
+                lineRange: null,
             },
             repeatable: "ONE_OR_MORE",
             properties: {
-            condition: {
-                metadata: {
-                label: "Else If Condition",
-                description: "Add condition to evaluate if the previous conditions are false",
+                condition: {
+                    metadata: {
+                        label: "Else If Condition",
+                        description: "Add condition to evaluate if the previous conditions are false",
+                    },
+                    valueType: "EXPRESSION",
+                    value: '',
+                    placeholder: "true",
+                    optional: false,
+                    editable: true,
                 },
-                valueType: "EXPRESSION",
-                value: "true",
-                optional: false,
-                editable: true,
-            },
             },
             children: [],
         };
-        // add new branch to branches and add branch to before last branch
-        setBranches([...branches.slice(0, -1), newBranch, branches[branches.length - 1]]);
+        // add new branch to end of the current branches
+        setBranches([...branches, newBranch]);
     };
 
     const debouncedGetCompletions = debounce(
@@ -259,10 +260,16 @@ export function IfForm(props: IfFormProps) {
     }
 
     useEffect(() => {
-        branches.forEach((branch) => {
+        branches.forEach((branch, index) => {
             if (branch.properties?.condition) {
-                const field = convertNodePropertyToFormField(branch.label, branch.properties.condition);
-                setValue(field.key, field.value);
+                // get the value stored in the form based on the branch key
+                const val = getValues(`branch-${index}`);
+                if (val) {
+                    branch.properties.condition.value = val;
+                    setValue(`branch-${index}`, val);
+                } else {
+                    setValue(`branch-${index}`, '');
+                }
             }
         });
     }, [branches]);
@@ -272,9 +279,9 @@ export function IfForm(props: IfFormProps) {
         <FormStyles.Container>
             {branches.map((branch, index) => {
                 if (branch.properties?.condition) {
-                    const field = convertNodePropertyToFormField(branch.label, branch.properties.condition);
+                    const field = convertNodePropertyToFormField(`branch-${index}`, branch.properties.condition);
                     return (
-                        <FormStyles.Row key={branch.label}>
+                        <FormStyles.Row key={field.key}>
                             <ExpressionEditor
                                 ref={exprRef}
                                 control={control}
