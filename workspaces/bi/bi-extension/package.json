@@ -33,7 +33,7 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://ei.docs.wso2.com).",
+                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
                 "when": "BI.status == 'unknownProject'"
             },
             {
