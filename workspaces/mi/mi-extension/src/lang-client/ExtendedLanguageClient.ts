@@ -152,6 +152,10 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.file(req).toString() });
     }
 
+    async getCertificateMap(connectorName: string): Promise<Map<string, string[]>> {
+        return this.sendRequest("synapse/getCertificateFileMap", {connectorName: connectorName});
+    }
+
     async getArifactFiles(req: string): Promise<string[]> {
         return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.file(req).toString() });
     }
