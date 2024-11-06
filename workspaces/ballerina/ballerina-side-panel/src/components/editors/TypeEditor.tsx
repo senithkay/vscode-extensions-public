@@ -34,6 +34,7 @@ namespace S {
 
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
+        textTransform: 'capitalize'
     });
 
     export const Description = styled.div({
