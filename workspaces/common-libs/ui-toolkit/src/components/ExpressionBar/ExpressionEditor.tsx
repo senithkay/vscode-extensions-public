@@ -728,7 +728,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 await onBlur?.(e);
             }else if(
                 document.activeElement === textBoxRef.current &&
-                dropdownContainerRef.current?.contains(e.target)
+                document.body.querySelector('[id="expression-editor-close"]').contains(e.target)
             ){
                 console.log('ExpressionEditor: handleOutsideClick: dropdownContainerRef5');
                 setTimeout(() => {
@@ -780,6 +780,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
                         <Transition show={isDropdownOpen} {...ANIMATION}>
                             <Codicon
+                                id='expression-editor-close'
                                 sx={{
                                     position: 'absolute',
                                     top: '0',
