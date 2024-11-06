@@ -80,7 +80,7 @@ export type ExpressionBarBaseProps = {
     inputProps?: InputProps;
     textBoxType?: 'TextField' | 'TextArea';
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
-    onFocus?: () => void | Promise<void>;
+    onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;

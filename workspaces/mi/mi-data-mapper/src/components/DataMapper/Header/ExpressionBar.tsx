@@ -62,8 +62,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
-
-    };
+};
     
     
     const [placeholder, setPlaceholder] = useState<string>();
@@ -186,7 +185,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         let disabled = true;
 
         if (focusedPort) {
-            setPlaceholder('Insert a value for the selected port.');
+            setPlaceholder('Insert a value or select input for the output.');
             
             let focusedPortTypeWithValue = focusedPort.typeWithValue;
             let hasValue = !!focusedPortTypeWithValue.value;
@@ -256,12 +255,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             if (disabled) {
-                await textFieldRef.current?.blur(value);
+                await handleBlur({target: {closest: ()=>{}}});
             } else if (portChanged) {
                 await textFieldRef.current?.saveExpression(value);
-                await textFieldRef.current?.focus();
+                await handleFocus();
             } else {
-                await textFieldRef.current?.focus();
+                await handleFocus();
             }
         });
     }, [disabled, action, lastFocusedPort, lastFocusedFilter]);
@@ -397,15 +396,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions([]);
     };
 
-    const handleFocus = async () => {
-        // Set the cursor position to the last saved position
+    const handleFocus = async (showCompletions: boolean = true) => {
+        
         const textField = textFieldRef.current.inputElement;
         textField.focus();
         textField.setSelectionRange(
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
         );
 
-        setCompletions(await getCompletions());
+        if (showCompletions) 
+            setCompletions(await getCompletions());
+
 
         // Update the last focused port and filter
         setLastFocusedPort(focusedPort);
