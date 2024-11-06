@@ -492,7 +492,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
         if(ref) value = ref.current;
-        console.log('ExpressionEditor: handleExpressionSave', value);
         const valueWithClosingBracket = addClosingBracketIfNeeded(value);
         onSave && await onSave(valueWithClosingBracket);
         handleClose();
@@ -659,9 +658,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            console.log('ExpressionEditor: handleInputKeyDown: Enter');
             await handleExpressionSaveMutation(value);
-            skipFocusCallback.current = true; // need to re-check
+           
             return;
         }
     };
@@ -714,6 +712,14 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 !dropdownContainerRef.current?.contains(e.target)
             ) {
                 await onBlur?.(e);
+            }else if(
+                document.activeElement === textBoxRef.current &&
+                document.body.querySelector('[id="expression-editor-close"]').contains(e.target)
+            ){
+                setTimeout(() => {
+                    onFocus(false);
+                }, 250);
+                //TODO: Need proper fix
             }
         }
 
@@ -731,7 +737,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     value={value}
                     onTextChange={handleChange}
                     onKeyDown={handleInputKeyDown}
-                    onFocus={handleTextFieldFocus}
                     onBlur={handleTextFieldBlur}
                     sx={{ width: '100%', ...sx }}
                     disabled={disabled || (shouldDisableOnSave && isSavingExpression)}
@@ -759,6 +764,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
                         <Transition show={isDropdownOpen} {...ANIMATION}>
                             <Codicon
+                                id='expression-editor-close'
                                 sx={{
                                     position: 'absolute',
                                     top: '0',
