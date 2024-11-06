@@ -62,7 +62,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
-};
+    };
     
     
     const [placeholder, setPlaceholder] = useState<string>();
