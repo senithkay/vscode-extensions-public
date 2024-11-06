@@ -987,21 +987,39 @@ async function extractArchive(filePath: string, destination: string) {
                 if (code === 0) {
                     resolve();
                 } else {
-                    reject(new Error(`${command} exited with code ${code}`));
+                    reject(new Error(`Unzip failed with code ${code}`));
                 }
             });
         });
     }
 
-    if (filePath.endsWith('.zip')) {
-        if (platform === 'win32') {
-            await runCommand('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path '${filePath}' -DestinationPath '${destination}' -Force`]);
+    try {
+        if (filePath.endsWith('.zip')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path "${filePath}" -DestinationPath "${destination}" -Force`]);
+            } else {
+                await runCommand('unzip', ['-o', filePath, '-d', destination]);
+            }
+        } else if (filePath.endsWith('.tar') || filePath.endsWith('.tar.gz') || filePath.endsWith('.tgz')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `tar -xf "${filePath}" -C "${destination}"`]);
+            } else {
+                await runCommand('tar', ['-xf', filePath, '-C', destination]);
+            }
         } else {
-            await runCommand('unzip', ['-o', filePath, '-d', destination]);
+            throw new Error('Unsupported file type');
         }
-    } else if (filePath.endsWith('.tar') || filePath.endsWith('.tar.gz') || filePath.endsWith('.tgz')) {
-        await runCommand('tar', ['-xf', filePath, '-C', destination]);
-    } else {
-        throw new Error('Unsupported file type');
+    } catch (error) {
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        
+        if (errorMessage.includes("Unzip failed with code") && fs.existsSync(destination)) {
+            fs.unlinkSync(filePath);
+        }
+        
+        if (errorMessage.includes("ENOENT")) {
+            window.showErrorMessage('unzip or tar command not found. Please install these to extract the archive.'); 
+        }
+
+        throw new Error(`Error while extracting the archive: ${errorMessage}`);
     }
 }

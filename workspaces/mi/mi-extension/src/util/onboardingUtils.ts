@@ -209,7 +209,8 @@ export async function downloadJava(miVersion: string): Promise<string> {
         throw new Error(
             `Failed to download Java. ${
                 error instanceof Error ? error.message : error
-            }`
+            }.
+            If issue persists, please download and install Java ${javaVersion} manually.`
         );
     }
 }
@@ -345,8 +346,8 @@ export async function ensureMISetup(projectUri: string, miVersion: string): Prom
                 fs.mkdirSync(extractPath, { recursive: true });
                 try {
                     await extractWithProgress(miZipPath, extractPath, 'Extracting Micro Integrator');
-                } catch (e) {
-                    fs.unlinkSync(miZipPath);
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Failed to extract Micro Integrator: ${(error as Error).message}`);
                     return false;
                 }
                 await config.update(CONFIG_SERVER_PATH, miPath, vscode.ConfigurationTarget.Workspace);

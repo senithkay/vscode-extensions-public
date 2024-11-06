@@ -22,6 +22,7 @@ const Container = styled.div`
     padding: 0 32px;
     gap: 32px;
     box-sizing: border-box;
+    overflow-y: auto; 
 
     @media (max-width: 768px) {
         max-width: fit-content;
@@ -260,6 +261,7 @@ export const EnvironmentSetup = () => {
                         <li>Or, You can use the <code>Set Java Home</code> and <code>Add MI Server</code> buttons in the side bar.</li>
                         <li>After completing these steps, click "Reload Project" below to apply the changes.</li>
                     </ul>
+                    <strong>We recommend using the automatic setup as the provided Java version is tested to work without issues.</strong>
                 </p>
                 <Button disabled={isDownloading} onClick={() => rpcClient.getMiVisualizerRpcClient().reloadWindow()}>
                     Reload Project
