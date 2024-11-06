@@ -57,6 +57,10 @@ const TopBar = styled.div`
     padding-bottom: 16px;
 `;
 
+const capitalizeFirstLetter = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 interface ConnectorViewProps {
     onSelectConnector: (connector: AvailableNode) => void;
     fetchingInfo: boolean;
@@ -146,14 +150,14 @@ export function ConnectorView(props: ConnectorViewProps) {
     return (
         <Container>
             <TopBar>
-            <Typography variant="h2">Select a Connector</Typography>
-            {onClose && (
-                <Button appearance="icon" onClick={onClose}>
-                    <Codicon name="close" />
-                </Button>
-            )}
+                <Typography variant="h2">Select a Connector</Typography>
+                {onClose && (
+                    <Button appearance="icon" onClick={onClose}>
+                        <Codicon name="close" />
+                    </Button>
+                )}
             </TopBar>
-            
+
             <BodyText>
                 Select a connector to integrate with external services. Use search to quickly find the right one.
             </BodyText>
@@ -186,7 +190,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                             return (
                                                 <ButtonCard
                                                     key={connector.metadata.label + index}
-                                                    title={connector.metadata.label}
+                                                    title={capitalizeFirstLetter(connector.metadata.label)}
                                                     description={
                                                         (connector as AvailableNode).codedata.org +
                                                         " / " +
@@ -220,7 +224,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                 return (
                                     <ButtonCard
                                         key={connector.metadata.label + index}
-                                        title={connector.metadata.label}
+                                        title={capitalizeFirstLetter(connector.metadata.label)}
                                         description={
                                             (connector as AvailableNode).codedata.org +
                                             " / " +
