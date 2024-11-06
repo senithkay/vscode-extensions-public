@@ -80,7 +80,7 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 					const isExpandOrCollapse = (actionEvent.event.target as Element)
-						.closest('button[id^="button-wrapper"]');
+						.closest('button[id^="expand-or-collapse"]');
 					const isAddElement = (actionEvent.event.target as Element)
 						.closest('button[id^="add-array-element"]');
 					const isAddLocalVariable = (actionEvent.event.target as Element)
