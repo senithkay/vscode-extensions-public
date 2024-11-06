@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import * as path from "path";
 import {
 	CommandIds,
 	ComponentViewDrawers,
@@ -25,7 +26,7 @@ export function viewComponentDependencyCommand(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand(
 			CommandIds.ViewDependency,
-			async (params: { componentFsPath?: string; isCodeLens?: boolean; connectionConfig: string }) => {
+			async (params: { componentFsPath?: string; isCodeLens?: boolean; connectionName: string }) => {
 				try {
 					const userInfo = await getUserInfoForCmd("view component dependency");
 					if (userInfo) {
@@ -50,50 +51,33 @@ export function viewComponentDependencyCommand(context: ExtensionContext) {
 							return;
 						}
 
-						let component: ContextStoreComponentState | undefined;
-						if (!params.componentFsPath) {
-							component = await resolveQuickPick(components?.map((item) => ({ label: item.component?.metadata?.displayName!, item })));
-						} else {
-							component = components?.find((item) => item.componentFsPath === params?.componentFsPath);
-							if (!component?.component) {
-								window
-									.showInformationMessage(
-										`Could not find any Choreo components that match this directory within the the linked project context. (${selected.project?.name})`,
-										"Create Component",
-										"Manage Context",
-									)
-									.then((res) => {
-										if (res === "Create Component") {
-											commands.executeCommand(CommandIds.CreateNewComponent);
-										}
-										if (res === "Manage Context") {
-											commands.executeCommand(CommandIds.ManageDirectoryContext);
-										}
-									});
-								return;
-							}
-						}
+						const component = await getComponentStateOfPath(params?.componentFsPath, components);
 
 						if (!component?.component) {
 							throw new Error("Failed to select component");
 						}
 
-						let connectionItem: ConnectionListItem;
-
-						if (params.connectionConfig) {
-							connectionItem = await window.withProgress({ title: "Fetching connection details....", location: ProgressLocation.Notification }, () =>
-								ext.clients.rpcClient.getConnectionItem({ orgId: selected?.org?.id?.toString()!, connectionGroupId: params.connectionConfig }),
-							);
-						} else {
-							const connectionList = await window.withProgress(
-								{ title: "Fetching connection list....", location: ProgressLocation.Notification },
-								() =>
+						let connectionItem: ConnectionListItem | undefined;
+						const connectionList = await window.withProgress(
+							{ title: "Fetching connection list....", location: ProgressLocation.Notification },
+							async () => {
+								const [componentConnections, projectConnections] = await Promise.all([
 									ext.clients.rpcClient.getConnections({
 										orgId: selected?.org?.id?.toString()!,
 										projectId: selected.project?.id!,
 										componentId: component?.component?.metadata?.id!,
 									}),
-							);
+									ext.clients.rpcClient.getConnections({ orgId: selected?.org?.id?.toString()!, projectId: selected.project?.id!, componentId: "" }),
+								]);
+								return [...componentConnections, ...projectConnections];
+							},
+						);
+						if (params?.connectionName) {
+							connectionItem = connectionList.find((item) => item.name === params?.connectionName);
+							if (!connectionItem) {
+								throw new Error("Failed to find matching connection details");
+							}
+						} else {
 							connectionItem = await resolveQuickPick(connectionList?.map((item) => ({ label: item.name, item })));
 						}
 
@@ -105,6 +89,7 @@ export function viewComponentDependencyCommand(context: ExtensionContext) {
 							params?.isCodeLens ? ViewColumn.Beside : undefined,
 						);
 
+						// todo: move this to component state instead of global state
 						webviewStateStore
 							.getState()
 							.onOpenComponentDrawer(getComponentKey(selected.org, selected.project, component.component), ComponentViewDrawers.ConnectionGuide, {
@@ -119,3 +104,30 @@ export function viewComponentDependencyCommand(context: ExtensionContext) {
 		),
 	);
 }
+
+export const getComponentStateOfPath = async (componentFsPath = "", components: ContextStoreComponentState[] = []) => {
+	const selected = contextStore.getState().state.selected;
+	let component: ContextStoreComponentState | undefined;
+	if (!componentFsPath) {
+		component = await resolveQuickPick(components?.map((item) => ({ label: item.component?.metadata?.displayName!, item })));
+	} else {
+		component = components?.find((item) => path.normalize(item.componentFsPath).toLowerCase() === path.normalize(componentFsPath).toLowerCase());
+		if (!component?.component) {
+			window
+				.showInformationMessage(
+					`Could not find any Choreo components that match this directory within the the linked project context. (${selected?.project?.name})`,
+					"Create Component",
+					"Manage Context",
+				)
+				.then((res) => {
+					if (res === "Create Component") {
+						commands.executeCommand(CommandIds.CreateNewComponent);
+					}
+					if (res === "Manage Context") {
+						commands.executeCommand(CommandIds.ManageDirectoryContext);
+					}
+				});
+		}
+	}
+	return component;
+};

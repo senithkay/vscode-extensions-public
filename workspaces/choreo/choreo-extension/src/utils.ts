@@ -25,7 +25,7 @@ import { Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
 
 export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
-	const filterEndpointSchemaPath = (eps: Endpoint[]= []) =>
+	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>
 		eps?.map((item) => {
 			if (item.schemaFilePath) {
 				const fileExists = existsSync(join(componentPath, item.schemaFilePath));
@@ -59,7 +59,9 @@ export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpoi
 	if (existsSync(componentConfigYamlPath)) {
 		const endpointFileContent: ComponentConfigYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
 		return {
-			endpoints: filterEndpointSchemaPath(endpointFileContent?.spec?.inbound?.map(item=>({...item, networkVisibilities: item.networkVisibility ? [item.networkVisibility] : []}))),
+			endpoints: filterEndpointSchemaPath(
+				endpointFileContent?.spec?.inbound?.map((item) => ({ ...item, networkVisibilities: item.networkVisibility ? [item.networkVisibility] : [] })),
+			),
 			filePath: componentConfigYamlPath,
 		};
 	}
@@ -68,7 +70,9 @@ export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpoi
 	if (existsSync(endpointsYamlPath)) {
 		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
 		return {
-			endpoints: filterEndpointSchemaPath(endpointFileContent.endpoints?.map(item=>({...item, networkVisibilities: item.networkVisibility ? [item.networkVisibility] : []}))),
+			endpoints: filterEndpointSchemaPath(
+				endpointFileContent.endpoints?.map((item) => ({ ...item, networkVisibilities: item.networkVisibility ? [item.networkVisibility] : [] })),
+			),
 			filePath: endpointsYamlPath,
 		};
 	}

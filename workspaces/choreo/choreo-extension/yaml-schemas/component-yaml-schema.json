@@ -30,7 +30,8 @@
             "properties": {
               "basePath": {
                 "type": "string",
-                "description": "Base path of the API exposed via the endpoint. Required in REST, GraphQL, WS"
+                "pattern": "^/.*",
+                "description": "Base path of the API exposed via the endpoint. Must start with '/'. Required in REST, GraphQL, WS"
               },
               "port": {
                 "type": "number",
@@ -67,59 +68,82 @@
     },
     "dependencies": {
       "type": "object",
-      "properties": {
-        "serviceReferences": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name", "connectionConfig"],
+      "oneOf": [
+        {
+          "if": {
+            "properties": { "schemaVersion": { "const": 1.0 } }
+          },
+          "then": {
             "properties": {
-              "name": {
-                "type": "string",
-                "description": "Name of the service reference (v1.0)"
-              },
-              "connectionConfig": {
-                "type": "string",
-                "description": "Connection instance config (v1.0)"
-              },
-              "env": {
+              "serviceReferences": {
                 "type": "array",
+                "description": "Defines the service references for version 1.0 (Deprecated in future versions)",
+                "deprecated": true,
                 "items": {
                   "type": "object",
-                  "required": ["from", "to"],
+                  "required": ["name", "connectionConfig"],
                   "properties": {
-                    "from": {
+                    "name": {
                       "type": "string",
-                      "description": "Key name of the connection configuration"
+                      "description": "Name of the service reference (v1.0)"
                     },
-                    "to": {
+                    "connectionConfig": {
                       "type": "string",
-                      "description": "Environment variable injected into the container"
+                      "description": "Connection instance config (v1.0)"
+                    },
+                    "env": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["from", "to"],
+                        "properties": {
+                          "from": {
+                            "type": "string",
+                            "description": "Key name of the connection configuration"
+                          },
+                          "to": {
+                            "type": "string",
+                            "description": "Environment variable injected into the container"
+                          }
+                        }
+                      }
                     }
                   }
                 }
               }
-            }
+            },
+            "required": ["serviceReferences"]
           }
         },
-        "connectionReferences": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name", "resourceRef"],
+        {
+          "if": {
+            "properties": { "schemaVersion": { "const": 1.1 } }
+          },
+          "then": {
             "properties": {
-              "name": {
-                "type": "string",
-                "description": "Name of the connection reference (v1.1)"
-              },
-              "resourceRef": {
-                "type": "string",
-                "description": "Resource reference (v1.1)"
+              "connectionReferences": {
+                "type": "array",
+                "description": "Defines the connection references for version 1.1 and future versions",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "resourceRef"],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the connection reference (v1.1)"
+                    },
+                    "resourceRef": {
+                      "type": "string",
+                      "description": "Resource reference (v1.1)"
+                    }
+                  }
+                }
               }
-            }
+            },
+            "required": ["connectionReferences"]
           }
         }
-      }
+      ]
     },
     "proxy": {
       "type": "object",
@@ -161,22 +185,6 @@
           }
         },
         "required": ["schemaFilePath"]
-      }
-    }
-  },
-  "if": {
-    "properties": {
-      "schemaVersion": { "const": 1.1 }
-    }
-  },
-  "then": {
-    "properties": {
-      "dependencies": {
-        "properties": {
-          "connectionReferences": {
-            "description": "Add connection references for v1.1"
-          }
-        }
       }
     }
   }

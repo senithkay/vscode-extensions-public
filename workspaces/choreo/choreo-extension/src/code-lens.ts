@@ -10,6 +10,7 @@
 import * as path from "path";
 import { CommandIds } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
+import * as yaml from "yaml";
 
 // Register all code lenses here
 export function activateCodeLenses(context: vscode.ExtensionContext) {
@@ -20,50 +21,44 @@ export function activateCodeLenses(context: vscode.ExtensionContext) {
 class YAMLCodeLensProvider implements vscode.CodeLensProvider {
 	provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
 		const codeLenses: vscode.CodeLens[] = [];
-		// todo: add code lens for component.yaml
-		if (document.fileName.endsWith("component-config.yaml")) {
-			const addDependencyCmd: vscode.Command = {
-				title: "Add Dependency",
-				command: CommandIds.CreateComponentDependency,
-				tooltip: "Add a new dependency to your Choreo component",
-				arguments: [{ componentFsPath: path.dirname(path.dirname(document.uri.path)), isCodeLens: true }],
-			};
+		const componentFsPath = path.dirname(path.dirname(document.uri.fsPath));
 
-			const viewDependencyCmd: vscode.Command = {
-				title: "View Documentation",
-				command: CommandIds.ViewDependency,
-				tooltip: "View documentation on how to use this connection dependency",
-				arguments: [{ componentFsPath: path.dirname(path.dirname(document.uri.path)), isCodeLens: true }],
-			};
+		const addDependencyCmd: vscode.Command = {
+			title: "Add Connection",
+			command: CommandIds.CreateComponentDependency,
+			tooltip: "Add a new API connection to your Choreo component",
+			arguments: [{ componentFsPath, isCodeLens: true }],
+		};
 
-			if (document.getText().includes("outbound:")) {
-				for (let line = 0; line < document.lineCount; line++) {
-					const lineText = document.lineAt(line);
-					if (lineText.text.includes("outbound:")) {
-						const range = new vscode.Range(line, 0, line, lineText.text.length);
-						codeLenses.push(new vscode.CodeLens(range, addDependencyCmd));
+		const viewDependencyCmd: vscode.Command = {
+			title: "View Documentation",
+			command: CommandIds.ViewDependency,
+			tooltip: "View documentation on how to use this connection dependency",
+		};
+
+		if (document.fileName.endsWith("component.yaml")) {
+			const yamlContent = document.getText();
+			const lineCounter = new yaml.LineCounter();
+			const parsedYaml = yaml.parseDocument(yamlContent, { lineCounter });
+			const connectionReferences = parsedYaml.getIn(["dependencies", "connectionReferences"], true);
+			if (connectionReferences && yaml.isSeq(connectionReferences) && connectionReferences.range?.[0]) {
+				const linePos = lineCounter.linePos(connectionReferences.range?.[0]);
+				const range = new vscode.Range(linePos.line - 2, linePos.col, linePos.line - 2, linePos.col + connectionReferences.toString()?.length);
+				codeLenses.push(new vscode.CodeLens(range, addDependencyCmd));
+				for (const item of connectionReferences.items) {
+					const nameNode = (item as yaml.Document.Parsed<yaml.YAMLSeq.Parsed, true>).get("name", true);
+					if (nameNode && yaml.isNode(nameNode) && nameNode.range?.[0]) {
+						const value = nameNode.toString();
+						const linePos = lineCounter.linePos(nameNode.range?.[0]);
+						const range = new vscode.Range(linePos.line - 1, linePos.col, linePos.line - 1, linePos.col + value?.length);
+						const viewDependencyCommand = { ...viewDependencyCmd };
+						viewDependencyCommand.arguments = [{ componentFsPath, isCodeLens: true, connectionName: value?.trim() }];
+						codeLenses.push(new vscode.CodeLens(range, viewDependencyCommand));
 					}
 				}
 			} else {
 				const range = new vscode.Range(0, 0, 0, 0);
 				codeLenses.push(new vscode.CodeLens(range, addDependencyCmd));
-			}
-
-			for (let line = 0; line < document.lineCount; line++) {
-				const lineText = document.lineAt(line);
-
-				if (lineText.text.includes("name:")) {
-					const range = new vscode.Range(line, 0, line, lineText.text.length);
-
-					const nextLineText = document.lineAt(line + 1);
-					if (nextLineText.text.includes("connectionConfig:")) {
-						const connectionConfig = nextLineText.text.split(" ").pop();
-						if (viewDependencyCmd?.arguments?.[0]) {
-							viewDependencyCmd.arguments[0] = { ...viewDependencyCmd.arguments[0], connectionConfig };
-						}
-						codeLenses.push(new vscode.CodeLens(range, viewDependencyCmd));
-					}
-				}
 			}
 		}
 		return codeLenses;

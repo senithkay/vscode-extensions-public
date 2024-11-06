@@ -18,11 +18,16 @@ import {
 	type ComponentConfigYamlContent,
 	type ComponentYamlContent,
 	ContextStoreChangedNotification,
+	CreateLocalConnectionsConfig,
+	type CreateLocalConnectionsConfigReq,
 	CreateLocalEndpointsConfig,
 	type CreateLocalEndpointsConfigReq,
 	CreateLocalProxyConfig,
 	type CreateLocalProxyConfigReq,
 	DeleteFile,
+	DeleteLocalConnectionsConfig,
+	type DeleteLocalConnectionsConfigReq,
+	EndpointType,
 	ExecuteCommandRequest,
 	FileExists,
 	GetAuthState,
@@ -251,19 +256,19 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 
 		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
 		if (existsSync(componentYamlPath)) {
-			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			endpointFileContent.endpoints =
+			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+			componentYamlFileContent.endpoints =
 				params.endpoints?.map((item, index) => ({
 					name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
-					service: { port: item.port, basePath: item.context },
+					service: { port: item.port, basePath: [EndpointType.REST, EndpointType.GraphQL].includes(item.type as EndpointType) ? item.context || undefined : undefined },
 					type: item.type || "REST",
 					displayName: item.name,
 					networkVisibilities: item.networkVisibilities && item.networkVisibilities?.length > 0 ? item.networkVisibilities : undefined,
 					schemaFilePath: item.schemaFilePath,
 				})) ?? [];
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			if (!deepEqual(originalContent, endpointFileContent)) {
-				writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
+			if (!deepEqual(originalContent, componentYamlFileContent)) {
+				writeFileSync(componentYamlPath, yaml.dump(componentYamlFileContent));
 			}
 		} else {
 			if (!existsSync(join(params.componentDir, ".choreo"))) {
@@ -274,7 +279,7 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				endpoints:
 					params.endpoints?.map((item, index) => ({
 						name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
-						service: { port: item.port, basePath: item.context },
+						service: { port: item.port, basePath: [EndpointType.REST, EndpointType.GraphQL].includes(item.type as EndpointType) ? item.context || undefined : undefined },
 						type: item.type || "REST",
 						displayName: item.name,
 						networkVisibilities: item.networkVisibilities && item.networkVisibilities?.length > 0 ? item.networkVisibilities : undefined,
@@ -300,11 +305,11 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 
 		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
 		if (existsSync(componentYamlPath)) {
-			const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			endpointFileContent.proxy = proxyConfig;
+			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+			componentYamlFileContent.proxy = proxyConfig;
 			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
-			if (!deepEqual(originalContent, endpointFileContent)) {
-				writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
+			if (!deepEqual(originalContent, componentYamlFileContent)) {
+				writeFileSync(componentYamlPath, yaml.dump(componentYamlFileContent));
 			}
 		} else {
 			if (!existsSync(join(params.componentDir, ".choreo"))) {
@@ -312,6 +317,109 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			}
 			const endpointFileContent: ComponentYamlContent = { schemaVersion: 1.1, proxy: proxyConfig };
 			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
+		}
+	});
+	messenger.onRequest(CreateLocalConnectionsConfig, async (params: CreateLocalConnectionsConfigReq) => {
+		if (existsSync(join(params.componentDir, ".choreo", "endpoints.yaml"))) {
+			rmSync(join(params.componentDir, ".choreo", "endpoints.yaml"));
+		}
+		if (existsSync(join(params.componentDir, ".choreo", "component-config.yaml"))) {
+			rmSync(join(params.componentDir, ".choreo", "component-config.yaml"));
+		}
+
+		const org = authStore?.getState().state?.userInfo?.organizations?.find((item) => item.uuid === params.marketplaceItem?.organizationId);
+		if (!org) {
+			return;
+		}
+
+		let project = dataCacheStore
+			.getState()
+			.getProjects(org.handle)
+			?.find((item) => item.id === params.marketplaceItem?.projectId);
+		if (!project) {
+			const projects = await window.withProgress(
+				{ title: `Fetching projects of organization ${org.name}...`, location: ProgressLocation.Notification },
+				() => ext.clients.rpcClient.getProjects(org.id.toString()),
+			);
+			project = projects?.find((item) => item.id === params.marketplaceItem?.projectId);
+			if (!project) {
+				return;
+			}
+		}
+
+		let component = dataCacheStore
+			.getState()
+			.getComponents(org.handle, project.handler)
+			?.find((item) => item.metadata?.id === params.marketplaceItem?.component?.componentId);
+		if (!component) {
+			const components = await window.withProgress(
+				{ title: `Fetching components of project ${project.name}...`, location: ProgressLocation.Notification },
+				() =>
+					ext.clients.rpcClient.getComponentList({
+						orgHandle: org.handle,
+						orgId: org.id.toString(),
+						projectHandle: project?.handler!,
+						projectId: project?.id!,
+					}),
+			);
+			component = components?.find((item) => item.metadata?.id === params.marketplaceItem?.component?.componentId);
+			if (!component) {
+				return;
+			}
+		}
+
+		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
+		const resourceRef = `service:/${project.handler}/${component.metadata?.handler}/v1/${params?.marketplaceItem?.component?.endpointId}/${params.visibility}`;
+		if (existsSync(componentYamlPath)) {
+			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+			if (componentYamlFileContent.schemaVersion < 1.1) {
+				componentYamlFileContent.schemaVersion = 1.1;
+			}
+			componentYamlFileContent.dependencies = {
+				...componentYamlFileContent.dependencies,
+				connectionReferences: [...(componentYamlFileContent.dependencies?.connectionReferences ?? []), { name: params?.name, resourceRef }],
+			};
+			const originalContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+			if (!deepEqual(originalContent, componentYamlFileContent)) {
+				writeFileSync(componentYamlPath, yaml.dump(componentYamlFileContent));
+			}
+		} else {
+			if (!existsSync(join(params.componentDir, ".choreo"))) {
+				mkdirSync(join(params.componentDir, ".choreo"));
+			}
+			const endpointFileContent: ComponentYamlContent = {
+				schemaVersion: 1.1,
+				dependencies: { connectionReferences: [{ name: params?.name, resourceRef }] },
+			};
+			writeFileSync(componentYamlPath, yaml.dump(endpointFileContent));
+		}
+
+		window
+			.showInformationMessage(
+				`Connection ${params.name} created and component.yaml updated. Follow the developer guide to finish integration. Once done, commit and push your changes.`,
+				"View Configurations",
+			)
+			.then((res) => {
+				if (res === "View Configurations") {
+					goTosource(componentYamlPath);
+				}
+			});
+	});
+	messenger.onRequest(DeleteLocalConnectionsConfig, async (params: DeleteLocalConnectionsConfigReq) => {
+		const componentYamlPath = join(params.componentDir, ".choreo", "component.yaml");
+		if (existsSync(componentYamlPath)) {
+			const componentYamlFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+			if (componentYamlFileContent.dependencies?.connectionReferences) {
+				componentYamlFileContent.dependencies.connectionReferences = componentYamlFileContent.dependencies.connectionReferences.filter(
+					(item) => item.name !== params.connectionName,
+				);
+			}
+			if (componentYamlFileContent.dependencies?.serviceReferences) {
+				componentYamlFileContent.dependencies.serviceReferences = componentYamlFileContent.dependencies.serviceReferences.filter(
+					(item) => item.name !== params.connectionName,
+				);
+			}
+			writeFileSync(componentYamlPath, yaml.dump(componentYamlFileContent));
 		}
 	});
 	messenger.onRequest(FileExists, (filePath: string) => existsSync(getNormalizedPath(filePath)));

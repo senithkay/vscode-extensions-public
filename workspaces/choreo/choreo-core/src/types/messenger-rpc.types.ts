@@ -16,6 +16,7 @@ import type {
 	ComponentKind,
 	DeploymentTrack,
 	Environment,
+	MarketplaceItem,
 	Organization,
 	Project,
 	WebviewQuickPickItem,
@@ -63,6 +64,8 @@ export const GetConfigFileDrifts: RequestType<GetConfigFileDriftsReq, string[]> 
 export const SaveFile: RequestType<SaveFileReq, string> = { method: "saveFile" };
 export const CreateLocalEndpointsConfig: RequestType<CreateLocalEndpointsConfigReq, void> = { method: "createLocalEndpointsConfig" };
 export const CreateLocalProxyConfig: RequestType<CreateLocalProxyConfigReq, void> = { method: "createLocalProxyConfig" };
+export const CreateLocalConnectionsConfig: RequestType<CreateLocalConnectionsConfigReq, void> = { method: "createLocalConnectionsConfig" };
+export const DeleteLocalConnectionsConfig: RequestType<DeleteLocalConnectionsConfigReq, void> = { method: "deleteLocalConnectionsConfig" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -101,6 +104,18 @@ export interface SubmitComponentCreateReq {
 export interface CreateLocalEndpointsConfigReq {
 	componentDir: string;
 	endpoints?: Endpoint[];
+}
+
+export interface CreateLocalConnectionsConfigReq {
+	componentDir: string;
+	name: string;
+	visibility: string;
+	marketplaceItem: MarketplaceItem;
+}
+
+export interface DeleteLocalConnectionsConfigReq {
+	componentDir: string;
+	connectionName: string;
 }
 
 export interface CreateLocalProxyConfigReq {

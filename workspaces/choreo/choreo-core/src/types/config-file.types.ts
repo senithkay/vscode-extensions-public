@@ -90,6 +90,13 @@ export interface ComponentYamlContent {
 	// };
 	/** optional Git based proxy related configs */
 	proxy?: ProxyConfig;
+	/** optional Outgoing connection details for the component. */
+	dependencies?: {
+		/** optional Defines the connection references from the Internal Marketplace. */
+		connectionReferences?: ComponentYamlConnectionRef[];
+		/** LEGACY (used with version 1.0).Defines the service references from the Internal Marketplace. */
+		serviceReferences?: ServiceReference[];
+	};
 }
 
 export interface ComponentYamlEndpoint {
@@ -150,4 +157,11 @@ export interface ProxyConfig {
 	thumbnailPath?: string;
 	/** optional */
 	docPath?: string;
+}
+
+export interface ComponentYamlConnectionRef {
+	/** required Name of the connection. */
+	name: string;
+	/** required Name of the connection instance. service:/[project]/[component]/v1/[api-id]/visibility */
+	resourceRef: string;
 }

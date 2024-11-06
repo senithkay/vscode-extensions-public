@@ -16,27 +16,25 @@ import {
 	type CreateComponentConnectionReq,
 	type DeploymentTrack,
 	type MarketplaceItem,
+	type MarketplaceItemSchema,
 	type Organization,
 	type Project,
+	ServiceInfoVisibilityEnum,
+	capitalizeFirstLetter,
 	getTypeForDisplayType,
-	toSentenceCase,
-	toUpperSnakeCase,
 } from "@wso2-enterprise/choreo-core";
-import React, { type FC } from "react";
+import React, { useEffect, type FC } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { queryKeys } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
 import { Button } from "../../Button";
-import { Codicon } from "../../Codicon";
-import { SectionHeader } from "../../FormElements/SectionHeader";
+import { Dropdown } from "../../FormElements/Dropdown";
 import { TextField } from "../../FormElements/TextField";
-
-const createConnectionSchema = z.object({ name: z.string().min(1, "Required"), envNames: z.array(z.string().min(1, "Required")) });
-type CreateConnectionForm = z.infer<typeof createConnectionSchema>;
 
 interface Props {
 	item: MarketplaceItem;
+	allItems: ConnectionListItem[];
 	component: ComponentKind;
 	org: Organization;
 	project: Project;
@@ -45,21 +43,99 @@ interface Props {
 	deploymentTrack: DeploymentTrack;
 }
 
-export const CreateConnection: FC<Props> = ({ item, component, org, project, directoryFsPath, deploymentTrack, onCreate }) => {
+const getPossibleVisibilities = (marketplaceItem: MarketplaceItem, project: Project) => {
+	const { connectionSchemas = [], visibility: visibilities = [] } = marketplaceItem;
+	const filteredVisibilities = visibilities.filter((item) => {
+		if (item === ServiceInfoVisibilityEnum.Project) {
+			return marketplaceItem.projectId === project.id;
+		}
+		return item;
+	});
+	/**
+	 *
+	 * There can be services with multiple visibilities but only with one schema.
+	 * [PROJECT, ORGANIZATION] => Default OAuth Connection - Organization
+	 *
+	 * In this case, the visibilities should be filtered to only include the one that mathces the schema.
+	 *
+	 * If the schema is Unsecured, the visibilities should be filtered to include only Organization and Public
+	 * else, the visibilities should be filtered to include only the visibilities that match the schema name.
+	 */
+	if (connectionSchemas.length === 1 && filteredVisibilities.length > 1) {
+		return filteredVisibilities.filter((v) => {
+			const connectionSchemaName = connectionSchemas[0].name.toLowerCase();
+			if (connectionSchemaName.includes("Unsecured".toLowerCase())) {
+				return v === ServiceInfoVisibilityEnum.Organization || v === ServiceInfoVisibilityEnum.Public;
+			}
+			return connectionSchemaName.includes(v.toLowerCase());
+		});
+	}
+	return filteredVisibilities;
+};
+
+const getInitialVisibility = (visibilities: string[] = []) => {
+	if (visibilities.includes(ServiceInfoVisibilityEnum.Project)) {
+		return ServiceInfoVisibilityEnum.Project;
+	}
+	if (visibilities.includes(ServiceInfoVisibilityEnum.Organization)) {
+		return ServiceInfoVisibilityEnum.Organization;
+	}
+	return;
+};
+
+const getPossibleSchemas = (selectedVisibility: string, connectionSchemas: MarketplaceItemSchema[] = []) => {
+	// Set the filtered schemas based on the selected visibility
+	// organization and public visibilities can have
+	// Oauth2, api key or unauthenaticated
+	// project visibility can have only project
+	const schemasFiltered = connectionSchemas.filter((schema) => {
+		if (selectedVisibility.toLowerCase().includes("organization") || selectedVisibility.toLowerCase().includes("public")) {
+			return schema.name.toLowerCase().includes(selectedVisibility.toLowerCase()) || schema.name.toLowerCase().includes("unsecured");
+		}
+		return schema.name.toLowerCase().includes("project");
+	});
+	return schemasFiltered;
+};
+
+export const CreateConnection: FC<Props> = ({ item, component, org, project, directoryFsPath, deploymentTrack, allItems = [], onCreate }) => {
 	const queryClient = useQueryClient();
 
-	const defaultSchema = item.connectionSchemas?.find((item) => item.isDefault) || item.connectionSchemas?.[0];
+	const createConnectionSchema = z
+		.object({
+			name: z.string().min(1, "Required"),
+			visibility: z.string().min(1, "Required"),
+			schemaId: z.string().min(1, "Required"),
+		})
+		.partial()
+		.superRefine(async (data, ctx) => {
+			if (allItems.some((item) => item.name === data.name)) {
+				ctx.addIssue({ path: ["name"], code: z.ZodIssueCode.custom, message: "Name already exists" });
+			}
+		});
+
+	type CreateConnectionForm = z.infer<typeof createConnectionSchema>;
+
+	const visibilities = getPossibleVisibilities(item, project);
 
 	const form = useForm<CreateConnectionForm>({
 		resolver: zodResolver(createConnectionSchema),
 		mode: "all",
 		defaultValues: {
-			// TODO: validate with existing connection names
-			// TODO: append with a number if name already exists
 			name: item.name,
-			envNames: defaultSchema?.entries?.map((item) => toUpperSnakeCase(item.name)),
+			visibility: getInitialVisibility(visibilities),
+			schemaId: "",
 		},
 	});
+
+	const selectedVisibility = form.watch("visibility");
+
+	const schemas = getPossibleSchemas(selectedVisibility, item.connectionSchemas);
+
+	useEffect(() => {
+		if (!schemas.some((item) => item.id === form.getValues("schemaId")) && schemas.length > 0) {
+			form.setValue("schemaId", schemas[0].id);
+		}
+	}, [schemas]);
 
 	const { mutate: createConnection, isLoading: isCreatingConnection } = useMutation({
 		mutationFn: async (data: CreateConnectionForm) => {
@@ -69,25 +145,22 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				orgId: org.id?.toString(),
 				orgUuid: org.uuid,
 				projectId: project.id,
-				serviceSchemaId: defaultSchema.id,
+				serviceSchemaId: data.schemaId,
 				serviceId: item.serviceId,
-				serviceVisibility: item.visibility[0],
+				serviceVisibility: data.visibility,
 				componentType: getTypeForDisplayType(component?.spec?.type),
 				componentPath: directoryFsPath,
-				envs: defaultSchema?.entries?.map((item, index) => ({
-					from: item.name,
-					to: data.envNames[index],
-				})),
 			};
 			const created = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponentConnection(req);
 
 			if (created) {
-				// TODO: replace all instance of component-config.yaml and endpoints.yaml with component.yaml
-				ChoreoWebViewAPI.getInstance().showInfoMsg(
-					`Connection ${data.name} created and component-config.yaml updated. Follow the developer guide to finish integration. Once done, commit and push your changes.`,
-				);
+				ChoreoWebViewAPI.getInstance().createLocalConnectionsConfig({
+					componentDir: directoryFsPath,
+					marketplaceItem: item,
+					name: data.name,
+					visibility: data.visibility,
+				});
 				onCreate(created);
-
 				const connectionQueryKey = queryKeys.getComponentConnections(component, project, org);
 				const connectionItems: ConnectionListItem[] = queryClient.getQueryData(connectionQueryKey) ?? [];
 				queryClient.setQueryData(connectionQueryKey, [...connectionItems, { name: data.name }]);
@@ -105,30 +178,24 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 		<div className="flex flex-col gap-2 overflow-y-auto px-4 sm:px-6">
 			<form className="grid gap-4">
 				<TextField label="Name" required name="name" placeholder="connection-name" control={form.control} />
-				<div>
-					<SectionHeader
-						title={defaultSchema?.name ?? "Env variables"}
-						alignLeft
-						subTitle="Following environmental variables will be injected into the container & these environmental variables will need to be referred from within your component source code in order to connect to the API service."
-					/>
-					<div className="grid gap-4">
-						{defaultSchema?.entries?.map((item, index) => (
-							<TextField
-								key={item.name}
-								label={
-									<span className="flex items-center gap-1">
-										{toSentenceCase(item.name)}
-										<Codicon className="!text-sm opacity-70" title={item.description} name="info" />
-									</span>
-								}
-								required
-								name={`envNames.[${index}]`}
-								placeholder={toUpperSnakeCase(item.name)}
-								control={form.control}
-							/>
-						))}
-					</div>
-				</div>
+				<Dropdown
+					label="Access Mode"
+					key="visibility"
+					required
+					name="visibility"
+					control={form.control}
+					items={visibilities?.map((item) => ({ value: item, label: capitalizeFirstLetter(item.toLowerCase()) }))}
+					disabled={visibilities?.length === 0}
+				/>
+				<Dropdown
+					label="Authentication Scheme"
+					key="schemaId"
+					required
+					name="schemaId"
+					control={form.control}
+					items={schemas.map((item) => ({ value: item.id, label: item.name }))}
+					disabled={schemas?.length === 0}
+				/>
 				<div className="flex justify-end gap-3 pt-8 pb-4">
 					<Button onClick={form.handleSubmit(onSubmit)} disabled={isCreatingConnection}>
 						{isCreatingConnection ? "Creating..." : "Create"}

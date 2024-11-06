@@ -18,11 +18,15 @@ import {
 	type ComponentKind,
 	ContextStoreChangedNotification,
 	type ContextStoreState,
+	CreateLocalConnectionsConfig,
+	type CreateLocalConnectionsConfigReq,
 	CreateLocalEndpointsConfig,
 	type CreateLocalEndpointsConfigReq,
 	CreateLocalProxyConfig,
 	type CreateLocalProxyConfigReq,
 	DeleteFile,
+	DeleteLocalConnectionsConfig,
+	type DeleteLocalConnectionsConfigReq,
 	ExecuteCommandRequest,
 	FileExists,
 	GetAuthState,
@@ -245,6 +249,14 @@ export class ChoreoWebViewAPI {
 
 	public async createLocalProxyConfig(params: CreateLocalProxyConfigReq): Promise<void> {
 		return this._messenger.sendRequest(CreateLocalProxyConfig, HOST_EXTENSION, params);
+	}
+
+	public async createLocalConnectionsConfig(params: CreateLocalConnectionsConfigReq): Promise<void> {
+		return this._messenger.sendRequest(CreateLocalConnectionsConfig, HOST_EXTENSION, params);
+	}
+
+	public async deleteLocalConnectionsConfig(params: DeleteLocalConnectionsConfigReq): Promise<void> {
+		return this._messenger.sendRequest(DeleteLocalConnectionsConfig, HOST_EXTENSION, params);
 	}
 
 	public async getDirectoryFileNames(path: string): Promise<string[]> {

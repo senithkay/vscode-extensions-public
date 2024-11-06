@@ -131,3 +131,11 @@ export enum WorkflowInstanceStatus {
 	DISABLED = "DISABLED",
 	APPROVED = "APPROVED",
 }
+
+export const ServiceInfoVisibilityEnum = {
+	Public: "PUBLIC",
+	Organization: "ORGANIZATION",
+	Project: "PROJECT",
+} as const;
+
+export type ServiceInfoVisibilityEnum = (typeof ServiceInfoVisibilityEnum)[keyof typeof ServiceInfoVisibilityEnum];

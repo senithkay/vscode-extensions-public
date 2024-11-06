@@ -55,7 +55,7 @@ export const componentEndpointItemSchema = z
 		port: z.number({ coerce: true }).min(1, "Required"),
 		type: z.string().min(1, "Required"),
 		networkVisibilities: z.array(z.string()),
-		context: z.string(),
+		context: z.union([z.string().regex(/^\//),z.string().min(0).max(0)]),
 		schemaFilePath: z.string(),
 	})
 	.superRefine((data, ctx) => {
@@ -321,7 +321,7 @@ export const sampleEndpointItem: z.infer<typeof componentEndpointItemSchema> = {
 	port: 8080,
 	type: EndpointType.REST,
 	schemaFilePath: "",
-	networkVisibilities: ["Public"],
+	networkVisibilities: ["Public", "Project", "Organization"],
 };
 
 export const isValidOpenApiSpec = async (filePath: string): Promise<boolean> => {

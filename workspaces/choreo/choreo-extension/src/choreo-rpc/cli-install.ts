@@ -21,11 +21,14 @@ export const getCliVersion = (): string => {
 };
 
 export const getChoreoExecPath = () => {
+	const OS = os.platform();
 	const executablePath = workspace.getConfiguration().get<string>("Advanced.RpcPath");
 	if (executablePath) {
+		if (OS === "win32" && !executablePath.endsWith(".exe")) {
+			return `${executablePath}.exe`;
+		}
 		return executablePath;
 	}
-	const OS = os.platform();
 
 	return path.join(getChoreoBinPath(), OS === "win32" ? "choreo.exe" : "choreo");
 };

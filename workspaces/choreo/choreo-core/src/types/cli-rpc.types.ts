@@ -27,7 +27,7 @@ import type {
 	ProjectBuildLogsData,
 	ProxyDeploymentInfo,
 } from "./common.types";
-import type { InboundConfig, ServiceReferenceEnv } from "./config-file.types";
+import type { InboundConfig } from "./config-file.types";
 
 export interface BuildPackReq {
 	orgId: string;
@@ -257,7 +257,6 @@ export interface CreateComponentConnectionReq {
 	serviceVisibility: string;
 	serviceSchemaId: string;
 	name: string;
-	envs: ServiceReferenceEnv[];
 }
 
 export interface DeleteConnectionReq {
@@ -277,6 +276,8 @@ export interface GetConnectionGuideReq {
 	isSpa: boolean;
 	isProjectLvlConnection: boolean;
 	buildpackType: string;
+	connectionName: string;
+	configFileType: string;
 }
 
 export interface GetAutoBuildStatusReq {

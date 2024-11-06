@@ -46,6 +46,8 @@ export const ConnectionGuide: FC<Props> = ({ component, org, item, isVisible }) 
 					isSpa: component?.spec?.type === ComponentDisplayType.ByocWebAppDockerLess,
 					audience: "console",
 					connectionSchemaId: item?.schemaReference,
+					connectionName: item.name,
+					configFileType: "component_v11",
 				}),
 		enabled: isVisible && !!item,
 		keepPreviousData: true,

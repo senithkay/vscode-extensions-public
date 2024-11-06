@@ -86,6 +86,7 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 				connectionQueryKey,
 				connectionItems.filter((item) => item.groupUuid !== params.groupUuid),
 			);
+			ChoreoWebViewAPI.getInstance().deleteLocalConnectionsConfig({ connectionName: params.name, componentDir: directoryFsPath });
 			ChoreoWebViewAPI.getInstance().showInfoMsg(`Successfully deleted connection ${params.name}`);
 		},
 		onSettled: () => {
@@ -248,6 +249,7 @@ export const ConnectionsSection: FC<Props> = ({ org, project, component, directo
 								component={component}
 								directoryFsPath={directoryFsPath}
 								deploymentTrack={deploymentTrack}
+								allItems={[...componentConnections, ...projectConnections]}
 								onCreate={(item) => {
 									refetchComponentConnectionList();
 									openGuidePanel(item);

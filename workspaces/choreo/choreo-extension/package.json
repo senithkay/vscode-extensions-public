@@ -4,7 +4,7 @@
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
   "version": "2.1.2",
-  "cliVersion": "v1.2.62410241500",
+  "cliVersion": "v1.2.62411061800",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -323,6 +323,7 @@
     "dotenv": "^16.0.3",
     "file-type": "^18.2.1",
     "js-yaml": "^4.1.0",
+    "yaml": "^2.6.0",
     "jschardet": "^3.0.0",
     "vscode-messenger": "^0.4.4",
     "vscode-messenger-common": "^0.4.3",
