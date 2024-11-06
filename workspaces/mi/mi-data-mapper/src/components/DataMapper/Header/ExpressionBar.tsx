@@ -64,6 +64,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
+        // triggerRerender((prev)=>!prev);
         console.log('setTextFieldValue', value);
     };
     
@@ -279,14 +280,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             }
 
             if (disabled) {
-                await textFieldRef.current?.blur(value);
+                // await textFieldRef.current?.blur(value);
+                await handleBlur({target: {closest: ()=>{}}});
                 console.log('req animation frame disabled');
             } else if (portChanged) {
                 await textFieldRef.current?.saveExpression(value);
-                await textFieldRef.current?.focus();
+                // await textFieldRef.current?.focus();
+                await handleFocus();
                 console.log('req animation frame portChanged');
             } else {
-                await textFieldRef.current?.focus();
+                // await textFieldRef.current?.focus();
+                await handleFocus();
                 console.log('req animation frame else', textFieldRef.current);
             }
         });
