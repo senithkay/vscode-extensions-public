@@ -59,10 +59,14 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = [
 							{ label: getComponentTypeText(ChoreoComponentType.Service), value: ChoreoComponentType.Service },
 							{ label: getComponentTypeText(ChoreoComponentType.WebApplication), value: ChoreoComponentType.WebApplication },
-							{ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy },
 							{ label: getComponentTypeText(ChoreoComponentType.ScheduledTask), value: ChoreoComponentType.ScheduledTask },
 							{ label: getComponentTypeText(ChoreoComponentType.ManualTrigger), value: ChoreoComponentType.ManualTrigger },
 						];
+						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("FeaturePreview.ProxyCreation");
+						if(isProxyCreateEnabled){
+							// check proxy item order from console, when adding it back
+							typeQuickPicks.push({ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy })
+						}
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, { title: "Select Component Type" });
 						if (selectedTypePick?.value) {
 							selectedType = selectedTypePick?.value;
