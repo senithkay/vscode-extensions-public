@@ -29,10 +29,11 @@ interface TypeDiagramProps {
     getComponentModel: () => Promise<ComponentModels>;
     selectedRecordId?: string;
     showProblemPanel: () => void;
+    addNewType: () => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { getComponentModel, showProblemPanel, selectedRecordId } = props;
+    const { getComponentModel, showProblemPanel, selectedRecordId, addNewType } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
@@ -140,7 +141,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     return (
         <Container>
             <DesignDiagramContext {...ctx}>
-                <HeaderWidget />
+                <HeaderWidget addNewType={addNewType} />
                 <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ?
                         <>
