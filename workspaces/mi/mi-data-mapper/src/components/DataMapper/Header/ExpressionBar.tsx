@@ -194,7 +194,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         let disabled = true;
 
         if (focusedPort) {
-            setPlaceholder('Insert a value for the selected port.');
+            setPlaceholder('Insert a value or select input for the output.');
 
             // let tmpNode = focusedPort.typeWithValue;
             // console.log('tmpNode1', tmpNode);;
