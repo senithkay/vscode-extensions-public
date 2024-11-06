@@ -88,7 +88,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "DataMapper",
+        type: "Data Mapper",
         expectedDescription: "Data Mapper Description",
         expectedDefaultDescription: "DM"
     },
