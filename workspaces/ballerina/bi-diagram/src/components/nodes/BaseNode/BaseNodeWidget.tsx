@@ -101,7 +101,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
+        max-width: ${NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
