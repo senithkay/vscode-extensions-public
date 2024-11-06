@@ -28,6 +28,7 @@ import {
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
     login,
     logout,
     notifyAIMappings,
@@ -59,6 +60,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(promptLogin, () => rpcManger.promptLogin());
     messenger.onRequest(getProjectSource, () => rpcManger.getProjectSource());
     messenger.onRequest(getShadowDiagnostics, (args: ProjectSource) => rpcManger.getShadowDiagnostics(args));
+    messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
 }
