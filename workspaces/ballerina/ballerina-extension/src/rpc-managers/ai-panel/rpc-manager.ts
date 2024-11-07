@@ -150,6 +150,12 @@ export class AiPanelRpcManager implements AIPanelAPI {
             }
             balFilePath = path.join(testsFolderPath, `test.bal`).toLowerCase();
         }
+        
+        const directory = path.dirname(balFilePath);
+        if (!fs.existsSync(directory)) {
+            fs.mkdirSync(directory, { recursive: true });
+        }
+
         fs.writeFileSync(balFilePath, req.content.trim(), 'utf8');
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
