@@ -564,6 +564,20 @@
                 "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add",
+                "title": "Add Construct",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.overview",
+                "title": "Show Overview",
+                "icon": "$(distro-design-view)",
+                "group": "navigation",
+                "category": "BI"
             }
         ],
         "views": {

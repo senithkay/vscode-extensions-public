@@ -90,7 +90,12 @@
             ],
             "view/title": [
                 {
-                    "command": "kolab.show.visualizer",
+                    "command": "BI.project-explorer.add",
+                    "when": "view == BI.project-explorer && BI.project == true",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BI.project-explorer.overview",
                     "when": "view == BI.project-explorer && BI.project == true",
                     "group": "navigation"
                 }
