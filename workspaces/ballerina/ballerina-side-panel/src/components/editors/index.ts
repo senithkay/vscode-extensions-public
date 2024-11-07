@@ -10,5 +10,5 @@
 export * from "./EditorFactory";
 export * from "./TypeEditor";
 export * from "./TextEditor";
-export * from "./DropdownEditor";
+export * from "./MultiSelectEditor";
 export * from "./ExpressionEditor";

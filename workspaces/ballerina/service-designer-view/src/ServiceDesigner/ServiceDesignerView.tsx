@@ -70,7 +70,11 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
     const handleResourceDelete = async (resource: Resource) => {
         await applyModifications([{
-            type: 'DELETE',
+            type: 'INSERT', // change this for avoid deleting 'log' import
+            isImport: false,
+            config: {
+                STATEMENT: ""
+            },
             ...resource.position
         }]);
     };
@@ -161,6 +165,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                             model={serviceConfig}
                             onResourceClick={handleGoToSource}
                             disableServiceHeader={props.isBI}
+                            onResourceEdit={handleResourceEdit}
+                            onResourceDelete={handleResourceDelete}
                         />
                     </ViewContent>
                 </View>

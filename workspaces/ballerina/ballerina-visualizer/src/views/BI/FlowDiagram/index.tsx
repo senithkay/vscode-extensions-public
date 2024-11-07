@@ -133,18 +133,16 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const showEditForm = useRef<boolean>(false);
 
     useEffect(() => {
-        console.log(">>> Updating sequence model...", syntaxTree);
-        getSequenceModel();
+        getFlowModel();
     }, [syntaxTree]);
 
     rpcClient.onParentPopupSubmitted(() => {
         const parent = topNodeRef.current;
         const target = targetRef.current;
-
-        fetchNodesAndAISuggestions(parent, target);
+        fetchNodesAndAISuggestions(parent, target, false, false);
     });
 
-    const getSequenceModel = () => {
+    const getFlowModel = () => {
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -182,14 +180,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         if (originalFlowModel.current) {
             // const updatedModel = removeDraftNodeFromDiagram(model);
             // setModel(updatedModel);
-            getSequenceModel();
+            getFlowModel();
             originalFlowModel.current = undefined;
             setSuggestedModel(undefined);
             suggestedText.current = undefined;
         }
     };
 
-    const fetchNodesAndAISuggestions = (parent: FlowNode | Branch, target: LineRange) => {
+    const fetchNodesAndAISuggestions = (
+        parent: FlowNode | Branch,
+        target: LineRange,
+        fetchAiSuggestions = true,
+        updateFlowModel = true
+    ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
             position: target,
             filePath: model.fileName,
@@ -212,15 +215,20 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 setCategories(convertedCategories);
                 initialCategoriesRef.current = convertedCategories; // Store initial categories
                 // add draft node to model
-                const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
-
-                setModel(updatedFlowModel);
+                if (updateFlowModel) {
+                    const updatedFlowModel = addDraftNodeToDiagram(model, parent, target);
+                    setModel(updatedFlowModel);
+                }
                 setShowSidePanel(true);
                 setSidePanelView(SidePanelView.NODE_LIST);
             })
             .finally(() => {
                 setShowProgressIndicator(false);
             });
+
+        if (!fetchAiSuggestions) {
+            return;
+        }
         // get ai suggestions
         setFetchingAiSuggestions(true);
         const suggestionFetchingTimeout = setTimeout(() => {
@@ -338,7 +346,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
-    const handleOnFormSubmit = (updatedNode?: FlowNode) => {
+    const handleOnFormSubmit = (updatedNode?: FlowNode, isDataMapperFormUpdate?: boolean) => {
         if (!updatedNode) {
             console.log(">>> No updated node found");
             updatedNode = selectedNodeRef.current;
@@ -349,6 +357,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .getSourceCode({
                 filePath: model.fileName,
                 flowNode: updatedNode,
+                isDataMapperFormUpdate: isDataMapperFormUpdate,
             })
             .then((response) => {
                 console.log(">>> Updated source code", response);
@@ -416,6 +425,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     valueType: "STRING",
                     value: `\n${comment}\n\n`, // HACK: add extra new lines to get last position right
                     optional: false,
+                    advanced: false,
                     editable: true,
                 },
             },
@@ -666,6 +676,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
+                        configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
                     />
                 );
             default:
@@ -734,6 +745,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
+        debouncedGetVisibleTypes.cancel();
         handleExpressionEditorCancel();
     };
 

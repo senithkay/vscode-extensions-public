@@ -12,6 +12,8 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
+    GetFromFileRequest,
+    DeleteFromProjectRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
     InitialPrompt,
@@ -19,6 +21,8 @@ import {
     ProjectDiagnostics,
     ProjectSource,
     addToProject,
+    getFromFile,
+    deleteFromProject,
     clearInitialPrompt,
     generateMappings,
     getAccessToken,
@@ -29,6 +33,7 @@ import {
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
     login,
     logout,
     notifyAIMappings,
@@ -83,6 +88,14 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
     }
 
+    getFromFile(params: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, params);
+    }
+
+    deleteFromProject(params: DeleteFromProjectRequest): Promise<string> {
+        return this._messenger.sendRequest(deleteFromProject, HOST_EXTENSION, params);
+    }
+
     getRefreshToken(): Promise<string> {
         return this._messenger.sendRequest(getRefreshToken, HOST_EXTENSION);
     }
@@ -109,6 +122,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getShadowDiagnostics(params: ProjectSource): Promise<ProjectDiagnostics> {
         return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, params);
+    }
+
+    checkSyntaxError(params: ProjectSource): Promise<boolean> {
+        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, params);
     }
 
     getInitialPrompt(): Promise<InitialPrompt> {

@@ -27,7 +27,7 @@ export function activate(context: BallerinaExtension) {
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_TYPE, () => {
-        // Trigger to open the schema import view
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TypeDiagram });
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_FUNCTION, () => {
@@ -36,5 +36,14 @@ export function activate(context: BallerinaExtension) {
 
     commands.registerCommand(BI_COMMANDS.ADD_CONFIGURATION, () => {
         // Trigger to open the configuration setup view
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ViewConfigVariables });
+    });
+
+    commands.registerCommand(BI_COMMANDS.SHOW_OVERVIEW, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+    });
+
+    commands.registerCommand(BI_COMMANDS.ADD_PROJECT, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIComponentView });
     });
 }

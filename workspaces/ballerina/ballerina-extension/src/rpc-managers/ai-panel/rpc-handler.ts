@@ -10,10 +10,14 @@
  */
 import {
     AddToProjectRequest,
+    GetFromFileRequest,
+    DeleteFromProjectRequest,
     GenerateMappingsRequest,
     NotifyAIMappingsRequest,
     ProjectSource,
     addToProject,
+    getFromFile,
+    deleteFromProject,
     clearInitialPrompt,
     generateMappings,
     getAccessToken,
@@ -24,6 +28,7 @@ import {
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
     login,
     logout,
     notifyAIMappings,
@@ -46,6 +51,8 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(refreshAccessToken, () => rpcManger.refreshAccessToken());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
+    messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
+    messenger.onRequest(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
@@ -53,6 +60,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(promptLogin, () => rpcManger.promptLogin());
     messenger.onRequest(getProjectSource, () => rpcManger.getProjectSource());
     messenger.onRequest(getShadowDiagnostics, (args: ProjectSource) => rpcManger.getShadowDiagnostics(args));
+    messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
 }

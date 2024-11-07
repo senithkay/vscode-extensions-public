@@ -80,6 +80,8 @@ export interface VisibleEndpoint {
     leadingMinutiae: Minutiae[];
     trailingMinutiae: Minutiae[];
     isInSelectedPath?: boolean;
+    qualifiers?: STNode[];
+    typedBindingPattern?: TypedBindingPattern;
   }
   
   export interface ActionStatement extends STNode {

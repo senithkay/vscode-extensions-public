@@ -147,11 +147,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 <foreignObject x={addButtonPosition.x - 35} y={addButtonPosition.y - 10} width="70" height="20">
                     <div
                         css={css`
-                            display: ${isHovered ? "flex" : "none"};
+                            display: ${isHovered || link.showButtonAlways ? "flex" : "none"};
                             justify-content: center;
                             align-items: center;
                             gap: 5px;
-                            cursor: pointer;
                             animation: ${fadeInZoomIn} 0.2s ease-out forwards;
                         `}
                     >
@@ -161,6 +160,10 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             height="24"
                             viewBox="0 0 24 24"
                             onClick={handleAddComment}
+                            css={css`
+                                cursor: pointer;
+                                visibility: ${isHovered ? "visible" : "hidden"};
+                            `}
                         >
                             <path
                                 fill={Colors.SURFACE_BRIGHT}
@@ -178,6 +181,9 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             height="24"
                             viewBox="0 0 24 24"
                             onClick={handleAddNode}
+                            css={css`
+                                cursor: pointer;
+                            `}
                         >
                             <path
                                 fill={Colors.SURFACE_BRIGHT}
@@ -194,13 +200,17 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             height="24"
                             viewBox="0 0 24 24"
                             onClick={handleAddPrompt}
+                            css={css`
+                                cursor: not-allowed;
+                                visibility: hidden;
+                            `}
                         >
                             <path
                                 fill={Colors.SURFACE_BRIGHT}
                                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
                             />
                             <path
-                                fill={Colors.PRIMARY}
+                                fill={Colors.OUTLINE_VARIANT}
                                 d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2L8.6 4.5L10 7zm12 9.8L22 14l-1.4 2.5L22 19l-2.5-1.4L17 19l1.4-2.5L17 14zM22 2l-1.4 2.5L22 7l-2.5-1.4L17 7l1.4-2.5L17 2l2.5 1.4zm-8.66 10.78l2.44-2.44l-2.12-2.12l-2.44 2.44zm1.03-5.49l2.34 2.34c.39.37.39 1.02 0 1.41L5.04 22.71c-.39.39-1.04.39-1.41 0l-2.34-2.34c-.39-.37-.39-1.02 0-1.41L12.96 7.29c.39-.39 1.04-.39 1.41 0"
                             />
                         </svg>

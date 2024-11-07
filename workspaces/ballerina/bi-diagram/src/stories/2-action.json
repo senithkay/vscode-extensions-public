@@ -92,7 +92,7 @@
                                 "icon": "https://bcentral-packageicons.azureedge.net/images/ballerinax_mongodb_5.0.0.png"
                             },
                             "codedata": {
-                                "node": "ACTION_CALL",
+                                "node": "REMOTE_ACTION_CALL",
                                 "org": "ballerinax",
                                 "module": "mongodb",
                                 "object": "Client",

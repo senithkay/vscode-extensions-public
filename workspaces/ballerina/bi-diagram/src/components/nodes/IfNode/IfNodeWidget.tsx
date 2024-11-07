@@ -16,6 +16,8 @@ import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolk
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -45,6 +47,12 @@ export namespace NodeStyles {
         position: absolute;
         top: -6px;
         left: 46px;
+    `;
+
+    export const ErrorIcon = styled.div`
+        position: absolute;
+        bottom: -6px;
+        left: 48px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -145,7 +153,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
     const deleteNode = () => {
         onDeleteNode && onDeleteNode(model.node);
         setAnchorEl(null);
-    }
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
@@ -166,6 +174,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
+    const hasError = nodeHasError(model.node);
 
     return (
         <NodeStyles.Node
@@ -186,7 +195,13 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             rx="5"
                             ry="5"
                             fill={Colors.SURFACE_DIM}
-                            stroke={isHovered && !disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT}
+                            stroke={
+                                hasError
+                                    ? Colors.ERROR
+                                    : isHovered && !disabled
+                                    ? Colors.PRIMARY
+                                    : Colors.OUTLINE_VARIANT
+                            }
                             strokeWidth={NODE_BORDER_WIDTH}
                             strokeDasharray={disabled ? "5 5" : "none"}
                             opacity={disabled ? 0.7 : 1}
@@ -209,6 +224,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                         {model.node.branches.at(0).properties.condition.value}
                     </NodeStyles.Description> */}
                 </NodeStyles.Header>
+                {hasError && (
+                    <NodeStyles.ErrorIcon>
+                        <DiagnosticsPopUp node={model.node} />
+                    </NodeStyles.ErrorIcon>
+                )}
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
                 </NodeStyles.StyledButton>

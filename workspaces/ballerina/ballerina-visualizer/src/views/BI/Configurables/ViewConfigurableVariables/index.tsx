@@ -54,24 +54,26 @@ export function ViewConfigurableVariables() {
 
     const handleEditConfigFormClose = () => {
         setEditConfigVariableFormOpen(false);
+        getConfigVariables();
     };
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
+        getConfigVariables();
     };
 
     const handleOnDeleteConfigVariable = async (index: number) => {
-        setConfigIndex(index);
+        const delConfig = configVariables[index];
 
         const projectPath: string = (await rpcClient.getVisualizerLocation()).projectUri
-        const filePath = projectPath.concat('/' + configVariables[index].codedata.lineRange.fileName);
+        const filePath = projectPath.concat('/' + delConfig.codedata.lineRange.fileName);
 
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
             .deleteFlowNode({
                 filePath: filePath,
-                flowNode: configVariables[configIndex],
+                flowNode: delConfig,
             })
             .then((response) => {
                 console.log(">>> Updated source code after delete", response);
@@ -85,13 +87,14 @@ export function ViewConfigurableVariables() {
             })
             .finally(() => {
                 setShowProgressIndicator(false);
+                getConfigVariables();
             });
     };
 
     useEffect(() => {
         console.log(">>> Get Config Variables");
         getConfigVariables();
-    }, [configVariables]);
+    }, []);
 
     const getConfigVariables = () => {
         rpcClient
@@ -123,16 +126,19 @@ export function ViewConfigurableVariables() {
 
                             <VSCodeDataGrid>
                                 <VSCodeDataGridRow row-type="header">
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1`}>
                                         Variable
                                     </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`2`}>
                                         Type
                                     </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`3`}>
                                         Value
                                     </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1 + 1`}>
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`4`}>
+                                        &nbsp;
+                                    </VSCodeDataGridCell>
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`5`}>
                                         &nbsp;
                                     </VSCodeDataGridCell>
                                 </VSCodeDataGridRow>
@@ -141,9 +147,9 @@ export function ViewConfigurableVariables() {
                                     configVariables.map((variable, index) => {
                                         return (
                                             <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.variable.value}-{index}</VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`}>{variable.properties.type.value}</VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`}>
+                                                <VSCodeDataGridCell grid-column={`1`}>{variable.properties.variable.value}</VSCodeDataGridCell>
+                                                <VSCodeDataGridCell grid-column={`2`}>{variable.properties.type.value}</VSCodeDataGridCell>
+                                                <VSCodeDataGridCell grid-column={`3`}>
                                                     {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
                                                         variable.properties.defaultable.value === "?" ?
                                                             null
@@ -152,9 +158,10 @@ export function ViewConfigurableVariables() {
                                                                 : variable.properties.defaultable.value
                                                         : null}
                                                 </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`1 + 1`} style={{ display: "flex" }}>
+                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex", justifyContent:"center" }}>
                                                     <Codicon name="edit" onClick={(event) => handleEditConfigVariableFormOpen(index)} />
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                                </VSCodeDataGridCell>
+                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex", justifyContent:"center" }}>
                                                     <Codicon name="trash" onClick={(event) => handleOnDeleteConfigVariable(index)} />
                                                 </VSCodeDataGridCell>
                                             </VSCodeDataGridRow>
