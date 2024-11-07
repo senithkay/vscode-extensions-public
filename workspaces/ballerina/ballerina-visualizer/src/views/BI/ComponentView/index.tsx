@@ -128,7 +128,7 @@ export function AddComponentView() {
                             <ButtonCard
                                 icon={<Codicon name="globe" />}
                                 title="Service"
-                                description="Start your integration with a HTTP service."
+                                description="Start your integration with an HTTP service."
                                 onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
                             <ButtonCard
