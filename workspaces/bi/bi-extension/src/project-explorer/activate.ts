@@ -23,6 +23,7 @@ export function activateProjectExplorer(context: ExtensionContext, isBI: boolean
 		commands.registerCommand(BI_COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
 		commands.executeCommand(BI_COMMANDS.FOCUS_PROJECT_EXPLORER);
 		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+		commands.executeCommand('setContext', 'BI.project', true);
 	}
 	projectTree.onDidChangeVisibility(res => {
 		if (res.visible) {
