@@ -1785,7 +1785,7 @@ export interface UpdateMediatorRequest {
     range: Range;
     mediatorType: string;
     oldValues?: any;
-    newValues: any;
+    values: any;
     dirtyFields?: string[];
     trailingSpace?: string;
 }
