@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, Icon, Popover, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon,Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
 import { BIHeader } from "../../BIHeader";
 import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
