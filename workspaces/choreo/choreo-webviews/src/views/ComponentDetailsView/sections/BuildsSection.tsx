@@ -112,9 +112,10 @@ export const BuildsSection: FC<Props> = (props) => {
 					</Button>
 				)}
 				<div className="flex-1" />
-				{type !== ChoreoComponentType.ApiProxy && (
+				{/** TODO: enable autoBuildOnCommit once its stable */}
+				{/* {type !== ChoreoComponentType.ApiProxy && (
 					<AutoBuildSwitch component={component} envs={envs} organization={organization} deploymentTrack={deploymentTrack} />
-				)}
+				)} */}
 				{!isLoadingBuilds && (
 					<Button disabled={isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()} appearance="secondary">
 						{isTriggeringBuild || buildInProgress ? "Building..." : "Build"}

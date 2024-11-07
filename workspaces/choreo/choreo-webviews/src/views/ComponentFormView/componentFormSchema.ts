@@ -55,7 +55,7 @@ export const componentEndpointItemSchema = z
 		port: z.number({ coerce: true }).min(1, "Required"),
 		type: z.string().min(1, "Required"),
 		networkVisibilities: z.array(z.string()),
-		context: z.union([z.string().regex(/^\//),z.string().min(0).max(0)]),
+		context: z.union([z.string().regex(/^\//), z.string().min(0).max(0)]),
 		schemaFilePath: z.string(),
 	})
 	.superRefine((data, ctx) => {

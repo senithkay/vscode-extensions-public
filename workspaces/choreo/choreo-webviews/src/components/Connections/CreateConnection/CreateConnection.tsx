@@ -10,6 +10,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+	ComponentDisplayType,
 	type ComponentKind,
 	type ConnectionDetailed,
 	type ConnectionListItem,
@@ -150,6 +151,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				serviceVisibility: data.visibility,
 				componentType: getTypeForDisplayType(component?.spec?.type),
 				componentPath: directoryFsPath,
+				generateCreds: component?.spec?.type !== ComponentDisplayType.ByocWebAppDockerLess
 			};
 			const created = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponentConnection(req);
 

@@ -82,6 +82,7 @@ export const queryKeys = {
 		"get-component-connections",
 		{ component: component.metadata.id, organization: org.handle, project: project.handler },
 	],
+	useComponentList: (project: Project, org: Organization) => ["get-components", { organization: org.handle, project: project.handler }],
 	getProjectConnections: (project: Project, org: Organization) => ["get-project-connections", { organization: org.handle, project: project.handler }],
 	getAutoBuildStatus: (component: ComponentKind, deploymentTrack: DeploymentTrack, org: Organization) => [
 		"get-auto-build-status",
@@ -306,6 +307,19 @@ export const useComponentConnectionList = (
 			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getConnections({
 				componentId: component.metadata?.id,
 				orgId: org.id.toString(),
+				projectId: project.id,
+			}),
+		options,
+	);
+
+export const useComponentList = (project: Project, org: Organization, options?: UseQueryOptions<ComponentKind[]>) =>
+	useQuery<ComponentKind[]>(
+		queryKeys.useComponentList(project, org),
+		() =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getComponentList({
+				orgHandle: org.handle,
+				orgId: org.id.toString(),
+				projectHandle: project.handler,
 				projectId: project.id,
 			}),
 		options,

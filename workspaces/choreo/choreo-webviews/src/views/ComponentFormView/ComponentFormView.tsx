@@ -27,6 +27,7 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { HeaderSection } from "../../components/HeaderSection";
 import { type StepItem, VerticalStepper } from "../../components/VerticalStepper";
+import { useComponentList } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
 import {
 	type componentBuildDetailsSchema,
@@ -51,11 +52,21 @@ type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
 type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
 export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
-	const { project, organization, directoryFsPath, directoryUriPath, initialValues, existingComponents, directoryName } = props;
+	const {
+		project,
+		organization,
+		directoryFsPath,
+		directoryUriPath,
+		initialValues,
+		directoryName,
+		existingComponents: existingComponentsCache,
+	} = props;
 	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
 
 	const [stepIndex, setStepIndex] = useState(0);
+
+	const { data: existingComponents = [] } = useComponentList(project, organization, { initialData: existingComponentsCache });
 
 	const genDetailsForm = useForm<ComponentFormGenDetailsType>({
 		resolver: zodResolver(getComponentFormSchemaGenDetails(existingComponents), { async: true }, { mode: "async" }),
@@ -300,7 +311,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					<HeaderSection
 						title={`Create ${["a", "e", "i", "o", "u"].includes(componentTypeText[0].toLowerCase()) ? "an" : "a"} ${componentTypeText}`}
 						tags={[
-							{ label: "Source Directory", value: subPath || directoryName },
+							{ label: "Source Directory", value: subPath && subPath !== '.' ? subPath : directoryName },
 							{ label: "Project", value: project.name },
 							{ label: "Organization", value: organization.name },
 						]}

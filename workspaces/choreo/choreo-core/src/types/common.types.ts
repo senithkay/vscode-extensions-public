@@ -302,16 +302,12 @@ export interface ComponentDeployment {
 	cronTimezone: string;
 }
 
-export interface IComponentCreateInitValues {
+export interface ICreateComponentParams {
 	type: ChoreoComponentType;
 	buildPackLang: string;
 	name: string;
 	/** Full path of the component directory */
 	componentDir: string;
-}
-
-export interface ICreateComponentParams {
-	initialValues?: IComponentCreateInitValues;
 }
 
 export interface GHAppConfig {

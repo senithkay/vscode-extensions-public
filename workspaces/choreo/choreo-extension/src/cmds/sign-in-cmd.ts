@@ -12,7 +12,7 @@ import { type ExtensionContext, ProgressLocation, commands, window } from "vscod
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
-import { withRetries } from "../utils";
+import { withRetries, withTimeout } from "../utils";
 
 export function signInCommand(context: ExtensionContext) {
 	context.subscriptions.push(
@@ -24,7 +24,7 @@ export function signInCommand(context: ExtensionContext) {
 				console.log("Generating Choreo login URL for ", callbackUrl.toString());
 				const loginUrl = await window.withProgress({ title: "Generating Login URL...", location: ProgressLocation.Notification }, async () => {
 					try {
-						await ext.clients.rpcClient.signOut();
+						await withTimeout(() => ext.clients.rpcClient.signOut(), "signOut", 2000);
 					} catch {
 						// ignore error
 					}

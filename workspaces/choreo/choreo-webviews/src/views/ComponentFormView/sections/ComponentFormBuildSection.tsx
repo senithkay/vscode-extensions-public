@@ -197,7 +197,8 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 					disabled={buildpacks.length === 0}
 				/>
 				{buildConfigs}
-				{selectedType !== ChoreoComponentType.ApiProxy && (
+				{/** TODO: enable autoBuildOnCommit once its stable */}
+				{/* {selectedType !== ChoreoComponentType.ApiProxy && (
 					<CheckBox
 						control={form.control}
 						className="col-span-full"
@@ -205,7 +206,7 @@ export const ComponentFormBuildSection: FC<Props> = (props) => {
 						label="Auto Trigger Build on New Commit"
 						key="auto-build-on-trigger"
 					/>
-				)}
+				)} */}
 			</div>
 
 			<div className="flex justify-end gap-3 pt-6 pb-2">

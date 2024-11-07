@@ -260,7 +260,10 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 			componentYamlFileContent.endpoints =
 				params.endpoints?.map((item, index) => ({
 					name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
-					service: { port: item.port, basePath: [EndpointType.REST, EndpointType.GraphQL].includes(item.type as EndpointType) ? item.context || undefined : undefined },
+					service: {
+						port: item.port,
+						basePath: [EndpointType.REST, EndpointType.GraphQL].includes(item.type as EndpointType) ? item.context || undefined : undefined,
+					},
 					type: item.type || "REST",
 					displayName: item.name,
 					networkVisibilities: item.networkVisibilities && item.networkVisibilities?.length > 0 ? item.networkVisibilities : undefined,
@@ -279,7 +282,10 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 				endpoints:
 					params.endpoints?.map((item, index) => ({
 						name: item.name ? makeURLSafe(item.name) : `endpoint-${index}`,
-						service: { port: item.port, basePath: [EndpointType.REST, EndpointType.GraphQL].includes(item.type as EndpointType) ? item.context || undefined : undefined },
+						service: {
+							port: item.port,
+							basePath: [EndpointType.REST, EndpointType.GraphQL].includes(item.type as EndpointType) ? item.context || undefined : undefined,
+						},
 						type: item.type || "REST",
 						displayName: item.name,
 						networkVisibilities: item.networkVisibilities && item.networkVisibilities?.length > 0 ? item.networkVisibilities : undefined,

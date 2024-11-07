@@ -179,7 +179,7 @@ export const ComponentFormSummarySection: FC<Props> = ({
 				<ComponentSummaryItem title="Type" text={getComponentTypeText(type)} />
 				<ComponentSummaryItem title="Repository" text={genDetails?.repoUrl} className="col-span-2" />
 				<ComponentSummaryItem title="Branch" text={genDetails?.branch} />
-				{genDetails?.subPath && <ComponentSummaryItem title="Directory" text={genDetails?.subPath} />}
+				{genDetails?.subPath && genDetails?.subPath !== '.' && <ComponentSummaryItem title="Directory" text={genDetails?.subPath} />}
 				{items}
 			</div>
 

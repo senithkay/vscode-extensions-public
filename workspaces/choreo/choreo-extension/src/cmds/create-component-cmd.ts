@@ -54,7 +54,7 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						selectedProject = createdProjectRes.selectedProject;
 					}
 
-					let selectedType: string | undefined = params?.initialValues?.type;
+					let selectedType: string | undefined = params?.type;
 					if (!selectedType) {
 						const typeQuickPicks: (QuickPickItem & { value: string })[] = [
 							{ label: getComponentTypeText(ChoreoComponentType.Service), value: ChoreoComponentType.Service },
@@ -63,9 +63,9 @@ export function createNewComponentCommand(context: ExtensionContext) {
 							{ label: getComponentTypeText(ChoreoComponentType.ManualTrigger), value: ChoreoComponentType.ManualTrigger },
 						];
 						const isProxyCreateEnabled = workspace.getConfiguration().get<boolean>("FeaturePreview.ProxyCreation");
-						if(isProxyCreateEnabled){
+						if (isProxyCreateEnabled) {
 							// check proxy item order from console, when adding it back
-							typeQuickPicks.push({ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy })
+							typeQuickPicks.push({ label: getComponentTypeText(ChoreoComponentType.ApiProxy), value: ChoreoComponentType.ApiProxy });
 						}
 						const selectedTypePick = await window.showQuickPick(typeQuickPicks, { title: "Select Component Type" });
 						if (selectedTypePick?.value) {
@@ -78,8 +78,8 @@ export function createNewComponentCommand(context: ExtensionContext) {
 					}
 
 					let selectedUri: Uri;
-					if (params?.initialValues?.componentDir && existsSync(params.initialValues?.componentDir)) {
-						selectedUri = Uri.parse(convertFsPathToUriPath(params.initialValues?.componentDir));
+					if (params?.componentDir && existsSync(params?.componentDir)) {
+						selectedUri = Uri.parse(convertFsPathToUriPath(params?.componentDir));
 					} else {
 						let defaultUri: Uri;
 						if (workspace.workspaceFile && workspace.workspaceFile.scheme !== "untitled") {
@@ -113,8 +113,8 @@ export function createNewComponentCommand(context: ExtensionContext) {
 						project: selectedProject!,
 						initialValues: {
 							type: selectedType,
-							buildPackLang: params?.initialValues?.buildPackLang,
-							name: params?.initialValues?.name,
+							buildPackLang: params?.buildPackLang,
+							name: params?.name || dirName || "",
 						},
 					};
 
@@ -154,7 +154,7 @@ export const continueCreateComponent = () => {
 	}
 };
 
-export const submitCreateComponentHandler = async ({ createParams, org, project, autoBuildOnCommit, type }: SubmitComponentCreateReq) => {
+export const submitCreateComponentHandler = async ({ createParams, org, project }: SubmitComponentCreateReq) => {
 	const createdComponent = await window.withProgress(
 		{
 			title: `Creating new component ${createParams.displayName}...`,
@@ -164,6 +164,8 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 	);
 
 	if (createdComponent) {
+		// TODO: enable autoBuildOnCommit once its stable
+		/*
 		if (type !== ChoreoComponentType.ApiProxy && autoBuildOnCommit) {
 			const envs = dataCacheStore.getState().getEnvs(org.handle, project.handler);
 			const matchingTrack = createdComponent?.deploymentTracks.find((item) => item.branch === createParams.branch);
@@ -184,6 +186,7 @@ export const submitCreateComponentHandler = async ({ createParams, org, project,
 				}
 			}
 		}
+		*/
 
 		showComponentDetailsView(org, project, createdComponent, createParams?.componentDir);
 

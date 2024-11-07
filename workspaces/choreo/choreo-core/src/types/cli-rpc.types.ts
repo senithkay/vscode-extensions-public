@@ -257,6 +257,7 @@ export interface CreateComponentConnectionReq {
 	serviceVisibility: string;
 	serviceSchemaId: string;
 	name: string;
+	generateCreds: boolean;
 }
 
 export interface DeleteConnectionReq {
