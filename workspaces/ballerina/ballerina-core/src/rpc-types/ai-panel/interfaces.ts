@@ -17,6 +17,12 @@ export type ErrorCode = {
 };
 
 export interface ProjectSource {
+    projectModules?: ProjectModule[];
+    sourceFiles: SourceFile[];
+}
+
+export interface ProjectModule {
+    moduleName: string;
     sourceFiles: SourceFile[];
 }
 
@@ -29,14 +35,16 @@ export interface ProjectDiagnostics {
     diagnostics: DiagnosticEntry[];
 }
 
+export interface DiagnosticEntry {
+    line?: number;
+    message : string;
+}
+
 export interface InitialPrompt {
     exists: boolean;
     text: string;
 }
 
-export interface DiagnosticEntry {
-    message : string;
-}
 export interface AIVisualizerState {
     state: AIMachineStateValue;
 }
@@ -47,6 +55,7 @@ export interface AIVisualizerState {
 export interface AddToProjectRequest {
     filePath: string;
     content: string;
+    isTestCode: boolean;
 }
 export interface GetFromFileRequest {
     filePath: string;
@@ -69,4 +78,34 @@ export interface NotifyAIMappingsRequest {
     newFnPosition: NodePosition;
     prevFnSource: string;
     filePath: string;
+}
+
+export interface GenerateTestRequest {
+    backendUri: string;
+    token: string;
+    serviceName: string;
+    existingSource?: GeneratedTestSource;
+    diagnostics?: ProjectDiagnostics;
+}
+
+export interface GeneratedTestSource {
+    testContent: string;
+    configContent?: string;
+}
+
+export interface DataMappingRecord {
+    type: string;
+    isArray: boolean;
+    filePath: string;
+}
+
+export interface GenerteMappingsFromRecordRequest {
+    backendUri: string;
+    token: string;
+    inputRecordTypes: DataMappingRecord[];
+    outputRecordType: DataMappingRecord;
+}
+
+export interface GenerateMappingFromRecordResponse {
+    mappingCode: string;
 }
