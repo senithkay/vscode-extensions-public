@@ -18,7 +18,13 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_GAP_X, NODE_HEIGHT, VSCODE_MARGIN, WHILE_NODE_WIDTH } from "../resources/constants";
+import {
+    BUTTON_NODE_HEIGHT,
+    EMPTY_NODE_WIDTH,
+    NODE_GAP_X,
+    VSCODE_MARGIN,
+    WHILE_NODE_WIDTH,
+} from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
@@ -373,7 +379,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (node.id.endsWith("-last")) {
             const lastNodeModel = new EndNodeModel(node.id);
             lastNodeModel.setPosition(node.viewState.x, node.viewState.y);
-            this.updateNodeLinks(node, lastNodeModel, { showArrow: true });
+            this.updateNodeLinks(node, lastNodeModel, { showArrow: true, showButtonAlways: this.nodes.length === 1 });
             if (Object.keys(lastNodeModel.getInPort().getLinks()).length > 0) {
                 // only render the last node model if it has links
                 this.nodes.push(lastNodeModel);

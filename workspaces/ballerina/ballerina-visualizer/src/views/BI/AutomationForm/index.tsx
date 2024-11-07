@@ -219,29 +219,33 @@ export function MainForm() {
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    {automation &&
-                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link></Typography>
+                    {automation ?
+                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link>
+                        </Typography>
+                        :
+                        <>
+                            <Typography variant="h2">Create Automation</Typography>
+                            <BodyText>
+                                Implement an automation for either scheduled or manual jobs.
+                            </BodyText>
+                            <FormContainer>
+                                <Form
+                                    formFields={currentFields}
+                                    oneTimeForm={true}
+                                    expressionEditor={
+                                        {
+                                            completions: filteredTypes,
+                                            retrieveVisibleTypes: handleGetVisibleTypes,
+                                            onCompletionSelect: handleCompletionSelect,
+                                            onCancel: handleExpressionEditorCancel,
+                                            onBlur: handleExpressionEditorBlur
+                                        }
+                                    }
+                                    onSubmit={!isLoading && !automation && handleFunctionCreate}
+                                />
+                            </FormContainer>
+                        </>
                     }
-                    <Typography variant="h2">Create Automation</Typography>
-                    <BodyText>
-                        Implement an automation for either scheduled or manual jobs.
-                    </BodyText>
-                    <FormContainer>
-                        <Form
-                            formFields={currentFields}
-                            oneTimeForm={true}
-                            expressionEditor={
-                                {
-                                    completions: filteredTypes,
-                                    retrieveVisibleTypes: handleGetVisibleTypes,
-                                    onCompletionSelect: handleCompletionSelect,
-                                    onCancel: handleExpressionEditorCancel,
-                                    onBlur: handleExpressionEditorBlur
-                                }
-                            }
-                            onSubmit={!isLoading && !automation && handleFunctionCreate}
-                        />
-                    </FormContainer>
                 </Container>
             </ViewContent>
         </View>

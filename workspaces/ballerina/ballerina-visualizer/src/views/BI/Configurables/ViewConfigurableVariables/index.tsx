@@ -158,10 +158,10 @@ export function ViewConfigurableVariables() {
                                                                 : variable.properties.defaultable.value
                                                         : null}
                                                 </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex" }}>
+                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex", justifyContent:"center" }}>
                                                     <Codicon name="edit" onClick={(event) => handleEditConfigVariableFormOpen(index)} />
                                                 </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex" }}>
+                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex", justifyContent:"center" }}>
                                                     <Codicon name="trash" onClick={(event) => handleOnDeleteConfigVariable(index)} />
                                                 </VSCodeDataGridCell>
                                             </VSCodeDataGridRow>

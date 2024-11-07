@@ -184,6 +184,7 @@ export function EmptyNodeWidget(props: EmptyNodeWidgetProps) {
                                 display: ${isHovered ? "flex" : "none"};
                                 animation: ${fadeInZoomIn} 0.2s ease-out forwards;
                                 cursor: not-allowed;
+                                visibility: hidden;
                             `}
                         >
                             <path

@@ -17,6 +17,7 @@ const Label = styled.div`
     font-family: var(--font-family);
     color: var(--vscode-editor-foreground);
     text-align: left;
+    text-transform: capitalize;
 `;
 const Description = styled.div`
     font-family: var(--font-family);

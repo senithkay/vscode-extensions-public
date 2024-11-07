@@ -276,20 +276,21 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
             const resource = await getResource(member, rpcClient, isBI);
-            const editAction: Item = {
-                id: "edit",
-                label: "Edit",
-                onClick: () => handleResourceEdit(resource),
-            };
-            const deleteAction: Item = {
-                id: "delete",
-                label: "Delete",
-                onClick: () => handleResourceDelete(resource),
-            };
-            const moreActions: Item[] = [editAction, deleteAction];
-            if (canEdit) {
-                resource.additionalActions = moreActions;
-            }
+            // If we want to add more actions to the resource menu do following
+            //const editAction: Item = {
+            //     id: "edit",
+            //     label: "Edit",
+            //     onClick: () => handleResourceEdit(resource),
+            // };
+            // const deleteAction: Item = {
+            //     id: "delete",
+            //     label: "Delete",
+            //     onClick: () => handleResourceDelete(resource),
+            // };
+            // const moreActions: Item[] = [editAction, deleteAction];
+            // if (canEdit) {
+            //     resource.additionalActions = moreActions;
+            // }
             resources.push(resource);
         }
     }
