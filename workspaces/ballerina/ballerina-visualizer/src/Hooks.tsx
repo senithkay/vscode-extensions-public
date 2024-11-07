@@ -25,7 +25,7 @@ export const useExperimentalEnabled = () => {
         isFetching: isFetchingExperimentalEnabled,
         isError,
         refetch,
-    } = useQuery(['isExperimentalEnabled', {}], () => isExperimentalEnabled(), {});
+    } = useQuery(['isExperimentalEnabled', {}], () => isExperimentalEnabled(), { networkMode: 'always' });
 
     return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
 };
@@ -49,7 +49,7 @@ export const useIOTypes = (filePath: string, position: LinePosition) => {
         isFetching: isFetchingIOTypes,
         isError: isIOTypeError,
         refetch
-    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), {});
+    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), { networkMode: 'always' });
 
     return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
 };
@@ -76,7 +76,7 @@ export const useSTNodeByRange = (filePath: string, range: Range) => {
         isFetching: isFetchingSTNode,
         isError: isSTNodeError,
         refetch
-    } = useQuery(['getSTNode', { filePath }], () => getSTNode(), {});
+    } = useQuery(['getSTNode', { filePath }], () => getSTNode(), { networkMode: 'always' });
 
     return {stNode, isFetchingSTNode, isSTNodeError, refetch};
 };

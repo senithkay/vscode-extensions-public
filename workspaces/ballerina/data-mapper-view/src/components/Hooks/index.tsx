@@ -62,7 +62,7 @@ export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, f
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), {});
+    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), { networkMode: 'always' });
 
     return { projectComponents, isFetching, isError, refetch };
 };
@@ -150,7 +150,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };
 };
@@ -232,7 +232,7 @@ export const useDMMetaData = (langServerRpcClient: LangClientRpcClient): {
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), {});
+    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), { networkMode: 'always' });
 
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
@@ -265,7 +265,7 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), {});
+    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), { networkMode: 'always' });
 
     return { content, isFetching, isError, refetch };
 };

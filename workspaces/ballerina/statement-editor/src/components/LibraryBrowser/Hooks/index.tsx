@@ -34,7 +34,7 @@ export const useLibrarySearchData = (libraryBrowserRpcClient: LibraryBrowserRpcC
         isFetching: isFetchingSearchData,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents'], () => fetchLibrarySearchData(), {});
+    } = useQuery(['fetchProjectComponents'], () => fetchLibrarySearchData(), { networkMode: 'always' });
 
     return { librariesSearchData, isFetchingSearchData, isError, refetch };
 };
@@ -67,7 +67,7 @@ export const useLibrariesList = (libraryBrowserRpcClient: LibraryBrowserRpcClien
         isFetching: isFetchingLibList,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents', {libraryType}], () => fetchLibrariesList(), {});
+    } = useQuery(['fetchProjectComponents', {libraryType}], () => fetchLibrariesList(), { networkMode: 'always' });
 
     return { libraries, isFetchingLibList, isError, refetch };
 };
