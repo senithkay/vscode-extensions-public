@@ -38,6 +38,7 @@ import {
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
+    GetResourceUsagesResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
     DSSQueryGenResponse
@@ -150,6 +151,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getRegistryFiles(req: string): Promise<string[]> {
         return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.file(req).toString() });
+    }
+
+    async getResourceUsages(): Promise<GetResourceUsagesResponse> {
+        return this.sendRequest("synapse/getResourceUsages");
     }
 
     async getCertificateMap(connectorName: string): Promise<Map<string, string[]>> {
