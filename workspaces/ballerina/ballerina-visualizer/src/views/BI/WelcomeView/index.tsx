@@ -111,9 +111,15 @@ export function WelcomeView() {
     };
 
     const openGettingStartedGuide = () => {
-        // rpcClient.getVisualizerRpcClient().openExternal({
-        //     uri: "https://mi.docs.wso2.com/en/4.3.0/get-started/development-kickstart/"
-        // })
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: "https://wso2.github.io/docs-kola/get-started/quick-start-guide/"
+        })
+    };
+
+    const openSamples = () => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: "https://wso2.github.io/docs-kola/learn/message-transformation/"
+        })
     };
 
     return (
@@ -156,7 +162,7 @@ export function WelcomeView() {
                         <StepTitle>Explore Pre-Built Samples</StepTitle>
                         <StepDescription>
                             Need inspiration? Browse through sample projects to see how Kola handles real-world
-                            integrations. <VSCodeLink onClick={openGettingStartedGuide}>Explore Samples</VSCodeLink>.
+                            integrations. <VSCodeLink onClick={openSamples}>Explore Samples</VSCodeLink>.
                         </StepDescription>
                     </Column>
                 </Row>

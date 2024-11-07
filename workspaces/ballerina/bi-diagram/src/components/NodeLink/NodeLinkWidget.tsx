@@ -147,7 +147,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                 <foreignObject x={addButtonPosition.x - 35} y={addButtonPosition.y - 10} width="70" height="20">
                     <div
                         css={css`
-                            display: ${isHovered ? "flex" : "none"};
+                            display: ${isHovered || link.showButtonAlways ? "flex" : "none"};
                             justify-content: center;
                             align-items: center;
                             gap: 5px;
@@ -162,6 +162,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             onClick={handleAddComment}
                             css={css`
                                 cursor: pointer;
+                                visibility: ${isHovered ? "visible" : "hidden"};
                             `}
                         >
                             <path
@@ -201,6 +202,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                             onClick={handleAddPrompt}
                             css={css`
                                 cursor: not-allowed;
+                                visibility: hidden;
                             `}
                         >
                             <path
