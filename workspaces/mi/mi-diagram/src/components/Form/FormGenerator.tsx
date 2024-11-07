@@ -23,14 +23,6 @@ const Field = styled.div`
     margin-bottom: 12px;
 `;
 
-const cardStyle = {
-    display: "block",
-    margin: "15px 0",
-    padding: "0 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
-};
-
 export interface FormGeneratorProps {
     formData: any;
     sequences?: string[];
@@ -278,6 +270,23 @@ export function FormGenerator(props: FormGeneratorProps) {
                     } : undefined}
                 />)
             }
+            case 'ParamManager': {
+                return (
+                    <ParamManager
+                        paramConfigs={field.value}
+                        readonly={false}
+                        onChange={(values) => {
+                            values.paramValues = values.paramValues.map((param: any) => {
+                                const property: ParamValue[] = param.paramValues;
+                                param.key = property[0].value;
+                                param.value = (property[1].value as ExpressionFieldValue).value;
+                                param.icon = 'query';
+                                return param;
+                            });
+                            field.onChange(values);
+                        }}
+                    />);
+            }
             default:
                 return null;
         }
@@ -288,7 +297,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         let paramFields: any = [];
 
         const tableKeys: string[] = [];
-        elements.forEach((attribute: any, index: number) => {
+        elements.forEach((attribute: any) => {
             const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
             let defaultValue: any = [];
 
@@ -384,7 +393,27 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
             const name = getNameForController(element.value.name);
-            if (element.type === 'attribute') {
+
+            if (element.type === 'attributeGroup') {
+                return (
+                    <>
+                        {(element.value.groupName === "Generic" || (element.value.groupName === "General" && skipGeneralHeading)) ?
+                            renderForm(element.value.elements) :
+                            <Field>
+                                <FormGroup
+                                    key={element.value.groupName}
+                                    title={`${element.value.groupName} Properties`}
+                                    isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
+                                        true : false
+                                    }
+                                >
+                                    {renderForm(element.value.elements)}
+                                </FormGroup>
+                            </Field>
+                        }
+                    </>
+                );
+            } else {
                 if (element.value.hidden) {
                     setValue(name, element.value.defaultValue ?? "");
                     return;
@@ -419,53 +448,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (
                     renderControllerIfConditionMet(element)
                 );
-            } else if (element.type === 'attributeGroup') {
-                return (
-                    <>
-                        {(element.value.groupName === "Generic" || (element.value.groupName === "General" && skipGeneralHeading)) ?
-                            renderForm(element.value.elements) :
-                            <>
-                                <FormGroup
-                                    key={element.value.groupName}
-                                    title={`${element.value.groupName} Properties`}
-                                    isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
-                                        true : false
-                                    }
-                                >
-                                    {renderForm(element.value.elements)}
-                                </FormGroup>
-                            </>
-                        }
-                    </>
-                );
-            } else if (element.type === 'table') {
-                return (
-                    <>
-                        <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <Typography variant="h3">{element.value.displayName}</Typography>
-                            <Typography variant="body3">{element.value.description}</Typography>
-                            <Controller
-                                name={name}
-                                control={control}
-                                render={({ field: { onChange, value } }) => (
-                                    <ParamManager
-                                        paramConfigs={value}
-                                        readonly={false}
-                                        onChange={(values) => {
-                                            values.paramValues = values.paramValues.map((param: any, index: number) => {
-                                                const property: ParamValue[] = param.paramValues;
-                                                param.key = property[0].value;
-                                                param.value = (property[1].value as ExpressionFieldValue).value;
-                                                param.icon = 'query';
-                                                return param;
-                                            });
-                                            onChange(values);
-                                        }}
-                                    />
-                                )}
-                            />
-                        </ComponentCard>
-                    </>);
             }
             return null;
         });
@@ -477,6 +459,10 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         if (Array.isArray(element.value.enableCondition)) {
             shouldRender = getConditions(element.value.enableCondition);
+        }
+
+        if (element.type === 'table') {
+            element.value.inputType = 'ParamManager';
         }
 
         if (shouldRender) {
