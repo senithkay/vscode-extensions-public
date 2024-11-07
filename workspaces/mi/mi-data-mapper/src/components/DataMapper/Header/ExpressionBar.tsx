@@ -62,12 +62,13 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string, cursorPosition: number = -1) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
-        if (cursorPosition >= 0) {
-            textFieldRef.current.inputElement.setSelectionRange(1, 1);
-            cursorPositionBeforeSaving.current = cursorPosition;
-            triggerRerender((prev)=>!prev);
-            console.log('.:.setTextFieldValue.cursorPosition', cursorPosition);
-        }
+        textFieldRef.current?.setCursor(2);
+        // if (cursorPosition >= 0) {
+        //     textFieldRef.current.inputElement.setSelectionRange(1, 1);
+        //     cursorPositionBeforeSaving.current = cursorPosition;
+        //     triggerRerender((prev)=>!prev);
+        //     console.log('.:.setTextFieldValue.cursorPosition', cursorPosition);
+        // }
         // textFieldRef.current?.inputElement.setSelectionRange(1, 1);
         // 
     };
@@ -175,13 +176,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                     }
                     // Update the expression text when an input port is selected
                     const cursorPosition = inputElement.selectionStart;
-                    console.log('.:.cursorPosition', cursorPosition);
+                    
                     const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
                     const updatedText =
                         textFieldValue.substring(0, cursorPosition) +
                         inputAccessExpr +
                         textFieldValue.substring(cursorPosition);
                     await handleChange(updatedText, cursorPosition + inputAccessExpr.length);
+                    //textFieldRef.current?.setCursor(cursorPosition + inputAccessExpr.length);
                     // await handleChange(updatedText);
 
                     // cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;

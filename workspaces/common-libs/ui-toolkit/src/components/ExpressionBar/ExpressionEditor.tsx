@@ -705,6 +705,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         blur: handleRefBlur,
         saveExpression: async (value?: string, ref?: React.MutableRefObject<string>) => {
             await handleExpressionSaveMutation(value, ref);
+        },
+        setCursor: (position: number) => {
+            setCursor(textBoxRef, inputElementType, position);
         }
     }));
 
