@@ -104,8 +104,14 @@ export interface GenerteMappingsFromRecordRequest {
     token: string;
     inputRecordTypes: DataMappingRecord[];
     outputRecordType: DataMappingRecord;
+    functionName: string;
 }
 
 export interface GenerateMappingFromRecordResponse {
     mappingCode: string;
+}
+export interface MappingParameters{
+    inputRecord: string[];
+    outputRecord: string,
+    functionName?: string;
 }
