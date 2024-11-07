@@ -288,3 +288,7 @@ export interface Entrypoint {
     dependencies: string[];
     connections: string[];
 }
+
+export interface ReadmeContentResponse {
+    content: string;
+}
