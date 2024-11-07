@@ -59,9 +59,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const [,triggerRerender]=useState(false);
     const textFieldValueRef = useRef<string>("");
     let textFieldValue = textFieldValueRef.current;
-    const setTextFieldValue = (value: string) => {
+    const setTextFieldValue = (value: string, cursorPosition: number = -1) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
+        if (cursorPosition >= 0) {
+            textFieldRef.current.inputElement.setSelectionRange(1, 1);
+            cursorPositionBeforeSaving.current = cursorPosition;
+            triggerRerender((prev)=>!prev);
+            console.log('.:.setTextFieldValue.cursorPosition', cursorPosition);
+        }
+        // textFieldRef.current?.inputElement.setSelectionRange(1, 1);
+        // 
     };
     
     
@@ -166,14 +174,22 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                         inputElement.blur();
                     }
                     // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.inputElement.selectionStart;
+                    const cursorPosition = inputElement.selectionStart;
+                    console.log('.:.cursorPosition', cursorPosition);
                     const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
                     const updatedText =
                         textFieldValue.substring(0, cursorPosition) +
                         inputAccessExpr +
                         textFieldValue.substring(cursorPosition);
-                    await handleChange(updatedText);
-                    cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
+                    await handleChange(updatedText, cursorPosition + inputAccessExpr.length);
+                    // await handleChange(updatedText);
+
+                    // cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
+                    // console.log('.:.cursorPositionBeforeSaving', cursorPositionBeforeSaving.current);
+                    // inputElement.setSelectionRange(
+                    //     cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
+                    // );
+                    // triggerRerender((prev)=>!prev);
                     resetInputPort();
                 }
             }
@@ -370,9 +386,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyModifications(updatedSourceContent);
     };
 
-    const handleChange = async (text: string) => {
-        setTextFieldValue(text);
-        await updateCompletions(text);
+    const handleChange = async (text: string, cursorPosition: number = -1) => {
+        setTextFieldValue(text, cursorPosition);
+        // await updateCompletions(text);
     };
 
     // TODO: Implement arg extraction logic using getSignatureHelp method of ts-morph language server
@@ -396,11 +412,17 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions([]);
     };
 
+    const handleCloseCompletions = () => {
+        cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
+        setCompletions([]);
+        handleFocus(false);
+    }
+
     const handleFocus = async (showCompletions: boolean = true) => {
         
-        const textField = textFieldRef.current.inputElement;
-        textField.focus();
-        textField.setSelectionRange(
+        const inputElement = textFieldRef.current.inputElement;
+        inputElement.focus();
+        inputElement.setSelectionRange(
             cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
         );
 
@@ -475,6 +497,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onCompletionSelect={handleCompletionSelect}
                 onSave={updateSource}
                 onCancel={handleCancelCompletions}
+                onClose={handleCloseCompletions}
                 useTransaction={useDisableOnChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}

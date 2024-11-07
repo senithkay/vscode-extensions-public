@@ -335,7 +335,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     <KeyContainer>
                         <DropdownFooterKey>ESC</DropdownFooterKey>
                     </KeyContainer>
-                    <DropdownFooterText>to close.</DropdownFooterText>
+                    <DropdownFooterText>to cancel.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -396,6 +396,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onChange,
         onSave,
         onCancel,
+        onClose,
         onCompletionSelect,
         onDefaultCompletionSelect,
         extractArgsFromFunction,
@@ -447,9 +448,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef, isDropdownOpen]);
 
-    const handleClose = () => {
+    const handleCancel = () => {
         onCancel();
         setFnSignature(undefined);
+    };
+
+    const handleClose = () => {
+        onClose ? onClose() : handleCancel();
     };
 
     // This allows us to update the Function Signature UI
@@ -494,7 +499,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         if(ref) value = ref.current;
         const valueWithClosingBracket = addClosingBracketIfNeeded(value);
         onSave && await onSave(valueWithClosingBracket);
-        handleClose();
+        handleCancel();
     }
 
     // Mutation functions
@@ -610,7 +615,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 switch (e.key) {
                     case 'Escape':
                         e.preventDefault();
-                        handleClose();
+                        handleCancel();
                         return;
                     case 'ArrowDown': {
                         e.preventDefault();
@@ -712,14 +717,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 !dropdownContainerRef.current?.contains(e.target)
             ) {
                 await onBlur?.(e);
-            }else if(
-                document.activeElement === textBoxRef.current &&
-                document.body.querySelector('[id="expression-editor-close"]')?.contains(e.target)
-            ){
-                setTimeout(() => {
-                    onFocus?.(false);
-                }, 250);
-                //TODO: Need proper fix
             }
         }
 
