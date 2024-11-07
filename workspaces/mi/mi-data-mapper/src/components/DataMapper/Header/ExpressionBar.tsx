@@ -52,7 +52,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
     const textFieldRef = useRef<ExpressionBarRef>(null);
-    const cursorPositionBeforeSaving = useRef<number | undefined>();
+    const lastCursorPosition = useRef<number | undefined>();
     const completionReqPosStart = useRef<number>(0);
     const completionReqPosEnd = useRef<number>(0);
 
@@ -170,7 +170,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                             inputAccessExpr +
                             textFieldValue.substring(cursorPosition);
                         await handleChange(updatedText);
-                        cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
+                        lastCursorPosition.current = cursorPosition + inputAccessExpr.length;
                         triggerAction((prev) => !prev);
                     } else {
                         inputElement.blur();
@@ -236,7 +236,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // Set cursor position
         if (focusedPort || focusedFilter) {
-            cursorPositionBeforeSaving.current = value.length;
+            lastCursorPosition.current = value.length;
             
             setTextFieldValue(value);
             setSavedNodeValue(value);
@@ -320,7 +320,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setSavedNodeValue(value);
 
         // Save the cursor position before saving
-        cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
+        lastCursorPosition.current = textFieldRef.current.inputElement.selectionStart;
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
         } else if (lastFocusedFilter) {
@@ -399,7 +399,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleCloseCompletions = () => {
-        cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
+        lastCursorPosition.current = textFieldRef.current.inputElement.selectionStart;
         setCompletions([]);
         handleFocus(false);
     }
@@ -409,7 +409,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         const inputElement = textFieldRef.current.inputElement;
         inputElement.focus();
         inputElement.setSelectionRange(
-            cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
+            lastCursorPosition.current, lastCursorPosition.current
         );
 
         if (showCompletions) 
