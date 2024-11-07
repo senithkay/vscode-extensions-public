@@ -40,7 +40,13 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSQueryGenResponse
+    DSSQueryGenResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest,
+    UpdateMediatorResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -298,5 +304,20 @@ export class ExtendedLanguageClient extends LanguageClient {
 
             resolve(undefined);
         });
+    }
+
+    async getMediators(request: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return this.sendRequest("synapse/getMediators", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.position });
+    }
+
+    async getMediator(request: GetMediatorRequest): Promise<GetMediatorResponse> {
+        if (request.documentUri && request.range) {
+            return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
+        }
+        return this.sendRequest("synapse/getMediatorUISchema", request);
+    }
+
+    async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
+        return this.sendRequest("synapse/generateSynapseConfig", request);
     }
 }

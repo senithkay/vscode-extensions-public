@@ -1759,14 +1759,12 @@ export interface GetMediatorsRequest {
 }
 
 export interface GetMediatorsResponse {
-    [key: string]: {
-        type: string;
-        mediators: Mediator[];
-    };
+    [key: string]: Mediator[];
 }
 
 export interface Mediator {
-    displayName: string
+    title: string;
+    tag:string;
     type: string;
     description: string;
     icon: string;
@@ -1787,7 +1785,7 @@ export interface UpdateMediatorRequest {
     range: Range;
     mediatorType: string;
     oldValues?: any;
-    newValues: any;
+    values: any;
     dirtyFields?: string[];
     trailingSpace?: string;
 }

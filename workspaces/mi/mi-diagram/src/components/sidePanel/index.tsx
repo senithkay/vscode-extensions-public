@@ -140,13 +140,15 @@ const SidePanelList = (props: SidePanelListProps) => {
                 } else {
 
                     const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
-                        mediatorType: sidePanelContext.operationName,
+                        mediatorType: sidePanelContext.tag,
+                        range: sidePanelContext?.nodeRange,
+                        documentUri: props?.documentUri
                     });
 
                     if (!mediatorDetails) {
                         return;
                     }
-                    const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.operationName} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />;
+                    const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.tag} isUpdate={true} documentUri={props.documentUri} range={props.nodePosition} />;
                     mediatorsPage = { content: form, title: `Edit ${sidePanelContext.operationName}` };
                 }
             } else {
