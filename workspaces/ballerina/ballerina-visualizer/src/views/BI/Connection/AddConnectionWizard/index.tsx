@@ -229,7 +229,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             {!isPullingConnector && !fetchingInfo && currentStep === WizardStep.CONNECTION_CONFIG && (
                 <PanelContainer
                     show={true}
-                    title={`Configure ${selectedConnectorRef.current?.metadata.label || ''} Connector`}
+                    title={`Configure the ${selectedConnectorRef.current?.metadata.label || ''} Connector`}
                     onClose={onClose ? onClose : handleOnBack}
                     width={400}
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}

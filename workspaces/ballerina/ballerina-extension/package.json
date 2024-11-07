@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.1.4",
+    "version": "0.3.1",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -564,6 +564,20 @@
                 "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add",
+                "title": "Add Construct",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.overview",
+                "title": "Show Overview",
+                "icon": "$(distro-design-view)",
+                "group": "navigation",
+                "category": "BI"
             }
         ],
         "views": {
@@ -922,7 +936,7 @@
         "test-coverage": "cross-env COVER_CONFIG=html pnpm run test",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
-        "package": "vsce package --no-dependencies --pre-release",
+        "package": "vsce package --no-dependencies",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "copyVSIX": "copyfiles *.vsix ./vsix",
         "copyVSIXToRoot": "copyfiles -f ./vsix/*.vsix ../../..",
