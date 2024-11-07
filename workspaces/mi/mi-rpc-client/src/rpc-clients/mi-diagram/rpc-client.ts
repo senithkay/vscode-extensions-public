@@ -72,6 +72,7 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetResourceUsagesResponse,
     GetCertificateFileMapRequest,
     GetCertificateFileMapResponse,
     GetAllTestSuitsResponse,
@@ -223,6 +224,7 @@ import {
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getResourceUsages,
     getCertificateFileMap,
     getAllTestSuites,
     getAvailableConnectors,
@@ -754,6 +756,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
     }
+
+    getResourceUsages(): Promise<GetResourceUsagesResponse> {
+        return this._messenger.sendRequest(getResourceUsages, HOST_EXTENSION);
+    } 
 
     getCertificateFileMap(params: GetCertificateFileMapRequest): Promise<GetCertificateFileMapResponse> {
         return this._messenger.sendRequest(getCertificateFileMap, HOST_EXTENSION, params);

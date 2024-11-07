@@ -157,6 +157,7 @@ import {
     GetConnectorConnectionsResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetResourceUsagesResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
@@ -306,6 +307,7 @@ export interface MiDiagramAPI {
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
     logoutFromMIAccount: () => void;
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
+    getResourceUsages: () => Promise<GetResourceUsagesResponse>;
     getCertificateFileMap: (params: GetCertificateFileMapRequest) => Promise<GetCertificateFileMapResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;

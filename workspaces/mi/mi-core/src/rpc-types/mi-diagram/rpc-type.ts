@@ -156,6 +156,7 @@ import {
     GetConnectorConnectionsResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetResourceUsagesResponse,
     GetCertificateFileMapRequest,
     GetCertificateFileMapResponse,
     GetAllArtifactsRequest,
@@ -308,6 +309,7 @@ export const createConnection: RequestType<CreateConnectionRequest, CreateConnec
 export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest, GetConnectorConnectionsResponse> = { method: `${_preFix}/getConnectorConnections` };
 export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}/logoutFromMIAccount` };
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
+export const getResourceUsages: RequestType<void, GetResourceUsagesResponse> = { method: `${_preFix}/getResourceUsages` };
 export const getCertificateFileMap: RequestType<GetCertificateFileMapRequest, GetCertificateFileMapResponse> = { method: `${_preFix}/getCertificateFileMap` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };

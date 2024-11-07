@@ -1549,6 +1549,10 @@ export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
 
+export interface GetResourceUsagesResponse {
+    usages?: string[];
+}
+
 export interface GetCertificateFileMapRequest {
     connectorName: string;
 }

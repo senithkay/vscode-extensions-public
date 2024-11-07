@@ -81,6 +81,7 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetResourceUsagesResponse,
     GetCertificateFileMapRequest,
     GetCertificateFileMapResponse,
     GetAllTestSuitsResponse,
@@ -3852,6 +3853,14 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
             resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
+        });
+    }
+
+    async getResourceUsages(): Promise<GetResourceUsagesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getResourceUsages();
+            resolve(res);
         });
     }
 
