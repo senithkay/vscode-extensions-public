@@ -250,7 +250,11 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     // show module name in the title if org is ballerina or ballerinax
     const nodeTitle =
         model.node.codedata?.org === "ballerina" || model.node.codedata?.org === "ballerinax"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
+            ? `${
+                  model.node.codedata.module.includes(".")
+                      ? model.node.codedata.module.split(".").pop()
+                      : model.node.codedata.module
+              } : ${model.node.metadata.label}`
             : model.node.metadata.label;
 
     const hasError = nodeHasError(model.node);
