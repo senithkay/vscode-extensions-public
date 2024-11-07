@@ -13,6 +13,7 @@ import { TextField } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
+import { capitalize } from "./utils";
 
 const AddTypeContainer = styled.div<{}>`
     display: flex;
@@ -59,7 +60,7 @@ export function TextEditor(props: TextEditorProps) {
             id={field.key}
             name={field.key}
             {...register(field.key, { required: !field.optional && !field.placeholder })}
-            label={field.label}
+            label={capitalize(field.label)}
             required={!field.optional}
             description={field.documentation}
             placeholder={field.placeholder}
