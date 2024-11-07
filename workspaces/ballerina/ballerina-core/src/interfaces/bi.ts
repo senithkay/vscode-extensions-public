@@ -273,4 +273,5 @@ export type ConfigVariable = {
     branches: Branch[];
     id: string;
     returning: boolean;
+    diagnostics?: Diagnostic;
 };
