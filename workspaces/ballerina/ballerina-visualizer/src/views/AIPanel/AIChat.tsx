@@ -164,8 +164,6 @@ export function AIChat() {
     const messagesEndRef = React.createRef<HTMLDivElement>();
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
-    const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
-    const [files, setFiles] = useState([]);
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
     let codeSegmentRendered = false; 
@@ -613,7 +611,6 @@ export function AIChat() {
                 throw new Error("Streaming error");
             }
         }
-        removeAllFiles();
         addChatEntry("user", message);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles)); 
@@ -852,14 +849,7 @@ export function AIChat() {
         if (otherMessages.length > 0) {
             setCurrentGeneratingPromptIndex(otherMessages.length - 1);
         }
-    }, [otherMessages.length]); 
-
-
-    const removeAllFiles = () => {
-        setFiles([]);
-        setFileUploadStatus({ type: '', text: '' });
-    }
-
+    }, [otherMessages.length]);
 
     return (
         <AIChatView>
