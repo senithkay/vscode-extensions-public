@@ -33,6 +33,7 @@ import {
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
     login,
     logout,
     notifyAIMappings,
@@ -121,6 +122,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getShadowDiagnostics(params: ProjectSource): Promise<ProjectDiagnostics> {
         return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, params);
+    }
+
+    checkSyntaxError(params: ProjectSource): Promise<boolean> {
+        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, params);
     }
 
     getInitialPrompt(): Promise<InitialPrompt> {

@@ -602,6 +602,15 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequest = params;
             params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
+            
+            if (!fs.existsSync(params.configFilePath)) {
+                
+                // Create config.bal if it doesn't exist
+                fs.writeFileSync(params.configFilePath, "\n");
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            }
+            
             const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
             this.updateSource(response, undefined, false);
             resolve(response);
