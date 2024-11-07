@@ -35,4 +35,5 @@ export interface AIPanelAPI {
     getGeneratedTest: (params: GenerateTestRequest) => Promise<GeneratedTestSource>;
     getTestDiagnostics: (params: GeneratedTestSource) => Promise<ProjectDiagnostics>;
     getMappingsFromRecord: (params: GenerteMappingsFromRecordRequest) => Promise<GenerateMappingFromRecordResponse>;
+    applyDoOnFailBlocks: () => void;
 }

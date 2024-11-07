@@ -13,7 +13,6 @@ import {
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
-    GetFromFileRequest,
     DeleteFromProjectRequest,
     DiagnosticEntry,
     Diagnostics,
@@ -24,19 +23,24 @@ import {
     GenerateTestRequest,
     GeneratedTestSource,
     GenerteMappingsFromRecordRequest,
+    GetFromFileRequest,
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
     ProjectDiagnostics,
     ProjectSource,
-    SyntaxTree
+    SyntaxTree,
+    BIModuleNodesRequest,
+    BISourceCodeResponse,
+    UpdateFileContentRequest,
+    STModification
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
-import { Uri, window, workspace } from 'vscode';
+import { Uri, window, workspace, Position, Range, WorkspaceEdit } from 'vscode';
 
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
@@ -48,6 +52,7 @@ import { modifyFileContent } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
+import { writeFileSync } from "fs";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -157,6 +162,13 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
 
         fs.writeFileSync(balFilePath, req.content.trim());
+
+        const fileUri = Uri.parse(balFilePath);
+
+        await StateMachine.langClient().didOpen({
+            textDocument: { uri: fileUri.toString(), languageId: "ballerina", version: 1, text: req.content.trim() },
+        });
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
@@ -439,6 +451,114 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const projectRoot = await getBallerinaProjectRoot();
         return await generateDataMapping(projectRoot, params);
     }
+
+    async applyDoOnFailBlocks(): Promise<void> {
+        const projectRoot = await getBallerinaProjectRoot();
+
+        if (!projectRoot) {
+            return null;
+        }
+
+        const balFiles: string[] = [];
+
+        const findBalFiles = (dir: string) => {
+            const files = fs.readdirSync(dir);
+            for (const file of files) {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isDirectory()) {
+                    findBalFiles(filePath);
+                } else if (file.endsWith('.bal')) {
+                    balFiles.push(filePath);
+                }
+            }
+        };
+
+        findBalFiles(projectRoot);
+
+        for (const balFile of balFiles) {
+            const req: BIModuleNodesRequest = {
+                filePath: balFile
+            };
+
+            const resp: BISourceCodeResponse = await StateMachine.langClient().addErrorHandler(req);
+            await this.updateSource(resp, false);
+        }
+    }
+
+    // TODO: Reuse the one in bi-diagram
+    async updateSource(
+        params: BISourceCodeResponse,
+        isConnector?: boolean,
+        isDataMapperFormUpdate?: boolean
+    ): Promise<void> {
+        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+
+        for (const [key, value] of Object.entries(params.textEdits)) {
+            const fileUri = Uri.parse(key);
+            const fileUriString = fileUri.toString();
+            const edits = value;
+
+            if (edits && edits.length > 0) {
+                const modificationList: STModification[] = [];
+
+                for (const edit of edits) {
+                    const stModification: STModification = {
+                        startLine: edit.range.start.line,
+                        startColumn: edit.range.start.character,
+                        endLine: edit.range.end.line,
+                        endColumn: edit.range.end.character,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            STATEMENT: edit.newText,
+                        },
+                    };
+                    modificationList.push(stModification);
+                }
+
+                if (modificationRequests[fileUriString]) {
+                    modificationRequests[fileUriString].modifications.push(...modificationList);
+                } else {
+                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+                }
+            }
+        }
+
+        // Iterate through modificationRequests and apply modifications
+        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+                documentIdentifier: { uri: fileUriString },
+                astModifications: request.modifications,
+            })) as SyntaxTree;
+
+            if (parseSuccess) {
+                writeFileSync(request.filePath, source);
+                await StateMachine.langClient().didChange({
+                    textDocument: { uri: fileUriString, version: 1 },
+                    contentChanges: [
+                        {
+                            text: source,
+                        },
+                    ],
+                });
+
+                if (isConnector) {
+                    await StateMachine.langClient().resolveMissingDependencies({
+                        documentIdentifier: { uri: fileUriString },
+                    });
+                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                    await StateMachine.langClient().didOpen({
+                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                    });
+                }
+            }
+        }
+        if (!isConnector && !isDataMapperFormUpdate) {
+            updateView();
+        }
+    }
+
 }
 
 interface BalModification {
