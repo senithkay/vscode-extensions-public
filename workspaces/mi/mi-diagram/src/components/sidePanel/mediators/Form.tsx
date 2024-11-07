@@ -46,7 +46,7 @@ export function MediatorForm(props: MediatorFormProps) {
         }
         await rpcClient.getMiDiagramRpcClient().updateMediator({
             mediatorType: mediatorType,
-            newValues: values as Record<string, any>,
+            values: values as Record<string, any>,
             oldValues: sidePanelContext.formValues as Record<string, any>,
             dirtyFields: Object.keys(dirtyFields),
             documentUri,
@@ -60,7 +60,7 @@ export function MediatorForm(props: MediatorFormProps) {
 
     return (<FormContainer>
         <FormGenerator
-            formData={mediatorData.form}
+            formData={mediatorData}
             control={control}
             errors={errors}
             setValue={setValue}

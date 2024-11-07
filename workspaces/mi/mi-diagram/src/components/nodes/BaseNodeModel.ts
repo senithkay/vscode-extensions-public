@@ -110,6 +110,7 @@ export class BaseNodeModel extends NodeModel {
             sidePanelContext.setSidePanelState({
                 isOpen: true,
                 operationName,
+                tag: stNode.tag,
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,
