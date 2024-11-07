@@ -34,6 +34,7 @@ namespace S {
 
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
+        textTransform: 'capitalize'
     });
 
     export const Description = styled.div({
@@ -85,7 +86,6 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const exprRef = useRef<ExpressionBarRef>(null);
     const cursorPositionRef = useRef<number | undefined>(undefined);
-    const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
 
     // Use to disable the expression editor on save and completion selection
     const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
@@ -98,7 +98,6 @@ export function TypeEditor(props: TypeEditorProps) {
     const handleFocus = async (value: string) => {
         // Trigger actions on focus
         await onFocus?.();
-        setShowDefaultCompletion(true);
         await retrieveVisibleTypes(value, value.length);
         handleOnFieldFocus?.(field.key);
     };
@@ -106,7 +105,6 @@ export function TypeEditor(props: TypeEditorProps) {
     const handleBlur = async () => {
         // Trigger actions on blur
         await onBlur?.();
-        setShowDefaultCompletion(undefined);
 
         // Clean up memory
         cursorPositionRef.current = undefined;
@@ -123,7 +121,6 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCancel = () => {
         onCancel?.();
-        setShowDefaultCompletion(false);
     }
 
     const handleDefaultCompletionSelect = () => {
@@ -152,7 +149,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         name={name}
                         completions={completions}
                         getExpressionBarIcon={getExpressionBarIcon}
-                        showDefaultCompletion={showDefaultCompletion}
+                        showDefaultCompletion={true}
                         getDefaultCompletion={getDefaultCompletion}
                         value={value}
                         onChange={async (value: string, updatedCursorPosition: number) => {

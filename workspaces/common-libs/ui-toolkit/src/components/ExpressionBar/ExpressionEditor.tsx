@@ -16,7 +16,7 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon,setCursor } from './utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 import { AutoResizeTextArea } from '../TextArea/TextArea';
@@ -335,7 +335,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     <KeyContainer>
                         <DropdownFooterKey>ESC</DropdownFooterKey>
                     </KeyContainer>
-                    <DropdownFooterText>to close.</DropdownFooterText>
+                    <DropdownFooterText>to cancel.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -396,6 +396,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onChange,
         onSave,
         onCancel,
+        onClose,
         onCompletionSelect,
         onDefaultCompletionSelect,
         extractArgsFromFunction,
@@ -447,9 +448,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef, isDropdownOpen]);
 
-    const handleClose = () => {
+    const handleCancel = () => {
         onCancel();
         setFnSignature(undefined);
+    };
+
+    const handleClose = () => {
+        onClose ? onClose() : handleCancel();
     };
 
     // This allows us to update the Function Signature UI
@@ -492,10 +497,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
         if(ref) value = ref.current;
-        console.log('ExpressionEditor: handleExpressionSave', value);
         const valueWithClosingBracket = addClosingBracketIfNeeded(value);
         onSave && await onSave(valueWithClosingBracket);
-        handleClose();
+        handleCancel();
     }
 
     // Mutation functions
@@ -611,7 +615,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 switch (e.key) {
                     case 'Escape':
                         e.preventDefault();
-                        handleClose();
+                        handleCancel();
                         return;
                     case 'ArrowDown': {
                         e.preventDefault();
@@ -659,9 +663,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            console.log('ExpressionEditor: handleInputKeyDown: Enter');
             await handleExpressionSaveMutation(value);
-            skipFocusCallback.current = true; // need to re-check
+           
             return;
         }
     };
@@ -702,6 +705,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         blur: handleRefBlur,
         saveExpression: async (value?: string, ref?: React.MutableRefObject<string>) => {
             await handleExpressionSaveMutation(value, ref);
+        },
+        setCursor: (position: number) => {
+            setCursor(textBoxRef, inputElementType, position);
         }
     }));
 
@@ -731,7 +737,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     value={value}
                     onTextChange={handleChange}
                     onKeyDown={handleInputKeyDown}
-                    onFocus={handleTextFieldFocus}
                     onBlur={handleTextFieldBlur}
                     sx={{ width: '100%', ...sx }}
                     disabled={disabled || (shouldDisableOnSave && isSavingExpression)}
@@ -759,6 +764,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
                         <Transition show={isDropdownOpen} {...ANIMATION}>
                             <Codicon
+                                id='expression-editor-close'
                                 sx={{
                                     position: 'absolute',
                                     top: '0',

@@ -52,7 +52,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const { rpcClient } = useVisualizerContext();
     const classes = useStyles();
     const textFieldRef = useRef<ExpressionBarRef>(null);
-    const cursorPositionBeforeSaving = useRef<number | undefined>();
+    const lastCursorPosition = useRef<number | undefined>();
     const completionReqPosStart = useRef<number>(0);
     const completionReqPosEnd = useRef<number>(0);
 
@@ -62,7 +62,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
-
     };
     
     
@@ -162,19 +161,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 if (textFieldRef.current) {
                     const inputElement = textFieldRef.current.inputElement;
                     if (focusedPort || focusedFilter) {
-                        inputElement.focus();
+                        // Update the expression text when an input port is selected
+                        const cursorPosition = inputElement.selectionStart;
+                        
+                        const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
+                        const updatedText =
+                            textFieldValue.substring(0, cursorPosition) +
+                            inputAccessExpr +
+                            textFieldValue.substring(cursorPosition);
+                        await handleChange(updatedText);
+                        lastCursorPosition.current = cursorPosition + inputAccessExpr.length;
+                        triggerAction((prev) => !prev);
                     } else {
                         inputElement.blur();
                     }
-                    // Update the expression text when an input port is selected
-                    const cursorPosition = textFieldRef.current.inputElement.selectionStart;
-                    const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
-                    const updatedText =
-                        textFieldValue.substring(0, cursorPosition) +
-                        inputAccessExpr +
-                        textFieldValue.substring(cursorPosition);
-                    await handleChange(updatedText);
-                    cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
+                    
                     resetInputPort();
                 }
             }
@@ -186,7 +187,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         let disabled = true;
 
         if (focusedPort) {
-            setPlaceholder('Insert a value for the selected port.');
+            setPlaceholder('Insert a value or select input for the output.');
             
             let focusedPortTypeWithValue = focusedPort.typeWithValue;
             let hasValue = !!focusedPortTypeWithValue.value;
@@ -235,11 +236,11 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         // Set cursor position
         if (focusedPort || focusedFilter) {
-            cursorPositionBeforeSaving.current = value.length;
+            lastCursorPosition.current = value.length;
             
             setTextFieldValue(value);
             setSavedNodeValue(value);
-            triggerAction(!action);
+            triggerAction((prev) => !prev);
         }
 
         return disabled;
@@ -249,26 +250,19 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         requestAnimationFrame(async () => {
             // Get the value to be saved
             let value = "";
-            const focusedNode = lastFocusedPort?.typeWithValue.value;
-            if (focusedNode && !focusedNode.wasForgotten()) {
-                if (Node.isPropertyAssignment(focusedNode)) {
-                    value = focusedNode.getInitializer()?.getText();
-                } else {
-                    value = focusedNode.getText();
-                }
-            } else if (lastFocusedFilter && !lastFocusedFilter.wasForgotten() ) {
-                value = lastFocusedFilter.getText();
-            } else if (!lastFocusedPort && !lastFocusedFilter) {
+            if (!lastFocusedPort && !lastFocusedFilter) {
                 value = undefined;
+            } else {
+                value = textFieldValueRef.current;
             }
 
             if (disabled) {
-                await textFieldRef.current?.blur(value);
+                await handleBlur({target: {closest: ()=>{}}});
             } else if (portChanged) {
                 await textFieldRef.current?.saveExpression(value);
-                await textFieldRef.current?.focus();
+                await handleFocus();
             } else {
-                await textFieldRef.current?.focus();
+                await handleFocus();
             }
         });
     }, [disabled, action, lastFocusedPort, lastFocusedFilter]);
@@ -326,7 +320,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setSavedNodeValue(value);
 
         // Save the cursor position before saving
-        cursorPositionBeforeSaving.current = textFieldRef.current.inputElement.selectionStart;
+        lastCursorPosition.current = textFieldRef.current.inputElement.selectionStart;
         if (lastFocusedPort) {
             await applyChangesOnFocusedPort(value);
         } else if (lastFocusedFilter) {
@@ -378,7 +372,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyModifications(updatedSourceContent);
     };
 
-    const handleChange = async (text: string) => {
+    const handleChange = async (text: string, cursorPosition?: number) => {
         setTextFieldValue(text);
         await updateCompletions(text);
     };
@@ -404,15 +398,22 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         setCompletions([]);
     };
 
-    const handleFocus = async () => {
-        // Set the cursor position to the last saved position
-        const textField = textFieldRef.current.inputElement;
-        textField.focus();
-        textField.setSelectionRange(
-            cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
+    const handleCloseCompletions = () => {
+        lastCursorPosition.current = textFieldRef.current.inputElement.selectionStart;
+        setCompletions([]);
+        handleFocus(false);
+    }
+
+    const handleFocus = async (showCompletions: boolean = true) => {
+        
+        const inputElement = textFieldRef.current.inputElement;
+        inputElement.focus();
+        inputElement.setSelectionRange(
+            lastCursorPosition.current, lastCursorPosition.current
         );
 
-        setCompletions(await getCompletions());
+        if (showCompletions) 
+            setCompletions(await getCompletions());
 
         // Update the last focused port and filter
         setLastFocusedPort(focusedPort);
@@ -481,6 +482,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 onCompletionSelect={handleCompletionSelect}
                 onSave={updateSource}
                 onCancel={handleCancelCompletions}
+                onClose={handleCloseCompletions}
                 useTransaction={useDisableOnChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}

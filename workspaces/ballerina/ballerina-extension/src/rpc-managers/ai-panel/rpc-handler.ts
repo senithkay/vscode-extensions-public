@@ -13,6 +13,9 @@ import {
     GetFromFileRequest,
     DeleteFromProjectRequest,
     GenerateMappingsRequest,
+    GenerateTestRequest,
+    GeneratedTestSource,
+    GenerteMappingsFromRecordRequest,
     NotifyAIMappingsRequest,
     ProjectSource,
     addToProject,
@@ -23,18 +26,22 @@ import {
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getGeneratedTest,
     getInitialPrompt,
+    getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
+    getTestDiagnostics,
     login,
     logout,
     notifyAIMappings,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
-    updateProject,
+    updateProject
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -59,6 +66,10 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(promptLogin, () => rpcManger.promptLogin());
     messenger.onRequest(getProjectSource, () => rpcManger.getProjectSource());
     messenger.onRequest(getShadowDiagnostics, (args: ProjectSource) => rpcManger.getShadowDiagnostics(args));
+    messenger.onRequest(checkSyntaxError, (args: ProjectSource) => rpcManger.checkSyntaxError(args));
     messenger.onRequest(getInitialPrompt, () => rpcManger.getInitialPrompt());
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
+    messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
+    messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
+    messenger.onRequest(getMappingsFromRecord, (args: GenerteMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
 }

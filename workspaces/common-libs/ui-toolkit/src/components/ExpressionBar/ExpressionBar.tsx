@@ -80,10 +80,11 @@ export type ExpressionBarBaseProps = {
     inputProps?: InputProps;
     textBoxType?: 'TextField' | 'TextArea';
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
-    onFocus?: () => void | Promise<void>;
+    onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    onClose?: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
 
@@ -125,6 +126,7 @@ export type ExpressionBarRef = {
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
+    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components

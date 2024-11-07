@@ -12,7 +12,7 @@ import React from "react";
 import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import { FormField } from "../Form/types";
-import { getValueForDropdown } from "./utils";
+import { capitalize, getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
 
 interface DropdownEditorProps {
@@ -33,7 +33,7 @@ export function DropdownEditor(props: DropdownEditorProps) {
         <Dropdown
             id={field.key}
             {...register(field.key, { required: !field.optional, value: getValueForDropdown(field) })}
-            label={field.label}
+            label={capitalize(field.label)}
             items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
             required={!field.optional}
             disabled={!field.editable}

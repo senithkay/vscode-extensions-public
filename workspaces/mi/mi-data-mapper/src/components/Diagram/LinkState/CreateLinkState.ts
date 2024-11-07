@@ -41,10 +41,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					const isExpandOrCollapse = (actionEvent.event.target as Element)
+						.closest('div[id^="expand-or-collapse"]');
 					const { focusedPort, focusedFilter } = useDMExpressionBarStore.getState();
 					const isExprBarFocused = focusedPort || focusedFilter;
 
-					if (element === null) {
+					if (element === null || isExpandOrCollapse) {
 						this.clearState();
 					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {

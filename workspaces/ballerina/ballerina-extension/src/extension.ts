@@ -32,6 +32,7 @@ import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
 import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 import { RPCLayer } from './RPCLayer';
+import { activateAIFeatures } from './features/ai/activator';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -134,6 +135,9 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         //activate ai panel
         activateAiPanel(ballerinaExtInstance);
+
+        // Activate AI features
+        activateAIFeatures(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
