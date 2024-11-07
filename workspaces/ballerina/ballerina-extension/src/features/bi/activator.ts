@@ -27,7 +27,7 @@ export function activate(context: BallerinaExtension) {
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_TYPE, () => {
-        // Trigger to open the schema import view
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.TypeDiagram });
     });
 
     commands.registerCommand(BI_COMMANDS.ADD_FUNCTION, () => {

@@ -76,6 +76,7 @@ export function ConnectorView(props: ConnectorViewProps) {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
+        setIsSearching(true);
         getConnectors();
     }, []);
 
@@ -86,6 +87,8 @@ export function ConnectorView(props: ConnectorViewProps) {
             .then((model) => {
                 console.log(">>> bi connectors", model);
                 setConnectors(model.categories);
+            }).finally(() => {
+                setIsSearching(false);
             });
     };
 
@@ -102,14 +105,11 @@ export function ConnectorView(props: ConnectorViewProps) {
             .then((model) => {
                 console.log(">>> bi searched connectors", model);
                 setConnectors(model.categories);
+            }).finally(() => {
+                setIsSearching(false);
             });
     }
     const debouncedSearch = debounce(handleSearch, 1100);
-
-
-    useEffect(() => {
-        setIsSearching(false);
-    }, [connectors]);
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
@@ -252,7 +252,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                     )}
                 </ListContainer>
             )}
-            {!isSearching && !connectors || (connectors.length === 0 && <p>No connectors found</p>)}
+            {(!isSearching && connectors.length === 0) && <p>No connectors found</p>}
         </Container>
     );
 }
