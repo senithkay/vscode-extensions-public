@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { startCase } from "lodash";
 import { FormField } from "../Form/types";
 
 export function isDropdownField(field: FormField) {
@@ -18,4 +19,11 @@ export function getValueForDropdown(field: FormField, multiSelectIndex: number =
         return field.value?.length > 0 ? field.value[multiSelectIndex] : field.items[0];
     }
     return field.value !== "" ? field.value : field.items[0];
+}
+
+export function capitalize(str: string) {
+    if (!str) {
+        return '';
+    }
+    return startCase(str);
 }

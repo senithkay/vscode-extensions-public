@@ -59,9 +59,9 @@ export function HttpForm(props: HttpFormProps) {
     const { handleView } = props;
     const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
-    const [path, setPath] = useState("");
+    const [path, setPath] = useState("/");
     const [specPath, setSpecPath] = useState("");
-    const [port, setPort] = useState("");
+    const [port, setPort] = useState("9090");
     const [file, setFile] = useState("");
     const [selectedModule, setSelectedModule] = useState<ServiceType>("Scratch");
     const [isLoading, setIsLoading] = useState(false);
@@ -127,6 +127,7 @@ export function HttpForm(props: HttpFormProps) {
                                     value={name}
                                     label="Service Name"
                                     placeholder="Enter service name"
+                                    autoFocus
                                 />
                                 <TextField
                                     onTextChange={setPath}
