@@ -195,7 +195,8 @@ export function AIChat() {
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
                         if (initPrompt.exists) {
-                            setUserInput(initPrompt.text);
+                            // setUserInput(initPrompt.text);
+                            setUserInput("/scaffolding generate integration with readme");
                         }
                     });
                 rpcClient
@@ -365,7 +366,7 @@ export function AIChat() {
                         await processCodeGeneration(token, [
                             parameters.length === 1 ? parameters[0] : messageBody,
                             attachments,
-                        ]);
+                        ], message);
                         break;
                     }
                     case "/test": {
@@ -391,7 +392,7 @@ export function AIChat() {
                 );
             }
         } else {
-            await processCodeGeneration(token, content);
+            await processCodeGeneration(token, content, message);
         }
     }
 
@@ -443,7 +444,7 @@ export function AIChat() {
         return null;
     }
 
-    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]]) {
+    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], useCase: string) {
         const [message, attachments] = content;
 
         let assistant_response = "";
@@ -611,7 +612,9 @@ export function AIChat() {
                 throw new Error("Streaming error");
             }
         }
-        addChatEntry("user", message);
+
+        const userMessage = getUserMessage([useCase, attachments]);
+        addChatEntry("user", userMessage);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
         addChatEntry("assistant", assistant_response);

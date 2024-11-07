@@ -311,6 +311,22 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
         setInputValue(value);
     }, [value]);
 
+    useEffect(() => {
+        if (value.startsWith("/")) {
+            const command = value.slice().split(' ')[0];
+            const commandValue = value.split(' ').slice(1).join(' ');
+            if (baseCommands.has(command)) {
+                setInputValue("");
+                selectSuggestion(command);
+
+                setInputValue((currentInputValue) => {
+                    return currentInputValue + encodeHTML(commandValue);
+                });
+                setSelectedCommand(null);
+            }
+        }
+    }, [value]);
+
     // Handle input changes
     const handleInputChange = (event: ChangeEvent<HTMLDivElement>) => {
         const value = event.target.innerText;
@@ -377,6 +393,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
                 setActiveSuggestion(newIndex, filteredSuggestions);
             } else if (
                 event.key === "Enter" ||
+                event.key === "Tab" ||
                 (event.key === " " && inputValue.trim() && baseCommands.has(inputValue.trim()))
             ) {
                 event.preventDefault();
