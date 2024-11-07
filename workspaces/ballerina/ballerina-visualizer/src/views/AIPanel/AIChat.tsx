@@ -9,15 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import {
-    VisualizerLocation,
-    GetWorkspaceContextResponse,
-    MACHINE_VIEW,
-    ProjectSource,
-    SourceFile,
-    ProjectDiagnostics,
-    InitialPrompt,
-} from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW, ProjectSource, SourceFile, ProjectDiagnostics, InitialPrompt, MappingParameters, DataMappingRecord } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
@@ -139,17 +131,15 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 const commandToTemplate = new Map<string, string[]>([
-    ["/scaffolding", ["generate code for the use-case: <use-case>", "generate an integration according to the given Readme file"]],
-    ["/test", ["generate test using <servicename> service"]],
-    // [
-    //     "/datamapper",
-    //     [
-    //         "generate mapping using the uploaded file",
-    //         "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    //         "generate mapping using input as <recordname(s)> and output as <recordname>",
-    //     ],
-    // ],
-    // ["/typecreator", ["generate types from the <filename> file"]],
+    ["/scaffolding", ["Generate code for the use-case: <use-case>"]],
+    ["/test", ["Generate test using <ServiceName> service"]],
+    [
+        "/datamapper",
+        [
+            "Generate mapping using input as <RecordName(s)> and output as <RecordName> using the function <FunctionName>",
+            "Generate mapping using input as <RecordName(s)> and output as <RecordName>"
+        ],
+    ]
 ]);
 
 //TOOD: Add the backend URL
@@ -364,26 +354,23 @@ export function AIChat() {
                 switch (commandKey) {
                     case "/scaffolding": {
                         await processCodeGeneration(token, [
-                            parameters.length === 1 ? parameters[0] : messageBody,
+                            parameters.inputRecord.length === 1 ? parameters.inputRecord[0] : messageBody,
                             attachments,
                         ], message);
                         break;
                     }
                     case "/test": {
-                        await processTestGeneration(content, token, parameters[0]);
+                        await processTestGeneration(content, token, parameters.inputRecord[0]);
                         break;
                     }
-                    // case "/datamapper": {
-                    //     if (parameters.length >= 2) {
-                    //         await processDataMappings(message, token, parameters);
-                    //     } else {
-                    //         throw new Error("Error: Invalid parameters for /test command");
-                    //     }
-                    //     break;
-                    // }
-                    // case "typecreator": {
-
-                    // }
+                    case "/datamapper": {
+                        if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
+                            await processDataMappings(message, token, parameters);
+                        } else {
+                            throw new Error("Error: Invalid parameters for /datamapper command");
+                        }
+                        break;
+                    }
                 }
             } else {
                 throw new Error(
@@ -405,19 +392,20 @@ export function AIChat() {
         return "";
     }
 
-    function extractParameters(command: string, messageBody: string): string[] | null {
+    function extractParameters(command: string, messageBody: string): MappingParameters | null {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(.+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w]+(?:[\\s,]+[\\w]+)*)")
-                .replace(/<recordname>/g, "(.+?)")
-                .replace(/<use-case>/g, "(.+?)");
+                .replace(/<ServiceName>/g, "(.+?)")
+                .replace(/<RecordName\(s\)>/g, "([\\w\\[\\]]+(?:[\\s,]+[\\w\\[\\]]+)*)") 
+                .replace(/<RecordName>/g, "([\\w\\[\\]]+)")
+                .replace(/<use-case>/g, "(.+?)")
+                .replace(/<FunctionName>/g, "(.*)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
             if (match) {
-                if (command === "/datamapper" && template.includes("<recordname(s)>")) {
+                if (command === "/datamapper" && template.includes("<RecordName(s)>")) {
                     const inputRecordNamesRaw = match[1].trim();
                     let inputRecordList: string[];
 
@@ -434,11 +422,19 @@ export function AIChat() {
                     }
 
                     const outputRecordName = match[2].trim();
-
-                    return [inputRecordList.join(","), outputRecordName];
+                    const functionName = match[3]?.trim() || "";
+                    return {
+                        inputRecord: inputRecordList,
+                        outputRecord: outputRecordName,
+                        functionName
+                    };
                 }
-
-                return match.slice(1).map((param) => param.trim());
+                const [inputRecord, outputRecord, functionName] = match.slice(1).map(param => param.trim());
+                return {
+                    inputRecord: [inputRecord],
+                    outputRecord,
+                    functionName
+                };
             }
         }
         return null;
@@ -732,30 +728,22 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    interface Record {
-        type: string;
-        isArray: boolean;
-        filePath: string;
-    }
-
-    async function processDataMappings(message: string, token: string, parameters: string[]) {
-        console.log(parameters);
+    async function processDataMappings(message: string, token: string, parameters: MappingParameters) {
         let assistant_response = "";
+        setIsLoading(true);
+    
+        const inputParams = parameters.inputRecord;
+        const outputParam = parameters.outputRecord;
+        const functionName = parameters.functionName || "transform";
 
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            assistant_response += `Generating mappings for the records ${parameters.join(", ")}. Please wait...`;
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
-
-        const inputParams = parameters.slice(0, -1);
-        const outputParam = parameters[parameters.length - 1];
+        const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
+    
+        if (invalidPattern.test(functionName)) {
+            throw new Error("Error: Please provide a valid function name without special characters.");
+        }
 
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
-
-        const recordMap: Map<string, Record> = new Map();
-
+        const recordMap: Map<string, DataMappingRecord> = new Map(); 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -764,37 +752,55 @@ export function AIChat() {
                 }
                 mod.records.forEach((rec) => {
                     const recFilePath = filepath + rec.filePath;
-                    recordMap.set(rec.name, { ...rec, type: rec.name, isArray: false, filePath: recFilePath });
+                    recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
             });
         });
-
+        
         try {
-            const inputs: Record[] = [];
-            for (const param of inputParams) {
-                const rec = recordMap.get(param);
+            const inputs: DataMappingRecord[] = inputParams.map((param) => {
+                const isArray = param.endsWith("[]");
+                const recordName = param.replace(/\[\]$/, "");
+                const rec = recordMap.get(recordName);
+    
                 if (!rec) {
-                    throw new Error(`Input parameter "${param}" does not match any record name.`);
+                    throw new Error(`Input parameter "${recordName}" does not match any record name.`);
                 }
-                inputs.push(rec);
-            }
-
-            const output = recordMap.get(outputParam);
+    
+                return { ...rec, isArray };
+            });
+    
+            const outputRecordName = outputParam.replace(/\[\]$/, "");
+            const outputIsArray = outputParam.endsWith("[]");
+            const output = recordMap.get(outputRecordName);
+    
             if (!output) {
-                throw new Error(`Output parameter "${outputParam}" does not match any record name.`);
+                throw new Error(`Output parameter "${outputRecordName}" does not match any record name.`);
             }
-
+    
+            const outputRecord: DataMappingRecord = { ...output, isArray: outputIsArray };
+    
             const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord({
                 backendUri: "",
                 token: "",
                 inputRecordTypes: inputs,
-                outputRecordType: output,
-            });
-
+                outputRecordType: outputRecord,
+                functionName
+            });    
             setIsLoading(false);
             setIsCodeLoading(false);
-            assistant_response += `\n\n<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
-            setMessages((prevMessages) => {
+    
+            assistant_response = `Mappings consist of the following:\n`;
+            if (inputParams.length === 1) {
+                assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
+            } else {
+                assistant_response += `- **Input Records**: ${inputParams.join(', ')}\n`;
+            }
+            assistant_response += `- **Output Record**: ${outputParam}\n`;
+            assistant_response += `- **Function Name**: ${functionName}\n`; 
+            assistant_response += `<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+    
+            setMessages(prevMessages => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = assistant_response;
                 return newMessages;
@@ -810,7 +816,7 @@ export function AIChat() {
             });
             throw new Error("Failed to generate Mappings.");
         }
-
+        addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
 
