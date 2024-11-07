@@ -139,7 +139,7 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 const commandToTemplate = new Map<string, string[]>([
-    ["/scaffolding", ["generate code for the use-case: <use-case>", "generate integration with readme"]],
+    ["/scaffolding", ["generate code for the use-case: <use-case>", "generate an integration according to the given Readme file"]],
     ["/test", ["generate test using <servicename> service"]],
     // [
     //     "/datamapper",
@@ -196,7 +196,7 @@ export function AIChat() {
                     .then((initPrompt: InitialPrompt) => {
                         if (initPrompt.exists) {
                             // setUserInput(initPrompt.text);
-                            setUserInput("/scaffolding generate integration with readme");
+                            setUserInput("/scaffolding generate an integration according to the given Readme file");
                         }
                     });
                 rpcClient
