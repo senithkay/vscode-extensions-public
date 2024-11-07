@@ -59,18 +59,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     const [,triggerRerender]=useState(false);
     const textFieldValueRef = useRef<string>("");
     let textFieldValue = textFieldValueRef.current;
-    const setTextFieldValue = (value: string, cursorPosition: number = -1) => {
+    const setTextFieldValue = (value: string) => {
         textFieldValueRef.current = value;
         textFieldValue = value;
-        textFieldRef.current?.setCursor(2);
-        // if (cursorPosition >= 0) {
-        //     textFieldRef.current.inputElement.setSelectionRange(1, 1);
-        //     cursorPositionBeforeSaving.current = cursorPosition;
-        //     triggerRerender((prev)=>!prev);
-        //     console.log('.:.setTextFieldValue.cursorPosition', cursorPosition);
-        // }
-        // textFieldRef.current?.inputElement.setSelectionRange(1, 1);
-        // 
     };
     
     
@@ -170,28 +161,21 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 if (textFieldRef.current) {
                     const inputElement = textFieldRef.current.inputElement;
                     if (focusedPort || focusedFilter) {
-                        inputElement.focus();
+                        // Update the expression text when an input port is selected
+                        const cursorPosition = inputElement.selectionStart;
+                        
+                        const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
+                        const updatedText =
+                            textFieldValue.substring(0, cursorPosition) +
+                            inputAccessExpr +
+                            textFieldValue.substring(cursorPosition);
+                        await handleChange(updatedText);
+                        cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
+                        triggerAction((prev) => !prev);
                     } else {
                         inputElement.blur();
                     }
-                    // Update the expression text when an input port is selected
-                    const cursorPosition = inputElement.selectionStart;
                     
-                    const inputAccessExpr = buildInputAccessExpr(inputPort.fieldFQN);
-                    const updatedText =
-                        textFieldValue.substring(0, cursorPosition) +
-                        inputAccessExpr +
-                        textFieldValue.substring(cursorPosition);
-                    await handleChange(updatedText, cursorPosition + inputAccessExpr.length);
-                    //textFieldRef.current?.setCursor(cursorPosition + inputAccessExpr.length);
-                    // await handleChange(updatedText);
-
-                    // cursorPositionBeforeSaving.current = cursorPosition + inputAccessExpr.length;
-                    // console.log('.:.cursorPositionBeforeSaving', cursorPositionBeforeSaving.current);
-                    // inputElement.setSelectionRange(
-                    //     cursorPositionBeforeSaving.current, cursorPositionBeforeSaving.current
-                    // );
-                    // triggerRerender((prev)=>!prev);
                     resetInputPort();
                 }
             }
@@ -256,7 +240,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             
             setTextFieldValue(value);
             setSavedNodeValue(value);
-            triggerAction(!action);
+            triggerAction((prev) => !prev);
         }
 
         return disabled;
@@ -388,9 +372,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         await applyModifications(updatedSourceContent);
     };
 
-    const handleChange = async (text: string, cursorPosition: number = -1) => {
-        setTextFieldValue(text, cursorPosition);
-        // await updateCompletions(text);
+    const handleChange = async (text: string, cursorPosition?: number) => {
+        setTextFieldValue(text);
+        await updateCompletions(text);
     };
 
     // TODO: Implement arg extraction logic using getSignatureHelp method of ts-morph language server
@@ -430,7 +414,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
         if (showCompletions) 
             setCompletions(await getCompletions());
-
 
         // Update the last focused port and filter
         setLastFocusedPort(focusedPort);
