@@ -165,6 +165,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                             model={serviceConfig}
                             onResourceClick={handleGoToSource}
                             disableServiceHeader={props.isBI}
+                            onResourceEdit={handleResourceEdit}
+                            onResourceDelete={handleResourceDelete}
                         />
                     </ViewContent>
                 </View>

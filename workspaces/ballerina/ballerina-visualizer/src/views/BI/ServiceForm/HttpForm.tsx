@@ -100,7 +100,7 @@ export function HttpForm(props: HttpFormProps) {
                 <BIHeader />
                 <Container>
                     <FormContainer>
-                        <Typography variant="h2">Create HTTP Service</Typography>
+                        <Typography variant="h2">Create an HTTP Service</Typography>
                         <BodyText>
                             Design your HTTP service using the our Service Designer or import an OpenAPI
                             Specification (OAS) file to set it up quickly.
@@ -108,7 +108,7 @@ export function HttpForm(props: HttpFormProps) {
                         <CardGrid>
                             <ButtonCard
                                 title="Design From Scratch"
-                                description="Design your HTTP service using our service design tool."
+                                description="Design your HTTP service using our service designer."
                                 active={selectedModule === "Scratch"}
                                 onClick={() => handleSelection("Scratch")}
                             />

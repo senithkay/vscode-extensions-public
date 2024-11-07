@@ -745,6 +745,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
+        debouncedGetVisibleTypes.cancel();
         handleExpressionEditorCancel();
     };
 
