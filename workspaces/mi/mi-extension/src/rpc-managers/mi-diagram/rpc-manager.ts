@@ -4889,111 +4889,130 @@ ${keyValuesXML}`;
     }
 
     async getMediators(param: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        
         return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getMediators(param);
+            resolve(response);
             // TODO: Replace with actual implementation with language server
-            const mediators = {
-                "most popular": {
-                    type: "mediator",
-                    mediators: [
-                        {
-                            displayName: "Call Endpoint",
-                            type: "call",
-                            description: "Invokes external services in blocking/non-blocking mode",
-                            icon: "call endpoint"
-                        },
-                        {
-                            displayName: "Property",
-                            type: "property",
-                            description: "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
-                            icon: "property"
-                        },
-                        {
-                            displayName: "Log",
-                            type: "Log",
-                            description: "Generates logs for messages. Log details are customisable",
-                            icon: "log"
-                        },
-                        {
-                            displayName: "Payload",
-                            type: "payload factory",
-                            description: "Replaces message payload with a new SOAP/JSON payload",
-                            icon: "payload factory"
-                        },
-                        {
-                            displayName: "Respond",
-                            type: "respond",
-                            description: "Terminates the processing of the current message flow and returns the message to the client",
-                            icon: "respond"
-                        },
-                        {
-                            displayName: "Data Mapper",
-                            type: "datamapper",
-                            description: "Transforms one data format to another, or changes the data structure in the message",
-                            icon: "datamapper"
-                        }
-                    ]
-                },
-                "flow control": {
-                    type: "mediator",
-                    mediators: [
-                        {
-                            displayName: "Filter",
-                            type: "filter",
-                            description: "Filters messages based on XPath/JSONPath/regex",
-                            icon: "filter"
-                        },
-                        {
-                            displayName: "Switch",
-                            type: "switch",
-                            description: "Routes messages based on XPath/JSONPath/regex matching",
-                            icon: "switch"
-                        },
-                        {
-                            displayName: "Foreach",
-                            type: "foreach",
-                            description: "Iterates over a list of items and processes each item",
-                            icon: "foreach"
-                        }
-                        // ... other flow control mediators
-                    ]
-                }
-            };
+            // const mediators = {
+            //     "most popular": {
+            //         type: "mediator",
+            //         mediators: [
+            //             {
+            //                 displayName: "Call Endpoint",
+            //                 type: "call",
+            //                 description: "Invokes external services in blocking/non-blocking mode",
+            //                 icon: "call endpoint"
+            //             },
+            //             {
+            //                 displayName: "Property",
+            //                 type: "property",
+            //                 description: "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
+            //                 icon: "property"
+            //             },
+            //             {
+            //                 displayName: "Log",
+            //                 type: "Log",
+            //                 description: "Generates logs for messages. Log details are customisable",
+            //                 icon: "log"
+            //             },
+            //             {
+            //                 displayName: "Payload",
+            //                 type: "payload factory",
+            //                 description: "Replaces message payload with a new SOAP/JSON payload",
+            //                 icon: "payload factory"
+            //             },
+            //             {
+            //                 displayName: "Respond",
+            //                 type: "respond",
+            //                 description: "Terminates the processing of the current message flow and returns the message to the client",
+            //                 icon: "respond"
+            //             },
+            //             {
+            //                 displayName: "Data Mapper",
+            //                 type: "datamapper",
+            //                 description: "Transforms one data format to another, or changes the data structure in the message",
+            //                 icon: "datamapper"
+            //             }
+            //         ]
+            //     },
+            //     "flow control": {
+            //         type: "mediator",
+            //         mediators: [
+            //             {
+            //                 displayName: "Filter",
+            //                 type: "filter",
+            //                 description: "Filters messages based on XPath/JSONPath/regex",
+            //                 icon: "filter"
+            //             },
+            //             {
+            //                 displayName: "Switch",
+            //                 type: "switch",
+            //                 description: "Routes messages based on XPath/JSONPath/regex matching",
+            //                 icon: "switch"
+            //             },
+            //             {
+            //                 displayName: "Foreach",
+            //                 type: "foreach",
+            //                 description: "Iterates over a list of items and processes each item",
+            //                 icon: "foreach"
+            //             }
+            //             // ... other flow control mediators
+            //         ]
+            //     }
+            // };
 
-            resolve(mediators);
+            // resolve(mediators);
         });
     }
 
     async getMediator(param: GetMediatorRequest): Promise<GetMediatorResponse> {
         return new Promise(async (resolve) => {
+
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getMediator(param);
+            resolve(response);
             // TODO: Replace with actual implementation with language server
-            const fs = require('fs');
-            const path = require('path');
+            // const fs = require('fs');
+            // const path = require('path');
 
-            const logSchemaPath = path.join(__dirname, '../../../../syntax-tree/ui-schemas/mediators');
-            let logSchema;
+            // const logSchemaPath = path.join(__dirname, '../../../../syntax-tree/ui-schemas/mediators');
+            // let logSchema;
 
-            const findJsonFile = (dir) => {
-                const entries = fs.readdirSync(dir, { withFileTypes: true });
-                for (const entry of entries) {
-                    const fullPath = path.join(dir, entry.name);
-                    if (entry.isDirectory()) {
-                        findJsonFile(fullPath);
-                    } else if (entry.isFile() && entry.name === `${param.mediatorType.toLowerCase()}.json`) {
-                        const file = fs.readFileSync(fullPath, 'utf8');
-                        logSchema = JSON.parse(file);
-                        break;
-                    }
-                }
-            };
+            // const findJsonFile = (dir) => {
+            //     const entries = fs.readdirSync(dir, { withFileTypes: true });
+            //     for (const entry of entries) {
+            //         const fullPath = path.join(dir, entry.name);
+            //         if (entry.isDirectory()) {
+            //             findJsonFile(fullPath);
+            //         } else if (entry.isFile() && entry.name === `${param.mediatorType.toLowerCase()}.json`) {
+            //             const file = fs.readFileSync(fullPath, 'utf8');
+            //             logSchema = JSON.parse(file);
+            //             break;
+            //         }
+            //     }
+            // };
 
-            findJsonFile(logSchemaPath);
+            // findJsonFile(logSchemaPath);
 
-            resolve({ form: logSchema });
+            // resolve({ form: logSchema });
         });
     }
 
     async updateMediator(param: UpdateMediatorRequest): Promise<void> {
         return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.generateSynapseConfig(param);
+            if (response && response.textEdits) {
+                let edits = response.textEdits;
+                let workspaceEdit = new WorkspaceEdit();
+                for (const edit of edits) {
+                    let range = new Range(edit.range.start.line, edit.range.start.character, edit.range.end.line, edit.range.end.character);
+                    workspaceEdit.replace(Uri.parse(param.documentUri), range, edit.newText);
+                }
+                await workspace.applyEdit(workspaceEdit);
+            }
             // const textEdits = getXML(param.mediatorType, param.newValues, param.oldValues, param.dirtyFields);
             // const trailingSpaces = param.trailingSpace || "\n";
 

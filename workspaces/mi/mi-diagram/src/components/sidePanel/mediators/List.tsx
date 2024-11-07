@@ -56,7 +56,7 @@ export function Mediators(props: MediatorProps) {
 
     const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
         const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
-            mediatorType: mediator.type,
+            mediatorType: mediator.tag,
         });
 
         if (!mediatorDetails) {
@@ -64,9 +64,9 @@ export function Mediators(props: MediatorProps) {
         }
         const form =
             <div style={{ padding: '20px' }}>
-                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.type} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
             </div>;
-        sidepanelAddPage(sidePanelContext, form, `Add ${mediator.displayName}`, getMediatorIconsFromFont(mediator.icon, isMostPopular));
+        sidepanelAddPage(sidePanelContext, form, `Add ${mediator.title}`, getMediatorIconsFromFont(mediator.icon, isMostPopular));
     }
 
     const searchForm = (value: string, search?: boolean) => {
@@ -104,7 +104,7 @@ export function Mediators(props: MediatorProps) {
                     <div key={key}>
                         <h4>{FirstCharToUpperCase(key)}</h4>
                         <ButtonGrid>
-                            {values.mediators.map((mediator: Mediator) => (
+                            {values.map((mediator: Mediator) => (
                                 <Tooltip content={mediator.description} position='bottom' sx={{ zIndex: 2010 }}>
                                     <ComponentCard
                                         id={mediator.type}
@@ -135,7 +135,7 @@ export function Mediators(props: MediatorProps) {
                                             {getMediatorIconsFromFont(mediator.icon, key === "most popular")}
                                         </IconContainer>
                                         <div >
-                                            <IconLabel>{FirstCharToUpperCase(mediator.displayName)}</IconLabel>
+                                            <IconLabel>{FirstCharToUpperCase(mediator.title)}</IconLabel>
                                         </div>
                                     </ComponentCard>
                                 </Tooltip>
