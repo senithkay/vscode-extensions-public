@@ -257,9 +257,6 @@ function isJavaVersionCompatibleWithMI(javaVersion: string, miVersion: string): 
     return supportedJavaVersionsForMI[miVersion]?.startsWith(majorJavaVersion) ?? false;
 }
 
-function isMIInstalledInProjectPath(projectPath: string): boolean {
-    return isMIInstalledAtPath(path.join(projectPath, '.wso2mi', 'runtime'));
-}
 
 export function isMIInstalledAtPath(miPath: string): boolean {
     const miExecutable = process.platform === 'win32' ? 'micro-integrator.bat' : 'micro-integrator.sh';
@@ -335,7 +332,7 @@ export async function ensureMISetup(projectUri: string, miVersion: string): Prom
 
     const miPath = path.join(projectUri, '.wso2mi', 'runtime', `wso2mi-${miVersion}`);
 
-    if (!isMIInstalledInProjectPath(projectUri)) {
+    if (!isMIInstalledAtPath(miPath)) {
         const availableMIVersion = getMIVersion(miPath);
 
         if (availableMIVersion !== miVersion) {
