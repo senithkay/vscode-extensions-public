@@ -710,12 +710,15 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
 
         const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
+        let filteredTypes = visibleTypes.filter((type) => {
             const lowerCaseText = effectiveText.toLowerCase();
             const lowerCaseLabel = type.label.toLowerCase();
 
             return lowerCaseLabel.includes(lowerCaseText);
         });
+
+        // Remove description from each type as its duplicate information
+        filteredTypes = filteredTypes.map(type => ({ ...type, description: undefined }));
 
         setFilteredTypes(filteredTypes);
     }, 250);

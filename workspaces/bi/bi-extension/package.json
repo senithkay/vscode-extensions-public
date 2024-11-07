@@ -68,6 +68,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "BI.project-explorer.delete",
+                    "when": "view == BI.project-explorer && viewItem == connection",
+                    "group": "inline"
+                },
+                {
                     "command": "BI.project-explorer.add-entry-point",
                     "when": "view == BI.project-explorer && viewItem == entryPoint",
                     "group": "inline"
