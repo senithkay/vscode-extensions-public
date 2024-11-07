@@ -74,13 +74,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     useEffect(() => {
-        const defaultValues = formData.elements.reduce((values: any, element: any) => {
-            const key = getNameForController(element.value.name);
-            values[key] = element.type === 'table'
-                ? getParamManagerConfig(element.value.elements, element.value.tableKey, element.value.tableValue)
-                : element.value.defaultValue ?? "";
-            return values;
-        }, {});
+        const defaultValues = getDefaultValues(formData.elements);
         reset(defaultValues);
         setIsLoading(false);
     }, [props.formData]);
@@ -90,6 +84,22 @@ export function FormGenerator(props: FormGeneratorProps) {
             sidepanelGoBack(sidePanelContext);
         };
     }, [sidePanelContext.pageStack]);
+
+    function getDefaultValues(elements: any[]) {
+        const values: any = {};
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements[i];
+            const key = getNameForController(element.value.name);
+            if (element.type === 'table') {
+                values[key] = getParamManagerConfig(element.value.elements, element.value.tableKey, element.value.tableValue);
+            } else if (element.type === 'attributeGroup') {
+                Object.assign(values, getDefaultValues(element.value.elements));
+            } else {
+                values[key] = element.value.defaultValue ?? "";
+            }
+        }
+        return values;
+    }
 
     function getNameForController(name: string | number) {
         return String(name).replace(/\./g, '__dot__');
