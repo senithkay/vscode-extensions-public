@@ -216,6 +216,12 @@ export class DataMapper {
 
     }
 
+    public async expectErrorLink(locator: Locator) {
+        await locator.waitFor({ state: 'attached' });
+        const hasDiagnostic = await locator.evaluate((el) => el.getAttribute('data-diagnostics') == "true");
+        expect(hasDiagnostic).toBeTruthy();
+    }
+
     public verifyTsFileContent(comparingFile: string) {
         const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
         return this.compareFiles(tsFile, comparingFile);
