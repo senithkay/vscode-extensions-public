@@ -27,6 +27,7 @@ import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
 import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NodeTypes } from "../resources/constants";
+import Controls from "./Controls";
 
 export interface DiagramProps {
     project: Project;
@@ -189,10 +190,13 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
+            <Controls engine={diagramEngine} />
+
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
+
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}
