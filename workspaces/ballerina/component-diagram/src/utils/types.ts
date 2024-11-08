@@ -27,6 +27,7 @@ export type EntryPoint = {
     name: string;
     type: EntryPointType;
     location?: Location;
+    label?: string;
     connections?: string[];
 };
 

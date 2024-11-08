@@ -13,6 +13,7 @@ import {
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
+    BIDeleteByComponentInfoRequest,
     BIGetFunctionsRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
@@ -28,6 +29,7 @@ import {
     createComponent,
     createComponents,
     createProject,
+    deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
@@ -62,6 +64,7 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFlowModel, () => rpcManger.getFlowModel());
     messenger.onRequest(getSourceCode, (args: BISourceCodeRequest) => rpcManger.getSourceCode(args));
     messenger.onRequest(deleteFlowNode, (args: BISourceCodeRequest) => rpcManger.deleteFlowNode(args));
+    messenger.onRequest(deleteByComponentInfo, (args: BIDeleteByComponentInfoRequest) => rpcManger.deleteByComponentInfo(args));
     messenger.onRequest(getAvailableNodes, (args: BIAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
     messenger.onRequest(getFunctions, (args: BIGetFunctionsRequest) => rpcManger.getFunctions(args));
     messenger.onRequest(getNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getNodeTemplate(args));
