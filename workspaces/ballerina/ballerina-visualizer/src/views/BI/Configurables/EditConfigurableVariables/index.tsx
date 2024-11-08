@@ -44,7 +44,7 @@ export function EditForm(props: ConfigFormProps) {
 
     useEffect(() => {
         variable.properties.defaultable.optional = true;
-        variable.properties.defaultable.advanced = false;
+        variable.properties.defaultable.advanced = true;
         const formProperties = getFormProperties(variable);
         console.log(">>> Edit config form properties", formProperties);
         setFields(convertNodePropertiesToFormFields(formProperties));
@@ -57,8 +57,7 @@ export function EditForm(props: ConfigFormProps) {
         variable.properties.defaultable.value =
             data.defaultable === "" || data.defaultable === null ?
                 "?"
-                : data.type === "string" ? '"' + data.defaultable + '"' : data.defaultable;
-
+                : data.defaultable;
         variable.properties.type.value = data.type;
         variable.properties.variable.value = data.variable;
 
