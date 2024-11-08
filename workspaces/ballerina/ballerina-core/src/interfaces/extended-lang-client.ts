@@ -494,7 +494,7 @@ export type BISourceCodeResponse = {
 };
 
 export interface BIAvailableNodesRequest {
-    position: LineRange;
+    position: LinePosition;
     filePath: string;
 }
 
