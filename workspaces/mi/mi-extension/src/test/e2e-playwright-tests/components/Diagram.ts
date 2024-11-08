@@ -188,7 +188,7 @@ class SidePanel {
     }
 
     public async addMediator(mediatorName: string, data?: FormFillProps, submitBtnText?: string) {
-        const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
+        const mediator = this.sidePanel.locator(`[id="card-select-${mediatorName}"]`);
         await mediator.waitFor();
         await mediator.click();
 
