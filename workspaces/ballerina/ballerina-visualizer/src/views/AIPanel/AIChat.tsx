@@ -172,6 +172,8 @@ export function AIChat() {
     const [isSyntaxError, setIsSyntaxError] = useState(false);
     let codeSegmentRendered = false;
     let tempStorage: { [filePath: string]: string } = {};
+    const initialFiles = new Set<string>();
+    const emptyFiles = new Set<string>();
 
     async function fetchBackendUrl() {
         try {
@@ -646,6 +648,11 @@ export function AIChat() {
                 try {
                     const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
                     tempStorage[filePath] = originalContent;
+                    if (originalContent === "") {
+                        emptyFiles.add(filePath); 
+                    } else {
+                        initialFiles.add(filePath);
+                    }
                 } catch (error) {
                     tempStorage[filePath] = "";
                 }
@@ -664,16 +671,18 @@ export function AIChat() {
     ) => {
         for (const { filePath } of codeSegments) {
             const originalContent = tempStorage[filePath];
-            if (originalContent === "") {
+            if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
+                // Delete the file if it didn't initially exist in the workspace
                 try {
                     await rpcClient.getAiPanelRpcClient().deleteFromProject({ filePath: filePath });
                 } catch (error) {
-                    console.error(`Error clearing file ${filePath}:`, error);
+                    console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
+                const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
-                    .addToProject({ filePath: filePath, content: originalContent, isTestCode: isTestCode });
+                    .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
             }
         }
         tempStorage = {};
