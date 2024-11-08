@@ -87,7 +87,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             } else if (element.type === 'attributeGroup') {
                 Object.assign(values, getDefaultValues(element.value.elements));
             } else {
-                values[key] = element.value.defaultValue ?? "";
+                values[key] = element.value.currentValue ?? element.value.defaultValue ?? "";
             }
         }
         return values;
