@@ -48,7 +48,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 					const projectBaseUrl = `${choreoEnvConfig.getConsoleUrl()}/organizations/${selectedOrg?.handle}/projects/${selectedProject.id}`;
 
 					if (params?.component) {
-						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}`));
+						env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
 					} else if (selected?.project) {
 						env.openExternal(Uri.parse(`${projectBaseUrl}/home`));
 					} else {
@@ -77,6 +77,8 @@ export function openInConsoleCommand(context: ExtensionContext) {
 							loadQuickPicks: async () => {
 								const components = await ext.clients.rpcClient.getComponentList({
 									orgId: selectedOrg.id.toString(),
+									orgHandle: selectedOrg.handle,
+									projectId: selectedProject.id,
 									projectHandle: selectedProject.handler,
 								});
 								dataCacheStore.getState().setComponents(selectedOrg.handle, selectedProject.handler, components);
@@ -108,7 +110,7 @@ export function openInConsoleCommand(context: ExtensionContext) {
 						if (selectedOption?.type === "project") {
 							env.openExternal(Uri.parse(`${projectBaseUrl}/home`));
 						} else if (selectedOption?.type === "component") {
-							env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}`));
+							env.openExternal(Uri.parse(`${projectBaseUrl}/components/${params?.component.metadata.handler}/overview`));
 						}
 					}
 				}

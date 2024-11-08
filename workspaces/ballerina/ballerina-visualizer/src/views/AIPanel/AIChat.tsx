@@ -9,7 +9,17 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import React, { useEffect, useState } from "react";
-import { VisualizerLocation, GetWorkspaceContextResponse, MACHINE_VIEW, ProjectSource, SourceFile, ProjectDiagnostics, InitialPrompt, MappingParameters, DataMappingRecord } from "@wso2-enterprise/ballerina-core";
+import {
+    VisualizerLocation,
+    GetWorkspaceContextResponse,
+    MACHINE_VIEW,
+    ProjectSource,
+    SourceFile,
+    ProjectDiagnostics,
+    InitialPrompt,
+    MappingParameters,
+    DataMappingRecord,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
@@ -131,15 +141,18 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 const commandToTemplate = new Map<string, string[]>([
-    ["/scaffolding", ["Generate code for the use-case: <use-case>"]],
-    ["/test", ["Generate test using <ServiceName> service"]],
+    [
+        "/scaffolding",
+        ["generate code for the use-case: <use-case>", "generate an integration according to the given Readme file"],
+    ],
+    ["/test", ["generate test using <servicename> service"]],
     [
         "/datamapper",
         [
-            "Generate mapping using input as <RecordName(s)> and output as <RecordName> using the function <FunctionName>",
-            "Generate mapping using input as <RecordName(s)> and output as <RecordName>"
+            "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+            "generate mapping using input as <recordname(s)> and output as <recordname>",
         ],
-    ]
+    ],
 ]);
 
 //TOOD: Add the backend URL
@@ -159,6 +172,8 @@ export function AIChat() {
     const [isSyntaxError, setIsSyntaxError] = useState(false);
     let codeSegmentRendered = false;
     let tempStorage: { [filePath: string]: string } = {};
+    const initialFiles = new Set<string>();
+    const emptyFiles = new Set<string>();
 
     async function fetchBackendUrl() {
         try {
@@ -349,14 +364,21 @@ export function AIChat() {
             const commandLength = commandKey.length;
             const messageBody = message.slice(commandLength).trim();
             const parameters = extractParameters(commandKey, messageBody);
+            console.log(parameters);
 
             if (parameters) {
                 switch (commandKey) {
                     case "/scaffolding": {
-                        await processCodeGeneration(token, [
-                            parameters.inputRecord.length === 1 ? parameters.inputRecord[0] : messageBody,
-                            attachments,
-                        ], message);
+                        await processCodeGeneration(
+                            token,
+                            [
+                                parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
+                                    ? parameters.inputRecord[0]
+                                    : messageBody,
+                                attachments,
+                            ],
+                            message
+                        );
                         break;
                     }
                     case "/test": {
@@ -396,16 +418,16 @@ export function AIChat() {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<ServiceName>/g, "(.+?)")
-                .replace(/<RecordName\(s\)>/g, "([\\w\\[\\]]+(?:[\\s,]+[\\w\\[\\]]+)*)") 
-                .replace(/<RecordName>/g, "([\\w\\[\\]]+)")
+                .replace(/<servicename>/g, "(\\S+?)")
+                .replace(/<recordname\(s\)>/g, "([\\w\\[\\]]+(?:[\\s,]+[\\w\\[\\]]+)*)")
+                .replace(/<recordname>/g, "([\\w\\[\\]]+)")
                 .replace(/<use-case>/g, "(.+?)")
-                .replace(/<FunctionName>/g, "(.*)");
+                .replace(/<functionname>/g, "(\\S+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
             if (match) {
-                if (command === "/datamapper" && template.includes("<RecordName(s)>")) {
+                if (command === "/datamapper" && template.includes("<recordname(s)>")) {
                     const inputRecordNamesRaw = match[1].trim();
                     let inputRecordList: string[];
 
@@ -426,27 +448,27 @@ export function AIChat() {
                     return {
                         inputRecord: inputRecordList,
                         outputRecord: outputRecordName,
-                        functionName
+                        functionName,
                     };
                 }
-                const [inputRecord, outputRecord, functionName] = match.slice(1).map(param => param.trim());
+                const [inputRecord, outputRecord, functionName] = match.slice(1).map((param) => param.trim());
                 return {
                     inputRecord: [inputRecord],
                     outputRecord,
-                    functionName
+                    functionName,
                 };
             }
         }
         return null;
     }
 
-    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], useCase: string) {
-        const [message, attachments] = content;
+    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
+        const [useCase, attachments] = content;
 
         let assistant_response = "";
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const requestBody: any = {
-            usecase: message,
+            usecase: useCase,
             chatHistory: chatArray,
             sourceFiles: project.sourceFiles,
         };
@@ -564,7 +586,7 @@ export function AIChat() {
                                 Authorization: `Bearer ${token}`,
                             },
                             body: JSON.stringify({
-                                usecase: message,
+                                usecase: useCase,
                                 chatHistory: chatArray,
                                 sourceFiles: project.sourceFiles,
                                 diagnosticRequest: diagReq,
@@ -609,7 +631,7 @@ export function AIChat() {
             }
         }
 
-        const userMessage = getUserMessage([useCase, attachments]);
+        const userMessage = getUserMessage([message, attachments]);
         addChatEntry("user", userMessage);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
@@ -626,6 +648,11 @@ export function AIChat() {
                 try {
                     const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
                     tempStorage[filePath] = originalContent;
+                    if (originalContent === "") {
+                        emptyFiles.add(filePath); 
+                    } else {
+                        initialFiles.add(filePath);
+                    }
                 } catch (error) {
                     tempStorage[filePath] = "";
                 }
@@ -644,16 +671,18 @@ export function AIChat() {
     ) => {
         for (const { filePath } of codeSegments) {
             const originalContent = tempStorage[filePath];
-            if (originalContent === "") {
+            if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
+                // Delete the file if it didn't initially exist in the workspace
                 try {
                     await rpcClient.getAiPanelRpcClient().deleteFromProject({ filePath: filePath });
                 } catch (error) {
-                    console.error(`Error clearing file ${filePath}:`, error);
+                    console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
+                const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
-                    .addToProject({ filePath: filePath, content: originalContent, isTestCode: isTestCode });
+                    .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
             }
         }
         tempStorage = {};
@@ -731,19 +760,19 @@ export function AIChat() {
     async function processDataMappings(message: string, token: string, parameters: MappingParameters) {
         let assistant_response = "";
         setIsLoading(true);
-    
+
         const inputParams = parameters.inputRecord;
         const outputParam = parameters.outputRecord;
         const functionName = parameters.functionName || "transform";
 
         const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
-    
+
         if (invalidPattern.test(functionName)) {
             throw new Error("Error: Please provide a valid function name without special characters.");
         }
 
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
-        const recordMap: Map<string, DataMappingRecord> = new Map(); 
+        const recordMap: Map<string, DataMappingRecord> = new Map();
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -756,51 +785,51 @@ export function AIChat() {
                 });
             });
         });
-        
+
         try {
             const inputs: DataMappingRecord[] = inputParams.map((param) => {
                 const isArray = param.endsWith("[]");
                 const recordName = param.replace(/\[\]$/, "");
                 const rec = recordMap.get(recordName);
-    
+
                 if (!rec) {
                     throw new Error(`Input parameter "${recordName}" does not match any record name.`);
                 }
-    
+
                 return { ...rec, isArray };
             });
-    
+
             const outputRecordName = outputParam.replace(/\[\]$/, "");
             const outputIsArray = outputParam.endsWith("[]");
             const output = recordMap.get(outputRecordName);
-    
+
             if (!output) {
                 throw new Error(`Output parameter "${outputRecordName}" does not match any record name.`);
             }
-    
+
             const outputRecord: DataMappingRecord = { ...output, isArray: outputIsArray };
-    
+
             const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord({
                 backendUri: "",
                 token: "",
                 inputRecordTypes: inputs,
                 outputRecordType: outputRecord,
-                functionName
-            });    
+                functionName,
+            });
             setIsLoading(false);
             setIsCodeLoading(false);
-    
+
             assistant_response = `Mappings consist of the following:\n`;
             if (inputParams.length === 1) {
                 assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
             } else {
-                assistant_response += `- **Input Records**: ${inputParams.join(', ')}\n`;
+                assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
             }
             assistant_response += `- **Output Record**: ${outputParam}\n`;
-            assistant_response += `- **Function Name**: ${functionName}\n`; 
+            assistant_response += `- **Function Name**: ${functionName}\n`;
             assistant_response += `<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
-    
-            setMessages(prevMessages => {
+
+            setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = assistant_response;
                 return newMessages;

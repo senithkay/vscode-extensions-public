@@ -11,12 +11,13 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon,Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
 import { BIHeader } from "../../BIHeader";
 import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
+import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
 
 const Container = styled.div`
     width: 100%;
@@ -147,21 +148,28 @@ export function ViewConfigurableVariables() {
                                     configVariables.map((variable, index) => {
                                         return (
                                             <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1`}>{variable.properties.variable.value}</VSCodeDataGridCell>
+                                                <VSCodeDataGridCell grid-column={`1`}>
+                                                    <div style={{ display: "flex" }}>
+                                                        {
+                                                            typeof variable.properties.variable.value === 'string' ?
+                                                                variable.properties.variable.value : ''
+                                                        }
+                                                        {variable?.diagnostics?.hasDiagnostics &&
+                                                            <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
+                                                        }</div>
+                                                </VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`2`}>{variable.properties.type.value}</VSCodeDataGridCell>
                                                 <VSCodeDataGridCell grid-column={`3`}>
                                                     {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
                                                         variable.properties.defaultable.value === "?" ?
                                                             null
-                                                            : variable.properties.type.value === 'string' && typeof variable.properties.defaultable.value === "string" ?
-                                                                variable.properties.defaultable.value.replace(/"/g, '')
-                                                                : variable.properties.defaultable.value
+                                                            : variable.properties.defaultable.value
                                                         : null}
                                                 </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex", justifyContent:"center" }}>
+                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex", justifyContent: "center" }}>
                                                     <Codicon name="edit" onClick={(event) => handleEditConfigVariableFormOpen(index)} />
                                                 </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex", justifyContent:"center" }}>
+                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex", justifyContent: "center" }}>
                                                     <Codicon name="trash" onClick={(event) => handleOnDeleteConfigVariable(index)} />
                                                 </VSCodeDataGridCell>
                                             </VSCodeDataGridRow>
