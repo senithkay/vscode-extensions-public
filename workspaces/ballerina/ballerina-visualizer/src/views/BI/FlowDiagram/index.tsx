@@ -512,6 +512,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connectionName,
+                documentUri: model.fileName,
+                position: {
+                    startLine: targetRef.current.startLine.line,
+                    endLine: targetRef.current.endLine.line,
+                    startColumn: targetRef.current.startLine.offset,
+                    endColumn: targetRef.current.endLine.offset,
+                },
             },
             isPopup: true,
         });

@@ -9,7 +9,15 @@
 
 import { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import {
+    AvailableNode,
+    EVENT_TYPE,
+    FlowNode,
+    LinePosition,
+    MACHINE_VIEW,
+    SubPanel,
+    SubPanelView,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";
@@ -44,11 +52,12 @@ enum WizardStep {
 
 interface AddConnectionWizardProps {
     fileName: string; // file path of `connection.bal`
+    linePosition?: LinePosition;
     onClose?: () => void;
 }
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
-    const { fileName, onClose } = props;
+    const { fileName, linePosition, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
@@ -61,7 +70,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
     const [fetchingInfo, setFetchingInfo] = useState<boolean>(false);
 
-
     const handleOnSelectConnector = async (connector: AvailableNode) => {
         if (!connector.codedata) {
             console.error(">>> Error selecting connector. No codedata found");
@@ -73,8 +81,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         rpcClient
             .getBIDiagramRpcClient()
             .getNodeTemplate({
-                position: null,
-                filePath: "",
+                position: linePosition || null,
+                filePath: fileName,
                 id: connector.codedata,
             })
             .then((response) => {
@@ -129,6 +137,16 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 console.error(">>> Error updating source code. No connections.bal file found");
                 setIsPullingConnector(false);
                 return;
+            }
+
+            // node property scope is local. then use local file path and line position
+            if ((updatedNode.properties?.scope?.value as string)?.toLowerCase() === "local") {
+                connectionsFilePath = visualizerLocation.documentUri;
+                updatedNode.codedata.lineRange = {
+                    fileName: visualizerLocation.documentUri,
+                    startLine: linePosition,
+                    endLine: linePosition,
+                };
             }
 
             rpcClient
@@ -208,28 +226,35 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         });
     };
 
-
     return (
         <Container>
             {isPullingConnector && (
                 <LoadingContainer>
                     <PullingModuleLoader />
-                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Pulling packages</Typography>
-                    <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
+                    <Typography variant="h3" sx={{ marginTop: "16px" }}>
+                        Pulling packages
+                    </Typography>
+                    <Typography variant="h4" sx={{ marginTop: "8px" }}>
+                        This might take some time
+                    </Typography>
                 </LoadingContainer>
             )}
             {!isPullingConnector && (
                 <>
-                    <ConnectorView onSelectConnector={handleOnSelectConnector} fetchingInfo={fetchingInfo} onClose={onClose} />
-                    {currentStep === WizardStep.CONNECTION_CONFIG &&
+                    <ConnectorView
+                        onSelectConnector={handleOnSelectConnector}
+                        fetchingInfo={fetchingInfo}
+                        onClose={onClose}
+                    />
+                    {currentStep === WizardStep.CONNECTION_CONFIG && (
                         <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
-                    }
+                    )}
                 </>
             )}
             {!isPullingConnector && !fetchingInfo && currentStep === WizardStep.CONNECTION_CONFIG && (
                 <PanelContainer
                     show={true}
-                    title={`Configure the ${selectedConnectorRef.current?.metadata.label || ''} Connector`}
+                    title={`Configure the ${selectedConnectorRef.current?.metadata.label || ""} Connector`}
                     onClose={onClose ? onClose : handleOnBack}
                     width={400}
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
@@ -237,8 +262,9 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     onBack={handleOnBack}
                 >
                     <>
-                        <BodyText style={{ padding: '20px 20px 0 20px' }}>
-                            Provide the necessary configuration details for the selected connector to complete the setup.
+                        <BodyText style={{ padding: "20px 20px 0 20px" }}>
+                            Provide the necessary configuration details for the selected connector to complete the
+                            setup.
                         </BodyText>
                         <ConnectionConfigView
                             fileName={fileName}

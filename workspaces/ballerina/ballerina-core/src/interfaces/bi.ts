@@ -199,6 +199,7 @@ export type NodePropertyKey =
     | "view"
     | "variable"
     | "defaultable"
+    | "scope"
     | "functionName";
 
 export type BranchKind = "block" | "worker";

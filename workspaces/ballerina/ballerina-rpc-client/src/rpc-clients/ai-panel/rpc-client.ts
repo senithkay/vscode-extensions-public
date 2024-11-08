@@ -15,7 +15,11 @@ import {
     GetFromFileRequest,
     DeleteFromProjectRequest,
     GenerateMappingsRequest,
+    GenerateMappingFromRecordResponse,
     GenerateMappingsResponse,
+    GenerateTestRequest,
+    GeneratedTestSource,
+    GenerteMappingsFromRecordRequest,
     InitialPrompt,
     NotifyAIMappingsRequest,
     ProjectDiagnostics,
@@ -28,12 +32,15 @@ import {
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getGeneratedTest,
     getInitialPrompt,
+    getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
     checkSyntaxError,
+    getTestDiagnostics,
     login,
     logout,
     notifyAIMappings,
@@ -134,5 +141,17 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     clearInitialPrompt(): void {
         return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
+    }
+
+    getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
+        return this._messenger.sendRequest(getGeneratedTest, HOST_EXTENSION, params);
+    }
+
+    getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+        return this._messenger.sendRequest(getTestDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
+        return this._messenger.sendRequest(getMappingsFromRecord, HOST_EXTENSION, params);
     }
 }
