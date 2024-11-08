@@ -65,14 +65,7 @@ const PopupPanel = (props: PopupPanelProps) => {
                                     location.documentUri ||
                                     Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
                                 }
-                                linePosition={
-                                    location.position
-                                        ? {
-                                              line: location.position.startLine,
-                                              offset: location.position.startColumn,
-                                          }
-                                        : undefined
-                                }
+                                target={machineState.metadata?.target || undefined}
                                 onClose={onClose}
                             />
                         );
