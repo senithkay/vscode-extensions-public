@@ -22,7 +22,6 @@ export async function registerYamlLanguageServer(): Promise<void> {
 			return;
 		}
 		const yamlExtensionAPI = await yamlExtension.activate();
-
 		const schemaBasePath = path.join(ext.context.extensionPath, "yaml-schemas");
 		const schemas = [
 			{
@@ -34,6 +33,11 @@ export async function registerYamlLanguageServer(): Promise<void> {
 				fileName: "endpoints.yaml",
 				uri: `${SCHEMA}://schema/endpoints`,
 				schemaPath: path.join(schemaBasePath, "endpoints-yaml-schema.json"),
+			},
+			{
+				fileName: "component.yaml",
+				uri: `${SCHEMA}://schema/component`,
+				schemaPath: path.join(schemaBasePath, "component-yaml-schema.json"),
 			},
 		];
 
