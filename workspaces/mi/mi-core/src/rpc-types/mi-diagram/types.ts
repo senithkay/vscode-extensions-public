@@ -21,6 +21,7 @@ export interface ApplyEditRequest {
     documentUri: string;
     range: Range;
     disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
 }
 
 export interface ApplyEditResponse {

@@ -2403,8 +2403,10 @@ ${endpointAttributes}
                 const formatRange = this.getFormatRange(range, text);
                 await this.rangeFormat({ uri: uri, range: formatRange });
             }
-            const content = document.getText();
-            undoRedo.addModification(content);
+            if (!params.disableUndoRedo) {
+                const content = document.getText();
+                undoRedo.addModification(content);
+            }
 
             resolve({ status: true });
         });
@@ -4910,12 +4912,22 @@ ${keyValuesXML}`;
             let response = await langClient.generateSynapseConfig(param);
             if (response && response.textEdits) {
                 let edits = response.textEdits;
-                let workspaceEdit = new WorkspaceEdit();
+
                 for (const edit of edits) {
                     let range = new Range(edit.range.start.line, edit.range.start.character, edit.range.end.line, edit.range.end.character);
-                    workspaceEdit.replace(Uri.parse(param.documentUri), range, edit.newText);
+                    await this.applyEdit({
+                        documentUri: param.documentUri,
+                        range,
+                        text: edit.newText,
+                        disableUndoRedo: true
+                    });
                 }
-                await workspace.applyEdit(workspaceEdit);
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
+                if (!document) {
+                    return;
+                }
+                const content = document.getText();
+                undoRedo.addModification(content);
             }
         });
     }
