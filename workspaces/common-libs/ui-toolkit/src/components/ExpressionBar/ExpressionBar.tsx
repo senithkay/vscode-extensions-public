@@ -18,6 +18,7 @@ import { Icon } from '../Icon/Icon';
 // Types
 export const COMPLETION_ITEM_KIND = {
     Array: 'array',
+    Alias: 'alias',
     Boolean: 'boolean',
     Class: 'class',
     Color: 'color',
@@ -77,11 +78,13 @@ export type ExpressionBarBaseProps = {
     placeholder?: string;
     sx?: React.CSSProperties;
     inputProps?: InputProps;
+    textBoxType?: 'TextField' | 'TextArea';
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
-    onFocus?: () => void | Promise<void>;
-    onBlur?: () => void | Promise<void>;
+    onFocus?: (e?: any) => void | Promise<void>;
+    onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    onClose?: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
 
@@ -119,9 +122,11 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 
 export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
+    inputElement: HTMLInputElement | HTMLTextAreaElement;
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
-    saveExpression: (value?: string) => Promise<void>; // Saves the expression with the provided value
+    saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
+    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components
@@ -154,13 +159,15 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
-                {getExpressionBarIcon ? (
-                    getExpressionBarIcon()
-                ) : (
-                    <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                )}
-            </Button>
+            {(handleHelperPaneOpen || getExpressionBarIcon) && (
+                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+                    {getExpressionBarIcon ? (
+                        getExpressionBarIcon()
+                    ) : (
+                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                    )}
+                </Button>
+            )}
         </Ex.Container>
     );
 });

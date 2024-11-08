@@ -17,7 +17,6 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
-    TextArea,
     Typography,
     View,
     ViewContent,
@@ -28,11 +27,9 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { BIHeader } from "../BIHeader";
-import { BodyText } from "../../styles";
 import { Colors } from "../../../resources/constants";
 import { getProjectFromResponse, parseSSEEvent, replaceCodeBlocks, splitContent } from "../../AIPanel/AIChat";
 import ComponentDiagram from "../ComponentDiagram";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import ReactMarkdown from 'react-markdown';
 
@@ -40,7 +37,8 @@ const CardTitleContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-top: 24px;
+    border-bottom: 1px solid var(--vscode-input-border);
+    padding:5px 10px;
 `;
 
 const SpinnerContainer = styled.div`
@@ -70,16 +68,49 @@ const ButtonContainer = styled.div`
 `;
 
 const Readme = styled.div`
-    border: 1px solid var(--vscode-input-border);
-    border-radius: 4px;
     padding: 16px;
     overflow-y: auto;
     min-height: 300px;
+    margin-bottom: 20px;
+`;
+
+const EmptyStateContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    padding: 20px;
+    text-align: center;
+`;
+
+const CardContainer = styled.div`
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 5px;
+    margin-top: 24px;
 `;
 
 interface ComponentDiagramProps {
     //
 }
+
+
+interface SectionHeadProps {
+    title: string;
+    actions?: React.ReactNode[];
+}
+
+function SectionHead({ title, actions = [] }: SectionHeadProps) {
+    return (
+        <CardTitleContainer>
+            <Title variant="h2">{title}</Title>
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', marginBottom: '8px' }}>
+                {actions}
+            </div>
+        </CardTitleContainer>
+    );
+}
+
 
 export function Overview(props: ComponentDiagramProps) {
 
@@ -374,8 +405,15 @@ export function Overview(props: ComponentDiagramProps) {
     const handleGenerate = () => {
         rpcClient.getBIDiagramRpcClient().openAIChat({
             scafold: true,
+            readme: false
         });
+    };
 
+    const handleReadmeGenerate = () => {
+        rpcClient.getBIDiagramRpcClient().openAIChat({
+            scafold: true,
+            readme: true
+        });
     };
 
     const handleEditReadme = () => {
@@ -383,7 +421,7 @@ export function Overview(props: ComponentDiagramProps) {
     };
 
     const handlePlay = () => {
-        //rpcClient.getBIDiagramRpcClient().runProject();
+        rpcClient.getBIDiagramRpcClient().runProject();
     };
 
     const handleBuild = () => {
@@ -394,22 +432,44 @@ export function Overview(props: ComponentDiagramProps) {
 
     const getActionButtons = (): React.ReactNode[] => {
         return [
-            <VSCodeButton key="run" appearance="icon" title="Generate with AI" onClick={handlePlay}>
+            <VSCodeButton key="run" appearance="icon" title="Run" onClick={handlePlay}>
                 <Codicon name="play" sx={{ marginRight: 5 }} /> Run
             </VSCodeButton>,
-            <VSCodeButton key="build" appearance="icon" title="Generate with AI" onClick={handleBuild}>
+            <VSCodeButton key="build" appearance="icon" title="Build" onClick={handleBuild}>
                 <Codicon name="package" sx={{ marginRight: 5 }} /> Build
             </VSCodeButton>,
-            <VSCodeButton key="deploy" appearance="icon" title="Generate with AI" onClick={handleDeploy}>
+            <VSCodeButton key="deploy" appearance="icon" title="Deploy" onClick={handleDeploy}>
                 <Codicon name="cloud-upload" sx={{ marginRight: 5 }} /> Deploy
-            </VSCodeButton>,
+            </VSCodeButton>
+        ];
+    };
+
+    const getDesignActions = (): React.ReactNode[] => {
+        return [
             <VSCodeButton key="generate" appearance="icon" title="Generate with AI" onClick={handleGenerate}>
                 <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate
             </VSCodeButton>,
             <VSCodeButton key="add-construct" appearance="primary" title="Generate with AI" onClick={handleAddConstruct}>
                 <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
-            </VSCodeButton>
+            </VSCodeButton>,
         ];
+    };
+
+    const getReadmeActions = (): React.ReactNode[] => {
+        const buttons = [];
+        if (readmeContent && isEmptyProject()) {
+            buttons.push(
+                <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleReadmeGenerate}>
+                    <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
+                </VSCodeButton>
+            );
+        }
+        buttons.push(
+            <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
+                <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
+            </VSCodeButton>
+        );
+        return buttons;
     };
 
     // TODO: Refactor this component with meaningful components
@@ -418,61 +478,51 @@ export function Overview(props: ComponentDiagramProps) {
             <ViewContent padding>
                 <BIHeader actions={getActionButtons()} />
                 <Content>
-                    <CardTitleContainer>
-                        <Title variant="h2">Architecture</Title>
-                        {/* {generateButton()} */}
-                    </CardTitleContainer>
-                    {isEmptyProject() ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '300px', border: '1px dashed var(--vscode-input-border)', borderRadius: '4px', padding: '20px', textAlign: 'center' }}>
-                            <Typography variant="h3" sx={{ marginBottom: '16px' }}>
-                                Your project is empty
-                            </Typography>
-                            <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
-                                Start by adding constructs or use AI to generate your project structure
-                            </Typography>
-                            <ButtonContainer>
-                                <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
-                                    <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
-                                </VSCodeButton>
-                                <VSCodeButton appearance="secondary" onClick={handleGenerate}>
-                                    <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
-                                </VSCodeButton>
-                            </ButtonContainer>
-                        </div>
-                    ) : (
-                        <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
-                    )}
-                    <CardTitleContainer>
-                        <Title variant="h2">Readme</Title>
-                        {readmeContent && isEmptyProject() && (
-                            <VSCodeButton appearance="icon" title="Scaffold Integration with Readme" onClick={handleGenerate}>
-                                <Codicon name="wand" sx={{ marginRight: 5 }} /> Scaffold Integration with Readme
-                            </VSCodeButton>
-                        )}
-                        <VSCodeButton appearance="icon" title="Edit Readme" onClick={handleEditReadme}>
-                            <Codicon name="edit" sx={{ marginRight: 5 }} /> Edit
-                        </VSCodeButton>
-                    </CardTitleContainer>
-                    <Readme>
-                        {readmeContent ? (
-                            <ReactMarkdown>{readmeContent}</ReactMarkdown>
-                        ) : (
-                            <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                    <CardContainer>
+                        <SectionHead title="Design" actions={getDesignActions()} />
+                        {isEmptyProject() ? (
+                            <EmptyStateContainer>
                                 <Typography variant="h3" sx={{ marginBottom: '16px' }}>
-                                    Add a README
+                                    Your project is empty
                                 </Typography>
                                 <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
-                                    Describe your integration and generate your constructs with AI
+                                    Start by adding constructs or use AI to generate your project structure
                                 </Typography>
-                                <VSCodeLink onClick={handleEditReadme}>
-                                    Add a README
-                                </VSCodeLink>
-                            </div>
+                                <ButtonContainer>
+                                    <VSCodeButton appearance="primary" onClick={handleAddConstruct}>
+                                        <Codicon name="add" sx={{ marginRight: 5 }} /> Add Construct
+                                    </VSCodeButton>
+                                    <VSCodeButton appearance="secondary" onClick={handleGenerate}>
+                                        <Codicon name="wand" sx={{ marginRight: 5 }} /> Generate with AI
+                                    </VSCodeButton>
+                                </ButtonContainer>
+                            </EmptyStateContainer>
+                        ) : (
+                            <ComponentDiagram projectName={projectName} projectStructure={projectStructure} />
                         )}
-                    </Readme>
+                    </CardContainer>
+                    <CardContainer>
+                        <SectionHead title="Readme" actions={getReadmeActions()} />
+                        <Readme>
+                            {readmeContent ? (
+                                <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                            ) : (
+                                <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                    <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                        Add a README
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                        Describe your integration and generate your constructs with AI
+                                    </Typography>
+                                    <VSCodeLink onClick={handleEditReadme}>
+                                        Add a README
+                                    </VSCodeLink>
+                                </div>
+                            )}
+                        </Readme>
+                    </CardContainer>
                 </Content>
             </ViewContent>
         </View>
     );
 }
-

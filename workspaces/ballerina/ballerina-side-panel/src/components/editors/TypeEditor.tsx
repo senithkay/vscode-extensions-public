@@ -8,7 +8,7 @@
  */
 
 import React, { useRef, useState } from "react";
-import { Codicon, COMPLETION_ITEM_KIND, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
@@ -16,6 +16,7 @@ import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { TIcon } from "@wso2-enterprise/ballerina-core";
+import { Colors } from "../../resources/constants";
 
 namespace S {
     export const Container = styled.div({
@@ -33,10 +34,15 @@ namespace S {
 
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
+        textTransform: 'capitalize'
     });
 
     export const Description = styled.div({
         color: 'var(--vscode-list-deemphasizedForeground)',
+    });
+
+    export const Error = styled.div({
+        color: Colors.ERROR,
     });
 
     export const TitleContainer = styled.div`
@@ -50,6 +56,7 @@ interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
     handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
 }
 
 const getDefaultCompletion = () => (
@@ -64,7 +71,7 @@ const getDefaultCompletion = () => (
 const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor, handleOnFieldFocus } = props;
+    const { field, openRecordEditor, handleOnFieldFocus, autoFocus } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
@@ -92,8 +99,8 @@ export function TypeEditor(props: TypeEditorProps) {
     const handleFocus = async (value: string) => {
         // Trigger actions on focus
         await onFocus?.();
-        setShowDefaultCompletion(true);
         await retrieveVisibleTypes(value, value.length);
+        setShowDefaultCompletion(true);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -101,7 +108,6 @@ export function TypeEditor(props: TypeEditorProps) {
         // Trigger actions on blur
         await onBlur?.();
         setShowDefaultCompletion(undefined);
-
         // Clean up memory
         cursorPositionRef.current = undefined;
     };
@@ -113,6 +119,7 @@ export function TypeEditor(props: TypeEditorProps) {
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
+        setShowDefaultCompletion(false);
     };
 
     const handleCancel = () => {
@@ -125,6 +132,8 @@ export function TypeEditor(props: TypeEditorProps) {
         handleCancel();
     }
 
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
+
     return (
         <S.Container>
             <S.LabelContainer>
@@ -135,7 +144,8 @@ export function TypeEditor(props: TypeEditorProps) {
             <Controller
                 control={control}
                 name={field.key}
-                rules={{ required: !field.optional }}
+                defaultValue={field.value}
+                rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
                         key={field.key}
@@ -149,7 +159,7 @@ export function TypeEditor(props: TypeEditorProps) {
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
                             cursorPositionRef.current = updatedCursorPosition;
-                            
+
                             // Retrieve visible types
                             await retrieveVisibleTypes(value, updatedCursorPosition);
                         }}
@@ -161,10 +171,13 @@ export function TypeEditor(props: TypeEditorProps) {
                         onCancel={handleCancel}
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
+                        placeholder={field.placeholder}
+                        autoFocus={autoFocus}
                         sx={{ paddingInline: '0' }}
                     />
                 )}
             />
+            {errorMsg && <S.Error>{errorMsg}</S.Error>}
         </S.Container>
     );
 }

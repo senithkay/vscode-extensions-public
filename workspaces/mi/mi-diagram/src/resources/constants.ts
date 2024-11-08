@@ -96,6 +96,7 @@ export const Colors = {
 export const NODE_GAP = {
     START_X: 0,
     START_Y: 40,
+    END_Y: 40,
     X: 0,
     Y: 50,
     BRANCH_X: 50,
@@ -177,7 +178,7 @@ export const MEDIATORS = {
     CALLOUT: "Callout",
     CALLTEMPLATE: "Call Template",
     CLONE: "Clone",
-    DATAMAPPER: "DataMapper",
+    DATAMAPPER: "Data Mapper",
     DATASERVICECALL: "Call Data Service",
     DROP: "Drop",
     ENRICH: "Enrich",

@@ -9,18 +9,27 @@
 
 import { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, FlowNode, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import {
+    AvailableNode,
+    EVENT_TYPE,
+    FlowNode,
+    LinePosition,
+    MACHINE_VIEW,
+    SubPanel,
+    SubPanelView,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectorView from "../ConnectorView";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
 import { ExpressionFormField, FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Overlay, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
 import PullingModuleLoader from "../../../Connectors/PackageLoader/Loader";
 import { InlineDataMapper } from "../../../InlineDataMapper";
 import { HelperView } from "../../HelperView";
 import { BodyText } from "../../../styles";
+import { Colors } from "../../../../resources/constants";
 
 const Container = styled.div`
     width: 100%;
@@ -43,11 +52,12 @@ enum WizardStep {
 
 interface AddConnectionWizardProps {
     fileName: string; // file path of `connection.bal`
+    linePosition?: LinePosition;
     onClose?: () => void;
 }
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
-    const { fileName, onClose } = props;
+    const { fileName, linePosition, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
@@ -58,7 +68,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [showSubPanel, setShowSubPanel] = useState(false);
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
-
+    const [fetchingInfo, setFetchingInfo] = useState<boolean>(false);
 
     const handleOnSelectConnector = async (connector: AvailableNode) => {
         if (!connector.codedata) {
@@ -66,12 +76,13 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             return;
         }
         selectedConnectorRef.current = connector;
+        setFetchingInfo(true);
 
         rpcClient
             .getBIDiagramRpcClient()
             .getNodeTemplate({
-                position: null,
-                filePath: "",
+                position: linePosition || null,
+                filePath: fileName,
                 id: connector.codedata,
             })
             .then((response) => {
@@ -87,13 +98,16 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 // get node properties
                 setCurrentStep(WizardStep.CONNECTION_CONFIG);
                 setFields(convertNodePropertiesToFormFields(formProperties));
+            })
+            .finally(() => {
+                setFetchingInfo(false);
             });
     };
 
     const handleOnFormSubmit = async (data: FormValues) => {
-        setIsPullingConnector(true);
         console.log(">>> on form submit", data);
         if (selectedNodeRef.current) {
+            setIsPullingConnector(true);
             let updatedNode: FlowNode = cloneDeep(selectedNodeRef.current);
 
             if (selectedNodeRef.current.branches?.at(0)?.properties) {
@@ -121,7 +135,18 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
             }
             if (connectionsFilePath === "") {
                 console.error(">>> Error updating source code. No connections.bal file found");
+                setIsPullingConnector(false);
                 return;
+            }
+
+            // node property scope is local. then use local file path and line position
+            if ((updatedNode.properties?.scope?.value as string)?.toLowerCase() === "local") {
+                connectionsFilePath = visualizerLocation.documentUri;
+                updatedNode.codedata.lineRange = {
+                    fileName: visualizerLocation.documentUri,
+                    startLine: linePosition,
+                    endLine: linePosition,
+                };
             }
 
             rpcClient
@@ -137,12 +162,14 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         // clear memory
                         setFields([]);
                         selectedNodeRef.current = undefined;
-                        setIsPullingConnector(false);
-                        onClose?.();
+                        onClose ? onClose() : gotoHome();
                     } else {
                         console.error(">>> Error updating source code", response);
                         // handle error
                     }
+                })
+                .finally(() => {
+                    setIsPullingConnector(false);
                 });
         }
     };
@@ -178,6 +205,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         updateFormField={updateExpressionField}
                         editorKey={subPanel.props.sidePanelData.editorKey}
                         onClosePanel={handleSubPanel}
+                        configurePanelData={subPanel.props.sidePanelData?.configurePanelData}
                     />
                 );
             default:
@@ -189,37 +217,65 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         setUpdatedExpressionField(undefined);
     };
 
+    const gotoHome = () => {
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.Overview,
+            },
+        });
+    };
+
     return (
         <Container>
             {isPullingConnector && (
                 <LoadingContainer>
                     <PullingModuleLoader />
-                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Pulling packages</Typography>
-                    <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
+                    <Typography variant="h3" sx={{ marginTop: "16px" }}>
+                        Pulling packages
+                    </Typography>
+                    <Typography variant="h4" sx={{ marginTop: "8px" }}>
+                        This might take some time
+                    </Typography>
                 </LoadingContainer>
             )}
-            {!isPullingConnector && currentStep === WizardStep.CONNECTOR_LIST && <ConnectorView onSelectConnector={handleOnSelectConnector} />}
-            {!isPullingConnector && currentStep === WizardStep.CONNECTION_CONFIG && (
+            {!isPullingConnector && (
+                <>
+                    <ConnectorView
+                        onSelectConnector={handleOnSelectConnector}
+                        fetchingInfo={fetchingInfo}
+                        onClose={onClose}
+                    />
+                    {currentStep === WizardStep.CONNECTION_CONFIG && (
+                        <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                    )}
+                </>
+            )}
+            {!isPullingConnector && !fetchingInfo && currentStep === WizardStep.CONNECTION_CONFIG && (
                 <PanelContainer
                     show={true}
-                    title={`Configure ${selectedConnectorRef.current?.metadata.label} Connector`}
-                    onClose={onClose} width={600}
+                    title={`Configure the ${selectedConnectorRef.current?.metadata.label || ""} Connector`}
+                    onClose={onClose ? onClose : handleOnBack}
+                    width={400}
                     subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                     subPanel={findSubPanelComponent(subPanel)}
                     onBack={handleOnBack}
                 >
-                    <BodyText style={{ padding: '20px 20px 0 20px' }}>
-                        Provide the necessary configuration details for the selected connector to complete the setup.
-                    </BodyText>
-                    <ConnectionConfigView
-                        fileName={fileName}
-                        fields={fields}
-                        onSubmit={handleOnFormSubmit}
-                        updatedExpressionField={updatedExpressionField}
-                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                        openSubPanel={handleSubPanel}
-                        isActiveSubPanel={showSubPanel}
-                    />
+                    <>
+                        <BodyText style={{ padding: "20px 20px 0 20px" }}>
+                            Provide the necessary configuration details for the selected connector to complete the
+                            setup.
+                        </BodyText>
+                        <ConnectionConfigView
+                            fileName={fileName}
+                            fields={fields}
+                            onSubmit={handleOnFormSubmit}
+                            updatedExpressionField={updatedExpressionField}
+                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                            openSubPanel={handleSubPanel}
+                            isActiveSubPanel={showSubPanel}
+                        />
+                    </>
                 </PanelContainer>
             )}
         </Container>

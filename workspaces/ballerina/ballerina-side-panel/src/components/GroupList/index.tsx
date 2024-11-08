@@ -38,7 +38,7 @@ namespace S {
         width: 100%;
     `;
 
-    export const TitleRow = styled(Row)<{}>`
+    export const TitleRow = styled(Row) <{}>`
         cursor: pointer;
         padding: 0 5px;
     `;
@@ -82,8 +82,8 @@ namespace S {
         ${({ enabled }) => !enabled && "opacity: 0.5;"}
         &:hover {
             ${({ enabled }) =>
-                enabled &&
-                `
+            enabled &&
+            `
         background-color: ${Colors.PRIMARY_CONTAINER};
         border: 1px solid ${Colors.PRIMARY};
     `}
@@ -152,9 +152,10 @@ export function GroupList(props: GroupListProps) {
                                 key={node.id + index}
                                 enabled={node.enabled}
                                 onClick={() => onSelect(node, category.title)}
+                                title={node.label}
                             >
                                 <S.ComponentIcon>{node.icon || <CallIcon />}</S.ComponentIcon>
-                                <S.ComponentTitle>{node.label}</S.ComponentTitle>
+                                <S.ComponentTitle >{node.label}</S.ComponentTitle>
                             </S.Component>
                         ))}
                     </S.Grid>

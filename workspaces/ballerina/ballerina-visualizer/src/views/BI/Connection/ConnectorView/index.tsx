@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { AvailableNode, Category, Item } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
@@ -26,6 +26,8 @@ const ListContainer = styled.div`
     flex-direction: column;
     gap: 16px;
     margin-top: 24px;
+    height: 80vh;
+    overflow-y: scroll;
 `;
 
 const GridContainer = styled.div`
@@ -48,12 +50,25 @@ const StyledSearchInput = styled(SearchBox)`
     height: 30px;
 `;
 
+const TopBar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+`;
+
+const capitalizeFirstLetter = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 interface ConnectorViewProps {
     onSelectConnector: (connector: AvailableNode) => void;
+    fetchingInfo: boolean;
+    onClose?: () => void;
 }
 
 export function ConnectorView(props: ConnectorViewProps) {
-    const { onSelectConnector } = props;
+    const { onSelectConnector, onClose, fetchingInfo } = props;
     const { rpcClient } = useRpcContext();
 
     const [connectors, setConnectors] = useState<Category[]>([]);
@@ -61,6 +76,7 @@ export function ConnectorView(props: ConnectorViewProps) {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
+        setIsSearching(true);
         getConnectors();
     }, []);
 
@@ -71,6 +87,8 @@ export function ConnectorView(props: ConnectorViewProps) {
             .then((model) => {
                 console.log(">>> bi connectors", model);
                 setConnectors(model.categories);
+            }).finally(() => {
+                setIsSearching(false);
             });
     };
 
@@ -87,14 +105,11 @@ export function ConnectorView(props: ConnectorViewProps) {
             .then((model) => {
                 console.log(">>> bi searched connectors", model);
                 setConnectors(model.categories);
+            }).finally(() => {
+                setIsSearching(false);
             });
     }
     const debouncedSearch = debounce(handleSearch, 1100);
-
-
-    useEffect(() => {
-        setIsSearching(false);
-    }, [connectors]);
 
     const handleOnSearch = (text: string) => {
         setSearchText(text);
@@ -134,7 +149,15 @@ export function ConnectorView(props: ConnectorViewProps) {
 
     return (
         <Container>
-            <Typography variant="h2">Select a Connector</Typography>
+            <TopBar>
+                <Typography variant="h2">Select a Connector</Typography>
+                {onClose && (
+                    <Button appearance="icon" onClick={onClose}>
+                        <Codicon name="close" />
+                    </Button>
+                )}
+            </TopBar>
+
             <BodyText>
                 Select a connector to integrate with external services. Use search to quickly find the right one.
             </BodyText>
@@ -148,8 +171,8 @@ export function ConnectorView(props: ConnectorViewProps) {
                     sx={{ width: "100%" }}
                 />
             </Row>
-            {isSearching && (
-                <ListContainer style={{ height: '80vh', overflowY: 'scroll' }}>
+            {(isSearching || fetchingInfo) && (
+                <ListContainer>
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
                         <ProgressRing />
                     </div>
@@ -167,7 +190,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                             return (
                                                 <ButtonCard
                                                     key={connector.metadata.label + index}
-                                                    title={connector.metadata.label}
+                                                    title={capitalizeFirstLetter(connector.metadata.label)}
                                                     description={
                                                         (connector as AvailableNode).codedata.org +
                                                         " / " +
@@ -201,7 +224,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                 return (
                                     <ButtonCard
                                         key={connector.metadata.label + index}
-                                        title={connector.metadata.label}
+                                        title={capitalizeFirstLetter(connector.metadata.label)}
                                         description={
                                             (connector as AvailableNode).codedata.org +
                                             " / " +
@@ -229,7 +252,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                     )}
                 </ListContainer>
             )}
-            {!isSearching && !connectors || (connectors.length === 0 && <p>No connectors found</p>)}
+            {(!isSearching && connectors.length === 0) && <p>No connectors found</p>}
         </Container>
     );
 }

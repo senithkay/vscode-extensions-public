@@ -31,6 +31,7 @@ import {
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
+    ConfigVariableResponse,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
@@ -48,11 +49,16 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     SyntaxTree,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
     buildProjectStructure,
+    BI_COMMANDS,
+    FlowNode,
+    EVENT_TYPE,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -62,11 +68,11 @@ import {
     TaskDefinition, ShellExecution
 } from "vscode";
 import { ballerinaExtInstance } from "../../core";
-import { StateMachine, updateView } from "../../stateMachine";
+import { openView, StateMachine, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
-import { title } from "process";
 import { extension } from "../../BalExtensionContext";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
+import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
 
@@ -111,17 +117,18 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getSourceCode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         console.log(">>> requesting bi source code from ls", params);
+        const { flowNode, isDataMapperFormUpdate } = params;
         return new Promise((resolve) => {
             StateMachine.langClient()
                 .getSourceCode(params)
                 .then(async (model) => {
                     console.log(">>> bi source code from ls", model);
                     if (params?.isConnector) {
-                        await this.updateSource(model, true);
+                        await this.updateSource(model, flowNode, true, isDataMapperFormUpdate);
                         resolve(model);
                         commands.executeCommand("BI.project-explorer.refresh");
                     } else {
-                        this.updateSource(model);
+                        this.updateSource(model, flowNode, false, isDataMapperFormUpdate);
                         resolve(model);
                     }
                 })
@@ -134,7 +141,12 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async updateSource(params: BISourceCodeResponse, isConnector?: boolean): Promise<void> {
+    async updateSource(
+        params: BISourceCodeResponse,
+        flowNode: FlowNode,
+        isConnector?: boolean,
+        isDataMapperFormUpdate?: boolean
+    ): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
@@ -170,7 +182,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
         // Iterate through modificationRequests and apply modifications
         for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-            const { parseSuccess, source } = (await StateMachine.langClient().stModify({
+            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
                 documentIdentifier: { uri: fileUriString },
                 astModifications: request.modifications,
             })) as SyntaxTree;
@@ -194,10 +206,16 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     await StateMachine.langClient().didOpen({
                         textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
                     });
+                } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
+                    const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                    openView(EVENT_TYPE.OPEN_VIEW, {
+                        documentUri: request.filePath,
+                        position: functionPosition,
+                    });
                 }
             }
         }
-        if (!isConnector) {
+        if (!isConnector && !isDataMapperFormUpdate) {
             updateView();
         }
     }
@@ -365,7 +383,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 };
                 const requestOptions = {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}`},
+                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(requestBody),
                 };
                 console.log(">>> request ai suggestion", { request: requestBody });
@@ -378,7 +396,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         resolve(undefined);
                     });
                 }
-                if (!response.ok){
+                if (!response.ok) {
                     console.log(">>> ai completion api call failed ", response);
                     return new Promise((resolve) => {
                         resolve(undefined);
@@ -441,7 +459,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 .deleteFlowNode(params)
                 .then((model) => {
                     console.log(">>> bi delete node from ls", model);
-                    this.updateSource(model);
+                    this.updateSource(model, params.flowNode);
                     resolve(model);
                 })
                 .catch((error) => {
@@ -572,6 +590,33 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
+    async getConfigVariables(): Promise<ConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const projectPath = path.join(StateMachine.context().projectUri);
+            const variables = await StateMachine.langClient().getConfigVariables({ projectPath: projectPath }) as ConfigVariableResponse;
+            resolve(variables);
+        });
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return new Promise(async (resolve) => {
+            const req: UpdateConfigVariableRequest = params;
+            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
+            
+            if (!fs.existsSync(params.configFilePath)) {
+                
+                // Create config.bal if it doesn't exist
+                fs.writeFileSync(params.configFilePath, "\n");
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+
+            }
+            
+            const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
+            this.updateSource(response, undefined, false);
+            resolve(response);
+        });
+    }
+
     async getReadmeContent(): Promise<ReadmeContentResponse> {
         return new Promise((resolve) => {
             const workspaceFolders = workspace.workspaceFolders;
@@ -638,14 +683,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             .showQuickPick(
                 [
                     {
-                        label: "$(package) Deploy with an executable",
-                        detail: "Create a standalone executable for your Ballerina Integrator project",
-                    },
-                    {
-                        label: "$(package) Deploy with Docker",
-                        detail: "Containerize your Ballerina Integrator project using Docker",
-                    },
-                    {
                         label: "$(cloud) Deploy on Choreo",
                         detail: "Deploy your project to Choreo cloud platform",
                         key: "deploy-on-choreo",
@@ -663,16 +700,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 }
 
                 switch (selection.label) {
-                    case "Deploy with an executable":
-                        // Logic for deploying with an executable
-                        console.log("Deploying with an executable");
-                        // TODO: Implement executable deployment
-                        break;
-                    case "Deploy with Docker":
-                        // Logic for deploying with Docker
-                        console.log("Deploying with Docker");
-                        // TODO: Implement Docker deployment
-                        break;
                     case "$(cloud) Deploy on Choreo":
                         this.createChoreoComponent("test", "service");
                         break;
@@ -683,7 +710,11 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     openAIChat(params: AIChatRequest): void {
-        commands.executeCommand("kolab.open.ai.panel");
+        if (params.readme) {
+            commands.executeCommand("kolab.open.ai.panel", "Generate an integration according to the given Readme file");
+        } else {
+            commands.executeCommand("kolab.open.ai.panel");
+        }
     }
 
     async getModuleNodes(): Promise<BIModuleNodesResponse> {
@@ -801,8 +832,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     }
 
     runProject(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        commands.executeCommand(BI_COMMANDS.BI_RUN_PROJECT);
     }
 
     async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {

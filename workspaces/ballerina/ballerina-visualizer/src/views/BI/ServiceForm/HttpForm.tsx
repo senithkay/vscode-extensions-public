@@ -59,9 +59,9 @@ export function HttpForm(props: HttpFormProps) {
     const { handleView } = props;
     const { rpcClient } = useRpcContext();
     const [name, setName] = useState("");
-    const [path, setPath] = useState("");
+    const [path, setPath] = useState("/");
     const [specPath, setSpecPath] = useState("");
-    const [port, setPort] = useState("");
+    const [port, setPort] = useState("9090");
     const [file, setFile] = useState("");
     const [selectedModule, setSelectedModule] = useState<ServiceType>("Scratch");
     const [isLoading, setIsLoading] = useState(false);
@@ -100,7 +100,7 @@ export function HttpForm(props: HttpFormProps) {
                 <BIHeader />
                 <Container>
                     <FormContainer>
-                        <Typography variant="h2">Create HTTP Service</Typography>
+                        <Typography variant="h2">Create an HTTP Service</Typography>
                         <BodyText>
                             Design your HTTP service using the our Service Designer or import an OpenAPI
                             Specification (OAS) file to set it up quickly.
@@ -108,7 +108,7 @@ export function HttpForm(props: HttpFormProps) {
                         <CardGrid>
                             <ButtonCard
                                 title="Design From Scratch"
-                                description="Design your HTTP service using our service design tool."
+                                description="Design your HTTP service using our service designer."
                                 active={selectedModule === "Scratch"}
                                 onClick={() => handleSelection("Scratch")}
                             />
@@ -127,6 +127,7 @@ export function HttpForm(props: HttpFormProps) {
                                     value={name}
                                     label="Service Name"
                                     placeholder="Enter service name"
+                                    autoFocus
                                 />
                                 <TextField
                                     onTextChange={setPath}

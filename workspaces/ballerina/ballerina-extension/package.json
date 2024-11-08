@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.0.1",
+    "version": "0.3.1",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -74,7 +74,7 @@
                 "properties": {
                     "kolab.pluginDevMode": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable plugin development mode."
                     },
                     "kolab.home": {
@@ -169,8 +169,8 @@
                     },
                     "kolab.authRedirectURL": {
                         "type": "string",
-                        "default": "vscode://wso2.ballerina/signin",
-                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.ballerina/signin"
+                        "default": "vscode://wso2.kolab/signin",
+                        "description": "Redirect URL for Auth Service \n Default: vscode://wso2.kolab/signin"
                     }
                 }
             },
@@ -304,17 +304,17 @@
         ],
         "commands": [
             {
-                "command": "ballerina.installBallerina",
+                "command": "kolab-setup.installBallerina",
                 "title": "Install Ballerina",
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.setupKola",
+                "command": "kolab-setup.setupKola",
                 "title": "Set up Kola",
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.updateKola",
+                "command": "kolab-setup.updateKola",
                 "title": "Update Kola",
                 "category": "Ballerina"
             },
@@ -538,6 +538,12 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project-explorer.delete",
+                "title": "Delete",
+                "icon": "$(trash)",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add-entry-point",
                 "title": "Add Entry Point",
                 "icon": "$(add)",
@@ -562,6 +568,20 @@
                 "command": "BI.project-explorer.add-configuration",
                 "title": "Add Configuration",
                 "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add",
+                "title": "Add Construct",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.overview",
+                "title": "Show Overview",
+                "icon": "$(distro-design-view)",
                 "group": "navigation",
                 "category": "BI"
             }
@@ -922,7 +942,7 @@
         "test-coverage": "cross-env COVER_CONFIG=html pnpm run test",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
-        "package": "vsce package --no-dependencies --pre-release",
+        "package": "vsce package --no-dependencies",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "copyVSIX": "copyfiles *.vsix ./vsix",
         "copyVSIXToRoot": "copyfiles -f ./vsix/*.vsix ../../..",

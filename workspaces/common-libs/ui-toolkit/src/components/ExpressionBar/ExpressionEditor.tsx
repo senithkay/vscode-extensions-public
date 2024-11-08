@@ -16,10 +16,11 @@ import { Codicon } from '../Codicon/Codicon';
 import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
 import { throttle } from 'lodash';
 import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon,setCursor } from './utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon, setCursor } from './utils';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
 import { AutoResizeTextArea } from '../TextArea/TextArea';
+import { TextField } from '../TextField/TextField';
 
 // Types
 type StyleBase = {
@@ -65,8 +66,15 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
         font-family: monospace;
         font-size: 12px;
-        min-height: 26px;
+        min-height: 20px;
         padding: 5px 8px;
+    }
+`;
+
+const StyledTextField = styled(TextField)`
+    ::part(control) {
+        font-family: monospace;
+        font-size: 12px;
     }
 `;
 
@@ -327,7 +335,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     <KeyContainer>
                         <DropdownFooterKey>ESC</DropdownFooterKey>
                     </KeyContainer>
-                    <DropdownFooterText>to close.</DropdownFooterText>
+                    <DropdownFooterText>to cancel.</DropdownFooterText>
                 </DropdownFooterSection>
             </DropdownFooter>
         </DropdownBody>
@@ -388,6 +396,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onChange,
         onSave,
         onCancel,
+        onClose,
         onCompletionSelect,
         onDefaultCompletionSelect,
         extractArgsFromFunction,
@@ -397,8 +406,16 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         shouldDisableOnSave = true,
         ...rest
     } = props;
+
+    let textBoxType: 'TextField' | 'TextArea' = 'TextArea';
+    let inputElementType: 'input' | 'textarea' = 'textarea';
+    if(props.textBoxType === 'TextField') {
+        textBoxType = 'TextField';
+        inputElementType = 'input';
+    }
+
     const elementRef = useRef<HTMLDivElement>(null);
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const textBoxRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const skipFocusCallback = useRef<boolean>(false);
@@ -410,7 +427,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     };
 
     const isDropdownOpen = showDefaultCompletion || completions?.length > 0 || !!fnSignature;
-    const isFocused = document.activeElement === textAreaRef.current;
+    const isFocused = document.activeElement === textBoxRef.current;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
@@ -431,9 +448,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef, isDropdownOpen]);
 
-    const handleClose = () => {
+    const handleCancel = () => {
         onCancel();
         setFnSignature(undefined);
+    };
+
+    const handleClose = () => {
+        onClose ? onClose() : handleCancel();
     };
 
     // This allows us to update the Function Signature UI
@@ -444,7 +465,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleChange = async (text: string, cursorPosition?: number) => {
         const updatedCursorPosition =
-            cursorPosition ?? textAreaRef.current.shadowRoot.querySelector('textarea').selectionStart;
+            cursorPosition ?? textBoxRef.current.shadowRoot.querySelector(inputElementType).selectionStart;
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
@@ -460,7 +481,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleCompletionSelect = async (item: CompletionItem) => {
         const replacementSpan = item.replacementSpan ?? 0;
-        const cursorPosition = textAreaRef.current.shadowRoot.querySelector('textarea').selectionStart;
+        const cursorPosition = textBoxRef.current.shadowRoot.querySelector(inputElementType).selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
@@ -474,16 +495,17 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         return { newTextValue, newCursorPosition };
     };
 
-    const handleExpressionSave = async (value: string) => {
+    const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
+        if(ref) value = ref.current;
         const valueWithClosingBracket = addClosingBracketIfNeeded(value);
         onSave && await onSave(valueWithClosingBracket);
-        handleClose();
+        handleCancel();
     }
 
     // Mutation functions
     const {
         data: completionSelectResponse,
-        isLoading: isSelectingCompletion,
+        // isLoading: isSelectingCompletion,
         mutate: handleCompletionSelectMutation
     } = useTransaction(handleCompletionSelect);
     const {
@@ -495,7 +517,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         if (completionSelectResponse) {
             // Post completion select actions
             skipFocusCallback.current = true;
-            setCursor(textAreaRef, completionSelectResponse.newCursorPosition);
+            setCursor(textBoxRef, inputElementType, completionSelectResponse.newCursorPosition);
         }
     }, [completionSelectResponse]);
 
@@ -593,7 +615,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 switch (e.key) {
                     case 'Escape':
                         e.preventDefault();
-                        handleClose();
+                        handleCancel();
                         return;
                     case 'ArrowDown': {
                         e.preventDefault();
@@ -642,13 +664,14 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         if (e.key === 'Enter') {
             e.preventDefault();
             await handleExpressionSaveMutation(value);
+           
             return;
         }
     };
 
     const handleRefFocus = () => {
         if (document.activeElement !== elementRef.current) {
-            textAreaRef.current?.focus();
+            textBoxRef.current?.focus();
         }
     }
 
@@ -658,7 +681,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             if (value !== undefined) {
                 await handleExpressionSaveMutation(value);
             }
-            textAreaRef.current?.blur();
+            textBoxRef.current?.blur();
         }
     }
 
@@ -676,11 +699,15 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     }
 
     useImperativeHandle(ref, () => ({
-        shadowRoot: textAreaRef.current?.shadowRoot,
+        shadowRoot: textBoxRef.current?.shadowRoot,
+        inputElement: textBoxRef.current?.shadowRoot?.querySelector(inputElementType),
         focus: handleRefFocus,
         blur: handleRefBlur,
-        saveExpression: async (value?: string) => {
-            await handleExpressionSaveMutation(value);
+        saveExpression: async (value?: string, ref?: React.MutableRefObject<string>) => {
+            await handleExpressionSaveMutation(value, ref);
+        },
+        setCursor: (position: number) => {
+            setCursor(textBoxRef, inputElementType, position);
         }
     }));
 
@@ -688,11 +715,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // Prevent blur event when clicking on the dropdown
         const handleOutsideClick = async (e: any) => {
             if (
-                document.activeElement === textAreaRef.current &&
-                !textAreaRef.current?.contains(e.target) &&
+                document.activeElement === textBoxRef.current &&
+                !textBoxRef.current?.contains(e.target) &&
                 !dropdownContainerRef.current?.contains(e.target)
             ) {
-                await onBlur?.();
+                await onBlur?.(e);
             }
         }
 
@@ -704,25 +731,40 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     return (
         <Container ref={elementRef}>
-            <StyledTextArea
-                {...rest}
-                ref={textAreaRef}
-                value={value}
-                onTextChange={handleChange}
-                onKeyDown={handleInputKeyDown}
-                onFocus={handleTextFieldFocus}
-                onBlur={handleTextFieldBlur}
-                sx={{ width: '100%', ...sx }}
-                disabled={disabled || (shouldDisableOnSave && (isSelectingCompletion || isSavingExpression))}
-                growRange={{ start: 1, offset: 7 }}
-                resize='vertical'
-            />
-            {shouldDisableOnSave && (isSelectingCompletion || isSavingExpression) && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
+            {textBoxType === 'TextField' ? (
+                <StyledTextField
+                    ref={textBoxRef as React.RefObject<HTMLInputElement>}
+                    value={value}
+                    onTextChange={handleChange}
+                    onKeyDown={handleInputKeyDown}
+                    onBlur={handleTextFieldBlur}
+                    sx={{ width: '100%', ...sx }}
+                    disabled={disabled || (shouldDisableOnSave && isSavingExpression)}
+                    {...rest}
+                />
+            ) : (
+                <StyledTextArea
+                    {...rest}
+                    ref={textBoxRef as React.RefObject<HTMLTextAreaElement>}
+                    value={value}
+                    onTextChange={handleChange}
+                    onKeyDown={handleInputKeyDown}
+                    onFocus={handleTextFieldFocus}
+                    onBlur={handleTextFieldBlur}
+                    sx={{ width: '100%', ...sx }}
+                    disabled={disabled || (shouldDisableOnSave && isSavingExpression)}
+                    growRange={{ start: 1, offset: 7 }}
+                    resize='vertical'
+                />
+            )}
+
+            {shouldDisableOnSave && isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
                 createPortal(
                     <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
                         <Transition show={isDropdownOpen} {...ANIMATION}>
                             <Codicon
+                                id='expression-editor-close'
                                 sx={{
                                     position: 'absolute',
                                     top: '0',

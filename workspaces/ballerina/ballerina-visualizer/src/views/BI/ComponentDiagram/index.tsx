@@ -69,8 +69,43 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connection.name,
             },
+            isPopup: true
         });
     };
+
+    const handleDeleteComponent = async (component: EntryPoint | Connection) => {
+        console.log(">>> component diagram: delete component", component);
+        if ('type' in component) {
+            // TODO: Add support for entry points deletion when LS api is available
+            console.log("====>>> deleting entrypoint", component);
+        } else {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getModuleNodes()
+                .then((res) => {
+                    console.log(">>> moduleNodes", { moduleNodes: res });
+                    const connector = res?.flowModel?.connections.find(
+                        (node) => node.properties.variable.value === component.name
+                    );
+                    if (connector) {
+                        rpcClient
+                            .getBIDiagramRpcClient()
+                            .deleteFlowNode({
+                                filePath: component.location.filePath,
+                                flowNode: connector,
+                            })
+                            .then((response) => {
+                                console.log(">>> Updated source code after delete", response);
+                                if (!response.textEdits) {
+                                    console.error(">>> Error updating source code", response);
+                                }
+                            });
+                    } else {
+                        console.error(">>> Error finding connector", { connectionName: component.name });
+                    }
+                });
+        }
+    }
 
     if (!projectStructure) {
         return (
@@ -141,6 +176,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 onAddConnection={handleAddConnection}
                 onEntryPointSelect={handleGoToEntryPoints}
                 onConnectionSelect={handleGoToConnection}
+                onDeleteComponent={handleDeleteComponent}
             />
         </DiagramContainer>
     );

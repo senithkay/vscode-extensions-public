@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState, AddToProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GetFromFileRequest, DeleteFromProjectRequest, GenerateTestRequest, GeneratedTestSource, GenerteMappingsFromRecordRequest, GenerateMappingFromRecordResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -21,6 +21,8 @@ export const getAccessToken: RequestType<void, string> = { method: `${_preFix}/g
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
 export const getProjectUuid: RequestType<void, string> = { method: `${_preFix}/getProjectUuid` };
 export const addToProject: NotificationType<AddToProjectRequest> = { method: `${_preFix}/addToProject` };
+export const getFromFile: NotificationType<GetFromFileRequest> = { method: `${_preFix}/getFromFile` };
+export const deleteFromProject: NotificationType<DeleteFromProjectRequest> = { method: `${_preFix}/deleteFromProject` };
 export const getRefreshToken: RequestType<void, string> = { method: `${_preFix}/getRefreshToken` };
 export const generateMappings: RequestType<GenerateMappingsRequest, GenerateMappingsResponse> = { method: `${_preFix}/generateMappings` };
 export const notifyAIMappings: RequestType<NotifyAIMappingsRequest, boolean> = { method: `${_preFix}/notifyAIMappings` };
@@ -28,3 +30,9 @@ export const stopAIMappings: RequestType<void, GenerateMappingsResponse> = { met
 export const promptLogin: RequestType<void, boolean> = { method: `${_preFix}/promptLogin` };
 export const getProjectSource: RequestType<void, ProjectSource> = { method: `${_preFix}/getProjectSource` };
 export const getShadowDiagnostics: RequestType<ProjectSource, ProjectDiagnostics> = { method: `${_preFix}/getShadowDiagnostics` };
+export const checkSyntaxError: RequestType<ProjectSource, boolean> = { method: `${_preFix}/checkSyntaxError` };
+export const getInitialPrompt: RequestType<void, InitialPrompt> = { method: `${_preFix}/getInitialPrompt` };
+export const clearInitialPrompt: NotificationType<void> = { method: `${_preFix}/clearInitialPrompt` };
+export const getGeneratedTest: RequestType<GenerateTestRequest, GeneratedTestSource> = { method: `${_preFix}/getGeneratedTest` };
+export const getTestDiagnostics: RequestType<GeneratedTestSource, ProjectDiagnostics> = { method: `${_preFix}/getTestDiagnostics` };
+export const getMappingsFromRecord: RequestType<GenerteMappingsFromRecordRequest, GenerateMappingFromRecordResponse> = { method: `${_preFix}/getMappingsFromRecord` };

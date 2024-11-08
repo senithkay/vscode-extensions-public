@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
 import { StateMachine } from "../../stateMachine";
@@ -16,6 +16,7 @@ import {
     ENDPOINT_REMOVED,
     INVALID_PARAMETER_TYPE,
     INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
+    MODIFIYING_ERROR,
     PARSING_ERROR,
     TIMEOUT,
     UNAUTHORIZED,
@@ -26,8 +27,9 @@ import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
+import { getPluginConfig } from "../../../src/utils";
 
-export const BACKEND_API_URL_V2 =  workspace.getConfiguration('ballerina').get('rootUrl') as string;
+export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
@@ -191,6 +193,53 @@ export async function getParamDefinitions(
     return response;
 }
 
+export async function processMappings(
+    fnSt: FunctionDefinition,
+    fileUri: string
+): Promise<SyntaxTree | ErrorCode> {
+    const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+
+    if (isErrorCode(parameterDefinitions)) {
+        return parameterDefinitions as ErrorCode;
+    }
+
+    const codeObject = await getDatamapperCode(parameterDefinitions);
+    if (isErrorCode(codeObject)) {
+        return codeObject as ErrorCode;
+    }
+
+    let codeString: string = constructRecord(codeObject);
+    if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
+        const parameter = fnSt.functionSignature.parameters[0];
+        const param = parameter as RequiredParam;
+        const paramName = param.paramName.value;
+        codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
+        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+    } else {
+        codeString = `=> ${codeString};`;
+    }
+
+    const modifications: STModification[] = [];
+    modifications.push({
+        type: "INSERT",
+        config: { STATEMENT: codeString },
+        endColumn: fnSt.functionBody.position.endColumn,
+        endLine: fnSt.functionBody.position.endLine,
+        startColumn: fnSt.functionBody.position.startColumn,
+        startLine: fnSt.functionBody.position.startLine,
+    });
+
+    const stModifyResponse = await StateMachine.langClient().stModify({
+        astModifications: modifications,
+        documentIdentifier: {
+            uri: fileUri
+        }
+    });
+
+    return stModifyResponse as SyntaxTree;
+}
+
+
 export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata, nestedKey: string = ""): Promise<object> {
     let recordFields: { [key: string]: any } = {};
 
@@ -334,7 +383,7 @@ export async function refreshAccessToken(): Promise<string> {
         'Accept': 'application/json'
     };
 
-    const config = workspace.getConfiguration('ballerina');
+    const config = getPluginConfig();
     const AUTH_ORG = config.get('authOrg') as string;
     const AUTH_CLIENT_ID = config.get('authClientID') as string;
 
@@ -443,6 +492,7 @@ function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefini
 }
 
 export async function getDatamapperCode(parameterDefinitions): Promise<object | ErrorCode> {
+    console.log(JSON.stringify(parameterDefinitions));
     try {
         const accessToken = await getAccessToken().catch((error) => {
             console.error(error);
@@ -473,7 +523,7 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
             let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
             return finalCode;
         }
-        let intermediateMapping = JSON.parse(await filterResponse(response) as string); 
+        let intermediateMapping = JSON.parse(await filterResponse(response) as string);
         let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
         return finalCode;
     } catch (error) {
@@ -690,6 +740,7 @@ async function handleRecordArrays(key: string, nestedKey:string, responseRecord:
 async function filterResponse(resp: Response): Promise<string | ErrorCode> {
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
+        console.log(JSON.stringify(data.mappings));
         return JSON.stringify(data.mappings);
     }
     if (resp.status == 404) {

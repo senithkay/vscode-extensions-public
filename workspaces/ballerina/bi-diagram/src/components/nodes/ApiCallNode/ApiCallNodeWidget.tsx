@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { cloneDeep } from "lodash";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
     Colors,
@@ -22,11 +23,13 @@ import {
     NODE_WIDTH,
 } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
-import { MoreVertIcon, XIcon } from "../../../resources";
+import { MoreVertIcon } from "../../../resources";
 import { FlowNode } from "../../../utils/types";
 import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -39,6 +42,7 @@ export namespace NodeStyles {
     export type NodeStyleProp = {
         disabled: boolean;
         hovered: boolean;
+        hasError: boolean;
     };
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
@@ -52,7 +56,7 @@ export namespace NodeStyles {
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
         border-style: ${(props: NodeStyleProp) => (props.disabled ? "dashed" : "solid")};
         border-color: ${(props: NodeStyleProp) =>
-            props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: ${Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
@@ -94,7 +98,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
+        max-width: ${NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -120,6 +124,25 @@ export namespace NodeStyles {
         justify-content: space-between;
         align-items: center;
         width: 100%;
+    `;
+
+    export const ActionButtonGroup = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 2px;
+    `;
+
+    export const MenuButton = styled(Button)`
+        border-radius: 5px;
+    `;
+
+    export const ErrorIcon = styled.div`
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: ${Colors.ERROR};
     `;
 
     export const Hr = styled.hr`
@@ -225,11 +248,23 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
 
     const disabled = model.node.suggested;
 
+    // show module name in the title if org is ballerina or ballerinax
+    const nodeCodeData = cloneDeep(model.node.codedata);
+    const nodeTitle =
+        nodeCodeData?.org === "ballerina" || nodeCodeData?.org === "ballerinax"
+            ? `${nodeCodeData.module.includes(".") ? nodeCodeData.module.split(".").pop() : nodeCodeData.module} : ${
+                  model.node.metadata.label
+              }`
+            : model.node.metadata.label;
+
+    const hasError = nodeHasError(model.node);
+
     return (
         <NodeStyles.Node>
             <NodeStyles.Box
                 disabled={disabled}
                 hovered={isBoxHovered}
+                hasError={hasError}
                 onMouseEnter={() => setIsBoxHovered(true)}
                 onMouseLeave={() => setIsBoxHovered(false)}
             >
@@ -238,13 +273,21 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                     <NodeStyles.Icon onClick={handleOnClick}>
                         <NodeIcon type={model.node.codedata.node} />
                     </NodeStyles.Icon>
-                    <NodeStyles.Header onClick={handleOnClick}>
-                        <NodeStyles.Title>{model.node.metadata.label}</NodeStyles.Title>
-                        <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
-                    </NodeStyles.Header>
-                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                    <NodeStyles.Row>
+                        <NodeStyles.Header onClick={handleOnClick}>
+                            <NodeStyles.Title>{nodeTitle}</NodeStyles.Title>
+                            <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
+                        </NodeStyles.Header>
+                        <NodeStyles.ActionButtonGroup>
+                            {hasError && <DiagnosticsPopUp node={model.node} />}
+                            <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                                <MoreVertIcon />
+                            </NodeStyles.MenuButton>
+                        </NodeStyles.ActionButtonGroup>
+                    </NodeStyles.Row>
+                    {/* <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                         <MoreVertIcon />
-                    </NodeStyles.StyledButton>
+                    </NodeStyles.StyledButton> */}
                     <Popover
                         open={isMenuOpen}
                         anchorEl={anchorEl}
