@@ -136,7 +136,7 @@ export function SetupView(props: SetupViewProps) {
     return (
         <Wrapper>
             <TitleContainer>
-                <Headline>Let's Set Up Kola for VSCode</Headline>
+                <Headline>Let's Set Up Kola for VS Code</Headline>
                 <Caption>
                     Welcome to Kola! Let's quickly set up your environment to get started. Just click the button below,
                     and we’ll take care of everything step by step.
@@ -183,7 +183,7 @@ export function SetupView(props: SetupViewProps) {
                         </IconContainer>
                         <Column>
                             <StepTitle>Install Kola Runtime</StepTitle>
-                            <StepDescription>Integrating the Kola runtime with your VSCode setup.</StepDescription>
+                            <StepDescription>Integrating the Kola runtime with your VS Code setup.</StepDescription>
                         </Column>
                     </Row>
                     <Row>

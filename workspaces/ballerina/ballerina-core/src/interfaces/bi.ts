@@ -134,6 +134,16 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
 }
 
+export enum DIRECTORY_SUB_TYPE {
+    FUNCTION = "function",
+    CONNECTION = "connection",
+    TYPE = "type",
+    CONFIGURATION = "configuration",
+    SERVICE = "service",
+    AUTOMATION = "automation",
+    TRIGGER = "trigger"
+}
+
 export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
@@ -189,6 +199,7 @@ export type NodePropertyKey =
     | "view"
     | "variable"
     | "defaultable"
+    | "scope"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
