@@ -10,10 +10,8 @@
 import classNames from "classnames";
 import React, { type HTMLProps, type FC } from "react";
 
-interface Props {
+interface Props extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> {
 	name: string;
-	className?: HTMLProps<HTMLElement>["className"];
-	title?: HTMLProps<HTMLElement>["title"];
 }
 
 export const Codicon: FC<Props> = ({ title, name, className }) => {

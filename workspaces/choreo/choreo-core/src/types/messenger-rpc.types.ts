@@ -8,6 +8,7 @@
  */
 
 import type { NotificationType, RequestType } from "vscode-messenger-common";
+import type { ComponentViewDrawers } from "../enums";
 import type { CreateComponentReq } from "./cli-rpc.types";
 import type {
 	CommitHistory,
@@ -15,11 +16,12 @@ import type {
 	ComponentKind,
 	DeploymentTrack,
 	Environment,
+	MarketplaceItem,
 	Organization,
 	Project,
 	WebviewQuickPickItem,
 } from "./common.types";
-import type { Endpoint } from "./config-file.types";
+import type { Endpoint, ProxyConfig } from "./config-file.types";
 import type { AuthState, ContextStoreState, WebviewState } from "./store.types";
 
 // Request types
@@ -27,8 +29,9 @@ export const GetAuthState: RequestType<void, AuthState> = { method: "getAuthStat
 export const GetContextState: RequestType<void, ContextStoreState> = { method: "getContextState" };
 export const GetWebviewStoreState: RequestType<void, WebviewState> = { method: "getWebviewStoreState" };
 export const OpenSubDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "openDialog" };
-export const GetGitRemotes: RequestType<string, string[]> = { method: "getGitRemotes" };
-export const JoinFilePaths: RequestType<string[], string> = { method: "joinFilePaths" };
+export const GetLocalGitData: RequestType<string, GetLocalGitDataResp | undefined> = { method: "getLocalGitData" };
+export const JoinFsFilePaths: RequestType<string[], string> = { method: "joinFsFilePaths" };
+export const JoinUriFilePaths: RequestType<string[], string> = { method: "joinUriFilePaths" };
 export const GetSubPath: RequestType<{ subPath: string; parentPath: string }, string | null> = { method: "getSubPath" };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: "setWebviewCache" };
 export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: "restoreWebviewCache" };
@@ -41,19 +44,28 @@ export const DeleteFile: RequestType<string, void> = { method: "deleteFile" };
 export const ShowConfirmMessage: RequestType<ShowConfirmBoxReq, boolean> = { method: "showConfirmMessage" };
 export const ShowQuickPick: RequestType<ShowWebviewQuickPickItemsReq, WebviewQuickPickItem | undefined> = { method: "showQuickPicks" };
 export const ShowInputBox: RequestType<ShowWebviewInputBoxReq, string | undefined> = { method: "showWebviewInputBoxReq" };
-export const ReadServiceEndpoints: RequestType<string, ReadEndpointsResp> = { method: "readServiceEndpoints" };
-export const ViewBuildsLogs: RequestType<ViewBuildLogsReq, void> = { method: "viewBuildLogs" };
+export const ReadLocalEndpointsConfig: RequestType<string, ReadLocalEndpointsConfigResp> = { method: "readLocalEndpointsConfig" };
+export const ReadLocalProxyConfig: RequestType<string, ReadLocalProxyConfigResp> = { method: "readLocalProxyConfig" };
+export const ShowTextInOutputChannel: RequestType<ShowInOutputChannelReq, void> = { method: "showTextInOutputChannel" };
 export const ViewRuntimeLogs: RequestType<ViewRuntimeLogsReq, void> = { method: "viewRuntimeLogs" };
 export const TriggerGithubAuthFlow: RequestType<string, void> = { method: "triggerGithubAuthFlow" };
 export const TriggerGithubInstallFlow: RequestType<string, void> = { method: "triggerGithubInstallFlow" };
 export const SubmitComponentCreate: RequestType<SubmitComponentCreateReq, ComponentKind> = { method: "submitComponentCreate" };
 export const GetDirectoryFileNames: RequestType<string, string[]> = { method: "getDirectoryFileNames" };
 export const FileExists: RequestType<string, boolean> = { method: "fileExists" };
-export const OpenTestView: RequestType<OpenTestViewReq, void> = { method: "openTestView" };
+export const ReadFile: RequestType<string, string | null> = { method: "readFile" };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: "executeCommand" };
 export const OpenExternal: RequestType<string, void> = { method: "openExternal" };
-export const ShowOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: "showOpenDialog" };
 export const SelectCommitToBuild: RequestType<SelectCommitToBuildReq, CommitHistory | undefined> = { method: "selectCommitToBuild" };
+export const OpenComponentViewDrawer: RequestType<OpenComponentViewDrawerReq, void> = { method: "openComponentViewDrawer" };
+export const CloseComponentViewDrawer: RequestType<string, void> = { method: "closeComponentViewDrawer" };
+export const HasDirtyLocalGitRepo: RequestType<string, boolean> = { method: "hasDirtyLocalGitRepo" };
+export const GetConfigFileDrifts: RequestType<GetConfigFileDriftsReq, string[]> = { method: "getConfigFileDrifts" };
+export const SaveFile: RequestType<SaveFileReq, string> = { method: "saveFile" };
+export const CreateLocalEndpointsConfig: RequestType<CreateLocalEndpointsConfigReq, void> = { method: "createLocalEndpointsConfig" };
+export const CreateLocalProxyConfig: RequestType<CreateLocalProxyConfigReq, void> = { method: "createLocalProxyConfig" };
+export const CreateLocalConnectionsConfig: RequestType<CreateLocalConnectionsConfigReq, void> = { method: "createLocalConnectionsConfig" };
+export const DeleteLocalConnectionsConfig: RequestType<DeleteLocalConnectionsConfigReq, void> = { method: "deleteLocalConnectionsConfig" };
 
 const NotificationMethods = {
 	onAuthStateChanged: "onAuthStateChanged",
@@ -85,16 +97,35 @@ export interface SubmitComponentCreateReq {
 	org: Organization;
 	project: Project;
 	createParams: CreateComponentReq;
-	endpoint?: Endpoint;
+	autoBuildOnCommit?: boolean;
+	type: string;
 }
 
-export interface ViewBuildLogsReq {
-	orgId: string;
-	orgHandler: string;
-	componentId: string;
-	displayType: string;
-	projectId: string;
-	buildId: number;
+export interface CreateLocalEndpointsConfigReq {
+	componentDir: string;
+	endpoints?: Endpoint[];
+}
+
+export interface CreateLocalConnectionsConfigReq {
+	componentDir: string;
+	name: string;
+	visibility: string;
+	marketplaceItem: MarketplaceItem;
+}
+
+export interface DeleteLocalConnectionsConfigReq {
+	componentDir: string;
+	connectionName: string;
+}
+
+export interface CreateLocalProxyConfigReq {
+	componentDir: string;
+	proxy: ProxyConfig;
+}
+
+export interface ShowInOutputChannelReq {
+	key: string;
+	output: string;
 }
 
 export interface ViewRuntimeLogsReq {
@@ -106,8 +137,13 @@ export interface ViewRuntimeLogsReq {
 	envName: string;
 }
 
-export interface ReadEndpointsResp {
+export interface ReadLocalEndpointsConfigResp {
 	endpoints: Endpoint[];
+	filePath: string;
+}
+
+export interface ReadLocalProxyConfigResp {
+	proxy?: ProxyConfig;
 	filePath: string;
 }
 
@@ -154,9 +190,46 @@ export interface SelectCommitToBuildReq {
 	deploymentTrack: DeploymentTrack;
 }
 
+export interface GetConfigFileDriftsReq {
+	type: string;
+	repoDir: string;
+	repoUrl: string;
+	branch: string;
+}
+
+export interface CreateNewFilReq {
+	fileDir: string;
+	fileName: string;
+	context?: string;
+}
+
+export interface SaveFileReq {
+	fileName: string;
+	fileContent: string;
+	baseDirectoryFs: string;
+	successMessage?: string;
+	shouldPromptDirSelect?: boolean;
+	isOpenApiFile?: boolean;
+	dialogTitle?: string;
+	shouldOpen?: boolean;
+}
+
+export interface OpenComponentViewDrawerReq {
+	componentKey: string;
+	drawer: ComponentViewDrawers;
+	// biome-ignore lint/suspicious/noExplicitAny: can be any type of data
+	params?: any;
+}
+
 export interface SetWebviewCacheRequestParam {
 	cacheKey: IDBValidKey;
 	data: unknown;
+}
+
+export interface GetLocalGitDataResp {
+	remotes?: string[];
+	upstream?: { name?: string; remote?: string; remoteUrl?: string };
+	gitRoot?: string;
 }
 
 export interface SendTelemetryExceptionParams {
