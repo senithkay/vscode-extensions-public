@@ -8,32 +8,34 @@
  */
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type UseQueryResult, useMutation, useQueryClient } from "@tanstack/react-query";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import {
 	type BuildKind,
 	ChoreoComponentType,
-	type ComponentDeployment,
 	type ComponentKind,
 	type CreateBuildReq,
-	type CreateDeploymentReq,
+	type DeploymentLogsData,
 	type DeploymentTrack,
 	type Environment,
+	type GetAutoBuildStatusResp,
 	type Organization,
 	type Project,
-	type WebviewQuickPickItem,
-	WebviewQuickPickItemKind,
+	type ToggleAutoBuildReq,
 	getTimeAgo,
+	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC, type ReactNode, useState } from "react";
-import { listTimeZones } from "timezone-support";
 import { Button } from "../../../components/Button";
 import { Codicon } from "../../../components/Codicon";
 import { CommitLink } from "../../../components/CommitLink";
+import { Drawer } from "../../../components/Drawer";
+import { Empty } from "../../../components/Empty";
 import { SkeletonText } from "../../../components/SkeletonText";
-import { queryKeys, useGetBuildList } from "../../../hooks/use-queries";
+import { queryKeys, useGetAutoBuildStatus } from "../../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
-import { getTypeForDisplayType } from "../utils";
+import { BuildDetailsSection } from "./BuildDetailsSection";
 
 interface Props {
 	component: ComponentKind;
@@ -41,28 +43,17 @@ interface Props {
 	organization: Organization;
 	deploymentTrack?: DeploymentTrack;
 	envs: Environment[];
-	onTriggerDeployment: (env: Environment) => void;
+	buildListQueryData: UseQueryResult<BuildKind[], unknown>;
+	openBuildDetailsPanel: (item: BuildKind) => void;
 }
 
 export const BuildsSection: FC<Props> = (props) => {
-	const { component, organization, project, deploymentTrack } = props;
-	const [hasOngoingBuilds, setHasOngoingBuilds] = useState(false);
+	const { component, organization, project, deploymentTrack, envs, openBuildDetailsPanel, buildListQueryData } = props;
+	const { isLoading: isLoadingBuilds, isRefetching: isRefetchingBuilds, data: builds = [], refetch: refetchBuilds } = buildListQueryData;
 	const [visibleBuildCount, setVisibleBuildCount] = useState(5);
 	const [buildListRef] = useAutoAnimate();
 	const queryClient = useQueryClient();
-
-	const {
-		isLoading: isLoadingBuilds,
-		isRefetching: isRefetchingBuilds,
-		data: builds = [],
-		refetch: refetchBuilds,
-	} = useGetBuildList(deploymentTrack, component, project, organization, {
-		onSuccess: (builds) => {
-			setHasOngoingBuilds(builds.some((item) => item.status?.conclusion === ""));
-		},
-		enabled: !!deploymentTrack,
-		refetchInterval: hasOngoingBuilds ? 10000 : false,
-	});
+	const type = getTypeForDisplayType(component.spec.type);
 
 	const { mutate: triggerBuild, isLoading: isTriggeringBuild } = useMutation({
 		mutationFn: async (params: CreateBuildReq) => {
@@ -90,12 +81,13 @@ export const BuildsSection: FC<Props> = (props) => {
 				triggerBuild({
 					commitHash: pickedItem.sha,
 					componentName: component.metadata.name,
-					deploymentTrackId: deploymentTrack?.id,
+					deploymentTrackId:
+						type === ChoreoComponentType.ApiProxy ? component?.apiVersions?.find((item) => item.latest)?.versionId : deploymentTrack?.id,
 					projectHandle: project.handler,
 					orgId: organization.id?.toString(),
 					displayType: component.spec.type,
 					gitRepoUrl: component.spec.source.github?.repository,
-					gitBranch: component.spec.source.github?.branch,
+					gitBranch: deploymentTrack?.branch,
 					subPath: component.spec.source.github?.path,
 				});
 			}
@@ -106,28 +98,34 @@ export const BuildsSection: FC<Props> = (props) => {
 
 	return (
 		<div>
-			<div className="mb-3 flex items-center gap-1">
-				<h3 className="flex-1 text-base lg:text-lg">Builds</h3>
-				<Button
-					onClick={() => refetchBuilds()}
-					appearance="icon"
-					title={`${isRefetchingBuilds ? "Refreshing" : "Refresh"} Build List`}
-					className="opacity-50"
-					disabled={isRefetchingBuilds}
-				>
-					<Codicon name="refresh" />
-				</Button>
+			<div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+				<h3 className="text-base lg:text-lg">Builds</h3>
 				{!isLoadingBuilds && (
-					<Button disabled={isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()}>
-						{isTriggeringBuild ? "Triggering Build" : buildInProgress ? "Building Component" : "Build Component"}
+					<Button
+						onClick={() => refetchBuilds()}
+						appearance="icon"
+						title={`${isRefetchingBuilds ? "Refreshing" : "Refresh"} Build List`}
+						className="opacity-50"
+						disabled={isRefetchingBuilds}
+					>
+						<Codicon name="refresh" className={classNames(isRefetchingBuilds && "animate-spin")} />
+					</Button>
+				)}
+				<div className="flex-1" />
+				{/** TODO: enable autoBuildOnCommit once its stable */}
+				{/* {type !== ChoreoComponentType.ApiProxy && (
+					<AutoBuildSwitch component={component} envs={envs} organization={organization} deploymentTrack={deploymentTrack} />
+				)} */}
+				{!isLoadingBuilds && (
+					<Button disabled={isTriggeringBuild || buildInProgress} onClick={() => selectCommitForBuild()} appearance="secondary">
+						{isTriggeringBuild || buildInProgress ? "Building..." : "Build"}
 					</Button>
 				)}
 			</div>
 
-			<div className="hidden grid-cols-2 py-2 font-light text-xs md:grid md:grid-cols-4">
+			<div className="hidden grid-cols-2 gap-x-5 py-2 font-light text-xs md:grid md:grid-cols-3 ">
 				<div>Build ID</div>
 				<div>Commit</div>
-				<div>Started</div>
 				<div>Status</div>
 			</div>
 			<div className="lg:min-h-44" ref={buildListRef}>
@@ -141,22 +139,17 @@ export const BuildsSection: FC<Props> = (props) => {
 				) : (
 					<>
 						{builds.length === 0 ? (
-							<>
-								<div className="flex flex-col items-center justify-center gap-3 p-8 lg:min-h-44">
-									<p className="text-center font-light text-sm opacity-40">There aren't any builds available</p>
-									<Codicon name="inbox" className="!text-4xl opacity-20" />
-								</div>
-							</>
+							<Empty text="There aren't any builds available" />
 						) : (
 							<>
 								{builds?.slice(0, visibleBuildCount)?.map((item, index) => (
-									<>
+									<React.Fragment key={index}>
 										{item.status.status === "Triggered" ? (
 											<LoadingBuildRow key={index} />
 										) : (
-											<BuiltItemRow key={item.status?.runId} item={item} {...props} />
+											<BuiltItemRow key={item.status?.runId} item={item} onViewBuildDetails={() => openBuildDetailsPanel(item)} {...props} />
 										)}
-									</>
+									</React.Fragment>
 								))}
 								{builds.length > visibleBuildCount && (
 									<div className="mt-2 flex flex-row justify-end">
@@ -176,20 +169,17 @@ export const BuildsSection: FC<Props> = (props) => {
 
 const LoadingBuildRow = () => {
 	return (
-		<div className="grid grid-cols-2 py-1 duration-200 hover:bg-vsc-editorHoverWidget-background md:grid-cols-4">
+		<div className="grid grid-cols-2 gap-x-5 py-1 md:grid-cols-3">
 			<GridColumnItem label="Build ID" index={0}>
 				<SkeletonText className="w-20" />
 			</GridColumnItem>
 			<GridColumnItem label="Commit" index={1}>
 				<div className="flex w-full justify-end md:justify-start">
-					<SkeletonText className="w-12" />
+					<SkeletonText className="w-14" />
 				</div>
 			</GridColumnItem>
-			<GridColumnItem label="Started" index={2}>
-				<SkeletonText className="w-20" />
-			</GridColumnItem>
-			<GridColumnItem label="Status" index={3}>
-				<div className="flex flex-row-reverse items-center justify-start gap-2 md:flex-row md:justify-between">
+			<GridColumnItem label="Status" index={2} lastItem>
+				<div className="flex items-center justify-start gap-2 md:justify-between">
 					<SkeletonText className="w-12" />
 					<SkeletonText className="w-10" />
 				</div>
@@ -198,108 +188,7 @@ const LoadingBuildRow = () => {
 	);
 };
 
-const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, organization, project, deploymentTrack, onTriggerDeployment }) => {
-	const queryClient = useQueryClient();
-
-	const { mutate: showBuiltLogs, isLoading: isLoadingBuildLogs } = useMutation({
-		mutationFn: async (buildId: number) => {
-			await ChoreoWebViewAPI.getInstance().viewBuildLogs({
-				componentId: component.metadata.id,
-				displayType: component.spec.type,
-				orgHandler: organization.handle,
-				orgId: organization.id.toString(),
-				projectId: project.id,
-				buildId,
-			});
-		},
-	});
-
-	const { mutate: triggerDeployment, isLoading: isDeploying } = useMutation({
-		mutationFn: async (params: { build: BuildKind; env: Environment }) => {
-			const req: CreateDeploymentReq = {
-				commitHash: params.build.spec.revision,
-				buildRef: params.build.status.images?.[0]?.id,
-				componentName: component.metadata.name,
-				componentId: component.metadata.id,
-				componentDisplayType: component.spec.type,
-				envId: params.env.id,
-				envName: params.env.name,
-				deploymentTrackId: deploymentTrack?.id,
-				orgId: organization.id.toString(),
-				orgHandler: organization.handle,
-				projectId: project.id,
-				projectHandle: project.handler,
-			};
-			if (getTypeForDisplayType(component?.spec?.type) === ChoreoComponentType.ScheduledTask) {
-				const deploymentData: ComponentDeployment | undefined = queryClient.getQueryData(
-					queryKeys.getDeploymentStatus(deploymentTrack, component, organization, params.env),
-				);
-				const cronExpr = await ChoreoWebViewAPI.getInstance().showInputBox({
-					title: "Enter Cron Expression",
-					placeholder: "0 8 * * *",
-					value: deploymentData?.cron || "",
-					regex: {
-						expression: /^((\*|\d+|\d+-\d+)(\/\d+)? ){4}(\*|\d+|\d+-\d+)(\/\d+)?$/,
-						message: "Invalid cron expression",
-					},
-				});
-				if (!cronExpr) {
-					throw new Error("Failed to enter cron expression");
-				}
-				const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone?.toString() || "UTC";
-				const cronTzItems: WebviewQuickPickItem[] = [];
-				if (deploymentData?.cronTimezone) {
-					cronTzItems.push(
-						{ kind: WebviewQuickPickItemKind.Separator, label: "Selected Timezone" },
-						{ label: deploymentData?.cronTimezone, alwaysShow: true, picked: true },
-					);
-				} else {
-					cronTzItems.push(
-						{ kind: WebviewQuickPickItemKind.Separator, label: "My Timezone" },
-						{ label: userTimeZone, alwaysShow: true, picked: true },
-					);
-				}
-				cronTzItems.push({ kind: WebviewQuickPickItemKind.Separator, label: "Other Timezones" }, ...listTimeZones().map((label) => ({ label })));
-
-				const cronTz = await ChoreoWebViewAPI.getInstance().showQuickPicks({
-					title: "Select Timezone",
-					items: cronTzItems,
-				});
-				if (!cronTz) {
-					throw new Error("Failed to select timezone");
-				}
-				req.cronExpression = cronExpr;
-				req.cronTimezone = cronTz.label;
-			}
-			await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createDeployment(req);
-			onTriggerDeployment(params.env);
-		},
-		onSuccess: (_, params) => {
-			queryClient.refetchQueries({
-				queryKey: queryKeys.getDeploymentStatus(deploymentTrack, component, organization, params.env),
-			});
-			queryClient.refetchQueries({
-				queryKey: queryKeys.getDeployedEndpoints(deploymentTrack, component, organization),
-			});
-
-			ChoreoWebViewAPI.getInstance().showInfoMsg(
-				`Deployment of component ${component.metadata.displayName} for the ${params.env?.name} environment has been successfully triggered`,
-			);
-		},
-	});
-
-	const { mutate: selectEnvToDeploy } = useMutation({
-		mutationFn: async ({ build }: { build: BuildKind }) => {
-			const pickedItem = await ChoreoWebViewAPI.getInstance().showQuickPicks({
-				title: "Select the environment to deploy the build",
-				items: envs.map((item) => ({ label: item.name, item })),
-			});
-			if (pickedItem?.item) {
-				triggerDeployment({ build: build, env: pickedItem.item });
-			}
-		},
-	});
-
+const BuiltItemRow: FC<Props & { item: BuildKind; onViewBuildDetails: () => void }> = ({ item, component, onViewBuildDetails }) => {
 	let status: ReactNode = item.status?.conclusion;
 	if (item.status?.conclusion === "") {
 		status = <span className="animate-pulse text-vsc-charts-orange capitalize">{item.status?.status?.replaceAll("_", " ")}</span>;
@@ -312,7 +201,11 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 	}
 
 	return (
-		<div className="grid grid-cols-2 py-1 duration-200 hover:bg-vsc-editorHoverWidget-background md:grid-cols-4">
+		<div
+			className="grid cursor-pointer grid-cols-2 gap-x-5 py-1 duration-200 hover:bg-vsc-editorHoverWidget-background md:grid-cols-3"
+			onClick={() => onViewBuildDetails()}
+			title={`View Build Details: Build Id:${item.status?.runId || "-"}`}
+		>
 			<GridColumnItem label="Build ID" index={0}>
 				{item.status?.runId || "-"}
 			</GridColumnItem>
@@ -323,33 +216,79 @@ const BuiltItemRow: FC<Props & { item: BuildKind }> = ({ item, component, envs, 
 					repoPath={component?.spec?.source?.github?.repository}
 				/>
 			</GridColumnItem>
-			<GridColumnItem label="Started" index={2}>
-				{getTimeAgo(item.status?.startedAt)}
-			</GridColumnItem>
-			<GridColumnItem label="Status" index={3}>
-				<div className="flex flex-row-reverse items-center justify-start gap-2 md:flex-row md:justify-between">
+			<GridColumnItem label="Status" index={2} lastItem>
+				<div className="flex items-center justify-start gap-2 md:justify-between">
 					<div>{status}</div>
-					<div className="flex gap-1">
-						{item.status?.conclusion === "success" && (
-							<Button appearance="icon" title="Deploy Build" onClick={() => selectEnvToDeploy({ build: item })} disabled={isDeploying}>
-								<Codicon name="rocket" />
-							</Button>
-						)}
-						{["success", "failure"].includes(item.status?.conclusion) && (
-							<Button appearance="icon" title="View Build Logs" onClick={() => showBuiltLogs(item.status?.runId)} disabled={isLoadingBuildLogs}>
-								<Codicon name="console" />
-							</Button>
-						)}
-					</div>
+					<div className="font-thin text-[11px] opacity-70">{getTimeAgo(new Date(item.status?.startedAt))}</div>
 				</div>
 			</GridColumnItem>
 		</div>
 	);
 };
 
-const GridColumnItem: FC<{ label: string; index?: number; children?: ReactNode }> = ({ label, index, children }) => (
-	<div className={classNames("flex flex-col", index % 2 === 1 && "items-end md:items-start")}>
+const GridColumnItem: FC<{ label: string; index?: number; children?: ReactNode; lastItem?: boolean }> = ({ label, index, children, lastItem }) => (
+	<div className={classNames("flex flex-col", lastItem ? "col-span-full md:col-span-1" : index % 2 === 1 && "items-end md:items-start")}>
 		<div className="block font-light text-[9px] md:hidden">{label}</div>
 		<div className={classNames("w-full", index % 2 === 1 && "text-right md:text-left")}>{children}</div>
 	</div>
 );
+
+const AutoBuildSwitch: FC<{
+	component: ComponentKind;
+	organization: Organization;
+	deploymentTrack?: DeploymentTrack;
+	envs: Environment[];
+}> = ({ component, envs = [], organization, deploymentTrack }) => {
+	const queryClient = useQueryClient();
+
+	const { data: autoBuildStatus, isLoading: isLoadingAutoBuildStatus } = useGetAutoBuildStatus(component, deploymentTrack, organization, {
+		enabled: envs?.length > 0 && !!deploymentTrack,
+	});
+
+	const { mutate: toggleAutoBuild } = useMutation({
+		mutationFn: (autoBuildEnabled: boolean) => {
+			const rpcClient = ChoreoWebViewAPI.getInstance().getChoreoRpcClient();
+			const req: ToggleAutoBuildReq = {
+				componentId: component.metadata?.id,
+				orgId: organization.id.toString(),
+				versionId: deploymentTrack.id,
+				// will always be dev env
+				envId: envs[0]?.id ?? "",
+			};
+			return autoBuildEnabled ? rpcClient.enableAutoBuildOnCommit(req) : rpcClient.disableAutoBuildOnCommit(req);
+		},
+		onMutate: async (autoBuildEnabled) => {
+			const queryKey = queryKeys.getAutoBuildStatus(component, deploymentTrack, organization);
+			await queryClient.cancelQueries({ queryKey });
+			const previous: GetAutoBuildStatusResp | undefined = queryClient.getQueryData(queryKey);
+			if (previous) {
+				queryClient.setQueryData(queryKey, { ...previous, autoBuildEnabled });
+			}
+			return { previous };
+		},
+		onError: (_err, _resp, context) => {
+			ChoreoWebViewAPI.getInstance().showErrorMsg("Failed to toggle auto build on commit");
+			const queryKey = queryKeys.getAutoBuildStatus(component, deploymentTrack, organization);
+			queryClient.setQueryData(queryKey, context.previous);
+		},
+		onSettled: () => {
+			const queryKey = queryKeys.getAutoBuildStatus(component, deploymentTrack, organization);
+			queryClient.invalidateQueries({ queryKey });
+		},
+	});
+
+	if (envs.length === 0) {
+		return null;
+	}
+
+	return (
+		<VSCodeCheckbox
+			className={classNames("flex-row-reverse text-[11px]", isLoadingAutoBuildStatus && "animate-pulse")}
+			disabled={isLoadingAutoBuildStatus}
+			checked={autoBuildStatus?.autoBuildEnabled}
+			onChange={isLoadingAutoBuildStatus ? undefined : (event: any) => toggleAutoBuild(event.target.checked)}
+		>
+			Auto Build on Commit
+		</VSCodeCheckbox>
+	);
+};
