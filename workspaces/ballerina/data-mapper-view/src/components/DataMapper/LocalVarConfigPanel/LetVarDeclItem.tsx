@@ -21,7 +21,7 @@ import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
 import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ProgressRing, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 export const LocalVarContainer = styled.div`
     display: flex;
@@ -30,7 +30,6 @@ export const LocalVarContainer = styled.div`
     border-radius: 5px;
     padding: 10px;
     border: 1px solid var(--vscode-dropdown-border);
-    cursor: pointer;
     margin-left: 10px;
     justify-content: space-between;
     height: 40px;
@@ -48,12 +47,13 @@ interface LetVarDeclItemProps {
 }
 
 export function LetVarDeclItem(props: LetVarDeclItemProps) {
-    const {index, letVarDeclModel, handleOnCheck, applyModifications, langServerRpcClient, filePath} = props;
+    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, langServerRpcClient, filePath} = props;
     const overlayClasses = useStyles();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
         .variableName;
     const exprSource = letVarDeclModel.letVarDecl.expression.source.trim();
     const isExprPlaceholder = exprSource === "EXPRESSION";
+    const diagnostic = letVarDeclModel.hasDiagnostics ? letVarDeclModel.letVarDecl?.typeData?.diagnostics[0] : undefined;
 
     const [type, varName] = useMemo(() => {
         const pattern = letVarDeclModel.letVarDecl.typedBindingPattern;
@@ -71,6 +71,11 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
 
     const handleCheckboxClick = () => {
         handleOnCheck(letVarDeclModel.index);
+    };
+
+    const handleEdit = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+        event.preventDefault();
+        onEditClick(letVarDeclModel.letVarDecl);
     };
 
     const onKeyUp = async (key: string, node?: STNode) => {
@@ -116,6 +121,21 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
         }
     };
 
+    const ExpressionContent = () => (
+        <>{isExprPlaceholder ? `<add-expression>` : exprSource}</>
+    );
+
+    const DiagnosticsTooltip = (
+        <>
+            {diagnostic && (
+                <div className={overlayClasses.declExpressionWarning}>
+                    <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                    <div className={overlayClasses.declExpressionErrorMessage}>{diagnostic.message}</div>
+                </div>
+            )}
+        </>
+    );
+
     const expression: ReactNode = (
         <div className={overlayClasses.declWrap}>
             {nameEditable ? (
@@ -147,37 +167,27 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                 </span>
             )}
             <span>{letVarDeclModel.letVarDecl.equalsToken.value}</span>
-            {exprEditable ? (
-                <input
-                    spellCheck={false}
-                    className={overlayClasses.input}
-                    autoFocus={true}
-                    value={updatedExpr}
-                    onChange={(event) => setUpdatedExpr(event.target.value)}
-                    onKeyUp={(event) =>
-                        onKeyUp(
-                            event.key,
-                            varNameNode
-                        )
-                    }
-                    onBlur={() => {
-                        setExprEditable(false);
-                        setUpdatedExpr(exprSource);
-                    }}
-                    data-testid={`local-variable-name-input-${index}`}
-                />
-            ) : (
-                <span
-                    onClick={() => setExprEditable(true)}
-                    data-testid={`local-variable-value-${index}`}
-                    className={classNames(
-                        overlayClasses.declExpression,
-                        isExprPlaceholder && overlayClasses.exprPlaceholder
-                    )}
-                >
-                    {isExprPlaceholder ? `<add-expression>` : exprSource}
-                </span>
-            )}
+            <span
+                className={classNames(
+                    overlayClasses.declExpression,
+                    isExprPlaceholder && overlayClasses.exprPlaceholder,
+                    diagnostic && overlayClasses.declExpressionError
+                )}
+                onClick={handleEdit}
+                data-testid={`local-variable-value-${index}`}
+            >
+                {diagnostic ? (
+                    <Tooltip
+                        id={`local-var-diagnostic-${index}`}
+                        content={DiagnosticsTooltip}
+                        position="bottom"
+                    >
+                        <ExpressionContent />
+                    </Tooltip>
+                ) : (
+                    <ExpressionContent />
+                )}
+            </span>
         </div>
     );
 
