@@ -31,7 +31,7 @@ const FormContainer = styled.div`
 `;
 export function MediatorForm(props: MediatorFormProps) {
     const { mediatorData, mediatorType, isUpdate, documentUri, range } = props;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = useContext(SidePanelContext);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
         defaultValues: {
@@ -39,18 +39,27 @@ export function MediatorForm(props: MediatorFormProps) {
     });
 
     const handleOnSubmit = async (values: any) => {
+        setDiagramLoading(true);
         for (const key in values) {
             if (values[key]?.paramValues) {
                 values[key] = getParamManagerValues(values[key]);
             }
         }
-        await rpcClient.getMiDiagramRpcClient().updateMediator({
+        rpcClient.getMiDiagramRpcClient().updateMediator({
             mediatorType: mediatorType,
             values: values as Record<string, any>,
             oldValues: sidePanelContext.formValues as Record<string, any>,
             dirtyFields: Object.keys(dirtyFields),
             documentUri,
             range
+        });
+        sidePanelContext.setSidePanelState({
+            ...sidePanelContext,
+            isOpen: false,
+            isEditing: false,
+            formValues: undefined,
+            nodeRange: undefined,
+            operationName: undefined
         });
     }
 
