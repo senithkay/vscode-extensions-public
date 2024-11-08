@@ -49,7 +49,7 @@ export function Mediators(props: MediatorProps) {
                 documentUri: props.documentUri,
                 position: props.nodePosition,
             });
-            setAllMediators(mediatorsList);
+            setAllMediators(mediatorsList ?? {});
         };
         fetchMediators();
     }, [props.documentUri, props.nodePosition, rpcClient]);
