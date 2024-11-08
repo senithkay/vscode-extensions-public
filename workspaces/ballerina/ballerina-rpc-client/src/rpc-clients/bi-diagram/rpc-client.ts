@@ -16,13 +16,15 @@ import {
     BIAvailableNodesResponse,
     BIConnectorsRequest,
     BIConnectorsResponse,
+    BIDeleteByComponentInfoRequest,
+    BIDeleteByComponentInfoResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
-    BIModuleNodesResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
+    BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
@@ -39,10 +41,10 @@ import {
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
-    UpdateConfigVariableRequest,
-    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
@@ -50,6 +52,7 @@ import {
     createComponent,
     createComponents,
     createProject,
+    deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
@@ -66,19 +69,19 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
-    getVisibleVariableTypes,
     getVisibleTypes,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent,
-    updateConfigVariables,
     openAIChat,
     openReadme,
-    runProject
+    runProject,
+    updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class BIDiagramRpcClient implements BIDiagramAPI {
+export class BiDiagramRpcClient implements BIDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
@@ -95,6 +98,10 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         return this._messenger.sendRequest(deleteFlowNode, HOST_EXTENSION, params);
+    }
+
+    deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BIDeleteByComponentInfoResponse> {
+        return this._messenger.sendRequest(deleteByComponentInfo, HOST_EXTENSION, params);
     }
 
     getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
