@@ -156,7 +156,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             fs.mkdirSync(directory, { recursive: true });
         }
 
-        fs.writeFileSync(balFilePath, req.content.trim(), 'utf8');
+        fs.writeFileSync(balFilePath, req.content.trim());
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
     }
@@ -437,8 +437,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
     async getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         const projectRoot = await getBallerinaProjectRoot();
-        const projectSource = await this.getProjectSource();
-        return await generateDataMapping(projectRoot, projectSource, params);
+        return await generateDataMapping(projectRoot, params);
     }
 }
 
