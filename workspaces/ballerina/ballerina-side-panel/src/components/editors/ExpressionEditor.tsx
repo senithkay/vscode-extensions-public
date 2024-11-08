@@ -65,6 +65,23 @@ namespace S {
         alignItems: 'center',
     });
 
+    export const HeaderContainer = styled.div({
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+    });
+
+    export const Header = styled.div({
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+    });
+
+    export const Type = styled.div({
+        color: 'var(--vscode-list-deemphasizedForeground)',
+        fontFamily: 'monospace'
+    });
+
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
         textTransform: 'capitalize',
@@ -243,15 +260,20 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     };
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
-    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join('\n');
 
     return (
         <S.Container>
-            <S.LabelContainer>
-                <S.Label>{field.label}</S.Label>
-                {!field.optional && <RequiredFormInput />}
-            </S.LabelContainer>
-            <S.Description>{field.documentation}</S.Description>
+            <S.HeaderContainer>
+                <S.Header>
+                    <S.LabelContainer>
+                        <S.Label>{field.label}</S.Label>
+                        {!field.optional && <RequiredFormInput />}
+                    </S.LabelContainer>
+                    <S.Description>{field.documentation}</S.Description>
+                </S.Header>
+                {field.type && field.type !== 'EXPRESSION' && field.type !== 'FLAG' && <S.Type>{field.type}</S.Type>}
+            </S.HeaderContainer>
             <Controller
                 control={control}
                 name={field.key}

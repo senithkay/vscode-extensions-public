@@ -61,18 +61,29 @@ const PopupPanel = (props: PopupPanelProps) => {
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <AddConnectionWizard
-                                fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                fileName={
+                                    location.documentUri ||
+                                    Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
+                                }
+                                linePosition={
+                                    location.position
+                                        ? {
+                                              line: location.position.startLine,
+                                              offset: location.position.startColumn,
+                                          }
+                                        : undefined
+                                }
                                 onClose={onClose}
                             />
                         );
-                    })
+                    });
                     break;
                 case MACHINE_VIEW.EditConnectionWizard:
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <>
                                 <EditConnectionWizard
-                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
                                     connectionName={machineState?.identifier}
                                     onClose={onClose}
                                 />
@@ -87,11 +98,7 @@ const PopupPanel = (props: PopupPanelProps) => {
         });
     };
 
-    return (
-        <ViewContainer>
-            {viewComponent}
-        </ViewContainer>
-    );
+    return <ViewContainer>{viewComponent}</ViewContainer>;
 };
 
 export default PopupPanel;

@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { cloneDeep } from "lodash";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
     Colors,
@@ -248,9 +249,12 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const disabled = model.node.suggested;
 
     // show module name in the title if org is ballerina or ballerinax
+    const nodeCodeData = cloneDeep(model.node.codedata);
     const nodeTitle =
-        model.node.codedata?.org === "ballerina" || model.node.codedata?.org === "ballerinax"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
+        nodeCodeData?.org === "ballerina" || nodeCodeData?.org === "ballerinax"
+            ? `${nodeCodeData.module.includes(".") ? nodeCodeData.module.split(".").pop() : nodeCodeData.module} : ${
+                  model.node.metadata.label
+              }`
             : model.node.metadata.label;
 
     const hasError = nodeHasError(model.node);
