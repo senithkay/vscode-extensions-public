@@ -617,6 +617,10 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
 
             if (!fs.existsSync(params.configFilePath)) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> Use ballerina home for the build if it exist
                 // Create config.bal if it doesn't exist
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
@@ -789,7 +793,16 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             task: 'run'
         };
 
-        const buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+        let buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+
+        // Get Ballerina home path from settings
+        const config = workspace.getConfiguration('kolab');
+        const ballerinaHome = config.get<string>('home');
+        if (ballerinaHome) {
+            // Add ballerina home to build path only if it's configured
+            buildCommand = path.join(ballerinaHome, 'bin', buildCommand);
+        }
+
         const execution = new ShellExecution(buildCommand);
 
         const task = new Task(
