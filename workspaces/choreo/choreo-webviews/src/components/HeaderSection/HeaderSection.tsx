@@ -13,11 +13,18 @@ import React, { type FC, type ReactNode } from "react";
 import { Button } from "../Button";
 import { Divider } from "../Divider";
 
+export interface HeaderTag {
+	label: string;
+	value: string;
+	onClick?: () => void;
+	onClickTitle?: string;
+	tooltip?: string;
+}
 interface Props {
 	title: string;
 	secondaryTitle?: string;
 	secondaryIcon?: ReactNode;
-	tags?: { label: string; value: string; onClick?: () => void; onClickTitle?: string }[];
+	tags?: HeaderTag[];
 	buttons?: { onClick: () => any; label: string }[];
 }
 
@@ -29,30 +36,26 @@ export const HeaderSection: FC<Props> = ({ title, secondaryTitle, tags = [], but
 			<div className="flex gap-2">
 				<div className="flex flex-1 flex-wrap items-center gap-3 md:mb-1">
 					<h1 className="font-bold text-2xl md:text-3xl">{title}</h1>
-					<h2 className="hidden font-thin text-2xl opacity-30 sm:block md:text-3xl">{secondaryTitle}</h2>
+					<h2 className="hidden font-thin text-2xl tracking-wider opacity-30 sm:block md:text-3xl">{secondaryTitle}</h2>
 				</div>
 				<span className="mt-1">{secondaryIcon}</span>
 			</div>
 			{tags.length > 0 && (
 				<div className="flex flex-wrap gap-1 lg:gap-2" ref={tagsRef}>
 					{tags.map((item, index) => (
-						<>
-							<div key={item.label}>
+						<React.Fragment key={item.label}>
+							<div>
 								<span className="font-thin">{item.label}:</span>{" "}
 								{item.onClick ? (
 									<VSCodeLink onClick={item.onClick} className="text-vsc-foreground" title={item.onClickTitle}>
 										{item.value}
 									</VSCodeLink>
 								) : (
-									item.value
+									<span title={item.tooltip}>{item.value}</span>
 								)}
 							</div>
-							{index !== tags.length - 1 && (
-								<div key={`separator-${item.label}`} className="hidden font-thin opacity-50 md:block">
-									|
-								</div>
-							)}
-						</>
+							{index !== tags.length - 1 && <div className="hidden font-thin opacity-50 md:block">|</div>}
+						</React.Fragment>
 					))}
 				</div>
 			)}

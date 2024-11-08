@@ -12,6 +12,8 @@ import classnames from "classnames";
 import React, { type FC, type HTMLProps, type ReactNode } from "react";
 import { type Control, Controller } from "react-hook-form";
 import { ChoreoWebViewAPI } from "../../../utilities/vscode-webview-rpc";
+import { Button } from "../../Button";
+import { Codicon } from "../../Codicon";
 import { FormElementWrap } from "../FormElementWrap";
 
 interface Props {
@@ -19,7 +21,7 @@ interface Props {
 	label?: string | ReactNode;
 	required?: boolean;
 	control?: Control;
-	basePath: string;
+	baseUriPath: string;
 	directoryName?: string;
 	wrapClassName?: HTMLProps<HTMLElement>["className"];
 	type?: "file" | "directory";
@@ -27,7 +29,17 @@ interface Props {
 }
 
 export const PathSelect: FC<Props> = (props) => {
-	const { label, required, control, name, basePath, directoryName = "", wrapClassName, type = "directory", promptTitle = "Select Directory" } = props;
+	const {
+		label,
+		required,
+		control,
+		name,
+		baseUriPath,
+		directoryName = "",
+		wrapClassName,
+		type = "directory",
+		promptTitle = "Select Directory",
+	} = props;
 
 	const { mutate: handleClick, isLoading } = useMutation({
 		mutationFn: async (onSelect: (path: string) => void) => {
@@ -36,18 +48,20 @@ export const PathSelect: FC<Props> = (props) => {
 				canSelectFolders: type === "directory",
 				canSelectMany: false,
 				title: promptTitle,
-				defaultUri: basePath,
+				defaultUri: baseUriPath,
 				filters: {},
 			});
 			if (paths && paths.length > 0) {
 				const subPath = await ChoreoWebViewAPI.getInstance().getSubPath({
 					subPath: paths[0],
-					parentPath: basePath,
+					parentPath: baseUriPath,
 				});
 				onSelect(subPath || "");
 			}
 		},
 	});
+
+	// TODO: make this component accessible
 
 	return (
 		<Controller
@@ -56,7 +70,7 @@ export const PathSelect: FC<Props> = (props) => {
 			render={({ field, fieldState }) => {
 				const { data: joinedPath } = useQuery({
 					queryKey: ["joined-file-path", { directoryName, value: field.value }],
-					queryFn: () => ChoreoWebViewAPI.getInstance().joinFilePaths([directoryName, field.value]),
+					queryFn: () => ChoreoWebViewAPI.getInstance().joinFsFilePaths([directoryName, field.value]),
 				});
 
 				return (
@@ -64,15 +78,29 @@ export const PathSelect: FC<Props> = (props) => {
 						<div
 							onClick={isLoading ? undefined : () => handleClick((selectedPath) => field.onChange(selectedPath))}
 							className={classnames(
-								"flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-1 border-vsc-menu-border bg-vsc-input-background",
+								"group relative flex min-h-[26px] w-full cursor-pointer items-stretch overflow-hidden rounded border-[0.5px] bg-vsc-input-background",
 								isLoading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100",
+								fieldState.error?.message ? "border-vsc-errorForeground" : "border-vsc-menu-border",
 							)}
 							ref={field.ref}
 						>
 							<div className="hidden border-vsc-menu-border border-r-2 bg-vsc-button-secondaryBackground text-vsc-button-secondaryForeground sm:block">
 								<p className="flex h-full items-center justify-center px-3">Choose {type}</p>
 							</div>
-							<div className="flex flex-1 items-center break-all px-2">{joinedPath}</div>
+							<div className="flex flex-1 items-center break-all px-2">{type === "directory" ? joinedPath : field.value}</div>
+							{field.value && (
+								<Button
+									title="Clear Input Selection"
+									appearance="icon"
+									className="mr-1 self-center text-vsc-descriptionForeground opacity-0 duration-300 group-hover:opacity-75"
+									onClick={(event) => {
+										event.stopPropagation();
+										field.onChange("");
+									}}
+								>
+									<Codicon title="Clear Input Selection" name="error" className=" text-vsc-descriptionForeground" />
+								</Button>
+							)}
 						</div>
 					</FormElementWrap>
 				);

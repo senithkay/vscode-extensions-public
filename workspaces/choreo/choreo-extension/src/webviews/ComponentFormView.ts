@@ -14,14 +14,7 @@ import { dataCacheStore } from "../stores/data-cache-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
 
-interface IComponentCreateFormParams {
-	directoryPath: string;
-	directoryFsPath: string;
-	directoryName: string;
-	organization: Organization;
-	project: Project;
-	initialValues?: { type?: string; buildPackLang?: string; subPath?: string };
-}
+export type IComponentCreateFormParams = Omit<NewComponentWebviewProps, "type" | "existingComponents">;
 
 export class ComponentFormView {
 	public static currentPanel: ComponentFormView | undefined;
@@ -37,7 +30,7 @@ export class ComponentFormView {
 	}
 
 	private static createWebview(): vscode.WebviewPanel {
-		const panel = vscode.window.createWebviewPanel("create-new-component", "Create New Component", vscode.ViewColumn.One, {
+		const panel = vscode.window.createWebviewPanel("create-new-component", "Create Component", vscode.ViewColumn.One, {
 			enableScripts: true,
 			retainContextWhenHidden: true,
 		});
@@ -76,11 +69,11 @@ export class ComponentFormView {
               function render() {
                 choreoWebviews.renderChoreoWebViews(
                   document.getElementById("root"),
-                  ${JSON.stringify({
-										type: "NewComponentForm",
-										existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
-										...params,
-									} as NewComponentWebviewProps)}
+                  	${JSON.stringify({
+											type: "NewComponentForm",
+											existingComponents: dataCacheStore.getState().getComponents(params.organization.handle, params.project.handler),
+											...params,
+										} as NewComponentWebviewProps)}
                 );
               }
               render();
