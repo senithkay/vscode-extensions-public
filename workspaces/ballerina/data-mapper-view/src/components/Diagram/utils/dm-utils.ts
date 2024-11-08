@@ -80,14 +80,9 @@ import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
 
 import {
-	defaultModelOptions,
 	ENUM_TYPE_SOURCE_PORT_PREFIX,
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
 	FUNCTION_BODY_QUERY,
-	GAP_BETWEEN_FIELDS,
-	GAP_BETWEEN_NODE_HEADER_AND_BODY,
-	IO_NODE_FIELD_HEIGHT,
-	IO_NODE_HEADER_HEIGHT,
 	JSON_MERGE_MODULE_NAME,
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,

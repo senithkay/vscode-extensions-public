@@ -109,7 +109,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {noOfNodes, stNode, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), {});
+    } = useQuery(['genModel', {noOfNodes, stNode, inputSearch, outputSearch, collapsedFields, newZoomLevel: zoomLevel}], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };
 };

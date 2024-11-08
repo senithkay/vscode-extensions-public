@@ -34,7 +34,7 @@ import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
-import { getIONodeHeight } from '../Diagram/utils/diagram-utils';
+import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -115,13 +115,14 @@ export const useDiagramModel = (
             inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             newModel.addNode(inputSearchNotFoundNode);
         }
+        newModel.addAll(...nodes);
         for (const node of nodes) {
             const existingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
-            if (existingNode && existingNode.getY() !== 0) {
+            const sameView = isSameView(node, existingNode as DataMapperNodeModel);
+            if (sameView && existingNode && existingNode.getY() !== 0) {
                 node.setPosition(existingNode.getX(), existingNode.getY());
             }
         }
-        newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
                 if (node instanceof RequiredParamNode && !node.getSearchFilteredType()) {
@@ -159,48 +160,62 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
 
-    let requiredParamFields = 0;
-    let numberOfRequiredParamNodes = 0;
-    let additionalSpace = 0;
+    // let requiredParamFields = 0;
+    // let numberOfRequiredParamNodes = 0;
 
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
-        const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const existingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const sameView = isSameView(node, existingNode);
 
-        const nodeHeight = node.height === 0 ? 800 : node.height;
         if (node instanceof MappingConstructorNode
             || node instanceof ListConstructorNode
             || node instanceof PrimitiveTypeNode
             || node instanceof UnionTypeNode
-            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-                const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
-                node.setPosition(x, y);
+            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)
+        ) {
+            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : 0;
+            node.setPosition(x, y);
         }
         if (node instanceof RequiredParamNode
             || node instanceof LetClauseNode
             || node instanceof JoinClauseNode
             || node instanceof LetExpressionNode
             || node instanceof ModuleVariableNode
-            || node instanceof EnumTypeNode)
-        {
+            || node instanceof EnumTypeNode
+            || node instanceof ExpandedMappingHeaderNode
+        ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
-            const nodeHeight = getIONodeHeight(node.numberOfFields);
-            prevBottomY = computedY + nodeHeight;
+            if (node instanceof RequiredParamNode) {
+                const nodeHeight = getIONodeHeight(node.numberOfFields);
+                prevBottomY = computedY + nodeHeight;
+            } else if (node instanceof ExpandedMappingHeaderNode) {
+                const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
+                // prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE;
+                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + 10;
+            }
         }
         if (node instanceof FromClauseNode) {
-            requiredParamFields = requiredParamFields + node.numberOfFields;
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+            const nodeHeight = getIONodeHeight(node.numberOfFields);
+            prevBottomY = computedY + nodeHeight;
+            // requiredParamFields = requiredParamFields + node.numberOfFields;
+            // numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
         }
-        if (node instanceof ExpandedMappingHeaderNode) {
-            additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-        }
+        // if (node instanceof ExpandedMappingHeaderNode) {
+        //     additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+        // }
     });
 
     return nodesClone;

@@ -8,8 +8,10 @@
  */
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import {
     GAP_BETWEEN_FIELDS,
+    GAP_BETWEEN_INTERMEDIATE_CLAUSES_AND_NODE,
     GAP_BETWEEN_NODE_HEADER_AND_BODY,
     IO_NODE_FIELD_HEIGHT,
     IO_NODE_HEADER_HEIGHT,
@@ -34,6 +36,10 @@ export function getIONodeHeight(noOfFields: number) {
 		+ (IO_NODE_HEADER_HEIGHT - IO_NODE_FIELD_HEIGHT)
 		+ noOfFields * GAP_BETWEEN_FIELDS
 		+ GAP_BETWEEN_NODE_HEADER_AND_BODY;
+}
+
+export function getExpandedMappingHeaderNodeHeight(node: ExpandedMappingHeaderNode) {
+    return node.height + GAP_BETWEEN_INTERMEDIATE_CLAUSES_AND_NODE;
 }
 
 export function calculateControlPointOffset(screenWidth: number) {
