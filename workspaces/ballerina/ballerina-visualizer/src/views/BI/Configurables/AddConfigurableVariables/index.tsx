@@ -90,7 +90,7 @@ export function AddForm(props: ConfigFormProps) {
                 "valueType": "EXPRESSION",
                 "value": "",
                 "optional": true,
-                "advanced": false,
+                "advanced": true,
                 "editable": true
             }
         },
@@ -114,7 +114,7 @@ export function AddForm(props: ConfigFormProps) {
         variable.properties.defaultable.value =
             data.defaultable === "" || data.defaultable === null ?
                 "?"
-                : data.type === "string" ? '"' + data.defaultable + '"' : data.defaultable;
+                : data.defaultable;
         variable.properties.defaultable.optional = true;
 
         variable.properties.type.value = data.type;
