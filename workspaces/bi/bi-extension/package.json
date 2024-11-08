@@ -69,7 +69,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration",
                     "group": "inline"
                 },
                 {
