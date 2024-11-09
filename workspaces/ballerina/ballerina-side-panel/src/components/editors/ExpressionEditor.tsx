@@ -47,6 +47,7 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    onRemove?: () => void;
     targetLineRange?: LineRange;
     fileName: string;
 };
@@ -127,6 +128,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         onCompletionSelect,
         onSave,
         onCancel,
+        onRemove,
         openSubPanel,
         isActiveSubPanel,
         targetLineRange,
@@ -311,6 +313,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         onBlur={handleBlur}
                         onSave={onSave}
                         onCancel={onCancel}
+                        onRemove={onRemove}
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}
