@@ -7,36 +7,40 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import React, { type FC, type PropsWithChildren, type ReactNode } from "react";
-import { Divider } from "../../../components/Divider";
 
 interface Props extends PropsWithChildren {
-	title: ReactNode;
-	showDivider?: boolean;
+	title?: ReactNode;
 }
 
-export const RightPanelSection: FC<Props> = ({ title, children, showDivider = true }) => {
+export const RightPanelSection: FC<Props> = ({ title, children }) => {
+	const [rightPanelRef] = useAutoAnimate();
+
 	return (
-		<>
-			{showDivider && <Divider />}
-			<div className="flex flex-col gap-3">
-				<div className="text-base">{title}</div>
-				<div className="flex flex-col gap-1">{children}</div>
+		<div className="flex flex-col gap-3">
+			{title && <div className="text-base">{title}</div>}
+			<div className="flex flex-col gap-1" ref={rightPanelRef}>
+				{children}
 			</div>
-		</>
+		</div>
 	);
 };
 
 export interface IRightPanelSectionItem {
 	label: string;
-	value: string | number;
+	value: ReactNode;
+	tooltip?: string;
 }
 
-export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value }) => {
+export const RightPanelSectionItem: FC<IRightPanelSectionItem> = ({ label, value, tooltip }) => {
 	return (
-		<div className="flex flex-wrap items-center gap-0.5 duration-200 hover:bg-vsc-editorHoverWidget-background">
-			<p className="flex-1 font-light">{label}</p>
-			<p>{value}</p>
+		<div
+			className="line-clamp-1 flex w-full! items-center justify-between gap-0.5 break-all marker:flex-row"
+			title={tooltip || ["string", "number"].includes(typeof value) ? `${label}: ${value}` : label}
+		>
+			<p className="line-clamp-1 break-all font-extralight opacity-80">{label}</p>
+			<p className="line-clamp-1 break-all text-right">{value}</p>
 		</div>
 	);
 };

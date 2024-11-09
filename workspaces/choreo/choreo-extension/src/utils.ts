@@ -7,33 +7,93 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { existsSync, mkdirSync, readFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import * as os from "os";
 import { join } from "path";
 import * as path from "path";
-import type { ComponentYamlContent, EndpointYamlContent, ReadEndpointsResp } from "@wso2-enterprise/choreo-core";
+import {
+	type ComponentConfigYamlContent,
+	type ComponentYamlContent,
+	type Endpoint,
+	type EndpointYamlContent,
+	type ReadLocalEndpointsConfigResp,
+	type ReadLocalProxyConfigResp,
+	getRandomNumber,
+} from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { Uri, commands, window, workspace } from "vscode";
 import { getLogger } from "./logger/logger";
 
-export const readEndpoints = (componentPath: string): ReadEndpointsResp => {
-	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
-	if (existsSync(endpointsYamlPath)) {
-		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
-		return { endpoints: endpointFileContent.endpoints, filePath: endpointsYamlPath };
+export const readLocalEndpointsConfig = (componentPath: string): ReadLocalEndpointsConfigResp => {
+	const filterEndpointSchemaPath = (eps: Endpoint[] = []) =>
+		eps?.map((item) => {
+			if (item.schemaFilePath) {
+				const fileExists = existsSync(join(componentPath, item.schemaFilePath));
+				return {
+					...item,
+					schemaFilePath: fileExists ? item.schemaFilePath : "",
+				};
+			}
+			return item;
+		});
+
+	const componentYamlPath = join(componentPath, ".choreo", "component.yaml");
+	if (existsSync(componentYamlPath)) {
+		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+		return {
+			endpoints: filterEndpointSchemaPath(
+				endpointFileContent?.endpoints?.map((item) => ({
+					name: item.displayName || item.name,
+					port: item.service?.port,
+					context: item.service?.basePath,
+					networkVisibilities: item.networkVisibilities,
+					type: item.type,
+					schemaFilePath: item.schemaFilePath,
+				})) ?? [],
+			),
+			filePath: componentYamlPath,
+		};
 	}
 
 	const componentConfigYamlPath = join(componentPath, ".choreo", "component-config.yaml");
 	if (existsSync(componentConfigYamlPath)) {
-		const endpointFileContent: ComponentYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
-		return { endpoints: endpointFileContent?.spec?.inbound ?? [], filePath: componentConfigYamlPath };
+		const endpointFileContent: ComponentConfigYamlContent = yaml.load(readFileSync(componentConfigYamlPath, "utf8")) as any;
+		return {
+			endpoints: filterEndpointSchemaPath(
+				endpointFileContent?.spec?.inbound?.map((item) => ({ ...item, networkVisibilities: item.networkVisibility ? [item.networkVisibility] : [] })),
+			),
+			filePath: componentConfigYamlPath,
+		};
 	}
+
+	const endpointsYamlPath = join(componentPath, ".choreo", "endpoints.yaml");
+	if (existsSync(endpointsYamlPath)) {
+		const endpointFileContent: EndpointYamlContent = yaml.load(readFileSync(endpointsYamlPath, "utf8")) as any;
+		return {
+			endpoints: filterEndpointSchemaPath(
+				endpointFileContent.endpoints?.map((item) => ({ ...item, networkVisibilities: item.networkVisibility ? [item.networkVisibility] : [] })),
+			),
+			filePath: endpointsYamlPath,
+		};
+	}
+
+	// TODO: also read from component.yaml and the order should be reversed. read from component.yaml first, then component-config and finally endpoints.yaml
 	return { endpoints: [], filePath: "" };
+};
+
+export const readLocalProxyConfig = (componentPath: string): ReadLocalProxyConfigResp => {
+	const componentYamlPath = join(componentPath, ".choreo", "component.yaml");
+	if (existsSync(componentYamlPath)) {
+		const fileContent: ComponentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as any;
+		return { proxy: fileContent.proxy, filePath: componentYamlPath };
+	}
+	return { filePath: "" };
 };
 
 // TODO: move into ChoreoExtensionApi()
 export const goTosource = async (filePath: string, focusFileExplorer?: boolean) => {
-	if (existsSync(filePath)) {
-		const sourceFile = await workspace.openTextDocument(filePath);
+	if (existsSync(getNormalizedPath(filePath))) {
+		const sourceFile = await workspace.openTextDocument(getNormalizedPath(filePath));
 		await window.showTextDocument(sourceFile);
 		if (focusFileExplorer) {
 			await commands.executeCommand("workbench.explorer.fileView.focus");
@@ -41,9 +101,89 @@ export const goTosource = async (filePath: string, focusFileExplorer?: boolean) 
 	}
 };
 
+export const convertFsPathToUriPath = (fsPath: string): string => {
+	if (os.platform() === "win32") {
+		// Replace backslashes with forward slashes
+		let uriPath = fsPath.replace(/\\/g, "/");
+
+		// If the path starts with a drive letter, prepend a slash
+		if (/^[a-zA-Z]:/.test(uriPath)) {
+			uriPath = `/${uriPath}`;
+		}
+		return uriPath;
+	}
+	return fsPath;
+};
+
+export const saveFile = async (
+	fileName: string,
+	fileContent: string,
+	baseDirectoryFs: string,
+	successMessage?: string,
+	isOpenApiFile?: boolean,
+	shouldPromptDirSelect?: boolean,
+	dialogTitle?: string,
+	shouldOpen?: boolean,
+) => {
+	const baseDirectoryUri = convertFsPathToUriPath(baseDirectoryFs);
+	const createNewFile = async (basePath: string) => {
+		let tempFileName = fileName;
+		const baseName = fileName.split(".")[0];
+		const extension = fileName.split(".")[1];
+
+		let fileIndex = 1;
+		while (existsSync(join(basePath, tempFileName))) {
+			tempFileName = `${baseName}-(${fileIndex++}).${extension}`;
+			if (fileIndex > 1000) {
+				tempFileName = `${baseName}-(${getRandomNumber(1000, 10000)}).${extension}`;
+				break;
+			}
+		}
+
+		const filePath = join(basePath, tempFileName);
+		writeFileSync(filePath, fileContent);
+		if (shouldOpen) {
+			await goTosource(filePath, false);
+		}
+		const genericSuccessMessage = `A ${fileName} file has been created at ${filePath}`;
+		if (isOpenApiFile) {
+			window.showInformationMessage(successMessage || genericSuccessMessage, "View File").then((res) => {
+				if (res === "View File") {
+					goTosource(filePath);
+				}
+				// todo: handle API design button
+			});
+		} else {
+			window.showInformationMessage(successMessage || genericSuccessMessage, "View File").then((res) => {
+				if (res === "View File") {
+					goTosource(filePath);
+				}
+			});
+		}
+		return filePath;
+	};
+
+	if (shouldPromptDirSelect) {
+		const result = await window.showOpenDialog({
+			title: dialogTitle,
+			canSelectFiles: false,
+			canSelectFolders: true,
+			canSelectMany: false,
+			defaultUri: Uri.parse(baseDirectoryUri),
+		});
+
+		if (result?.[0]) {
+			return createNewFile(result?.[0].fsPath);
+		}
+	} else {
+		return createNewFile(baseDirectoryFs);
+	}
+	return "";
+};
+
 export const isSubpath = (parent: string, sub: string): boolean => {
-	const normalizedParent = path.normalize(parent).toLowerCase();
-	const normalizedSub = path.normalize(sub).toLowerCase();
+	const normalizedParent = getNormalizedPath(parent).toLowerCase();
+	const normalizedSub = getNormalizedPath(sub).toLowerCase();
 	if (normalizedParent === normalizedSub) {
 		return true;
 	}
@@ -53,8 +193,8 @@ export const isSubpath = (parent: string, sub: string): boolean => {
 };
 
 export const getSubPath = (subPath: string, parentPath: string): string | null => {
-	const normalizedParent = path.normalize(parentPath);
-	const normalizedSub = path.normalize(subPath);
+	const normalizedParent = getNormalizedPath(parentPath);
+	const normalizedSub = getNormalizedPath(subPath);
 	if (normalizedParent === normalizedSub) {
 		return ".";
 	}
@@ -69,6 +209,14 @@ export const getSubPath = (subPath: string, parentPath: string): string | null =
 		return relative;
 	}
 	return null;
+};
+
+// TODO: use this for all normalize() operations
+export const getNormalizedPath = (filePath: string) => {
+	if (os.platform() === "win32") {
+		return filePath.replace(/^\//, "").replace(/\//g, "\\");
+	}
+	return path.normalize(filePath);
 };
 
 export const createDirectory = (basePath: string, dirName: string) => {
@@ -91,8 +239,11 @@ export const createDirectory = (basePath: string, dirName: string) => {
 	return { dirName: newDirName, dirPath };
 };
 
-export async function openDirectory(openingPath: string, message: string) {
+export async function openDirectory(openingPath: string, message: string, onSelect?: () => void) {
 	const openInCurrentWorkspace = await window.showInformationMessage(message, { modal: true }, "Current Window", "New Window");
+	if (openInCurrentWorkspace && onSelect) {
+		onSelect();
+	}
 	if (openInCurrentWorkspace === "Current Window") {
 		await commands.executeCommand("vscode.openFolder", Uri.file(openingPath), {
 			forceNewWindow: false,

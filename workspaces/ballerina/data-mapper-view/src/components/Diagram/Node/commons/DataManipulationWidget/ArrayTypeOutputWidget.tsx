@@ -112,12 +112,12 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
-				<span className={classnames(classes.valueLabel, isDisabled ? classes.valueLabelDisabled : "")}>
+				<span className={classnames(classes.valueLabel, isDisabled ? classes.labelDisabled : "")}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
 					{typeName && ":"}
 				</span>
 			)}
-			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{unionTypeInfo ? getUnionType() : typeName || ''}
 			</span>
 		</span>

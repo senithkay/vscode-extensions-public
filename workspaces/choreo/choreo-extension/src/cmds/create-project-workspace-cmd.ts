@@ -43,7 +43,7 @@ export function createProjectWorkspaceCommand(context: ExtensionContext) {
 						canSelectFiles: false,
 						canSelectMany: false,
 						title: "Select a folder to create the project workspace file",
-						defaultUri: Uri.file(os.homedir()),
+						defaultUri: workspace.workspaceFolders?.[0]?.uri || Uri.file(os.homedir()),
 					});
 
 					if (workspaceFileDirs === undefined || workspaceFileDirs.length === 0) {

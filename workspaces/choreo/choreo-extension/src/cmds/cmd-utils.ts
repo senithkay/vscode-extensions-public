@@ -27,6 +27,8 @@ export const selectComponent = async (
 		loadQuickPicks: async () => {
 			const components = await ext.clients.rpcClient.getComponentList({
 				orgId: org.id.toString(),
+				orgHandle: org.handle,
+				projectId: project.id,
 				projectHandle: project.handler,
 			});
 			dataCacheStore.getState().setComponents(org.handle, project.handler, components);

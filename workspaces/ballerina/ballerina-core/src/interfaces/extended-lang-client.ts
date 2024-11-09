@@ -11,7 +11,7 @@
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
 import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
-import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField } from "./ballerina";
+import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
@@ -493,6 +493,17 @@ export type BISourceCodeResponse = {
     };
 };
 
+export type BIDeleteByComponentInfoRequest = {
+    filePath: string;
+    component: ComponentInfo;
+}
+
+export type BIDeleteByComponentInfoResponse = {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+};
+
 export interface BIAvailableNodesRequest {
     position: LinePosition;
     filePath: string;
@@ -509,7 +520,7 @@ export interface BIGetVisibleVariableTypesRequest {
 
 export interface BIGetVisibleVariableTypesResponse {
     categories: VisibleType[];
-};
+}
 
 export interface BINodeTemplateRequest {
     position: LinePosition;

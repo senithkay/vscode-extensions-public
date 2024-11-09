@@ -27,6 +27,7 @@ export namespace ControlsStyles {
         position: fixed;
         margin-top: 270px;
         left: 20px;
+        margin-left: 10px;
         z-index: 1000;
     `;
 

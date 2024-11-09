@@ -67,7 +67,7 @@ export class ProjectActivityView implements vscode.WebviewViewProvider {
 						document.getElementById("root"), 
 						${JSON.stringify({
 							type: "ComponentsListActivityView",
-							directoryPath: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath,
+							directoryFsPath: vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath,
 						} as WebviewProps)}
 					);
 				  }

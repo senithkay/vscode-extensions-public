@@ -16,12 +16,12 @@ import {
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
-import { getErrorKind, getIONodeHeight } from '../Diagram/utils/dm-utils';
+import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { GAP_BETWEEN_FIELDS, GAP_BETWEEN_INPUT_NODES, GAP_BETWEEN_NODE_HEADER_AND_BODY, IO_NODE_DEFAULT_WIDTH, IO_NODE_FIELD_HEIGHT, IO_NODE_HEADER_HEIGHT, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -34,6 +34,7 @@ import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
+import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -61,7 +62,7 @@ export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, f
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), {});
+    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), { networkMode: 'always' });
 
     return { projectComponents, isFetching, isError, refetch };
 };
@@ -114,13 +115,14 @@ export const useDiagramModel = (
             inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             newModel.addNode(inputSearchNotFoundNode);
         }
+        newModel.addAll(...nodes);
         for (const node of nodes) {
             const existingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
-            if (existingNode && existingNode.getY() !== 0) {
+            const sameView = isSameView(node, existingNode as DataMapperNodeModel);
+            if (sameView && existingNode && existingNode.getY() !== 0) {
                 node.setPosition(existingNode.getX(), existingNode.getY());
             }
         }
-        newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
                 if (node instanceof RequiredParamNode && !node.getSearchFilteredType()) {
@@ -149,7 +151,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };
 };
@@ -157,48 +159,63 @@ export const useDiagramModel = (
 export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
-    let requiredParamFields = 0;
-    let numberOfRequiredParamNodes = 0;
-    let additionalSpace = 0;
+
+    // let requiredParamFields = 0;
+    // let numberOfRequiredParamNodes = 0;
 
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
-        const exisitingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const existingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const sameView = isSameView(node, existingNode);
 
-        const nodeHeight = node.height === 0 ? 800 : node.height;
         if (node instanceof MappingConstructorNode
             || node instanceof ListConstructorNode
             || node instanceof PrimitiveTypeNode
             || node instanceof UnionTypeNode
-            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
-                const y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : 0;
-                node.setPosition(x, y);
+            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)
+        ) {
+            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : 0;
+            node.setPosition(x, y);
         }
         if (node instanceof RequiredParamNode
             || node instanceof LetClauseNode
             || node instanceof JoinClauseNode
             || node instanceof LetExpressionNode
             || node instanceof ModuleVariableNode
-            || node instanceof EnumTypeNode)
-        {
+            || node instanceof EnumTypeNode
+            || node instanceof ExpandedMappingHeaderNode
+        ) {
             const x = OFFSETS.SOURCE_NODE.X;
             const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
-            let y = exisitingNode && exisitingNode.getY() !== 0 ? exisitingNode.getY() : computedY;
+            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
 
             node.setPosition(x, y);
 
-            const nodeHeight = getIONodeHeight(node.numberOfFields);
-            prevBottomY = computedY + nodeHeight;
+            if (node instanceof RequiredParamNode) {
+                const nodeHeight = getIONodeHeight(node.numberOfFields);
+                prevBottomY = computedY + nodeHeight;
+            } else if (node instanceof ExpandedMappingHeaderNode) {
+                const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
+                // prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE;
+                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + 10;
+            }
         }
         if (node instanceof FromClauseNode) {
-            requiredParamFields = requiredParamFields + node.numberOfFields;
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+            const nodeHeight = getIONodeHeight(node.numberOfFields);
+            prevBottomY = computedY + nodeHeight;
+            // requiredParamFields = requiredParamFields + node.numberOfFields;
+            // numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
         }
-        if (node instanceof ExpandedMappingHeaderNode) {
-            additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-        }
+        // if (node instanceof ExpandedMappingHeaderNode) {
+        //     additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+        // }
     });
 
     return nodesClone;
@@ -230,7 +247,7 @@ export const useDMMetaData = (langServerRpcClient: LangClientRpcClient): {
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), {});
+    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), { networkMode: 'always' });
 
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
@@ -263,7 +280,7 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), {});
+    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), { networkMode: 'always' });
 
     return { content, isFetching, isError, refetch };
 };
