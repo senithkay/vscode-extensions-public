@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor, extensions } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateBBE } from './views/bbe';
 import {
@@ -32,6 +32,7 @@ import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
 import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 import { RPCLayer } from './RPCLayer';
+import { activateAIFeatures } from './features/ai/activator';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -128,9 +129,15 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // <------------ OTHER FEATURES ----------->
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
-
+        
+        //TOOD: Remove. Temp workaround to disable auth
+        extension.context.secrets.store('BallerinaAIUser', 'abc');
+        extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         //activate ai panel
         activateAiPanel(ballerinaExtInstance);
+
+        // Activate AI features
+        activateAIFeatures(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
@@ -144,38 +151,51 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
 
+        // LS Extension fails
+        commands.executeCommand('setContext', 'BI.status', 'noLS');
+
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
-            cmds.forEach((cmd) => {
-                const cmdID: string = cmd.command;
-                commands.registerCommand(cmdID, () => {
-                    ballerinaExtInstance.showMessageInstallBallerina();
-                });
-            });
+            // TODO: Fix this properly
+            // cmds.forEach((cmd) => {
+            //     const cmdID: string = cmd.command;
+            //     // This is to skip the command un-registration
+            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //         commands.registerCommand(cmdID, () => {
+            //             ballerinaExtInstance.showMessageInstallBallerina();
+            //         });
+            //     }
+            // });
         }
         // When plugins fails to start, provide a warning upon each command execution
         else if (!ballerinaExtInstance.langClient) {
-            cmds.forEach((cmd) => {
-                const cmdID: string = cmd.command;
-                commands.registerCommand(cmdID, () => {
-                    const actionViewLogs = "View Logs";
-                    window.showWarningMessage("Ballerina extension did not start properly."
-                        + " Please check extension logs for more info.", actionViewLogs)
-                        .then((action) => {
-                            if (action === actionViewLogs) {
-                                const logs = ballerinaExtInstance.getOutPutChannel();
-                                if (logs) {
-                                    logs.show();
-                                }
-                            }
-                        });
-                });
-            });
+            // TODO: Fix this properly
+            // cmds.forEach((cmd) => {
+            //     const cmdID: string = cmd.command;
+            //     // This is to skip the command un-registration
+            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //         commands.registerCommand(cmdID, () => {
+            //             const actionViewLogs = "View Logs";
+            //             window.showWarningMessage("Ballerina extension did not start properly."
+            //                 + " Please check extension logs for more info.", actionViewLogs)
+            //                 .then((action) => {
+            //                     if (action === actionViewLogs) {
+            //                         const logs = ballerinaExtInstance.getOutPutChannel();
+            //                         if (logs) {
+            //                             logs.show();
+            //                         }
+            //                     }
+            //                 });
+            //         });
+            //     }
+            // });
         }
     }).finally(() => {
-        handleResolveMissingDependencies(ballerinaExtInstance);
+        if (ballerinaExtInstance.langClient) {
+            handleResolveMissingDependencies(ballerinaExtInstance);
+        }
     });
     return ballerinaExtInstance;
 }

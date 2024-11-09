@@ -68,6 +68,7 @@ export function createBIProject(name: string, isService: boolean) {
 export function createBIProjectPure(name: string, projectPath: string) {
     const projectLocation = projectPath;
 
+    name = sanitizeName(name);
     const projectRoot = path.join(projectLocation, name);
     // Create project root directory
     if (!fs.existsSync(projectRoot)) {
@@ -127,6 +128,10 @@ bi = true
     // Create connections.bal file
     const connectionsBalPath = path.join(projectRoot, 'connections.bal');
     fs.writeFileSync(connectionsBalPath, EMPTY);
+
+    // Create config.bal file
+    const configurationsBalPath = path.join(projectRoot, 'config.bal');
+    fs.writeFileSync(configurationsBalPath, EMPTY);
 
     // Create types.bal file
     const typesBalPath = path.join(projectRoot, 'types.bal');
@@ -188,7 +193,7 @@ export async function createBIService(params: ComponentRequest): Promise<CreateC
 
         } else {
             const serviceFile = await handleServiceCreation(params);
-            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 2, startColumn: 0, endLine: 13, endColumn: 1 } });
+            openView(EVENT_TYPE.OPEN_VIEW, { documentUri: serviceFile, position: { startLine: 3, startColumn: 0, endLine: 15, endColumn: 1 } });
         }
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
@@ -199,7 +204,7 @@ export async function createBIService(params: ComponentRequest): Promise<CreateC
 export async function createBIAutomation(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const functionFile = await handleAutomationCreation(params);
-        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 4, startColumn: 0, endLine: 10, endColumn: 1 } });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: functionFile, position: { startLine: 5, startColumn: 0, endLine: 12, endColumn: 1 } });
         history.clear();
         commands.executeCommand("BI.project-explorer.refresh");
         resolve({ response: true, error: "" });
@@ -234,6 +239,7 @@ export async function handleServiceCreation(params: ComponentRequest) {
         params.serviceType.path = `/${params.serviceType.path}`;
     }
     const balContent = `import ballerina/http;
+import ballerina/log;
 
 service ${params.serviceType.path} on new http:Listener(${params.serviceType.port}) {
 
@@ -243,6 +249,7 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
         do {
            
         } on fail error e {
+            log:printError("Error: ", 'error = e);
             return http:INTERNAL_SERVER_ERROR;
         }
     }
@@ -260,8 +267,7 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
 // <---------- Task Source Generation START-------->
 export async function handleAutomationCreation(params: ComponentRequest) {
     const displayAnnotation = `@display {
-    label: "${params.functionType.name}",
-    cron: "${params.functionType.cron}"
+    label: "${params.functionType.name}"
 }`;
     let paramList = '';
     const paramLength = params.functionType.parameters.length;
@@ -275,11 +281,14 @@ export async function handleAutomationCreation(params: ComponentRequest) {
         });
     }
     let funcSignature = `public function main(${paramList}) returns error? {`;
-    const balContent = `${displayAnnotation}
+    const balContent = `import ballerina/log;
+
+${displayAnnotation}
 ${funcSignature}
     do {
 
     } on fail error e {
+        log:printError("Error: ", 'error = e);
         return e;
     }
 }
@@ -301,7 +310,7 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
         .map((item) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ''}`)
         .join(",");
 
-    const returnTypeStr = `returns ${params.functionType.returnType === "void" ? 'error?' : `${params.functionType.returnType}|error?`}`;
+    const returnTypeStr = `returns ${!params.functionType.returnType ? 'error?' : `${params.functionType.returnType}|error?`}`;
 
     const expBody = `{
     do {

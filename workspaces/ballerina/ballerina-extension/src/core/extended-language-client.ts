@@ -100,11 +100,22 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    ConfigVariableResponse,
+    ConfigVariableRequest,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
+    ProjectDiagnosticsRequest,
+    ProjectDiagnosticsResponse,
+    MainFunctionParamsRequest,
+    MainFunctionParamsResponse,
     BIModuleNodesRequest,
     BIModuleNodesResponse,
     ComponentsFromContent,
     SignatureHelpRequest,
-    SignatureHelpResponse
+    SignatureHelpResponse,
+    VisibleTypesRequest,
+    VisibleTypesResponse,
+    BIDeleteByComponentInfoRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -165,6 +176,7 @@ enum EXTENDED_APIS {
     BI_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     BI_SOURCE_CODE = 'flowDesignService/getSourceCode',
     BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
+    BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
@@ -173,8 +185,13 @@ enum EXTENDED_APIS {
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
+    UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
+    RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
+    RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
-    BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp'
+    BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
+    BI_VISIBLE_TYPES = 'expressionEditor/types'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -191,7 +208,8 @@ enum EXTENDED_APIS_ORG {
     BALLERINA_TO_OPENAPI = 'openAPILSExtension',
     NOTEBOOK_SUPPORT = "balShell",
     GRAPHQL_DESIGN = "graphqlDesignService",
-    SEQUENCE_DIAGRAM = "sequenceModelGeneratorService"
+    SEQUENCE_DIAGRAM = "sequenceModelGeneratorService",
+    RUNNER = "ballerinaRunner"
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -502,6 +520,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.DOCUMENT_EXECUTOR_POSITIONS, params);
     }
 
+    async getProjectDiagnostics(params: ProjectDiagnosticsRequest): Promise<ProjectDiagnosticsResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RUNNER_DIAGNOSTICS);
+        if (!isSupported) {
+            return Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.RUNNER_DIAGNOSTICS, params);
+    }
+
+    async getMainFunctionParams(params: MainFunctionParamsRequest): Promise<MainFunctionParamsResponse | NOT_SUPPORTED_TYPE> {
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RUNNER_MAIN_FUNCTION_PARAMS);
+        if (!isSupported) {
+            return Promise.resolve(NOT_SUPPORTED);
+        }
+        return this.sendRequest(EXTENDED_APIS.RUNNER_MAIN_FUNCTION_PARAMS, params);
+    }
+
     async convertJsonToRecord(params: JsonToRecordParams): Promise<JsonToRecord | NOT_SUPPORTED_TYPE> {
         return this.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
     }
@@ -590,6 +624,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ServiceFromOASResponse>(EXTENDED_APIS.BI_GEN_OPEN_API, params);
     }
 
+    async getConfigVariables(params: ConfigVariableRequest): Promise<ConfigVariableResponse> {
+        return this.sendRequest<ConfigVariableResponse>(EXTENDED_APIS.VIEW_CONFIG_VARIABLES, params);
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this.sendRequest<UpdateConfigVariableResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES, params);
+    }
+
     async getSuggestedFlowModel(params: BISuggestedFlowModelRequest): Promise<BIFlowModelResponse> {
         return this.sendRequest<BIFlowModelResponse>(EXTENDED_APIS.BI_SUGGESTED_FLOW_MODEL, params);
     }
@@ -600,6 +642,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_NODE, params);
+    }
+
+    async deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_BY_COMPONENT_INFO, params);
     }
 
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
@@ -621,6 +667,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getSignatureHelp(params: SignatureHelpRequest): Promise<SignatureHelpResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_SIGNATURE_HELP, params);
+    }
+
+    async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
+        return this.sendRequest(EXTENDED_APIS.BI_VISIBLE_TYPES, params);
     }
 
     // <------------ BI APIS END --------------->
@@ -653,6 +703,9 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
                 },
                 {
                     name: EXTENDED_APIS_ORG.TRIGGER, triggers: true, trigger: true
+                },
+                {
+                    name: EXTENDED_APIS_ORG.RUNNER, diagnostics: true, mainFunctionParams: true,
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },

@@ -17,7 +17,7 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import { ForeachNodeModel } from "../components/nodes/ForeachNode";
+import { EndNodeModel } from "../components/nodes/EndNode";
 
 export type NodeModel =
     | BaseNodeModel
@@ -25,12 +25,12 @@ export type NodeModel =
     | DraftNodeModel
     | IfNodeModel
     | WhileNodeModel
-    | ForeachNodeModel
     | CodeBlockNodeModel
     | StartNodeModel
     | ApiCallNodeModel
     | CommentNodeModel
-    | ButtonNodeModel;
+    | ButtonNodeModel
+    | EndNodeModel;
 
 // node model without button node model
 export type LinkableNodeModel = Exclude<NodeModel, ButtonNodeModel>;

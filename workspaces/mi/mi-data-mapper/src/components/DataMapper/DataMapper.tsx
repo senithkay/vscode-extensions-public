@@ -123,6 +123,32 @@ function viewsReducer(state: View[], action: ViewAction) {
     }
 }
 
+function MappingInProgressMessage() {
+    const [message, setMessage] = useState("Mapping is in progress...");
+
+    useEffect(() => {
+        const messages = [
+            "Mapping is in progress...",
+            "Please wait...",
+            "This may take a few seconds, depending on the size of your schema."
+        ];
+        let index = 0;
+
+        const interval = setInterval(() => {
+            index = (index + 1) % messages.length;
+            setMessage(messages[index]);
+        }, 10000); // 10 seconds
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, []);
+
+    return (
+        <div className={classes.autoMapInProgressMsg}>
+            {message}
+        </div>
+    );
+}
+
 export function MIDataMapper(props: MIDataMapperProps) {
     const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading, isMapping, setIsMapping } = props;
 
@@ -171,24 +197,6 @@ export function MIDataMapper(props: MIDataMapperProps) {
     }, [resetSearchStore, resetExprBarFocus]);
 
     const inputNode = nodes.find(node => isInputNode(node));
-
-    const [message, setMessage] = useState("Mapping is in progress...");
-
-    useEffect(() => {
-        const messages = [
-            "Mapping is in progress...",
-            "Please wait...",
-            "This may take a few seconds, depending on the size of your schema."
-        ];
-        let index = 0;
-
-        const interval = setInterval(() => {
-            index = (index + 1) % messages.length;
-            setMessage(messages[index]);
-        }, 10000); // 10 seconds
-
-        return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, []);
 
     useEffect(() => {
         generateNodes();
@@ -289,11 +297,7 @@ export function MIDataMapper(props: MIDataMapperProps) {
             {isLoading && (
                 <div className={classes.overlayWithLoader}>
                     <div className={classes.spinner} />
-                    {isMapping && (
-                        <div className={classes.autoMapInProgressMsg}>
-                            {message}
-                        </div>
-                    )}
+                    {isMapping && <MappingInProgressMessage />}
                     <Button
                         onClick={() => setIsMapping(false)}
                         className={classes.autoMapStopButton}

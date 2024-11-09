@@ -10,24 +10,27 @@
 import { LineRange } from '@wso2-enterprise/ballerina-core';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import React, { createContext, FC, useContext } from 'react';
-import { Control, FieldValues, UseFormWatch, UseFormRegister } from 'react-hook-form';
+import { Control, FieldValues, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormUnregister } from 'react-hook-form';
 
 export interface FormContext {
     form: {
         control: Control<FieldValues, any>;
+        setValue: UseFormSetValue<FieldValues>;
         watch: UseFormWatch<any>;
         register: UseFormRegister<FieldValues>;
+        unregister: UseFormUnregister<FieldValues>;
     };
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        retrieveCompletions: (
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;

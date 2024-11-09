@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
 import { StateMachine } from "../../stateMachine";
@@ -16,6 +16,7 @@ import {
     ENDPOINT_REMOVED,
     INVALID_PARAMETER_TYPE,
     INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY,
+    MODIFIYING_ERROR,
     PARSING_ERROR,
     TIMEOUT,
     UNAUTHORIZED,
@@ -26,8 +27,9 @@ import { hasStopped } from "./rpc-manager";
 import { StateMachineAI } from "../../views/ai-panel/aiMachine";
 import { extension } from "../../BalExtensionContext";
 import axios from "axios";
+import { getPluginConfig } from "../../../src/utils";
 
-export const BACKEND_API_URL_V2 =  workspace.getConfiguration('ballerina').get('rootUrl') as string;
+export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
@@ -64,9 +66,9 @@ export async function isLoggedin(): Promise<boolean> {
 
 export async function handleLogin() : Promise<void> {
     const quickPicks: QuickPickItem[] = [];
-    quickPicks.push({ label: "Ballerina: Copilot Login", description: "Register/Login to Ballerina Copilot"});
+    quickPicks.push({ label: "WSO2: Copilot Login", description: "Register/Login to WSO2 Copilot"});
 
-    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access Ballerina Copilot features. Please login and retry." };
+    const options: QuickPickOptions = { canPickMany: false, title: "You need to login to access WSO2 Copilot features. Please login and retry." };
     const selected = await window.showQuickPick(quickPicks, options);
     if (selected) {
         StateMachineAI.service().send(AI_EVENT_TYPE.LOGIN);
@@ -87,6 +89,7 @@ export async function getParamDefinitions(
     let output: { [key: string]: any } = {};
     let outputMetadata: { [key: string]: any } = {};
     let hasArrayParams = false;
+    let arrayParams = 0;
 
     for (const parameter of fnSt.functionSignature.parameters) {
         if (!STKindChecker.isRequiredParam(parameter)) {
@@ -97,14 +100,17 @@ export async function getParamDefinitions(
         let paramName = param.paramName.value;
         let paramType = "";
 
-        if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
+        if (param.typeName.kind === "ArrayTypeDesc") {
             paramName = `${paramName}Item`; 
+            arrayParams++;
         }
 
         if (param.typeData.typeSymbol.typeKind === "array") {
             paramType = param.typeName.source;
-        } else {
+        } else if (param.typeData.typeSymbol.typeKind === "typeReference") {
             paramType = param.typeData.typeSymbol.name;
+        } else {
+            paramType = param.typeName.source;
         }
 
         const parameterDefinition = await StateMachine.langClient().getTypeFromSymbol({
@@ -118,8 +124,24 @@ export async function getParamDefinitions(
             return INVALID_PARAMETER_TYPE;
         }
 
-        const fieldTypes = 'types' in parameterDefinition && parameterDefinition.types[0].type.fields;
-        const inputDefinition = navigateTypeInfo(fieldTypes, false);
+        let inputDefinition;
+        if ('types' in parameterDefinition && parameterDefinition.types[0].type.hasOwnProperty('fields')) {
+            inputDefinition = navigateTypeInfo(parameterDefinition.types[0].type.fields, false);
+        } else {
+            let singleFieldType = 'types' in parameterDefinition && parameterDefinition.types[0].type;
+            inputDefinition = {
+                "recordFields": { [paramName]: { "type": singleFieldType.typeName, "comment": "" } },
+                "recordFieldsMetadata": {
+                    [paramName]: {
+                        "typeName": singleFieldType.typeName,
+                        "type": singleFieldType.typeName,
+                        "typeInstance": paramName,
+                        "nullable": false,
+                        "optional": false
+                    }
+                }
+            };
+        }
         inputs = { ...inputs, [paramName]: (inputDefinition as RecordDefinitonObject).recordFields };
         inputMetadata = { ...inputMetadata, [paramName]: { "isArrayType": parameter.typeName.kind === "ArrayTypeDesc"? true : false ,"parameterName": paramName, "parameterType": paramType, "type": parameter.typeName.kind === "ArrayTypeDesc" ? "record[]" : "record", "fields": (inputDefinition as RecordDefinitonObject).recordFieldsMetadata } };
             
@@ -129,7 +151,7 @@ export async function getParamDefinitions(
     }
 
     if (STKindChecker.isArrayTypeDesc(fnSt.functionSignature.returnTypeDesc.type)) {
-        if (fnSt.functionSignature.parameters.length > 1) {
+        if (arrayParams > 1) {
             return INVALID_PARAMETER_TYPE_MULTIPLE_ARRAY;
         }
         if (!hasArrayParams) {
@@ -171,6 +193,53 @@ export async function getParamDefinitions(
     return response;
 }
 
+export async function processMappings(
+    fnSt: FunctionDefinition,
+    fileUri: string
+): Promise<SyntaxTree | ErrorCode> {
+    const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+
+    if (isErrorCode(parameterDefinitions)) {
+        return parameterDefinitions as ErrorCode;
+    }
+
+    const codeObject = await getDatamapperCode(parameterDefinitions);
+    if (isErrorCode(codeObject)) {
+        return codeObject as ErrorCode;
+    }
+
+    let codeString: string = constructRecord(codeObject);
+    if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
+        const parameter = fnSt.functionSignature.parameters[0];
+        const param = parameter as RequiredParam;
+        const paramName = param.paramName.value;
+        codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
+        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+    } else {
+        codeString = `=> ${codeString};`;
+    }
+
+    const modifications: STModification[] = [];
+    modifications.push({
+        type: "INSERT",
+        config: { STATEMENT: codeString },
+        endColumn: fnSt.functionBody.position.endColumn,
+        endLine: fnSt.functionBody.position.endLine,
+        startColumn: fnSt.functionBody.position.startColumn,
+        startLine: fnSt.functionBody.position.startLine,
+    });
+
+    const stModifyResponse = await StateMachine.langClient().stModify({
+        astModifications: modifications,
+        documentIdentifier: {
+            uri: fileUri
+        }
+    });
+
+    return stModifyResponse as SyntaxTree;
+}
+
+
 export async function generateBallerinaCode(response: object, parameterDefinitions: ParameterMetadata, nestedKey: string = ""): Promise<object> {
     let recordFields: { [key: string]: any } = {};
 
@@ -195,6 +264,7 @@ export async function generateBallerinaCode(response: object, parameterDefinitio
                 nestedKeyArray.push(key);
                 let responseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key);
                 let recordFieldDetails = await handleRecordArrays(key, nestedKey, responseRecord, parameterDefinitions);
+                nestedKeyArray.pop();
                 recordFields = { ...recordFields, ...recordFieldDetails };
             } else {
                 let nestedResponseRecord = await generateBallerinaCode(subRecord, parameterDefinitions, key);
@@ -230,10 +300,17 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
         }
 
         for (let index = 0; index < modifiedPaths.length; index++) {
+            if (index > 0 && modifiedPaths[index] === modifiedPaths[index - 1]) {
+                continue;
+            }
             if (path !== "") {
                 path = `${path}.`;
             }
             path = `${path}${modifiedPaths[index]}`;
+        }
+        // Add split operation if inputType is "string" and targetType is "string[]"
+        if (inputType === "string" && targetType === "string[]") {
+            return `re \`,\`.split(${path})`;
         }
 
         // Type conversion logic
@@ -282,6 +359,20 @@ function getMappingString(mapping: object, parameterDefinitions: ParameterMetada
             path = `${path}${modifiedPaths[index]}`;
         }
         path = `(${path}).length()`;
+    } else if (operation === "SPLIT") {
+        if (parameters.length > 2) {
+            return "";
+        }
+        let paths = parameters[0].split(".");
+        let recordObjectName: string = paths[0];
+        let modifiedPaths: string[] = accessMetadata(paths, 1, parameterDefinitions["inputMetadata"][recordObjectName], false);
+        for (let index = 0; index < modifiedPaths.length; index++) {
+            if (path !== "") {
+                path = `${path}.`;
+            }
+            path = `${path}${modifiedPaths[index]}`;
+        }
+        path = `re \`${parameters[1]}\`.split(${parameters[0]})`;
     }
     return path;
 }
@@ -292,7 +383,7 @@ export async function refreshAccessToken(): Promise<string> {
         'Accept': 'application/json'
     };
 
-    const config = workspace.getConfiguration('ballerina');
+    const config = getPluginConfig();
     const AUTH_ORG = config.get('authOrg') as string;
     const AUTH_CLIENT_ID = config.get('authClientID') as string;
 
@@ -341,32 +432,21 @@ function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefini
                     "fields": (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
                 }
             };
-        } else if (field.typeName === "union") {
-            if (field.members.length > 2) {
-                continue;
-            }
+        } else if (field.typeName === "union" || field.typeName === "intersection") {
             for (const member of field.members) {
                 if (member.typeName === "()") {
                     continue;
-                } else {
-                    const temporaryRecord = navigateTypeInfo(("fields" in member) ? member.fields : [{ ...member, "name": field.name }], ("fields" in member) ? false : true);
-                    if ("fields" in member) {
-                        recordFields = { ...recordFields, [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields };
-                        recordFieldsMetadata = {
-                            ...recordFieldsMetadata,
-                            [field.name]: {
-                                "nullable": true,
-                                "optional": field.optional,
-                                "type": "record",
-                                "typeName": member.typeName,
-                                "typeInstance": field.name,
-                                "fields": (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
-                            }
-                        };
-                    } else {
-                        recordFields = { ...recordFields, ...(temporaryRecord as RecordDefinitonObject).recordFields };
-                        recordFieldsMetadata = { ...recordFieldsMetadata, ...(temporaryRecord as RecordDefinitonObject).recordFieldsMetadata };
-                    }
+                } 
+                if (!("fields" in member)) {
+                    const typeName = field.typeInfo.name;
+                    recordFields[field.name] = { "type": typeName, "comment": "" };
+                    recordFieldsMetadata[field.name] = {
+                        "nullable": true,
+                        "optional": field.optional,
+                        "typeName": typeName,
+                        "type": typeName,
+                        "typeInstance": field.name
+                    };
                 }
             }
         } else if (field.typeName === "array" && field.memberType.hasOwnProperty("fields")) {
@@ -412,6 +492,7 @@ function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefini
 }
 
 export async function getDatamapperCode(parameterDefinitions): Promise<object | ErrorCode> {
+    console.log(JSON.stringify(parameterDefinitions));
     try {
         const accessToken = await getAccessToken().catch((error) => {
             console.error(error);
@@ -427,6 +508,10 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
         // Refresh
         if (response.status === 401) {
             const newAccessToken = await refreshAccessToken();
+            if (!newAccessToken) {
+                await handleLogin();
+                return;
+            }
             let retryResponse: Response | ErrorCode = await sendDatamapperRequest(parameterDefinitions, newAccessToken);
             
             if (isErrorCode(retryResponse)) {
@@ -438,7 +523,7 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
             let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
             return finalCode;
         }
-        let intermediateMapping = JSON.parse(await filterResponse(response) as string); 
+        let intermediateMapping = JSON.parse(await filterResponse(response) as string);
         let finalCode =  await generateBallerinaCode(intermediateMapping, parameterDefinitions, "");
         return finalCode;
     } catch (error) {
@@ -582,17 +667,18 @@ function getDefaultValue(dataType: string): string {
 function getNestedType(paths: string[], metadata: object): string {
     let currentMetadata = metadata;
     for (let i = 0; i < paths.length; i++) {
-        if (currentMetadata["fields"] && currentMetadata["fields"][paths[i]]) {
-            currentMetadata = currentMetadata["fields"][paths[i]];
+        let cleanPath = paths[i].replace(/\?.*$/, "");
+        if (currentMetadata["fields"] && currentMetadata["fields"][cleanPath]) {
+            currentMetadata = currentMetadata["fields"][cleanPath];
         } else {
-            throw new Error(`Field ${paths[i]} not found in metadata.`);
+            throw new Error(`Field ${cleanPath} not found in metadata.`);
         }
     }
     return currentMetadata["type"];
 }
 
-function resolveOutputMetadataType(parameterDefinitions: ParameterMetadata, nestedKeyArray: string[], key: string): string {
-    let metadata = parameterDefinitions["outputMetadata"];
+function resolveMetadataType(parameterDefinitions: ParameterMetadata, nestedKeyArray: string[], key: string, metadataKey: "inputMetadata" | "outputMetadata"): string {
+    let metadata = parameterDefinitions[metadataKey];
     let type:string = "";
 
     for (let nk of nestedKeyArray) {
@@ -615,35 +701,37 @@ async function handleRecordArrays(key: string, nestedKey:string, responseRecord:
     let formattedRecordsArray: string[] = [];
     let itemKey: string = "";
     let combinedKey: string = "";
+    let outputMetadataType: string;
 
     for (let subObjectKey of subObjectKeys) {
-        let { parentKey, itemKey: currentItemKey, combinedKey: currentCombinedKey } = extractKeys(responseRecord[subObjectKey]);
-        let isDeeplyNested = checkDeeplyNestedRecordArray(parentKey, parameterDefinitions, "inputMetadata");
-        let outputMetadataType: string;
         if (!nestedKey) {
             outputMetadataType = parameterDefinitions["outputMetadata"][key]["type"];
         } else {
-            outputMetadataType = resolveOutputMetadataType(parameterDefinitions, nestedKeyArray, key);
+            outputMetadataType = resolveMetadataType(parameterDefinitions, nestedKeyArray, key, "outputMetadata");
         }
 
-        if (outputMetadataType === "record[]") {
-            if(isDeeplyNested){
+        let isDeeplyNested = outputMetadataType === "record[]";
+        let { parentKey, itemKey: currentItemKey, combinedKey: currentCombinedKey } = extractKeys(responseRecord[subObjectKey], parameterDefinitions);
+        if (outputMetadataType === "record[]" ||  outputMetadataType === "record" ) {
+            if (isDeeplyNested) {
                 let subArrayRecord = responseRecord[subObjectKey];
                 formattedRecordsArray.push(`${subObjectKey}: ${subArrayRecord.replace(new RegExp(`${currentCombinedKey}\.`, 'g'), `${currentItemKey}Item.`)}`);
-
                 itemKey = currentItemKey;
                 combinedKey = currentCombinedKey;
             } else {
-                formattedRecordsArray.push(`${subObjectKey}: ${responseRecord[subObjectKey].replace(new RegExp(`${combinedKey}\.`, 'g'), `${itemKey}Item.`)}`);
+                formattedRecordsArray.push(`${subObjectKey}: ${responseRecord[subObjectKey]}`);
             }
         } else {
-            recordFields = { ...recordFields, [key]: responseRecord};
+            recordFields = { ...recordFields, [key]: responseRecord };
         }
     }
 
     if (formattedRecordsArray.length > 0 && itemKey && combinedKey) {
         let formattedRecords = formattedRecordsArray.join(",\n");
         recordFields[key] = `from var ${itemKey}Item in ${combinedKey}\n select {\n ${formattedRecords}\n}`;
+    } else {
+        let formattedRecords = formattedRecordsArray.join(",\n");
+        recordFields[key] = `{\n ${formattedRecords} \n}`;
     }
 
     return { ...recordFields };
@@ -652,6 +740,7 @@ async function handleRecordArrays(key: string, nestedKey:string, responseRecord:
 async function filterResponse(resp: Response): Promise<string | ErrorCode> {
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
+        console.log(JSON.stringify(data.mappings));
         return JSON.stringify(data.mappings);
     }
     if (resp.status == 404) {
@@ -668,15 +757,23 @@ async function filterResponse(resp: Response): Promise<string | ErrorCode> {
     }
 }
 
-function extractKeys(key: string): { parentKey: string[], itemKey:string, combinedKey: string } {
+function extractKeys(key: string, parameterDefinitions: ParameterMetadata ): { parentKey: string[], itemKey:string, combinedKey: string } {
     let innerKey: string;
+    let itemKey: string = "";
+    let combinedKey: string = "";
 
-    // Check if the key matches the 'from var...select' structure
-    if (key.includes('from var') && key.includes('select')) {
+    // Handle the key for nullable and optional fields
+    key = key.replace(/\?.*$/, "");
+    if (key.startsWith("{") && key.endsWith("}")) {
+        const matches = key.match(/\{\s*([^}]+)\s*\}/);
+        innerKey = matches ? matches[1] : key;
+        const firstKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0];
+        innerKey = firstKey || ""; 
+    } 
+    else if (key.includes('from var') && key.includes('select')) {
         const match = key.match(/from\s+var\s+\w+\s+in\s+([\w.]+)\s+/);
         innerKey = match ? match[1] : key;
     } else {
-        // Handle simpler key format with 'check' and 'fromString' or 'ensureType'
         innerKey = key.match(/\(([^)]+)\)/)?.[1] || key;
 
         innerKey = innerKey
@@ -686,10 +783,18 @@ function extractKeys(key: string): { parentKey: string[], itemKey:string, combin
     }
 
     let keys = innerKey.split(".");
-    let itemKey = keys[keys.length - 1];
-
+    let fieldName = keys.pop()!;
     let parentKey = keys.slice(0, keys.length);
-    let combinedKey = parentKey.join(".");
+    
+    // Traverse parentKey to check for record[] type and set itemKey and combinedKey accordingly
+    for (let index = parentKey.length - 1; index >= 0; index--) {
+        let inputMetadataType = resolveMetadataType(parameterDefinitions, parentKey, parentKey[index], "inputMetadata");
+        if (inputMetadataType === "record[]") {
+            itemKey = parentKey[index];
+            combinedKey = parentKey.slice(0, index + 1).join(".");
+            break;
+        }
+    }
     return { parentKey, itemKey, combinedKey };
 }
 

@@ -8,17 +8,13 @@
  */
 
 import React from "react";
-import {
-    DIRECTORY_MAP,
-    EVENT_TYPE,
-    MACHINE_VIEW,
-    ProjectStructureResponse,
-} from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
+import { URI } from "vscode-uri";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -73,9 +69,75 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connection.name,
-            }
+            },
+            isPopup: true
         });
     };
+
+    const handleDeleteComponent = async (component: EntryPoint | Connection) => {
+        console.log(">>> component diagram: delete component", component);
+        if ('type' in component) {
+            console.log(">>> deleting entrypoint", component);
+            rpcClient
+                .getLangClientRpcClient()
+                .getBallerinaProjectComponents({ documentIdentifiers: [{ uri: URI.file(component.location.filePath).toString() }] })
+                .then((response) => {
+                    let componentType = "";
+                    if (component.type === "service") {
+                        componentType = "services";
+                    } else if (component.type === "task" || component.type === "schedule-task") {
+                        componentType = "automations";
+                    }
+                    response.packages.forEach((pkg) => {
+                        pkg.modules.forEach((module: any) => {
+                            module[componentType].forEach((balComp: any) => {
+                                if (balComp.name === component.label) {
+                                    rpcClient
+                                        .getBIDiagramRpcClient()
+                                        .deleteByComponentInfo({
+                                            filePath: component.location.filePath,
+                                            component: balComp,
+                                        }).then((response) => {
+                                            console.log(">>> Updated source code after delete", response);
+                                            if (!response.textEdits) {
+                                                console.error(">>> Error updating source code", response);
+                                            }
+                                        });
+
+                                }
+                            });
+                        });
+                    });
+                });
+
+        } else {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getModuleNodes()
+                .then((res) => {
+                    console.log(">>> moduleNodes", { moduleNodes: res });
+                    const connector = res?.flowModel?.connections.find(
+                        (node) => node.properties.variable.value === component.name
+                    );
+                    if (connector) {
+                        rpcClient
+                            .getBIDiagramRpcClient()
+                            .deleteFlowNode({
+                                filePath: component.location.filePath,
+                                flowNode: connector,
+                            })
+                            .then((response) => {
+                                console.log(">>> Updated source code after delete", response);
+                                if (!response.textEdits) {
+                                    console.error(">>> Error updating source code", response);
+                                }
+                            });
+                    } else {
+                        console.error(">>> Error finding connector", { connectionName: component.name });
+                    }
+                });
+        }
+    }
 
     if (!projectStructure) {
         return (
@@ -84,8 +146,6 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             </SpinnerContainer>
         );
     }
-
-    console.log(">>> project structure", { projectStructure });
 
     const project: Project = {
         name: projectName,
@@ -109,6 +169,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             id: service.name,
             name: service.name,
             type: "service",
+            label: service.context,
             location: {
                 filePath: service.path,
                 position: service.position,
@@ -120,10 +181,16 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         const isScheduleTask =
             (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(2)?.valueExpr?.literalToken
                 ?.value === '"SCHEDULED"';
+        let taskName = (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(0)?.valueExpr
+            ?.literalToken?.value;
+        if (taskName) {
+            taskName = taskName.replace(/['"]/g, "");
+        }
 
         project.entryPoints.push({
             id: task.name,
-            name: task.name,
+            name: taskName || task.name,
+            label: task.context,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,
@@ -143,6 +210,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 onAddConnection={handleAddConnection}
                 onEntryPointSelect={handleGoToEntryPoints}
                 onConnectionSelect={handleGoToConnection}
+                onDeleteComponent={handleDeleteComponent}
             />
         </DiagramContainer>
     );

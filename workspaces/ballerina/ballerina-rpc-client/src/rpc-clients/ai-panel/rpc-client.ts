@@ -12,20 +12,35 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
+    GetFromFileRequest,
+    DeleteFromProjectRequest,
     GenerateMappingsRequest,
+    GenerateMappingFromRecordResponse,
     GenerateMappingsResponse,
+    GenerateTestRequest,
+    GeneratedTestSource,
+    GenerteMappingsFromRecordRequest,
+    InitialPrompt,
     NotifyAIMappingsRequest,
     ProjectDiagnostics,
     ProjectSource,
     addToProject,
+    getFromFile,
+    deleteFromProject,
+    clearInitialPrompt,
     generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getGeneratedTest,
+    getInitialPrompt,
+    getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
+    getTestDiagnostics,
     login,
     logout,
     notifyAIMappings,
@@ -76,8 +91,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    addToProject(content: AddToProjectRequest): void {
-        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, content);
+    addToProject(params: AddToProjectRequest): void {
+        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
+    }
+
+    getFromFile(params: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, params);
+    }
+
+    deleteFromProject(params: DeleteFromProjectRequest): Promise<string> {
+        return this._messenger.sendRequest(deleteFromProject, HOST_EXTENSION, params);
     }
 
     getRefreshToken(): Promise<string> {
@@ -104,7 +127,31 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION);
     }
 
-    getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
-        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, project);
+    getShadowDiagnostics(params: ProjectSource): Promise<ProjectDiagnostics> {
+        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, params);
+    }
+
+    checkSyntaxError(params: ProjectSource): Promise<boolean> {
+        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, params);
+    }
+
+    getInitialPrompt(): Promise<InitialPrompt> {
+        return this._messenger.sendRequest(getInitialPrompt, HOST_EXTENSION);
+    }
+
+    clearInitialPrompt(): void {
+        return this._messenger.sendNotification(clearInitialPrompt, HOST_EXTENSION);
+    }
+
+    getGeneratedTest(params: GenerateTestRequest): Promise<GeneratedTestSource> {
+        return this._messenger.sendRequest(getGeneratedTest, HOST_EXTENSION, params);
+    }
+
+    getTestDiagnostics(params: GeneratedTestSource): Promise<ProjectDiagnostics> {
+        return this._messenger.sendRequest(getTestDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
+        return this._messenger.sendRequest(getMappingsFromRecord, HOST_EXTENSION, params);
     }
 }

@@ -4,7 +4,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { IntermediatePortModel } from "../../Port";
-import { calculateControlPointOffset } from "../../utils/dm-utils";
+import { calculateControlPointOffset } from "../../utils/diagram-utils";
 
 export const LINK_TYPE_ID = "datamapper-link";
 

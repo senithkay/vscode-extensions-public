@@ -9,11 +9,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
-import { FlowNode, Branch, LineRange, TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
+import {
+    FlowNode,
+    Branch,
+    LineRange,
+    TRIGGER_CHARACTERS,
+    TriggerCharacter,
+    SubPanel,
+    SubPanelView,
+} from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
-import { FormValues, ExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
+import { FormValues, ExpressionEditor, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertBalCompletion, convertNodePropertyToFormField, convertToFnSignature } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
@@ -25,35 +33,72 @@ interface IfFormProps {
     node: FlowNode;
     targetLineRange: LineRange;
     onSubmit: (node?: FlowNode) => void;
+    openSubPanel: (subPanel: SubPanel) => void;
+    updatedExpressionField?: ExpressionFormField;
+    resetUpdatedExpressionField?: () => void;
+    isActiveSubPanel?: boolean;
 }
 
 export function IfForm(props: IfFormProps) {
-    const { fileName, node, targetLineRange, onSubmit } = props;
+    const {
+        fileName,
+        node,
+        targetLineRange,
+        onSubmit,
+        openSubPanel,
+        updatedExpressionField,
+        resetUpdatedExpressionField,
+        isActiveSubPanel,
+    } = props;
     const { control, getValues, setValue, handleSubmit } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const [activeEditor, setActiveEditor] = useState<number>(0);
-
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
+    const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
-    console.log(">>> form fields", { node, values: getValues(), branches });
+    const exprRef = useRef<ExpressionBarRef>(null);
 
-    const clearExpressionEditor = () => {
-        // clear memory for expression editor
-        setCompletions([]);
+    const hasElseBranch = branches.find(
+        (branch) =>
+            branch.label === "Else" &&
+            ((branch.children?.length > 0 &&
+                !(branch.children[0].codedata.node === "EMPTY" && branch.children[0].metadata.draft)) ||
+                branch.children?.length === 0)
+    );
+
+    useEffect(() => {
+        if (updatedExpressionField) {
+            const currentValue = getValues(updatedExpressionField.key);
+
+            if (currentValue !== undefined) {
+                const cursorPosition =
+                    exprRef.current?.shadowRoot?.querySelector("textarea")?.selectionStart ?? currentValue.length;
+                const newValue =
+                    currentValue.slice(0, cursorPosition) +
+                    updatedExpressionField.value +
+                    currentValue.slice(cursorPosition);
+
+                setValue(updatedExpressionField.key, newValue);
+                resetUpdatedExpressionField && resetUpdatedExpressionField();
+            }
+        }
+    }, [updatedExpressionField]);
+
+    const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
+        setCompletions([]);
         triggerCompletionOnNextRequest.current = false;
-    }
+    };
 
     const handleOnSave = (data: FormValues) => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         if (node && targetLineRange) {
             let updatedNode = cloneDeep(node);
 
-            if(!updatedNode.codedata.lineRange){
+            if (!updatedNode.codedata.lineRange) {
                 updatedNode.codedata.lineRange = {
                     ...node.codedata.lineRange,
                     startLine: targetLineRange.startLine,
@@ -66,7 +111,7 @@ export function IfForm(props: IfFormProps) {
                 if (branch.label === "Else") {
                     return;
                 }
-                const conditionValue = data[branch.label]?.trim();
+                const conditionValue = data[`branch-${index}`]?.trim();
                 if (conditionValue) {
                     branch.properties.condition.value = conditionValue;
                     if (branch.label !== "Then") {
@@ -87,39 +132,80 @@ export function IfForm(props: IfFormProps) {
     };
 
     const addNewCondition = () => {
-        clearExpressionEditor();
+        handleExpressionEditorCancel();
         // create new branch obj
         const newBranch: Branch = {
             label: "branch-" + branches.length,
             kind: "block",
             codedata: {
-            node: "CONDITIONAL",
-            lineRange: null,
+                node: "CONDITIONAL",
+                lineRange: null,
             },
             repeatable: "ONE_OR_MORE",
             properties: {
-            condition: {
-                metadata: {
-                label: "Else If Condition",
-                description: "Add condition to evaluate if the previous conditions are false",
+                condition: {
+                    metadata: {
+                        label: "Else If Condition",
+                        description: "Add condition to evaluate if the previous conditions are false",
+                    },
+                    valueType: "EXPRESSION",
+                    value: "",
+                    placeholder: "true",
+                    optional: false,
+                    editable: true,
                 },
-                valueType: "EXPRESSION",
-                value: "true",
-                optional: false,
-                editable: true,
-            },
             },
             children: [],
         };
-        // add new branch to branches and add branch to before last branch
-        setBranches([...branches.slice(0, -1), newBranch, branches[branches.length - 1]]);
+        // add new branch to end of the current branches
+        setBranches([...branches, newBranch]);
+    };
+
+    const addElseBlock = () => {
+        if (hasElseBranch) {
+            return;
+        }
+        const elseBranch: Branch = {
+            label: "Else",
+            kind: "block",
+            codedata: {
+                node: "ELSE",
+                lineRange: null,
+            },
+            repeatable: "ZERO_OR_ONE",
+            properties: {
+                condition: {
+                    metadata: {
+                        label: "Else",
+                        description: "Add condition to evaluate if the previous conditions are false",
+                    },
+                    valueType: "EXPRESSION",
+                    value: "",
+                    placeholder: "true",
+                    optional: false,
+                    editable: true,
+                },
+            },
+            children: [],
+        };
+        // add new branch to end of the current branches
+        setBranches([...branches, elseBranch]);
+    };
+
+    const removeElseBlock = () => {
+        if (!hasElseBranch) {
+            return;
+        }
+        // remove the else branch
+        const updatedBranches = branches.filter((branch) => branch.label !== "Else");
+        setBranches(updatedBranches);
     };
 
     const debouncedGetCompletions = debounce(
         async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? '';
+            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
             const endOfStatementRegex = /[\)\]]\s*$/;
             if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
                 // Case 1: When a character unrelated to triggering completions is entered
@@ -164,7 +250,14 @@ export function IfForm(props: IfFormProps) {
                 }
 
                 // Convert completions to the ExpressionBar format
-                const convertedCompletions = completions?.map((completion) => convertBalCompletion(completion)) ?? [];
+                let convertedCompletions: CompletionItem[] = [];
+                completions?.forEach((completion) => {
+                    if (completion.detail) {
+                        // HACK: Currently, completion with additional edits apart from imports are not supported
+                        // Completions that modify the expression itself (ex: member access)
+                        convertedCompletions.push(convertBalCompletion(completion));
+                    }
+                });
                 setCompletions(convertedCompletions);
 
                 if (triggerCharacter) {
@@ -197,7 +290,7 @@ export function IfForm(props: IfFormProps) {
         if (triggerCharacter) {
             await debouncedGetCompletions.flush();
         }
-    }
+    };
 
     const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
@@ -208,35 +301,39 @@ export function IfForm(props: IfFormProps) {
             context: {
                 isRetrigger: false,
                 triggerKind: 1,
-            }
+            },
         });
 
         return convertToFnSignature(signatureHelp);
-    }
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
     };
 
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
-    }
+    };
 
     const handleCompletionSelect = async () => {
         debouncedGetCompletions.cancel();
         handleExpressionEditorCancel();
-    }
+    };
 
-    const handleEditorFocus = (activeEditor: number) => {
-        setActiveEditor(activeEditor);
-    }
+    const handleEditorFocus = (currentActive: number) => {
+        if (isActiveSubPanel && activeEditor !== currentActive) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveEditor(currentActive);
+    };
 
     useEffect(() => {
-        branches.forEach((branch) => {
+        branches.forEach((branch, index) => {
             if (branch.properties?.condition) {
-                const field = convertNodePropertyToFormField(branch.label, branch.properties.condition);
-                setValue(field.key, field.value);
+                // get the value stored in the form based on the branch key
+                const val = getValues(`branch-${index}`);
+                if (val) {
+                    branch.properties.condition.value = val;
+                    setValue(`branch-${index}`, val);
+                } else {
+                    setValue(`branch-${index}`, "");
+                }
             }
         });
     }, [branches]);
@@ -245,11 +342,12 @@ export function IfForm(props: IfFormProps) {
     return (
         <FormStyles.Container>
             {branches.map((branch, index) => {
-                if (branch.properties?.condition) {
-                    const field = convertNodePropertyToFormField(branch.label, branch.properties.condition);
+                if (branch.properties?.condition && branch.label !== "Else") {
+                    const field = convertNodePropertyToFormField(`branch-${index}`, branch.properties.condition);
                     return (
-                        <FormStyles.Row key={branch.label}>
+                        <FormStyles.Row key={field.key}>
                             <ExpressionEditor
+                                ref={exprRef}
                                 control={control}
                                 field={field}
                                 completions={activeEditor === index ? filteredCompletions : []}
@@ -260,6 +358,9 @@ export function IfForm(props: IfFormProps) {
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}
                                 onBlur={handleExpressionEditorBlur}
+                                openSubPanel={openSubPanel}
+                                targetLineRange={targetLineRange}
+                                fileName={fileName}
                             />
                         </FormStyles.Row>
                     );
@@ -268,8 +369,22 @@ export function IfForm(props: IfFormProps) {
 
             <LinkButton onClick={addNewCondition} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
                 <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
-                Add Else IF Condition
+                Add Else IF Block
             </LinkButton>
+
+            {!hasElseBranch && (
+                <LinkButton onClick={addElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.PRIMARY, gap: 4 }}>
+                    <Codicon name={"add"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                    Add Else Block
+                </LinkButton>
+            )}
+
+            {hasElseBranch && (
+                <LinkButton onClick={removeElseBlock} sx={{ fontSize: 12, padding: 8, color: Colors.ERROR, gap: 4 }}>
+                    <Codicon name={"chrome-minimize"} iconSx={{ fontSize: 12 }} sx={{ height: 12 }} />
+                    Remove Else Block
+                </LinkButton>
+            )}
 
             {onSubmit && (
                 <FormStyles.Footer>

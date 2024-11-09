@@ -8,9 +8,10 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, ComponentModels } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, ComponentModels, NodePosition } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
+import { RecordEditor } from "../RecordEditor/RecordEditor";
 
 interface TypeDiagramProps {
     selectedRecordId?: string;
@@ -22,6 +23,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const langRpcClient = rpcClient.getLangClientRpcClient();
     const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
+    const [isTypeCreatorOpen, setIsTypeCreatorOpen] = React.useState<boolean>(false);
 
     useEffect(() => {
         if (rpcClient) {
@@ -47,11 +49,35 @@ export function TypeDiagram(props: TypeDiagramProps) {
         await commonRpcClient.executeCommand({ commands: ['workbench.action.problems.focus'] });
     }
 
+    const addNewType = async () => {
+        setIsTypeCreatorOpen(true);
+    }
+
+    const goToSource = async (filePath: string, position: NodePosition) => {
+        if (!rpcClient) {
+            return;
+        }
+        rpcClient.getCommonRpcClient().goToSource({ filePath, position});
+
+    };
+
     return (
-        <TypeDesignDiagram
-            getComponentModel={getComponentModel}
-            selectedRecordId={selectedRecordId}
-            showProblemPanel={showProblemPanel}
-        />
+        <>
+            <TypeDesignDiagram
+                getComponentModel={getComponentModel}
+                selectedRecordId={selectedRecordId}
+                showProblemPanel={showProblemPanel}
+                addNewType={addNewType}
+                goToSource={goToSource}
+            />
+            {isTypeCreatorOpen && (
+                <RecordEditor
+                    isRecordEditorOpen={isTypeCreatorOpen}
+                    onClose={() => setIsTypeCreatorOpen(false)}
+                    rpcClient={rpcClient}
+                    width="400px"
+                />
+            )}
+        </>
     );
 }

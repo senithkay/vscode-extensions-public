@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
     CompletionItem,
+    ExpressionBarRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
@@ -22,8 +23,9 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
+import { formatJSONLikeString } from "./utils";
 
 namespace S {
     export const Container = styled(SidePanelBody)`
@@ -63,6 +65,7 @@ namespace S {
 
     export const Footer = styled.div<{}>`
         display: flex;
+        gap: 8px;
         flex-direction: row;
         justify-content: flex-end;
         align-items: center;
@@ -85,6 +88,10 @@ namespace S {
         &:first {
             margin-top: 0;
         }
+    `;
+
+    export const PrimaryButton = styled(Button)`
+        appearance: "primary";
     `;
 
     export const BodyText = styled.div<{}>`
@@ -159,16 +166,20 @@ export interface FormProps {
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
+    onCancelForm?: () => void;
+    oneTimeForm?: boolean;
     expressionEditor?: {
         completions: CompletionItem[];
-        triggerCharacters: readonly string[];
-        retrieveCompletions: (
+        triggerCharacters?: readonly string[];
+        retrieveCompletions?: (
             value: string,
             offset: number,
             triggerCharacter?: string,
             onlyVariables?: boolean
         ) => Promise<void>;
-        extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
+        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
             label: string;
             args: string[];
             currentArgIndex: number;
@@ -188,38 +199,59 @@ export function Form(props: FormProps) {
         projectPath,
         selectedNode,
         onSubmit,
+        onCancelForm,
+        oneTimeForm,
         openRecordEditor,
         openView,
         openSubPanel,
+        isActiveSubPanel,
         expressionEditor,
         targetLineRange,
         fileName,
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-    const [createNewVariable, setCreateNewVariable] = useState(true);
+    const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+
+    const exprRef = useRef<ExpressionBarRef>(null);
 
     useEffect(() => {
-        // Reset form with new values when formFields change
-        const defaultValues: FormValues = {};
-        formFields.forEach((field) => {
-            if (isDropdownField(field)) {
-                defaultValues[field.key] = getValueForDropdown(field);
-            } else {
-                defaultValues[field.key] = field.value;
-            }
-        });
-        reset(defaultValues);
+        // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
+        if (!oneTimeForm) {
+            // Reset form with new values when formFields change
+            const defaultValues: FormValues = {};
+            formFields.forEach((field) => {
+                if (isDropdownField(field)) {
+                    defaultValues[field.key] = getValueForDropdown(field) ?? "";
+                } else if (typeof field.value === 'string') {
+                    defaultValues[field.key] = formatJSONLikeString(field.value) ?? "";
+                } else {
+                    defaultValues[field.key] = field.value ?? "";
+                }
+            });
+            reset(defaultValues);
+        }
     }, [formFields, reset]);
 
     useEffect(() => {
         if (updatedExpressionField) {
             const currentValue = getValues(updatedExpressionField.key);
-            if(currentValue !== undefined){
-                setValue(updatedExpressionField.key, currentValue + updatedExpressionField.value);
+
+            if (currentValue !== undefined) {
+                let newValue;
+                if (updatedExpressionField?.isConfigured) {
+                    newValue = updatedExpressionField.value;
+                } else {
+                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                    newValue = currentValue.slice(0, cursorPosition) +
+                        updatedExpressionField.value +
+                        currentValue.slice(cursorPosition);
+                }
+
+                setValue(updatedExpressionField.key, newValue);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
             }
         }
@@ -244,6 +276,13 @@ export function Form(props: FormProps) {
         setShowAdvancedOptions(false);
     };
 
+    const handleOnFieldFocus = (key: string) => {
+        if (isActiveSubPanel && activeFormField !== key) {
+            openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
+        }
+        setActiveFormField(key);
+    }
+
     const handleOnUseDataMapper = () => {
         const viewField = formFields.find((field) => field.key === "view");
         if (viewField) {
@@ -258,47 +297,34 @@ export function Form(props: FormProps) {
         }
     };
 
-    // HACK: hide some fields if the form. need to fix from LS
-    formFields.forEach((field) => {
-        // hide http scope
-        if (field.key === "scope") {
-            field.optional = true;
-        }
-    });
-
-    // has optional fields
-    const hasOptionalFields = formFields.some((field) => field.optional);
+    // has advance fields
+    const hasAdvanceFields = formFields.some((field) => field.advanced);
 
     const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
     const isExistingDataMapper =
         isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
+    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
 
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
     const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
 
-    //TODO: get assign variable field from model. need to fix from LS
-    const updateVariableField = {
-        key: "update-variable",
-        label: "Variable",
-        type: "IDENTIFIER",
-        optional: false,
-        editable: true,
-        documentation: "Select a variable to assign",
-        value: "name",
-    };
-
     const contextValue = {
         form: {
             control,
+            setValue,
             watch,
             register,
+            unregister
         },
         expressionEditor,
         targetLineRange,
         fileName
     };
+
+    // Find the first editable field
+    const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
 
     // TODO: support multiple type fields
     return (
@@ -306,15 +332,21 @@ export function Form(props: FormProps) {
             <S.Container>
                 {prioritizeVariableField && variableField && (
                     <S.CategoryRow showBorder={true}>
-                        {variableField && createNewVariable && <EditorFactory field={variableField} />}
-                        {typeField && createNewVariable && (
+                        {variableField &&
+                            <EditorFactory
+                                field={variableField}
+                                handleOnFieldFocus={handleOnFieldFocus}
+                                autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
+                            />
+                        }
+                        {typeField && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={openSubPanel}
+                                handleOnFieldFocus={handleOnFieldFocus}
                             />
                         )}
-                        {updateVariableField && !createNewVariable && <EditorFactory field={updateVariableField} openSubPanel={openSubPanel}/>}
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
@@ -323,30 +355,38 @@ export function Form(props: FormProps) {
                         .map((field) => {
                             if (
                                 ((field.key === "variable" || field.key === "type") && prioritizeVariableField) ||
-                                field.optional
+                                field.advanced
                             ) {
                                 return;
                             }
                             return (
                                 <S.Row key={field.key}>
                                     <EditorFactory
+                                        ref={exprRef}
                                         field={field}
+                                        selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
+                                        isActiveSubPanel={isActiveSubPanel}
+                                        handleOnFieldFocus={handleOnFieldFocus}
+                                        autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                     />
                                 </S.Row>
                             );
                         })}
                     {isExistingDataMapper && (
                         <S.DataMapperRow>
-                            <S.UseDataMapperButton appearance="secondary" onClick={handleOnUseDataMapper}>
+                            <S.UseDataMapperButton
+                                appearance="secondary"
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
                         </S.DataMapperRow>
                     )}
-                    {hasOptionalFields && (
+                    {hasAdvanceFields && (
                         <S.Row>
-                            Optional Parameters
+                            Advance Parameters
                             <S.ButtonContainer>
                                 {!showAdvancedOptions && (
                                     <LinkButton
@@ -369,16 +409,19 @@ export function Form(props: FormProps) {
                             </S.ButtonContainer>
                         </S.Row>
                     )}
-                    {hasOptionalFields &&
+                    {hasAdvanceFields &&
                         showAdvancedOptions &&
                         formFields.map((field) => {
-                            if (field.optional) {
+                            if (field.advanced) {
                                 return (
                                     <S.Row key={field.key}>
                                         <EditorFactory
+                                            ref={exprRef}
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={openSubPanel}
+                                            isActiveSubPanel={isActiveSubPanel}
+                                            handleOnFieldFocus={handleOnFieldFocus}
                                         />
                                     </S.Row>
                                 );
@@ -387,9 +430,18 @@ export function Form(props: FormProps) {
                 </S.CategoryRow>
                 {onSubmit && (
                     <S.Footer>
-                        <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
-                            Save
-                        </Button>
+                        {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
+                        {isNewDataMapper ? (
+                            <S.PrimaryButton
+                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                            >
+                                Create Mapping
+                            </S.PrimaryButton>
+                        ) : (
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                                Save
+                            </S.PrimaryButton>
+                        )}
                     </S.Footer>
                 )}
             </S.Container>

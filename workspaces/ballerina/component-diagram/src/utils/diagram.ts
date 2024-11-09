@@ -162,8 +162,10 @@ export const hasDiagramZoomAndPosition = (file: string) => {
     return localStorage.getItem("diagram-file-path") === file;
 };
 
-export const resetDiagramZoomAndPosition = (file: string) => {
-    localStorage.setItem("diagram-file-path", file);
+export const resetDiagramZoomAndPosition = (file?: string) => {
+    if (file) {
+        localStorage.setItem("diagram-file-path", file);
+    }
     localStorage.setItem("diagram-zoom-level", "100");
     localStorage.setItem("diagram-offset-x", "0");
     localStorage.setItem("diagram-offset-y", "0");

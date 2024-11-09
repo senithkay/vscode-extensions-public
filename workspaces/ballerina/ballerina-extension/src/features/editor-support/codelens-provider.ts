@@ -36,10 +36,10 @@ enum EXEC_ARG {
     TESTS = '--tests'
 }
 
-export const INTERNAL_DEBUG_COMMAND = "ballerina.internal.debug";
+export const INTERNAL_DEBUG_COMMAND = "kolab.internal.debug";
 
-const SOURCE_DEBUG_COMMAND = "ballerina.source.debug";
-const TEST_DEBUG_COMMAND = "ballerina.test.debug";
+const SOURCE_DEBUG_COMMAND = "kolab.source.debug";
+const TEST_DEBUG_COMMAND = "kolab.test.debug";
 const FOCUS_DEBUG_CONSOLE_COMMAND = 'workbench.debug.action.focusRepl';
 
 export class ExecutorCodeLensProvider implements CodeLensProvider {

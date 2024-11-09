@@ -34,6 +34,11 @@ const stateMachine = createMachine<MachineContext>(
             errorCode: null,
             view: MACHINE_VIEW.Overview
         },
+        on: {
+            RESET_TO_EXTENSION_READY: {
+                target: "extensionReady"
+            }
+        },
         states: {
             initialize: {
                 invoke: {
@@ -187,7 +192,7 @@ const stateMachine = createMachine<MachineContext>(
                         undoRedoManager = new UndoRedoManager();
                         const webview = VisualizerWebview.currentPanel?.getWebview();
                         if (webview && (context.isBI || context.view === MACHINE_VIEW.BIWelcome)) {
-                            webview.title = "WSO2 BI";
+                            webview.title = "Kola";
                             webview.iconPath = {
                                 light: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'dark-icon.svg')),
                                 dark: Uri.file(path.join(extension.context.extensionPath, 'resources', 'icons', 'light-icon.svg'))
@@ -359,6 +364,9 @@ export const StateMachine = {
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
+    resetToExtensionReady: () => {
+        stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
+    },
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {

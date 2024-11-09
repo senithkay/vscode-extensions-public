@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, LocationSelector, TextField, Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -22,7 +22,7 @@ const FormContainer = styled.div`
 
 const ButtonWrapper = styled.div`
     margin-top: 20px;
-    width: 130px;
+    /* width: 130px; */
 `;
 
 export function ProjectForm() {
@@ -46,9 +46,17 @@ export function ProjectForm() {
         setPath(projectDirectory.path);
     };
 
+    useEffect(() => {
+        (async () => {
+            const currentDir = await rpcClient.getCommonRpcClient().getWorkspaceRoot();
+            setPath(currentDir.path);
+        })();
+
+    }, []);
+
     return (
         <FormContainer>
-            <Typography variant="h2">Create Your BI Project</Typography>
+            <Typography variant="h2">Create Your Kola Integration</Typography>
             <BodyText>
                 Start by naming your project and selecting a location to save it. This will be the foundation for
                 building your integration.
@@ -57,11 +65,11 @@ export function ProjectForm() {
                 onTextChange={handleProjectName}
                 sx={{ marginTop: 20, marginBottom: 20 }}
                 value={name}
-                label="Project Name"
-                placeholder="Enter a project name"
+                label="Integration Name"
+                placeholder="Enter a integration name"
             />
             <LocationSelector
-                label="Select Project Directory"
+                label="Select Integration Directory"
                 selectedFile={path}
                 onSelect={handleProjecDirSelection}
             />
@@ -71,7 +79,7 @@ export function ProjectForm() {
                     onClick={handleCreateProject}
                     appearance="primary"
                 >
-                    Create Project
+                    Create Integration
                 </Button>
             </ButtonWrapper>
         </FormContainer>

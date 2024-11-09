@@ -9,22 +9,22 @@
 
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
+import { URI, Utils } from "vscode-uri";
 import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { Colors } from "./resources/constants";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
 const ViewContainer = styled.div`
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    right: 0;
+    width: 400px;
     height: 100%;
     z-index: 3000;
     background-color: ${Colors.SURFACE_BRIGHT};
-    padding: 20px;
 `;
 
 const TopBar = styled.div`
@@ -55,15 +55,42 @@ const PopupPanel = (props: PopupPanelProps) => {
     }, []);
 
     const fetchContext = () => {
-        rpcClient.getPopupVisualizerState().then((machineSate: PopupVisualizerLocation) => {
-            switch (machineSate?.view) {
+        rpcClient.getPopupVisualizerState().then((machineState: PopupVisualizerLocation) => {
+            switch (machineState?.view) {
                 case MACHINE_VIEW.AddConnectionWizard:
-                    setViewComponent(<AddConnectionWizard onClose={onClose} />);
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        setViewComponent(
+                            <AddConnectionWizard
+                                fileName={
+                                    location.documentUri ||
+                                    Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
+                                }
+                                linePosition={
+                                    location.position
+                                        ? {
+                                              line: location.position.startLine,
+                                              offset: location.position.startColumn,
+                                          }
+                                        : undefined
+                                }
+                                onClose={onClose}
+                            />
+                        );
+                    });
                     break;
                 case MACHINE_VIEW.EditConnectionWizard:
-                    setViewComponent(
-                        <EditConnectionWizard connectionName={machineSate?.identifier} onClose={onClose} />
-                    );
+                    rpcClient.getVisualizerLocation().then((location) => {
+                        setViewComponent(
+                            <>
+                                <EditConnectionWizard
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
+                                    connectionName={machineState?.identifier}
+                                    onClose={onClose}
+                                />
+                                <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                            </>
+                        );
+                    });
                     break;
                 default:
                     setViewComponent(null);
@@ -71,17 +98,7 @@ const PopupPanel = (props: PopupPanelProps) => {
         });
     };
 
-    return (
-        <ViewContainer>
-            <TopBar>
-                <div></div>
-                <Button appearance="icon" onClick={onClose}>
-                    <Codicon name="close" />
-                </Button>
-            </TopBar>
-            {viewComponent}
-        </ViewContainer>
-    );
+    return <ViewContainer>{viewComponent}</ViewContainer>;
 };
 
 export default PopupPanel;

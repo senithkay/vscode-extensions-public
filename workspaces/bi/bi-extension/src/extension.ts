@@ -12,14 +12,14 @@ import { extension } from './biExtentionContext';
 import { StateMachine } from './stateMachine';
 
 export function activate(context: vscode.ExtensionContext) {
-	const ballerinaExt = vscode.extensions.getExtension('wso2.ballerina');
+	const ballerinaExt = vscode.extensions.getExtension('wso2.kolab');
 	if (ballerinaExt) {
 		extension.context = context;
 		extension.langClient = ballerinaExt.exports.langClient;
 		StateMachine.initialize();
 		return;
 	}
-	vscode.window.showErrorMessage('Ballerina extension is required to operate BI extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
+	vscode.window.showErrorMessage('KolaB extension is required to operate Kola extension effectively. Please install it from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=wso2.ballerina).');
 }
 
 export function deactivate() { }

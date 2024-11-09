@@ -7,31 +7,37 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { FormField } from '../Form/types';
 import { Control, Controller, FieldValues } from 'react-hook-form';
 import { Button, CompletionItem, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
-import { SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import { debounce } from 'lodash';
+import { Colors } from '../../resources/constants';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
+    isActiveSubPanel?: boolean;
+    handleOnFieldFocus?: (key: string) => void;
+    autoFocus?: boolean;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     completions: CompletionItem[];
-    triggerCharacters: readonly string[];
-    retrieveCompletions: (
+    triggerCharacters?: readonly string[];
+    autoFocus?: boolean;
+    retrieveCompletions?: (
         value: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;
@@ -41,6 +47,8 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    targetLineRange?: LineRange;
+    fileName: string;
 };
 
 namespace S {
@@ -57,12 +65,34 @@ namespace S {
         alignItems: 'center',
     });
 
+    export const HeaderContainer = styled.div({
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+    });
+
+    export const Header = styled.div({
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+    });
+
+    export const Type = styled.div({
+        color: 'var(--vscode-list-deemphasizedForeground)',
+        fontFamily: 'monospace'
+    });
+
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
+        textTransform: 'capitalize',
     });
 
     export const Description = styled.div({
         color: 'var(--vscode-list-deemphasizedForeground)',
+    });
+
+    export const Error = styled.div({
+        color: Colors.ERROR,
     });
 
     export const EndAdornment = styled(Button)`
@@ -71,20 +101,20 @@ namespace S {
             font-size: 10px;
         }
     `;
-    
+
     export const EndAdornmentText = styled.p`
         font-size: 10px;
         margin: 0;
     `;
 }
 
-export function ContextAwareExpressionEditor(props: ContextAwareExpressionEditorProps) {
-    const { form, expressionEditor } = useFormContext();
+export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
+    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
-    return <ExpressionEditor {...props} {...form} {...expressionEditor} />;
-}
+    return <ExpressionEditor ref={ref} fileName={fileName} {...targetLineRange} {...props} {...form} {...expressionEditor} />;
+});
 
-export function ExpressionEditor(props: ExpressionEditorProps) {
+export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorProps>((props, ref) => {
     const {
         control,
         field,
@@ -97,12 +127,24 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         onCompletionSelect,
         onSave,
         onCancel,
-        openSubPanel
-    } = props;
+        openSubPanel,
+        isActiveSubPanel,
+        targetLineRange,
+        fileName,
+        handleOnFieldFocus,
+        autoFocus
+    } = props as ExpressionEditorProps;
 
-    const { targetLineRange, fileName } = useFormContext();
+
+        // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
+    const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
+    const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
+    const effectiveFileName = fileName ?? contextFileName;
 
     const exprRef = useRef<ExpressionBarRef>(null);
+
+    useImperativeHandle(ref, () => exprRef.current);
+
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
     // Use to disable the expression editor on save and completion selection
@@ -115,11 +157,12 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
 
     const handleFocus = async (value?: string) => {
         // Retrieve the cursor position from the expression editor
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
 
         // Trigger actions on focus
         await onFocus?.();
         await retrieveCompletions(value, cursorPosition, undefined, true);
+        handleOnFieldFocus?.(field.key);
     };
 
     const handleBlur = async () => {
@@ -135,7 +178,7 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
         await onCompletionSelect?.(value);
 
         // Set cursor position
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('input')?.selectionStart;
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
         cursorPositionRef.current = cursorPosition;
     };
 
@@ -167,35 +210,88 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
     };
 
     const handleHelperPaneOpen = () => {
-        handleOpenSubPanel(SubPanelView.HELPER_PANEL, { sidePanelData: {
-            filePath: fileName,
-            range: {
-                startLine: targetLineRange.startLine,
-                endLine: targetLineRange.endLine,
-            },
-            editorKey: field.key
-        }});
+        if (effectiveTargetLineRange && effectiveFileName) {
+            const subPanelProps: SubPanelViewProps = {
+                sidePanelData: {
+                    filePath: effectiveFileName,
+                    range: {
+                        startLine: effectiveTargetLineRange.startLine,
+                        endLine: effectiveTargetLineRange.endLine,
+                    },
+                    editorKey: field.key
+                }
+            };
+            if (field.type === 'RECORD_EXPRESSION') { // TODO: update the type based on the LS API
+                const configurePanelData: ConfigurePanelData = {
+                    isEnable: true,
+                    name: field.label,
+                    documentation: field.documentation,
+                    value: field.value
+                };
+                subPanelProps.sidePanelData.configurePanelData = configurePanelData;
+            }
+
+            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
+            handleOnFieldFocus?.(field.key);
+        }
     };
+
+    const updateSubPanelData = (value: string) => {
+        if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
+            const subPanelProps: SubPanelViewProps = {
+                sidePanelData: {
+                    filePath: effectiveFileName,
+                    range: {
+                        startLine: effectiveTargetLineRange.startLine,
+                        endLine: effectiveTargetLineRange.endLine,
+                    },
+                    editorKey: field.key,
+                    configurePanelData: {
+                        isEnable: true,
+                        name: field.label,
+                        documentation: field.documentation,
+                        value: value
+                    }
+                }
+            };
+
+            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
+        };
+    };
+
+    const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
+    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join('\n');
 
     return (
         <S.Container>
-            <S.LabelContainer>
-                <S.Label>{field.label}</S.Label>
-                {!field.optional && <RequiredFormInput />}
-            </S.LabelContainer>
-            <S.Description>{field.documentation}</S.Description>
+            <S.HeaderContainer>
+                <S.Header>
+                    <S.LabelContainer>
+                        <S.Label>{field.label}</S.Label>
+                        {!field.optional && <RequiredFormInput />}
+                    </S.LabelContainer>
+                    <S.Description>{field.documentation}</S.Description>
+                </S.Header>
+                {field.type && field.type !== 'EXPRESSION' && field.type !== 'FLAG' && <S.Type>{field.type}</S.Type>}
+            </S.HeaderContainer>
             <Controller
                 control={control}
                 name={field.key}
-                rules={{ required: !field.optional }}
+                rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange } }) => (
                     <ExpressionBar
+                        key={field.key}
                         ref={exprRef}
                         name={name}
                         completions={completions}
                         value={value}
+                        autoFocus={props.autoFocus}
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
+                            debouncedUpdateSubPanelData(value);
+
+                            // HACK: Fix diagnostics from the expression editor
+                            field.diagnostics = [];
 
                             // Check if the current character is a trigger character
                             cursorPositionRef.current = updatedCursorPosition;
@@ -219,10 +315,12 @@ export function ExpressionEditor(props: ExpressionEditorProps) {
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}
                         handleHelperPaneOpen={handleHelperPaneOpen}
+                        placeholder={field.placeholder}
                         sx={{ paddingInline: '0' }}
                     />
                 )}
             />
+            {errorMsg && <S.Error>{errorMsg}</S.Error>}
         </S.Container>
     );
-}
+});

@@ -14,6 +14,7 @@ import { CallExpression, Node, ObjectLiteralExpression, PropertyAssignment, Synt
 import { CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 import { View } from "../Views/DataMapperView";
+import { READONLY_MAPPING_FUNCTION_NAME } from "./constants";
 
 export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, SearchTerm] {
     const inputFilter = INPUT_FIELD_FILTER_LABEL;
@@ -90,15 +91,19 @@ export function extractLastPartFromLabel(targetLabel: string): string | null {
 export function filterCompletions(
     entry: ts.CompletionEntry,
     details: ts.CompletionEntryDetails,
-    localFunctionNames: string[]
+    localFunctionNames: string[],
+    partialText?: string
 ): CompletionItem {
     const isParameter = details.kind === ts.ScriptElementKind.parameterElement;
     const isMemberVariable = details.kind === ts.ScriptElementKind.memberVariableElement;
     const isFunction =  details.kind === ts.ScriptElementKind.functionElement;
     const isMethod =  details.kind === ts.ScriptElementKind.memberFunctionElement;
+    const isAlias = details.kind === ts.ScriptElementKind.alias;
+
+    let completionItem: CompletionItem | undefined = undefined;
 
     if (isParameter || isMemberVariable) {
-        return {
+        completionItem = {
             label: entry.name,
             description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
             value: entry.insertText || entry.name,
@@ -106,7 +111,7 @@ export function filterCompletions(
             replacementSpan: entry.replacementSpan?.length
         }
     } else if (isFunction || isMethod) {
-        if (isMethod || (isFunction && details.sourceDisplay)) {
+        if (isMethod || (isFunction && (details.source || details.sourceDisplay || (details.kindModifiers===ts.ScriptElementKindModifier.exportedModifier && entry.name!==READONLY_MAPPING_FUNCTION_NAME)))) {
             const params: string[] = [];
             let param: string = '';
     
@@ -122,7 +127,7 @@ export function filterCompletions(
             const action = details.codeActions?.[0].changes[0].textChanges[0].newText || "";
             const itemTag = action.substring(0, action.length - 1);
     
-            return {
+            completionItem = {
                 tag: itemTag,
                 label: entry.name,
                 description: details.documentation?.[0]?.text,
@@ -131,7 +136,7 @@ export function filterCompletions(
                 args: params
             }
         } else if (localFunctionNames.includes(entry.name)) {
-            return  {
+            completionItem = {
                 label: entry.name,
                 description: details.displayParts?.reduce((acc, part) => acc + part.text, ''),
                 value: entry.name,
@@ -140,7 +145,13 @@ export function filterCompletions(
         }
     }
 
-    return undefined;
+    if(partialText && completionItem) {
+        if (!completionItem.label.toLocaleLowerCase().startsWith(partialText.toLocaleLowerCase()) || completionItem.label === partialText) {
+            return undefined;
+         }
+    }
+
+    return completionItem;
 }
 
 // Function to get the innermost property assignment node from the given property assignment node
@@ -160,4 +171,22 @@ export function getInnermostPropAsmtNode(propertyAssignment: PropertyAssignment)
     }
 
     return currentNode as PropertyAssignment;
+}
+
+export function shouldCompletionsAppear(
+    value: string,
+    cursorPosition: number,
+): boolean {
+    const termBeforeCursor = value.substring(0, cursorPosition).trim();
+
+    if (termBeforeCursor.length === 0) return true;
+
+    const lastChar = termBeforeCursor[termBeforeCursor.length - 1];
+    if (!isNaN(Number(lastChar)) || ['"', ')', ']', '}'].includes(lastChar)) return false;
+
+    if (termBeforeCursor.split('"').length % 2 == 0) return false;
+    if (termBeforeCursor.split("'").length % 2 == 0) return false;
+    if (termBeforeCursor.split('`').length % 2 == 0) return false;
+
+    return true;
 }

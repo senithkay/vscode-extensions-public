@@ -18,6 +18,7 @@ import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom';
 import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VisualizerContext, Context } from '@wso2-enterprise/mi-rpc-client';
+import { generateJsonFromXml } from './testJsonGenerator';
 
 // Error Boundary Component
 interface ErrorBoundaryProps {
@@ -67,10 +68,15 @@ function DiagramTest({ model, uri }: { model: any, uri: string }) {
 
 }
 
+// Enable to generate test data
+// describe('Generate Test data', () => {
+//     test('Test json', async () => {
+//         await generateJsonFromXml();
+//     });
+// });
+
 describe('Diagram component', () => {
     let langClient: LanguageClient;
-    let dataRoot: string;
-    let files: string[];
 
     beforeAll(async () => {
         const client = new LanguageClient();
@@ -85,42 +91,46 @@ describe('Diagram component', () => {
 
     describe('renders correctly with valid XML files', () => {
         const dataRoot = path.join(__dirname, 'data', 'input-xml');
-        const files = fs.readdirSync(dataRoot);
-        test.each(files)('Diagram work correctly for resource - %s', async (file) => {
-            if (file.endsWith('.xml')) {
+        const testJson = path.join(__dirname, 'data', 'files.json');
+        const json = JSON.parse(fs.readFileSync(testJson, 'utf-8'));
+
+        const files: any[] = (json.map((file: any) => [file.file, file.resources]));
+
+        describe.each(files)('Diagram work correctly for resource - %s', (file: string, resources: any[]) => {
+            resources = resources.map((resource: any) => { return { path: resource.path, methods: resource.methods.toString() } });
+
+            test.each(resources)('- $methods $path', async ({ path: resourcePath, methods }) => {
                 const uri = path.join(dataRoot, file);
                 const syntaxTree = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri
                     }
                 });
+                const resources = syntaxTree.syntaxTree.api.resource;
+                expect(resources).toBeDefined();
+                expect(resources.length).toBeGreaterThan(0);
+                const resource = resources.find((resource: any) => resource.uriTemplate === resourcePath || resource.urlMapping === resourcePath);
+                expect(resource).toBeDefined();
 
-                if (syntaxTree.syntaxTree.api.resource && syntaxTree.syntaxTree.api.resource.length > 0) {
-                    const model = syntaxTree.syntaxTree.api.resource[0];
-                    await renderAndCheckSnapshot(model, uri);
-                } else {
-                    throw new Error("Resource is undefined or empty.");
-                }
-            }
+                await renderAndCheckSnapshot(resource, uri);
+            }, 20000);
         }, 20000);
 
         const dssDataRoot = path.join(__dirname, 'data', 'input-xml', 'data-services');
         const dssFiles = fs.readdirSync(dssDataRoot);
         test.each(dssFiles)('Diagram work correctly for data service - %s', async (file) => {
-            if (file.endsWith('.xml')) {
-                const uri = path.join(dssDataRoot, file);
-                const syntaxTree = await langClient.getSyntaxTree({
-                    documentIdentifier: {
-                        uri
-                    }
-                });
-
-                if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
-                    const model = syntaxTree.syntaxTree?.data?.queries[0];
-                    await renderAndCheckSnapshot(model, uri);
-                } else {
-                    throw new Error("Resource is undefined or empty.");
+            const uri = path.join(dssDataRoot, file);
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri
                 }
+            });
+
+            if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
+                const model = syntaxTree.syntaxTree?.data?.queries[0];
+                await renderAndCheckSnapshot(model, uri);
+            } else {
+                throw new Error("Resource is undefined or empty.");
             }
         }, 20000);
     });

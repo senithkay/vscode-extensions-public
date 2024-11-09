@@ -9,7 +9,7 @@
 
 import React, { useContext } from 'react';
 import styled from '@emotion/styled';
-import { Button, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { DiagramContext } from '../common';
 
 
@@ -31,7 +31,12 @@ export const Title: React.FC<any> = styled.div`
     color: ThemeColors.ON_SURFACE
 `;
 
-export function HeaderWidget() {
+interface HeaderWidgetProps {
+    addNewType: () => void;
+}
+
+export function HeaderWidget(props: HeaderWidgetProps) {
+    const { addNewType } = props;
     const { selectedNodeId, setSelectedNodeId } = useContext(DiagramContext);
 
     return (
@@ -40,13 +45,21 @@ export function HeaderWidget() {
                 <Title>Composition Diagram</Title> :
                 <Title>Type Diagram</Title>
             }
-            {selectedNodeId && (
+            {selectedNodeId ? (
                 <Button
                     appearance="primary"
                     onClick={() => setSelectedNodeId(undefined)}
                     tooltip="Open Type Diagram"
                 >
                     Switch to Type Diagram
+                </Button>
+            ) : (
+                <Button
+                    appearance="primary"
+                    onClick={addNewType}
+                    tooltip="Add New Type"
+                >
+                    <Codicon name="add" sx={{ marginRight: 5 }} /> Add Type
                 </Button>
             )}
         </HeaderContainer>

@@ -22,12 +22,14 @@ import {
     RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
+    WorkspaceRootResponse,
     WorkspacesFileResponse,
     executeCommand,
     experimentalEnabled,
     getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
+    getWorkspaceRoot,
     goToSource,
     openExternalUrl,
     runBackgroundTerminalCommand,
@@ -77,5 +79,9 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     experimentalEnabled(): Promise<boolean> {
         return this._messenger.sendRequest(experimentalEnabled, HOST_EXTENSION);
+    }
+
+    getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
+        return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
     }
 }
