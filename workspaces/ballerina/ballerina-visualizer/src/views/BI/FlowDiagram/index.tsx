@@ -464,6 +464,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
+        if (!targetRef.current) {
+            return;
+        }
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -725,7 +728,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
 
         // Remove description from each type as its duplicate information
-        filteredTypes = filteredTypes.map(type => ({ ...type, description: undefined }));
+        filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
 
         setFilteredTypes(filteredTypes);
     }, 250);
