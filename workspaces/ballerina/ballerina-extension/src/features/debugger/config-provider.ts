@@ -9,7 +9,12 @@
 
 import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands, DebugAdapterInlineImplementation,
-    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri, workspace, RelativePattern, ConfigurationTarget, WorkspaceConfiguration
+    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri, workspace, RelativePattern, ConfigurationTarget, WorkspaceConfiguration,
+    Task,
+    tasks,
+    TaskDefinition,
+    ShellExecution,
+    TaskExecution
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -71,7 +76,7 @@ class DebugConfigProvider implements DebugConfigurationProvider {
         if (!config.type) {
             commands.executeCommand('workbench.action.debug.configure');
             return Promise.resolve({ request: '', type: '', name: '' });
-        
+
         }
         if (config.noDebug && (ballerinaExtInstance.enabledRunFast() || StateMachine.context().isBI)) {
             await handleMainFunctionParams(config);
@@ -121,7 +126,7 @@ async function handleMainFunctionParams(config: DebugConfiguration) {
 }
 
 async function showInputBox(paramName: string, value: string) {
-    const inout = await window.showInputBox({ 
+    const inout = await window.showInputBox({
         title: paramName,
         ignoreFocusOut: true,
         placeHolder: `Enter value for parameter: ${paramName}`,
@@ -385,37 +390,72 @@ class BIRunAdapter extends LoggingDebugSession {
     notificationHandler: Disposable | null = null;
     root: string | null = null;
     prgramArgs: string[] = [];
+    task: TaskExecution | null = null;
+    taskTerminationListener: Disposable | null = null;
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
-        const langClient = ballerinaExtInstance.langClient;
-        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
-            if (params.verbose === "stopped") { // even if a single channel (stderr,stdout) stopped, we stop the debug session
-                notificationHandler!.dispose();
-                this.sendEvent(new TerminatedEvent());
-            } else {
-                const category = params.verbose === 'err' ? 'stderr' : 'stdout';
-                outputChannel.append(params.message);
-            }
-        });
-        this.notificationHandler = notificationHandler;
-        this.root = StateMachine.context().projectUri;
-        this.prgramArgs = (args as any).programArgs;
-        runFast(this.root, this.prgramArgs).then((didRan) => {
-            response.success = didRan;
-            if (didRan) {
-                outputChannel.show();
-            }
-            this.sendResponse(response);
-        });
+        const taskDefinition: TaskDefinition = {
+            type: 'shell',
+            task: 'run'
+        };
+
+        let buildCommand = 'bal run';
+
+        // Get Ballerina home path from settings
+        const config = workspace.getConfiguration('kolab');
+        const ballerinaHome = config.get<string>('home');
+        if (ballerinaHome) {
+            // Add ballerina home to build path only if it's configured
+            buildCommand = path.join(ballerinaHome, 'bin', buildCommand);
+        }
+
+        const execution = new ShellExecution(buildCommand);
+
+        const task = new Task(
+            taskDefinition,
+            workspace.workspaceFolders![0], // Assumes at least one workspace folder is open
+            'Ballerina Build',
+            'ballerina',
+            execution
+        );
+
+        try {
+            tasks.executeTask(task).then((taskExecution) => {
+                this.task = taskExecution;
+
+                // Add task termination listener
+                this.taskTerminationListener = tasks.onDidEndTaskProcess(e => {
+                    if (e.execution === this.task) {
+                        this.sendEvent(new TerminatedEvent());
+                    }
+                });
+
+                response.success = true;
+                this.sendResponse(response);
+            });
+        } catch (error) {
+            window.showErrorMessage(`Failed to build Ballerina package: ${error}`);
+        }
     }
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
-        const notificationHandler = this.notificationHandler;
-        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
-            response.success = didStop;
-            notificationHandler!.dispose();
-            this.sendResponse(response);
-        });
+        if (this.task) {
+            this.task.terminate();
+        }
+        this.cleanupListeners();
+        response.success = true;
+        this.sendResponse(response);
+    }
+
+    private cleanupListeners(): void {
+        if (this.taskTerminationListener) {
+            this.taskTerminationListener.dispose();
+            this.taskTerminationListener = null;
+        }
+        if (this.notificationHandler) {
+            this.notificationHandler.dispose();
+            this.notificationHandler = null;
+        }
     }
 }
 
@@ -423,8 +463,10 @@ async function runFast(root: string, args: string[]): Promise<boolean> {
     if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
         await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
     }
-    return await ballerinaExtInstance.langClient.executeCommand({ command: "RUN", arguments: [
-        { key: "path", value: root }, {key: "args", value: args}] });
+    return await ballerinaExtInstance.langClient.executeCommand({
+        command: "RUN", arguments: [
+            { key: "path", value: root }, { key: "args", value: args }]
+    });
 }
 
 async function getCurrentRoot(): Promise<string> {
