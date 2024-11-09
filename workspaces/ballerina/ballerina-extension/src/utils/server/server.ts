@@ -15,8 +15,11 @@ import { BallerinaExtension } from '../../core';
 
 export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExtension): ServerOptions {
     debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
-    let cmd = isWindows() ? getConvertedPath(ballerinaCmd) : ballerinaCmd;
+    let cmd = isWindows() ? 'cmd.exe' : ballerinaCmd;
     let args = ["start-language-server"];
+    if (isWindows()) {
+        args = ['/c', ballerinaCmd, 'start-language-server'];
+    }
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
 
@@ -43,10 +46,4 @@ export function getServerOptions(ballerinaCmd: string, extension?: BallerinaExte
         args,
         options: opt
     };
-}
-
-function getConvertedPath(ballerinaCmd: string): string {
-    let paths = ballerinaCmd.split(sep);
-    paths = paths.map(path => path.startsWith("\"") && path.endsWith("\"") ? path.substring(1, path.length - 1) : path);
-    return join.apply(null, paths);
 }

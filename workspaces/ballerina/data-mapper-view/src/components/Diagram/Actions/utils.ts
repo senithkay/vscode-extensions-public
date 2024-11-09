@@ -26,6 +26,7 @@ import {
     UnsupportedIONode
 } from "../Node";
 import { IO_NODE_DEFAULT_WIDTH } from "../utils/constants";
+import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 
 export const INPUT_NODES = [
     RequiredParamNode,
@@ -34,7 +35,8 @@ export const INPUT_NODES = [
     ModuleVariableNode,
     EnumTypeNode,
     LetClauseNode,
-    JoinClauseNode
+    JoinClauseNode,
+    ExpandedMappingHeaderNode
 ];
 
 export const OUTPUT_NODES = [

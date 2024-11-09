@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, ComponentModels } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, ComponentModels, NodePosition } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 import { RecordEditor } from "../RecordEditor/RecordEditor";
@@ -53,6 +53,14 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setIsTypeCreatorOpen(true);
     }
 
+    const goToSource = async (filePath: string, position: NodePosition) => {
+        if (!rpcClient) {
+            return;
+        }
+        rpcClient.getCommonRpcClient().goToSource({ filePath, position});
+
+    };
+
     return (
         <>
             <TypeDesignDiagram
@@ -60,6 +68,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 selectedRecordId={selectedRecordId}
                 showProblemPanel={showProblemPanel}
                 addNewType={addNewType}
+                goToSource={goToSource}
             />
             {isTypeCreatorOpen && (
                 <RecordEditor
