@@ -620,6 +620,7 @@ importers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.11.0
       '@headlessui/react': ~1.7.18
+      '@hookform/resolvers': ~3.9.1
       '@tanstack/query-core': ^4.0.0-beta.1
       '@tanstack/react-query': 4.0.10
       '@types/lodash': ~4.17.7
@@ -675,11 +676,13 @@ importers:
       vscode-uri: ^3.0.8
       webpack: ^5.56.0
       webpack-dev-server: ^4.11.1
+      yup: ~1.4.0
     dependencies:
       '@emotion/css': 11.11.2
       '@emotion/react': 11.11.3_eteh3so6nztr56vqc4nbg6qqla
       '@emotion/styled': 11.11.0_dyeqyavlplouzrsokk7bfa3ywm
       '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
+      '@hookform/resolvers': 3.9.1_react-hook-form@7.53.0
       '@tanstack/query-core': 4.36.1
       '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@types/lodash': 4.17.7
@@ -712,6 +715,7 @@ importers:
       react-markdown: 9.0.1_eteh3so6nztr56vqc4nbg6qqla
       react-syntax-highlighter: 15.5.0_react@18.2.0
       vscode-uri: 3.0.8
+      yup: 1.4.0
     devDependencies:
       '@types/lodash.debounce': 4.0.9
       '@types/react': 18.2.55
@@ -9794,6 +9798,14 @@ packages:
 
   /@hookform/resolvers/3.3.4_react-hook-form@7.53.0:
     resolution: {integrity: sha512-o5cgpGOuJYrd+iMKvkttOclgwRW86EsWJZZRC23prf0uU2i48Htq4PuT73AVb9ionFyZrwYEITuOFGF+BydEtQ==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
+    dependencies:
+      react-hook-form: 7.53.0_react@18.2.0
+    dev: false
+
+  /@hookform/resolvers/3.9.1_react-hook-form@7.53.0:
+    resolution: {integrity: sha512-ud2HqmGBM0P0IABqoskKWI6PEf6ZDDBZkFqe2Vnl+mTHCEHzr3ISjjZyCwTjC/qpL25JC9aIDkloQejvMeq0ug==}
     peerDependencies:
       react-hook-form: ^7.0.0
     dependencies:
