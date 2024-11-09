@@ -19,12 +19,10 @@ interface Root {
         op1: string
         op2: string
     }
-
-
 }
 
 /*
-* title : "root",1
+* title : "root",
 * outputType : "JSON",
 */
 interface OutputRoot {
@@ -45,6 +43,7 @@ interface OutputRoot {
         p2: number
     }
 }
+
 
 
 /**

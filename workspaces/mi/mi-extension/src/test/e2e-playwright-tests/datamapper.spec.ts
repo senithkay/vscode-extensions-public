@@ -17,6 +17,7 @@ import { closeNotification, createProject, dataFolder, initVSCode, newProjectPat
 import { DataMapper } from './components/DataMapper';
 import { Overview } from './components/Overview';
 import { IOType } from '@wso2-enterprise/mi-core';
+import { add } from 'lodash';
 
 const fs = require('fs');
 
@@ -28,11 +29,12 @@ test.describe.configure({ mode: 'serial' });
 
 const NEED_INITIAL_SETUP = false;
 
-if (process.env.CI || NEED_INITIAL_SETUP)
-  createAndAddDM();
-doMappings();
+initProject();
+doBasicMappings();
+finishUp();
 
-function createAndAddDM() {
+function initProject() {
+  // create project until resource view
 
   test.beforeAll(async () => {
     console.log('Starting datamapper tests')
@@ -87,120 +89,72 @@ function createAndAddDM() {
     const resource = await serviceDesigner.resource('GET', '/');
     await resource.click();
   });
-
-  test('Add & Open DataMapper', async () => {
-
-    const diagram = new Diagram(page.page, 'Resource');
-    await diagram.init();
-    await page.page.pause();
-    await diagram.addMediator('DataMapper', 0, {
-      values: {
-        'Name*': {
-          type: 'input',
-          value: DM_NAME,
-        }
-      }
-    }, "Create Mapping");
-
-    const dataMapper = new DataMapper(page.page, DM_NAME);
-    await dataMapper.init();
-    expect(dataMapper.verifyFileCreation()).toBeTruthy();
-  });
-
-  // test('Open DataMapper in resource', async () => {
-  //   console.log('.:.Open DataMapper in resource');
-
-  //   console.log('.:.Getting resource view');
-  //   const diagram = new Diagram(page.page, 'Resource');
-  //   await diagram.init();
-  //   console.log('.:.Getting mediator');
-  //   const mediator = await diagram.getMediator('DataMapper');
-  //   await mediator.clickLink(DM_NAME);
-
-  //   console.log('.:.opening data mapper');
-
-  // });
-
-
-
-  // test.afterAll(async () => {
-  //   // await vscode?.close();
-
-  //   const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-  //   const video = page.page.video()
-  //   const videoDir = path.resolve(resourcesFolder, 'videos')
-  //   const videoPath = await video?.path()
-
-  //   if (video && videoPath) {
-  //     video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-  //   }
-
-  //   // cleanup
-  //   // if (fs.existsSync(newProjectPath)) {
-  //   //   fs.rmSync(newProjectPath, { recursive: true });
-  //   // }
-  //   console.log('Diagram tests completed')
-  // });
-
 }
 
-function doMappings() {
+function resumeProject() {
+  test.beforeAll(async () => {
+    console.log('Resuming datamapper tests')
+    await resumeVSCode();
+  });
+}
 
-  if (!(process.env.CI || NEED_INITIAL_SETUP)) {
-    test.beforeAll(async () => {
-      console.log('Resuming datamapper tests')
-      await resumeVSCode();
-    });
+async function addDataMapper(name: string) {
+  // add data mapper to the service designer, return the data mapper object , should be used inside a test
+  const diagram = new Diagram(page.page, 'Resource');
+  await diagram.init();
+  await diagram.addMediator('DataMapper', 0, {
+    values: {
+      'Name*': {
+        type: 'input',
+        value: name,
+      }
+    }
+  }, "Create Mapping");
 
-    test('Open DataMapper from tree view', async () => {
-      // console.log('.:.Do Mappings1');
-      // await page.page.waitForTimeout(180000);
+  const dm = new DataMapper(page.page, name);
+  await dm.init();
+  expect(dm.verifyFileCreation()).toBeTruthy();
+  return dm;
+}
 
-      // await page.page.waitForTimeout(5000);
+async function backToResourceView() {
+  // go back to service designer
+  await page.page.locator('vscode-button[title="Go Back"]').click();
+}
 
-      const dataMappersLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
-      await dataMappersLabel.click();
-      await page.page.waitForTimeout(1000);
-      const dataMapperItem = await page.page.waitForSelector(`div[aria-label="${DM_NAME}"]`, { timeout: 180000 });
-      await dataMapperItem.click();
-   
+async function openDataMapperFromResourceView(name: string) {
+  // open data mapper from resource view
+  const diagram = new Diagram(page.page, 'Resource');
+  await diagram.init();
+  console.log('.:.Getting mediator');
+  const mediator = await diagram.getMediator('DataMapper');
+  await mediator.clickLink(name);
 
-      // await page.page.locator('div[aria-label="Data Mappers"]').nth(1).click();
-      // await page.page.waitForTimeout(1000);
-      // await page.page.locator(`div[aria-label="${DM_NAME}"]`).nth(1).click();
+  const dm = new DataMapper(page.page, name);
+  await dm.init();
+  return dm;
+}
 
+async function openDataMapperFromTreeView(name: string) {
+  // open data mapper from tree view
+  const dmLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
+  await dmLabel.click();
+  await page.page.waitForTimeout(1000);
+  const dmItem = await page.page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
+  await dmItem.click();
 
-      console.log('.:.Open DataMapper from tree view');
+  const dm = new DataMapper(page.page, name);
+  await dm.init();
+  return dm;
+}
 
-      const dataMapper = new DataMapper(page.page, DM_NAME);
-      await dataMapper.init();
-      console.log('.:.DataMapper opened');
-   
-
-    });
-  }
-
-  if (process.env.CI || NEED_INITIAL_SETUP) {
-    test('Load Schemas', async () => {
-      const dataMapper = new DataMapper(page.page, DM_NAME);
-      await dataMapper.init();
-
-      const interfacesTsFile = path.join(dmFilesPath, DM_NAME, 'interfaces.ts');
-      const inputJsonFile = path.join(dmFilesPath, DM_NAME, 'input.json');
-      const outputJsonFile = path.join(dmFilesPath, DM_NAME, 'output.json');
-      await dataMapper.importSchema(IOType.Input, 'JSON', inputJsonFile);
-      await dataMapper.importSchema(IOType.Output, 'JSON', outputJsonFile);
-
-      expect(dataMapper.verifyTsFileContent(interfacesTsFile)).toBeTruthy();
-    });
-  }
-
-
+function doBasicMappings() {
   test('Do Basic Mappings', async () => {
+    const dm = await addDataMapper('basic');
 
-
-    const dm = new DataMapper(page.page, DM_NAME);
-    await dm.init();
+    await dm.loadJsonFromCompFolder();
+    expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
+    
     const dmWebView = dm.getWebView();
 
     // direct mapping
@@ -226,7 +180,7 @@ function doMappings() {
     await dmWebView.getByTestId('link-from-input.mo3I.OUT-to-datamapper-intermediate-port').first().waitFor({ state: 'attached' });
     await dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.moO.IN').waitFor({ state: 'attached' });
     await dmWebView.getByTestId('link-connector-node-objectOutput.moO.IN').waitFor();
-    
+
     // many-one mapping with error
     // objectOutput.moeO = input.mo2I + input.moeI + input.mo3I
     await dm.mapFields('input.mo2I', 'objectOutput.moeO');
@@ -238,8 +192,8 @@ function doMappings() {
     await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.moeI.OUT-to-datamapper-intermediate-port'));
     await dm.expectErrorLink(dmWebView.getByTestId('link-from-datamapper-intermediate-port-to-objectOutput.moeO.IN'));
     await dmWebView.getByTestId('link-connector-node-objectOutput.moeO.IN').waitFor();
-    
-   
+
+
     // object direct mapping
     // objectOutput.odmO= input.odmI;
     await dm.mapFields('input.odmI', 'objectOutput.odmO');
@@ -249,7 +203,7 @@ function doMappings() {
     // objectOutput.odmeO = input.odmI
     await dm.mapFields('input.odmI', 'objectOutput.odmeO');
     await dm.expectErrorLink(dmWebView.getByTestId('link-from-input.odmI.OUT-to-objectOutput.odmeO.IN'));
-    
+
 
     // object properties mapping
     // objectOutput.ompO.p1 = input.odmI.dm1;
@@ -260,9 +214,58 @@ function doMappings() {
     await dm.mapFields('input.opmI.op2', 'objectOutput.ompO.p2');
     await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.ompO.p2.IN').waitFor({ state: 'attached' });
 
+    
+    expect(dm.verifyTsFileContent('map.ts')).toBeTruthy();
+
+    await backToResourceView();
+  });
+}
+
+function doArrayMappings() { }
+
+function finishUp() {
+  test.afterAll(async () => {
+    
+    await vscode?.close();
+
+    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
+    const video = page.page.video()
+    const videoDir = path.resolve(resourcesFolder, 'videos')
+    const videoPath = await video?.path()
+
+    if (video && videoPath) {
+      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
+    }
+
+    // cleanup
+    if (process.env.CI) {
+      if (fs.existsSync(newProjectPath)) {
+        fs.rmSync(newProjectPath, { recursive: true });
+      }
+    }
+
+    console.log('DataMapper tests completed')
+  });
+}
+
+
+
+
+function doMappings() {
+
+ 
+  
+
+
+  test('Do Basic Mappings', async () => {
+
+
+    const dm = new DataMapper(page.page, DM_NAME);
+    await dm.init();
+    
     // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
     // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
-    
+
 
 
 
@@ -437,26 +440,6 @@ function doMappings() {
 
 
 
-  test.afterAll(async () => {
-    await vscode?.close();
 
-    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-    const video = page.page.video()
-    const videoDir = path.resolve(resourcesFolder, 'videos')
-    const videoPath = await video?.path()
-
-    if (video && videoPath) {
-      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
-    }
-
-    // cleanup
-    if (process.env.CI) {
-      if (fs.existsSync(newProjectPath)) {
-        fs.rmSync(newProjectPath, { recursive: true });
-      }
-    }
-
-    console.log('DataMapper tests completed')
-  });
 
 }

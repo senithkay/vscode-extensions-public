@@ -11,7 +11,7 @@ import { expect, Frame, Locator, Page } from "@playwright/test";
 import { switchToIFrame } from "@wso2-enterprise/playwright-vscode-tester";
 import { Form, FormFillProps } from "./Form";
 import * as fs from 'fs';
-import { newProjectPath, page, resourcesFolder } from '../Utils';
+import { dataFolder, newProjectPath, page } from '../Utils';
 import path from "path";
 import { DM_OPERATORS_FILE_NAME } from "../../../constants";
 import { IOType } from "@wso2-enterprise/mi-core";
@@ -22,7 +22,8 @@ export class DataMapper {
 
     public webView!: Frame;
     // configFolder!: string;
-    // tsFile!: string;
+    tsFile!: string;
+    comparingFolder!: string;
 
     constructor(private _page: Page, private _name: string) {
     }
@@ -33,7 +34,8 @@ export class DataMapper {
             throw new Error("Failed to switch to Data Mapper View iframe");
         }
         this.webView = webview;
-
+        this.tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
+        this.comparingFolder = path.join(dataFolder, 'datamapper-files', this._name);
     }
 
     public getWebView() {
@@ -95,13 +97,16 @@ export class DataMapper {
         await importNode.waitFor({ state: 'detached' });
     }
 
-    // public async waitForCanvasToLoad() {
-    //     await this.webView.waitForSelector(`div#data-mapper-canvas-container`);
-    // }
+    public async loadJsonFromCompFolder() {
+
+        const inputJsonFile = path.join(this.comparingFolder, 'inp.json');
+        const outputJsonFile = path.join(this.comparingFolder, 'out.json');
+        await this.importSchema(IOType.Input, 'JSON', inputJsonFile);
+        await this.importSchema(IOType.Output, 'JSON', outputJsonFile);
+
+    }
 
     public async mapFields(sourceFieldFQN: string, targetFieldFQN: string) {
-        // const links = this.webView.locator('g [data-testid]');
-        // const linkCount = await links.count();
 
         const sourceField = this.webView.locator(`div[id="recordfield-${sourceFieldFQN}"]`);
         await sourceField.waitFor();
@@ -115,18 +120,6 @@ export class DataMapper {
         await this.webView.waitForSelector('vscode-progress-ring', { state: 'attached' });
 
         await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
-
-        //await this.webView.waitForSelector(`[data-testid="temp-link"]`, { state: 'attached' });
-        // await this.webView.waitForSelector(`[data-testid="temp-link"]`, { state: 'detached' });
-        // await this.init();
-        // await this.webView.waitForSelector('[data-testid="link-from-input.city.OUT-to-objectOutput.home.IN"]', { state: 'attached' });
-
-
-
-        // await expect(links).not.toHaveCount(linkCount);
-        // console.log('.:.1');
-        // console.log(await ((await links.all())[0].innerHTML()));
-        // console.log('.:.2');
 
     }
 
@@ -223,8 +216,7 @@ export class DataMapper {
     }
 
     public verifyTsFileContent(comparingFile: string) {
-        const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
-        return this.compareFiles(tsFile, comparingFile);
+        return this.compareFiles(this.tsFile, path.join(this.comparingFolder, comparingFile));
     }
 
     public compareFiles(file1: string, file2: string) {
@@ -238,10 +230,9 @@ export class DataMapper {
         const configFolder = path.join(
             newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name);
 
-        const tsFile = path.join(configFolder, `${this._name}.ts`);
         const operatorsFile = path.join(configFolder, `${DM_OPERATORS_FILE_NAME}.ts`);
 
-        return fs.existsSync(operatorsFile) && fs.existsSync(tsFile);
+        return fs.existsSync(operatorsFile) && fs.existsSync(this.tsFile);
     }
 
     public overwriteTsFile(newTsFile: string) {
@@ -275,77 +266,6 @@ class ImportForm {
         const submitBtn = this.sidePanel.locator(`vscode-button:text("Save")`);
         await submitBtn.waitFor();
         await submitBtn.click();
-    }
-
-
-
-
-
-
-    //--------------------------------------------------------------------------------
-
-    public async addMediator(mediatorName: string, data?: FormFillProps, submitBtnText?: string) {
-        const mediator = this.sidePanel.locator(`#card-select-${mediatorName}`);
-        await mediator.waitFor({ timeout: 180000 });
-        await mediator.click();
-
-        const drawer = this.sidePanel.locator("#drawer1");
-        await drawer.waitFor();
-        const formDiv = drawer.locator("div").first();
-        await formDiv.waitFor();
-
-        const form = new Form(undefined, undefined, formDiv);
-        if (data) {
-            await form.fill(data);
-        }
-        await form.submit(submitBtnText ?? "Submit");
-    }
-
-    public async updateMediator(props: FormFillProps) {
-        const form = new Form(undefined, undefined, this.sidePanel);
-        await form.fill(props);
-        await form.submit("Submit");
-    }
-
-    public async addConnector(connectionName: string, operationName: string, props: FormFillProps) {
-        const connection = this.sidePanel.locator(`#card-select-${connectionName}`);
-        await connection.waitFor();
-        await connection.click();
-
-        const operation = this.sidePanel.locator(`#card-select-${operationName}`);
-        await operation.waitFor();
-        await operation.click();
-
-        const form = new Form(undefined, undefined, this.sidePanel);
-        await form.fill(props);
-        await form.submit("Submit");
-    }
-
-    public async selectConnectorOperationFromConnectorTab(connectorName: string, operationName: string) {
-        const connector = this.sidePanel.locator(`#card-select-${connectorName}`);
-        await connector.waitFor();
-        await connector.click();
-
-        const operation = this.sidePanel.locator(`#card-select-${operationName}`);
-        await operation.waitFor();
-        await operation.click();
-
-        const form = new Form(undefined, undefined, this.sidePanel);
-        return form;
-    }
-
-
-
-    public async verifyConnection(name: string, type: string) {
-        const connectionSection = this.sidePanel.locator(`h4:text("Available Connections") >> ../..`);
-        const connectionTitle = connectionSection.locator(`div:text("${name}")`);
-        connectionTitle.waitFor();
-        const connectionTypeLabel = connectionSection.locator(`div:text("${type}")`);
-        connectionTypeLabel.waitFor();
-        if (connectionTitle && connectionTypeLabel) {
-            return true;
-        }
-        return false;
     }
 
     public async close() {
