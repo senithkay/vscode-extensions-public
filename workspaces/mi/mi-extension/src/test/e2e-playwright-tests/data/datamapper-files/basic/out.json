@@ -1,19 +1,18 @@
 {
-    "dmO": "outputString1",
-    "dmeO": 123,
-    "moO": "outputString2",
-    "moeO": 456,
-    "odmO": {
-      "dm1": "nestedOutputString1",
-      "dm2": 789
-    },
-    "odmeO": {
-      "dm1": "nestedOutputString2",
-      "dm2": "nestedOutputString3"
-    },
-    "ompO": {
-      "p1": "parameter1",
-      "p2": 10
-    }
+  "dmO": "outputString1",
+  "dmeO": 123,
+  "moO": "outputString2",
+  "moeO": 456,
+  "odmO": {
+    "dm1": "nestedOutputString1",
+    "dm2": 789
+  },
+  "odmeO": {
+    "dm1": "nestedOutputString2",
+    "dm2": "nestedOutputString3"
+  },
+  "ompO": {
+    "p1": "parameter1",
+    "p2": 10
   }
-  
+}

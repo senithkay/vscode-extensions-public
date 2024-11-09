@@ -32,6 +32,7 @@ if (NEED_INITIAL_SETUP) initProject();
 else resumeProject();
 
 doBasicMappings();
+doArrayMappings();
 finishUp();
 
 function initProject() {
@@ -150,20 +151,19 @@ async function openDataMapperFromTreeView(name: string) {
 }
 
 function doBasicMappings() {
-  test('Do Basic Mappings', async () => {
+  test('Try Basic Mappings', async () => {
 
     let dm: DataMapper;
 
     if (NEED_INITIAL_SETUP) {
       dm = await addDataMapper('basic');
-
+      await closeNotification(page);
       await dm.loadJsonFromCompFolder();
       expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
-    } else {
       
+    } else {
       dm = await openDataMapperFromTreeView('basic');
     }
-
 
     const dmWebView = dm.getWebView();
 
@@ -230,47 +230,24 @@ function doBasicMappings() {
     if (NEED_INITIAL_SETUP) {
       await dmWebView.locator('vscode-button[title="Go Back"]').click();
     }
-    
+
   });
 }
 
-function doArrayMappings() { }
+function doArrayMappings() {
+  test('Try Array Mappings', async () => {
 
-function finishUp() {
-  test.afterAll(async () => {
+    let dm: DataMapper;
 
-    await vscode?.close();
-
-    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
-    const video = page.page.video()
-    const videoDir = path.resolve(resourcesFolder, 'videos')
-    const videoPath = await video?.path()
-
-    if (video && videoPath) {
-      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
+    if (NEED_INITIAL_SETUP) {
+      dm = await addDataMapper('array');
+      await closeNotification(page);
+      await dm.loadJsonFromCompFolder();
+      expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
+    } else {
+      dm = await openDataMapperFromTreeView('array');
     }
 
-    // cleanup
-    if (process.env.CI) {
-      if (fs.existsSync(newProjectPath)) {
-        fs.rmSync(newProjectPath, { recursive: true });
-      }
-    }
-
-    console.log('DataMapper tests completed')
-  });
-}
-
-
-
-
-function doMappings() {
-
-
-  test('Do Array Mappings', async () => {
-    return;
-    const dm = new DataMapper(page.page, DM_NAME);
-    await dm.init();
     const dmWebView = dm.getWebView();
 
     // primitive direct array mapping
@@ -424,14 +401,37 @@ function doMappings() {
     await dmWebView.getByTestId('dm-header-breadcrumb-0').click();
     await dmWebView.getByTestId('dm-header-breadcrumb-0').waitFor({ state: 'detached' });
 
-    await page.page.pause();
+    expect(dm.verifyTsFileContent('map.ts')).toBeTruthy();
 
-    await page.page.waitForTimeout(10000);
+    if (NEED_INITIAL_SETUP) {
+      await dmWebView.locator('vscode-button[title="Go Back"]').click();
+    }
 
   });
-
-
-
-
-
 }
+
+function finishUp() {
+  test.afterAll(async () => {
+
+    await vscode?.close();
+
+    const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
+    const video = page.page.video()
+    const videoDir = path.resolve(resourcesFolder, 'videos')
+    const videoPath = await video?.path()
+
+    if (video && videoPath) {
+      video?.saveAs(path.resolve(videoDir, `${videoTitle}.webm`));
+    }
+
+    // cleanup
+    if (process.env.CI) {
+      if (fs.existsSync(newProjectPath)) {
+        fs.rmSync(newProjectPath, { recursive: true });
+      }
+    }
+
+    console.log('DataMapper tests completed')
+  });
+}
+

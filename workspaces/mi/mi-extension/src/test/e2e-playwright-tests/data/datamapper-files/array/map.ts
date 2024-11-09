@@ -12,15 +12,12 @@ interface Root {
         p2: string[]
     }[]
     i1I: string
-
     iobjI: {
         p1: string
         p2: string[]
     }
-
     d2I: number[][]
     m2I: number[][]
-
     s10O: string[]
     s21I: string[][]
 }
@@ -42,10 +39,8 @@ interface OutputRoot {
         p1: string
         p2: string[]
     }[]
-
     d2O: number[][]
     m2O: number[][]
-
     s10O: string
     s21O: string[]
 }

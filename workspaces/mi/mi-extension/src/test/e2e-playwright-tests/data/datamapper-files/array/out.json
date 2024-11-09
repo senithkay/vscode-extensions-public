@@ -1,0 +1,42 @@
+{
+    "d1O": [10, 20, 30],
+    "m1O": [40, 50, 60],
+    "m1objO": [
+      {
+        "q1": "sampleQ1",
+        "q2": ["string1", "string2"]
+      },
+      {
+        "q1": "sampleQ2",
+        "q2": ["string3", "string4"]
+      }
+    ],
+    "i1O": ["stringA", "stringB", "stringC"],
+    "i2O": [
+      ["nestedString1", "nestedString2"],
+      ["nestedString3", "nestedString4"]
+    ],
+    "iobjO": [
+      {
+        "p1": "exampleP1",
+        "p2": ["arrayStr1", "arrayStr2"]
+      },
+      {
+        "p1": "exampleP2",
+        "p2": ["arrayStr3", "arrayStr4"]
+      }
+    ],
+  
+    "d2O": [
+      [100, 200],
+      [300, 400]
+    ],
+    "m2O": [
+      [500, 600],
+      [700, 800]
+    ],
+  
+    "s10O": "singleOutputString",
+    "s21O": ["outputStr1", "outputStr2", "outputStr3"]
+}
+  

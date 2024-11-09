@@ -1,17 +1,16 @@
 {
-    "dmI": "abc123",
-    "dmeI": "xyz456",
-    "mo1I": "sample1",
-    "mo2I": "sample2",
-    "mo3I": "sample3",
-    "moeI": true,
-    "odmI": {
-      "dm1": "nestedString",
-      "dm2": 42
-    },
-    "opmI": {
-      "op1": "value1",
-      "op2": "value2"
-    }
+  "dmI": "abc123",
+  "dmeI": "xyz456",
+  "mo1I": "sample1",
+  "mo2I": "sample2",
+  "mo3I": "sample3",
+  "moeI": true,
+  "odmI": {
+    "dm1": "nestedString",
+    "dm2": 42
+  },
+  "opmI": {
+    "op1": "value1",
+    "op2": "value2"
   }
-  
+}
