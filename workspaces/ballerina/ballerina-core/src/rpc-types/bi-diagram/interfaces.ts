@@ -50,6 +50,7 @@ export interface ComponentFunctionType {
 }
 export interface ComponentTriggerType {
     name: string;
+    listenerOnly?: boolean;
     trigger?: Trigger;
     listener: TriggerFormField[];
     service: TriggerFormField[];

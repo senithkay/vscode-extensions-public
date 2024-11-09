@@ -50,6 +50,7 @@ export * from "./rpc-types/service-designer/rpc-type";
 export * from "./rpc-types/service-designer/interfaces";
 export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/trigger-wizard/rpc-type";
+export * from "./rpc-types/trigger-wizard/interfaces";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";

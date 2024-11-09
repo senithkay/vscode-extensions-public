@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { TriggerParams, TriggersParams, Triggers, Trigger } from "../../interfaces/extended-lang-client";
+import { ServicesByListenerRequest, ServicesByListenerResponse } from "./interfaces";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "trigger-wizard";
 export const getTriggers: RequestType<TriggersParams, Triggers> = { method: `${_preFix}/getTriggers` };
 export const getTrigger: RequestType<TriggerParams, Trigger> = { method: `${_preFix}/getTrigger` };
+export const getServicesByListener: RequestType<ServicesByListenerRequest, ServicesByListenerResponse> = { method: `${_preFix}/getServicesByListener` };

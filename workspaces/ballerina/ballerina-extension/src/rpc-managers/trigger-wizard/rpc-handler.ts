@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ServicesByListenerRequest,
     TriggerParams,
     TriggersParams,
+    getServicesByListener,
     getTrigger,
     getTriggers
 } from "@wso2-enterprise/ballerina-core";
@@ -21,4 +23,5 @@ export function registerTriggerWizardRpcHandlers(messenger: Messenger) {
     const rpcManger = new TriggerWizardRpcManager();
     messenger.onRequest(getTriggers, (args: TriggersParams) => rpcManger.getTriggers(args));
     messenger.onRequest(getTrigger, (args: TriggerParams) => rpcManger.getTrigger(args));
+    messenger.onRequest(getServicesByListener, (args: ServicesByListenerRequest) => rpcManger.getServicesByListener(args));
 }

@@ -13,6 +13,7 @@ import { FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import TriggerView from "../TriggerView";
 import TriggerConfigView from "../TriggerConfigView";
+import ListenerConfigView from "../ListenerConfigView";
 import { convertTriggerFunctionsConfig, convertTriggerListenerConfig, convertTriggerServiceConfig, convertTriggerServiceTypes, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
 import { FormField, FormValues, PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { cloneDeep } from "lodash";
@@ -37,6 +38,7 @@ const LoadingContainer = styled.div`
 
 enum WizardStep {
     TRIGGER_LIST = "trigger-list",
+    TRIGGER_LISTENER = "trigger-listener",
     TRIGGER_CONFIG = "trigger-config",
 }
 
@@ -63,7 +65,7 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
             return;
         }
 
-        setCurrentStep(WizardStep.TRIGGER_CONFIG);
+        setCurrentStep(WizardStep.TRIGGER_LISTENER);
         const response = await rpcClient.getTriggerWizardRpcClient().getTrigger({ id: trigger.id });
         console.log(">>>Trigger by id", response);
         selectedTriggerRef.current = response;
@@ -101,11 +103,25 @@ export function AddTriggerWizard(props: AddTriggerWizardProps) {
                             <Typography variant="h4" sx={{ marginTop: '8px' }}>This might take some time</Typography>
                         </LoadingContainer>
                     )}
-                    {!isPullingConnector && currentStep !== WizardStep.TRIGGER_CONFIG &&
+                    {!isPullingConnector && currentStep !== WizardStep.TRIGGER_LISTENER &&
                         <>
                             <TriggerView onTriggerSelect={handleOnSelect} />
                         </>
                     }
+                    {!isPullingConnector && currentStep === WizardStep.TRIGGER_LISTENER && (
+                        <>
+                            <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Configure ${selectedTriggerRef.current?.displayName || ''} `}</Typography>
+                            <BodyText style={{ padding: '20px 20px 0 20px' }}>
+                                Provide the necessary configuration details for the selected trigger to complete the setup.
+                            </BodyText>
+                            <ListenerConfigView
+                                name={selectedTriggerRef.current?.name}
+                                listenerFields={listenerFields}
+                                onSubmit={handleOnFormSubmit}
+                                onBack={handleOnBack}
+                            />
+                        </>
+                    )}
                     {!isPullingConnector && currentStep === WizardStep.TRIGGER_CONFIG && (
                         <>
                             <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Configure ${selectedTriggerRef.current?.displayName || ''} `}</Typography>

@@ -114,6 +114,8 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
+    ReferenceLSRequest,
+    Reference,
     VisibleTypesResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
@@ -191,7 +193,8 @@ enum EXTENDED_APIS {
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
-    BI_VISIBLE_TYPES = 'expressionEditor/types'
+    BI_VISIBLE_TYPES = 'expressionEditor/types',
+    REFERENCES = 'textDocument/references'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -668,6 +671,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_VISIBLE_TYPES, params);
+    }
+
+    async getReferences(params: ReferenceLSRequest): Promise<Reference[]> {
+        return this.sendRequest(EXTENDED_APIS.REFERENCES, params);
     }
 
     // <------------ BI APIS END --------------->

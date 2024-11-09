@@ -180,6 +180,18 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     }
     entries.push(entryPoints);
 
+    // Listeners
+    const listeners = new ProjectExplorerEntry(
+        "Listeners",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'connection',
+        true
+    );
+    listeners.contextValue = "listeners";
+    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);
+    entries.push(listeners);
+
     // Connections
     const connections = new ProjectExplorerEntry(
         "Connections",

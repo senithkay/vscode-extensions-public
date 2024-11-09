@@ -57,6 +57,7 @@ import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 import EditConfigurableVariables from "./views/BI/Configurables/EditConfigurableVariables";
+import ListenerView from "./views/BI/Trigger/ListenerView";
 
 const globalStyles = css`
     *,
@@ -237,6 +238,9 @@ const MainPanel = () => {
                     case MACHINE_VIEW.AddTriggerWizard:
                         setViewComponent(<AddTriggerWizard />);
                         break;
+                    case MACHINE_VIEW.ListenerConfigView:
+                        setViewComponent(<ListenerView position={value.position} />);
+                        break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
                         break;
@@ -247,7 +251,7 @@ const MainPanel = () => {
                         setViewComponent(<ViewConfigurableVariables />);
                         break;
                     case MACHINE_VIEW.EditConfigVariables:
-                        rpcClient.getVisualizerLocation().then((location) => {                
+                        rpcClient.getVisualizerLocation().then((location) => {
                             rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
                                 if (variables.configVariables.length > 0) {
                                     const variable = variables.configVariables.find(

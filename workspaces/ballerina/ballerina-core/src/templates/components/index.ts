@@ -101,6 +101,9 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     LISTENER_DECLARATION: `
 listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
+    TRIGGER_LISTENER_DECLARATION: `
+listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ LISTENER_CONFIG }}});
+`,
     FUNCTION_DEFINITION: `
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {{#if IS_EXPRESSION_BODIED}} => {{{ EXPRESSION_BODY }}}; {{else}} {{{ EXPRESSION_BODY }}}
 {{/if}}`,

@@ -8,8 +8,10 @@
  */
 
 import { TriggerParams, TriggersParams, Triggers, Trigger } from "../../interfaces/extended-lang-client";
+import { ServicesByListenerRequest, ServicesByListenerResponse } from "./interfaces";
 
 export interface TriggerWizardAPI {
     getTriggers: (params: TriggersParams) => Promise<Triggers>;
     getTrigger: (params: TriggerParams) => Promise<Trigger>;
+    getServicesByListener: (params: ServicesByListenerRequest) => Promise<ServicesByListenerResponse>;
 }

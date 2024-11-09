@@ -692,6 +692,23 @@ export interface VisibleTypesResponse {
     types: string[];
 }
 
+export interface ReferenceLSRequest {
+    textDocument: {
+        uri: string;
+    };
+    position: {
+        character: number;
+        line: number;
+    };
+    context: {
+        includeDeclaration: boolean;
+    };
+}
+export interface Reference {
+    uri: string;
+    range: Range;
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {

@@ -269,6 +269,44 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
     });
 }
 
+export async function createBITriggerListener(params: ComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        const projectDir = path.join(StateMachine.context().projectUri);
+        const targetFile = path.join(projectDir, `triggers.bal`);
+        if (!fs.existsSync(targetFile)) {
+            fs.writeFileSync(targetFile, '');
+        }
+        const response = await handleTriggerListenerCreation(targetFile, params);
+        await modifyFileContent({ filePath: targetFile, content: response.source });
+        const fileUri = Uri.parse(targetFile);
+        const fileUriString = fileUri.toString();
+        await StateMachine.langClient().resolveMissingDependencies({
+            documentIdentifier: {
+                uri: fileUriString
+            }
+        });
+        const modulePart: ModulePart = response.syntaxTree as ModulePart;
+        let targetPosition: NodePosition = response.syntaxTree?.position;
+
+        const triggerId = params.triggerType.trigger.moduleName.split(".");
+        const triggerAlias = triggerId[triggerId.length - 1];
+        const possibleName = `${triggerAlias}Listener`;
+
+        modulePart.members.forEach(member => {
+            const isMatchingMember = (member: any) => {
+                return STKindChecker.isListenerDeclaration(member) && member.variableName.value === possibleName
+            };
+            if (isMatchingMember(member)) {
+                targetPosition = member.position;
+            }
+        });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
+        history.clear();
+        commands.executeCommand("BI.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
+}
+
 export async function handleServiceCreation(params: ComponentRequest) {
     if (!params.serviceType.path.startsWith('/')) {
         params.serviceType.path = `/${params.serviceType.path}`;
@@ -383,6 +421,29 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
 // <---------- Function Source Generation END-------->
 
 // <---------- Trigger Source Generation START-------->
+export async function handleTriggerListenerCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
+    const triggerInfo = params.triggerType;
+
+    const document = await workspace.openTextDocument(Uri.file(targetFile));
+    const lastPosition = document.lineAt(document.lineCount - 1).range.end;
+
+    const targetPosition: NodePosition = {
+        startLine: lastPosition.line,
+        startColumn: 0,
+        endLine: lastPosition.line,
+        endColumn: 0
+    };
+    const modifications: STModification[] = [];
+    modifications.push(...createTriggerListenerCode(triggerInfo, targetPosition));
+    let res;
+    try {
+        res = await applyModifications(targetFile, modifications) as SyntaxTreeResponse;
+    } catch (error) {
+        console.log(error);
+    }
+    return res;
+}
+
 export async function handleTriggerCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
     const triggerInfo = params.triggerType;
 
@@ -410,6 +471,33 @@ export async function handleTriggerCreation(targetFile: string, params: Componen
     }
     return res;
 }
+
+const createTriggerListenerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
+    const triggerId = triggerInfo.trigger.moduleName.split(".");
+    const triggerAlias = triggerId[triggerId.length - 1];
+    const listenerConfig = triggerInfo.listener.map(item => item.value).filter(value => value && value.trim() !== '').join(',');
+    const listenerVariableName = `${triggerAlias}Listener`;
+
+    const config = {
+        SERVICE_TYPE: triggerAlias,
+        LISTENER_NAME: listenerVariableName,
+        LISTENER_CONFIG: listenerConfig
+    };
+
+    const trigger: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.endColumn,
+        endLine: targetPosition.startLine,
+        endColumn: targetPosition.endColumn,
+        type: "TRIGGER_LISTENER_DECLARATION",
+        config
+    };
+    const stModification = [
+        createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
+        trigger
+    ];
+    return stModification;
+};
 
 const createInbuiltTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
     let httpBased: boolean = false;

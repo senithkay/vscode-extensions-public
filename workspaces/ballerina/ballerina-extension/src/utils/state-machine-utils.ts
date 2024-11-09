@@ -63,6 +63,18 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             }
         }
 
+        if (STKindChecker.isListenerDeclaration(node.syntaxTree)) {
+            const listenerST = node.syntaxTree;
+            const variablePosition = listenerST.variableName.position;
+            return {
+                location: {
+                    view: MACHINE_VIEW.ListenerConfigView,
+                    documentUri: documentUri,
+                    position: variablePosition
+                }
+            };
+        }
+
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
             let haveServiceType = false;
@@ -133,7 +145,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
 
         // config variables
 
-        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) && 
+        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) &&
             STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)) {
             return {
                 location: {

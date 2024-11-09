@@ -9,11 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ServicesByListenerRequest,
+    ServicesByListenerResponse,
     Trigger,
     TriggerParams,
     TriggerWizardAPI,
     Triggers,
     TriggersParams,
+    getServicesByListener,
     getTrigger,
     getTriggers
 } from "@wso2-enterprise/ballerina-core";
@@ -33,5 +36,9 @@ export class TriggerWizardRpcClient implements TriggerWizardAPI {
 
     getTrigger(params: TriggerParams): Promise<Trigger> {
         return this._messenger.sendRequest(getTrigger, HOST_EXTENSION, params);
+    }
+
+    getServicesByListener(params: ServicesByListenerRequest): Promise<ServicesByListenerResponse> {
+        return this._messenger.sendRequest(getServicesByListener, HOST_EXTENSION, params);
     }
 }

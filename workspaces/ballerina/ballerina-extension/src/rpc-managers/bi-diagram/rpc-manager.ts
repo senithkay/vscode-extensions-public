@@ -69,7 +69,7 @@ import {
 } from "vscode";
 import { ballerinaExtInstance } from "../../core";
 import { openView, StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
 import { extension } from "../../BalExtensionContext";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
@@ -288,7 +288,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     res = await createBIFunction(params);
                     break;
                 case DIRECTORY_MAP.TRIGGERS:
-                    res = await createBITrigger(params);
+                    if (params.triggerType.listenerOnly) {
+                        res = await createBITriggerListener(params);
+                    } else {
+                        res = await createBITrigger(params);
+                    }
                     break;
                 default:
                     break;
