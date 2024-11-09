@@ -16,7 +16,9 @@ import {
     generateEngine,
     getModelId,
     getNodeId,
+    loadDiagramZoomAndPosition,
     registerListeners,
+    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
@@ -27,6 +29,7 @@ import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
 import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NodeTypes } from "../resources/constants";
+import Controls from "./Controls";
 
 export interface DiagramProps {
     project: Project;
@@ -172,7 +175,8 @@ export function Diagram(props: DiagramProps) {
         // diagram paint with timeout
         setTimeout(() => {
             if (diagramEngine && newDiagramModel) {
-                diagramEngine.zoomToFit();
+                resetDiagramZoomAndPosition();
+                loadDiagramZoomAndPosition(diagramEngine);
             }
             diagramEngine.repaintCanvas();
         }, 200);
@@ -189,10 +193,13 @@ export function Diagram(props: DiagramProps) {
 
     return (
         <>
+            <Controls engine={diagramEngine} />
+
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
+
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}

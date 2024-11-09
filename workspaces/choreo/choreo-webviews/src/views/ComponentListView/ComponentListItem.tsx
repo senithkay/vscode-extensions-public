@@ -13,6 +13,8 @@ import {
 	type Organization,
 	type Project,
 	type ViewComponentDetailsReq,
+	getComponentTypeText,
+	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
 import classNames from "classnames";
 import React, { type FC } from "react";
@@ -46,9 +48,10 @@ export const ComponentListItem: FC<Props> = ({ item, isListLoading, opened, org,
 			})}
 			onClick={viewComponentDetails}
 		>
-			<div className="flex flex-1 flex-col gap-0.5 break-all py-3 pl-5">
-				<h3 className="line-clamp-1 font-bold text-sm">{item?.component?.metadata?.displayName}</h3>
-				<p className="text-xs">
+			<div className="flex flex-1 flex-col break-all py-3 pl-5">
+				<h4 className="font-thin text-[10px] tracking-wider opacity-90">{getComponentTypeText(getTypeForDisplayType(item.component?.spec?.type))}</h4>
+				<h3 className="mb-0.5 line-clamp-1 font-bold text-sm">{item?.component?.metadata?.displayName}</h3>
+				<p className="text-[11px] tracking-tight">
 					Path: {item.workspaceName}/{item.componentRelativePath}
 				</p>
 			</div>

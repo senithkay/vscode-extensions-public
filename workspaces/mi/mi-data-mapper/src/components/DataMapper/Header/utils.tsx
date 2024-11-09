@@ -131,7 +131,7 @@ export function filterCompletions(
                 tag: itemTag,
                 label: entry.name,
                 description: details.documentation?.[0]?.text,
-                value: action + entry.name + '(',
+                value: action + entry.name,
                 kind: details.kind as CompletionItemKind,
                 args: params
             }

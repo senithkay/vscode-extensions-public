@@ -538,6 +538,12 @@
                 "category": "BI"
             },
             {
+                "command": "BI.project-explorer.delete",
+                "title": "Delete",
+                "icon": "$(trash)",
+                "category": "BI"
+            },
+            {
                 "command": "BI.project-explorer.add-entry-point",
                 "title": "Add Entry Point",
                 "icon": "$(add)",

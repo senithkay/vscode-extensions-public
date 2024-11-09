@@ -75,7 +75,12 @@ export function MainForm() {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
             const context = await rpcClient.getVisualizerLocation();
-            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
+            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
+            if (!isFilePresent) {
+                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
+            }
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: functionFilePath.fsPath,
                 position: { line: 0, offset: 0 },
@@ -102,6 +107,7 @@ export function MainForm() {
     };
 
     const handleCompletionSelect = async () => {
+        debouncedGetVisibleTypes.cancel();
         handleExpressionEditorCancel();
     };
 
