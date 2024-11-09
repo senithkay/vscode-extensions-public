@@ -194,7 +194,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         updateFlowModel = true
     ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
-            position: target,
+            position: target.startLine,
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
@@ -501,6 +501,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
+                documentUri: model.fileName,
+                metadata: {
+                    target: targetRef.current.startLine
+                }
             },
             isPopup: true,
         });
@@ -512,13 +516,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connectionName,
-                documentUri: model.fileName,
-                position: {
-                    startLine: targetRef.current.startLine.line,
-                    endLine: targetRef.current.endLine.line,
-                    startColumn: targetRef.current.startLine.offset,
-                    endColumn: targetRef.current.endLine.offset,
-                },
             },
             isPopup: true,
         });
@@ -725,7 +722,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
 
         // Remove description from each type as its duplicate information
-        filteredTypes = filteredTypes.map(type => ({ ...type, description: undefined }));
+        filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
 
         setFilteredTypes(filteredTypes);
     }, 250);
