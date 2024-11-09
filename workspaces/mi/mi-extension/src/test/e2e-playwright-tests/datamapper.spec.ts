@@ -27,9 +27,10 @@ const dmFilesPath = path.join(dataFolder, 'datamapper-files');
 
 test.describe.configure({ mode: 'serial' });
 
-const NEED_INITIAL_SETUP = false;
+const NEED_INITIAL_SETUP = true;
+if (NEED_INITIAL_SETUP) initProject();
+else resumeProject();
 
-initProject();
 doBasicMappings();
 finishUp();
 
@@ -150,11 +151,20 @@ async function openDataMapperFromTreeView(name: string) {
 
 function doBasicMappings() {
   test('Do Basic Mappings', async () => {
-    const dm = await addDataMapper('basic');
 
-    await dm.loadJsonFromCompFolder();
-    expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
-    
+    let dm: DataMapper;
+
+    if (NEED_INITIAL_SETUP) {
+      dm = await addDataMapper('basic');
+
+      await dm.loadJsonFromCompFolder();
+      expect(dm.verifyTsFileContent('init.ts')).toBeTruthy();
+    } else {
+      
+      dm = await openDataMapperFromTreeView('basic');
+    }
+
+
     const dmWebView = dm.getWebView();
 
     // direct mapping
@@ -214,10 +224,13 @@ function doBasicMappings() {
     await dm.mapFields('input.opmI.op2', 'objectOutput.ompO.p2');
     await dmWebView.getByTestId('link-from-input.opmI.op2.OUT-to-objectOutput.ompO.p2.IN').waitFor({ state: 'attached' });
 
-    
+
     expect(dm.verifyTsFileContent('map.ts')).toBeTruthy();
 
-    await backToResourceView();
+    if (NEED_INITIAL_SETUP) {
+      await dmWebView.locator('vscode-button[title="Go Back"]').click();
+    }
+    
   });
 }
 
@@ -225,7 +238,7 @@ function doArrayMappings() { }
 
 function finishUp() {
   test.afterAll(async () => {
-    
+
     await vscode?.close();
 
     const videoTitle = `diagram_test_suite_${new Date().toLocaleString().replace(/,|:|\/| /g, '_')}`;
@@ -253,27 +266,6 @@ function finishUp() {
 
 function doMappings() {
 
- 
-  
-
-
-  test('Do Basic Mappings', async () => {
-
-
-    const dm = new DataMapper(page.page, DM_NAME);
-    await dm.init();
-    
-    // const mappingsTsFile = path.join(dmFilesPath, DM_NAME, 'mappings.ts');
-    // expect(dataMapper.verifyTsFileContent(mappingsTsFile)).toBeTruthy();
-
-
-
-
-
-
-
-
-  });
 
   test('Do Array Mappings', async () => {
     return;
