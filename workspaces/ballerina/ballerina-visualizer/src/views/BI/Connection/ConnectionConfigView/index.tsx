@@ -16,6 +16,9 @@ import { debounce } from "lodash";
 import { convertBalCompletion, convertToFnSignature } from "../../../../utils/bi";
 import { TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { FieldValues } from "react-hook-form";
+import { UseFormSetError } from "react-hook-form";
+import { UseFormClearErrors } from "react-hook-form";
 
 const Container = styled.div`
     max-width: 600px;
@@ -134,6 +137,29 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         250
     );
 
+    const handleExpressionDiagnostics = debounce(async (
+        expression: string,
+        type: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => {
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: fileName,
+            expression: expression,
+            type: type,
+            startLine: { line: 0, offset: 0 }
+        });
+
+        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
+        
+        if (diagnosticsMessage.length > 0) {
+            setError(key, { message: diagnosticsMessage });
+        } else {
+            clearErrors(key);
+        }
+    }, 250);
+
     const handleGetCompletions = async (
         value: string,
         offset: number,
@@ -193,6 +219,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                     triggerCharacters: TRIGGER_CHARACTERS,
                     retrieveCompletions: handleGetCompletions,
                     extractArgsFromFunction: extractArgsFromFunction,
+                    getExpressionDiagnostics: handleExpressionDiagnostics,
                     onCompletionSelect: handleCompletionSelect,
                     onCancel: handleExpressionEditorCancel,
                     onBlur: handleExpressionEditorBlur,

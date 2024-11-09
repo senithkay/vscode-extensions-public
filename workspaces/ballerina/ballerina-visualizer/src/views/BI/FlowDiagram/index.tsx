@@ -61,6 +61,7 @@ import { InlineDataMapper } from "../../InlineDataMapper";
 import { debounce, set } from "lodash";
 import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
+import { FieldValues, UseFormClearErrors, UseFormSetError } from "react-hook-form";
 
 const Container = styled.div`
     width: 100%;
@@ -657,6 +658,29 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         250
     );
 
+    const handleExpressionDiagnostics = debounce(async (
+        expression: string,
+        type: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => {
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: model.fileName,
+            expression: expression,
+            type: type,
+            startLine: targetRef.current.startLine,
+        });
+
+        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
+        
+        if (diagnosticsMessage.length > 0) {
+            setError(key, { message: diagnosticsMessage });
+        } else {
+            clearErrors(key);
+        }
+    }, 250);
+
     const handleSubPanel = (subPanel: SubPanel) => {
         setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
@@ -723,7 +747,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
             return lowerCaseLabel.includes(lowerCaseText);
         });
-
         // Remove description from each type as its duplicate information
         filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
 
@@ -870,6 +893,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 retrieveCompletions: handleGetCompletions,
                                 retrieveVisibleTypes: handleGetVisibleTypes,
                                 extractArgsFromFunction: extractArgsFromFunction,
+                                getExpressionDiagnostics: handleExpressionDiagnostics,
                                 onCompletionSelect: handleCompletionSelect,
                                 onCancel: handleExpressionEditorCancel,
                                 onBlur: handleExpressionEditorBlur,

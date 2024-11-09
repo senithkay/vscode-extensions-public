@@ -9,8 +9,8 @@
 
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { FormField } from '../Form/types';
-import { Control, Controller, FieldValues } from 'react-hook-form';
-import { Button, CompletionItem, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import { Control, Controller, FieldErrors, FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form';
+import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
@@ -29,6 +29,9 @@ type ContextAwareExpressionEditorProps = {
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
+    setError: UseFormSetError<FieldValues>;
+    clearErrors: UseFormClearErrors<FieldValues>;
+    errors: FieldErrors<FieldValues>;
     completions: CompletionItem[];
     triggerCharacters?: readonly string[];
     autoFocus?: boolean;
@@ -43,6 +46,13 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
         args: string[];
         currentArgIndex: number;
     }>;
+    getExpressionDiagnostics?: (
+        expression: string,
+        type: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
@@ -119,10 +129,6 @@ export namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)',
     });
 
-    export const Error = styled.div({
-        color: Colors.ERROR,
-    });
-
     export const EndAdornment = styled(Button)`
         & > vscode-button {
             color: var(--vscode-button-secondaryForeground);
@@ -146,10 +152,14 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const {
         control,
         field,
+        errors,
+        setError,
+        clearErrors,
         completions,
         triggerCharacters,
         retrieveCompletions,
         extractArgsFromFunction,
+        getExpressionDiagnostics,
         onFocus,
         onBlur,
         onCompletionSelect,
@@ -291,7 +301,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     };
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
-    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join('\n');
 
     return (
         <S.Container>
@@ -320,9 +329,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         onChange={async (value: string, updatedCursorPosition: number) => {
                             onChange(value);
                             debouncedUpdateSubPanelData(value);
-
-                            // HACK: Fix diagnostics from the expression editor
-                            field.diagnostics = [];
+                            getExpressionDiagnostics(
+                                value,
+                                field.valueTypeConstraint ?? "var",
+                                field.key,
+                                setError,
+                                clearErrors
+                            );
 
                             // Check if the current character is a trigger character
                             cursorPositionRef.current = updatedCursorPosition;
@@ -352,7 +365,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     />
                 )}
             />
-            {errorMsg && <S.Error>{errorMsg}</S.Error>}
+            {errors[field.key] && <ErrorBanner errorMsg={errors[field.key]?.message.toString()} />}
         </S.Container>
     );
 });

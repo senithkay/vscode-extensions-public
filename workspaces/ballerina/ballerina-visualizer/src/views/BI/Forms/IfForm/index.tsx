@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm, UseFormClearErrors, UseFormSetError } from "react-hook-form";
 import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
 import {
@@ -50,7 +50,15 @@ export function IfForm(props: IfFormProps) {
         resetUpdatedExpressionField,
         isActiveSubPanel,
     } = props;
-    const { control, getValues, setValue, handleSubmit } = useForm<FormValues>();
+    const { 
+        control, 
+        getValues, 
+        setValue, 
+        handleSubmit,
+        setError,
+        clearErrors,
+        formState: { errors, isValid, isDirty },
+    } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
@@ -306,6 +314,29 @@ export function IfForm(props: IfFormProps) {
         250
     );
 
+    const handleExpressionDiagnostics = debounce(async (
+        expression: string,
+        type: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => {
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: fileName,
+            expression: expression,
+            type: type,
+            startLine: targetLineRange.startLine,
+        });
+
+        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
+        
+        if (diagnosticsMessage.length > 0) {
+            setError(key, { message: diagnosticsMessage });
+        } else {
+            clearErrors(key);
+        }
+    }, 250);
+
     const handleGetCompletions = async (
         value: string,
         offset: number,
@@ -362,10 +393,14 @@ export function IfForm(props: IfFormProps) {
                                 ref={exprRef}
                                 control={control}
                                 field={field}
+                                errors={errors}
+                                setError={setError}
+                                clearErrors={clearErrors}
                                 completions={activeEditor === index ? filteredCompletions : []}
                                 triggerCharacters={TRIGGER_CHARACTERS}
                                 retrieveCompletions={handleGetCompletions}
                                 extractArgsFromFunction={extractArgsFromFunction}
+                                getExpressionDiagnostics={handleExpressionDiagnostics}
                                 onCompletionSelect={handleCompletionSelect}
                                 onCancel={handleExpressionEditorCancel}
                                 onFocus={() => handleEditorFocus(index)}
@@ -401,7 +436,7 @@ export function IfForm(props: IfFormProps) {
 
             {onSubmit && (
                 <FormStyles.Footer>
-                    <Button appearance="primary" onClick={handleSubmit(handleOnSave)}>
+                    <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={!isValid || !isDirty}>
                         Save
                     </Button>
                 </FormStyles.Footer>

@@ -21,6 +21,8 @@ import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { UseFormClearErrors, UseFormSetError } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 
 interface FormProps {
     fileName: string;
@@ -49,6 +51,13 @@ interface FormProps {
             args: string[];
             currentArgIndex: number;
         }>;
+        getExpressionDiagnostics?: (
+            expression: string,
+            type: string,
+            key: string,
+            setError: UseFormSetError<FieldValues>,
+            clearErrors: UseFormClearErrors<FieldValues>
+        ) => Promise<void>;
         onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
         onBlur: () => void;

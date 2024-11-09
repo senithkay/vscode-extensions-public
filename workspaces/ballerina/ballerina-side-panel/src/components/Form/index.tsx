@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm, UseFormClearErrors, UseFormSetError } from "react-hook-form";
 import {
     Button,
     Codicon,
@@ -184,6 +184,13 @@ export interface FormProps {
             args: string[];
             currentArgIndex: number;
         }>;
+        getExpressionDiagnostics?: (
+            expression: string,
+            type: string,
+            key: string,
+            setError: UseFormSetError<FieldValues>,
+            clearErrors: UseFormClearErrors<FieldValues>
+        ) => Promise<void>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
@@ -211,7 +218,20 @@ export function Form(props: FormProps) {
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+
+    const {
+        control,
+        getValues,
+        register,
+        unregister,
+        handleSubmit,
+        reset,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
+        formState: { isValid, isDirty, errors }
+    } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
@@ -316,7 +336,10 @@ export function Form(props: FormProps) {
             setValue,
             watch,
             register,
-            unregister
+            unregister,
+            setError,
+            clearErrors,
+            errors
         },
         expressionEditor,
         targetLineRange,
@@ -438,7 +461,7 @@ export function Form(props: FormProps) {
                                 Create Mapping
                             </S.PrimaryButton>
                         ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={!isValid || !isDirty}>
                                 Save
                             </S.PrimaryButton>
                         )}
