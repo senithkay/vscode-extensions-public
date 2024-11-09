@@ -83,6 +83,22 @@ export const useStyles = () => ({
             border: "1px solid var(--vscode-pickerGroup-border)"
         }
     }),
+    declExpressionError: css({
+        border: '1px solid var(--vscode-inputValidation-errorBorder)',
+        '&:hover': {
+            border: "1px solid var(--vscode-inputValidation-errorBorder)"
+        }
+    }),
+    declExpressionWarning: css({
+        display: 'flex',
+        padding: '4px',
+    }),
+    declExpressionErrorMessage: css({
+        fontSize: '12px',
+        letterSpacing: '0',
+        color: "var(--vscode-errorForeground)",
+        marginLeft: '5px',
+    }),
     exprPlaceholder: css({
         background: 'var(--vscode-inputValidation-warningBackground)'
     }),
