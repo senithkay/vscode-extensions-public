@@ -535,11 +535,6 @@ export function AIChat() {
                 assistant_response += textDelta;
 
                 handleContentBlockDelta(textDelta);
-                // setMessages((prevMessages) => {
-                //     const newMessages = [...prevMessages];
-                //     newMessages[newMessages.length - 1].content += textDelta;
-                //     return newMessages;
-                // });
             } else if (event.event == "functions") {
                 functions = event.body;
             } else if (event.event == "message_stop") {
@@ -599,7 +594,6 @@ export function AIChat() {
                     setIsCodeLoading(false);
                 }
             } else if (event.event == "error") {
-                console.log("This is a streaming error")
                 console.log("Streaming Error: " + event.body);
                 setIsLoading(false);
                 setMessages((prevMessages) => {
@@ -960,7 +954,7 @@ export function AIChat() {
                                             const prevSegment = splitContent(message.content)[j];
                                             if (prevSegment.type === SegmentType.Code) {
                                                 codeSegments.unshift({
-                                                    source: prevSegment.text,
+                                                    source: prevSegment.text.trim(),
                                                     fileName: prevSegment.fileName,
                                                 });
                                             } else if (prevSegment.type === SegmentType.Text && prevSegment.text.trim() === "") {
@@ -1197,7 +1191,7 @@ const CodeSection: React.FC<CodeSectionProps> = ({
 
     return (
         <div>
-            <EntryContainer onClick={() => setIsOpen(!isOpen)}>
+            <EntryContainer onClick={() => !loading && setIsOpen(!isOpen)}>
                 <div style={{ flex: 9, fontWeight: "bold" }}>{name}</div>
                 <div style={{ marginLeft: "auto" }}>
                     {!loading && isReady && language === "ballerina" && (
@@ -1419,7 +1413,7 @@ interface Segment {
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```ballerina([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```([^\s]*)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
