@@ -80,14 +80,9 @@ import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
 
 import {
-	defaultModelOptions,
 	ENUM_TYPE_SOURCE_PORT_PREFIX,
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
 	FUNCTION_BODY_QUERY,
-	GAP_BETWEEN_FIELDS,
-	GAP_BETWEEN_NODE_HEADER_AND_BODY,
-	IO_NODE_FIELD_HEIGHT,
-	IO_NODE_HEADER_HEIGHT,
 	JSON_MERGE_MODULE_NAME,
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
@@ -1390,13 +1385,6 @@ export function getMappedFnNames(targetPort: PortModel) {
 	return fnCall.map((call) => call.fnName);
 }
 
-export function getIONodeHeight(noOfFields: number) {
-	return noOfFields * IO_NODE_FIELD_HEIGHT
-		+ (IO_NODE_HEADER_HEIGHT - IO_NODE_FIELD_HEIGHT)
-		+ noOfFields * GAP_BETWEEN_FIELDS
-		+ GAP_BETWEEN_NODE_HEADER_AND_BODY;
-}
-
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
 	let valueExpr = node.expression;
 	while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
@@ -1678,31 +1666,6 @@ export function isFnBodyQueryExpr(fieldPath: string) {
 
 export function isSelectClauseQueryExpr(fieldPath: string) {
 	return fieldPath === SELECT_CALUSE_QUERY;
-}
-
-export function calculateControlPointOffset(screenWidth: number) {
-    const minWidth = 850;
-    const maxWidth = 1500;
-    const minOffset = 20;
-    const maxOffset = 300;
-
-    const clampedWidth = Math.min(Math.max(screenWidth, minWidth), maxWidth);
-    const interpolationFactor = (clampedWidth - minWidth) / (maxWidth - minWidth);
-    const interpolatedOffset = minOffset + interpolationFactor * (maxOffset - minOffset);
-    return interpolatedOffset;
-}
-
-export function calculateZoomLevel(screenWidth: number) {
-    const minWidth = 200;
-    const maxWidth = 850; // After this width, the max zoom level is reached
-    const minZoom = 20;
-    const maxZoom = defaultModelOptions.zoom;
-
-	// Ensure the max zoom level is not exceeded
-	const boundedScreenWidth = Math.min(screenWidth, maxWidth);
-    const normalizedWidth = (boundedScreenWidth - minWidth) / (maxWidth - minWidth);
-    const zoomLevel = minZoom + normalizedWidth * (maxZoom - minZoom);
-    return Math.max(minZoom, Math.min(maxZoom, zoomLevel));
 }
 
 export function getLetClauseVarNames(letClause: LetClause): string[] {
