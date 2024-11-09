@@ -701,6 +701,17 @@ export interface VisibleTypesResponse {
     types: string[];
 }
 
+export interface ExpressionDiagnosticsRequest {
+    filePath: string;
+    expression: string;
+    type: string;
+    startLine: LinePosition;
+}
+
+export interface ExpressionDiagnosticsResponse {
+    diagnostics: Diagnostic[];
+}
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -727,6 +738,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

@@ -115,7 +115,9 @@ import {
     SignatureHelpResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
-    BIDeleteByComponentInfoRequest
+    BIDeleteByComponentInfoRequest,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -192,7 +194,8 @@ enum EXTENDED_APIS {
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
-    BI_VISIBLE_TYPES = 'expressionEditor/types'
+    BI_VISIBLE_TYPES = 'expressionEditor/types',
+    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -676,6 +679,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async addErrorHandler(params: BIModuleNodesRequest): Promise<BISourceCodeResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_GEN_ERROR_HANDLER, params);
+    }
+
+    async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return this.sendRequest<ExpressionDiagnosticsResponse>(EXTENDED_APIS.BI_EXPRESSION_DIAGNOSTICS, params);
     }
 
     // <------------ BI APIS END --------------->
