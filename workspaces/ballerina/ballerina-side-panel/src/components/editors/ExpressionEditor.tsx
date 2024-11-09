@@ -78,8 +78,14 @@ namespace S {
     });
 
     export const Type = styled.div({
-        color: 'var(--vscode-list-deemphasizedForeground)',
-        fontFamily: 'monospace'
+        color: Colors.PRIMARY,
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        border: `1px solid ${Colors.PRIMARY}`,
+        borderRadius: '999px',
+        padding: '2px 8px',
+        display: 'inline-block',
+        userSelect: 'none',
     });
 
     export const Label = styled.label({
@@ -272,7 +278,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.type && field.type !== 'EXPRESSION' && field.type !== 'FLAG' && <S.Type>{field.type}</S.Type>}
+                {field.valueType && <S.Type>{field.valueType}</S.Type>}
             </S.HeaderContainer>
             <Controller
                 control={control}
