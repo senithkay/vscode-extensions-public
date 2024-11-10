@@ -316,7 +316,6 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
 export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
     return visibleTypes.map((type) => ({
         label: type,
-        description: `Type: ${type}`,
         value: type,
         kind: COMPLETION_ITEM_KIND.TypeParameter,
     }));
