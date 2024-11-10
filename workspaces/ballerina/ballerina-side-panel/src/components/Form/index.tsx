@@ -342,7 +342,8 @@ export function Form(props: FormProps) {
         },
         expressionEditor,
         targetLineRange,
-        fileName
+        fileName,
+        typeFieldValue: watch("type")
     };
 
     // Find the first editable field

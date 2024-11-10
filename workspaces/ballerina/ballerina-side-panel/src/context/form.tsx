@@ -61,6 +61,7 @@ export interface FormContext {
     };
     targetLineRange: LineRange;
     fileName: string;
+    typeFieldValue?: string; // If there is a type field in the form
 }
 
 const defaultState: any = {};

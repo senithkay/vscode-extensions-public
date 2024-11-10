@@ -60,6 +60,7 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     onRemove?: () => void;
     targetLineRange?: LineRange;
     fileName: string;
+    typeFieldValue?: string;
 };
 
 export namespace S {
@@ -142,9 +143,19 @@ export namespace S {
 }
 
 export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
-    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
+    const { form, expressionEditor, targetLineRange, fileName, typeFieldValue } = useFormContext();
 
-    return <ExpressionEditor ref={ref} fileName={fileName} {...targetLineRange} {...props} {...form} {...expressionEditor} />;
+    return (
+        <ExpressionEditor
+            ref={ref}
+            fileName={fileName}
+            typeFieldValue={typeFieldValue}
+            {...targetLineRange}
+            {...props}
+            {...form}
+            {...expressionEditor}
+        />
+    );
 });
 
 export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorProps>((props, ref) => {
@@ -169,6 +180,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         targetLineRange,
         fileName,
         handleOnFieldFocus,
+        typeFieldValue,
         autoFocus
     } = props as ExpressionEditorProps;
 
@@ -330,7 +342,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 debouncedUpdateSubPanelData(value);
                                 getExpressionDiagnostics(
                                     value,
-                                    field.valueTypeConstraint ?? "var",
+                                    typeFieldValue ?? field.valueTypeConstraint ?? "var",
                                     field.key,
                                     setError,
                                     clearErrors
