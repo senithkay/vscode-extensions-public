@@ -155,7 +155,7 @@ bi = true
     const settingsPath = path.join(vscodeDir, 'settings.json');
 
     console.log(`BI project created successfully at ${projectRoot}`);
-    commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
+    commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
 }
 
 
