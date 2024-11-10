@@ -14,6 +14,7 @@ import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-en
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
+import { URI } from "vscode-uri";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -76,8 +77,39 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const handleDeleteComponent = async (component: EntryPoint | Connection) => {
         console.log(">>> component diagram: delete component", component);
         if ('type' in component) {
-            // TODO: Add support for entry points deletion when LS api is available
-            console.log("====>>> deleting entrypoint", component);
+            console.log(">>> deleting entrypoint", component);
+            rpcClient
+                .getLangClientRpcClient()
+                .getBallerinaProjectComponents({ documentIdentifiers: [{ uri: URI.file(component.location.filePath).toString() }] })
+                .then((response) => {
+                    let componentType = "";
+                    if (component.type === "service") {
+                        componentType = "services";
+                    } else if (component.type === "task" || component.type === "schedule-task") {
+                        componentType = "automations";
+                    }
+                    response.packages.forEach((pkg) => {
+                        pkg.modules.forEach((module: any) => {
+                            module[componentType].forEach((balComp: any) => {
+                                if (balComp.name === component.label) {
+                                    rpcClient
+                                        .getBIDiagramRpcClient()
+                                        .deleteByComponentInfo({
+                                            filePath: component.location.filePath,
+                                            component: balComp,
+                                        }).then((response) => {
+                                            console.log(">>> Updated source code after delete", response);
+                                            if (!response.textEdits) {
+                                                console.error(">>> Error updating source code", response);
+                                            }
+                                        });
+
+                                }
+                            });
+                        });
+                    });
+                });
+
         } else {
             rpcClient
                 .getBIDiagramRpcClient()
@@ -137,6 +169,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             id: service.name,
             name: service.name,
             type: "service",
+            label: service.context,
             location: {
                 filePath: service.path,
                 position: service.position,
@@ -157,6 +190,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         project.entryPoints.push({
             id: task.name,
             name: taskName || task.name,
+            label: task.context,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,

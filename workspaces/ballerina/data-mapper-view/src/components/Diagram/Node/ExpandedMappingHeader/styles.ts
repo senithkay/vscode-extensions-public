@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { css } from "@emotion/css";
+import { GAP_BETWEEN_INTERMEDIATE_CLAUSES, QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT } from "../../utils/constants";
 
 export const useStyles = () => ({
     clauseItem: css({
@@ -29,7 +30,7 @@ export const useStyles = () => ({
     }),
     lineWrap: css({
         width: "80px",
-        height: "25px",
+        height: `${GAP_BETWEEN_INTERMEDIATE_CLAUSES}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -43,7 +44,7 @@ export const useStyles = () => ({
     }),
     clauseKeyWrap: css({
         border: "1px solid var(--vscode-input-background)",
-        height: "40px",
+        height: `${QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -58,7 +59,7 @@ export const useStyles = () => ({
     }),
     clauseWrap: css({
         background: "var(--vscode-editorWidget-background)",
-        height: "40px",
+        height: `${QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT}px`,
         display: "flex",
         alignItems: "center",
         padding: "26px 10px",
@@ -177,7 +178,7 @@ export const useStyles = () => ({
         top: 0,
     }),
     queryInputInputPortWrap: css({
-        width: 80,
+        width: 85,
         display: 'flex',
         justifyContent: 'center'
     }),

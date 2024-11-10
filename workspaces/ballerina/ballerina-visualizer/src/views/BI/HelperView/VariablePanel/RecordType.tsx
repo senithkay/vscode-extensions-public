@@ -51,7 +51,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
     };
 
     const renderFields = () => {
-        if (depth > 1 && !isExpanded) {
+        if (depth > 0 && !isExpanded) {
             return null;
         }
 
@@ -101,7 +101,7 @@ export function RecordTypeTree(props: RecordTypeTreeProps) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
             <InfoContainer>
-                {depth > 1 && (
+                {depth > 0 && (
                     <Button appearance="icon" onClick={toggleExpand} >
                         {isExpanded ? <Codicon name="chevron-up" /> : <Codicon name="chevron-down" />}
                     </Button>

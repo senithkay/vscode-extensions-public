@@ -57,7 +57,6 @@ export class RemoveNodeVisitor implements BaseVisitor {
         node.branches.forEach((branch) => {
             branch.children.forEach((child) => {
                 if (child.id === this.nodeId) {
-                    console.log(">>> if remove node", { target: child });
                     const index = branch.children.indexOf(child);
                     branch.children.splice(index, 1);
                     this.skipChildrenVisit = true;

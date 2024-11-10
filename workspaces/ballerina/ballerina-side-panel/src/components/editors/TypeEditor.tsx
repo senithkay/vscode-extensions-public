@@ -32,6 +32,29 @@ namespace S {
         alignItems: 'center',
     });
 
+    export const HeaderContainer = styled.div({
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+    });
+
+    export const Header = styled.div({
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+    });
+
+    export const Type = styled.div({
+        color: Colors.PRIMARY,
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        border: `1px solid ${Colors.PRIMARY}`,
+        borderRadius: '999px',
+        padding: '2px 8px',
+        display: 'inline-block',
+        userSelect: 'none',
+    });
+
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
         textTransform: 'capitalize'
@@ -136,11 +159,16 @@ export function TypeEditor(props: TypeEditorProps) {
 
     return (
         <S.Container>
-            <S.LabelContainer>
-                <S.Label>{field.label}</S.Label>
-                {!field.optional && <RequiredFormInput />}
-            </S.LabelContainer>
-            <S.Description>{field.documentation}</S.Description>
+            <S.HeaderContainer>
+                <S.Header>
+                    <S.LabelContainer>
+                        <S.Label>{field.label}</S.Label>
+                        {!field.optional && <RequiredFormInput />}
+                    </S.LabelContainer>
+                    <S.Description>{field.documentation}</S.Description>
+                </S.Header>
+                {field.valueType && <S.Type>{field.valueType}</S.Type>}
+            </S.HeaderContainer>
             <Controller
                 control={control}
                 name={field.key}

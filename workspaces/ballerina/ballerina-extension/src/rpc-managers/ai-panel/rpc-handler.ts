@@ -10,39 +10,41 @@
  */
 import {
     AddToProjectRequest,
+    GetFromFileRequest,
     DeleteFromProjectRequest,
     GenerateMappingsRequest,
     GenerateTestRequest,
     GeneratedTestSource,
     GenerteMappingsFromRecordRequest,
-    GetFromFileRequest,
     NotifyAIMappingsRequest,
     ProjectSource,
     addToProject,
     applyDoOnFailBlocks,
-    checkSyntaxError,
-    clearInitialPrompt,
+    getFromFile,
     deleteFromProject,
+    clearInitialPrompt,
     generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
     getGeneratedTest,
-    getFromFile,
     getInitialPrompt,
     getMappingsFromRecord,
     getProjectSource,
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
+    checkSyntaxError,
     getTestDiagnostics,
     login,
     logout,
     notifyAIMappings,
+    postProcess,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
-    updateProject
+    updateProject,
+    PostProcessRequest
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -73,5 +75,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
     messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
     messenger.onRequest(getMappingsFromRecord, (args: GenerteMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
+    messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
 }

@@ -62,7 +62,7 @@ export type Property = {
     editable: boolean;
     advanced?: boolean;
     placeholder?: string;
-    valueTypeConstraint?: string[];
+    valueTypeConstraint?: string | string[];
 };
 
 export type Diagnostic = {

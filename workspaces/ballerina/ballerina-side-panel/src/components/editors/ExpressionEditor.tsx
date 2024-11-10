@@ -47,6 +47,7 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     onCompletionSelect?: (value: string) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    onRemove?: () => void;
     targetLineRange?: LineRange;
     fileName: string;
 };
@@ -78,8 +79,14 @@ namespace S {
     });
 
     export const Type = styled.div({
-        color: 'var(--vscode-list-deemphasizedForeground)',
-        fontFamily: 'monospace'
+        color: Colors.PRIMARY,
+        fontFamily: 'monospace',
+        fontSize: '12px',
+        border: `1px solid ${Colors.PRIMARY}`,
+        borderRadius: '999px',
+        padding: '2px 8px',
+        display: 'inline-block',
+        userSelect: 'none',
     });
 
     export const Label = styled.label({
@@ -127,6 +134,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         onCompletionSelect,
         onSave,
         onCancel,
+        onRemove,
         openSubPanel,
         isActiveSubPanel,
         targetLineRange,
@@ -272,7 +280,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     </S.LabelContainer>
                     <S.Description>{field.documentation}</S.Description>
                 </S.Header>
-                {field.type && field.type !== 'EXPRESSION' && field.type !== 'FLAG' && <S.Type>{field.type}</S.Type>}
+                {field.valueType && <S.Type>{field.valueType}</S.Type>}
             </S.HeaderContainer>
             <Controller
                 control={control}
@@ -311,6 +319,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                         onBlur={handleBlur}
                         onSave={onSave}
                         onCancel={onCancel}
+                        onRemove={onRemove}
                         useTransaction={useTransaction}
                         shouldDisableOnSave={false}
                         inputProps={endAdornment}

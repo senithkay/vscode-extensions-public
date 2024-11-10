@@ -170,8 +170,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Entry Points",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'home',
-        true
+        'start',
+        false
     );
     entryPoints.contextValue = "entryPoint";
     entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES], DIRECTORY_MAP.SERVICES);
@@ -263,6 +263,10 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
         };
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
+        // Service path is used to identify the service using getBallerniaProject API
+        if(itemType === DIRECTORY_MAP.SERVICES || DIRECTORY_SUB_TYPE.AUTOMATION) {
+            fileEntry.tooltip = comp.context;
+        }
 
         fileEntry.children = getComponents(comp.resources);
         entries.push(fileEntry);

@@ -87,6 +87,15 @@ export function IfForm(props: IfFormProps) {
         }
     }, [updatedExpressionField]);
 
+    useEffect(() => {
+        branches.forEach((branch, index) => {
+            if (branch.properties?.condition) {
+                const conditionValue = branch.properties.condition.value;
+                setValue(`branch-${index}`, conditionValue || "");
+            }
+        });
+    }, []);
+
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
         setCompletions([]);
@@ -157,8 +166,26 @@ export function IfForm(props: IfFormProps) {
             },
             children: [],
         };
+
+        setValue(`branch-${branches.length}`, "");
         // add new branch to end of the current branches
         setBranches([...branches, newBranch]);
+    };
+
+    const removeCondition = (index: number) => {
+        handleExpressionEditorCancel();
+        // Don't remove if it's the first branch (Then) or last branch (Else)
+        if (index === 0 || (hasElseBranch && index === branches.length - 1)) {
+            return;
+        }
+        // Remove the branch at the specified index
+        const updatedBranches = branches.filter((_, i) => i !== index);
+        setBranches(updatedBranches);
+
+        for (let i = index + 1; i < branches.length; i++) {
+            const value = getValues(`branch-${i}`);
+            setValue(`branch-${i - 1}`, value);
+        }
     };
 
     const addElseBlock = () => {
@@ -323,21 +350,6 @@ export function IfForm(props: IfFormProps) {
         setActiveEditor(currentActive);
     };
 
-    useEffect(() => {
-        branches.forEach((branch, index) => {
-            if (branch.properties?.condition) {
-                // get the value stored in the form based on the branch key
-                const val = getValues(`branch-${index}`);
-                if (val) {
-                    branch.properties.condition.value = val;
-                    setValue(`branch-${index}`, val);
-                } else {
-                    setValue(`branch-${index}`, "");
-                }
-            }
-        });
-    }, [branches]);
-
     // TODO: support multiple type fields
     return (
         <FormStyles.Container>
@@ -361,6 +373,7 @@ export function IfForm(props: IfFormProps) {
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
+                                onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
                             />
                         </FormStyles.Row>
                     );
