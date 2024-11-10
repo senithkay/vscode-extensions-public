@@ -80,7 +80,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             title: "Select a file to be imported."
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(async (response) =>{
-            setValue(filePathPropertyName, response.filePath, { shouldDirty: true });
+            setValue(filePathPropertyName, {isCertificateFile: true, value: response.filePath}, { shouldDirty: true });
         }).catch(e => { console.log(e); })
     }
 
@@ -239,9 +239,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 label={element.displayName}
                                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                                 items={certificates}
-                                value={field.value}
+                                value={field.value.value}
                                 onValueChange={(e: any) => {
-                                    field.onChange(e);
+                                    field.onChange({ isCertificateFile: true, value: e});
                                 }}
                                 required={false}
                                 allowItemCreate={false}
@@ -249,9 +249,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                             <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
                                 <div style={{ color: colors.editorForeground }}>Add file</div>
                             </Button>
-                            <Typography variant="body3">
+                            {/* <Typography variant="body3">
                                 {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch(element.name)}
-                            </Typography>
+                            </Typography> */}
                         </div>
                     </div>
                 );

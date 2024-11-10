@@ -17,6 +17,7 @@ import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-
 import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
 import FormGenerator from '../Commons/FormGenerator';
+import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 
 const cardStyle = {
     display: "block",
@@ -55,7 +56,8 @@ export function AddConnection(props: AddConnectionProps) {
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
     const [certificatesList, setCertificatesList] = useState([]);
-    const [certificatePath, setCertificatePath] = useState('');
+    const [currentCertificatePath, setCurrentCertificatePath] = useState('');
+    const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
     const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
@@ -139,6 +141,7 @@ export function AddConnection(props: AddConnectionProps) {
                 });
 
                 const parameters = connectionFound.parameters
+                // const initialConnectionFoundParameters = new Map<any, any>();   
 
                 const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
                 const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
@@ -157,22 +160,24 @@ export function AddConnection(props: AddConnectionProps) {
                                 })) : [];
                                 if (inputType === 'file') {
                                     if (isCertificateFilePath(value)) {
-                                        setValue(param.name, value);
+                                        setValue(param.name, { isCertificateFile: true, value });
                                     } else {
                                         setValue(param.name, `{${value}}`);
                                     }
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
                                 }
+                                // initialConnectionFoundParameters.set(param.name, value);
                             }
                             if (param.name === 'trustStoreCertificatePath') {
-                                setCertificatePath(param.value);
+                                setCurrentCertificatePath(param.value);
                             }
                             if (param.name === 'certificateConfigurableName') {
                                 setCurrentCertificateConfigurableName(param.value)
                             }
                         });
                     }
+                    // setConnectionFoundParameters(initialConnectionFoundParameters);
                 } else {
                     // Handle connections without uischema
                     // Remove connection name from param manager fields
@@ -260,7 +265,34 @@ export function AddConnection(props: AddConnectionProps) {
     function isCertificateFilePath(path: string): boolean {
         const extensionPattern = /\.crt$/;
         return extensionPattern.test(path);
-      }
+    }
+
+    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, connectorTag: XMLBuilder, certificateUsageObj: object) {
+        const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+        const currentEnvFilePath = projectUri + "/.env";
+        const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
+        // const currentCertificatePath = connectionFoundParameters.get(tagElementName);
+        
+        if (newCertificatePath) {
+            if (isCertificateFilePath(newCertificatePath)) {
+                const newCertificateFileName = newCertificatePath.split('/').pop();
+                if (currentCertificatePath !== newCertificatePath) {
+                    connectorTag.ele(tagElementName).txt(newCertificateFileName);
+                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
+                        certificateFilePath: newCertificatePath, 
+                        currentCertificateFileName: currentCertificatePath,
+                        currentConfigurableName: currentCertificateConfigurableName,
+                        storedProjectCertificateDirPath: projectCertificateDirPath, 
+                        configPropertiesFilePath: currentConfigPropertiesFilePath, 
+                        envFilePath: currentEnvFilePath,
+                        certificateUsages: certificateUsageObj
+                    });
+                }
+            } else {
+                connectorTag.ele(tagElementName).txt(currentCertificatePath);
+            }
+        } 
+    }
 
     const onAddConnection = async (values: any) => {
 
@@ -276,14 +308,21 @@ export function AddConnection(props: AddConnectionProps) {
         const visualizerState = await rpcClient.getVisualizerState();
         const projectUri = visualizerState.projectUri;
 
+        const resourceUsagesResult: any = await rpcClient.getMiDiagramRpcClient().getResourceUsages();
+        const certificateUsageObj: any = new Object();
+        Object.keys(resourceUsagesResult).forEach(key => {
+            certificateUsageObj[key] = resourceUsagesResult[key];
+        });
+
         // Fill the values
         Object.keys(values).forEach((key: string) => {
-            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'trustStoreCertificatePath' && key !== 'certificateConfigurableName') && values[key]) {
+            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'certificateConfigurableName') && values[key]) {
                 if (typeof values[key] === 'object' && values[key] !== null) {
                     // Handle expression input type
                     const namespaces = values[key].namespaces;
                     const value = values[key].value;
                     const isExpression = values[key].isExpression;
+                    const isCertificateFile = values[key].isCertificateFile;
 
                     if (value) {
                         if (isExpression) {
@@ -297,7 +336,10 @@ export function AddConnection(props: AddConnectionProps) {
                             } else {
                                 connectorTag.ele(key).txt(`{${value}}`);
                             }
-                        } else {
+                        } else if (isCertificateFile) {
+                            handleCertificateFile(projectUri, key, value, connectorTag, certificateUsageObj);
+                        }
+                        else {
                             connectorTag.ele(key).txt(value);
                         }
                     }
@@ -315,12 +357,6 @@ export function AddConnection(props: AddConnectionProps) {
             }
         });
 
-        const resourceUsagesResult: any = await rpcClient.getMiDiagramRpcClient().getResourceUsages();
-            const certificateUsageObj: any = new Object();
-            Object.keys(resourceUsagesResult).forEach(key => {
-                certificateUsageObj[key] = resourceUsagesResult[key];
-            })
-
         if (values['certificateConfigurableName']) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
             const currentEnvFilePath = projectUri + "/.env";
@@ -331,7 +367,7 @@ export function AddConnection(props: AddConnectionProps) {
                 rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
                     configurableName: certificateConfigurableName,
                     currentConfigurableName: currentCertificateConfigurableName,
-                    currentCertificateFileName: certificatePath,
+                    currentCertificateFileName: connectionFoundParameters.get('certificateConfigurableName'),
                     storedProjectCertificateDirPath: projectCertificateDirPath,
                     configPropertiesFilePath: currentConfigPropertiesFilePath,
                     envFilePath: currentEnvFilePath,
@@ -341,33 +377,33 @@ export function AddConnection(props: AddConnectionProps) {
             }
         }
 
-        if (values['trustStoreCertificatePath']) {
-            const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-            const currentEnvFilePath = projectUri + "/.env";
-            const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
+        // if (values['trustStoreCertificatePath']) {
+        //     const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+        //     const currentEnvFilePath = projectUri + "/.env";
+        //     const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
 
-            const currentCertificateFilePath = values['trustStoreCertificatePath'];
+        //     const currentCertificateFilePath = values['trustStoreCertificatePath'];
 
-            if (currentCertificateFilePath) {
-                if (isCertificateFilePath(currentCertificateFilePath)) {
-                    const fileName = currentCertificateFilePath.split('/').pop();
-                    if (certificatePath !== currentCertificateFilePath) {
-                        connectorTag.ele('trustStoreCertificatePath').txt(fileName);
-                        rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
-                            certificateFilePath: currentCertificateFilePath, 
-                            currentCertificateFileName: certificatePath,
-                            currentConfigurableName: currentCertificateConfigurableName,
-                            storedProjectCertificateDirPath: projectCertificateDirPath, 
-                            configPropertiesFilePath: currentConfigPropertiesFilePath, 
-                            envFilePath: currentEnvFilePath,
-                            certificateUsages: certificateUsageObj
-                        });
-                    }
-                } else {
-                    connectorTag.ele('trustStoreCertificatePath').txt(currentCertificateFilePath);
-                }
-            } 
-        }
+        //     if (currentCertificateFilePath) {
+        //         if (isCertificateFilePath(currentCertificateFilePath)) {
+        //             const fileName = currentCertificateFilePath.split('/').pop();
+        //             if (currentCertificatePath !== currentCertificateFilePath) {
+        //                 connectorTag.ele('trustStoreCertificatePath').txt(fileName);
+        //                 rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
+        //                     certificateFilePath: currentCertificateFilePath, 
+        //                     currentCertificateFileName: currentCertificatePath,
+        //                     currentConfigurableName: currentCertificateConfigurableName,
+        //                     storedProjectCertificateDirPath: projectCertificateDirPath, 
+        //                     configPropertiesFilePath: currentConfigPropertiesFilePath, 
+        //                     envFilePath: currentEnvFilePath,
+        //                     certificateUsages: certificateUsageObj
+        //                 });
+        //             }
+        //         } else {
+        //             connectorTag.ele('trustStoreCertificatePath').txt(currentCertificateFilePath);
+        //         }
+        //     } 
+        // }
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
