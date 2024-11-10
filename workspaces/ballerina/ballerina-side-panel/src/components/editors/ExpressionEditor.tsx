@@ -317,7 +317,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 name={field.key}
                 rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
-                    <>
+                    <div>
                         <ExpressionBar
                             key={field.key}
                             ref={exprRef}
@@ -363,7 +363,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                             sx={{ paddingInline: '0' }}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
-                    </>
+                    </div>
                 )}
             />
         </S.Container>
