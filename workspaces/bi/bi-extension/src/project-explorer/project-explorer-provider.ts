@@ -170,8 +170,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Entry Points",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'home',
-        true
+        'start',
+        false
     );
     entryPoints.contextValue = "entryPoint";
     entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES], DIRECTORY_MAP.SERVICES);

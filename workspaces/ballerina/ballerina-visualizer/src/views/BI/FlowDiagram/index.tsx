@@ -194,7 +194,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         updateFlowModel = true
     ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
-            position: target,
+            position: target.startLine,
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
@@ -464,6 +464,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
+        if (!targetRef.current) {
+            return;
+        }
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -501,6 +504,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
+                documentUri: model.fileName,
+                metadata: {
+                    target: targetRef.current.startLine,
+                },
             },
             isPopup: true,
         });
@@ -512,13 +519,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connectionName,
-                documentUri: model.fileName,
-                position: {
-                    startLine: targetRef.current.startLine.line,
-                    endLine: targetRef.current.endLine.line,
-                    startColumn: targetRef.current.startLine.offset,
-                    endColumn: targetRef.current.endLine.offset,
-                },
             },
             isPopup: true,
         });
@@ -725,7 +725,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
 
         // Remove description from each type as its duplicate information
-        filteredTypes = filteredTypes.map(type => ({ ...type, description: undefined }));
+        filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
 
         setFilteredTypes(filteredTypes);
     }, 250);
@@ -831,54 +831,54 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                 subPanel={findSubPanelComponent(subPanel)}
             >
-                {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <div onClick={onDiscardSuggestions}>
+                <div onClick={onDiscardSuggestions}>
+                    {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
                             onAddConnection={handleOnAddConnection}
                             onClose={handleOnCloseSidePanel}
                         />
-                    </div>
-                )}
-                {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
-                    <NodeList
-                        categories={categories}
-                        onSelect={handleOnSelectNode}
-                        onSearchTextChange={handleSearchFunction}
-                        onAddFunction={handleOnAddFunction}
-                        onClose={handleOnCloseSidePanel}
-                        title={"Functions"}
-                        onBack={handleOnFormBack}
-                    />
-                )}
-                {sidePanelView === SidePanelView.FORM && (
-                    <FormGenerator
-                        fileName={model.fileName}
-                        node={selectedNodeRef.current}
-                        nodeFormTemplate={nodeTemplateRef.current}
-                        connections={model.connections}
-                        clientName={selectedClientName.current}
-                        targetLineRange={targetRef.current}
-                        projectPath={projectPath}
-                        editForm={showEditForm.current}
-                        onSubmit={handleOnFormSubmit}
-                        isActiveSubPanel={showSubPanel}
-                        openSubPanel={handleSubPanel}
-                        expressionEditor={{
-                            completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
-                            triggerCharacters: TRIGGER_CHARACTERS,
-                            retrieveCompletions: handleGetCompletions,
-                            retrieveVisibleTypes: handleGetVisibleTypes,
-                            extractArgsFromFunction: extractArgsFromFunction,
-                            onCompletionSelect: handleCompletionSelect,
-                            onCancel: handleExpressionEditorCancel,
-                            onBlur: handleExpressionEditorBlur,
-                        }}
-                        updatedExpressionField={updatedExpressionField}
-                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                    />
-                )}
+                    )}
+                    {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={handleSearchFunction}
+                            onAddFunction={handleOnAddFunction}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.FORM && (
+                        <FormGenerator
+                            fileName={model.fileName}
+                            node={selectedNodeRef.current}
+                            nodeFormTemplate={nodeTemplateRef.current}
+                            connections={model.connections}
+                            clientName={selectedClientName.current}
+                            targetLineRange={targetRef.current}
+                            projectPath={projectPath}
+                            editForm={showEditForm.current}
+                            onSubmit={handleOnFormSubmit}
+                            isActiveSubPanel={showSubPanel}
+                            openSubPanel={handleSubPanel}
+                            expressionEditor={{
+                                completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
+                                triggerCharacters: TRIGGER_CHARACTERS,
+                                retrieveCompletions: handleGetCompletions,
+                                retrieveVisibleTypes: handleGetVisibleTypes,
+                                extractArgsFromFunction: extractArgsFromFunction,
+                                onCompletionSelect: handleCompletionSelect,
+                                onCancel: handleExpressionEditorCancel,
+                                onBlur: handleExpressionEditorBlur,
+                            }}
+                            updatedExpressionField={updatedExpressionField}
+                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                        />
+                    )}
+                </div>
             </PanelContainer>
         </>
     );
