@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
 import { css } from '@emotion/css';
@@ -43,7 +43,6 @@ type DefaultCompletionItemProps = {
 
 type DropdownItemProps = {
     item: CompletionItem;
-    firstItem?: boolean;
     onClick: () => void | Promise<void>;
 };
 
@@ -96,6 +95,16 @@ const DropdownBody = styled.div<StyleBase>`
     width: 350px;
     margin-block: 2px;
     padding-top: 8px;
+    border-radius: 8px;
+    background-color: var(--vscode-dropdown-background);
+    box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    ${(props: StyleBase) => props.sx}
+`;
+
+const FnSignatureBody = styled.div<StyleBase>`
+    width: 350px;
+    margin-block: 2px;
+    padding-block: 8px;
     border-radius: 8px;
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
@@ -240,7 +249,7 @@ const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
 }
 
 const DropdownItem = (props: DropdownItemProps) => {
-    const { item, firstItem, onClick } = props;
+    const { item, onClick } = props;
     const itemRef = useRef<HTMLDivElement>(null);
 
     const handleMouseEnter = () => {
@@ -255,7 +264,6 @@ const DropdownItem = (props: DropdownItemProps) => {
     return (
         <DropdownItemContainer
             ref={itemRef}
-            {...(firstItem && { className: 'hovered' })}
             onMouseEnter={handleMouseEnter}
             onClick={onClick}
         >
@@ -266,9 +274,11 @@ const DropdownItem = (props: DropdownItemProps) => {
                     {item.label}
                 </Typography>
             </TitleContainer>
-            <Typography id="description" variant="caption">
-                {item.description}
-            </Typography>
+            {item.description && (
+                <Typography id="description" variant="caption">
+                    {item.description}
+                </Typography>)
+            }
         </DropdownItemContainer>
     );
 };
@@ -292,7 +302,6 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     return (
                         <DropdownItem
                             key={`dropdown-item-${index}`}
-                            {...(!showDefaultCompletion && index === 0 && { firstItem: true })}
                             item={item}
                             onClick={async () => await onCompletionSelect(item)}
                         />
@@ -356,7 +365,7 @@ const FnSignatureEl = (props: FnSignatureElProps) => {
     return (
         <>
             {label && (
-                <DropdownBody sx={sx}>
+                <FnSignatureBody sx={sx}>
                     <SyntaxBody>
                         <Typography variant="body3" sx={{ fontWeight: 600 }}>
                             {`${label}(`}
@@ -377,9 +386,9 @@ const FnSignatureEl = (props: FnSignatureElProps) => {
                                 </Typography>
                             );
                         })}
-                        <Typography variant="body3">{`)`}</Typography>
+                        <Typography variant="body3" sx={{ fontWeight: 600 }}>{`)`}</Typography>
                     </SyntaxBody>
-                </DropdownBody>
+                </FnSignatureBody>
             )}
         </>
     );
@@ -419,21 +428,31 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const skipFocusCallback = useRef<boolean>(false);
-    const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
+    const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
+    const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
     };
 
-    const isDropdownOpen = showDefaultCompletion || completions?.length > 0 || !!fnSignature;
+    const showCompletions = useMemo(() => {
+        if (textBoxType === 'TextField') {
+            return showDefaultCompletion || completions?.length > 0 || !!fnSignature;
+        }
+        return showDefaultCompletion || completions?.length > 0;
+    }, [showDefaultCompletion, completions, fnSignature, textBoxType]);
     const isFocused = document.activeElement === textBoxRef.current;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
-            setDropdownPosition({
+            setDropdownElPosition({
                 top: rect.top + rect.height,
+                left: rect.left,
+            });
+            setFnSignatureElPosition({
+                top: rect.top - 32,
                 left: rect.left,
             });
         }
@@ -446,7 +465,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             window.removeEventListener('resize', handleResize);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef, isDropdownOpen]);
+    }, [elementRef, showCompletions]);
 
     const handleCancel = () => {
         onCancel();
@@ -519,6 +538,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             skipFocusCallback.current = true;
             setCursor(textBoxRef, inputElementType, completionSelectResponse.newCursorPosition);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completionSelectResponse]);
 
     const navigateUp = throttle((hoveredEl: Element) => {
@@ -536,19 +556,17 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 if (defaultCompletionEl) {
                     defaultCompletionEl.classList.add('hovered');
                     defaultCompletionEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                }
-            } else {
-                const prevEl = hoveredEl.previousElementSibling as HTMLElement;
-                if (prevEl) {
-                    prevEl.classList.add('hovered');
-                    prevEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                 } else {
                     const lastEl = dropdownRef.current.lastElementChild as HTMLElement;
                     if (lastEl) {
                         lastEl.classList.add('hovered');
                         lastEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                    }
+                    } 
                 }
+            } else {
+                const prevEl = hoveredEl.previousElementSibling as HTMLElement;
+                prevEl.classList.add('hovered');
+                prevEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
             }
         } else {
             const lastEl = dropdownRef.current.lastElementChild as HTMLElement;
@@ -574,16 +592,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 if (defaultCompletionEl) {
                     defaultCompletionEl.classList.add('hovered');
                     defaultCompletionEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                }
-                const firstEl = dropdownRef.current.firstElementChild as HTMLElement;
-                if (firstEl) {
-                    firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                }
-            } else {
-                const nextEl = hoveredEl.nextElementSibling as HTMLElement;
-                if (nextEl) {
-                    nextEl.classList.add('hovered');
-                    nextEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                 } else {
                     const firstEl = dropdownRef.current.firstElementChild as HTMLElement;
                     if (firstEl) {
@@ -591,6 +599,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                     }
                 }
+            } else {
+                const nextEl = hoveredEl.nextElementSibling as HTMLElement;
+                nextEl.classList.add('hovered');
+                nextEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
             }
         } else {
             const defaultCompletionEl = dropdownContainerRef.current.querySelector('#default-completion');
@@ -606,6 +618,19 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             }
         }
     }, 100);
+
+    const onCompletionSelectKeyStroke = async (hoveredEl: Element) => {
+        if (hoveredEl.id === 'default-completion') {
+            onDefaultCompletionSelect?.();
+        } else {
+            const item = completions.find(
+                (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+            );
+            if (item) {
+                await handleCompletionSelectMutation(item);
+            }
+        }
+    }
 
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
         if (dropdownContainerRef.current) {
@@ -628,33 +653,15 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         return;
                     }
                     case 'Tab':
-                        e.preventDefault();
                         if (hoveredEl) {
-                            if (hoveredEl.id === 'default-completion') {
-                                onDefaultCompletionSelect?.();
-                            } else {
-                                const item = completions.find(
-                                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                                );
-                                if (item) {
-                                    await handleCompletionSelectMutation(item);
-                                }
-                            }
+                            e.preventDefault();
+                            onCompletionSelectKeyStroke(hoveredEl);
                         }
                         return;
                     case 'Enter':
-                        e.preventDefault();
                         if (hoveredEl) {
-                            if (hoveredEl.id === 'default-completion') {
-                                onDefaultCompletionSelect?.();
-                            } else {
-                                const item = completions.find(
-                                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                                );
-                                if (item) {
-                                    await handleCompletionSelectMutation(item);
-                                }
-                            }
+                            e.preventDefault();
+                            onCompletionSelectKeyStroke(hoveredEl);
                         }
                         return;
                 }
@@ -662,8 +669,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
 
         if (e.key === 'Enter') {
-            e.preventDefault();
-            await handleExpressionSaveMutation(value);
+            if (textBoxType === 'TextField') {
+                e.preventDefault();
+                await handleExpressionSaveMutation(value);
+            }
            
             return;
         }
@@ -761,8 +770,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             {shouldDisableOnSave && isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
                 createPortal(
-                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
-                        <Transition show={isDropdownOpen} {...ANIMATION}>
+                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={showCompletions} {...ANIMATION}>
                             <Codicon
                                 id='expression-editor-close'
                                 sx={{
@@ -788,6 +797,22 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 onCompletionSelect={handleCompletionSelectMutation}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
                             />
+                            {textBoxType === 'TextField' && (
+                                <FnSignatureEl
+                                    label={fnSignature?.label}
+                                    args={fnSignature?.args}
+                                    currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                                />
+                            )}
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )
+            }
+            {isFocused && textBoxType === 'TextArea' &&
+                createPortal(
+                    <DropdownContainer sx={{ ...fnSignatureElPosition }}>
+                        <Transition show={!!fnSignature} {...ANIMATION}>
                             <FnSignatureEl
                                 label={fnSignature?.label}
                                 args={fnSignature?.args}
@@ -796,7 +821,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         </Transition>
                     </DropdownContainer>,
                     document.body
-                )}
+                )
+            }
         </Container>
     );
 });
