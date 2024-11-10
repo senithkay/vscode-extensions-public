@@ -48,6 +48,7 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     }>;
     getExpressionDiagnostics?: (
         expression: string,
+        allowEmpty: boolean,
         type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
@@ -207,6 +208,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
             fetchInitialDiagnostics.current = false;
             getExpressionDiagnostics(
                 fieldValue,
+                false,
                 typeFieldValue ?? field.valueTypeConstraint ?? "var",
                 field.key,
                 setError,
@@ -363,6 +365,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 debouncedUpdateSubPanelData(value);
                                 getExpressionDiagnostics(
                                     value,
+                                    false,
                                     typeFieldValue ?? field.valueTypeConstraint ?? "var",
                                     field.key,
                                     setError,

@@ -58,7 +58,7 @@ export function IfForm(props: IfFormProps) {
         handleSubmit,
         setError,
         clearErrors,
-        formState: { errors, isValidating, isDirty },
+        formState: { errors, isValidating },
     } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
@@ -317,11 +317,19 @@ export function IfForm(props: IfFormProps) {
 
     const handleExpressionDiagnostics = debounce(async (
         expression: string,
+        allowEmpty: boolean,
         type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
     ) => {
+        // If the expression is empty and allowEmpty is true, clear the error
+        const disableDiagnostics = expression.length === 0 && allowEmpty;
+        if (disableDiagnostics) {
+            clearErrors(key);
+            return;
+        }
+
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: fileName,
             expression: expression,
@@ -382,7 +390,7 @@ export function IfForm(props: IfFormProps) {
         setActiveEditor(currentActive);
     };
 
-    const disableSaveButton = Object.keys(errors).length > 0 || !isDirty || isValidating;
+    const disableSaveButton = Object.keys(errors).length > 0 || isValidating;
 
     // TODO: support multiple type fields
     return (

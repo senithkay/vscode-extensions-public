@@ -660,11 +660,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const handleExpressionDiagnostics = debounce(async (
         expression: string,
+        allowEmpty: boolean,
         type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
     ) => {
+        // If the expression is empty and allowEmpty is true, clear the error
+        const disableDiagnostics = expression.length === 0 && allowEmpty;
+        if (disableDiagnostics) {
+            clearErrors(key);
+            return;
+        }
+
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: model.fileName,
             expression: expression,

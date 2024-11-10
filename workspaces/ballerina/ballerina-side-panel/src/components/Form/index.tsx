@@ -186,6 +186,7 @@ export interface FormProps {
         }>;
         getExpressionDiagnostics?: (
             expression: string,
+            allowEmpty: boolean,
             type: string,
             key: string,
             setError: UseFormSetError<FieldValues>,
@@ -230,7 +231,7 @@ export function Form(props: FormProps) {
         setValue,
         setError,
         clearErrors,
-        formState: { isDirty, isValidating, errors }
+        formState: { isValidating, errors }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -317,6 +318,26 @@ export function Form(props: FormProps) {
         }
     };
 
+    const handleGetExpressionDiagnostics = async (
+        expression: string,
+        allowEmpty: boolean,
+        type: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => {
+        // Allow empty expressions for Variable nodes
+        const isVariableNode = selectedNode === "VARIABLE";
+        await expressionEditor?.getExpressionDiagnostics(
+            expression,
+            isVariableNode || allowEmpty,
+            type,
+            key,
+            setError,
+            clearErrors
+        );
+    }
+
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
 
@@ -340,7 +361,10 @@ export function Form(props: FormProps) {
             setError,
             clearErrors,
         },
-        expressionEditor,
+        expressionEditor: {
+            ...expressionEditor,
+            getExpressionDiagnostics: handleGetExpressionDiagnostics
+        },
         targetLineRange,
         fileName,
         typeFieldValue: watch("type")
@@ -349,7 +373,7 @@ export function Form(props: FormProps) {
     // Find the first editable field
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
 
-    const disableSaveButton = Object.keys(errors).length > 0 || !isDirty || isValidating;
+    const disableSaveButton = Object.keys(errors).length > 0 || isValidating;
 
     // TODO: support multiple type fields
     return (
