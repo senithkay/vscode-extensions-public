@@ -65,7 +65,7 @@ export type CompletionItem = {
     tag?: string;
     label: string;
     value: string;
-    description: string;
+    description?: string;
     kind: CompletionItemKind;
     args?: string[];
     replacementSpan?: number;
