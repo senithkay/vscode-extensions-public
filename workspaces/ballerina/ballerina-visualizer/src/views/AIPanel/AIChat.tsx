@@ -19,6 +19,7 @@ import {
     InitialPrompt,
     MappingParameters,
     DataMappingRecord,
+    PostProcessResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
@@ -547,19 +548,18 @@ export function AIChat() {
             } else if (event.event == "functions") {
                 functions = event.body;
             } else if (event.event == "message_stop") {
-                //extract new source files from resp
-                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
-                // Check diagnostics
-                const diags: ProjectDiagnostics = await rpcClient
-                    .getAiPanelRpcClient()
-                    .getShadowDiagnostics(newSourceFiles);
-                if (diags.diagnostics.length > 0) {
+                const postProcessResp: PostProcessResponse = await rpcClient
+                    .getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response
+                    })
+                assistant_response = postProcessResp.assistant_response;
+                if (postProcessResp.diagnostics.diagnostics.length > 0) {
                     console.log("Diagnostics : ");
-                    console.log(diags.diagnostics);
+                    console.log(postProcessResp.diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
-                        diagnostics: diags.diagnostics,
+                        diagnostics: postProcessResp.diagnostics,
                     };
                     const startTime = performance.now();
                     const response = await fetchWithToken(
@@ -601,6 +601,11 @@ export function AIChat() {
                     }
                 } else {
                     setIsCodeLoading(false);
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content = assistant_response;
+                        return newMessages;
+                    });
                 }
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
@@ -670,6 +675,7 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
+        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 

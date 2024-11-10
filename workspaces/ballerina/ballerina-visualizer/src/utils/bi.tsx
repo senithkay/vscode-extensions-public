@@ -304,7 +304,12 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
         return undefined;
     }
     const label = fnMatch.groups?.label;
-    const args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+
+    let args: string[] = [];
+    if (fnMatch.groups?.args !== "") {
+        // For functions with arguments
+       args = fnMatch.groups?.args.split(",").map((arg) => arg.trim())
+    }
 
     return {
         label,
@@ -316,7 +321,6 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
 export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
     return visibleTypes.map((type) => ({
         label: type,
-        description: `Type: ${type}`,
         value: type,
         kind: COMPLETION_ITEM_KIND.TypeParameter,
     }));

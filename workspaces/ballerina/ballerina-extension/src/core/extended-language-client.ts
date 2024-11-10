@@ -183,6 +183,7 @@ enum EXTENDED_APIS {
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
+    BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
@@ -671,6 +672,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_VISIBLE_TYPES, params);
+    }
+
+    async addErrorHandler(params: BIModuleNodesRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest(EXTENDED_APIS.BI_GEN_ERROR_HANDLER, params);
     }
 
     // <------------ BI APIS END --------------->
