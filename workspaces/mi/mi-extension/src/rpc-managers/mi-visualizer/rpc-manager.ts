@@ -186,7 +186,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             await deleteLineFromFile(params.envFilePath, `${params.currentConfigurableName}\n`);
         }
         if (params.currentCertificateFileName !== "") {
-            await deleteFile(params.storedProjectCertificateDirPath + params.currentCertificateFileName);
+            const certificateUsedFiles = params.certificateUsages[params.currentCertificateFileName].resourceUsedFiles;
+            if (!certificateUsedFiles || certificateUsedFiles.length === 1) {
+                await deleteFile(params.storedProjectCertificateDirPath + params.currentCertificateFileName);
+            }
         }
         await copyFile(params.certificateFilePath, params.storedProjectCertificateDirPath + fileName + '.crt');
     }

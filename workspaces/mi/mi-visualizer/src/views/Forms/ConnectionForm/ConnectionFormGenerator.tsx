@@ -54,6 +54,7 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
+    const [certificatesList, setCertificatesList] = useState([]);
     const [certificatePath, setCertificatePath] = useState('');
     const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
@@ -86,6 +87,10 @@ export function AddConnection(props: AddConnectionProps) {
                 const connectionUiSchema = props.connector.connectionUiSchema[getValues('connectionType')];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+
+                const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
+                const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
+                setCertificatesList(certificateFiles);
 
                 setFormData(connectionFormJSON.formJSON);
                 reset({
@@ -134,6 +139,10 @@ export function AddConnection(props: AddConnectionProps) {
                 });
 
                 const parameters = connectionFound.parameters
+
+                const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
+                const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
+                setCertificatesList(certificateFiles);
 
                 // Populate form with existing values
                 if (connectionFormJSON.formJSON !== "") {
@@ -330,6 +339,12 @@ export function AddConnection(props: AddConnectionProps) {
             const currentEnvFilePath = projectUri + "/.env";
             const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
 
+            const resourceUsagesResult: any = await rpcClient.getMiDiagramRpcClient().getResourceUsages();
+            const certificateUsageObj: any = new Object();
+            Object.keys(resourceUsagesResult).forEach(key => {
+                certificateUsageObj[key] = resourceUsagesResult[key];
+            })
+
             const currentCertificateFilePath = values['trustStoreCertificatePath'];
 
             if (currentCertificateFilePath) {
@@ -343,7 +358,8 @@ export function AddConnection(props: AddConnectionProps) {
                             currentConfigurableName: currentCertificateConfigurableName,
                             storedProjectCertificateDirPath: projectCertificateDirPath, 
                             configPropertiesFilePath: currentConfigPropertiesFilePath, 
-                            envFilePath: currentEnvFilePath
+                            envFilePath: currentEnvFilePath,
+                            certificateUsages: certificateUsageObj
                         });
                     }
                 } else {
@@ -509,6 +525,7 @@ export function AddConnection(props: AddConnectionProps) {
                             setValue={setValue}
                             watch={watch}
                             getValues={getValues}
+                            certificates={certificatesList}
                             skipGeneralHeading={true}
                             ignoreFields={["connectionName"]} />
                         <FormActions>

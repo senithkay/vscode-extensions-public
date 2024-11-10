@@ -30,6 +30,7 @@ export interface FormGeneratorProps {
     setValue: any;
     watch: any;
     getValues: any;
+    certificates?: string[];
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
 }
@@ -52,7 +53,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading, ignoreFields } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, certificates, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -233,6 +234,18 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (
                     <div>
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
+                            <AutoComplete
+                                name={getNameForController(element.name)}
+                                label={element.displayName}
+                                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                items={certificates}
+                                value={field.value}
+                                onValueChange={(e: any) => {
+                                    field.onChange(e);
+                                }}
+                                required={false}
+                                allowItemCreate={false}
+                            />
                             <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
                                 <div style={{ color: colors.editorForeground }}>Add file</div>
                             </Button>

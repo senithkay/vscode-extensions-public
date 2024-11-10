@@ -146,6 +146,7 @@ export interface HandleCertificateFileRequest {
     storedProjectCertificateDirPath: string;
     configPropertiesFilePath: string;
     envFilePath: string
+    certificateUsages: object;
 }
 
 export interface HandleCertificateConfigurableRequest {
