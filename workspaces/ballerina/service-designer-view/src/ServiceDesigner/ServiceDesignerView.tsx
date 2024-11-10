@@ -14,7 +14,7 @@ import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceDesignerAPI, CommonRPCAPI, STModification } from "@wso2-enterprise/ballerina-core";
+import { ServiceDesignerAPI, CommonRPCAPI, STModification, createImportStatement } from "@wso2-enterprise/ballerina-core";
 import { ContextProvider } from "./ContextProvider";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon, View, ViewHeader, ViewContent, Typography } from "@wso2-enterprise/ui-toolkit";
@@ -81,7 +81,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        await applyModifications([{
+        const importStatment = createImportStatement("ballerina", "log");
+        await applyModifications([importStatment, {
             type: "INSERT",
             isImport: false,
             config: {

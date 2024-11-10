@@ -284,8 +284,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const label = !isArray && (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
-                className={classnames(classes.valueLabel,
-                    isDisabled && !hasHoveredParent ? classes.valueLabelDisabled : ""
+                className={classnames(
+                    classes.valueLabel,
+                    isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                 )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
@@ -296,7 +297,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {typeName && (
                 <span
                     className={classnames(classes.outputTypeLabel,
-                        isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
+                        isDisabled && !hasHoveredParent ? classes.labelDisabled : ""
                     )}
                 >
                     {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
