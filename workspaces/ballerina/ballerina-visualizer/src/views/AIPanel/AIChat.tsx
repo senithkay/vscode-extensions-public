@@ -1403,6 +1403,7 @@ enum SegmentType {
 
 interface Segment {
     type: SegmentType;
+    language?: string;
     loading: boolean;
     text: string;
     fileName?: string;
@@ -1413,12 +1414,12 @@ interface Segment {
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```([^\s]*)\s*([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
     while ((match = regex.exec(content)) !== null) {
-        const [fullMatch, fileName, testValue, code] = match;
+        const [fullMatch, fileName, testValue, language, code] = match;
         const isTestCode = testValue === "true";
 
         if (match.index > lastIndex) {
@@ -1434,6 +1435,7 @@ function splitHalfGeneratedCode(content: string): Segment[] {
         // Code segment
         segments.push({
             type: SegmentType.Code,
+            language: language,
             loading: true,
             text: code,
             fileName: fileName,
@@ -1458,9 +1460,9 @@ function splitHalfGeneratedCode(content: string): Segment[] {
 export function splitContent(content: string): Segment[] {
     const segments: Segment[] = [];
 
-    // Combined regex to capture either <code ...>```ballerina code ```</code> or <progress>Text</progress>
+    // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```ballerina([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
     let match;
     let lastIndex = 0;
 
@@ -1485,7 +1487,8 @@ export function splitContent(content: string): Segment[] {
             // <code> block matched
             const fileName = match[1];
             const testValue = match[2];
-            const code = match[3];
+            const language = match[3];
+            const code = match[4];
             const isTestCode = testValue === "true";
 
             updateLastProgressSegmentLoading();
@@ -1494,11 +1497,12 @@ export function splitContent(content: string): Segment[] {
                 loading: false,
                 text: code,
                 fileName: fileName,
+                language: language,
                 isTestCode: isTestCode,
             });
-        } else if (match[4]) {
+        } else if (match[5]) {
             // <progress> block matched
-            const progressText = match[4];
+            const progressText = match[5];
 
             updateLastProgressSegmentLoading();
             segments.push({
@@ -1506,9 +1510,9 @@ export function splitContent(content: string): Segment[] {
                 loading: true,
                 text: progressText,
             });
-        } else if (match[5]) {
+        } else if (match[6]) {
             // <attachment> block matched
-            const attachmentName = match[5].trim();
+            const attachmentName = match[6].trim();
 
             updateLastProgressSegmentLoading();
 
@@ -1523,9 +1527,9 @@ export function splitContent(content: string): Segment[] {
                     text: attachmentName,
                 });
             }
-        } else if (match[6]) {
+        } else if (match[7]) {
             // <error> block matched
-            const errorMessage = match[6].trim();
+            const errorMessage = match[7].trim();
 
             updateLastProgressSegmentLoading(true);
             segments.push({
