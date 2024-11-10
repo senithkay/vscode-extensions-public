@@ -620,16 +620,14 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     }, 100);
 
     const onCompletionSelectKeyStroke = async (hoveredEl: Element) => {
-        if (hoveredEl) {
-            if (hoveredEl.id === 'default-completion') {
-                onDefaultCompletionSelect?.();
-            } else {
-                const item = completions.find(
-                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                );
-                if (item) {
-                    await handleCompletionSelectMutation(item);
-                }
+        if (hoveredEl.id === 'default-completion') {
+            onDefaultCompletionSelect?.();
+        } else {
+            const item = completions.find(
+                (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+            );
+            if (item) {
+                await handleCompletionSelectMutation(item);
             }
         }
     }
@@ -655,20 +653,26 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         return;
                     }
                     case 'Tab':
-                        e.preventDefault();
-                        onCompletionSelectKeyStroke(hoveredEl);
+                        if (hoveredEl) {
+                            e.preventDefault();
+                            onCompletionSelectKeyStroke(hoveredEl);
+                        }
                         return;
                     case 'Enter':
-                        e.preventDefault();
-                        onCompletionSelectKeyStroke(hoveredEl);
+                        if (hoveredEl) {
+                            e.preventDefault();
+                            onCompletionSelectKeyStroke(hoveredEl);
+                        }
                         return;
                 }
             }
         }
 
         if (e.key === 'Enter') {
-            e.preventDefault();
-            await handleExpressionSaveMutation(value);
+            if (textBoxType === 'TextField') {
+                e.preventDefault();
+                await handleExpressionSaveMutation(value);
+            }
            
             return;
         }
