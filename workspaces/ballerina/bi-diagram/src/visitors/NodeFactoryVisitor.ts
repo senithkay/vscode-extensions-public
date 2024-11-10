@@ -199,10 +199,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     true,
                     branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
+                const noElseBranch = branchEmptyNodeModel.metadata?.draft;
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
                     id: getBranchInLinkId(node.id, branch.label, index),
-                    label: getBranchLabel(branch),
-                    brokenLine: true,
+                    label: noElseBranch ? "" : getBranchLabel(branch),
+                    brokenLine: noElseBranch,
                     showAddButton: false,
                 });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {

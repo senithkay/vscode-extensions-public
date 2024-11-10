@@ -505,7 +505,7 @@ export type BIDeleteByComponentInfoResponse = {
 };
 
 export interface BIAvailableNodesRequest {
-    position: LineRange;
+    position: LinePosition;
     filePath: string;
 }
 
