@@ -108,7 +108,7 @@ export function ResponseEditor(props: ParamProps) {
         <EditorContainer>
             <EditorContent>
                 <AutoComplete
-                    sx={{ zIndex: 1, position: "relative" }}
+                    sx={{ zIndex: 1, position: "relative", marginTop: "3px" }}
                     borderBox={isBallerniaExt}
                     label="Code"
                     value={getTitleFromResponseCode(response.code)}
@@ -123,6 +123,7 @@ export function ResponseEditor(props: ParamProps) {
                     borderBox={isBallerniaExt}
                     label="Type"
                     selectedItem={response.type}
+                    handleArray={true}
                     isTypeArray={response.isTypeArray}
                     onChange={handleTypeChange}
                     applyModifications={applyModifications}

@@ -178,7 +178,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    isDisabled ? classes.valueLabelDisabled : "")}
+                    isDisabled ? classes.labelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
@@ -186,7 +186,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 {fieldName && typeName && ":"}
             </span>
             {typeName !== '[]' ? (
-                <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+                <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
                     {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             ) : (
@@ -296,22 +296,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     }
                 }
                 return (
-                    <>
-                        <TreeBody>
-                            <PrimitiveTypedEditableElementWidget
-                                parentId={fieldId}
-                                field={element.member}
-                                engine={engine}
-                                getPort={getPort}
-                                context={context}
-                                fieldIndex={index}
-                                deleteField={deleteField}
-                                isArrayElement={true}
-                                hasHoveredParent={isHovered || hasHoveredParent}
-                            />
-                        </TreeBody>
-                        <br />
-                    </>
+                    <PrimitiveTypedEditableElementWidget
+                        parentId={fieldId}
+                        field={element.member}
+                        engine={engine}
+                        getPort={getPort}
+                        context={context}
+                        fieldIndex={index}
+                        deleteField={deleteField}
+                        isArrayElement={true}
+                        hasHoveredParent={isHovered || hasHoveredParent}
+                    />
                 );
             })
         );
@@ -480,8 +475,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     return (
         <div
-            className={classnames(classes.treeLabel, classes.treeLabelArray,
-                isDisabled ? classes.treeLabelDisabled : "",
+            className={classnames(
+                classes.treeLabelArray,
                 hasHoveredParent ? classes.treeLabelParentHovered : ""
             )}
         >

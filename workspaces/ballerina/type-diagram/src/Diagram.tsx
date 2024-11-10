@@ -22,7 +22,7 @@ import { HeaderWidget } from './components/Header/Header';
 import { DiagramControls } from './components/Controls/DiagramControls';
 import { PromptScreen } from './components/PromptScreen/PromptScreen';
 import { OverlayLayerModel } from './components/OverlayLoader';
-import { ComponentModel, ComponentModelDeprecated, ComponentModels } from '@wso2-enterprise/ballerina-core';
+import { ComponentModel, ComponentModelDeprecated, ComponentModels, NodePosition } from '@wso2-enterprise/ballerina-core';
 import { isVersionBelow, transformToV4Models } from './utils/utils';
 
 interface TypeDiagramProps {
@@ -30,10 +30,11 @@ interface TypeDiagramProps {
     selectedRecordId?: string;
     showProblemPanel: () => void;
     addNewType: () => void;
+    goToSource: (filePath: string, position: NodePosition) => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { getComponentModel, showProblemPanel, selectedRecordId, addNewType } = props;
+    const { getComponentModel, showProblemPanel, selectedRecordId, addNewType, goToSource } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
@@ -129,7 +130,8 @@ export function TypeDiagram(props: TypeDiagramProps) {
         setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
-        setFocusedNodeId
+        setFocusedNodeId,
+        goToSource
     }
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
