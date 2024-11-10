@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, Fragment, ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
 import { css } from '@emotion/css';
@@ -95,6 +95,16 @@ const DropdownBody = styled.div<StyleBase>`
     width: 350px;
     margin-block: 2px;
     padding-top: 8px;
+    border-radius: 8px;
+    background-color: var(--vscode-dropdown-background);
+    box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    ${(props: StyleBase) => props.sx}
+`;
+
+const FnSignatureBody = styled.div<StyleBase>`
+    width: 350px;
+    margin-block: 2px;
+    padding-block: 8px;
     border-radius: 8px;
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
@@ -355,7 +365,7 @@ const FnSignatureEl = (props: FnSignatureElProps) => {
     return (
         <>
             {label && (
-                <DropdownBody sx={sx}>
+                <FnSignatureBody sx={sx}>
                     <SyntaxBody>
                         <Typography variant="body3" sx={{ fontWeight: 600 }}>
                             {`${label}(`}
@@ -376,9 +386,9 @@ const FnSignatureEl = (props: FnSignatureElProps) => {
                                 </Typography>
                             );
                         })}
-                        <Typography variant="body3">{`)`}</Typography>
+                        <Typography variant="body3" sx={{ fontWeight: 600 }}>{`)`}</Typography>
                     </SyntaxBody>
-                </DropdownBody>
+                </FnSignatureBody>
             )}
         </>
     );
@@ -418,21 +428,31 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const skipFocusCallback = useRef<boolean>(false);
-    const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>();
+    const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
+    const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
     };
 
-    const isDropdownOpen = showDefaultCompletion || completions?.length > 0 || !!fnSignature;
+    const showCompletions = useMemo(() => {
+        if (textBoxType === 'TextField') {
+            return showDefaultCompletion || completions?.length > 0 || !!fnSignature;
+        }
+        return showDefaultCompletion || completions?.length > 0;
+    }, [showDefaultCompletion, completions, fnSignature, textBoxType]);
     const isFocused = document.activeElement === textBoxRef.current;
 
     const handleResize = throttle(() => {
         if (elementRef.current) {
             const rect = elementRef.current.getBoundingClientRect();
-            setDropdownPosition({
+            setDropdownElPosition({
                 top: rect.top + rect.height,
+                left: rect.left,
+            });
+            setFnSignatureElPosition({
+                top: rect.top - 32,
                 left: rect.left,
             });
         }
@@ -445,7 +465,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             window.removeEventListener('resize', handleResize);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef, isDropdownOpen]);
+    }, [elementRef, showCompletions]);
 
     const handleCancel = () => {
         onCancel();
@@ -746,8 +766,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             {shouldDisableOnSave && isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
                 createPortal(
-                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownPosition }}>
-                        <Transition show={isDropdownOpen} {...ANIMATION}>
+                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={showCompletions} {...ANIMATION}>
                             <Codicon
                                 id='expression-editor-close'
                                 sx={{
@@ -773,6 +793,22 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 onCompletionSelect={handleCompletionSelectMutation}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
                             />
+                            {textBoxType === 'TextField' && (
+                                <FnSignatureEl
+                                    label={fnSignature?.label}
+                                    args={fnSignature?.args}
+                                    currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                                />
+                            )}
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )
+            }
+            {isFocused && textBoxType === 'TextArea' &&
+                createPortal(
+                    <DropdownContainer sx={{ ...fnSignatureElPosition }}>
+                        <Transition show={!!fnSignature} {...ANIMATION}>
                             <FnSignatureEl
                                 label={fnSignature?.label}
                                 args={fnSignature?.args}
@@ -781,7 +817,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         </Transition>
                     </DropdownContainer>,
                     document.body
-                )}
+                )
+            }
         </Container>
     );
 });
