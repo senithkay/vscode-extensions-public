@@ -701,11 +701,18 @@ export interface VisibleTypesResponse {
     types: string[];
 }
 
+export interface Info {
+    expression: string;
+    startLine: LinePosition;
+    offset: number;
+    node: FlowNode;
+    branch?: string;
+    property: string;
+}
+
 export interface ExpressionDiagnosticsRequest {
     filePath: string;
-    expression: string;
-    type: string;
-    startLine: LinePosition;
+    context: Info;
 }
 
 export interface ExpressionDiagnosticsResponse {

@@ -187,7 +187,6 @@ export interface FormProps {
         getExpressionDiagnostics?: (
             expression: string,
             allowEmpty: boolean,
-            type: string,
             key: string,
             setError: UseFormSetError<FieldValues>,
             clearErrors: UseFormClearErrors<FieldValues>
@@ -321,7 +320,6 @@ export function Form(props: FormProps) {
     const handleGetExpressionDiagnostics = async (
         expression: string,
         allowEmpty: boolean,
-        type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
@@ -331,7 +329,6 @@ export function Form(props: FormProps) {
         await expressionEditor?.getExpressionDiagnostics(
             expression,
             isVariableNode || allowEmpty,
-            type,
             key,
             setError,
             clearErrors

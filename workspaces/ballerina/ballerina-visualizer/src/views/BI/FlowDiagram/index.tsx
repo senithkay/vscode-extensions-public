@@ -661,7 +661,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleExpressionDiagnostics = debounce(async (
         expression: string,
         allowEmpty: boolean,
-        type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
@@ -675,9 +674,13 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: model.fileName,
-            expression: expression,
-            type: type,
-            startLine: targetRef.current.startLine,
+            context: {
+                expression: expression,
+                startLine: targetRef.current.startLine,
+                offset: 0,
+                node: selectedNodeRef.current,
+                property: key
+            },
         });
 
         const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");

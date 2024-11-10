@@ -49,7 +49,6 @@ export interface FormContext {
         getExpressionDiagnostics?: (
             expression: string,
             allowEmpty: boolean,
-            type: string,
             key: string,
             setError: UseFormSetError<FieldValues>,
             clearErrors: UseFormClearErrors<FieldValues>

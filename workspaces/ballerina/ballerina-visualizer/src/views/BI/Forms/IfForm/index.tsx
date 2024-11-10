@@ -332,9 +332,14 @@ export function IfForm(props: IfFormProps) {
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: fileName,
-            expression: expression,
-            type: type,
-            startLine: targetLineRange.startLine,
+            context: {
+                expression: expression,
+                startLine: targetLineRange.startLine,
+                offset: 0,
+                node: node,
+                property: "condition",
+                branch: ""
+            }
         });
 
         const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");

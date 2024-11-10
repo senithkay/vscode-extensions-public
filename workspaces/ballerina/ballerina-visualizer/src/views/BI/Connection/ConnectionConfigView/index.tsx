@@ -10,7 +10,7 @@
 import React, { ReactNode, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ExpressionFormField, Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { convertBalCompletion, convertToFnSignature } from "../../../../utils/bi";
@@ -44,6 +44,7 @@ export interface SidePanelProps {
 interface ConnectionConfigViewProps {
     fileName: string; // file path of `connection.bal`
     fields: FormField[];
+    selectedNode: FlowNode;
     onSubmit: (data: FormValues) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -53,7 +54,7 @@ interface ConnectionConfigViewProps {
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { fileName, fields, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
+    const { fileName, fields, selectedNode, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
     const { rpcClient } = useRpcContext();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
@@ -140,7 +141,6 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
     const handleExpressionDiagnostics = debounce(async (
         expression: string,
         allowEmpty: boolean,
-        type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
@@ -154,9 +154,13 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
 
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: fileName,
-            expression: expression,
-            type: type,
-            startLine: { line: 0, offset: 0 }
+            context: {
+                expression: expression,
+                startLine: { line: 0, offset: 0 },
+                offset: 0,
+                node: selectedNode,
+                property: key
+            }
         });
 
         const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");

@@ -49,7 +49,6 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     getExpressionDiagnostics?: (
         expression: string,
         allowEmpty: boolean,
-        type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
@@ -209,7 +208,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
             getExpressionDiagnostics(
                 fieldValue,
                 false,
-                field.valueType ?? typeFieldValue ?? "var",
                 field.key,
                 setError,
                 clearErrors
@@ -366,7 +364,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 getExpressionDiagnostics(
                                     value,
                                     false,
-                                    field.valueType ?? typeFieldValue ?? "var",
                                     field.key,
                                     setError,
                                     clearErrors
