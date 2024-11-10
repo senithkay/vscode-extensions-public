@@ -115,3 +115,13 @@ export interface MappingParameters{
     outputRecord: string,
     functionName?: string;
 }
+
+
+export interface PostProcessRequest {
+    assistant_response: string;
+}
+
+export interface PostProcessResponse {
+    assistant_response: string;
+    diagnostics: ProjectDiagnostics;
+}
