@@ -6,12 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
 import { STModification, FunctionParameters } from "@wso2-enterprise/ballerina-core";
 import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { Parameter } from "@wso2-enterprise/ballerina-side-panel";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { ParamConfig } from "@wso2-enterprise/ui-toolkit";
 import { URI } from "vscode-uri";
+
+export interface MatchResult {
+    start: number;
+    end: number;
+    matchedText: string;
+}
 
 export function transformNodePosition(position: NodePosition) {
     return {
@@ -147,4 +154,28 @@ export const getFunctionParametersList = (params: Parameter[]) => {
         });
     })
     return paramList;
+}
+
+export function findRegexMatches(input: string): MatchResult[] {
+    // Define the regular expression using a RegExp literal
+    const regex = /\<(c(o(d(e((?:[ ]+(f(i(l(e(n(a(m(e(=("([^ "\n]+("(\>)?([ \n]+(`(`(`)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?/g;
+
+    const matches: MatchResult[] = [];
+    let match: RegExpExecArray | null;
+
+    // Use exec in a loop to find all matches
+    while ((match = regex.exec(input)) !== null) {
+        // Avoid infinite loops with zero-length matches
+        if (match.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+
+        matches.push({
+            start: match.index,
+            end: regex.lastIndex,
+            matchedText: match[0],
+        });
+    }
+
+    return matches;
 }
