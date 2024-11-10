@@ -44,7 +44,7 @@ import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
-import { modifyFileContent } from "../../utils/modification";
+import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
@@ -150,14 +150,13 @@ export class AiPanelRpcManager implements AIPanelAPI {
             }
             balFilePath = path.join(testsFolderPath, `test.bal`).toLowerCase();
         }
-        
+
         const directory = path.dirname(balFilePath);
         if (!fs.existsSync(directory)) {
             fs.mkdirSync(directory, { recursive: true });
         }
 
-        fs.writeFileSync(balFilePath, req.content.trim());
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        writeBallerinaFileDidOpen(balFilePath, req.content);
         updateView();
     }
 
@@ -185,27 +184,27 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!workspaceFolders) {
             throw new Error("No workspaces found.");
         }
-    
+
         const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
         const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
         if (!fs.existsSync(ballerinaProjectFile)) {
             throw new Error("Not a Ballerina project.");
         }
-    
-        const balFilePath = path.join(workspaceFolderPath, req.filePath);    
+
+        const balFilePath = path.join(workspaceFolderPath, req.filePath);
         if (fs.existsSync(balFilePath)) {
             try {
-                fs.unlinkSync(balFilePath); 
+                fs.unlinkSync(balFilePath);
             } catch (err) {
                 throw new Error("Could not delete the file.");
             }
         } else {
             throw new Error("File does not exist.");
         }
-    
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         updateView();
-    }    
+    }
 
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {
@@ -358,23 +357,23 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!environment) {
             return { diagnostics: [] };
         }
-    
+
         const { langClient, tempDir } = environment;
         // check project diagnostics
         let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-    
+
         let projectModified = await addMissingImports(projectDiags);
         if (projectModified) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
-    
+
         let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
         if (isDiagsRefreshed) {
             projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
         }
         const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
-        return { 
-            diagnostics: filteredDiags 
+        return {
+            diagnostics: filteredDiags
         };
     }
 
@@ -402,11 +401,11 @@ export class AiPanelRpcManager implements AIPanelAPI {
         if (!environment) {
             return false;
         }
-    
+
         const { langClient, tempDir } = environment;
         // check project diagnostics
         const projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
-    
+
         for (const diagnostic of projectDiags) {
             for (const diag of diagnostic.diagnostics) {
                 console.log(diag.code);
@@ -421,7 +420,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
                 }
             }
         }
-    
+
         return false;
     }
 
@@ -452,7 +451,7 @@ async function setupProjectEnvironment(project: ProjectSource): Promise<{ langCl
     if (!projectRoot) {
         return null;
     }
-    
+
     const randomNum = Math.floor(Math.random() * 90000) + 10000;
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `bal-proj-${randomNum}-`));
     fs.cpSync(projectRoot, tempDir, { recursive: true });
@@ -463,20 +462,10 @@ async function setupProjectEnvironment(project: ProjectSource): Promise<{ langCl
         // Update lastUpdatedBalFile if it's a .bal file
         if (sourceFile.filePath.endsWith('.bal')) {
             const tempFilePath = path.join(tempDir, sourceFile.filePath);
-            // Write content to file
-            fs.writeFileSync(tempFilePath, sourceFile.content, 'utf8');
-            //Open Project
-            langClient.didOpen({
-                textDocument: {
-                    uri: Uri.file(tempFilePath).toString(),
-                    languageId: 'ballerina',
-                    version: 1,
-                    text: sourceFile.content
-                }
-            });
+            writeBallerinaFileDidOpen(tempFilePath, sourceFile.content);
         }
     }
-    
+
     return { langClient, tempDir };
 }
 
