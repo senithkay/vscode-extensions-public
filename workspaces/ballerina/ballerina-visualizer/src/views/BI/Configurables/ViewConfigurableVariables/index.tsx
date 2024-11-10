@@ -9,7 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { ConfigVariable, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { ConfigVariable, EVENT_TYPE, FlowNode, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
@@ -52,14 +52,19 @@ namespace S {
     `;
 }
 
-export function ViewConfigurableVariables() {
+export interface ConfigProps {
+    variableIndex?: number;
+    isExternallauncher?: boolean;
+}
+
+export function ViewConfigurableVariables(props?: ConfigProps) {
 
     const { rpcClient } = useRpcContext();
 
     const [configVariables, setConfigVariables] = useState<ConfigVariable[]>([]);
     const [isEditConfigVariableFormOpen, setEditConfigVariableFormOpen] = useState<boolean>(false);
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
-    const [configIndex, setConfigIndex] = useState<number>(0);
+    const [configIndex, setConfigIndex] = useState<number>(null);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const selectedNodeRef = useRef<FlowNode>();
 
@@ -73,10 +78,20 @@ export function ViewConfigurableVariables() {
         setAddConfigVariableFormOpen(true);
     };
 
+    // Handler to close the child component
     const handleEditConfigFormClose = () => {
         setEditConfigVariableFormOpen(false);
-        getConfigVariables();
+        setConfigIndex(null);
+
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ViewConfigVariables,
+            },
+        });
+
     };
+
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
@@ -116,6 +131,15 @@ export function ViewConfigurableVariables() {
         console.log(">>> Get Config Variables");
         getConfigVariables();
     }, []);
+
+     // Effect to handle prop changes
+    useEffect(() => {
+        if (props.variableIndex !== undefined && configVariables.length > 0) {
+            // Open child component if props are provided
+            setEditConfigVariableFormOpen(true);
+            setConfigIndex(props.variableIndex);
+        }
+    }, [props?.variableIndex, configVariables]);
 
     const getConfigVariables = () => {
         rpcClient
