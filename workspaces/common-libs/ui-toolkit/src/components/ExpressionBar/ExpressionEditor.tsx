@@ -608,6 +608,21 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
     }, 100);
 
+    const onCompletionSelectKeyStroke = async (hoveredEl: Element) => {
+        if (hoveredEl) {
+            if (hoveredEl.id === 'default-completion') {
+                onDefaultCompletionSelect?.();
+            } else {
+                const item = completions.find(
+                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
+                );
+                if (item) {
+                    await handleCompletionSelectMutation(item);
+                }
+            }
+        }
+    }
+
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
         if (dropdownContainerRef.current) {
             const hoveredEl = dropdownContainerRef.current.querySelector('.hovered');
@@ -630,33 +645,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                     }
                     case 'Tab':
                         e.preventDefault();
-                        if (hoveredEl) {
-                            if (hoveredEl.id === 'default-completion') {
-                                onDefaultCompletionSelect?.();
-                            } else {
-                                const item = completions.find(
-                                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                                );
-                                if (item) {
-                                    await handleCompletionSelectMutation(item);
-                                }
-                            }
-                        }
+                        onCompletionSelectKeyStroke(hoveredEl);
                         return;
                     case 'Enter':
                         e.preventDefault();
-                        if (hoveredEl) {
-                            if (hoveredEl.id === 'default-completion') {
-                                onDefaultCompletionSelect?.();
-                            } else {
-                                const item = completions.find(
-                                    (item: CompletionItem) => `${item.tag ?? ''}${item.label}` === hoveredEl.firstChild.textContent
-                                );
-                                if (item) {
-                                    await handleCompletionSelectMutation(item);
-                                }
-                            }
-                        }
+                        onCompletionSelectKeyStroke(hoveredEl);
                         return;
                 }
             }
