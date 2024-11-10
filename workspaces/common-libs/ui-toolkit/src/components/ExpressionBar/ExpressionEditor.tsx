@@ -519,6 +519,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             skipFocusCallback.current = true;
             setCursor(textBoxRef, inputElementType, completionSelectResponse.newCursorPosition);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [completionSelectResponse]);
 
     const navigateUp = throttle((hoveredEl: Element) => {
