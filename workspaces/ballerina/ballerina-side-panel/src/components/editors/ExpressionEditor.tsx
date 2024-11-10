@@ -9,7 +9,7 @@
 
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { FormField } from '../Form/types';
-import { Control, Controller, FieldErrors, FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form';
+import { Control, Controller, FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form';
 import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
@@ -31,7 +31,6 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     setError: UseFormSetError<FieldValues>;
     clearErrors: UseFormClearErrors<FieldValues>;
-    errors: FieldErrors<FieldValues>;
     completions: CompletionItem[];
     triggerCharacters?: readonly string[];
     autoFocus?: boolean;
@@ -152,7 +151,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const {
         control,
         field,
-        errors,
         setError,
         clearErrors,
         completions,
@@ -318,54 +316,56 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 control={control}
                 name={field.key}
                 rules={{ required: !field.optional && !field.placeholder }}
-                render={({ field: { name, value, onChange } }) => (
-                    <ExpressionBar
-                        key={field.key}
-                        ref={exprRef}
-                        name={name}
-                        completions={completions}
-                        value={value}
-                        autoFocus={props.autoFocus}
-                        onChange={async (value: string, updatedCursorPosition: number) => {
-                            onChange(value);
-                            debouncedUpdateSubPanelData(value);
-                            getExpressionDiagnostics(
-                                value,
-                                field.valueTypeConstraint ?? "var",
-                                field.key,
-                                setError,
-                                clearErrors
-                            );
+                render={({ field: { name, value, onChange }, fieldState: { error } }) => (
+                    <>
+                        <ExpressionBar
+                            key={field.key}
+                            ref={exprRef}
+                            name={name}
+                            completions={completions}
+                            value={value}
+                            autoFocus={props.autoFocus}
+                            onChange={async (value: string, updatedCursorPosition: number) => {
+                                onChange(value);
+                                debouncedUpdateSubPanelData(value);
+                                getExpressionDiagnostics(
+                                    value,
+                                    field.valueTypeConstraint ?? "var",
+                                    field.key,
+                                    setError,
+                                    clearErrors
+                                );
 
-                            // Check if the current character is a trigger character
-                            cursorPositionRef.current = updatedCursorPosition;
-                            const triggerCharacter =
-                                updatedCursorPosition > 0
-                                    ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
-                                    : undefined;
-                            if (triggerCharacter) {
-                                await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
-                            } else {
-                                await retrieveCompletions(value, updatedCursorPosition);
-                            }
-                        }}
-                        extractArgsFromFunction={extractArgsFromFunction}
-                        onCompletionSelect={handleCompletionSelect}
-                        onFocus={() => handleFocus(value)}
-                        onBlur={handleBlur}
-                        onSave={onSave}
-                        onCancel={onCancel}
-                        onRemove={onRemove}
-                        useTransaction={useTransaction}
-                        shouldDisableOnSave={false}
-                        inputProps={endAdornment}
-                        handleHelperPaneOpen={handleHelperPaneOpen}
-                        placeholder={field.placeholder}
-                        sx={{ paddingInline: '0' }}
-                    />
+                                // Check if the current character is a trigger character
+                                cursorPositionRef.current = updatedCursorPosition;
+                                const triggerCharacter =
+                                    updatedCursorPosition > 0
+                                        ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
+                                        : undefined;
+                                if (triggerCharacter) {
+                                    await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
+                                } else {
+                                    await retrieveCompletions(value, updatedCursorPosition);
+                                }
+                            }}
+                            extractArgsFromFunction={extractArgsFromFunction}
+                            onCompletionSelect={handleCompletionSelect}
+                            onFocus={() => handleFocus(value)}
+                            onBlur={handleBlur}
+                            onSave={onSave}
+                            onCancel={onCancel}
+                            onRemove={onRemove}
+                            useTransaction={useTransaction}
+                            shouldDisableOnSave={false}
+                            inputProps={endAdornment}
+                            handleHelperPaneOpen={handleHelperPaneOpen}
+                            placeholder={field.placeholder}
+                            sx={{ paddingInline: '0' }}
+                        />
+                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                    </>
                 )}
             />
-            {errors[field.key] && <ErrorBanner errorMsg={errors[field.key]?.message.toString()} />}
         </S.Container>
     );
 });

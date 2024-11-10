@@ -19,7 +19,6 @@ import {
     UseFormUnregister, 
     UseFormSetError,
     UseFormClearErrors,
-    FieldErrors
 } from 'react-hook-form';
 
 export interface FormContext {
@@ -31,7 +30,6 @@ export interface FormContext {
         unregister: UseFormUnregister<FieldValues>;
         setError: UseFormSetError<FieldValues>;
         clearErrors: UseFormClearErrors<FieldValues>;
-        errors: FieldErrors<FieldValues>;
     };
     expressionEditor?: {
         completions: CompletionItem[];

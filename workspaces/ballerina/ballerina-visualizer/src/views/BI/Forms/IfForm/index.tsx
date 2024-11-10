@@ -393,7 +393,6 @@ export function IfForm(props: IfFormProps) {
                                 ref={exprRef}
                                 control={control}
                                 field={field}
-                                errors={errors}
                                 setError={setError}
                                 clearErrors={clearErrors}
                                 completions={activeEditor === index ? filteredCompletions : []}
