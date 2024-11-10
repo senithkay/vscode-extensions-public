@@ -19,6 +19,7 @@ import {
     NotifyAIMappingsRequest,
     ProjectSource,
     addToProject,
+    applyDoOnFailBlocks,
     getFromFile,
     deleteFromProject,
     clearInitialPrompt,
@@ -38,10 +39,12 @@ import {
     login,
     logout,
     notifyAIMappings,
+    postProcess,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
-    updateProject
+    updateProject,
+    PostProcessRequest
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { AiPanelRpcManager } from "./rpc-manager";
@@ -58,7 +61,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
     messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
-    messenger.onRequest(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
+    messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
@@ -72,4 +75,6 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
     messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
     messenger.onRequest(getMappingsFromRecord, (args: GenerteMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
+    messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
+    messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
 }

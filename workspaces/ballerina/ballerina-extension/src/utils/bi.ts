@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import path from "path";
 import { ComponentRequest, CreateComponentResponse, createFunctionSignature, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
-import { applyModifications, modifyFileContent } from "./modification";
+import { applyModifications, modifyFileContent, writeBallerinaFileDidOpen } from "./modification";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export const README_FILE = "readme.md";
@@ -123,23 +123,23 @@ bi = true
 
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
-    fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
+    writeBallerinaFileDidOpen(ballerinaTomlPath, ballerinaTomlContent);
 
     // Create connections.bal file
     const connectionsBalPath = path.join(projectRoot, 'connections.bal');
-    fs.writeFileSync(connectionsBalPath, EMPTY);
+    writeBallerinaFileDidOpen(connectionsBalPath, EMPTY);
 
     // Create config.bal file
     const configurationsBalPath = path.join(projectRoot, 'config.bal');
-    fs.writeFileSync(configurationsBalPath, EMPTY);
+    writeBallerinaFileDidOpen(configurationsBalPath, EMPTY);
 
     // Create types.bal file
     const typesBalPath = path.join(projectRoot, 'types.bal');
-    fs.writeFileSync(typesBalPath, EMPTY);
+    writeBallerinaFileDidOpen(typesBalPath, EMPTY);
 
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
-    fs.writeFileSync(datamappingsBalPath, EMPTY);
+    writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);
 
     // Create a .vscode folder
     const vscodeDir = path.join(projectRoot, '.vscode');
@@ -155,7 +155,7 @@ bi = true
     const settingsPath = path.join(vscodeDir, 'settings.json');
 
     console.log(`BI project created successfully at ${projectRoot}`);
-    commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
+    commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
 }
 
 
@@ -216,7 +216,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
         const projectDir = path.join(StateMachine.context().projectUri);
         const targetFile = path.join(projectDir, `functions.bal`);
         if (!fs.existsSync(targetFile)) {
-            fs.writeFileSync(targetFile, '');
+            writeBallerinaFileDidOpen(targetFile, '');
         }
         const response = await handleFunctionCreation(targetFile, params);
         await modifyFileContent({ filePath: targetFile, content: response.source });
@@ -258,9 +258,8 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
     const projectDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const serviceFile = path.join(projectDir, `${params.serviceType.name}.bal`);
-    fs.writeFileSync(serviceFile, balContent.trim());
+    writeBallerinaFileDidOpen(serviceFile, balContent);
     console.log('Service Created.', `${params.serviceType.name}.bal`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     return serviceFile;
 }
 
@@ -296,9 +295,8 @@ ${funcSignature}
     const projectDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const taskFile = path.join(projectDir, `automation.bal`);
-    fs.writeFileSync(taskFile, balContent.trim());
+    writeBallerinaFileDidOpen(taskFile, balContent);
     console.log('Task Created.', `automation.bal`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     return taskFile;
 }
 // <---------- Task Source Generation END-------->

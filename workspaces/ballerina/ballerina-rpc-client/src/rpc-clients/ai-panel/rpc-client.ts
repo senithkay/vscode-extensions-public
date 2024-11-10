@@ -22,9 +22,12 @@ import {
     GenerteMappingsFromRecordRequest,
     InitialPrompt,
     NotifyAIMappingsRequest,
+    PostProcessRequest,
+    PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
     addToProject,
+    applyDoOnFailBlocks,
     getFromFile,
     deleteFromProject,
     clearInitialPrompt,
@@ -44,6 +47,7 @@ import {
     login,
     logout,
     notifyAIMappings,
+    postProcess,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
@@ -153,5 +157,13 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         return this._messenger.sendRequest(getMappingsFromRecord, HOST_EXTENSION, params);
+    }
+
+    postProcess(req: PostProcessRequest): Promise<PostProcessResponse> {
+        return this._messenger.sendRequest(postProcess, HOST_EXTENSION, req);
+    }
+
+    applyDoOnFailBlocks(): void {
+        return this._messenger.sendNotification(applyDoOnFailBlocks, HOST_EXTENSION);
     }
 }
