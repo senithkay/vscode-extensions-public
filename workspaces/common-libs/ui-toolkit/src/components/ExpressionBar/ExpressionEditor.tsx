@@ -266,9 +266,11 @@ const DropdownItem = (props: DropdownItemProps) => {
                     {item.label}
                 </Typography>
             </TitleContainer>
-            <Typography id="description" variant="caption">
-                {item.description}
-            </Typography>
+            {item.description && (
+                <Typography id="description" variant="caption">
+                    {item.description}
+                </Typography>)
+            }
         </DropdownItemContainer>
     );
 };
