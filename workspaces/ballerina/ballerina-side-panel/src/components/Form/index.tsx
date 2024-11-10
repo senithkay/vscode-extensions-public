@@ -185,8 +185,8 @@ export interface FormProps {
             currentArgIndex: number;
         }>;
         getExpressionDiagnostics?: (
+            showDiagnostics: boolean,
             expression: string,
-            allowEmpty: boolean,
             key: string,
             setError: UseFormSetError<FieldValues>,
             clearErrors: UseFormClearErrors<FieldValues>
@@ -317,24 +317,6 @@ export function Form(props: FormProps) {
         }
     };
 
-    const handleGetExpressionDiagnostics = async (
-        expression: string,
-        allowEmpty: boolean,
-        key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
-    ) => {
-        // Allow empty expressions for Variable nodes
-        const isVariableNode = selectedNode === "VARIABLE";
-        await expressionEditor?.getExpressionDiagnostics(
-            expression,
-            isVariableNode || allowEmpty,
-            key,
-            setError,
-            clearErrors
-        );
-    }
-
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
 
@@ -358,13 +340,9 @@ export function Form(props: FormProps) {
             setError,
             clearErrors,
         },
-        expressionEditor: {
-            ...expressionEditor,
-            getExpressionDiagnostics: handleGetExpressionDiagnostics
-        },
+        expressionEditor,
         targetLineRange,
-        fileName,
-        typeFieldValue: watch("type")
+        fileName
     };
 
     // Find the first editable field

@@ -316,20 +316,17 @@ export function IfForm(props: IfFormProps) {
     );
 
     const handleExpressionDiagnostics = debounce(async (
+        showDiagnostics: boolean,
         expression: string,
-        allowEmpty: boolean,
-        type: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
     ) => {
-        // If the expression is empty and allowEmpty is true, clear the error
-        const disableDiagnostics = expression.length === 0 && allowEmpty;
-        if (disableDiagnostics) {
+        if (!showDiagnostics) {
             clearErrors(key);
             return;
         }
-
+        
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: fileName,
             context: {

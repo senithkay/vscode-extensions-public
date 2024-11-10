@@ -52,8 +52,8 @@ interface FormProps {
             currentArgIndex: number;
         }>;
         getExpressionDiagnostics?: (
+            showDiagnostics: boolean,
             expression: string,
-            allowEmpty: boolean,
             key: string,
             setError: UseFormSetError<FieldValues>,
             clearErrors: UseFormClearErrors<FieldValues>

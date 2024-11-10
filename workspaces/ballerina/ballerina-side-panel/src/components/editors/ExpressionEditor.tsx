@@ -47,8 +47,8 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
         currentArgIndex: number;
     }>;
     getExpressionDiagnostics?: (
+        showDiagnostics: boolean,
         expression: string,
-        allowEmpty: boolean,
         key: string,
         setError: UseFormSetError<FieldValues>,
         clearErrors: UseFormClearErrors<FieldValues>
@@ -61,7 +61,6 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     onRemove?: () => void;
     targetLineRange?: LineRange;
     fileName: string;
-    typeFieldValue?: string;
 };
 
 export namespace S {
@@ -144,13 +143,12 @@ export namespace S {
 }
 
 export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
-    const { form, expressionEditor, targetLineRange, fileName, typeFieldValue } = useFormContext();
+    const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
     return (
         <ExpressionEditor
             ref={ref}
             fileName={fileName}
-            typeFieldValue={typeFieldValue}
             {...targetLineRange}
             {...props}
             {...form}
@@ -182,7 +180,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         targetLineRange,
         fileName,
         handleOnFieldFocus,
-        typeFieldValue,
         autoFocus
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState(false);
@@ -206,8 +203,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         if (fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
             getExpressionDiagnostics(
+                !field.optional || fieldValue !== "",
                 fieldValue,
-                false,
                 field.key,
                 setError,
                 clearErrors
@@ -361,9 +358,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
                                 debouncedUpdateSubPanelData(value);
+
                                 getExpressionDiagnostics(
+                                    !field.optional || value !== "",
                                     value,
-                                    false,
                                     field.key,
                                     setError,
                                     clearErrors

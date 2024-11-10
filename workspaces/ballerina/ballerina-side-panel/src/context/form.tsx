@@ -18,7 +18,7 @@ import {
     UseFormSetValue, 
     UseFormUnregister, 
     UseFormSetError,
-    UseFormClearErrors,
+    UseFormClearErrors
 } from 'react-hook-form';
 
 export interface FormContext {
@@ -47,8 +47,8 @@ export interface FormContext {
             currentArgIndex: number;
         }>;
         getExpressionDiagnostics?: (
+            showDiagnostics: boolean,
             expression: string,
-            allowEmpty: boolean,
             key: string,
             setError: UseFormSetError<FieldValues>,
             clearErrors: UseFormClearErrors<FieldValues>
@@ -61,7 +61,6 @@ export interface FormContext {
     };
     targetLineRange: LineRange;
     fileName: string;
-    typeFieldValue?: string; // If there is a type field in the form
 }
 
 const defaultState: any = {};
