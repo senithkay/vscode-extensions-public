@@ -100,6 +100,7 @@ export function ParamEditor(props: ParamProps) {
                     placeholder='Enter name'
                     value={param.name}
                     errorMsg={param.name && diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(param.name))?.message}
+                    onKeyDown={(event) => { if (event.code === 'Space') event.preventDefault() }}
                     onTextChange={handleChange}
                     onFocus={(e) => e.target.select()}
                 />
