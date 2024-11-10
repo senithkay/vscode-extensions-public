@@ -24,6 +24,7 @@ export type FormField = {
     placeholder?: string;
     documentation: string;
     value: string;
+    valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
     paramManagerProps?: ParamConfig;

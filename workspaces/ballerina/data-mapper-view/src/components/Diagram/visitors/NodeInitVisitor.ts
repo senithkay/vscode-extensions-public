@@ -47,7 +47,6 @@ import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Node/UnsupportedIO";
-import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS, SELECT_CALUSE_QUERY } from "../utils/constants";
 import {
     getEnumTypes,
@@ -70,6 +69,7 @@ import { constructTypeFromSTNode } from "../utils/type-utils";
 
 import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
 import { QueryExprFindingVisitorByPosition } from "./QueryExprFindingVisitorByPosition";
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
 
 export class NodeInitVisitor implements Visitor {
 
@@ -211,13 +211,13 @@ export class NodeInitVisitor implements Visitor {
 
                         this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
 
-                        const expandedHeaderPorts: RightAnglePortModel[] = [];
+                        const expandedHeaderPorts: DefaultPortModel[] = [];
                         const fromClauseNode = new FromClauseNode(this.context, fromClause);
                         fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
                         this.inputParamNodes.push(fromClauseNode);
 
                         const fromClauseNodeValueLabel = getFromClauseNodeLabel(fromClause?.typedBindingPattern?.bindingPattern, fromClause.expression);
-                        const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                        const fromClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
                         expandedHeaderPorts.push(fromClausePort);
                         fromClauseNode.addPort(fromClausePort);
 
@@ -237,7 +237,7 @@ export class NodeInitVisitor implements Visitor {
                                     ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
                                         ?.bindingPattern as CaptureBindingPattern
                                 )?.variableName?.value;
-                                const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                                const letClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                                 expandedHeaderPorts.push(letClausePort);
                                 paramNode.addPort(letClausePort);
                             } else if (STKindChecker.isJoinClause(item)) {
@@ -246,7 +246,7 @@ export class NodeInitVisitor implements Visitor {
                                     paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
                                     this.inputParamNodes.push(paramNode);
                                     const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
-                                    const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
+                                    const joinClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                                     expandedHeaderPorts.push(joinClausePort);
                                     paramNode.addPort(joinClausePort);
                                 }
@@ -331,13 +331,13 @@ export class NodeInitVisitor implements Visitor {
 
                         this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
 
-                        const expandedHeaderPorts: RightAnglePortModel[] = [];
+                        const expandedHeaderPorts: DefaultPortModel[] = [];
                         const fromClauseNode = new FromClauseNode(this.context, queryExpr.queryPipeline.fromClause);
                         fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
                         this.inputParamNodes.push(fromClauseNode);
 
                         const fromClauseNodeValueLabel = getFromClauseNodeLabel(fromClause?.typedBindingPattern?.bindingPattern, fromClause.expression);
-                        const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                        const fromClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
                         expandedHeaderPorts.push(fromClausePort);
                         fromClauseNode.addPort(fromClausePort);
 
@@ -357,7 +357,7 @@ export class NodeInitVisitor implements Visitor {
                                     ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
                                         ?.bindingPattern as CaptureBindingPattern
                                 )?.variableName?.value;
-                                const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                                const letClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                                 expandedHeaderPorts.push(letClausePort);
                                 paramNode.addPort(letClausePort);
                             } else if (STKindChecker.isJoinClause(item)) {
@@ -366,7 +366,7 @@ export class NodeInitVisitor implements Visitor {
                                     paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
                                     this.inputParamNodes.push(paramNode);
                                     const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
-                                    const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
+                                    const joinClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                                     expandedHeaderPorts.push(joinClausePort);
                                     paramNode.addPort(joinClausePort);
                                 }
@@ -638,7 +638,7 @@ export class NodeInitVisitor implements Visitor {
 
                 this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + 50);
 
-                const expandedHeaderPorts: RightAnglePortModel[] = [];
+                const expandedHeaderPorts: DefaultPortModel[] = [];
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(this.context, fromClause);
@@ -646,7 +646,7 @@ export class NodeInitVisitor implements Visitor {
                 this.inputParamNodes.push(fromClauseNode);
 
                 const fromClauseNodeValueLabel = getFromClauseNodeLabel(fromClause?.typedBindingPattern?.bindingPattern, fromClause.expression);
-                const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                const fromClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
                 expandedHeaderPorts.push(fromClausePort);
                 fromClauseNode.addPort(fromClausePort);
 
@@ -667,7 +667,7 @@ export class NodeInitVisitor implements Visitor {
                             ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
                                 ?.bindingPattern as CaptureBindingPattern
                         )?.variableName?.value;
-                        const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                        const letClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
                         expandedHeaderPorts.push(letClausePort);
                         paramNode.addPort(letClausePort);
                     } else if (STKindChecker.isJoinClause(item)) {
@@ -677,7 +677,7 @@ export class NodeInitVisitor implements Visitor {
                             this.inputParamNodes.push(paramNode);
 
                             const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
-                            const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
+                            const joinClausePort = new DefaultPortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                             expandedHeaderPorts.push(joinClausePort);
                             paramNode.addPort(joinClausePort);
                         }
@@ -698,6 +698,16 @@ export class NodeInitVisitor implements Visitor {
                 );
                 letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
                 this.otherInputNodes.push(letExprNode);
+
+                // if (STKindChecker.isLetExpression((this.context.functionST.functionBody as ExpressionFunctionBody).expression)) {
+                //     const letExprNode = new LetExpressionNode(
+                //         this.context,
+                //         this.context.functionST.functionBody as ExpressionFunctionBody,
+                //         true
+                //     );
+                //     letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
+                //     this.otherInputNodes.push(letExprNode);
+                // }
 
                 // create node for module variables
                 const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.moduleVariables);

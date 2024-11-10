@@ -114,7 +114,8 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
-    VisibleTypesResponse
+    VisibleTypesResponse,
+    BIDeleteByComponentInfoRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -175,6 +176,7 @@ enum EXTENDED_APIS {
     BI_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     BI_SOURCE_CODE = 'flowDesignService/getSourceCode',
     BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
+    BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
@@ -640,6 +642,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_NODE, params);
+    }
+
+    async deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_BY_COMPONENT_INFO, params);
     }
 
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {

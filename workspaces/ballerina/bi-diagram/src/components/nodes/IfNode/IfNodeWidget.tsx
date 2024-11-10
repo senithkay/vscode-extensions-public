@@ -128,7 +128,9 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
     const isMenuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-        model.setAroundLinksDisabled(model.node.suggested);
+        if (model.node.suggested) {
+            model.setAroundLinksDisabled(model.node.suggested === true);
+        }
     }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
