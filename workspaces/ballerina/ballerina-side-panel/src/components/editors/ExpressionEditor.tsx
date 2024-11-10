@@ -209,7 +209,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
             getExpressionDiagnostics(
                 fieldValue,
                 false,
-                typeFieldValue ?? field.valueTypeConstraint ?? "var",
+                field.valueType ?? typeFieldValue ?? "var",
                 field.key,
                 setError,
                 clearErrors
@@ -366,7 +366,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 getExpressionDiagnostics(
                                     value,
                                     false,
-                                    typeFieldValue ?? field.valueTypeConstraint ?? "var",
+                                    field.valueType ?? typeFieldValue ?? "var",
                                     field.key,
                                     setError,
                                     clearErrors

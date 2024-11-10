@@ -28,7 +28,6 @@ export type FormField = {
     diagnostics?: DiagnosticMessage[];
     items?: string[];
     paramManagerProps?: ParamConfig;
-    valueTypeConstraint?: string;
 };
 
 export type ExpressionFormField = {
