@@ -464,6 +464,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
+        if (!targetRef.current) {
+            return;
+        }
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
