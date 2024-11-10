@@ -51,6 +51,7 @@ export function IfForm(props: IfFormProps) {
         isActiveSubPanel,
     } = props;
     const { 
+        watch,
         control, 
         getValues, 
         setValue, 
@@ -395,6 +396,7 @@ export function IfForm(props: IfFormProps) {
                                 ref={exprRef}
                                 control={control}
                                 field={field}
+                                watch={watch}
                                 setError={setError}
                                 clearErrors={clearErrors}
                                 completions={activeEditor === index ? filteredCompletions : []}
