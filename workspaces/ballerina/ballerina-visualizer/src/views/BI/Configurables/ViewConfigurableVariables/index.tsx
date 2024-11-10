@@ -11,10 +11,10 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon,Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
 import { BIHeader } from "../../BIHeader";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeTag } from '@vscode/webview-ui-toolkit/react';
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
@@ -29,6 +29,26 @@ namespace S {
         display: flex;
         justify-content: space-between;
         margin-bottom: 20px;
+    `;
+
+    export const ConfigWrapper = styled.div`
+        display: flex;
+        flexDirection: row;
+        justify-content: space-between;
+        align-items: center;
+    `;
+
+    export const ConfigData = styled.div`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    `;
+
+    export const ConfigDataControls = styled.div`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100px;
     `;
 }
 
@@ -126,51 +146,57 @@ export function ViewConfigurableVariables() {
                         configVariables.length > 0 ?
 
                             <VSCodeDataGrid>
-                                <VSCodeDataGridRow row-type="header">
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1`}>
-                                        Variable
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`2`}>
-                                        Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`3`}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`4`}>
-                                        &nbsp;
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`5`}>
-                                        &nbsp;
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-
                                 {
                                     configVariables.map((variable, index) => {
                                         return (
                                             <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1`}>
-                                                    <div style={{ display: "flex" }}>
-                                                        {
-                                                            typeof variable.properties.variable.value === 'string' ?
-                                                                variable.properties.variable.value : ''
-                                                        }
-                                                        {variable?.diagnostics?.hasDiagnostics &&
-                                                            <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
-                                                        }</div>
-                                                </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`2`}>{variable.properties.type.value}</VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`3`}>
-                                                    {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
-                                                        variable.properties.defaultable.value === "?" ?
-                                                            null
-                                                            : variable.properties.defaultable.value
-                                                        : null}
-                                                </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex", justifyContent: "center" }}>
-                                                    <Codicon name="edit" onClick={(event) => handleEditConfigVariableFormOpen(index)} />
-                                                </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex", justifyContent: "center" }}>
-                                                    <Codicon name="trash" onClick={(event) => handleOnDeleteConfigVariable(index)} />
+                                                <VSCodeDataGridCell grid-column={`1`} style={{ padding: "10px" }}>
+                                                    <S.ConfigWrapper>
+                                                        <S.ConfigData>
+                                                            <div style={{ display: "flex", marginRight: "20px"}}>
+                                                                <VSCodeTag style={{
+                                                                    width: "100px",
+                                                                    textAlign: "center",
+                                                                    textTransform: "lowercase !important",
+                                                                    fontWeight: "bold"
+                                                                }}>
+                                                                    {String(variable.properties.type.value)}
+                                                                </VSCodeTag>
+                                                            </div>
+                                                            <div style={{ display: "flex", marginRight: "20px"}}>
+                                                                {
+                                                                    typeof variable.properties.variable.value === 'string' ?
+                                                                        variable.properties.variable.value : ''
+                                                                }
+                                                                {variable?.diagnostics?.hasDiagnostics &&
+                                                                    <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
+                                                                }
+                                                            </div>
+                                                            {
+                                                                variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
+                                                                    variable.properties.defaultable.value === "?" ?
+                                                                        null
+                                                                        :  <div style={{ display: "flex", marginRight: "20px"}}>=</div>
+                                                                    : null
+                                                            }
+                                                            <div style={{ display: "flex"}}>
+                                                                {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
+                                                                    variable.properties.defaultable.value === "?" ?
+                                                                        null
+                                                                        : String(variable.properties.defaultable.value)
+                                                                    : null}
+                                                            </div>
+                                                        </S.ConfigData>
+
+                                                        <S.ConfigDataControls>
+                                                            <Button appearance="secondary" onClick={(event) => handleEditConfigVariableFormOpen(index)} aria-label="Edit">
+                                                                <Codicon name="edit" />
+                                                            </Button>
+                                                            <Button appearance="secondary" onClick={(event) => handleOnDeleteConfigVariable(index)} aria-label="Dlete">
+                                                                <Codicon name="trash" />
+                                                            </Button>
+                                                        </S.ConfigDataControls>
+                                                    </S.ConfigWrapper>
                                                 </VSCodeDataGridCell>
                                             </VSCodeDataGridRow>
 
