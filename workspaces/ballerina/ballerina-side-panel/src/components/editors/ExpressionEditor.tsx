@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { FormField } from '../Form/types';
-import { Control, Controller, FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form';
+import { Control, Controller, FieldValues, UseFormClearErrors, UseFormSetError, UseFormWatch } from 'react-hook-form';
 import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
@@ -29,6 +29,7 @@ type ContextAwareExpressionEditorProps = {
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
+    watch: UseFormWatch<any>;
     setError: UseFormSetError<FieldValues>;
     clearErrors: UseFormClearErrors<FieldValues>;
     completions: CompletionItem[];
@@ -162,6 +163,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const {
         control,
         field,
+        watch,
         setError,
         clearErrors,
         completions,
@@ -192,7 +194,26 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
+    // Use to fetch initial diagnostics
+    const fetchInitialDiagnostics = useRef<boolean>(true);
+    const fieldValue = watch(field.key);
+
     useImperativeHandle(ref, () => exprRef.current);
+
+    // Initial render
+    useEffect(() => {
+        // Fetch initial diagnostics
+        if (fieldValue !== undefined && fetchInitialDiagnostics.current) {
+            fetchInitialDiagnostics.current = false;
+            getExpressionDiagnostics(
+                fieldValue,
+                typeFieldValue ?? field.valueTypeConstraint ?? "var",
+                field.key,
+                setError,
+                clearErrors
+            );
+        }
+    }, [fieldValue]);
 
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
