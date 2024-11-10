@@ -127,19 +127,27 @@ var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
 
+// Define constants for command keys
+const COMMAND_SCAFFOLD = "/scaffold";
+const COMMAND_TESTS = "/tests";
+const COMMAND_DATAMAP = "/datamap";
+
+// Define constants for command templates
+const TEMPLATE_SCAFFOLD = [
+    "generate code for the use-case: <use-case>",
+    "generate an integration according to the given Readme file",
+];
+const TEMPLATE_TESTS = ["generate test using <servicename> service"];
+const TEMPLATE_DATAMAP = [
+    "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mapping using input as <recordname(s)> and output as <recordname>",
+];
+
+// Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
-    [
-        "/scaffolding",
-        ["generate code for the use-case: <use-case>", "generate an integration according to the given Readme file"],
-    ],
-    ["/test", ["generate test using <servicename> service"]],
-    [
-        "/datamapper",
-        [
-            "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-            "generate mapping using input as <recordname(s)> and output as <recordname>",
-        ],
-    ],
+    [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
+    [COMMAND_TESTS, TEMPLATE_TESTS],
+    [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
 ]);
 
 //TOOD: Add the backend URL
@@ -188,9 +196,10 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
+                        const command = COMMAND_SCAFFOLD;
+                        const template = commandToTemplate.get(command)?.[1];
                         if (initPrompt.exists) {
-                            // setUserInput(initPrompt.text);
-                            setUserInput("/scaffolding generate an integration according to the given Readme file");
+                            setUserInput(template ? command + " " + template : command);
                         }
                     });
                 rpcClient
@@ -357,7 +366,7 @@ export function AIChat() {
 
             if (parameters) {
                 switch (commandKey) {
-                    case "/scaffolding": {
+                    case COMMAND_SCAFFOLD: {
                         await processCodeGeneration(
                             token,
                             [
@@ -370,15 +379,15 @@ export function AIChat() {
                         );
                         break;
                     }
-                    case "/test": {
+                    case COMMAND_TESTS: {
                         await processTestGeneration(content, token, parameters.inputRecord[0]);
                         break;
                     }
-                    case "/datamapper": {
+                    case COMMAND_DATAMAP: {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
                             await processDataMappings(message, token, parameters);
                         } else {
-                            throw new Error("Error: Invalid parameters for /datamapper command");
+                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
                         }
                         break;
                     }
@@ -416,7 +425,7 @@ export function AIChat() {
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
             if (match) {
-                if (command === "/datamapper" && template.includes("<recordname(s)>")) {
+                if (command === COMMAND_DATAMAP && template.includes("<recordname(s)>")) {
                     const inputRecordNamesRaw = match[1].trim();
                     let inputRecordList: string[];
 
@@ -649,7 +658,7 @@ export function AIChat() {
                     const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
                     tempStorage[filePath] = originalContent;
                     if (originalContent === "") {
-                        emptyFiles.add(filePath); 
+                        emptyFiles.add(filePath);
                     } else {
                         initialFiles.add(filePath);
                     }
@@ -957,7 +966,10 @@ export function AIChat() {
                                                     source: prevSegment.text.trim(),
                                                     fileName: prevSegment.fileName,
                                                 });
-                                            } else if (prevSegment.type === SegmentType.Text && prevSegment.text.trim() === "") {
+                                            } else if (
+                                                prevSegment.type === SegmentType.Text &&
+                                                prevSegment.text.trim() === ""
+                                            ) {
                                                 j--;
                                                 continue;
                                             } else {
@@ -970,7 +982,9 @@ export function AIChat() {
                                                 key={i}
                                                 codeSegments={codeSegments}
                                                 loading={isLoading && showGeneratingFiles}
-                                                handleAddAllCodeSegmentsToWorkspace={handleAddAllCodeSegmentsToWorkspace}
+                                                handleAddAllCodeSegmentsToWorkspace={
+                                                    handleAddAllCodeSegmentsToWorkspace
+                                                }
                                                 handleRevertChanges={handleRevertChanges}
                                                 isReady={!isCodeLoading}
                                                 message={message}
