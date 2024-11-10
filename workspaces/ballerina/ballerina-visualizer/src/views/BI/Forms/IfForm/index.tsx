@@ -57,7 +57,7 @@ export function IfForm(props: IfFormProps) {
         handleSubmit,
         setError,
         clearErrors,
-        formState: { errors, isValid, isDirty },
+        formState: { errors, isValidating, isDirty },
     } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
@@ -331,7 +331,7 @@ export function IfForm(props: IfFormProps) {
         const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
         
         if (diagnosticsMessage.length > 0) {
-            setError(key, { message: diagnosticsMessage });
+            setError(key, { type: "validate", message: diagnosticsMessage });
         } else {
             clearErrors(key);
         }
@@ -380,6 +380,8 @@ export function IfForm(props: IfFormProps) {
         }
         setActiveEditor(currentActive);
     };
+
+    const disableSaveButton = Object.keys(errors).length > 0 || !isDirty || isValidating;
 
     // TODO: support multiple type fields
     return (
@@ -435,7 +437,7 @@ export function IfForm(props: IfFormProps) {
 
             {onSubmit && (
                 <FormStyles.Footer>
-                    <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={!isValid || !isDirty}>
+                    <Button appearance="primary" onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                         Save
                     </Button>
                 </FormStyles.Footer>

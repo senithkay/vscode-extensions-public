@@ -675,7 +675,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
         
         if (diagnosticsMessage.length > 0) {
-            setError(key, { message: diagnosticsMessage });
+            setError(key, { type: "validate", message: diagnosticsMessage }, { shouldFocus: false });
         } else {
             clearErrors(key);
         }

@@ -230,7 +230,7 @@ export function Form(props: FormProps) {
         setValue,
         setError,
         clearErrors,
-        formState: { isValid, isDirty, errors }
+        formState: { isDirty, isValidating, errors }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -348,6 +348,8 @@ export function Form(props: FormProps) {
     // Find the first editable field
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
 
+    const disableSaveButton = Object.keys(errors).length > 0 || !isDirty || isValidating;
+
     // TODO: support multiple type fields
     return (
         <Provider {...contextValue}>
@@ -460,7 +462,7 @@ export function Form(props: FormProps) {
                                 Create Mapping
                             </S.PrimaryButton>
                         ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={!isValid || !isDirty}>
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                                 Save
                             </S.PrimaryButton>
                         )}
