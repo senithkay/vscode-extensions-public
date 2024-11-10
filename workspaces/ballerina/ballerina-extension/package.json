@@ -501,6 +501,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.tryit",
+                "title": "Open Try It",
+                "category": "Ballerina"
+            },
+            {
                 "command": "kolab.open.ai.panel",
                 "title": "Open AI Panel",
                 "category": "Ballerina",

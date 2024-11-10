@@ -430,6 +430,9 @@ class BIRunAdapter extends LoggingDebugSession {
                     }
                 });
 
+                // Trigger Try It command after successful build
+                commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+
                 response.success = true;
                 this.sendResponse(response);
             });
