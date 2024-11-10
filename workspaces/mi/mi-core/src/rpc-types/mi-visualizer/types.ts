@@ -145,7 +145,7 @@ export interface HandleCertificateFileRequest {
     currentConfigurableName: string;
     storedProjectCertificateDirPath: string;
     configPropertiesFilePath: string;
-    envFilePath: string
+    envFilePath: string;
     certificateUsages: object;
 }
 
@@ -155,7 +155,8 @@ export interface HandleCertificateConfigurableRequest {
     currentCertificateFileName: string;
     storedProjectCertificateDirPath: string;
     configPropertiesFilePath: string;
-    envFilePath: string
+    envFilePath: string;
+    certificateUsages: object;
 }
 
 export interface FileAppendRequest {

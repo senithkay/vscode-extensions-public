@@ -315,6 +315,12 @@ export function AddConnection(props: AddConnectionProps) {
             }
         });
 
+        const resourceUsagesResult: any = await rpcClient.getMiDiagramRpcClient().getResourceUsages();
+            const certificateUsageObj: any = new Object();
+            Object.keys(resourceUsagesResult).forEach(key => {
+                certificateUsageObj[key] = resourceUsagesResult[key];
+            })
+
         if (values['certificateConfigurableName']) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
             const currentEnvFilePath = projectUri + "/.env";
@@ -328,7 +334,8 @@ export function AddConnection(props: AddConnectionProps) {
                     currentCertificateFileName: certificatePath,
                     storedProjectCertificateDirPath: projectCertificateDirPath,
                     configPropertiesFilePath: currentConfigPropertiesFilePath,
-                    envFilePath: currentEnvFilePath
+                    envFilePath: currentEnvFilePath,
+                    certificateUsages: certificateUsageObj
                 })
                 connectorTag.ele('certificateConfigurableName').txt(certificateConfigurableName);
             }
@@ -338,12 +345,6 @@ export function AddConnection(props: AddConnectionProps) {
             const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
             const currentEnvFilePath = projectUri + "/.env";
             const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
-
-            const resourceUsagesResult: any = await rpcClient.getMiDiagramRpcClient().getResourceUsages();
-            const certificateUsageObj: any = new Object();
-            Object.keys(resourceUsagesResult).forEach(key => {
-                certificateUsageObj[key] = resourceUsagesResult[key];
-            })
 
             const currentCertificateFilePath = values['trustStoreCertificatePath'];
 
