@@ -43,7 +43,6 @@ type DefaultCompletionItemProps = {
 
 type DropdownItemProps = {
     item: CompletionItem;
-    firstItem?: boolean;
     onClick: () => void | Promise<void>;
 };
 
@@ -240,7 +239,7 @@ const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
 }
 
 const DropdownItem = (props: DropdownItemProps) => {
-    const { item, firstItem, onClick } = props;
+    const { item, onClick } = props;
     const itemRef = useRef<HTMLDivElement>(null);
 
     const handleMouseEnter = () => {
@@ -255,7 +254,6 @@ const DropdownItem = (props: DropdownItemProps) => {
     return (
         <DropdownItemContainer
             ref={itemRef}
-            {...(firstItem && { className: 'hovered' })}
             onMouseEnter={handleMouseEnter}
             onClick={onClick}
         >
@@ -294,7 +292,6 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     return (
                         <DropdownItem
                             key={`dropdown-item-${index}`}
-                            {...(!showDefaultCompletion && index === 0 && { firstItem: true })}
                             item={item}
                             onClick={async () => await onCompletionSelect(item)}
                         />
@@ -539,19 +536,17 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 if (defaultCompletionEl) {
                     defaultCompletionEl.classList.add('hovered');
                     defaultCompletionEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                }
-            } else {
-                const prevEl = hoveredEl.previousElementSibling as HTMLElement;
-                if (prevEl) {
-                    prevEl.classList.add('hovered');
-                    prevEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                 } else {
                     const lastEl = dropdownRef.current.lastElementChild as HTMLElement;
                     if (lastEl) {
                         lastEl.classList.add('hovered');
                         lastEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                    }
+                    } 
                 }
+            } else {
+                const prevEl = hoveredEl.previousElementSibling as HTMLElement;
+                prevEl.classList.add('hovered');
+                prevEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
             }
         } else {
             const lastEl = dropdownRef.current.lastElementChild as HTMLElement;
@@ -577,16 +572,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 if (defaultCompletionEl) {
                     defaultCompletionEl.classList.add('hovered');
                     defaultCompletionEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                }
-                const firstEl = dropdownRef.current.firstElementChild as HTMLElement;
-                if (firstEl) {
-                    firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                }
-            } else {
-                const nextEl = hoveredEl.nextElementSibling as HTMLElement;
-                if (nextEl) {
-                    nextEl.classList.add('hovered');
-                    nextEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                 } else {
                     const firstEl = dropdownRef.current.firstElementChild as HTMLElement;
                     if (firstEl) {
@@ -594,6 +579,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         firstEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
                     }
                 }
+            } else {
+                const nextEl = hoveredEl.nextElementSibling as HTMLElement;
+                nextEl.classList.add('hovered');
+                nextEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
             }
         } else {
             const defaultCompletionEl = dropdownContainerRef.current.querySelector('#default-completion');
