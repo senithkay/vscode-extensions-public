@@ -304,7 +304,12 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
         return undefined;
     }
     const label = fnMatch.groups?.label;
-    const args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+
+    let args: string[] = [];
+    if (fnMatch.groups?.args !== "") {
+        // For functions with arguments
+       args = fnMatch.groups?.args.split(",").map((arg) => arg.trim())
+    }
 
     return {
         label,
