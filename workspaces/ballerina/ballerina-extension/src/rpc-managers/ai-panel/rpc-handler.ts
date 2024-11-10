@@ -10,22 +10,24 @@
  */
 import {
     AddToProjectRequest,
-    GetFromFileRequest,
     DeleteFromProjectRequest,
     GenerateMappingsRequest,
     GenerateTestRequest,
     GeneratedTestSource,
     GenerteMappingsFromRecordRequest,
+    GetFromFileRequest,
     NotifyAIMappingsRequest,
+    PostProcessRequest,
     ProjectSource,
     addToProject,
-    getFromFile,
-    deleteFromProject,
+    checkSyntaxError,
     clearInitialPrompt,
+    deleteFromProject,
     generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getFromFile,
     getGeneratedTest,
     getInitialPrompt,
     getMappingsFromRecord,
@@ -33,11 +35,11 @@ import {
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
-    checkSyntaxError,
     getTestDiagnostics,
     login,
     logout,
     notifyAIMappings,
+    postProcess,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
@@ -58,7 +60,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
     messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
-    messenger.onRequest(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
+    messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
     messenger.onRequest(notifyAIMappings, (args: NotifyAIMappingsRequest) => rpcManger.notifyAIMappings(args));
@@ -72,4 +74,5 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
     messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
     messenger.onRequest(getMappingsFromRecord, (args: GenerteMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
+    messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
 }

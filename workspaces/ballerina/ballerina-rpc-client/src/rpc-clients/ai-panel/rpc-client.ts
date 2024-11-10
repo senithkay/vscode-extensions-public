@@ -12,26 +12,29 @@ import {
     AIPanelAPI,
     AIVisualizerState,
     AddToProjectRequest,
-    GetFromFileRequest,
     DeleteFromProjectRequest,
-    GenerateMappingsRequest,
     GenerateMappingFromRecordResponse,
+    GenerateMappingsRequest,
     GenerateMappingsResponse,
     GenerateTestRequest,
     GeneratedTestSource,
     GenerteMappingsFromRecordRequest,
+    GetFromFileRequest,
     InitialPrompt,
     NotifyAIMappingsRequest,
+    PostProcessRequest,
+    PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
     addToProject,
-    getFromFile,
-    deleteFromProject,
+    checkSyntaxError,
     clearInitialPrompt,
+    deleteFromProject,
     generateMappings,
     getAccessToken,
     getAiPanelState,
     getBackendURL,
+    getFromFile,
     getGeneratedTest,
     getInitialPrompt,
     getMappingsFromRecord,
@@ -39,11 +42,11 @@ import {
     getProjectUuid,
     getRefreshToken,
     getShadowDiagnostics,
-    checkSyntaxError,
     getTestDiagnostics,
     login,
     logout,
     notifyAIMappings,
+    postProcess,
     promptLogin,
     refreshAccessToken,
     stopAIMappings,
@@ -91,16 +94,16 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectUuid, HOST_EXTENSION);
     }
 
-    addToProject(params: AddToProjectRequest): void {
-        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, params);
+    addToProject(content: AddToProjectRequest): void {
+        return this._messenger.sendNotification(addToProject, HOST_EXTENSION, content);
     }
 
-    getFromFile(params: GetFromFileRequest): Promise<string> {
-        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, params);
+    getFromFile(content: GetFromFileRequest): Promise<string> {
+        return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, content);
     }
 
-    deleteFromProject(params: DeleteFromProjectRequest): Promise<string> {
-        return this._messenger.sendRequest(deleteFromProject, HOST_EXTENSION, params);
+    deleteFromProject(content: DeleteFromProjectRequest): void {
+        return this._messenger.sendNotification(deleteFromProject, HOST_EXTENSION, content);
     }
 
     getRefreshToken(): Promise<string> {
@@ -127,12 +130,12 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getProjectSource, HOST_EXTENSION);
     }
 
-    getShadowDiagnostics(params: ProjectSource): Promise<ProjectDiagnostics> {
-        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, params);
+    getShadowDiagnostics(project: ProjectSource): Promise<ProjectDiagnostics> {
+        return this._messenger.sendRequest(getShadowDiagnostics, HOST_EXTENSION, project);
     }
 
-    checkSyntaxError(params: ProjectSource): Promise<boolean> {
-        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, params);
+    checkSyntaxError(project: ProjectSource): Promise<boolean> {
+        return this._messenger.sendRequest(checkSyntaxError, HOST_EXTENSION, project);
     }
 
     getInitialPrompt(): Promise<InitialPrompt> {
@@ -153,5 +156,9 @@ export class AiPanelRpcClient implements AIPanelAPI {
 
     getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         return this._messenger.sendRequest(getMappingsFromRecord, HOST_EXTENSION, params);
+    }
+
+    postProcess(req: PostProcessRequest): Promise<PostProcessResponse> {
+        return this._messenger.sendRequest(postProcess, HOST_EXTENSION, req);
     }
 }

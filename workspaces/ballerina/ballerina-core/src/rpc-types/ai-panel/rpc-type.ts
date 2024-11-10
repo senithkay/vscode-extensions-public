@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { AIVisualizerState, AddToProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GetFromFileRequest, DeleteFromProjectRequest, GenerateTestRequest, GeneratedTestSource, GenerteMappingsFromRecordRequest, GenerateMappingFromRecordResponse } from "./interfaces";
+import { AIVisualizerState, AddToProjectRequest, GetFromFileRequest, DeleteFromProjectRequest, GenerateMappingsRequest, GenerateMappingsResponse, NotifyAIMappingsRequest, ProjectSource, ProjectDiagnostics, InitialPrompt, GenerateTestRequest, GeneratedTestSource, GenerteMappingsFromRecordRequest, GenerateMappingFromRecordResponse, PostProcessRequest, PostProcessResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "ai-panel";
@@ -21,7 +21,7 @@ export const getAccessToken: RequestType<void, string> = { method: `${_preFix}/g
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
 export const getProjectUuid: RequestType<void, string> = { method: `${_preFix}/getProjectUuid` };
 export const addToProject: NotificationType<AddToProjectRequest> = { method: `${_preFix}/addToProject` };
-export const getFromFile: NotificationType<GetFromFileRequest> = { method: `${_preFix}/getFromFile` };
+export const getFromFile: RequestType<GetFromFileRequest, string> = { method: `${_preFix}/getFromFile` };
 export const deleteFromProject: NotificationType<DeleteFromProjectRequest> = { method: `${_preFix}/deleteFromProject` };
 export const getRefreshToken: RequestType<void, string> = { method: `${_preFix}/getRefreshToken` };
 export const generateMappings: RequestType<GenerateMappingsRequest, GenerateMappingsResponse> = { method: `${_preFix}/generateMappings` };
@@ -36,3 +36,4 @@ export const clearInitialPrompt: NotificationType<void> = { method: `${_preFix}/
 export const getGeneratedTest: RequestType<GenerateTestRequest, GeneratedTestSource> = { method: `${_preFix}/getGeneratedTest` };
 export const getTestDiagnostics: RequestType<GeneratedTestSource, ProjectDiagnostics> = { method: `${_preFix}/getTestDiagnostics` };
 export const getMappingsFromRecord: RequestType<GenerteMappingsFromRecordRequest, GenerateMappingFromRecordResponse> = { method: `${_preFix}/getMappingsFromRecord` };
+export const postProcess: RequestType<PostProcessRequest, PostProcessResponse> = { method: `${_preFix}/postProcess` };
