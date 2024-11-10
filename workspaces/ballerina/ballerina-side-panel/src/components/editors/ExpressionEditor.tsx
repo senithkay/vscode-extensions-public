@@ -183,9 +183,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         typeFieldValue,
         autoFocus
     } = props as ExpressionEditorProps;
-
     const [focused, setFocused] = useState(false);
-        // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
+    
+    // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
     const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
     const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
     const effectiveFileName = fileName ?? contextFileName;
