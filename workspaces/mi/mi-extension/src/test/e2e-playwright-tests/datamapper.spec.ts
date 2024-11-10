@@ -15,26 +15,23 @@ import { ServiceDesigner } from './components/ServiceDesigner';
 import { Diagram } from './components/Diagram';
 import { closeNotification, createProject, dataFolder, initVSCode, newProjectPath, page, resourcesFolder, resumeVSCode, vscode } from './Utils';
 import { DataMapper } from './components/DataMapper';
-import { Overview } from './components/Overview';
-import { IOType } from '@wso2-enterprise/mi-core';
-import { add } from 'lodash';
 
 const fs = require('fs');
-
-const DM_NAME = 'dm1';
-
-const dmFilesPath = path.join(dataFolder, 'datamapper-files');
 
 test.describe.configure({ mode: 'serial' });
 
 const NEED_INITIAL_SETUP = true;
+const NEED_CLEANUP = true;
+
 if (NEED_INITIAL_SETUP) initProject();
 else resumeProject();
 
-doBasicMappings();
-doArrayMappings();
+tryBasicMappings();
+tryArrayMappings();
 finishUp();
 
+
+// Test functions
 function initProject() {
   // create project until resource view
 
@@ -100,57 +97,7 @@ function resumeProject() {
   });
 }
 
-async function addDataMapper(name: string) {
-  // add data mapper to the service designer, return the data mapper object , should be used inside a test
-  const diagram = new Diagram(page.page, 'Resource');
-  await diagram.init();
-  await diagram.addMediator('DataMapper', 0, {
-    values: {
-      'Name*': {
-        type: 'input',
-        value: name,
-      }
-    }
-  }, "Create Mapping");
-
-  const dm = new DataMapper(page.page, name);
-  await dm.init();
-  expect(dm.verifyFileCreation()).toBeTruthy();
-  return dm;
-}
-
-async function backToResourceView() {
-  // go back to service designer
-  await page.page.locator('vscode-button[title="Go Back"]').click();
-}
-
-async function openDataMapperFromResourceView(name: string) {
-  // open data mapper from resource view
-  const diagram = new Diagram(page.page, 'Resource');
-  await diagram.init();
-  console.log('.:.Getting mediator');
-  const mediator = await diagram.getMediator('DataMapper');
-  await mediator.clickLink(name);
-
-  const dm = new DataMapper(page.page, name);
-  await dm.init();
-  return dm;
-}
-
-async function openDataMapperFromTreeView(name: string) {
-  // open data mapper from tree view
-  const dmLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
-  await dmLabel.click();
-  await page.page.waitForTimeout(1000);
-  const dmItem = await page.page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
-  await dmItem.click();
-
-  const dm = new DataMapper(page.page, name);
-  await dm.init();
-  return dm;
-}
-
-function doBasicMappings() {
+function tryBasicMappings() {
   test('Try Basic Mappings', async () => {
 
     let dm: DataMapper;
@@ -234,7 +181,7 @@ function doBasicMappings() {
   });
 }
 
-function doArrayMappings() {
+function tryArrayMappings() {
   test('Try Array Mappings', async () => {
 
     let dm: DataMapper;
@@ -425,7 +372,7 @@ function finishUp() {
     }
 
     // cleanup
-    if (process.env.CI) {
+    if (NEED_CLEANUP) {
       if (fs.existsSync(newProjectPath)) {
         fs.rmSync(newProjectPath, { recursive: true });
       }
@@ -433,5 +380,51 @@ function finishUp() {
 
     console.log('DataMapper tests completed')
   });
+}
+
+// Helper functions
+async function addDataMapper(name: string) {
+  // add data mapper to the service designer, return the data mapper object , should be used inside a test
+  const diagram = new Diagram(page.page, 'Resource');
+  await diagram.init();
+  await diagram.addMediator('DataMapper', 0, {
+    values: {
+      'Name*': {
+        type: 'input',
+        value: name,
+      }
+    }
+  }, "Create Mapping");
+
+  const dm = new DataMapper(page.page, name);
+  await dm.init();
+  expect(dm.verifyFileCreation()).toBeTruthy();
+  return dm;
+}
+
+async function openDataMapperFromResourceView(name: string) {
+  // open data mapper from resource view
+  const diagram = new Diagram(page.page, 'Resource');
+  await diagram.init();
+  console.log('.:.Getting mediator');
+  const mediator = await diagram.getMediator('DataMapper');
+  await mediator.clickLink(name);
+
+  const dm = new DataMapper(page.page, name);
+  await dm.init();
+  return dm;
+}
+
+async function openDataMapperFromTreeView(name: string) {
+  // open data mapper from tree view
+  const dmLabel = await page.page.waitForSelector('div[aria-label="Data Mappers"]', { timeout: 180000 });
+  await dmLabel.click();
+  await page.page.waitForTimeout(1000);
+  const dmItem = await page.page.waitForSelector(`div[aria-label="${name}"]`, { timeout: 180000 });
+  await dmItem.click();
+
+  const dm = new DataMapper(page.page, name);
+  await dm.init();
+  return dm;
 }
 
