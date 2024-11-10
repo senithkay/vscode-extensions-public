@@ -37,3 +37,4 @@ export const getGeneratedTest: RequestType<GenerateTestRequest, GeneratedTestSou
 export const getTestDiagnostics: RequestType<GeneratedTestSource, ProjectDiagnostics> = { method: `${_preFix}/getTestDiagnostics` };
 export const getMappingsFromRecord: RequestType<GenerteMappingsFromRecordRequest, GenerateMappingFromRecordResponse> = { method: `${_preFix}/getMappingsFromRecord` };
 export const postProcess: RequestType<PostProcessRequest, PostProcessResponse> = { method: `${_preFix}/postProcess` };
+export const applyDoOnFailBlocks: NotificationType<void> = { method: `${_preFix}/applyDoOnFailBlocks` };
