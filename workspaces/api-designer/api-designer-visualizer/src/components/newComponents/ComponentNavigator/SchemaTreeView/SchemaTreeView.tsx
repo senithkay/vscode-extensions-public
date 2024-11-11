@@ -43,7 +43,8 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
         });
     };
 
-    const handleAddSchema = () => {
+    const handleAddSchema = (evt : React.MouseEvent) => {
+        evt.stopPropagation();
         if (openAPI.components === undefined) {
             openAPI.components = {};
         }
@@ -58,7 +59,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             properties: {}
         };
         onSchemaTreeViewChange(openAPI);
-        onSelectedItemChange(`${newSchemaName}-schema`);
+        onSelectedItemChange(`schemas-component-${newSchemaName}`);
         // TODO: Switch to edit mode
     };
 

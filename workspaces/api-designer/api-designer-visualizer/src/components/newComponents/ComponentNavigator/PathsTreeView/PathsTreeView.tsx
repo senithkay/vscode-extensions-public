@@ -44,6 +44,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
             }
         };
         onPathTreeViewChange(openAPI);
+        onSelectedItemChange(`paths-component-${newPathVal}`);
     };
 
     let pathsArray: string[] = [];
@@ -74,7 +75,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                 </PathContainer>
             }
             selectedId={selectedComponent}
-            onSelect={onSelectedItemChange}
+            onSelect={() => onSelectedItemChange("Paths-Resources")}
         >
             {
                 pathsArray.map((path, index) => {

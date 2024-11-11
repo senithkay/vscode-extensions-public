@@ -40,8 +40,8 @@ export function OpenAPI(props: OverviewProps) {
                     onPathsChange={(paths) => handleOpenAPIChange({ ...openAPI, paths })}
                 />
             )}
-            {componetName === "schema" && (
-                <SchemaEditor 
+            {componetName === "schemas" && (
+                <SchemaEditor
                     openAPI={openAPI}
                     schema={openAPI.components.schemas[selectedComponent.split("-")[2]]}
                     schemaName={selectedComponent.split("-")[2]}
