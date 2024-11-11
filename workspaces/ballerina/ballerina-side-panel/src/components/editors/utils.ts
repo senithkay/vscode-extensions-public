@@ -27,3 +27,10 @@ export function capitalize(str: string) {
     }
     return startCase(str);
 }
+
+export function sanitizeType(type: string) {
+    if (type.includes('{') || type.includes('}') || (type.match(/:/g) || []).length > 1) {
+        return type;
+    }
+    return type.includes(':') ? type.split(':').pop() : type;
+}
