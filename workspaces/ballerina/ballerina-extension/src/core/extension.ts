@@ -398,7 +398,7 @@ export class BallerinaExtension {
             if (this.langClient?.isRunning()) {
                 window.showInformationMessage(`Stopping the ballerina language server...`);
                 await this.langClient.stop();
-                await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 10 seconds
+                await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
             }
 
             window.showInformationMessage(`Updating Ballerina Kola version`);
