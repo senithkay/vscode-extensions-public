@@ -804,11 +804,6 @@ export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: P
         return suffix;
     }
     return '';
-};
-
-export function logAction(action: string, query: string) {
-    console.log(`[EA]:${action}:${query}`);
-    
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

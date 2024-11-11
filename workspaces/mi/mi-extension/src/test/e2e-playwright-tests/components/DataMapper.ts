@@ -55,19 +55,10 @@ export class DataMapper {
 
         for (let i = 0; !(await this.isClickable(locator)) && i < 5; i++) {
             await page.page.mouse.wheel(0, 400);
-            // await page.page.waitForTimeout(1000);
-            // console.log('.:.', i);
         }
     }
 
-
-
     public async isClickable(element: Locator): Promise<boolean> {
-        // Check if the element is visible
-        // const isVisible = await element.isVisible();
-
-        // // Check if the element is enabled (not disabled)
-        // const isEnabled = await element.isEnabled();
 
         // Check if the element is not covered by other elements
         const isNotObstructed = await element.evaluate((el) => {
@@ -76,11 +67,8 @@ export class DataMapper {
             return elementAtPoint === el || el.contains(elementAtPoint) || (elementAtPoint?.contains(el) ?? false);
         });
 
-        // Element is clickable if it's visible, enabled, and not obstructed
         return isNotObstructed;
     }
-
-
 
     public async waitForProgressEnd() {
         await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
@@ -182,33 +170,6 @@ export class DataMapper {
         fs.writeFileSync(snapshotFile, await root.innerHTML());
     }
 
-    public async runEventActions(eaFile: string) {
-        const eaFileContent = fs.readFileSync(eaFile, 'utf8');
-        const actionLines = eaFileContent.split('\n');
-
-        const links = this.webView.locator('g [data-testid]');
-        let linkCount = await links.count();
-
-        for (const actionLine of actionLines) {
-            const [_, actionType, query] = actionLine.split(':');
-            switch (actionType) {
-                case 'click':
-                    linkCount = await links.count();
-                    const element = this.webView.locator(query);
-                    await element.waitFor();
-                    await element.click();
-                    break;
-                case 'wait':
-                    await this.webView.waitForSelector('vscode-progress-ring', { state: 'detached' });
-                    // await this.webView.waitForSelector(query, { state: 'attached' });
-                    // await expect(links).not.toHaveCount(linkCount);
-                    //await page.page.waitForTimeout(3000);
-                    break;
-            }
-        }
-
-    }
-
     public async expectErrorLink(locator: Locator) {
         await locator.waitFor({ state: 'attached' });
         const hasDiagnostic = await locator.evaluate((el) => el.getAttribute('data-diagnostics') == "true");
@@ -239,7 +200,6 @@ export class DataMapper {
         const tsFile = path.join(newProjectPath, 'testProject', 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', this._name, `${this._name}.ts`);
         fs.writeFileSync(tsFile, fs.readFileSync(newTsFile, 'utf8'));
     }
-
 
 }
 
