@@ -227,7 +227,7 @@ export class BallerinaExtension {
         });
 
         commands.registerCommand('kolab-setup.updateKola', () => {
-            this.updateKolaVersion();
+            this.updateKolaVersion(true);
         });
 
         try {
@@ -393,14 +393,19 @@ export class BallerinaExtension {
         }
     }
 
-    async updateKolaVersion() {
+    async updateKolaVersion(restartWindow?: boolean) {
         try {
-            window.showInformationMessage(`Updating Ballerina Kola version`);
+            if (this.langClient?.isRunning()) {
+                window.showInformationMessage(`Stopping the ballerina language server...`);
+                await this.langClient.stop();
+                await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
+            }
 
+            window.showInformationMessage(`Updating Ballerina Kola version`);
             // Remove the existing Ballerina Kola version
             fs.rmSync(this.ballerinaKolaHome, { recursive: true, force: true });
 
-            await this.downloadAndUnzipBallerina();
+            await this.downloadAndUnzipBallerina(restartWindow);
 
             await this.setBallerinaHomeAndCommand();
 
@@ -414,14 +419,18 @@ export class BallerinaExtension {
             RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
             console.log('Ballerina home has been set successfully for Kola version.');
-            window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+            if (restartWindow) {
+                commands.executeCommand('workbench.action.reloadWindow');
+            } else {
+                window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+            }
         } catch (error) {
             console.error('Error downloading or unzipping the Ballerina Kola version:', error);
             window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
         }
     }
 
-    private async downloadAndUnzipBallerina() {
+    private async downloadAndUnzipBallerina(restartWindow?: boolean) {
         try {
             // Get the latest successful daily build run and artifacts
             let res: DownloadProgress = {
@@ -530,6 +539,10 @@ export class BallerinaExtension {
                                 RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
                             }
                         });
+                        if (restartWindow) {
+                            window.showInformationMessage("Download complete. Please wait...");
+                        }
+                        return;
                     }
                 );
                 // ... existing code to handle the response ...
@@ -548,6 +561,9 @@ export class BallerinaExtension {
             await fs.writeFileSync(zipFilePath, response.data);
             console.log(`Downloaded artifact to ${zipFilePath}`);
 
+            if (restartWindow) {
+                window.showInformationMessage("Setting the Kola Home location...");
+            }
             res = {
                 ...res,
                 message: `Setting the Kola Home location...`,
@@ -564,6 +580,9 @@ export class BallerinaExtension {
             const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
             fs.renameSync(tempRootPath, this.ballerinaKolaHome);
 
+            if (restartWindow) {
+                window.showInformationMessage("Cleaning up the temp files...");
+            }
             res = {
                 ...res,
                 message: `Cleaning up the temp files...`,
@@ -576,8 +595,8 @@ export class BallerinaExtension {
 
             console.log('Cleanup complete.');
         } catch (error) {
-            console.error('Error downloading or unziping Ballerina Kola version:', error);
-            window.showErrorMessage('Error downloading or unziping Ballerina Kola version:', error);
+            console.error('Error downloading or unzipping Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unzipping Ballerina Kola version:', error);
         }
     }
 
