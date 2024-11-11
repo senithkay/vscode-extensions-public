@@ -48,7 +48,7 @@ export function EditForm(props: ConfigFormProps) {
         const formProperties = getFormProperties(variable);
         console.log(">>> Edit config form properties", formProperties);
         setFields(convertNodePropertiesToFormFields(formProperties));
-    }, []);
+    }, [variable]);
 
     const handleSave = (data: FormValues) => {
 

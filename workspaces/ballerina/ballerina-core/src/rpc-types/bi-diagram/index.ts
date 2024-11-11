@@ -38,6 +38,8 @@ import {
     VisibleTypesResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 
@@ -71,4 +73,5 @@ export interface BIDiagramAPI {
     buildProject: () => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
 }
