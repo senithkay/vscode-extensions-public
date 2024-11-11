@@ -160,9 +160,6 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
     const nodesClone = [...nodes];
     const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
 
-    // let requiredParamFields = 0;
-    // let numberOfRequiredParamNodes = 0;
-
     let prevBottomY = 0;
 
     nodesClone.forEach(node => {
@@ -198,7 +195,6 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
                 prevBottomY = computedY + nodeHeight;
             } else if (node instanceof ExpandedMappingHeaderNode) {
                 const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
-                // prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + GAP_BETWEEN_FILTER_NODE_AND_INPUT_NODE;
                 prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + 10;
             }
         }
@@ -210,12 +206,7 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: nu
             node.setPosition(x, y);
             const nodeHeight = getIONodeHeight(node.numberOfFields);
             prevBottomY = computedY + nodeHeight;
-            // requiredParamFields = requiredParamFields + node.numberOfFields;
-            // numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
         }
-        // if (node instanceof ExpandedMappingHeaderNode) {
-        //     additionalSpace += nodeHeight + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-        // }
     });
 
     return nodesClone;
