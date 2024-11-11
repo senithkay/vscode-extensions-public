@@ -21,6 +21,7 @@ import {
     ComponentRequest,
     ComponentsRequest,
     ExpressionCompletionsRequest,
+    ExpressionDiagnosticsRequest,
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
@@ -37,6 +38,7 @@ import {
     getBIConnectors,
     getConfigVariables,
     getExpressionCompletions,
+    getExpressionDiagnostics,
     getFlowModel,
     getFunctions,
     getModuleNodes,
@@ -90,4 +92,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(runProject, () => rpcManger.runProject());
     messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
+    messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
 }

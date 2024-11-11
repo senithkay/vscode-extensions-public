@@ -8,8 +8,15 @@
  */
 
 import React, { useRef, useState } from "react";
-import { Codicon, ExpressionBar, ExpressionBarRef, RequiredFormInput, ThemeColors, Typography } from "@wso2-enterprise/ui-toolkit";
-
+import {
+    Codicon,
+    ErrorBanner,
+    ExpressionBar,
+    ExpressionBarRef,
+    RequiredFormInput,
+    ThemeColors,
+    Typography
+} from "@wso2-enterprise/ui-toolkit";
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
@@ -101,8 +108,6 @@ export function TypeEditor(props: TypeEditorProps) {
         handleCancel();
     }
 
-    const errorMsg = field.diagnostics?.map((diagnostic) => diagnostic.message).join("\n");
-
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -120,38 +125,40 @@ export function TypeEditor(props: TypeEditorProps) {
                 name={field.key}
                 defaultValue={field.value}
                 rules={{ required: !field.optional && !field.placeholder }}
-                render={({ field: { name, value, onChange } }) => (
-                    <ExpressionBar
-                        key={field.key}
-                        ref={exprRef}
-                        name={name}
-                        completions={completions}
-                        getExpressionBarIcon={getExpressionBarIcon}
-                        showDefaultCompletion={showDefaultCompletion}
-                        getDefaultCompletion={getDefaultCompletion}
-                        value={value}
-                        onChange={async (value: string, updatedCursorPosition: number) => {
-                            onChange(value);
-                            cursorPositionRef.current = updatedCursorPosition;
+                render={({ field: { name, value, onChange }, fieldState: { error } }) => (
+                    <div>
+                        <ExpressionBar
+                            key={field.key}
+                            ref={exprRef}
+                            name={name}
+                            completions={completions}
+                            getExpressionBarIcon={getExpressionBarIcon}
+                            showDefaultCompletion={showDefaultCompletion}
+                            getDefaultCompletion={getDefaultCompletion}
+                            value={value}
+                            onChange={async (value: string, updatedCursorPosition: number) => {
+                                onChange(value);
+                                cursorPositionRef.current = updatedCursorPosition;
 
-                            // Retrieve visible types
-                            await retrieveVisibleTypes(value, updatedCursorPosition);
-                        }}
-                        onCompletionSelect={handleCompletionSelect}
-                        onDefaultCompletionSelect={handleDefaultCompletionSelect}
-                        onFocus={() => handleFocus(value)}
-                        onBlur={handleBlur}
-                        onSave={onSave}
-                        onCancel={handleCancel}
-                        useTransaction={useTransaction}
-                        shouldDisableOnSave={false}
-                        placeholder={field.placeholder}
-                        autoFocus={autoFocus}
-                        sx={{ paddingInline: '0' }}
-                    />
+                                // Retrieve visible types
+                                await retrieveVisibleTypes(value, updatedCursorPosition);
+                            }}
+                            onCompletionSelect={handleCompletionSelect}
+                            onDefaultCompletionSelect={handleDefaultCompletionSelect}
+                            onFocus={() => handleFocus(value)}
+                            onBlur={handleBlur}
+                            onSave={onSave}
+                            onCancel={handleCancel}
+                            useTransaction={useTransaction}
+                            shouldDisableOnSave={false}
+                            placeholder={field.placeholder}
+                            autoFocus={autoFocus}
+                            sx={{ paddingInline: '0' }}
+                        />
+                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
+                    </div>
                 )}
             />
-            {errorMsg && <S.Error>{errorMsg}</S.Error>}
         </S.Container>
     );
 }
