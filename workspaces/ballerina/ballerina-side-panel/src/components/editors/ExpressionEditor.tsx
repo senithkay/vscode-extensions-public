@@ -283,7 +283,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     isEnable: true,
                     name: field.label,
                     documentation: field.documentation,
-                    value: field.value
+                    value: field.value as string
                 };
                 subPanelProps.sidePanelData.configurePanelData = configurePanelData;
             }
