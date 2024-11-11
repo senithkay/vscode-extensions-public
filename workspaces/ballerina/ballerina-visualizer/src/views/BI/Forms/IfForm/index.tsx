@@ -393,7 +393,7 @@ export function IfForm(props: IfFormProps) {
             return true;
         }
 
-        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics;
+        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics || [];
         if (diagnostics.length === 0) {
             clearErrors(key);
             return true;

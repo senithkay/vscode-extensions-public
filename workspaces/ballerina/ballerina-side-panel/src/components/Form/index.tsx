@@ -377,7 +377,7 @@ export function Form(props: FormProps) {
             return true;
         }
 
-        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics;
+        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics || [];
         if (diagnostics.length === 0) {
             clearErrors(key);
             return true;
