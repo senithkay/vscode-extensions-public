@@ -16,9 +16,7 @@ import {
     UseFormWatch, 
     UseFormRegister, 
     UseFormSetValue, 
-    UseFormUnregister, 
-    UseFormSetError,
-    UseFormClearErrors
+    UseFormUnregister
 } from 'react-hook-form';
 
 export interface FormContext {
@@ -28,8 +26,6 @@ export interface FormContext {
         watch: UseFormWatch<any>;
         register: UseFormRegister<FieldValues>;
         unregister: UseFormUnregister<FieldValues>;
-        setError: UseFormSetError<FieldValues>;
-        clearErrors: UseFormClearErrors<FieldValues>;
     };
     expressionEditor?: {
         completions: CompletionItem[];
@@ -49,9 +45,7 @@ export interface FormContext {
         getExpressionDiagnostics?: (
             showDiagnostics: boolean,
             expression: string,
-            key: string,
-            setError: UseFormSetError<FieldValues>,
-            clearErrors: UseFormClearErrors<FieldValues>
+            key: string
         ) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
