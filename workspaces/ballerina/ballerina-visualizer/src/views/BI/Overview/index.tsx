@@ -37,7 +37,7 @@ const CardTitleContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    border-bottom: 1px solid var(--vscode-input-border);
+    border-bottom: 1px solid var(--vscode-dropdown-border);
     padding:5px 10px;
 `;
 
@@ -85,7 +85,7 @@ const EmptyStateContainer = styled.div`
 `;
 
 const CardContainer = styled.div`
-    border: 1px solid var(--vscode-input-border);
+    border: 1px solid var(--vscode-dropdown-border);
     border-radius: 5px;
     margin-top: 24px;
 `;
