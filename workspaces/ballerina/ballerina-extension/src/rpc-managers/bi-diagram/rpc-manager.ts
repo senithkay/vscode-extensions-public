@@ -43,6 +43,8 @@ import {
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
     FlowNode,
     OverviewFlow,
     ProjectComponentsResponse,
@@ -871,6 +873,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getExpressionDiagnostics(params)
+                .then((diagnostics) => {
+                    resolve(diagnostics);
+                })
+                .catch((error) => {
+                    reject("Error fetching expression diagnostics from ls");
                 });
         });
     }

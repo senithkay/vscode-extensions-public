@@ -36,6 +36,8 @@ import {
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -60,6 +62,7 @@ import {
     getBIConnectors,
     getConfigVariables,
     getExpressionCompletions,
+    getExpressionDiagnostics,
     getFlowModel,
     getFunctions,
     getModuleNodes,
@@ -202,5 +205,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
+    }
+
+    getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return this._messenger.sendRequest(getExpressionDiagnostics, HOST_EXTENSION, params);
     }
 }

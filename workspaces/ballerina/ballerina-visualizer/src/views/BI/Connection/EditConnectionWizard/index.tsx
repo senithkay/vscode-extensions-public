@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, FlowNode, LinePosition, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
@@ -193,6 +193,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                         <ConnectionConfigView
                             fileName={fileName}
                             fields={fields}
+                            selectedNode={connection}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
