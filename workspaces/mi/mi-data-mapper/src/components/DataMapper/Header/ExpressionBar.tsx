@@ -422,8 +422,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleBlur = async (e: any) => {
-        if(e.target.closest('[id^="recordfield-input"]') || e.target.closest('[id^="recordfield-subMappingInput"]'))
+        if (e.target.closest('[id^="recordfield-input"]') ||
+            e.target.closest('[id^="recordfield-subMappingInput"]') ||
+            e.target.closest('[id^="recordfield-focusedInput"]')) {
             return;
+        }
+            
         await textFieldRef.current.saveExpression(textFieldValue, textFieldValueRef);
         
         // Reset the last focused port and filter
