@@ -387,7 +387,7 @@ async function addDataMapper(name: string) {
   // add data mapper to the service designer, return the data mapper object , should be used inside a test
   const diagram = new Diagram(page.page, 'Resource');
   await diagram.init();
-  await diagram.addMediator('DataMapper', 0, {
+  await diagram.addMediator('Data Mapper', 0, {
     values: {
       'Name*': {
         type: 'input',
