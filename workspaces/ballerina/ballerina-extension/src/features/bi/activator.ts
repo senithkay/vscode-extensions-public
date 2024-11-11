@@ -9,7 +9,7 @@
 import { commands } from "vscode";
 import { BI_COMMANDS, BIDeleteByComponentInfoRequest, ComponentInfo, DIRECTORY_SUB_TYPE, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "../../core";
-import { openView } from "../../stateMachine";
+import { history, openView, updateView } from "../../stateMachine";
 import { configGenerator } from "../config-generator/configGenerator";
 import { StateMachine } from "../../stateMachine";
 import { BIDiagramRpcManager } from "../../rpc-managers/bi-diagram/rpc-manager";
@@ -85,6 +85,8 @@ export function activate(context: BallerinaExtension) {
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.CONFIGURATION) {
             await handleComponentDeletion('configurableVariables', item.label, item.info);
         }
+        history.clear();
+        updateView();
     });
 }
 
