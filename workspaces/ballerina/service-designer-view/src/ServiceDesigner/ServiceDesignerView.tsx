@@ -81,8 +81,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        const importStatment = createImportStatement("ballerina", "log");
-        await applyModifications([importStatment, {
+        await applyModifications([{
             type: "INSERT",
             isImport: false,
             config: {
