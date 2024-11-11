@@ -70,11 +70,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     };
     const handleResourceDelete = async (resource: Resource) => {
         await applyModifications([{
-            type: 'INSERT', // change this for avoid deleting 'log' import
-            isImport: false,
-            config: {
-                STATEMENT: ""
-            },
+            type: 'DELETE',
             ...resource.position
         }]);
     };
