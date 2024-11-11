@@ -83,6 +83,18 @@ export function MapEditor(props: MapEditorProps) {
     const initialValues = Array.isArray(field.value) ? field.value : [];
     const [editorCount, setEditorCount] = useState(Math.max(initialValues.length, 1));
 
+    // Add useEffect to set initial values
+    useEffect(() => {
+        if (Array.isArray(field.value) && field.value.length > 0) {
+            field.value.forEach((item, index) => {
+                const key = Object.keys(item)[0];
+                const value = Object.values(item)[0];
+                setValue(`${field.key}-${index}-key`, key);
+                setValue(`${field.key}-${index}-value`, value);
+            });
+        }
+    }, [field.value, field.key, setValue]);
+
     // Watch all the individual key-value pair values
     const values = [...Array(editorCount)]
         .map((_, index) => {
