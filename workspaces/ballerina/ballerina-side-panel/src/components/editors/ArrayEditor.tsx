@@ -9,11 +9,10 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, Dropdown, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
-import { getValueForDropdown, getValueFromArrayField } from "./utils";
 import { useFormContext } from "../../context";
 import { Colors } from "../../resources/constants";
 
@@ -65,12 +64,12 @@ namespace S {
     `;
 }
 
-interface ArrayExpressionEditorProps {
+interface ArrayEditorProps {
     field: FormField;
     label: string;
 }
 
-export function ArrayExpressionEditor(props: ArrayExpressionEditorProps) {
+export function ArrayEditor(props: ArrayEditorProps) {
     const { field, label } = props;
     const { form } = useFormContext();
     const { register, unregister, setValue, watch } = form;

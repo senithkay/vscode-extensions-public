@@ -339,6 +339,7 @@ export function Form(props: FormProps) {
             unregister,
             setError,
             clearErrors,
+            formState: { isValidating, errors }
         },
         expressionEditor,
         targetLineRange,
