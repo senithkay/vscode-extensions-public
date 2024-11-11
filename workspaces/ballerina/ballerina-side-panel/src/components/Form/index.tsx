@@ -189,7 +189,9 @@ export interface FormProps {
             expression: string,
             key: string,
             setError: UseFormSetError<FieldValues>,
-            clearErrors: UseFormClearErrors<FieldValues>
+            clearErrors: UseFormClearErrors<FieldValues>,
+            shouldUpdateNode?: boolean,
+            variableType?: string
         ) => Promise<void>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
@@ -317,6 +319,26 @@ export function Form(props: FormProps) {
         }
     };
 
+    const handleGetExpressionDiagnostics = async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => {
+        // HACK: For variable nodes, update the type value in the node
+        const isVariableNode = selectedNode === "VARIABLE";
+        await expressionEditor?.getExpressionDiagnostics(
+            showDiagnostics,
+            expression,
+            key,
+            setError,
+            clearErrors,
+            isVariableNode,
+            watch("type")
+        );
+    }
+
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
 
@@ -340,7 +362,10 @@ export function Form(props: FormProps) {
             setError,
             clearErrors,
         },
-        expressionEditor,
+        expressionEditor: {
+            ...expressionEditor,
+            getExpressionDiagnostics: handleGetExpressionDiagnostics
+        },
         targetLineRange,
         fileName
     };

@@ -663,11 +663,18 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         expression: string,
         key: string,
         setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
+        clearErrors: UseFormClearErrors<FieldValues>,
+        shouldUpdateNode?: boolean,
+        variableType?: string
     ) => {
         if (!showDiagnostics) {
             clearErrors(key);
             return;
+        }
+
+        // HACK: For variable nodes, update the type value in the node
+        if (shouldUpdateNode) {
+            selectedNodeRef.current.properties["type"].value = variableType;
         }
         
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
