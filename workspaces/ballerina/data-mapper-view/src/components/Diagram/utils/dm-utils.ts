@@ -100,6 +100,7 @@ import { NodeFindingVisitorByPosition } from "../visitors/NodeFindingVisitorByPo
 import { result } from "lodash";
 import { CustomAction } from "../CodeAction/CodeAction";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
+import { BaseModel } from "@projectstorm/react-canvas-core";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -1383,6 +1384,10 @@ export function getMappedFnNames(targetPort: PortModel) {
 	const fnCall = fnCallFindingVisitor.getFunctionCalls();
 
 	return fnCall.map((call) => call.fnName);
+}
+
+export function isLinkModel(node: BaseModel) {
+    return node instanceof DataMapperLinkModel;
 }
 
 function getInnerExpr(node: FieldAccess | OptionalFieldAccess): STNode {
