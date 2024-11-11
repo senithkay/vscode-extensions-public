@@ -51,9 +51,7 @@ export interface FormContext {
         getExpressionDiagnostics?: (
             showDiagnostics: boolean,
             expression: string,
-            key: string,
-            setError: UseFormSetError<FieldValues>,
-            clearErrors: UseFormClearErrors<FieldValues>
+            key: string
         ) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;

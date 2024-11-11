@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useRef, useState } from "react";
-import { FieldValues, useForm, UseFormClearErrors, UseFormSetError } from "react-hook-form";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
 import {
@@ -19,6 +19,8 @@ import {
     TriggerCharacter,
     SubPanel,
     SubPanelView,
+    FormDiagnostics,
+    Diagnostic
 } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
 import { FormValues, ExpressionEditor, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
@@ -58,7 +60,7 @@ export function IfForm(props: IfFormProps) {
         handleSubmit,
         setError,
         clearErrors,
-        formState: { errors, isValidating },
+        formState: { isValidating },
     } = useForm<FormValues>();
 
     const { rpcClient } = useRpcContext();
@@ -67,6 +69,7 @@ export function IfForm(props: IfFormProps) {
     const [activeEditor, setActiveEditor] = useState<number>(0);
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -318,12 +321,10 @@ export function IfForm(props: IfFormProps) {
     const handleExpressionDiagnostics = debounce(async (
         showDiagnostics: boolean,
         expression: string,
-        key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
+        key: string
     ) => {
         if (!showDiagnostics) {
-            clearErrors(key);
+            setDiagnosticsInfo({ key, diagnostics: [] });
             return;
         }
         
@@ -339,13 +340,7 @@ export function IfForm(props: IfFormProps) {
             }
         });
 
-        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
-        
-        if (diagnosticsMessage.length > 0) {
-            setError(key, { type: "validate", message: diagnosticsMessage });
-        } else {
-            clearErrors(key);
-        }
+        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250);
 
     const handleGetCompletions = async (
@@ -392,7 +387,31 @@ export function IfForm(props: IfFormProps) {
         setActiveEditor(currentActive);
     };
 
-    const disableSaveButton = Object.keys(errors).length > 0 || isValidating;
+    const isValid = useMemo(() => {
+        const key = diagnosticsInfo?.key;
+        if (!key) {
+            return true;
+        }
+
+        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics;
+        if (diagnostics.length === 0) {
+            clearErrors(key);
+            return true;
+        } else {
+            const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+            setError(key, { type: "validate", message: diagnosticsMessage });
+
+            // If the severity is not ERROR, don't invalidate
+            const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+            if (hasErrorDiagnostics) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }, [diagnosticsInfo])
+
+    const disableSaveButton = !isValid || isValidating;
 
     // TODO: support multiple type fields
     return (
@@ -407,8 +426,6 @@ export function IfForm(props: IfFormProps) {
                                 control={control}
                                 field={field}
                                 watch={watch}
-                                setError={setError}
-                                clearErrors={clearErrors}
                                 completions={activeEditor === index ? filteredCompletions : []}
                                 triggerCharacters={TRIGGER_CHARACTERS}
                                 retrieveCompletions={handleGetCompletions}

@@ -34,6 +34,8 @@ import {
     TriggerCharacter,
     SubPanel,
     SubPanelView,
+    Diagnostic,
+    FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -58,10 +60,9 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
-import { FieldValues, UseFormClearErrors, UseFormSetError } from "react-hook-form";
 
 const Container = styled.div`
     width: 100%;
@@ -662,12 +663,18 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         showDiagnostics: boolean,
         expression: string,
         key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
+        setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+        shouldUpdateNode?: boolean,
+        variableType?: string
     ) => {
         if (!showDiagnostics) {
-            clearErrors(key);
+            setDiagnosticsInfo({ key, diagnostics: [] });
             return;
+        }
+
+        // HACK: For variable nodes, update the type value in the node
+        if (shouldUpdateNode) {
+            selectedNodeRef.current.properties["type"].value = variableType;
         }
         
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
@@ -680,14 +687,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 property: key
             },
         });
-
-        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
         
-        if (diagnosticsMessage.length > 0) {
-            setError(key, { type: "validate", message: diagnosticsMessage }, { shouldFocus: false });
-        } else {
-            clearErrors(key);
-        }
+        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250);
 
     const handleSubPanel = (subPanel: SubPanel) => {

@@ -9,7 +9,7 @@
 
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { FormField } from '../Form/types';
-import { Control, Controller, FieldValues, UseFormClearErrors, UseFormSetError, UseFormWatch } from 'react-hook-form';
+import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
@@ -30,8 +30,6 @@ type ContextAwareExpressionEditorProps = {
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     watch: UseFormWatch<any>;
-    setError: UseFormSetError<FieldValues>;
-    clearErrors: UseFormClearErrors<FieldValues>;
     completions: CompletionItem[];
     triggerCharacters?: readonly string[];
     autoFocus?: boolean;
@@ -49,9 +47,7 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     getExpressionDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,
-        key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
+        key: string
     ) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
@@ -162,8 +158,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         control,
         field,
         watch,
-        setError,
-        clearErrors,
         completions,
         triggerCharacters,
         retrieveCompletions,
@@ -202,13 +196,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         // Fetch initial diagnostics
         if (fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
-            getExpressionDiagnostics(
-                !field.optional || fieldValue !== "",
-                fieldValue,
-                field.key,
-                setError,
-                clearErrors
-            );
+            getExpressionDiagnostics(!field.optional || fieldValue !== "", fieldValue, field.key);
         }
     }, [fieldValue]);
 
@@ -359,13 +347,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 onChange(value);
                                 debouncedUpdateSubPanelData(value);
 
-                                getExpressionDiagnostics(
-                                    !field.optional || value !== "",
-                                    value,
-                                    field.key,
-                                    setError,
-                                    clearErrors
-                                );
+                                getExpressionDiagnostics(!field.optional || value !== "", value, field.key);
 
                                 // Check if the current character is a trigger character
                                 cursorPositionRef.current = updatedCursorPosition;
