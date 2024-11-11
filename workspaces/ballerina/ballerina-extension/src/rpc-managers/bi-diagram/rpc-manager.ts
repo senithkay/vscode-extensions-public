@@ -95,7 +95,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             }
 
             const params: BIFlowModelRequest = {
-                filePath: Uri.parse(context.documentUri!).fsPath,
+                filePath: context.documentUri,
                 startLine: {
                     line: context.position.startLine ?? 0,
                     offset: context.position.startColumn ?? 0,
@@ -157,7 +157,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.parse(key);
+            const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
             const edits = value;
 
@@ -188,8 +188,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         }
 
         // Iterate through modificationRequests and apply modifications
-        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+        try {
+            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
                 documentIdentifier: { uri: fileUriString },
                 astModifications: request.modifications,
             })) as SyntaxTree;
@@ -220,7 +221,10 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         position: functionPosition,
                     });
                 }
+                }
             }
+        } catch (error) {
+            console.log(">>> error updating source", error);
         }
         if (!isConnector && !isDataMapperFormUpdate) {
             updateView();
@@ -429,7 +433,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 }
 
                 const request: BISuggestedFlowModelRequest = {
-                    filePath: Uri.parse(context.documentUri!).fsPath,
+                    filePath: context.documentUri,
                     startLine: {
                         line: context.position.startLine ?? 0,
                         offset: context.position.startColumn ?? 0,
@@ -733,7 +737,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             }
 
             const params: BIModuleNodesRequest = {
-                filePath: Uri.parse(context.projectUri!).fsPath,
+                filePath: context.projectUri,
             };
 
             StateMachine.langClient()

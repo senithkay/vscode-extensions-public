@@ -153,9 +153,7 @@ function getFormFieldValueType(expression: Property): string | undefined {
         return undefined;
     }
 
-    return expression.valueTypeConstraint?.includes(":")
-        ? expression.valueTypeConstraint.split(":").pop()
-        : expression.valueTypeConstraint;
+    return expression.valueTypeConstraint;
 }
 
 function getFormFieldItems(expression: Property, connections: FlowNode[]): string[] {
