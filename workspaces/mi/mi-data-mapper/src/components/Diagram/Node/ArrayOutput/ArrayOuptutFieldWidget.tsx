@@ -66,7 +66,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [isLoading, setLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
-    const [isAddingElement, setIsAddingElement] = useState(false);
+    const [_isAddingElement, setIsAddingElement] = useState(false);
+    const isAddingElement = true;
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
     const viewsStore = useDMViewsStore();
@@ -266,7 +267,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 key={`array-widget-${portIn?.getName()}-add-element`}
                 className={classes.addArrayElementButton}
                 aria-label="add"
-                onClick={isAddingElement ? undefined : onAddElementClick}
+                onClick={isAddingElement ? () => { } : onAddElementClick}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
                 {isAddingElement
