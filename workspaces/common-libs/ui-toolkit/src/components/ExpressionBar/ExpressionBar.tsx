@@ -14,6 +14,7 @@ import { InputProps } from '../TextField/TextField';
 import { Button } from '../Button/Button';
 import { ThemeColors } from '../../styles';
 import { Icon } from '../Icon/Icon';
+import { Codicon } from '../Codicon/Codicon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -64,7 +65,7 @@ export type CompletionItem = {
     tag?: string;
     label: string;
     value: string;
-    description: string;
+    description?: string;
     kind: CompletionItemKind;
     args?: string[];
     replacementSpan?: number;
@@ -85,6 +86,7 @@ export type ExpressionBarBaseProps = {
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     onClose?: () => void;
+    onRemove?: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
 
@@ -152,7 +154,7 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, getExpressionBarIcon, ...rest } = props;
+    const { id, handleHelperPaneOpen, getExpressionBarIcon, onRemove, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
@@ -166,6 +168,11 @@ export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((p
                     ) : (
                         <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
                     )}
+                </Button>
+            )}
+            {onRemove && (
+                <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
+                    <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
                 </Button>
             )}
         </Ex.Container>

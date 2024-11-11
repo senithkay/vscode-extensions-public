@@ -27,16 +27,23 @@ import {
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
+    PostProcessRequest,
+    PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
-    SyntaxTree
+    SyntaxTree,
+    BIModuleNodesRequest,
+    BISourceCodeResponse,
+    UpdateFileContentRequest,
+    STModification,
+    SourceFile
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
-import { Uri, window, workspace } from 'vscode';
+import { Uri, window, workspace, Position, Range, WorkspaceEdit } from 'vscode';
 
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
@@ -44,10 +51,11 @@ import { NOT_SUPPORTED } from "../../core";
 import { generateDataMapping } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
-import { modifyFileContent } from "../../utils/modification";
+import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
+import { writeFileSync } from "fs";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -156,8 +164,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             fs.mkdirSync(directory, { recursive: true });
         }
 
-        fs.writeFileSync(balFilePath, req.content.trim());
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        writeBallerinaFileDidOpen(balFilePath, req.content);
         updateView();
     }
 
@@ -439,6 +446,181 @@ export class AiPanelRpcManager implements AIPanelAPI {
         const projectRoot = await getBallerinaProjectRoot();
         return await generateDataMapping(projectRoot, params);
     }
+
+    async postProcess(req: PostProcessRequest): Promise<PostProcessResponse> {
+        let assist_resp = req.assistant_response;
+        assist_resp = assist_resp.replace(/import ballerinax\/client\.config/g, "import ballerinax/'client.config");
+        const project: ProjectSource = getProjectFromResponse(assist_resp);
+        const environment = await setupProjectEnvironment(project);
+        if (!environment) {
+            return { assistant_response: assist_resp, diagnostics: { diagnostics: [] } };
+        }
+
+        const { langClient, tempDir } = environment;
+        // check project diagnostics
+        let projectDiags: Diagnostics[] = await checkProjectDiagnostics(project, langClient, tempDir);
+
+        let projectModified = await addMissingImports(projectDiags);
+        if (projectModified) {
+            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
+        }
+
+        projectModified = await removeUnusedImports(projectDiags);
+        if (projectModified) {
+            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
+        }
+
+        let isDiagsRefreshed = await isModuleNotFoundDiagsExist(projectDiags, langClient);
+        if (isDiagsRefreshed) {
+            projectDiags = await checkProjectDiagnostics(project, langClient, tempDir);
+        }
+        const filteredDiags: DiagnosticEntry[] = getErrorDiagnostics(projectDiags);
+        const newAssistantResponse = getModifiedAssistantResponse(assist_resp, tempDir, project);
+        return {
+            assistant_response: newAssistantResponse,
+            diagnostics: {
+                diagnostics: filteredDiags
+            }
+        };
+    }
+
+    async applyDoOnFailBlocks(): Promise<void> {
+        const projectRoot = await getBallerinaProjectRoot();
+
+        if (!projectRoot) {
+            return null;
+        }
+
+        const balFiles: string[] = [];
+
+        const findBalFiles = (dir: string) => {
+            const files = fs.readdirSync(dir);
+            for (const file of files) {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isDirectory()) {
+                    findBalFiles(filePath);
+                } else if (file.endsWith('.bal')) {
+                    balFiles.push(filePath);
+                }
+            }
+        };
+
+        findBalFiles(projectRoot);
+
+        for (const balFile of balFiles) {
+            const req: BIModuleNodesRequest = {
+                filePath: balFile
+            };
+
+            const resp: BISourceCodeResponse = await StateMachine.langClient().addErrorHandler(req);
+            await this.updateSource(resp, false);
+        }
+    }
+
+    // TODO: Reuse the one in bi-diagram
+    async updateSource(
+        params: BISourceCodeResponse,
+        isConnector?: boolean,
+        isDataMapperFormUpdate?: boolean
+    ): Promise<void> {
+        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+
+        for (const [key, value] of Object.entries(params.textEdits)) {
+            const fileUri = Uri.parse(key);
+            const fileUriString = fileUri.toString();
+            const edits = value;
+
+            if (edits && edits.length > 0) {
+                const modificationList: STModification[] = [];
+
+                for (const edit of edits) {
+                    const stModification: STModification = {
+                        startLine: edit.range.start.line,
+                        startColumn: edit.range.start.character,
+                        endLine: edit.range.end.line,
+                        endColumn: edit.range.end.character,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            STATEMENT: edit.newText,
+                        },
+                    };
+                    modificationList.push(stModification);
+                }
+
+                if (modificationRequests[fileUriString]) {
+                    modificationRequests[fileUriString].modifications.push(...modificationList);
+                } else {
+                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+                }
+            }
+        }
+
+        // Iterate through modificationRequests and apply modifications
+        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+                documentIdentifier: { uri: fileUriString },
+                astModifications: request.modifications,
+            })) as SyntaxTree;
+
+            if (parseSuccess) {
+                writeFileSync(request.filePath, source);
+                await StateMachine.langClient().didChange({
+                    textDocument: { uri: fileUriString, version: 1 },
+                    contentChanges: [
+                        {
+                            text: source,
+                        },
+                    ],
+                });
+
+                if (isConnector) {
+                    await StateMachine.langClient().resolveMissingDependencies({
+                        documentIdentifier: { uri: fileUriString },
+                    });
+                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                    await StateMachine.langClient().didOpen({
+                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                    });
+                }
+            }
+        }
+        if (!isConnector && !isDataMapperFormUpdate) {
+            updateView();
+        }
+    }
+
+}
+
+function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {
+    const newSourceFiles = [];
+    for (const sourceFile of project.sourceFiles) {
+        const newContent = path.join(tempDir, sourceFile.filePath);
+        newSourceFiles.push({ filePath: sourceFile.filePath, content: fs.readFileSync(newContent, 'utf-8') });
+    }
+
+    // Build a map from filenames to their new content
+    const fileContentMap = new Map<string, string>();
+    for (const sourceFile of newSourceFiles) {
+        fileContentMap.set(sourceFile.filePath, sourceFile.content);
+    }
+
+    // Replace code blocks in originalAssistantResponse with new content
+    const modifiedResponse = originalAssistantResponse.replace(
+        /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```[\s\S]*?<\/code>/g,
+        (match, filename) => {
+            if (fileContentMap.has(filename)) {
+                const newContent = fileContentMap.get(filename);
+                return `<code filename="${filename}">\n\`\`\`ballerina\n${newContent}\n\`\`\`\n</code>`;
+            } else {
+                // If no new content, keep the original
+                return match;
+            }
+        }
+    );
+
+    return modifiedResponse;
 }
 
 interface BalModification {
@@ -463,21 +645,63 @@ async function setupProjectEnvironment(project: ProjectSource): Promise<{ langCl
         // Update lastUpdatedBalFile if it's a .bal file
         if (sourceFile.filePath.endsWith('.bal')) {
             const tempFilePath = path.join(tempDir, sourceFile.filePath);
-            // Write content to file
-            fs.writeFileSync(tempFilePath, sourceFile.content, 'utf8');
-            //Open Project
-            langClient.didOpen({
-                textDocument: {
-                    uri: Uri.file(tempFilePath).toString(),
-                    languageId: 'ballerina',
-                    version: 1,
-                    text: sourceFile.content
-                }
-            });
+            writeBallerinaFileDidOpen(tempFilePath, sourceFile.content);
         }
     }
     
     return { langClient, tempDir };
+}
+
+export function getProjectFromResponse(req: string): ProjectSource {
+    const sourceFiles: SourceFile[] = [];
+    const regex = /<code filename="([^"]+)">\s*```ballerina([\s\S]*?)```\s*<\/code>/g;
+    let match;
+
+    while ((match = regex.exec(req)) !== null) {
+        const filePath = match[1];
+        const fileContent = match[2].trim();
+        sourceFiles.push({ filePath, content: fileContent });
+    }
+
+    return { sourceFiles };
+}
+
+async function removeUnusedImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {
+    let modifications: BalModification[] = [];
+    let projectModified = false;
+
+    for (const diagnostic of diagnosticsResult) {
+        const fielUri = diagnostic.uri;
+
+        for (const diag of diagnostic.diagnostics) {
+            //unused module prefix 'redis'
+            if (diag.code !== "BCE2002") {
+                continue;
+            }
+            const module = getContentInsideQuotes(diag.message);
+            modifications.push({ fileUri: fielUri, moduleName: module });
+        }
+    }
+
+    for (const mod of modifications) {
+        const fileUri = mod.fileUri;
+        const moduleName = mod.moduleName;
+
+        const document = await workspace.openTextDocument(Uri.parse(fileUri));
+        const content = document.getText();
+        const lines = content.split('\n');
+
+        // Create a regex to match the import statement of the unused module
+        const importRegex = new RegExp(`^import\\s+.*\\b${moduleName}\\b.*;`);
+
+        // Filter out the import statement
+        const updatedLines = lines.filter(line => !importRegex.test(line));
+
+        const updatedContent = updatedLines.join('\n');
+        await modifyFileContent({ filePath: Uri.parse(fileUri).fsPath, content: updatedContent });
+        projectModified = true;
+    }
+    return projectModified;
 }
 
 async function addMissingImports(diagnosticsResult: Diagnostics[]): Promise<boolean> {

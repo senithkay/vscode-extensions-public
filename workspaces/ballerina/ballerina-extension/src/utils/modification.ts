@@ -61,3 +61,15 @@ export async function modifyFileContent(params: UpdateFileContentRequest): Promi
 
     return false;
 }
+
+export async function writeBallerinaFileDidOpen(filePath: string, content: string) {
+    writeFileSync(filePath, content.trim());
+    StateMachine.langClient().didOpen({
+        textDocument: {
+            uri: Uri.file(filePath).toString(),
+            languageId: 'ballerina',
+            version: 1,
+            text: content.trim()
+        }
+    });
+}
