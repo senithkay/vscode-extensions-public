@@ -54,6 +54,9 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         return <MapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else if (field.type === "FLAG") {
         return <CheckBoxEditor field={field} />;
+    } else if (field.type === "EXPRESSION" && field.key === "resourcePath") {
+        // HACK: this should fixed with the LS API. this is used to avoid the expression editor for resource path field.
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     } else if (field.type.toUpperCase() === "ENUM") {
         // Enum is a dropdown field
         return <DropdownEditor field={field} />;
