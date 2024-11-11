@@ -61,7 +61,9 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setResourceFormOpen(false);
         setEditingResource(undefined);
     };
-    const handleResourceFormOpen = () => {
+    const handleResourceFormOpen = async () => {
+        const importStatment = createImportStatement("ballerina", "log");
+        await applyModifications([importStatment]);
         setResourceFormOpen(true);
     };
     const handleResourceEdit = async (resource: Resource) => {
@@ -81,8 +83,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        const importStatment = createImportStatement("ballerina", "log");
-        await applyModifications([importStatment, {
+        await applyModifications([{
             type: "INSERT",
             isImport: false,
             config: {
