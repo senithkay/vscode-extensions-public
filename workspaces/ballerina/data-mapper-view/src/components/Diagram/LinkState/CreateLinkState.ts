@@ -15,6 +15,8 @@ import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
+import { isLinkModel } from '../utils/dm-utils';
+import { DataMapperLinkModel } from '../Link';
 
 /**
  * This state is controlling the creation of a link.
@@ -36,7 +38,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 
-					if (!(element instanceof PortModel)) {
+					if (element === null) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode
@@ -68,6 +72,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 									element = portModel;
 								}
 							}
+						}
+
+						if (isLinkModel(element)) {
+							element = (element as DataMapperLinkModel).getTargetPort();
 						}
 					}
 
