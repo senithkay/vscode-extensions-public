@@ -617,10 +617,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
 
             if (!fs.existsSync(params.configFilePath)) {
-<<<<<<< HEAD
-=======
 
->>>>>>> Use ballerina home for the build if it exist
                 // Create config.bal if it doesn't exist
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }

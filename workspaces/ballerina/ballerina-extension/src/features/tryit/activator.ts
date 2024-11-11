@@ -8,6 +8,7 @@ import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { forEach } from "lodash";
 import Handlebars from "handlebars";
+import { findRunningBallerinaServices } from "./utils";
 
 let langClient: ExtendedLangClient | undefined;
 
@@ -55,7 +56,6 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
 
 
     const content: string = await generateTryItFileContent(workspaceRoot);
-    console.log(content);
     // Create empty tryit.http file
     fs.writeFileSync(tryitFilePath, content);
 
@@ -64,7 +64,6 @@ async function openTryItView(withNotice: boolean = false, ballerinaExtInstance: 
     const tryitFileUri = vscode.Uri.file(tryitFilePath);
     await vscode.commands.executeCommand('vscode.openWith', tryitFileUri, 'http');
 }
-
 
 async function generateTryItFileContent(projectDir: string): Promise<string | undefined> {
     // Get access to language server
@@ -84,16 +83,21 @@ async function generateTryItFileContent(projectDir: string): Promise<string | un
     if (!services || services.length === 0) {
         return undefined;
     }
+
+    const service = services[0];
     // Get the openapi definitions from LS
     const openapiDefinitions = await langClient.convertToOpenAPI({
         documentFilePath: services[0].filePath
     });
 
+    const runningServices = await findRunningBallerinaServices(projectDir);
+    const port = runningServices[0].port;
+
     // @ts-ignore
     const content: Content = openapiDefinitions.content[0] as OpenAPISpec;
 
     const template = `/*
-# Try Service : "{{info.title}}"  
+### Try Service : "{{info.title}}"  
 {{info.description}}
 */
 
@@ -103,15 +107,16 @@ async function generateTryItFileContent(projectDir: string): Promise<string | un
 **{{uppercase @key}} {{@../key}}**
 
 {{#if parameters}}
+\`\`\`
 Parameters:
 {{#each parameters}}
 - {{name}} ({{in}}){{#if required}} [Required]{{/if}}{{#if description}}: {{description}}{{/if}}
 {{/each}}
 {{/if}}
-
+\`\`\`
 */
 ###
-{{uppercase @key}} http://localhost:9090/test{{@../key}}
+{{uppercase @key}} http://localhost:{{../../port}}{{trim ../../basePath}}{{@../key}}
 {{#if requestBody}}
 Content-Type: application/json
 
@@ -127,9 +132,13 @@ Content-Type: application/json
     Handlebars.registerHelper('uppercase', function (str) {
         return str.toUpperCase();
     });
+    // Register a helper to trim whitespace
+    Handlebars.registerHelper('trim', function (str) {
+        return str.trim();
+    });
     // Compile and execute the template with the OpenAPI spec
     const compiledTemplate = Handlebars.compile(template);
-    return compiledTemplate(content.spec);
+    return compiledTemplate({ ...content.spec, port: port.toString(), basePath: service.name });
 }
 
 

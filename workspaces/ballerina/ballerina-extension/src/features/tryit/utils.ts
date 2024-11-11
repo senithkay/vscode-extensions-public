@@ -10,6 +10,8 @@
 import { exec, execSync } from 'child_process';
 import { debug } from '../../utils';
 import * as os from 'os';
+import { vscode } from '@wso2-enterprise/ballerina-core';
+import { window } from 'vscode';
 
 // Retrieve the platform-specific commands
 const platform = os.platform();
@@ -96,3 +98,20 @@ function getLSOFCommand(platform: string, pid: string): string {
     }
 }
 
+export async function waitForBallerinaService(projectDir: string): Promise<number> {
+    const defaultPort = 9090;
+    const maxAttempts = 30; // Try for 30 seconds
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+        const runningServices = await findRunningBallerinaServices(projectDir);
+        if (runningServices.length > 0) {
+            return runningServices[0].port;
+        }
+
+        // Wait for 1 second before next attempt
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        attempts++;
+    }
+    throw new Error('Timed out waiting for Ballerina service to start');
+}

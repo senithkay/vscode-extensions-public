@@ -43,6 +43,7 @@ import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
 import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
 import { StateMachine } from '../../stateMachine';
+import { waitForBallerinaService } from '../tryit/utils';
 
 const BALLERINA_COMMAND = "kolab.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -431,7 +432,9 @@ class BIRunAdapter extends LoggingDebugSession {
                 });
 
                 // Trigger Try It command after successful build
-                commands.executeCommand(PALETTE_COMMANDS.TRY_IT, true);
+                waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
+                    commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
+                });
 
                 response.success = true;
                 this.sendResponse(response);

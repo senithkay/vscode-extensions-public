@@ -29,6 +29,9 @@
         "onNotebook:kolab-notebook",
         "onUri"
     ],
+    "extensionDependencies": [
+        "anweber.httpbook"
+    ],
     "contributes": {
         "languages": [
             {
