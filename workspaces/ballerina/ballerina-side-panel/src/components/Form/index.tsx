@@ -231,7 +231,7 @@ export function Form(props: FormProps) {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating }
+        formState: { isValidating, errors }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -355,7 +355,10 @@ export function Form(props: FormProps) {
             setValue,
             watch,
             register,
-            unregister
+            unregister,
+            setError,
+            clearErrors,
+            formState: { isValidating, errors }
         },
         expressionEditor: {
             ...expressionEditor,

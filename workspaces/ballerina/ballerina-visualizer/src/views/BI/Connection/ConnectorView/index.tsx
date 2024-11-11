@@ -83,7 +83,7 @@ export function ConnectorView(props: ConnectorViewProps) {
     const getConnectors = () => {
         rpcClient
             .getBIDiagramRpcClient()
-            .getBIConnectors({ queryMap: {} })
+            .getBIConnectors({ queryMap: { limit: 60 } })
             .then((model) => {
                 console.log(">>> bi connectors", model);
                 setConnectors(model.categories);
@@ -101,7 +101,7 @@ export function ConnectorView(props: ConnectorViewProps) {
     const handleSearch = (text: string) => {
         rpcClient
             .getBIDiagramRpcClient()
-            .getBIConnectors({ queryMap: { q: text } })
+            .getBIConnectors({ queryMap: { q: text, limit: 60 } })
             .then((model) => {
                 console.log(">>> bi searched connectors", model);
                 setConnectors(model.categories);

@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.3.3",
+    "version": "0.3.4",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {

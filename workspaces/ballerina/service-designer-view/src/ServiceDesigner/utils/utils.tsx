@@ -120,7 +120,7 @@ export function getDefaultResponse(httpMethod: HTTP_METHOD): number {
 }
 
 export function getCodeFromResponse(response: string, httpMethod: HTTP_METHOD): number {
-    const code = responseCodes.find((responseCode) => responseCode.source.toLowerCase() === response.toLowerCase());
+    const code = responseCodes.find((responseCode) => responseCode.source.toLowerCase() === response?.toLowerCase());
     return code?.code || getDefaultResponse(httpMethod);
 }
 
