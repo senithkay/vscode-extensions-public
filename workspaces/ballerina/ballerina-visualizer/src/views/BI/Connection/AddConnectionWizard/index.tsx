@@ -269,6 +269,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         <ConnectionConfigView
                             fileName={fileName}
                             fields={fields}
+                            selectedNode={selectedNodeRef.current}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
