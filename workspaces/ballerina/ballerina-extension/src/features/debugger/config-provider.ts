@@ -390,7 +390,6 @@ class BIRunAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;
     root: string | null = null;
-    prgramArgs: string[] = [];
     task: TaskExecution | null = null;
     taskTerminationListener: Disposable | null = null;
 
@@ -401,6 +400,10 @@ class BIRunAdapter extends LoggingDebugSession {
         };
 
         let buildCommand = 'bal run';
+        const programArgs = (args as any).programArgs;
+        if (programArgs && programArgs.length > 0) {
+            buildCommand = `${buildCommand} -- ${programArgs.join(' ')}`;
+        }
 
         // Get Ballerina home path from settings
         const config = workspace.getConfiguration('kolab');
