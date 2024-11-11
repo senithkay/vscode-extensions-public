@@ -10,12 +10,15 @@
 import React, { ReactNode, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ExpressionFormField, Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { SubPanel } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { convertBalCompletion, convertToFnSignature } from "../../../../utils/bi";
 import { TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { FieldValues } from "react-hook-form";
+import { UseFormSetError } from "react-hook-form";
+import { UseFormClearErrors } from "react-hook-form";
 
 const Container = styled.div`
     max-width: 600px;
@@ -41,6 +44,7 @@ export interface SidePanelProps {
 interface ConnectionConfigViewProps {
     fileName: string; // file path of `connection.bal`
     fields: FormField[];
+    selectedNode: FlowNode;
     onSubmit: (data: FormValues) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -50,7 +54,7 @@ interface ConnectionConfigViewProps {
 }
 
 export function ConnectionConfigView(props: ConnectionConfigViewProps) {
-    const { fileName, fields, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
+    const { fileName, fields, selectedNode, onSubmit, openSubPanel, updatedExpressionField, resetUpdatedExpressionField, isActiveSubPanel } = props;
     const { rpcClient } = useRpcContext();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
@@ -134,6 +138,38 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         250
     );
 
+    const handleExpressionDiagnostics = debounce(async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+        setError: UseFormSetError<FieldValues>,
+        clearErrors: UseFormClearErrors<FieldValues>
+    ) => {
+        if (!showDiagnostics) {
+            clearErrors(key);
+            return;
+        }
+        
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: fileName,
+            context: {
+                expression: expression,
+                startLine: { line: 0, offset: 0 },
+                offset: 0,
+                node: selectedNode,
+                property: key
+            }
+        });
+
+        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
+        
+        if (diagnosticsMessage.length > 0) {
+            setError(key, { message: diagnosticsMessage });
+        } else {
+            clearErrors(key);
+        }
+    }, 250);
+
     const handleGetCompletions = async (
         value: string,
         offset: number,
@@ -193,6 +229,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
                     triggerCharacters: TRIGGER_CHARACTERS,
                     retrieveCompletions: handleGetCompletions,
                     extractArgsFromFunction: extractArgsFromFunction,
+                    getExpressionDiagnostics: handleExpressionDiagnostics,
                     onCompletionSelect: handleCompletionSelect,
                     onCancel: handleExpressionEditorCancel,
                     onBlur: handleExpressionEditorBlur,
