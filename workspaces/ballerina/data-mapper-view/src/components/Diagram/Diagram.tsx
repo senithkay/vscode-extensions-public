@@ -50,6 +50,7 @@ import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
 import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
 import { ArrowLinkFactory } from './Link/ArrowLink';
+import { useDMSearchStore } from '../../store/store';
 
 const classes = {
 	iconWrap: css({
@@ -133,7 +134,10 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const getScreenWidthRef = useRef(() => screenWidth);
+	const devicePixelRatioRef = useRef(window.devicePixelRatio);
 	const [, forceUpdate] = useState({});
+
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
 
 	const zoomLevel = calculateZoomLevel(screenWidth);
 
@@ -143,14 +147,21 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	engine.setModel(diagramModel);
 
 	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
+
+	useEffect(() => {
 		getScreenWidthRef.current = () => screenWidth;
 	}, [screenWidth]);
 
 	const handleResize = throttle(() => {
 		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== getScreenWidthRef.current()) {
+		const newDevicePixelRatio = window.devicePixelRatio;
+
+		if (newDevicePixelRatio === devicePixelRatioRef.current && newScreenWidth !== getScreenWidthRef.current()) {
 			setScreenWidth(newScreenWidth);
 		}
+		devicePixelRatioRef.current = newDevicePixelRatio;
 	}, 100);
 
 	useEffect(() => {
