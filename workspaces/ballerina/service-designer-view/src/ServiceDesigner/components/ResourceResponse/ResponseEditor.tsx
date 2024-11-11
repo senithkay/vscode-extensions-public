@@ -10,7 +10,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, AutoComplete, TextField, Codicon, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import { EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../../styles';
 import { CommonRPCAPI, STModification, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getTitleFromResponseCode } from '../../utils/utils';
@@ -44,6 +44,11 @@ export function ResponseEditor(props: ParamProps) {
     const handleReqFieldChange = () => {
         setShowRecordEdit(!showRecordEdit);
     };
+
+    useEffect(() => {
+        const code = responseCodes.find(code => code.code === response.code).code;
+        handleDefinedName(Number(code), response.type);
+    }, [subType]);
 
     useEffect(() => {
         if (response.namedRecord) {
@@ -91,15 +96,13 @@ export function ResponseEditor(props: ParamProps) {
 
     // Generate defined name based on the selected type
     const handleDefinedName = (code: number, type?: string) => {
-        if (!methodResponseMatched(code) && type) {
+        if (!methodResponseMatched(code) && type && subType) {
             const responseCode = responseCodes.find(item => item.code === code);
             const responseName = responseCode.source.split(":")[1];
             const currentType = type || response.type;
             const nameValue = currentType?.includes(responseName) ? `${currentType}` : `${currentType}${responseName}`;
             setDefinedRecordName(nameValue.replace(/\[\]/g, ""));
-            setSubType(true);
         } else {
-            setSubType(false);
             setDefinedRecordName("");
         }
     }
@@ -129,7 +132,8 @@ export function ResponseEditor(props: ParamProps) {
                     applyModifications={applyModifications}
                 />
             </EditorContent>
-            {subType &&
+            <CheckBox label="Make separate named records" value="Make separate named records" checked={subType} onChange={setSubType} />
+            {subType && subType &&
                 (
                     <ParamContainer>
                         {subTypeText} -
