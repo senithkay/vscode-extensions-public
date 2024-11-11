@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
-import { FieldValues, useForm, UseFormClearErrors, UseFormSetError } from "react-hook-form";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
@@ -23,7 +23,7 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -188,8 +188,7 @@ export interface FormProps {
             showDiagnostics: boolean,
             expression: string,
             key: string,
-            setError: UseFormSetError<FieldValues>,
-            clearErrors: UseFormClearErrors<FieldValues>,
+            setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
             shouldUpdateNode?: boolean,
             variableType?: string
         ) => Promise<void>;
@@ -232,11 +231,12 @@ export function Form(props: FormProps) {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors }
+        formState: { isValidating }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -323,8 +323,6 @@ export function Form(props: FormProps) {
         showDiagnostics: boolean,
         expression: string,
         key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
@@ -332,8 +330,7 @@ export function Form(props: FormProps) {
             showDiagnostics,
             expression,
             key,
-            setError,
-            clearErrors,
+            setDiagnosticsInfo,
             isVariableNode,
             watch("type")
         );
@@ -358,9 +355,7 @@ export function Form(props: FormProps) {
             setValue,
             watch,
             register,
-            unregister,
-            setError,
-            clearErrors,
+            unregister
         },
         expressionEditor: {
             ...expressionEditor,
@@ -373,7 +368,31 @@ export function Form(props: FormProps) {
     // Find the first editable field
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
 
-    const disableSaveButton = Object.keys(errors).length > 0 || isValidating;
+    const isValid = useMemo(() => {
+        const key = diagnosticsInfo?.key;
+        if (!key) {
+            return true;
+        }
+
+        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics;
+        if (diagnostics.length === 0) {
+            clearErrors(key);
+            return true;
+        } else {
+            const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+            setError(key, { type: "validate", message: diagnosticsMessage });
+
+            // If the severity is not ERROR, don't invalidate
+            const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+            if (hasErrorDiagnostics) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }, [diagnosticsInfo])
+
+    const disableSaveButton = !isValid || isValidating;
 
     // TODO: support multiple type fields
     return (
