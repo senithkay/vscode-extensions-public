@@ -20,6 +20,7 @@ import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
 import { CheckBoxEditor } from "./CheckBoxEditor";
+import { ArrayExpressionEditor } from "./ArrayExpressionEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -36,7 +37,6 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         props;
 
     if (field.type === "MULTIPLE_SELECT") {
-        // Enum is a dropdown field
         let label: string;
         switch (selectedNode) {
             case "DATA_MAPPER":
@@ -47,6 +47,8 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 break;
         }
         return <MultiSelectEditor field={field} label={label} />;
+    } else if (field.type === "EXPRESSION_SET") {
+        return <ArrayExpressionEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "FLAG") {
         return <CheckBoxEditor field={field} />;
     } else if (field.type.toUpperCase() === "ENUM") {
