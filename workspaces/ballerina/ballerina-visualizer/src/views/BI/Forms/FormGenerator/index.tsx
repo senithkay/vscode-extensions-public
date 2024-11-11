@@ -105,6 +105,11 @@ export function FormGenerator(props: FormProps) {
             console.log(">>> Form properties", { formProperties, formTemplateProperties, enrichedNodeProperties });
         }
         if (Object.keys(formProperties).length === 0) {
+            // update node position
+            node.codedata.lineRange = {
+                ...targetLineRange,
+                fileName: fileName,
+            };
             // add node to source code
             onSubmit();
             return;
