@@ -75,7 +75,12 @@ export function MainForm() {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
             const context = await rpcClient.getVisualizerLocation();
-            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            let functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'functions.bal');
+            const workspaceFiles = await rpcClient.getCommonRpcClient().getWorkspaceFiles({});
+            const isFilePresent = workspaceFiles.files.some(file => file.path === functionFilePath.fsPath);
+            if (!isFilePresent) {
+                functionFilePath = Utils.joinPath(URI.file(context.projectUri));
+            }
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: functionFilePath.fsPath,
                 position: { line: 0, offset: 0 },
@@ -102,6 +107,7 @@ export function MainForm() {
     };
 
     const handleCompletionSelect = async () => {
+        debouncedGetVisibleTypes.cancel();
         handleExpressionEditorCancel();
     };
 
@@ -219,29 +225,33 @@ export function MainForm() {
             <ViewContent padding>
                 <BIHeader />
                 <Container>
-                    {automation &&
-                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link></Typography>
+                    {automation ?
+                        <Typography variant="h4">You have already created an automation. <Link onClick={openAutomation}>View Now</Link>
+                        </Typography>
+                        :
+                        <>
+                            <Typography variant="h2">Create Automation</Typography>
+                            <BodyText>
+                                Implement an automation for either scheduled or manual jobs.
+                            </BodyText>
+                            <FormContainer>
+                                <Form
+                                    formFields={currentFields}
+                                    oneTimeForm={true}
+                                    expressionEditor={
+                                        {
+                                            completions: filteredTypes,
+                                            retrieveVisibleTypes: handleGetVisibleTypes,
+                                            onCompletionSelect: handleCompletionSelect,
+                                            onCancel: handleExpressionEditorCancel,
+                                            onBlur: handleExpressionEditorBlur
+                                        }
+                                    }
+                                    onSubmit={!isLoading && !automation && handleFunctionCreate}
+                                />
+                            </FormContainer>
+                        </>
                     }
-                    <Typography variant="h2">Create Automation</Typography>
-                    <BodyText>
-                        Implement an automation for either scheduled or manual jobs.
-                    </BodyText>
-                    <FormContainer>
-                        <Form
-                            formFields={currentFields}
-                            oneTimeForm={true}
-                            expressionEditor={
-                                {
-                                    completions: filteredTypes,
-                                    retrieveVisibleTypes: handleGetVisibleTypes,
-                                    onCompletionSelect: handleCompletionSelect,
-                                    onCancel: handleExpressionEditorCancel,
-                                    onBlur: handleExpressionEditorBlur
-                                }
-                            }
-                            onSubmit={!isLoading && !automation && handleFunctionCreate}
-                        />
-                    </FormContainer>
                 </Container>
             </ViewContent>
         </View>

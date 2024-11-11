@@ -17,6 +17,7 @@ export interface NodeLinkModelOptions {
     id?: string;
     label?: string;
     showAddButton?: boolean; // default true
+    showButtonAlways?: boolean; // default false
     showArrow?: boolean; // default true
     brokenLine?: boolean; // default false
     disabled?: boolean; // default false
@@ -34,6 +35,7 @@ export class NodeLinkModel extends DefaultLinkModel {
     // options
     showArrow: boolean;
     showAddButton = true;
+    showButtonAlways = false;
     brokenLine = false;
     disabled = false;
     alignBottom = false;
@@ -63,6 +65,9 @@ export class NodeLinkModel extends DefaultLinkModel {
                 }
                 if ((options as NodeLinkModelOptions).showAddButton === false) {
                     this.showAddButton = (options as NodeLinkModelOptions).showAddButton;
+                }
+                if ((options as NodeLinkModelOptions).showButtonAlways === true) {
+                    this.showButtonAlways = (options as NodeLinkModelOptions).showButtonAlways;
                 }
                 if ((options as NodeLinkModelOptions).showArrow) {
                     this.showArrow = (options as NodeLinkModelOptions).showArrow;

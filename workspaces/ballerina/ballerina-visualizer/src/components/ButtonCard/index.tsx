@@ -37,7 +37,6 @@ const Text = styled.p`
 `;
 
 const Title = styled(Text)`
-    text-transform: capitalize;
     font-weight: bold;
 `;
 

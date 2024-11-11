@@ -459,18 +459,18 @@ export class BallerinaExtension {
 
             const platform = os.platform();
             const asset = kolaRelease.assets.find((asset: any) => {
-                        if (platform === 'win32') {
-                            return asset.name.endsWith('windows.zip');
-                        } else if (platform === 'linux') {
-                            return asset.name.endsWith('linux.zip');
-                        } else if (platform === 'darwin') {
-                            if (os.arch() === 'arm64') {
-                                return asset.name.endsWith('macos-arm.zip');
-                            } else {
-                                return asset.name.endsWith('macos.zip');
-                            }
-                        }
-                    });
+                if (platform === 'win32') {
+                    return asset.name.endsWith('windows.zip');
+                } else if (platform === 'linux') {
+                    return asset.name.endsWith('linux.zip');
+                } else if (platform === 'darwin') {
+                    if (os.arch() === 'arm64') {
+                        return asset.name.endsWith('macos-arm.zip');
+                    } else {
+                        return asset.name.endsWith('macos.zip');
+                    }
+                }
+            });
             if (!asset) {
                 throw new Error('No artifact found in the release ' + this.ballerinaKolaVersion);
             }
@@ -503,7 +503,7 @@ export class BallerinaExtension {
                     },
                     async (progress) => {
                         let lastPercentageReported = 0;
-                
+
                         response = await axios({
                             url: artifactUrl,
                             method: 'GET',
@@ -517,7 +517,7 @@ export class BallerinaExtension {
                                     progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${Math.round(progressEvent.total / sizeMB)}MB` });
                                     lastPercentageReported = percentCompleted;
                                 }
-                      
+
                                 // Sizes will be sent as MB
                                 res = {
                                     downloadedSize: progressEvent.loaded / sizeMB,
@@ -563,7 +563,7 @@ export class BallerinaExtension {
             // Rename the root folder to the new name
             const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
             fs.renameSync(tempRootPath, this.ballerinaKolaHome);
-            
+
             res = {
                 ...res,
                 message: `Cleaning up the temp files...`,
@@ -922,7 +922,15 @@ export class BallerinaExtension {
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
         try {
-            let response = spawnSync(this.ballerinaCmd, ['home']);
+            const args = ['home'];
+            let response;
+            if (isWindows()) {
+                // On Windows, use cmd.exe to run .bat files
+                response = spawnSync('cmd.exe', ['/c', this.ballerinaCmd, ...args], { shell: true });
+            } else {
+                // On other platforms, use spawnSync directly
+                response = spawnSync(this.ballerinaCmd, args, { shell: false });
+            }
             if (response.stdout.length > 0) {
                 balHomeOutput = response.stdout.toString().trim();
             } else if (response.stderr.length > 0) {

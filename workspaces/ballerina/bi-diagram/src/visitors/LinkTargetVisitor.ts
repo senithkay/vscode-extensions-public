@@ -127,7 +127,7 @@ export class LinkTargetVisitor implements BaseVisitor {
             outLinks.forEach((outLink) => {
                 outLink.setTarget({
                     line: node.codedata.lineRange.startLine.line,
-                    offset: node.codedata.lineRange.startLine.offset, // FIXME: need to fix with LS extension
+                    offset: node.codedata.lineRange.startLine.offset + 1, // FIXME: need to fix with LS extension
                 });
                 outLink.setTopNode(node);
             });
