@@ -150,16 +150,22 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
-			engine.getModel().getNodes().forEach((node) => {
-				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
-					node.initLinks();
-					const targetPortPosition = node.targetPort?.getPosition();
-					if (targetPortPosition) {
-						node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
-						forceUpdate({} as any);
-					}
+			const modelNodes = engine.getModel().getNodes();
+			const nodesToUpdate = modelNodes.filter(node => 
+				node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
+			);
+
+			nodesToUpdate.forEach((node: LinkConnectorNode | QueryExpressionNode) => {
+				node.initLinks();
+				const targetPortPosition = node.targetPort?.getPosition();
+				if (targetPortPosition) {
+					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
 				}
 			});
+	
+			if (nodesToUpdate.length > 0) {
+				forceUpdate({});
+			}
 		}
 	}, [diagramModel, isFetching, screenWidth]);
 
