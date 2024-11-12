@@ -18,6 +18,7 @@ import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
 import FormGenerator from '../Commons/FormGenerator';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
+import { formatForConfigurable, removeConfigurableFormat } from './utils';
 
 const cardStyle = {
     display: "block",
@@ -267,7 +268,7 @@ export function AddConnection(props: AddConnectionProps) {
         return extensionPattern.test(path);
     }
 
-    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, connectorTag: XMLBuilder, certificateUsageObj: object) {
+    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, newCertificateConfigurableName: string, connectorTag: XMLBuilder, certificateUsageObj: object) {
         const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
         const currentEnvFilePath = projectUri + "/.env";
         const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
@@ -291,7 +292,20 @@ export function AddConnection(props: AddConnectionProps) {
             } else {
                 connectorTag.ele(tagElementName).txt(currentCertificatePath);
             }
-        } 
+        } else if (newCertificateConfigurableName) {
+            connectorTag.ele(tagElementName).txt(formatForConfigurable(newCertificateConfigurableName));
+            rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
+                configurableName: newCertificateConfigurableName,
+                currentConfigurableName: '',
+                currentCertificateFileName: currentCertificatePath,
+                storedProjectCertificateDirPath: projectCertificateDirPath,
+                configPropertiesFilePath: currentConfigPropertiesFilePath,
+                envFilePath: currentEnvFilePath,
+                certificateUsages: certificateUsageObj
+            });
+        } else {
+            connectorTag.ele(tagElementName).txt(currentCertificatePath);
+        }
     }
 
     const onAddConnection = async (values: any) => {
@@ -316,13 +330,14 @@ export function AddConnection(props: AddConnectionProps) {
 
         // Fill the values
         Object.keys(values).forEach((key: string) => {
-            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName' && key !== 'certificateConfigurableName') && values[key]) {
+            if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
                 if (typeof values[key] === 'object' && values[key] !== null) {
                     // Handle expression input type
                     const namespaces = values[key].namespaces;
                     const value = values[key].value;
                     const isExpression = values[key].isExpression;
                     const isCertificateFile = values[key].isCertificateFile;
+                    const type = values[key].type;
 
                     if (value) {
                         if (isExpression) {
@@ -337,7 +352,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 connectorTag.ele(key).txt(`{${value}}`);
                             }
                         } else if (isCertificateFile) {
-                            handleCertificateFile(projectUri, key, value, connectorTag, certificateUsageObj);
+                            handleCertificateFile(projectUri, key, value, '', connectorTag, certificateUsageObj);
+                        } else if (type === 'configurable') {
+                            handleCertificateFile(projectUri, key, '', value, connectorTag, certificateUsageObj);
                         }
                         else {
                             connectorTag.ele(key).txt(value);
