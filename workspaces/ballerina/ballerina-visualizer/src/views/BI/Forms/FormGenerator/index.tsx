@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertNodePropertiesToFormFields,
@@ -21,8 +21,6 @@ import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { UseFormClearErrors, UseFormSetError } from "react-hook-form";
-import { FieldValues } from "react-hook-form";
 
 interface FormProps {
     fileName: string;
@@ -55,8 +53,9 @@ interface FormProps {
             showDiagnostics: boolean,
             expression: string,
             key: string,
-            setError: UseFormSetError<FieldValues>,
-            clearErrors: UseFormClearErrors<FieldValues>
+            setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+            shouldUpdateNode?: boolean,
+            variableType?: string
         ) => Promise<void>;
         onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
@@ -105,6 +104,11 @@ export function FormGenerator(props: FormProps) {
             console.log(">>> Form properties", { formProperties, formTemplateProperties, enrichedNodeProperties });
         }
         if (Object.keys(formProperties).length === 0) {
+            // update node position
+            node.codedata.lineRange = {
+                ...targetLineRange,
+                fileName: fileName,
+            };
             // add node to source code
             onSubmit();
             return;

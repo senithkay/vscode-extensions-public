@@ -14,14 +14,12 @@ import {
     ExpressionBar,
     ExpressionBarRef,
     RequiredFormInput,
-    ThemeColors,
     Typography
 } from "@wso2-enterprise/ui-toolkit";
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { TIcon } from "@wso2-enterprise/ballerina-core";
 import {S} from "../editors/ExpressionEditor";
 import { sanitizeType } from "./utils";
 
@@ -40,8 +38,6 @@ const getDefaultCompletion = () => (
         </Typography>
     </S.TitleContainer>
 );
-
-const getExpressionBarIcon = () => <TIcon sx={{ stroke: ThemeColors.PRIMARY }} />;
 
 export function TypeEditor(props: TypeEditorProps) {
     const { field, openRecordEditor, handleOnFieldFocus, autoFocus } = props;
@@ -132,7 +128,6 @@ export function TypeEditor(props: TypeEditorProps) {
                             ref={exprRef}
                             name={name}
                             completions={completions}
-                            getExpressionBarIcon={getExpressionBarIcon}
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={getDefaultCompletion}
                             value={value}
