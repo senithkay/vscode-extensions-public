@@ -247,7 +247,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     label={element.displayName}
                                     errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                                     items={certificates}
-                                    value={isCertificateFileName(field.value.value) ? field.value.value : ""}
+                                    value={field.value.value && isCertificateFileName(field.value.value) ? field.value.value : ""}
                                     onValueChange={(e: any) => {
                                         field.onChange({ isCertificateFile: true, value: e, type: field.value.type });
                                     }}
@@ -265,7 +265,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 onChange={(e: any) => field.onChange({ isCertificateFile: false, value: e.target.value, type: field.value.type })}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
-                                value={isConfigurable(field.value.value) ? removeConfigurableFormat(field.value.value) : ""}
+                                value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
                                 label={element.displayName}
                                 size={50}
                                 placeholder={element.helpTip}

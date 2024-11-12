@@ -163,7 +163,7 @@ export function AddConnection(props: AddConnectionProps) {
                                     if (isCertificateFilePath(value)) {
                                         setValue(param.name, { isCertificateFile: true, type: 'file', value });
                                     } else {
-                                        setValue(param.name, { isCertificateFile: true, type: 'configurable', value });
+                                        setValue(param.name, { isCertificateFile: true, type: 'configurable', value: removeConfigurableFormat(value) });
                                     }
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
