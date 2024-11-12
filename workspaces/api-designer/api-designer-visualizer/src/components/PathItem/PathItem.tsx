@@ -40,10 +40,18 @@ export function PathItem(props: PathItemProps) {
     const [description, setDescription] = useState<string>(String(currentPathItem.description));
     const [originalPath] = useState<string>(path);
     const pathPramFromPath = getPathParametersFromPath(path);
-    const pathParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const pathParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters 
+        ? getPathParametersFromParameters(Object.values((pathItem[path] as Paths).parameters).filter((param): param is Parameter => typeof param === 'object' && param !== null))
+        : [];
     const finalPathParameters = syncPathParamsWithParams(pathPramFromPath, pathParameters);
-    const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
-    const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters && getHeaderParametersFromParameters(Object.values((pathItem[path] as Paths).parameters));
+    const queryParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters 
+        ? getQueryParametersFromParameters(Object.values((pathItem[path] as Paths).parameters).filter((param): param is Parameter => typeof param === 'object' && param !== null))
+        : [];    
+        const headerParameters: Param[] = pathItem && path && (pathItem[path] as Paths).parameters 
+        ? getHeaderParametersFromParameters(
+            Object.values((pathItem[path] as Paths).parameters).filter((param): param is Parameter => typeof param === 'object' && param !== null)
+          )
+        : [];
     const basePath = path.split("/{")[0];
     // Available operations for the path
     const operations: string[] = pathItem && pathItem[path] && Object.keys(pathItem[path]);
@@ -183,7 +191,7 @@ export function PathItem(props: PathItemProps) {
         // Add the new path to the pathItem to the deleted index
         pathItem && Object.keys(pathItem).forEach((_, i) => {
             if (i === deletedIndex) {
-                clonedPathItem[newPathString] = existingPathItems;
+                clonedPathItem[newPathString] = existingPathItems as PI;
             }
         });
         const currentPathItem: Paths = clonedPathItem[newPathString] as Paths;
@@ -263,7 +271,7 @@ export function PathItem(props: PathItemProps) {
                     }
                 };
             }
-            onChange(updatedPathItem, path);
+            onChange(updatedPathItem as Paths, path);
         } else {
             // If the operation is unchecked, remove it from the pathItem
             const updatedPathItem = { ...pathItem };

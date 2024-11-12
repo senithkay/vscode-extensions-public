@@ -8,7 +8,7 @@
  */
 import { Dropdown, FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { Operation } from '../../Definitions/ServiceDefinitions';
+import { HeaderDefinition, Operation } from '../../Definitions/ServiceDefinitions';
 import { ContentWrapper, PanelBody, SubSectionWrapper } from '../Overview/Overview';
 import { getColorByMethod, resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
@@ -259,7 +259,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                                 {requestBodySchema && (
                                                     <ReadOnlySchemaEditor
                                                         schema={requestBodySchema}
-                                                        schemaName={requestBodySchema?.title || requestBodySchema?.type}
+                                                        schemaName={(requestBodySchema?.title || requestBodySchema?.type) as string}
                                                     />
                                                 )}
                                             </div>
@@ -292,10 +292,10 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                                                                     <Typography sx={{ margin: 0, fontWeight: "bold" }} variant='body2'> {header} </Typography>
                                                                     <Typography
                                                                         sx={{ margin: 0, fontWeight: "lighter" }}
-                                                                        variant='body2'> {`${resolveTypeFormSchema(schema.schema)} ${schema.schema.format ? `<${schema.schema.format}>` : ""}`}
+                                                                        variant='body2'> {`${resolveTypeFormSchema((schema as { schema: any }).schema)} ${((schema as { schema: any }).schema.format) ? `<${(schema as { schema: any }).schema.format}>` : ""}`}
                                                                     </Typography>
                                                                 </ParamWrapper>
-                                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {schema.description} </Typography>
+                                                                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> {(header as HeaderDefinition).description} </Typography>
                                                             </ParamContainer>
                                                         ))}
                                                     </ContentWrapper>

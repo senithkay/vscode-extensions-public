@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useContext } from "react";
-import { OpenAPI, Operation, PathItem, Paths } from "../../Definitions/ServiceDefinitions";
+import { OpenAPI, Operation, Parameter, PathItem, Paths, ReferenceObject } from "../../Definitions/ServiceDefinitions";
 import styled from "@emotion/styled";
 import { PathsNavigator } from "../PathsNavigator/PathsNavigator";
 import * as yup from "yup";
@@ -150,8 +150,8 @@ export function OpenAPIDefinition() {
                 // Check if item is of type Operation to access parameters
                 return (item as Operation)?.parameters?.find((param) => param.in === "path");
             });
-        const distinctPathParameters = pathParameters && pathParameters.filter((param: { name: any; }, index: any, self: any[]) =>
-            index === self.findIndex((t) => param && t?.name === param?.name));
+            const distinctPathParameters = pathParameters && pathParameters.filter((param: ReferenceObject | Parameter, index: number, self: (ReferenceObject | Parameter)[]) =>
+                'name' in param && index === self.findIndex((t) => 'name' in t && t.name === param.name));
         // Get current path
         const currentPath = openAPI.paths[path];
         // Add a new method to the current path

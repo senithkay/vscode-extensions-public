@@ -16,12 +16,18 @@ export function resolveResponseType(response: Response): string {
     const contentType = Object.keys(response.content)[0];
     if (!response.content || Object.keys(response.content).length === 0) {
         return response.description;
-    } else if (response.content["application/json"].schema.type === "array" && response.content["application/json"].schema.items.$ref) {
-        return response.content["application/json"].schema.items.$ref.replace("#/components/schemas/", "") + "[]";
-    } else if (response.content["application/json"].schema.type === "array" && response.content["application/json"].schema.items.type) {
-        return response.content["application/json"].schema.items.type + "[]";
+    } else if (response.content["application/json"].schema.type === "array") {
+        const items = response.content["application/json"].schema.items;
+        if (Array.isArray(items)) {
+            // Handle case where items is an array of Schema
+            return "array[]"; // Adjust as needed for your logic
+        } else if (items.$ref) {
+            return items.$ref.replace("#/components/schemas/", "") + "[]";
+        } else if (items.type) {
+            return items.type + "[]";
+        }
     } else if (response.content["application/json"].schema.type) {
-        return response.content["application/json"].schema.type;
+        return response.content["application/json"].schema.type as string;
     } else if (response.content["application/json"].schema.$ref) {
         return response.content["application/json"].schema.$ref.replace("#/components/schemas/", "");
     } else {

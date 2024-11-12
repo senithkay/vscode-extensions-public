@@ -26,7 +26,7 @@ export const PathStory = () => {
         setO(openAPI);
     }
     return (
-        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} selectedComponent="paths-component-/pets" />
+        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} />
     );
 };
 
@@ -37,7 +37,7 @@ export const PathMethodStory = () => {
         setO(openAPI);
     }
     return (
-        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} selectedComponent="paths-component-/pets-post" />
+        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} />
     );
 };
 
@@ -48,7 +48,7 @@ export const OverviewStory = () => {
         setO(openAPI);
     }
     return (
-        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} selectedComponent="overview-component" />
+        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} />
     );
 }
 
@@ -59,6 +59,6 @@ export const SchemaStory = () => {
         setO(openAPI);
     }
     return (
-        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} selectedComponent="schema-component-Pets" />
+        <OpenAPI openAPI={o} onOpenAPIChange={handlePathItemChange} />
     );
 }
