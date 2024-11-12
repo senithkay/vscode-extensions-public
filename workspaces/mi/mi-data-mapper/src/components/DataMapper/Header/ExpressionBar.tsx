@@ -481,6 +481,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 completions={completions}
                 inputProps={inputProps}
                 textBoxType='TextField'
+                autoSelectFirstItem={true}
                 onChange={handleChange}
                 extractArgsFromFunction={extractArgsFromFunction}
                 onCompletionSelect={handleCompletionSelect}

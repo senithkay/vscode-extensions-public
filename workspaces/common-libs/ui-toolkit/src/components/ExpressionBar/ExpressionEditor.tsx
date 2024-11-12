@@ -30,6 +30,7 @@ type StyleBase = {
 type DropdownProps = StyleBase & {
     items: CompletionItem[];
     showDefaultCompletion?: boolean;
+    autoSelectFirstItem?: boolean;
     getDefaultCompletion?: () => ReactNode;
     isSavable: boolean;
     onCompletionSelect: (item: CompletionItem) => void | Promise<void>;
@@ -43,6 +44,7 @@ type DefaultCompletionItemProps = {
 
 type DropdownItemProps = {
     item: CompletionItem;
+    isSelected?: boolean;
     onClick: () => void | Promise<void>;
 };
 
@@ -249,7 +251,7 @@ const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
 }
 
 const DropdownItem = (props: DropdownItemProps) => {
-    const { item, onClick } = props;
+    const { item, isSelected, onClick } = props;
     const itemRef = useRef<HTMLDivElement>(null);
 
     const handleMouseEnter = () => {
@@ -264,6 +266,7 @@ const DropdownItem = (props: DropdownItemProps) => {
     return (
         <DropdownItemContainer
             ref={itemRef}
+            {...(isSelected && { className: 'hovered' })}
             onMouseEnter={handleMouseEnter}
             onClick={onClick}
         >
@@ -284,7 +287,7 @@ const DropdownItem = (props: DropdownItemProps) => {
 };
 
 const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, showDefaultCompletion, getDefaultCompletion, onCompletionSelect, onDefaultCompletionSelect, isSavable, sx } = props;
+    const { items, showDefaultCompletion, autoSelectFirstItem, getDefaultCompletion, onCompletionSelect, onDefaultCompletionSelect, isSavable, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => listBoxRef.current);
@@ -302,6 +305,7 @@ const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
                     return (
                         <DropdownItem
                             key={`dropdown-item-${index}`}
+                            {...(autoSelectFirstItem && { isSelected: index === 0 })}
                             item={item}
                             onClick={async () => await onCompletionSelect(item)}
                         />
@@ -401,6 +405,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         sx,
         completions,
         showDefaultCompletion,
+        autoSelectFirstItem,
         getDefaultCompletion,
         onChange,
         onSave,
@@ -793,6 +798,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 isSavable={!!onSave}
                                 items={completions}
                                 showDefaultCompletion={showDefaultCompletion}
+                                autoSelectFirstItem={autoSelectFirstItem}
                                 getDefaultCompletion={getDefaultCompletion}
                                 onCompletionSelect={handleCompletionSelectMutation}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
