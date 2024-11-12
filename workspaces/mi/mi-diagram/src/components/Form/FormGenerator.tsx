@@ -23,6 +23,14 @@ const Field = styled.div`
     margin-bottom: 12px;
 `;
 
+const cardStyle = { 
+    display: "block",
+    margin: "15px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto"
+};
+
 export interface FormGeneratorProps {
     formData: any;
     sequences?: string[];
@@ -41,6 +49,7 @@ interface Element {
     inputType: any;
     name: string | number;
     displayName: any;
+    description?: string;
     required: string;
     helpTip: any;
     comboValues?: any[];
@@ -272,20 +281,26 @@ export function FormGenerator(props: FormGeneratorProps) {
             }
             case 'ParamManager': {
                 return (
-                    <ParamManager
-                        paramConfigs={field.value}
-                        readonly={false}
-                        onChange={(values) => {
-                            values.paramValues = values.paramValues.map((param: any) => {
-                                const property: ParamValue[] = param.paramValues;
-                                param.key = property[0].value;
-                                param.value = (property[1].value as ExpressionFieldValue).value;
-                                param.icon = 'query';
-                                return param;
-                            });
-                            field.onChange(values);
-                        }}
-                    />);
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <Typography variant="h3">{element.displayName}</Typography>
+                        <Typography variant="body3">{element.description}</Typography>
+
+                        <ParamManager
+                            paramConfigs={field.value}
+                            readonly={false}
+                            onChange={(values) => {
+                                values.paramValues = values.paramValues.map((param: any) => {
+                                    const property: ParamValue[] = param.paramValues;
+                                    param.key = property[0].value;
+                                    param.value = (property[1].value as ExpressionFieldValue).value;
+                                    param.icon = 'query';
+                                    return param;
+                                });
+                                field.onChange(values);
+                            }}
+                        />
+                    </ComponentCard>
+                );
             }
             default:
                 return null;
