@@ -184,11 +184,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
         const fileName = getFileName(params.certificateFilePath);
-        if (params.currentConfigurableName !== "") {
+        if (params.currentConfigurableName && params.currentConfigurableName !== "") {
             await deleteLineFromFile(params.configPropertiesFilePath, `${params.currentConfigurableName}:cert\n`);
             await deleteLineFromFile(params.envFilePath, `${params.currentConfigurableName}\n`);
         }
-        if (params.currentCertificateFileName !== "") {
+        if (params.currentCertificateFileName && params.currentCertificateFileName !== "") {
             const certificateUsedFiles = params.certificateUsages[params.currentCertificateFileName].resourceUsedFiles;
             if (!certificateUsedFiles || certificateUsedFiles.length === 1) {
                 await deleteFile(params.storedProjectCertificateDirPath + params.currentCertificateFileName);

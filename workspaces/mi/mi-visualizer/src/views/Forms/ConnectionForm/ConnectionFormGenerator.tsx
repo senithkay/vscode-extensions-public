@@ -56,7 +56,7 @@ export function AddConnection(props: AddConnectionProps) {
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
     const [certificatesList, setCertificatesList] = useState([]);
-    const [currentCertificatePath, setCurrentCertificatePath] = useState('');
+    // const [currentCertificatePath, setCurrentCertificatePath] = useState('');
     const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
     const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
@@ -141,7 +141,7 @@ export function AddConnection(props: AddConnectionProps) {
                 });
 
                 const parameters = connectionFound.parameters
-                // const initialConnectionFoundParameters = new Map<any, any>();   
+                const initialConnectionFoundParameters = new Map<any, any>();   
 
                 const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
                 const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
@@ -160,24 +160,24 @@ export function AddConnection(props: AddConnectionProps) {
                                 })) : [];
                                 if (inputType === 'file') {
                                     if (isCertificateFilePath(value)) {
-                                        setValue(param.name, { isCertificateFile: true, value });
+                                        setValue(param.name, { isCertificateFile: true, type: 'file', value });
                                     } else {
-                                        setValue(param.name, `{${value}}`);
+                                        setValue(param.name, { isCertificateFile: true, type: 'configurable', value });
                                     }
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
                                 }
-                                // initialConnectionFoundParameters.set(param.name, value);
+                                initialConnectionFoundParameters.set(param.name, value);
                             }
-                            if (param.name === 'trustStoreCertificatePath') {
-                                setCurrentCertificatePath(param.value);
-                            }
+                            // if (param.name === 'trustStoreCertificatePath') {
+                            //     setCurrentCertificatePath(param.value);
+                            // }
                             if (param.name === 'certificateConfigurableName') {
                                 setCurrentCertificateConfigurableName(param.value)
                             }
                         });
                     }
-                    // setConnectionFoundParameters(initialConnectionFoundParameters);
+                    setConnectionFoundParameters(initialConnectionFoundParameters);
                 } else {
                     // Handle connections without uischema
                     // Remove connection name from param manager fields
@@ -271,13 +271,13 @@ export function AddConnection(props: AddConnectionProps) {
         const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
         const currentEnvFilePath = projectUri + "/.env";
         const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
-        // const currentCertificatePath = connectionFoundParameters.get(tagElementName);
+        const currentCertificatePath = connectionFoundParameters.get(tagElementName);
         
         if (newCertificatePath) {
             if (isCertificateFilePath(newCertificatePath)) {
                 const newCertificateFileName = newCertificatePath.split('/').pop();
+                connectorTag.ele(tagElementName).txt(newCertificateFileName);
                 if (currentCertificatePath !== newCertificatePath) {
-                    connectorTag.ele(tagElementName).txt(newCertificateFileName);
                     rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
                         certificateFilePath: newCertificatePath, 
                         currentCertificateFileName: currentCertificatePath,
