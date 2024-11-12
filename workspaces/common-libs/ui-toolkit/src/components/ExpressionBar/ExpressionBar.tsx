@@ -11,10 +11,6 @@ import styled from '@emotion/styled';
 import React, { forwardRef, ReactNode } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
-import { Button } from '../Button/Button';
-import { ThemeColors } from '../../styles';
-import { Icon } from '../Icon/Icon';
-import { Codicon } from '../Codicon/Codicon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
@@ -86,7 +82,6 @@ export type ExpressionBarBaseProps = {
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     onClose?: () => void;
-    onRemove?: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
 
@@ -116,8 +111,7 @@ export type ExpressionBarBaseProps = {
         args: string[];
         currentArgIndex: number;
     }>;
-    handleHelperPaneOpen?: () => void;
-    handleInlineDataMapperOpen?: () => void;
+    actionButtons?: ReactNode[];
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
@@ -155,13 +149,6 @@ namespace Ex {
         flex: 1 1 auto;
     `;
 
-    export const InlineDMButton = styled(Button)`
-        & > vscode-button {
-            color: var(--vscode-button-secondaryForeground);
-            font-size: 10px;
-        }
-    `;
-
     export const InlineDMButtonText = styled.p`
         font-size: 10px;
         margin: 0;
@@ -169,37 +156,18 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, handleInlineDataMapperOpen, getExpressionBarIcon, onRemove, ...rest } = props;
+    const { id, actionButtons, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            {(handleHelperPaneOpen || getExpressionBarIcon) && (
-                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
-                    {getExpressionBarIcon ? (
-                        getExpressionBarIcon()
-                    ) : (
-                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                    )}
-                </Button>
-            )}
-            {handleInlineDataMapperOpen && (
-                <Ex.InlineDMButton
-                    appearance="icon"
-                    tooltip="Create using Data Mapper"
-                    onClick={handleInlineDataMapperOpen}
-                    // disabled={true} // TODO: enable when file path and range are available
-                >
-                    <Ex.InlineDMButtonText>DM</Ex.InlineDMButtonText>
-                </Ex.InlineDMButton>
-            )}
-            {onRemove && (
-                <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
-                    <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
-                </Button>
-            )}
+            {actionButtons?.map((button, index) => (
+                <React.Fragment key={index}>
+                    {button}
+                </React.Fragment>
+            ))}
         </Ex.Container>
     );
 });

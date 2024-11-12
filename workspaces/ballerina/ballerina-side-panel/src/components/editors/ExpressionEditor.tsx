@@ -10,7 +10,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { FormField } from '../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
-import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, Icon, RequiredFormInput, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
@@ -125,16 +125,10 @@ export namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)',
     });
 
-    export const EndAdornment = styled(Button)`
-        & > vscode-button {
-            color: var(--vscode-button-secondaryForeground);
-            font-size: 10px;
-        }
-    `;
-
-    export const EndAdornmentText = styled.p`
+    export const DataMapperBtnTxt = styled.p`
         font-size: 10px;
         margin: 0;
+        color: var(--vscode-button-background);
     `;
 }
 
@@ -246,35 +240,15 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         });
     };
 
-    const endAdornment: InputProps = {
-        endAdornment: (
-            <S.EndAdornment
-                appearance="icon"
-                tooltip="Create using Data Mapper"
-                onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                    // TODO: get filePath and range from getFlowModel API
-                    filePath: "path/to/file",
-                    range: {
-                        start: { line: 0, character: 0 },
-                        end: { line: 0, character: 0 },
-                    }
-                }})}
-                disabled={true} // TODO: enable when file path and range are available
-            >
-                <S.EndAdornmentText>DM</S.EndAdornmentText>
-            </S.EndAdornment>
-        )
-    };
-
     const handleInlineDataMapperOpen = () => {
         handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-            // TODO: get filePath and range from getFlowModel API
-            filePath: effectiveFileName,
-            range: {
-                start: { line: effectiveTargetLineRange.startLine.line, character: effectiveTargetLineRange.startLine.offset },
-                end: { line:  effectiveTargetLineRange.endLine.line, character: effectiveTargetLineRange.endLine.offset },
-            }
-        }})
+                // TODO: get filePath and range from getFlowModel API
+                filePath: effectiveFileName,
+                range: {
+                    start: { line: effectiveTargetLineRange.startLine.line, character: effectiveTargetLineRange.startLine.offset },
+                    end: { line:  effectiveTargetLineRange.endLine.line, character: effectiveTargetLineRange.endLine.offset },
+                }
+            }})
     };
 
     const handleHelperPaneOpen = () => {
@@ -329,6 +303,21 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
 
+    const actionButtons = [
+        <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+            <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+        </Button>,
+        // TODO: Render the Data Mapper button whenever the `visualizable` flag is set to true
+        <Button appearance="icon" onClick={handleInlineDataMapperOpen} tooltip="Create using Data Mapper" disabled={false}>
+            <S.DataMapperBtnTxt>DM</S.DataMapperBtnTxt>
+        </Button>,
+        onRemove && (
+            <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
+                <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
+            </Button>
+        )
+    ];
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -378,15 +367,13 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={onCancel}
-                            onRemove={onRemove}
                             useTransaction={useTransaction}
                             shouldDisableOnSave={false}
-                            inputProps={endAdornment}
-                            handleHelperPaneOpen={handleHelperPaneOpen}
                             placeholder={field.placeholder}
-                            handleInlineDataMapperOpen={handleInlineDataMapperOpen}
-                        sx={{ paddingInline: '0' }}
-                    />{error && <ErrorBanner errorMsg={error.message.toString()} />}
+                            sx={{ paddingInline: '0' }}
+                            actionButtons={actionButtons}
+                        />
+                        {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
                 )}
             />
