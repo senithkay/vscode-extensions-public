@@ -59,7 +59,7 @@ export function AddConnection(props: AddConnectionProps) {
     const [certificatesList, setCertificatesList] = useState([]);
     // const [currentCertificatePath, setCurrentCertificatePath] = useState('');
     const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
-    const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
+    // const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -173,9 +173,9 @@ export function AddConnection(props: AddConnectionProps) {
                             // if (param.name === 'trustStoreCertificatePath') {
                             //     setCurrentCertificatePath(param.value);
                             // }
-                            if (param.name === 'certificateConfigurableName') {
-                                setCurrentCertificateConfigurableName(param.value)
-                            }
+                            // if (param.name === 'certificateConfigurableName') {
+                            //     setCurrentCertificateConfigurableName(param.value)
+                            // }
                         });
                     }
                     setConnectionFoundParameters(initialConnectionFoundParameters);
@@ -377,25 +377,25 @@ export function AddConnection(props: AddConnectionProps) {
             }
         });
 
-        if (values['certificateConfigurableName']) {
-            const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-            const currentEnvFilePath = projectUri + "/.env";
-            const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
+        // if (values['certificateConfigurableName']) {
+        //     const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
+        //     const currentEnvFilePath = projectUri + "/.env";
+        //     const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
 
-            const certificateConfigurableName = values['certificateConfigurableName'];
-            if (certificateConfigurableName) {
-                rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
-                    configurableName: certificateConfigurableName,
-                    currentConfigurableName: currentCertificateConfigurableName,
-                    currentCertificateFileName: connectionFoundParameters.get('certificateConfigurableName'),
-                    storedProjectCertificateDirPath: projectCertificateDirPath,
-                    configPropertiesFilePath: currentConfigPropertiesFilePath,
-                    envFilePath: currentEnvFilePath,
-                    certificateUsages: certificateUsageObj
-                })
-                connectorTag.ele('certificateConfigurableName').txt(certificateConfigurableName);
-            }
-        }
+        //     const certificateConfigurableName = values['certificateConfigurableName'];
+        //     if (certificateConfigurableName) {
+        //         rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
+        //             configurableName: certificateConfigurableName,
+        //             currentConfigurableName: currentCertificateConfigurableName,
+        //             currentCertificateFileName: connectionFoundParameters.get('certificateConfigurableName'),
+        //             storedProjectCertificateDirPath: projectCertificateDirPath,
+        //             configPropertiesFilePath: currentConfigPropertiesFilePath,
+        //             envFilePath: currentEnvFilePath,
+        //             certificateUsages: certificateUsageObj
+        //         })
+        //         connectorTag.ele('certificateConfigurableName').txt(certificateConfigurableName);
+        //     }
+        // }
 
         // if (values['trustStoreCertificatePath']) {
         //     const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
