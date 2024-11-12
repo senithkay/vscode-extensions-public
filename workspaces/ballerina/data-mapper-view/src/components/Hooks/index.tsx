@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
@@ -35,6 +35,7 @@ import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
 import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
+import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
 
 export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -275,3 +276,30 @@ export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePat
 
     return { content, isFetching, isError, refetch };
 };
+
+export const useSearchScrollReset = (
+    diagramModel: DiagramModel<DiagramModelGenerics>
+) => {
+    const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevInSearchTermRef = useRef<string>("");
+    const prevOutSearchTermRef = useRef<string>("");
+
+    useEffect(() => {
+        const nodes = diagramModel.getNodes() as DataMapperNodeModel[];
+        const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof LetExpressionNode)));
+        const letExpressionNode = nodes.find((node) => (node instanceof LetExpressionNode));
+        const outputNode = nodes.find(isOutputNode);
+
+        if (inputNode && prevInSearchTermRef.current != inputSearch) {
+            inputNode.setPosition(inputNode.getX(), 0);
+            letExpressionNode?.setPosition(letExpressionNode.getX(), inputNode.height + GAP_BETWEEN_INPUT_NODES);
+            prevInSearchTermRef.current = inputSearch;
+        }
+
+        if (outputNode && prevOutSearchTermRef.current != outputSearch) {
+            outputNode.setPosition(outputNode.getX(), 0);
+            prevOutSearchTermRef.current = outputSearch;
+        }
+
+    }, [diagramModel]);
+}
