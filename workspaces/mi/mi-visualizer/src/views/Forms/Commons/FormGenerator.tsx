@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { AutoComplete, Button, Icon, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, Icon, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField, Typography, RadioButtonGroup } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import { ExpressionField } from '@wso2-enterprise/mi-diagram/lib/components/Form/ExpressionField/ExpressionInput';
@@ -80,7 +80,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             title: "Select a file to be imported."
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(async (response) =>{
-            setValue(filePathPropertyName, {isCertificateFile: true, value: response.filePath}, { shouldDirty: true });
+            setValue(filePathPropertyName, {isCertificateFile: true, value: response.filePath, type: 'file'}, { shouldDirty: true });
         }).catch(e => { console.log(e); })
     }
 
@@ -233,8 +233,48 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'file':
                 return (
                     <div>
+                        <RadioButtonGroup 
+                            value={field.value.type}
+                            orientation="horizontal"
+                            options={[{ content: "File", value: "file" }, { content: "Configurable", value: "configurable" }]}
+                            onChange={(e: any) => field.onChange({ isCertificateFile: true, value: field.value.value, type: e.target.value })}
+                        />
+                        {field.value.type === 'file' && (
+                            <div>
+                                <AutoComplete
+                                    name={getNameForController(element.name)}
+                                    label={element.displayName}
+                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                    items={certificates}
+                                    value={field.value.value}
+                                    onValueChange={(e: any) => {
+                                        field.onChange({ isCertificateFile: true, value: e, type: field.value.type });
+                                    }}
+                                    required={false}
+                                    allowItemCreate={false}
+                                />
+                                <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
+                                    <div style={{ color: colors.editorForeground }}>Add file</div>
+                                </Button>
+                            </div>
+                        )}
+                        {field.value.type === 'configurable' && (
+                            <TextField 
+                                name={field.name}
+                                onChange={(e: any) => field.onChange({ isCertificateFile: false, value: e.target.value, type: field.value.type })}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                                value={field.value.value}
+                                label={element.displayName}
+                                size={50}
+                                placeholder={element.helpTip}
+                                required={element.required === 'true'}
+                                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                
+                            />
+                        )}
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
-                            <AutoComplete
+                            {/* <AutoComplete
                                 name={getNameForController(element.name)}
                                 label={element.displayName}
                                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
@@ -245,10 +285,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 }}
                                 required={false}
                                 allowItemCreate={false}
-                            />
-                            <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
+                            /> */}
+                            {/* <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
                                 <div style={{ color: colors.editorForeground }}>Add file</div>
-                            </Button>
+                            </Button> */}
                             {/* <Typography variant="body3">
                                 {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch(element.name)}
                             </Typography> */}
