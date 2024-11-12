@@ -43,6 +43,7 @@ export const AuthContextProvider: FC<Props> = ({ children, viewType }) => {
 	} = useQuery({
 		queryKey: ["auth_state"],
 		queryFn: () => ChoreoWebViewAPI.getInstance().getAuthState(),
+		refetchOnWindowFocus: true,
 	});
 
 	useEffect(() => {

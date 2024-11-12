@@ -27,12 +27,19 @@ import {
     BIModuleNodesResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ConfigVariableResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
+    BIDeleteByComponentInfoRequest,
+    BIDeleteByComponentInfoResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 
@@ -40,6 +47,7 @@ export interface BIDiagramAPI {
     getFlowModel: () => Promise<BIFlowModelResponse>;
     getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     deleteFlowNode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
+    deleteByComponentInfo: (params: BIDeleteByComponentInfoRequest) => Promise<BIDeleteByComponentInfoResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getFunctions: (params: BIGetFunctionsRequest) => Promise<BIGetFunctionsResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
@@ -54,6 +62,8 @@ export interface BIDiagramAPI {
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
+    getConfigVariables:() => Promise<ConfigVariableResponse>;
+    updateConfigVariables:(params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
@@ -63,4 +73,5 @@ export interface BIDiagramAPI {
     buildProject: () => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
 }

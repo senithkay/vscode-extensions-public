@@ -8,14 +8,14 @@
  */
 import { KeyboardEvent, MouseEvent } from 'react';
 
-import { Action, ActionEvent, DragCanvasState, InputType, State } from '@projectstorm/react-canvas-core';
+import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
 import { LinkConnectorNode } from '../Node';
 import { InputOutputPortModel, MappingType } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
-import { isInputNode, isOutputNode } from '../Actions/utils';
+import { isInputNode, isLinkModel, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
 import { getMappingType, isConnectingArrays } from '../utils/common-utils';
@@ -29,18 +29,26 @@ export class CreateLinkState extends State<DiagramEngine> {
 	link: LinkModel;
 	temporaryLink: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					const isExpandOrCollapse = (actionEvent.event.target as Element)
+						.closest('div[id^="expand-or-collapse"]');
 					const { focusedPort, focusedFilter } = useDMExpressionBarStore.getState();
 					const isExprBarFocused = focusedPort || focusedFilter;
 
-					if (!(element instanceof PortModel)) {
+					if (element === null || isExpandOrCollapse) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
 							const targetElement = event.target as Element;
 							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
@@ -66,6 +74,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 									element = portModel;
 								}
 							}
+						}
+
+						if (isLinkModel(element)) {
+							element = (element as DataMapperLinkModel).getTargetPort();
 						}
 					}
 

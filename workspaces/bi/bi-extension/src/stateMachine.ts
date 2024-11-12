@@ -81,7 +81,7 @@ async function checkIfBIProject(): Promise<boolean> {
 
         if (fs.existsSync(ballerinaTomlPath)) {
             const data = await fs.promises.readFile(ballerinaTomlPath, 'utf8');
-            isBI = data.includes('bi');
+            isBI = data.includes('bi = true');
         }
     } catch (err) {
         console.error(err);

@@ -16,7 +16,9 @@ import {
     generateEngine,
     getModelId,
     getNodeId,
+    loadDiagramZoomAndPosition,
     registerListeners,
+    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
@@ -27,6 +29,7 @@ import { EntryNodeModel } from "./nodes/EntryNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
 import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
 import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NodeTypes } from "../resources/constants";
+import Controls from "./Controls";
 
 export interface DiagramProps {
     project: Project;
@@ -34,10 +37,11 @@ export interface DiagramProps {
     onAddConnection: () => void;
     onEntryPointSelect: (entryPoint: EntryPoint) => void;
     onConnectionSelect: (connection: Connection) => void;
+    onDeleteComponent: (component: EntryPoint | Connection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect } = props;
+    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -171,7 +175,8 @@ export function Diagram(props: DiagramProps) {
         // diagram paint with timeout
         setTimeout(() => {
             if (diagramEngine && newDiagramModel) {
-                diagramEngine.zoomToFit();
+                resetDiagramZoomAndPosition();
+                loadDiagramZoomAndPosition(diagramEngine);
             }
             diagramEngine.repaintCanvas();
         }, 200);
@@ -183,14 +188,18 @@ export function Diagram(props: DiagramProps) {
         onAddConnection,
         onEntryPointSelect,
         onConnectionSelect,
+        onDeleteComponent
     };
 
     return (
         <>
+            <Controls engine={diagramEngine} />
+
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
+
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}

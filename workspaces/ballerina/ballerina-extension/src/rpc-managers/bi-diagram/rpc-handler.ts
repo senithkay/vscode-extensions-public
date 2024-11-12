@@ -13,6 +13,7 @@ import {
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
+    BIDeleteByComponentInfoRequest,
     BIGetFunctionsRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
@@ -20,6 +21,7 @@ import {
     ComponentRequest,
     ComponentsRequest,
     ExpressionCompletionsRequest,
+    ExpressionDiagnosticsRequest,
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
@@ -28,12 +30,15 @@ import {
     createComponent,
     createComponents,
     createProject,
+    deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
+    getExpressionDiagnostics,
     getFlowModel,
     getFunctions,
     getModuleNodes,
@@ -47,6 +52,8 @@ import {
     getVisibleTypes,
     getWorkspaces,
     handleReadmeContent,
+    UpdateConfigVariableRequest,
+    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject,
@@ -59,6 +66,7 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getFlowModel, () => rpcManger.getFlowModel());
     messenger.onRequest(getSourceCode, (args: BISourceCodeRequest) => rpcManger.getSourceCode(args));
     messenger.onRequest(deleteFlowNode, (args: BISourceCodeRequest) => rpcManger.deleteFlowNode(args));
+    messenger.onRequest(deleteByComponentInfo, (args: BIDeleteByComponentInfoRequest) => rpcManger.deleteByComponentInfo(args));
     messenger.onRequest(getAvailableNodes, (args: BIAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
     messenger.onRequest(getFunctions, (args: BIGetFunctionsRequest) => rpcManger.getFunctions(args));
     messenger.onRequest(getNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getNodeTemplate(args));
@@ -73,6 +81,8 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createComponents, (args: ComponentsRequest) => rpcManger.createComponents(args));
     messenger.onRequest(getVisibleVariableTypes, (args: BIGetVisibleVariableTypesRequest) => rpcManger.getVisibleVariableTypes(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getConfigVariables, () => rpcManger.getConfigVariables());
+    messenger.onRequest(updateConfigVariables, (args: UpdateConfigVariableRequest) => rpcManger.updateConfigVariables(args));
     messenger.onRequest(getModuleNodes, () => rpcManger.getModuleNodes());
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
@@ -82,4 +92,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(runProject, () => rpcManger.runProject());
     messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
+    messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
 }

@@ -14,38 +14,11 @@ import styled from "@emotion/styled";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
-const TextWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-`;
-
 const Wrapper = styled.div`
     height: calc(100vh - 100px);
-    max-width: 800px;
+    max-width: 660px;
     margin: 80px 120px;
     overflow: auto;
-`;
-
-const TitlePanel = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 40px;
-`;
-
-const Pane = styled.div`
-    display: flex;
-    padding: 0px !important;
-    flex-direction: column;
-    width: 100%;
-`;
-
-const Tab = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding: 20px 0px;
-    gap: 5px;
 `;
 
 const Headline = styled.div`
@@ -56,21 +29,7 @@ const Headline = styled.div`
     margin-bottom: 20px;
 `;
 
-const SubTitle = styled.div`
-    font-weight: 400;
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 1.5em;
-    line-height: normal;
-`;
-
-const Grid = styled.div({
-    display: "flex",
-    flexDirection: "row",
-    gap: 20,
-});
-
-const AddButton = styled(Button)`
+const StyledButton = styled(Button)`
     margin-top: 10px;
     width: 100%;
 `;
@@ -82,6 +41,62 @@ const ButtonContent = styled.div`
     gap: 10px;
     height: 28px;
 `;
+
+//
+
+const TitleContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 20px;
+`;
+
+const Caption = styled.div`
+    font-size: 1.1em;
+    line-height: 1.5em;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 5px;
+`;
+
+const StepContainer = styled.div`
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 48px;
+`;
+
+const Row = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+`;
+
+const Column = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+`;
+
+const StepTitle = styled.div<{ color?: string }>`
+    font-size: 1.5em;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: ${(props: { color?: string }) => props.color || "inherit"};
+`;
+
+const StepDescription = styled.div<{ color?: string }>`
+    font-size: 1em;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: ${(props: { color?: string }) => props.color || "inherit"};
+`;
+
 
 export function WelcomeView() {
     const { rpcClient } = useRpcContext();
@@ -96,51 +111,62 @@ export function WelcomeView() {
     };
 
     const openGettingStartedGuide = () => {
-        // rpcClient.getVisualizerRpcClient().openExternal({
-        //     uri: "https://mi.docs.wso2.com/en/4.3.0/get-started/development-kickstart/"
-        // })
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: "https://wso2.github.io/docs-kola/get-started/quick-start-guide/"
+        })
+    };
+
+    const openSamples = () => {
+        rpcClient.getCommonRpcClient().openExternalUrl({
+            url: "https://wso2.github.io/docs-kola/learn/message-transformation/"
+        })
     };
 
     return (
-        <>
-            <Wrapper>
-                <TitlePanel>
-                    <Headline>Kola Integrator for VS Code</Headline>
-                    <span>
-                        A comprehensive integration solution that simplifies your digital transformation journey.
-                        Streamlines connectivity among applications, services, data, and cloud using a user-friendly
-                        low-code graphical designing experience.{" "}
-                    </span>
-                </TitlePanel>
-                <Grid>
-                    <Pane>
-                        <Tab>
-                            <SubTitle>Getting started</SubTitle>
-                            <span>
-                                Learn about the Kola Extension in our{" "}
-                                <VSCodeLink onClick={openGettingStartedGuide}>Getting Started Guide</VSCodeLink>.
-                            </span>
-                        </Tab>
-                        <Tab>
-                            <SubTitle>Create New Integration</SubTitle>
-                            <span>Create a new project by clicking the button below.</span>
-                            <AddButton appearance="primary" onClick={() => goToCreateProject()}>
-                                <ButtonContent>
-                                    <Codicon name="add" iconSx={{ fontSize: 16 }} />
-                                    <TextWrapper>Create New Integration</TextWrapper>
-                                </ButtonContent>
-                            </AddButton>
-                        </Tab>
-                        <Tab>
-                            <SubTitle>Explore Samples</SubTitle>
-                            <span>
-                                Have a look at some examples.
-                                <VSCodeLink onClick={openGettingStartedGuide}>View Samples</VSCodeLink>.
-                            </span>
-                        </Tab>
-                    </Pane>
-                </Grid>
-            </Wrapper>
-        </>
+        <Wrapper>
+            <TitleContainer>
+                <Headline>Kola Integrator for VS Code</Headline>
+                <Caption>
+                    A comprehensive integration solution that simplifies your digital transformation journey.
+                    Streamlines connectivity among applications, services, data, and cloud using a user-friendly
+                    low-code graphical designing experience.
+                </Caption>
+            </TitleContainer>
+
+            <StepContainer>
+                <Row>
+                    <Column>
+                        <StepTitle>Get Started Quickly</StepTitle>
+                        <StepDescription>
+                            New to Kola? Start here! Explore step-by-step tutorials to help you get up and running with
+                            ease. <VSCodeLink onClick={openGettingStartedGuide}>Read the Guide</VSCodeLink>.
+                        </StepDescription>
+                    </Column>
+                </Row>
+                <Row>
+                    <Column>
+                        <StepTitle>Create Your First Integration</StepTitle>
+                        <StepDescription>
+                            Ready to build? Start a new integration project using our intuitive graphical designer.
+                        </StepDescription>
+                        <StyledButton appearance="primary" onClick={() => goToCreateProject()}>
+                            <ButtonContent>
+                                <Codicon name="add" iconSx={{ fontSize: 16 }} />
+                                Create New Integration
+                            </ButtonContent>
+                        </StyledButton>
+                    </Column>
+                </Row>
+                <Row>
+                    <Column>
+                        <StepTitle>Explore Pre-Built Samples</StepTitle>
+                        <StepDescription>
+                            Need inspiration? Browse through sample projects to see how Kola handles real-world
+                            integrations. <VSCodeLink onClick={openSamples}>Explore Samples</VSCodeLink>.
+                        </StepDescription>
+                    </Column>
+                </Row>
+            </StepContainer>
+        </Wrapper>
     );
 }

@@ -8,14 +8,15 @@
  */
 
 import { promises as fs, createReadStream } from "fs";
-import { dirname, relative, sep } from "path";
+import { basename, dirname, join, relative, sep } from "path";
 import type { Readable } from "stream";
-import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, GitProvider } from "@wso2-enterprise/choreo-core";
 import * as byline from "byline";
 import { type Disposable, type Event, EventEmitter, type ExtensionContext } from "vscode";
 import { getLogger } from "../logger/logger";
-import type { Remote } from "./api/git";
+import type { Branch, Remote } from "./api/git";
 import { initGit } from "./main";
+import { readLocalEndpointsConfig, readLocalProxyConfig } from "../utils";
 
 export const isMacintosh = process.platform === "darwin";
 export const isWindows = process.platform === "win32";
@@ -570,6 +571,20 @@ export const getGitRemotes = async (context: ExtensionContext, directoryPath: st
 	return remotes!;
 };
 
+export const getGitHead = async (context: ExtensionContext, directoryPath: string): Promise<Branch | undefined> => {
+	const newGit = await initGit(context);
+	const repoRootPath = await newGit?.getRepositoryRoot(directoryPath);
+	const dotGit = await newGit?.getRepositoryDotGit(directoryPath);
+
+	if (!repoRootPath || !dotGit) {
+		return undefined;
+	}
+
+	const repo = newGit?.open(repoRootPath!, dotGit);
+	const head = await repo?.getHEADRef()
+	return head;
+};
+
 export const getGitRoot = async (context: ExtensionContext, directoryPath: string): Promise<string | undefined> => {
 	try {
 		const newGit = await initGit(context);
@@ -634,4 +649,134 @@ export const isSameRepo = (gitUrl1?: string, gitUrl2?: string): boolean => {
 	const [gitOrg2, gitRepo2] = parsedUrl12;
 
 	return gitOrg1 === gitOrg2 && gitRepo1 === gitRepo2;
+};
+
+export const hasDirtyRepo = async (directoryPath: string, context: ExtensionContext): Promise<boolean> => {
+	try{
+		const git = await initGit(context);
+		const repoRoot = await git?.getRepositoryRoot(directoryPath)
+		if(repoRoot){
+			const subPath = relative(repoRoot, directoryPath)
+			if (git) {
+				const gitRepo = git.open(repoRoot, { path: repoRoot });
+				const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: subPath });
+				const hasLocalChanges =  status.status.filter(item=>!item.path.endsWith('context.yaml')).length > 0;
+				if(hasLocalChanges){
+					return hasLocalChanges
+				}
+
+				const localCommits = await git.getUnPushedCommits(repoRoot, subPath || ".");
+				return localCommits.length > 0;
+			}
+		}
+		return false
+	}catch{
+		return false
+	}
+};
+
+export const getConfigFileDrifts = async (type: string, gitUrl: string, branch: string, directoryPath: string, context: ExtensionContext): Promise<string[]> => {
+	try{
+		const fileNames = new Set<string>()
+		const git = await initGit(context);
+		const repoRoot = await git?.getRepositoryRoot(directoryPath)
+		if(repoRoot){
+			const subPath = relative(repoRoot, directoryPath)
+
+
+			if(git){
+				const gitRepo = git.open(repoRoot, { path: repoRoot });
+				const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: subPath });
+
+				status.status.forEach(item=>{
+					if(item.path.endsWith('endpoints.yaml')){
+						fileNames.add("endpoints.yaml")
+					}else if(item.path.endsWith('component-config.yaml')){
+						fileNames.add("component-config.yaml")
+					}else if(item.path.endsWith('component.yaml')){
+						fileNames.add("component.yaml")
+					}
+
+					if(type === ChoreoComponentType.Service){
+						const eps = readLocalEndpointsConfig(directoryPath)
+						eps.endpoints?.forEach(epItem=>{
+							if(epItem.schemaFilePath && item.path.endsWith(epItem.schemaFilePath)){
+								fileNames.add(epItem.schemaFilePath)
+							}
+						})
+					}else if(type === ChoreoComponentType.ApiProxy){
+						const proxyConfig = readLocalProxyConfig(directoryPath);
+						if(proxyConfig?.proxy?.schemaFilePath && item.path.endsWith(proxyConfig?.proxy?.schemaFilePath)){
+							fileNames.add(proxyConfig?.proxy?.schemaFilePath)
+						}
+						if(proxyConfig?.proxy?.docPath && item.path.endsWith(proxyConfig?.proxy?.docPath)){
+							fileNames.add(proxyConfig?.proxy?.docPath)
+						}
+						if(proxyConfig?.proxy?.thumbnailPath && item.path.endsWith(proxyConfig?.proxy?.thumbnailPath)){
+							fileNames.add(proxyConfig?.proxy?.thumbnailPath)
+						}
+					}	
+				})
+				if(fileNames.size){
+					return Array.from(fileNames)
+				}
+
+				const remotes = await getGitRemotes(context, repoRoot)
+				const matchingRemoteName = remotes.find(item=>{
+					const parsed1 = parseGitURL(item.fetchUrl)
+					const parsed2 = parseGitURL(gitUrl)
+					if(parsed1 && parsed2){
+						const [org, repoName] = parsed1;
+						const [componentRepoOrg, componentRepoName] = parsed2
+						return org === componentRepoOrg && repoName === componentRepoName
+					}
+				})?.name
+
+				if (matchingRemoteName) {
+					try{
+						await gitRepo.fetch({ silent: true, remote: matchingRemoteName })
+					}catch{
+						// ignore error
+					}
+					const changes = await gitRepo.diffWith(`${matchingRemoteName}/${branch}`)
+					const componentConfigYamlPath = join(directoryPath, '.choreo', 'component-config.yaml')
+					const endpointsYamlPath = join(directoryPath, '.choreo', 'endpoints.yaml')
+					const componentYamlPath = join(directoryPath, '.choreo', 'component.yaml')
+					const configPaths = [componentYamlPath, componentConfigYamlPath, endpointsYamlPath];
+
+					if(type === ChoreoComponentType.Service){
+						const eps = readLocalEndpointsConfig(directoryPath)
+						eps.endpoints?.forEach(epItem=>{
+							if(epItem.schemaFilePath){
+								configPaths.push(join(directoryPath, epItem.schemaFilePath))
+							}
+						})
+					}else if(type === ChoreoComponentType.ApiProxy){
+						const proxyConfig = readLocalProxyConfig(directoryPath);
+						if(proxyConfig?.proxy?.schemaFilePath){
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.schemaFilePath))
+						}
+						if(proxyConfig?.proxy?.docPath){
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.docPath))
+						}
+						if(proxyConfig?.proxy?.thumbnailPath){
+							configPaths.push(join(directoryPath, proxyConfig?.proxy?.thumbnailPath))
+						}
+					}	
+
+					changes.forEach(item=>{
+						if(configPaths.includes(item.uri.path)){
+							fileNames.add(basename(item.uri.path))
+						}
+					})
+					if(fileNames.size){
+						return Array.from(fileNames)
+					}
+				}
+			}
+		}
+		return Array.from(fileNames)
+	}catch{
+		return []
+	}
 };

@@ -16,13 +16,15 @@ import {
     BIAvailableNodesResponse,
     BIConnectorsRequest,
     BIConnectorsResponse,
+    BIDeleteByComponentInfoRequest,
+    BIDeleteByComponentInfoResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
-    BIModuleNodesResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
+    BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
@@ -30,9 +32,12 @@ import {
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
+    ConfigVariableResponse,
     CreateComponentResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
     ProjectComponentsResponse,
     ProjectRequest,
     ProjectStructureResponse,
@@ -40,6 +45,8 @@ import {
     ReadmeContentResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
@@ -47,12 +54,15 @@ import {
     createComponent,
     createComponents,
     createProject,
+    deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getConfigVariables,
     getExpressionCompletions,
+    getExpressionDiagnostics,
     getFlowModel,
     getFunctions,
     getModuleNodes,
@@ -62,13 +72,14 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
-    getVisibleVariableTypes,
     getVisibleTypes,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent,
     openAIChat,
     openReadme,
-    runProject
+    runProject,
+    updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -90,6 +101,10 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         return this._messenger.sendRequest(deleteFlowNode, HOST_EXTENSION, params);
+    }
+
+    deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BIDeleteByComponentInfoResponse> {
+        return this._messenger.sendRequest(deleteByComponentInfo, HOST_EXTENSION, params);
     }
 
     getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
@@ -148,6 +163,14 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
     }
 
+    getConfigVariables(): Promise<ConfigVariableResponse> {
+        return this._messenger.sendRequest(getConfigVariables, HOST_EXTENSION);
+    }
+
+    updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this._messenger.sendRequest(updateConfigVariables, HOST_EXTENSION, params);
+    }
+
     getModuleNodes(): Promise<BIModuleNodesResponse> {
         return this._messenger.sendRequest(getModuleNodes, HOST_EXTENSION);
     }
@@ -182,5 +205,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
+    }
+
+    getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return this._messenger.sendRequest(getExpressionDiagnostics, HOST_EXTENSION, params);
     }
 }

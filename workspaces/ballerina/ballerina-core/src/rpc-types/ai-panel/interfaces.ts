@@ -17,6 +17,12 @@ export type ErrorCode = {
 };
 
 export interface ProjectSource {
+    projectModules?: ProjectModule[];
+    sourceFiles: SourceFile[];
+}
+
+export interface ProjectModule {
+    moduleName: string;
     sourceFiles: SourceFile[];
 }
 
@@ -30,8 +36,15 @@ export interface ProjectDiagnostics {
 }
 
 export interface DiagnosticEntry {
+    line?: number;
     message : string;
 }
+
+export interface InitialPrompt {
+    exists: boolean;
+    text: string;
+}
+
 export interface AIVisualizerState {
     state: AIMachineStateValue;
 }
@@ -42,8 +55,14 @@ export interface AIVisualizerState {
 export interface AddToProjectRequest {
     filePath: string;
     content: string;
+    isTestCode: boolean;
 }
-
+export interface GetFromFileRequest {
+    filePath: string;
+}
+export interface DeleteFromProjectRequest {
+    filePath: string;
+}
 export interface GenerateMappingsRequest {
     position: NodePosition;
     filePath: string;
@@ -59,4 +78,50 @@ export interface NotifyAIMappingsRequest {
     newFnPosition: NodePosition;
     prevFnSource: string;
     filePath: string;
+}
+
+export interface GenerateTestRequest {
+    backendUri: string;
+    token: string;
+    serviceName: string;
+    existingSource?: GeneratedTestSource;
+    diagnostics?: ProjectDiagnostics;
+}
+
+export interface GeneratedTestSource {
+    testContent: string;
+    configContent?: string;
+}
+
+export interface DataMappingRecord {
+    type: string;
+    isArray: boolean;
+    filePath: string;
+}
+
+export interface GenerteMappingsFromRecordRequest {
+    backendUri: string;
+    token: string;
+    inputRecordTypes: DataMappingRecord[];
+    outputRecordType: DataMappingRecord;
+    functionName: string;
+}
+
+export interface GenerateMappingFromRecordResponse {
+    mappingCode: string;
+}
+export interface MappingParameters{
+    inputRecord: string[];
+    outputRecord: string,
+    functionName?: string;
+}
+
+
+export interface PostProcessRequest {
+    assistant_response: string;
+}
+
+export interface PostProcessResponse {
+    assistant_response: string;
+    diagnostics: ProjectDiagnostics;
 }

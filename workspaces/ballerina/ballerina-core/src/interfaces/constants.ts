@@ -22,9 +22,12 @@ export const BI_COMMANDS = {
     FOCUS_PROJECT_EXPLORER: 'BI.project-explorer.focus',
     PROJECT_EXPLORER: 'BI.project-explorer',
     ADD_CONNECTIONS: 'BI.project-explorer.add-connection',
+    DELETE_COMPONENT: 'BI.project-explorer.delete',
     ADD_ENTRY_POINT: 'BI.project-explorer.add-entry-point',
     ADD_TYPE: 'BI.project-explorer.add-type',
     ADD_FUNCTION: 'BI.project-explorer.add-function',
     OPEN_TYPE_DIAGRAM: 'BI.view.typeDiagram',
-    ADD_CONFIGURATION: 'BI.project-explorer.add-configuration'
+    ADD_CONFIGURATION: 'BI.project-explorer.add-configuration',
+    ADD_PROJECT: 'BI.project-explorer.add',
+    SHOW_OVERVIEW: 'BI.project-explorer.overview'
 };

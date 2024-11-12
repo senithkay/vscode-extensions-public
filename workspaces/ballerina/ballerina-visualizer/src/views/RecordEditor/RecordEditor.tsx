@@ -37,7 +37,8 @@ export function RecordEditor(props: RecordEditorProps) {
         fields,
         rpcClient,  
         onClose,
-        updateFields
+        updateFields,
+        width
     } = props;
     const [recordFullST, setRecordFullST] = useState<STNode>();
     const [recordPath, setRecordPath] = useState<string>();
@@ -103,7 +104,7 @@ export function RecordEditor(props: RecordEditorProps) {
             sx={{
                 backgroundColor: Colors.SURFACE_DIM,
                 boxShadow: "none",
-                width: "inherit"
+                width: width ? width : "400px",
             }}
         >
             <DrawerContainer>

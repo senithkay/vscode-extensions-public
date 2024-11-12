@@ -100,6 +100,10 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     VisibleVariableTypes,
+    ConfigVariableResponse,
+    ConfigVariableRequest,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     ProjectDiagnosticsRequest,
     ProjectDiagnosticsResponse,
     MainFunctionParamsRequest,
@@ -110,7 +114,10 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
-    VisibleTypesResponse
+    VisibleTypesResponse,
+    BIDeleteByComponentInfoRequest,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -171,19 +178,24 @@ enum EXTENDED_APIS {
     BI_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     BI_SOURCE_CODE = 'flowDesignService/getSourceCode',
     BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
+    BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
+    BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
+    UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
     RUNNER_MAIN_FUNCTION_PARAMS = 'ballerinaRunner/mainFunctionParams',
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
-    BI_VISIBLE_TYPES = 'expressionEditor/types'
+    BI_VISIBLE_TYPES = 'expressionEditor/types',
+    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -616,6 +628,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ServiceFromOASResponse>(EXTENDED_APIS.BI_GEN_OPEN_API, params);
     }
 
+    async getConfigVariables(params: ConfigVariableRequest): Promise<ConfigVariableResponse> {
+        return this.sendRequest<ConfigVariableResponse>(EXTENDED_APIS.VIEW_CONFIG_VARIABLES, params);
+    }
+
+    async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
+        return this.sendRequest<UpdateConfigVariableResponse>(EXTENDED_APIS.UPDATE_CONFIG_VARIABLES, params);
+    }
+
     async getSuggestedFlowModel(params: BISuggestedFlowModelRequest): Promise<BIFlowModelResponse> {
         return this.sendRequest<BIFlowModelResponse>(EXTENDED_APIS.BI_SUGGESTED_FLOW_MODEL, params);
     }
@@ -626,6 +646,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async deleteFlowNode(params: BISourceCodeRequest): Promise<BISourceCodeResponse> {
         return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_NODE, params);
+    }
+
+    async deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_BY_COMPONENT_INFO, params);
     }
 
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
@@ -651,6 +675,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_VISIBLE_TYPES, params);
+    }
+
+    async addErrorHandler(params: BIModuleNodesRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest(EXTENDED_APIS.BI_GEN_ERROR_HANDLER, params);
+    }
+
+    async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return this.sendRequest<ExpressionDiagnosticsResponse>(EXTENDED_APIS.BI_EXPRESSION_DIAGNOSTICS, params);
     }
 
     // <------------ BI APIS END --------------->

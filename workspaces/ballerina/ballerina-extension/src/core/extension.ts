@@ -10,7 +10,7 @@
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
     IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor,
-    ConfigurationTarget
+    ConfigurationTarget, ProgressLocation
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -44,12 +44,14 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../features/project";
 import { gitStatusBarItem } from "../features/editor-support/git-status";
 import { checkIsPersistModelFile } from "../views/persist-layer-diagram/activator";
-import { BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import { BallerinaProject, DownloadProgress, onDownloadProgress } from "@wso2-enterprise/ballerina-core";
 import os, { platform } from "os";
 import axios from "axios";
 import AdmZip from 'adm-zip';
 import fs from 'fs';
 import path from 'path';
+import { RPCLayer } from "../RPCLayer";
+import { VisualizerWebview } from "../views/visualizer/webview";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -140,6 +142,7 @@ export class BallerinaExtension {
     private ballerinaKolaVersion: string;
     private ballerinaKolaReleaseUrl: string;
     private ballerinaHomeCustomDirName: string;
+    private ballerinaKolaHome: string;
 
     constructor() {
         this.ballerinaHome = '';
@@ -148,10 +151,11 @@ export class BallerinaExtension {
         this.isPersist = false;
         this.ballerinaUserHomeName = '.ballerina';
         this.ballerinaUserHome = path.join(this.getUserHomeDirectory(), this.ballerinaUserHomeName);
-        this.ballerinaLatestVersion = "2201.10.1";
+        this.ballerinaLatestVersion = "2201.10.2";
         this.ballerinaLatestReleaseUrl = "https://dist.ballerina.io/downloads/" + this.ballerinaLatestVersion;
-        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/workflows/2151175/runs?status=success";
+        this.ballerinaKolaReleaseUrl = "https://api.github.com/repos/ballerina-platform/ballerina-distribution/releases";
         this.ballerinaHomeCustomDirName = "ballerina-home";
+        this.ballerinaKolaHome = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
         this.showStatusBarItem();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -213,16 +217,17 @@ export class BallerinaExtension {
             this.showMessageInstallBallerina();
         });
 
-        commands.registerCommand('ballerina.installBallerina', () => {
+        commands.registerCommand('kolab-setup.installBallerina', () => {
             this.installBallerina();
         });
 
-        commands.registerCommand('ballerina.setupKola', () => {
-            this.setupKolaVersion();
+        commands.registerCommand('kolab-setup.setupKola', () => {
+            // this.setupKolaVersion();
+            this.updateKolaVersion();
         });
 
-        commands.registerCommand('ballerina.updateKola', () => {
-            this.updateKolaVersion();
+        commands.registerCommand('kolab-setup.updateKola', () => {
+            this.updateKolaVersion(true);
         });
 
         try {
@@ -323,13 +328,19 @@ export class BallerinaExtension {
             }
 
             const installerFilePath = path.join(this.getBallerinaUserHome(), installerName);
-            
+
             // Download the installer and save it to the user home directory
+            console.log('Starting download of Ballerina installer from:', installerUrl);
             const response = await axios({
                 url: installerUrl,
                 method: 'GET',
                 responseType: 'arraybuffer',
+                onDownloadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    console.log(`Download progress: ${percentCompleted}%`);
+                }
             });
+            console.log('Download of Ballerina installer completed.');
             await fs.writeFileSync(installerFilePath, response.data);
 
             // Install Ballerina
@@ -361,36 +372,18 @@ export class BallerinaExtension {
         try {
             window.showInformationMessage(`Setting up Ballerina Kola version`);
 
-            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
+            await this.downloadAndUnzipBallerina();
 
-            await this.downloadAndUnzipBallerina(destinationPath);
-
-            await this.setBallerinaHomeAndCommand(destinationPath);
+            await this.setBallerinaHomeAndCommand();
 
             await this.setExecutablePermissions();
 
-            console.log('Ballerina home has been set successfully for Quala version.');
-            window.showInformationMessage("Ballerina has been set up successfully for Quala version");
-        } catch (error) {
-            console.error('Error downloading or unzipping the Ballerina Quala version:', error);
-            window.showErrorMessage('Error downloading or unzipping the Ballerina Quala version:', error);
-        }
-    }
-
-    async updateKolaVersion() {
-        try {
-            window.showInformationMessage(`Updating Ballerina Kola version`);
-
-            // Remove the existing Ballerina Kola version
-            fs.rmSync(this.ballerinaHome, { recursive: true, force: true });
-
-            const destinationPath = path.join(this.getBallerinaUserHome(), this.ballerinaHomeCustomDirName);
-
-            await this.downloadAndUnzipBallerina(destinationPath);
-
-            await this.setBallerinaHomeAndCommand(destinationPath);
-
-            await this.setExecutablePermissions();
+            let res: DownloadProgress = {
+                message: `Success..`,
+                success: true,
+                step: 6 // This is the last step
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
             console.log('Ballerina home has been set successfully for Kola version.');
             window.showInformationMessage("Ballerina has been set up successfully for Kola version");
@@ -400,125 +393,254 @@ export class BallerinaExtension {
         }
     }
 
-    private async downloadAndUnzipBallerina(destinationPath: string) {
-        window.showInformationMessage(`Downloading Ballerina Kola version`);
+    async updateKolaVersion(restartWindow?: boolean) {
+        try {
+            if (this.langClient?.isRunning()) {
+                window.showInformationMessage(`Stopping the ballerina language server...`);
+                await this.langClient.stop();
+                await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for 15 seconds
+            }
+
+            window.showInformationMessage(`Updating Ballerina Kola version`);
+            // Remove the existing Ballerina Kola version
+            fs.rmSync(this.ballerinaKolaHome, { recursive: true, force: true });
+
+            await this.downloadAndUnzipBallerina(restartWindow);
+
+            await this.setBallerinaHomeAndCommand();
+
+            await this.setExecutablePermissions();
+
+            let res: DownloadProgress = {
+                message: `Success..`,
+                success: true,
+                step: 6 // This is the last step
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+
+            console.log('Ballerina home has been set successfully for Kola version.');
+            if (restartWindow) {
+                commands.executeCommand('workbench.action.reloadWindow');
+            } else {
+                window.showInformationMessage("Ballerina has been set up successfully for Kola version");
+            }
+        } catch (error) {
+            console.error('Error downloading or unzipping the Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unzipping the Ballerina Kola version:', error);
+        }
+    }
+
+    private async downloadAndUnzipBallerina(restartWindow?: boolean) {
         try {
             // Get the latest successful daily build run and artifacts
-            const workflowResponse = await axios.get(this.ballerinaKolaReleaseUrl);
-            const workflowData = workflowResponse.data;
-            if (workflowData.total_count === 0) {
-                throw new Error('No successful workflow run found');
+            let res: DownloadProgress = {
+                downloadedSize: 0,
+                message: "Fetching kola release details..",
+                percentage: 0,
+                success: false,
+                totalSize: 0,
+                step: 1
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            const releasesResponse = await axios.get(this.ballerinaKolaReleaseUrl);
+            const releases = releasesResponse.data;
+            const tags = releases.map((release: any) => release.tag_name).filter((tag: string) => tag.startsWith("v2201.11.0-bi-pack"));
+            if (tags.length === 0) {
+                throw new Error('No Kola distribution found in the releases');
             }
-            const latestRun = workflowData.workflow_runs[0];
-            console.log(`Found workflow run: ${latestRun.id}`);
+            const latestTag = tags[0];
+            console.log(`Latest release tag: ${latestTag}`);
 
-            const workflowRunUrl = `https://api.github.com/repos/ballerina-platform/ballerina-distribution/actions/runs/${latestRun.id}/artifacts`;
-            const workflowRunResponse = await axios.get(workflowRunUrl);
-            if (workflowRunResponse.data.total_count === 0) {
-                throw new Error('No artifacts found in the workflow run');
-            }
+            // Get the latest successful daily build run and artifacts
+            res = {
+                downloadedSize: 0,
+                message: "Fetching latest kola distribution details..",
+                percentage: 0,
+                success: false,
+                totalSize: 0,
+                step: 2
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+            const kolaReleaseResponse = await axios.get(`${this.ballerinaKolaReleaseUrl}/tags/${latestTag}`);
+            const kolaRelease = kolaReleaseResponse.data;
+            this.ballerinaKolaVersion = kolaRelease.tag_name.replace('v', '').split('-')[0];
+            console.log(`Latest release version: ${this.ballerinaKolaVersion}`);
+
             const platform = os.platform();
-            const asset = workflowRunResponse.data.artifacts.find((asset: any) => {
-                        if (platform === 'win32') {
-                            return asset.name.endsWith('Windows Installer ZIP');
-                        } else if (platform === 'linux') {
-                            if (os.arch() === 'arm64') {
-                                return asset.name.endsWith('Linux-ARM Installer ZIP');
-                            } else {
-                                return asset.name.endsWith('Linux Installer ZIP');
-                            }
-                        } else if (platform === 'darwin') {
-                            if (os.arch() === 'arm64') {
-                                return asset.name.endsWith('MacOS-ARM Installer ZIP');
-                            } else {
-                                return asset.name.endsWith('MacOS Installer ZIP');
-                            }
-                        }
-                    });
-            const artifactUrl = asset.archive_download_url;
+            const asset = kolaRelease.assets.find((asset: any) => {
+                if (platform === 'win32') {
+                    return asset.name.endsWith('windows.zip');
+                } else if (platform === 'linux') {
+                    return asset.name.endsWith('linux.zip');
+                } else if (platform === 'darwin') {
+                    if (os.arch() === 'arm64') {
+                        return asset.name.endsWith('macos-arm.zip');
+                    } else {
+                        return asset.name.endsWith('macos.zip');
+                    }
+                }
+            });
+            if (!asset) {
+                throw new Error('No artifact found in the release ' + this.ballerinaKolaVersion);
+            }
+            const artifactUrl = asset.browser_download_url;
 
             // Create destination folder if it doesn't exist
             if (!fs.existsSync(this.getBallerinaUserHome())) {
                 fs.mkdirSync(this.getBallerinaUserHome(), { recursive: true });
             }
-            
+
             // Download the artifact and save it to the user home directory
             console.log(`Downloading artifact from ${artifactUrl}`);
-            const response = await axios({
-                url: artifactUrl,
-                method: 'GET',
-                responseType: 'arraybuffer',
-            });
+            let response;
+            try {
+                res = {
+                    downloadedSize: 0,
+                    message: "Download starting...",
+                    percentage: 0,
+                    success: false,
+                    totalSize: 0,
+                    step: 3
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                const sizeMB = 1024 * 1024;
+                await window.withProgress(
+                    {
+                        location: ProgressLocation.Notification,
+                        title: `Downloading Kola distribution`,
+                        cancellable: false,
+                    },
+                    async (progress) => {
+                        let lastPercentageReported = 0;
+
+                        response = await axios({
+                            url: artifactUrl,
+                            method: 'GET',
+                            responseType: 'arraybuffer',
+                            onDownloadProgress: (progressEvent) => {
+                                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                                console.log(`Total Size: ${progressEvent.total / sizeMB}MB`);
+                                console.log(`Download progress: ${percentCompleted}%`);
+
+                                if (percentCompleted > lastPercentageReported) {
+                                    progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${Math.round(progressEvent.total / sizeMB)}MB` });
+                                    lastPercentageReported = percentCompleted;
+                                }
+
+                                // Sizes will be sent as MB
+                                res = {
+                                    downloadedSize: progressEvent.loaded / sizeMB,
+                                    message: "Downloading...",
+                                    percentage: percentCompleted,
+                                    success: false,
+                                    totalSize: progressEvent.total / sizeMB,
+                                    step: 2
+                                };
+                                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                            }
+                        });
+                        if (restartWindow) {
+                            window.showInformationMessage("Download complete. Please wait...");
+                        }
+                        return;
+                    }
+                );
+                // ... existing code to handle the response ...
+            } catch (error) {
+                // Sizes will be sent as MB
+                res = {
+                    ...res,
+                    message: `Failed: ${error}`,
+                    success: false,
+                    step: -1 // Error step
+                };
+                RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
+                console.error('Error downloading artifact:', error);
+            }
             const zipFilePath = path.join(this.getBallerinaUserHome(), asset.name);
             await fs.writeFileSync(zipFilePath, response.data);
             console.log(`Downloaded artifact to ${zipFilePath}`);
-            window.showInformationMessage(`Downloaded artifact to ${zipFilePath}`);
 
+            if (restartWindow) {
+                window.showInformationMessage("Setting the Kola Home location...");
+            }
+            res = {
+                ...res,
+                message: `Setting the Kola Home location...`,
+                success: false,
+                step: 4
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             // Unzip the artifact
             const zip = new AdmZip(zipFilePath);
             zip.extractAllTo(this.getBallerinaUserHome(), true);
             console.log(`Unzipped artifact to ${this.getBallerinaUserHome()}`);
 
-            const filePattern = /^ballerina-.*-swan-lake-.*\.zip$/;
-            const files = fs.readdirSync(this.getBallerinaUserHome());
-            const matchingFile = files.find((file) => filePattern.test(file));
-            if (!matchingFile) {
-                throw new Error('No matching zip file found');
+            // Rename the root folder to the new name
+            const tempRootPath = path.join(this.getBallerinaUserHome(), asset.name.replace('.zip', ''));
+            fs.renameSync(tempRootPath, this.ballerinaKolaHome);
+
+            if (restartWindow) {
+                window.showInformationMessage("Cleaning up the temp files...");
             }
-            const tempZipFilePath = path.join(this.getBallerinaUserHome(), matchingFile.toString());
-            console.log(tempZipFilePath);
-
-            const tempZip = new AdmZip(tempZipFilePath);
-            tempZip.extractAllTo(this.getBallerinaUserHome(), true);
-
-            // Get the Ballerina Kola version
-            this.ballerinaKolaVersion = matchingFile.toString().split('-')[1];
-            console.log(`Ballerina Kola version: ${this.ballerinaKolaVersion}`);
-
+            res = {
+                ...res,
+                message: `Cleaning up the temp files...`,
+                success: false,
+                step: 5
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
             // Cleanup: Remove the downloaded zip file
             fs.rmSync(zipFilePath);
-            fs.rmSync(tempZipFilePath);
-            
-            // Rename the root folder to the new name
-            const tempRootPath = path.join(this.getBallerinaUserHome(), matchingFile.toString().replace('.zip', ''));
-            fs.renameSync(tempRootPath, destinationPath);
 
             console.log('Cleanup complete.');
         } catch (error) {
-            console.error('Error downloading or unziping Ballerina Kola version:', error);
-            window.showErrorMessage('Error downloading or unziping Ballerina Kola version:', error);
+            console.error('Error downloading or unzipping Ballerina Kola version:', error);
+            window.showErrorMessage('Error downloading or unzipping Ballerina Kola version:', error);
         }
     }
 
-    private async setBallerinaHomeAndCommand(destinationPath: string) {
+    private async setBallerinaHomeAndCommand() {
         let exeExtension = "";
         if (isWindows()) {
             exeExtension = ".bat";
         }
 
         // Set the Ballerina Home and Command
-        this.ballerinaHome = destinationPath;
+        this.ballerinaHome = this.ballerinaKolaHome;
         this.ballerinaCmd = join(this.ballerinaHome, "bin") + sep + "bal" + exeExtension;
 
         // Update the configuration with the new Ballerina Home
+        let res: DownloadProgress = {
+            message: `Setting the configurable values in vscode...`,
+            success: false,
+            step: 4
+        };
+        RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
         workspace.getConfiguration().update(BALLERINA_HOME, this.ballerinaHome, ConfigurationTarget.Global);
+        workspace.getConfiguration().update(OVERRIDE_BALLERINA_HOME, true, ConfigurationTarget.Global);
     }
 
     private async setExecutablePermissions() {
         try {
-            await fs.promises.chmod(this.getBallerinaCmd(), 0o755);
+            let res: DownloadProgress = {
+                message: `Setting the kola distribution permissions...`,
+                success: false,
+                step: 4
+            };
+            RPCLayer._messenger.sendNotification(onDownloadProgress, { type: 'webview', webviewType: VisualizerWebview.viewType }, res);
 
-            const javaExecFile = this.findFileInDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 'java');
-            if (javaExecFile) {
-                console.log('Found java executable:', javaExecFile);
-                await fs.promises.chmod(javaExecFile, 0o755);
-            }
+            // Set permissions for the ballerina command
+            await fs.promises.chmod(this.getBallerinaCmd(), 0o555);
 
-            let exeExtension = "";
-            if (isWindows()) {
-                exeExtension = ".bat";
-            }
-            await fs.promises.chmod(path.join(this.getBallerinaHome(), 'distributions', 'ballerina-' + this.ballerinaKolaVersion, 'bin', 'bal' + exeExtension), 0o755);
+            // Set permissions for lib
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'lib'), 0o555);
+
+            // Set permissions for all files in the distributions
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'distributions'), 0o555);
+
+            // Set permissions for all files in the dependencies
+            await this.setPermissionsForDirectory(path.join(this.getBallerinaHome(), 'dependencies'), 0o555);
 
             console.log('Command files are now executable.');
         } catch (error) {
@@ -526,23 +648,16 @@ export class BallerinaExtension {
         }
     }
 
-    private findFileInDirectory(directory: string, fileName: string): string | null {
+    private async setPermissionsForDirectory(directory: string, permissions: number) {
         const files = fs.readdirSync(directory);
-
         for (const file of files) {
             const fullPath = path.join(directory, file);
-
             if (fs.statSync(fullPath).isDirectory()) {
-                const found = this.findFileInDirectory(fullPath, fileName);
-                if (found) {
-                    return found;
-                }
-            } else if (file === fileName) {
-                return fullPath;
+                this.setPermissionsForDirectory(fullPath, permissions);
+            } else {
+                await fs.promises.chmod(fullPath, permissions);
             }
         }
-
-        return null;
     }
 
     private getInstallerUrl(): string {
@@ -600,15 +715,17 @@ export class BallerinaExtension {
         // message to display on Unknown errors.
         // ask to enable debug logs.
         // we can ask the user to report the issue.
-        this.updateStatusBar("Error");
-        this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
-        window.showErrorMessage(UNKNOWN_ERROR);
+
+        // HACK: Remove this for the Kola extension. This should handle with Ballerina setup page.
+        // this.updateStatusBar("Error");
+        // this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
+        // window.showErrorMessage(UNKNOWN_ERROR);
     }
 
     registerPreInitHandlers(): any {
         // We need to restart VSCode if we change plugin configurations.
         workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-            if (params.affectsConfiguration(BALLERINA_HOME) 
+            if (params.affectsConfiguration(BALLERINA_HOME)
                 || params.affectsConfiguration(OVERRIDE_BALLERINA_HOME)
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS)
                 || params.affectsConfiguration(ENABLE_DEBUG_LOG)
@@ -824,7 +941,15 @@ export class BallerinaExtension {
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
         try {
-            let response = spawnSync(this.ballerinaCmd, ['home']);
+            const args = ['home'];
+            let response;
+            if (isWindows()) {
+                // On Windows, use cmd.exe to run .bat files
+                response = spawnSync('cmd.exe', ['/c', this.ballerinaCmd, ...args], { shell: true });
+            } else {
+                // On other platforms, use spawnSync directly
+                response = spawnSync(this.ballerinaCmd, args, { shell: false });
+            }
             if (response.stdout.length > 0) {
                 balHomeOutput = response.stdout.toString().trim();
             } else if (response.stderr.length > 0) {

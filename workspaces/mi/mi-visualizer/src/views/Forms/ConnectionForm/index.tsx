@@ -151,10 +151,10 @@ export function ConnectorStore(props: ConnectionStoreProps) {
     const fetchStoreConnectors = async () => {
         setIsFetchingStoreConnectors(true);
         try {
-            const response = await fetch(APIS.CONNECTOR);
-            const data = await response.json();
+            const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+            const data = response.outboundConnectors;
             if (data) {
-                setStoreConnectors(data['outbound-connector-data']);
+                setStoreConnectors(data);
             } else {
                 setStoreConnectors(null);
             }

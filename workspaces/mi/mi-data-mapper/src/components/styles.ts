@@ -167,14 +167,7 @@ export const useIONodesStyles = () => ({
         }
     }),
     addArrayElementButton: css({
-        "& > vscode-button": {
-            padding: "5px",
-            textTransform: "none",
-            ...addElementButton
-        },
-        "& > vscode-button > *": {
-            margin: "0px 6px"
-        }
+        paddingInline: "8px"
     }),
     addSubMappingButton: css({
         "& > vscode-button": {

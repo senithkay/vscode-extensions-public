@@ -9,6 +9,7 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
+import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 
 export type { NodePosition };
 
@@ -36,6 +37,7 @@ export type FlowNode = {
     id: string;
     metadata: Metadata;
     codedata: CodeData;
+    diagnostics?: Diagnostic;
     properties?: NodeProperties;
     branches: Branch[];
     flags?: number;
@@ -54,11 +56,24 @@ export type Metadata = {
 
 export type Property = {
     metadata: Metadata;
+    diagnostics?: Diagnostic;
     valueType: string;
     value: string | ELineRange;
     optional: boolean;
     editable: boolean;
-    valueTypeConstraint?: string[];
+    advanced?: boolean;
+    placeholder?: string;
+    valueTypeConstraint?: string | string[];
+};
+
+export type Diagnostic = {
+    hasDiagnostics: boolean;
+    diagnostics?: DiagnosticMessage[];
+};
+
+export type DiagnosticMessage = {
+    message: string;
+    severity: "ERROR" | "WARNING" | "INFO";
 };
 
 export type CodeData = {
@@ -120,6 +135,16 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
 }
 
+export enum DIRECTORY_SUB_TYPE {
+    FUNCTION = "function",
+    CONNECTION = "connection",
+    TYPE = "type",
+    CONFIGURATION = "configuration",
+    SERVICE = "service",
+    AUTOMATION = "automation",
+    TRIGGER = "trigger"
+}
+
 export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
@@ -167,11 +192,16 @@ export type NodePropertyKey =
     | "variable"
     | "type"
     | "expression"
+    | "msg"
     | "statement"
     | "comment"
     | "connection"
     | "collection"
-    | "view";
+    | "view"
+    | "variable"
+    | "defaultable"
+    | "scope"
+    | "functionName";
 
 export type BranchKind = "block" | "worker";
 
@@ -184,7 +214,8 @@ export type NodeKind =
     | "DRAFT"
     | "EVENT_START"
     | "IF"
-    | "ACTION_CALL"
+    | "REMOTE_ACTION_CALL"
+    | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
     | "ERROR_HANDLER"
@@ -210,15 +241,15 @@ export type NodeKind =
     | "FUNCTION"
     | "FUNCTION_CALL"
     | "ASSIGN"
-    | "DATA_MAPPER";
-
+    | "DATA_MAPPER"
+    | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {
     entryPoints: EntryPoint[];
     name: string;
     thinking: string;
     connections: Connection[];
-}
+};
 
 export type EntryPoint = {
     id: string;
@@ -226,12 +257,12 @@ export type EntryPoint = {
     type: string;
     status: string;
     dependencies: Dependency[];
-}
+};
 
 export type Dependency = {
     id: string;
     status: string;
-}
+};
 
 export type Connection = {
     id: string;
@@ -240,4 +271,24 @@ export type Connection = {
     org?: string;
     package?: string;
     client?: string;
+};
+
+export type Line = {
+    line: number;
+    offset: number;
+};
+
+export type ConfigVariable = {
+    metadata: Metadata;
+    codedata: CodeData;
+    properties: NodeProperties;
+    branches: Branch[];
+    id: string;
+    returning: boolean;
+    diagnostics?: Diagnostic;
+};
+
+export type FormDiagnostics = {
+    key: string;
+    diagnostics: VSCodeDiagnostic[];
 }

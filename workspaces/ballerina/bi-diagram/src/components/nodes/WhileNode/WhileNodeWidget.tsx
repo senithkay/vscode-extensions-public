@@ -11,17 +11,15 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
-import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_HEIGHT, NODE_WIDTH, NODE_GAP_X } from "../../../resources/constants";
+import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_WIDTH } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
+import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
-    export type NodeStyleProp = {
-        selected: boolean;
-        hovered: boolean;
-    };
     export const Node = styled.div`
         display: flex;
         flex-direction: column;
@@ -46,7 +44,13 @@ export namespace NodeStyles {
         border-radius: 5px;
         position: absolute;
         top: -8px;
-        left: 40px;
+        left: 48px;
+    `;
+
+    export const ErrorIcon = styled.div`
+        position: absolute;
+        bottom: -8px;
+        left: 48px;
     `;
 
     export const TopPortWidget = styled(PortWidget)`
@@ -100,17 +104,23 @@ export namespace NodeStyles {
         align-items: center;
     `;
 
+    export type NodeStyleProp = {
+        selected: boolean;
+        hovered: boolean;
+        hasError: boolean;
+    };
     export const Circle = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
         border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+            ${(props: NodeStyleProp) =>
+                props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 50px;
         background-color: ${Colors.SURFACE_DIM};
-        width: ${NODE_HEIGHT}px;
-        height: ${NODE_HEIGHT}px;
+        width: ${WHILE_NODE_WIDTH}px;
+        height: ${WHILE_NODE_WIDTH}px;
     `;
 
     export const Hr = styled.hr`
@@ -157,7 +167,9 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const isMenuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-        model.setAroundLinksDisabled(model.node.suggested);
+        if (model.node.suggested) {
+            model.setAroundLinksDisabled(model.node.suggested === true);
+        }
     }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -204,6 +216,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
 
     const disabled = model.node.suggested;
     const viewState = model.node.viewState;
+    const hasError = nodeHasError(model.node);
 
     return (
         <NodeStyles.Node>
@@ -215,6 +228,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                         onMouseLeave={() => setIsHovered(false)}
                         selected={model.isSelected()}
                         hovered={isHovered}
+                        hasError={hasError}
                     >
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -239,6 +253,11 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
                 </NodeStyles.StyledButton>
+                {hasError && (
+                    <NodeStyles.ErrorIcon>
+                        <DiagnosticsPopUp node={model.node} />
+                    </NodeStyles.ErrorIcon>
+                )}
                 <Popover
                     open={isMenuOpen}
                     anchorEl={anchorEl}
@@ -259,7 +278,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 width={viewState.cw}
                 height={viewState.ch - viewState.h}
                 top={viewState.h}
-                left={viewState.x - ((viewState.cw) / 2) + WHILE_NODE_WIDTH}
+                left={viewState.x + viewState.w / 2 + WHILE_NODE_WIDTH / 2 - viewState.cw / 2}
             ></NodeStyles.Container>
         </NodeStyles.Node>
     );

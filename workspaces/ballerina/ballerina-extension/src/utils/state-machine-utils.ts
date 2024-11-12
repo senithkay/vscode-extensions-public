@@ -129,6 +129,19 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             };
 
         }
+
+        // config variables
+
+        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) && 
+            STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.EditConfigVariables,
+                    documentUri: documentUri,
+                    position: position
+                },
+            };
+        }
     }
 
     return { location: { view: MACHINE_VIEW.Overview, documentUri: documentUri } };

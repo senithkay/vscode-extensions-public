@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, ResourceType } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ProjectStructureArtifactResponse, GetSelectiveArtifactsResponse, GetUserAccessTokenResponse, ResourceType, RegistryArtifact } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, ComponentCard, ContainerProps, ContextMenu, Dropdown, FormActions, FormGroup, FormView, Item, ProgressIndicator, TextField, Typography, Icon } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useState } from "react";
@@ -97,7 +97,16 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         type: "KeyLookup",
         label: "Name",
         filterType: ["sequence", "endpoint", "api", "messageStore", "messageProcessor", "task", "sequenceTemplate", "endpointTemplate", "proxyService", "dataService", "dataSource", "localEntry", "dataMapper"] as ResourceType[],
-        isRequired: true
+        isRequired: true,
+        artifactTypes: { registryArtifacts: false, artifacts: true }
+    };
+    const registryParamConfigs: ParamField = {
+        id: 0,
+        type: "KeyLookup",
+        label: "Name",
+        filterType: ["sequence", "endpoint", "sequenceTemplate", "endpointTemplate", "localEntry", "registry"] as ResourceType[],
+        isRequired: true,
+        artifactTypes: { registryArtifacts: true, artifacts: false }
     };
 
     // Schema
@@ -116,7 +125,8 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 }),
         artifactType: yup.string().required("Artifact type is required"),
         artifact: yup.string().required("Artifact is required"),
-        supportiveArtifacts: yup.object<ParamConfig>()
+        supportiveArtifacts: yup.object<ParamConfig>(),
+        registryResources: yup.object<ParamConfig>()
     });
 
     const {
@@ -138,6 +148,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             supportiveArtifacts: {
                 paramValues: [],
                 paramFields: [paramConfigs]
+            },
+            registryResources: {
+                paramValues: [],
+                paramFields: [registryParamConfigs]
             }
         }
     });
@@ -263,6 +277,7 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                 let artifactType = "";
                 let artifactPath = "";
                 let supportiveArtifacts: any[] = [];
+                let registryResources: any[] = [];
 
                 if (syntaxTree.unitTestArtifacts.testArtifact.artifact) {
                     artifactPath = normalize(syntaxTree.unitTestArtifacts.testArtifact.artifact.content);
@@ -279,6 +294,21 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                         supportiveArtifacts.push([{
                             value: path.basename(param.content, ".xml"),
                             additionalData: { path: param.content },
+                        }]);
+                    }
+                }
+
+                if (syntaxTree.unitTestArtifacts.registryResources?.registryResources) {
+                    const resources = syntaxTree.unitTestArtifacts.registryResources.registryResources.map((resource: any) => {
+                        return resource.artifact.textNode;
+                    });
+                    const resourcesWithoutPropertiesFiles = removeAssociatedProperties(resources);
+
+                    for (let i = 0; i < resourcesWithoutPropertiesFiles.length; i++) {
+                        const param = resourcesWithoutPropertiesFiles[i];
+                        registryResources.push([{
+                            value: getKeyFromRegistryArtifactPath(param),
+                            additionalData: { path: param },
                         }]);
                     }
                 }
@@ -302,6 +332,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     supportiveArtifacts: {
                         paramValues: getParamManagerFromValues(supportiveArtifacts, undefined, 0),
                         paramFields: [paramConfigs]
+                    },
+                    registryResources: {
+                        paramValues: getParamManagerFromValues(registryResources, undefined, 0),
+                        paramFields: [registryParamConfigs]
                     }
                 });
             } else {
@@ -312,6 +346,10 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     supportiveArtifacts: {
                         paramValues: [],
                         paramFields: [paramConfigs]
+                    },
+                    registryResources: {
+                        paramValues: [],
+                        paramFields: [registryParamConfigs]
                     }
                 })
             }
@@ -366,6 +404,9 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
             return normalize(param[0].additionalData.path).replace(`${normalize(projectUri)}/`, '');
         });
 
+        const registryResources = getParamManagerValues(values.registryResources, true);
+        values.registryResources = await getRegistryArtifactDetails(registryResources);
+
         const mockServicePaths = [];
         const mockServicesDirs = ["src", "test", "resources", "mock-services"];
         for (let i = 0; i < mockServices.length; i++) {
@@ -380,8 +421,132 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
         rpcClient.getMiDiagramRpcClient().updateTestSuite({ path: props.filePath, content: xml, name: values.name, artifact }).then(() => {
             openOverview();
         });
+        async function getRegistryArtifactDetails(params: any): Promise<{ fileName: string; artifact: string; registryPath: string; mediaType: string }[]> {
+            const PATH_PREFIXES = [
+                { basePath: '/_system/governance/', prefix: 'gov:' },
+                { basePath: '/_system/config/', prefix: 'conf:' },
+            ];
+
+            const miDiagramRpcClient = rpcClient.getMiDiagramRpcClient();
+            const [allRegistryResources, allRegistryPaths] = await Promise.all([
+                (await miDiagramRpcClient.getAvailableRegistryResources({ path: projectUri, withAdditionalData: true })).artifactsWithAdditionalData,
+                miDiagramRpcClient.getAllRegistryPaths({ path: projectUri }),
+            ]);
+
+            const artifacts = allRegistryResources.map((artifact) => ({
+                ...artifact,
+                key: buildKey(artifact),
+            }));
+
+            const artifactDetails: {
+                fileName: string;
+                artifact: string;
+                registryPath: string;
+                mediaType: string;
+            }[] = [];
+
+            for (const param of params) {
+                const paramKey = param[0];
+                const artifact = artifacts.find((a) => a.key === paramKey.value);
+                if (!artifact) continue;
+
+                const registryPath =
+                    artifact.path.endsWith('/') && artifact.path.length > 1
+                        ? artifact.path.slice(0, -1)
+                        : artifact.path;
+
+                const artifactPath = normalize(param[0].additionalData.path).replace(`${normalize(projectUri)}/`, '')
+
+                const newArtifact = {
+                    fileName: artifact.file,
+                    artifact: artifactPath,
+                    registryPath,
+                    mediaType: artifact.mediaType,
+                };
+
+                artifactDetails.push(newArtifact);
+                const relativePath = findArtifactRelativePath(paramKey.value);
+                if (
+                    relativePath &&
+                    allRegistryPaths.registryPaths.includes(`${relativePath}.properties`)
+                ) {
+                    artifactDetails.push({
+                        fileName: `${newArtifact.fileName}.properties`,
+                        artifact: `${newArtifact.artifact}.properties`,
+                        registryPath: newArtifact.registryPath,
+                        mediaType: newArtifact.mediaType,
+                    });
+                }
+            }
+            return artifactDetails;
+
+            function parseParamValue(paramValue: string): { type: string; fileName: string } | null {
+                const match = paramValue.match(/(conf|gov):(.+)/);
+                if (!match) return null;
+                const [, type, fileName] = match;
+                return { type, fileName };
+            }
+
+            function findArtifactRelativePath(paramValue: string): string | null {
+                const parsed = parseParamValue(paramValue);
+                if (!parsed) return null;
+                return `${parsed.type}/${parsed.fileName}`;
+            }
+
+            function extractPrefixAndSubPath(fullPath: string): { prefix: string; subPath: string } {
+                for (const { basePath, prefix } of PATH_PREFIXES) {
+                    if (fullPath.startsWith(basePath)) {
+                        const subPath = fullPath.slice(basePath.length).replace(/^\/+|\/+$/g, '');
+                        return { prefix, subPath };
+                    }
+                }
+                return { prefix: '', subPath: '' };
+            }
+
+            function buildKey(artifact: RegistryArtifact): string {
+                const { prefix, subPath } = extractPrefixAndSubPath(artifact.path);
+                return subPath ? `${prefix}${subPath}/${artifact.file}` : `${prefix}${artifact.file}`;
+            }
+        }
     }
 
+    function removeAssociatedProperties(files: string[]) {
+        const baseFilesSet = new Set(
+            files.filter(file => !file.endsWith('.properties'))
+        );
+
+        return files.filter(file => {
+            if (file.endsWith('.properties')) {
+                const baseFile = file.slice(0, -'.properties'.length);
+                return !baseFilesSet.has(baseFile);
+            }
+            return true;
+        });
+    }
+    function getKeyFromRegistryArtifactPath(filePath: string) {
+        const BASE_PATH = 'src/main/wso2mi/resources/registry/';
+        const VALID_PREFIXES = ['gov', 'conf'];
+
+        if (!filePath.startsWith(BASE_PATH)) {
+            throw new Error('Invalid base path in file path.');
+        }
+
+        const relativePath = filePath.slice(BASE_PATH.length);
+
+        const pathComponents = relativePath.split('/');
+
+        const prefix = pathComponents.shift();
+
+        if (!VALID_PREFIXES.includes(prefix)) {
+            throw new Error(`Invalid prefix '${prefix}' in file path.`);
+        }
+
+        // Reconstruct the remaining path
+        const remainingPath = pathComponents.join('/');
+
+        // Build the transformed path
+        return `${prefix}:${remainingPath}`;
+    }
     const getTestCases = (testCases: TestCase[]): TestCaseEntry[] => {
         return testCases.map((testCase) => {
             const assertions = testCase.assertions.assertions.map((assertion) => {
@@ -556,6 +721,28 @@ export function TestSuiteForm(props: TestSuiteFormProps) {
                     <ParamManager
                         paramConfigs={value as ParamConfig}
                         addParamText="Add Supportive Artifact"
+                        readonly={false}
+                        onChange={(values) => {
+                            values.paramValues = values.paramValues.map((param: any, index: number) => {
+                                const property: ParamValue[] = param.paramValues;
+                                param.key = index + 1;
+                                param.value = (property[0]?.value as any)?.value ?? property[0]?.value;
+                                param.icon = 'query';
+
+                                return param;
+                            });
+                            onChange(values);
+                        }}
+                    />
+                )}
+            />
+            <Controller
+                name="registryResources"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                    <ParamManager
+                        paramConfigs={value as ParamConfig}
+                        addParamText="Add Registry Resources"
                         readonly={false}
                         onChange={(values) => {
                             values.paramValues = values.paramValues.map((param: any, index: number) => {

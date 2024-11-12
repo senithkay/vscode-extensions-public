@@ -74,6 +74,7 @@ interface IKeylookupBase {
     filter?: (value: string) => boolean;
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
     additionalItems?: string[];
+    artifactTypes?: { registryArtifacts: boolean, artifacts: boolean };
 }
 
 // Define the conditional properties for the ExpressionField
@@ -183,6 +184,7 @@ export const Keylookup = (props: IKeylookup) => {
         canChangeEx,
         openExpressionEditor,
         sx,
+        artifactTypes = { registryArtifacts: true, artifacts: true },
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
@@ -262,7 +264,9 @@ export const Keylookup = (props: IKeylookup) => {
         let workspaceItems: ItemComponent[] = [];
         let registryItems: ItemComponent[] = [];
         let initialItem: ItemComponent;
-        if (result?.resources) {
+        const registryResources = artifactTypes.registryArtifacts;
+        const resources = artifactTypes.artifacts;
+        if (resources && result?.resources) {
             result.resources.forEach((resource) => {
                 const item = { key: resource.name, item: getItemComponent(resource.name, resource.type), path: resource.absolutePath };
                 if (resource.name === getValue(value)) {
@@ -272,9 +276,9 @@ export const Keylookup = (props: IKeylookup) => {
                 workspaceItems.push(item);
             });
         }
-        if (result?.registryResources) {
+        if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
+                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:"), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;

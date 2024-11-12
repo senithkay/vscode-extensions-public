@@ -12,32 +12,52 @@ import {
 	AuthStoreChangedNotification,
 	ChoreoRpcWebview,
 	ClearWebviewCache,
+	CloseComponentViewDrawer,
 	CloseWebViewNotification,
 	type CommitHistory,
 	type ComponentKind,
 	ContextStoreChangedNotification,
 	type ContextStoreState,
+	CreateLocalConnectionsConfig,
+	type CreateLocalConnectionsConfigReq,
+	CreateLocalEndpointsConfig,
+	type CreateLocalEndpointsConfigReq,
+	CreateLocalProxyConfig,
+	type CreateLocalProxyConfigReq,
 	DeleteFile,
+	DeleteLocalConnectionsConfig,
+	type DeleteLocalConnectionsConfigReq,
 	ExecuteCommandRequest,
 	FileExists,
 	GetAuthState,
+	GetConfigFileDrifts,
+	type GetConfigFileDriftsReq,
 	GetContextState,
 	GetDirectoryFileNames,
-	GetGitRemotes,
+	GetLocalGitData,
+	type GetLocalGitDataResp,
 	GetSubPath,
 	GetWebviewStoreState,
 	GoToSource,
+	HasDirtyLocalGitRepo,
 	type IChoreoRPCClient,
-	JoinFilePaths,
+	JoinFsFilePaths,
+	JoinUriFilePaths,
+	OpenComponentViewDrawer,
+	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
 	OpenSubDialogRequest,
-	OpenTestView,
 	type OpenTestViewReq,
-	type ReadEndpointsResp,
-	ReadServiceEndpoints,
+	ReadFile,
+	ReadLocalEndpointsConfig,
+	type ReadLocalEndpointsConfigResp,
+	ReadLocalProxyConfig,
+	type ReadLocalProxyConfigResp,
 	RefreshContextState,
 	RestoreWebviewCache,
+	SaveFile,
+	type SaveFileReq,
 	SelectCommitToBuild,
 	type SelectCommitToBuildReq,
 	SendTelemetryEventNotification,
@@ -48,17 +68,17 @@ import {
 	type ShowConfirmBoxReq,
 	ShowConfirmMessage,
 	ShowErrorMessage,
+	type ShowInOutputChannelReq,
 	ShowInfoMessage,
 	ShowInputBox,
 	ShowQuickPick,
+	ShowTextInOutputChannel,
 	type ShowWebviewInputBoxReq,
 	type ShowWebviewQuickPickItemsReq,
 	SubmitComponentCreate,
 	type SubmitComponentCreateReq,
 	TriggerGithubAuthFlow,
 	TriggerGithubInstallFlow,
-	type ViewBuildLogsReq,
-	ViewBuildsLogs,
 	ViewRuntimeLogs,
 	type ViewRuntimeLogsReq,
 	type WebviewQuickPickItem,
@@ -147,12 +167,16 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(OpenSubDialogRequest, HOST_EXTENSION, options);
 	}
 
-	public async getGitRemotes(dirPath: string): Promise<string[]> {
-		return this._messenger.sendRequest(GetGitRemotes, HOST_EXTENSION, dirPath);
+	public async getLocalGitData(dirPath: string): Promise<GetLocalGitDataResp> {
+		return this._messenger.sendRequest(GetLocalGitData, HOST_EXTENSION, dirPath);
 	}
 
-	public async joinFilePaths(paths: string[]): Promise<string> {
-		return this._messenger.sendRequest(JoinFilePaths, HOST_EXTENSION, paths);
+	public async joinFsFilePaths(paths: string[]): Promise<string> {
+		return this._messenger.sendRequest(JoinFsFilePaths, HOST_EXTENSION, paths);
+	}
+
+	public async joinUriFilePaths(paths: string[]): Promise<string> {
+		return this._messenger.sendRequest(JoinUriFilePaths, HOST_EXTENSION, paths);
 	}
 
 	public async getSubPath(params: { subPath: string; parentPath: string }): Promise<string | null> {
@@ -183,8 +207,12 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(ShowConfirmMessage, HOST_EXTENSION, params);
 	}
 
-	public async readServiceEndpoints(componentPath: string): Promise<ReadEndpointsResp> {
-		return this._messenger.sendRequest(ReadServiceEndpoints, HOST_EXTENSION, componentPath);
+	public async readLocalEndpointsConfig(componentPath: string): Promise<ReadLocalEndpointsConfigResp> {
+		return this._messenger.sendRequest(ReadLocalEndpointsConfig, HOST_EXTENSION, componentPath);
+	}
+
+	public async readLocalProxyConfig(componentPath: string): Promise<ReadLocalProxyConfigResp> {
+		return this._messenger.sendRequest(ReadLocalProxyConfig, HOST_EXTENSION, componentPath);
 	}
 
 	public async showQuickPicks(params: ShowWebviewQuickPickItemsReq): Promise<WebviewQuickPickItem | undefined> {
@@ -195,8 +223,8 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(ShowInputBox, HOST_EXTENSION, params);
 	}
 
-	public async viewBuildLogs(params: ViewBuildLogsReq): Promise<void> {
-		return this._messenger.sendRequest(ViewBuildsLogs, HOST_EXTENSION, params);
+	public async showTextInOutputPanel(params: ShowInOutputChannelReq): Promise<void> {
+		return this._messenger.sendRequest(ShowTextInOutputChannel, HOST_EXTENSION, params);
 	}
 
 	public async viewRuntimeLogs(params: ViewRuntimeLogsReq): Promise<void> {
@@ -215,20 +243,40 @@ export class ChoreoWebViewAPI {
 		return this._messenger.sendRequest(SubmitComponentCreate, HOST_EXTENSION, params);
 	}
 
+	public async createLocalEndpointsConfig(params: CreateLocalEndpointsConfigReq): Promise<void> {
+		return this._messenger.sendRequest(CreateLocalEndpointsConfig, HOST_EXTENSION, params);
+	}
+
+	public async createLocalProxyConfig(params: CreateLocalProxyConfigReq): Promise<void> {
+		return this._messenger.sendRequest(CreateLocalProxyConfig, HOST_EXTENSION, params);
+	}
+
+	public async createLocalConnectionsConfig(params: CreateLocalConnectionsConfigReq): Promise<void> {
+		return this._messenger.sendRequest(CreateLocalConnectionsConfig, HOST_EXTENSION, params);
+	}
+
+	public async deleteLocalConnectionsConfig(params: DeleteLocalConnectionsConfigReq): Promise<void> {
+		return this._messenger.sendRequest(DeleteLocalConnectionsConfig, HOST_EXTENSION, params);
+	}
+
 	public async getDirectoryFileNames(path: string): Promise<string[]> {
 		return this._messenger.sendRequest(GetDirectoryFileNames, HOST_EXTENSION, path);
 	}
 
-	public async fileExist(path: string): Promise<boolean> {
-		return this._messenger.sendRequest(FileExists, HOST_EXTENSION, path);
+	public async fileExist(fsPath: string): Promise<boolean> {
+		return this._messenger.sendRequest(FileExists, HOST_EXTENSION, fsPath);
 	}
 
-	public async openTestView(params: OpenTestViewReq): Promise<void> {
-		return this._messenger.sendRequest(OpenTestView, HOST_EXTENSION, params);
+	public async readFile(fsPath: string): Promise<string | null> {
+		return this._messenger.sendRequest(ReadFile, HOST_EXTENSION, fsPath);
 	}
 
-	public async goToSource(filePath: string): Promise<void> {
-		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
+	public async goToSource(fsPath: string): Promise<void> {
+		return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, fsPath);
+	}
+
+	public async saveFile(params: SaveFileReq): Promise<string> {
+		return this._messenger.sendRequest(SaveFile, HOST_EXTENSION, params);
 	}
 
 	public async selectCommitToBuild(params: SelectCommitToBuildReq): Promise<CommitHistory | undefined> {
@@ -237,5 +285,21 @@ export class ChoreoWebViewAPI {
 
 	public async openExternal(url: string): Promise<void> {
 		this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+	}
+
+	public async openComponentViewDrawer(params: OpenComponentViewDrawerReq): Promise<void> {
+		return this._messenger.sendRequest(OpenComponentViewDrawer, HOST_EXTENSION, params);
+	}
+
+	public async closeComponentViewDrawer(componentKey: string): Promise<void> {
+		return this._messenger.sendRequest(CloseComponentViewDrawer, HOST_EXTENSION, componentKey);
+	}
+
+	public async hasDirtyLocalGitRepo(componentPath: string): Promise<boolean> {
+		return this._messenger.sendRequest(HasDirtyLocalGitRepo, HOST_EXTENSION, componentPath);
+	}
+
+	public async getConfigFileDrifts(componentPath: GetConfigFileDriftsReq): Promise<string[]> {
+		return this._messenger.sendRequest(GetConfigFileDrifts, HOST_EXTENSION, componentPath);
 	}
 }

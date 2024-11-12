@@ -14,18 +14,17 @@ import { MACHINE_VIEW, PopupMachineStateValue, PopupVisualizerLocation } from "@
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
 import { Colors } from "./resources/constants";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { ThemeColors, Overlay } from "@wso2-enterprise/ui-toolkit";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 
 const ViewContainer = styled.div`
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    right: 0;
+    width: 400px;
     height: 100%;
     z-index: 3000;
     background-color: ${Colors.SURFACE_BRIGHT};
-    padding: 20px;
 `;
 
 const TopBar = styled.div`
@@ -62,20 +61,27 @@ const PopupPanel = (props: PopupPanelProps) => {
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
                             <AddConnectionWizard
-                                fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
+                                fileName={
+                                    location.documentUri ||
+                                    Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath
+                                }
+                                target={machineState.metadata?.target || undefined}
                                 onClose={onClose}
                             />
                         );
-                    })
+                    });
                     break;
                 case MACHINE_VIEW.EditConnectionWizard:
                     rpcClient.getVisualizerLocation().then((location) => {
                         setViewComponent(
-                            <EditConnectionWizard
-                                fileName={Utils.joinPath(URI.file(location.projectUri), 'connections.bal').fsPath}
-                                connectionName={machineState?.identifier}
-                                onClose={onClose}
-                            />
+                            <>
+                                <EditConnectionWizard
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), "connections.bal").fsPath}
+                                    connectionName={machineState?.identifier}
+                                    onClose={onClose}
+                                />
+                                <Overlay sx={{ background: `${ThemeColors.SURFACE_CONTAINER}`, opacity: `0.3` }} />
+                            </>
                         );
                     });
                     break;
@@ -85,17 +91,7 @@ const PopupPanel = (props: PopupPanelProps) => {
         });
     };
 
-    return (
-        <ViewContainer>
-            <TopBar>
-                <div></div>
-                <Button appearance="icon" onClick={onClose}>
-                    <Codicon name="close" />
-                </Button>
-            </TopBar>
-            {viewComponent}
-        </ViewContainer>
-    );
+    return <ViewContainer>{viewComponent}</ViewContainer>;
 };
 
 export default PopupPanel;

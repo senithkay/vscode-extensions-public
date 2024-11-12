@@ -14,13 +14,13 @@ import { RPCLayer } from "../../RPCLayer";
 import { debounce } from "lodash";
 import { WebViewOptions, getComposerWebViewOptions, getLibraryWebViewContent } from "../../utils/webview-utils";
 import { extension } from "../../BalExtensionContext";
-import { updateView } from "../../stateMachine";
+import { StateMachine, updateView } from "../../stateMachine";
 import { LANGUAGE } from "../../core";
 
 export class VisualizerWebview {
     public static currentPanel: VisualizerWebview | undefined;
     public static readonly viewType = "kolab.visualizer";
-    public static readonly panelTitle = "Visualizer";
+    public static readonly panelTitle = "Kola";
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
@@ -157,5 +157,6 @@ export class VisualizerWebview {
         }
 
         this._panel = undefined;
+        StateMachine.resetToExtensionReady();
     }
 }
