@@ -109,6 +109,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 	const getScreenWidthRef = useRef(() => screenWidth);
+	const devicePixelRatioRef = useRef(window.devicePixelRatio);
 	
 	const [filtersCollapsedChanged, setFiltersCollapsedChanged] = useState(false);
 	const [, forceUpdate] = useState({});
@@ -138,9 +139,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const handleResize = throttle(() => {
 		const newScreenWidth = window.innerWidth;
-		if (newScreenWidth !== getScreenWidthRef.current()) {
+		const newDevicePixelRatio = window.devicePixelRatio;
+
+		if (newDevicePixelRatio === devicePixelRatioRef.current && newScreenWidth !== getScreenWidthRef.current()) {
 			setScreenWidth(newScreenWidth);
 		}
+		devicePixelRatioRef.current = newDevicePixelRatio;
 	}, 100);
 
 	useEffect(() => {

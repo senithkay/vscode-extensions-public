@@ -62,7 +62,7 @@ export type Property = {
     editable: boolean;
     advanced?: boolean;
     placeholder?: string;
-    valueTypeConstraint?: string[];
+    valueTypeConstraint?: string | string[];
 };
 
 export type Diagnostic = {
@@ -199,6 +199,7 @@ export type NodePropertyKey =
     | "view"
     | "variable"
     | "defaultable"
+    | "scope"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
@@ -283,4 +284,5 @@ export type ConfigVariable = {
     branches: Branch[];
     id: string;
     returning: boolean;
+    diagnostics?: Diagnostic;
 };

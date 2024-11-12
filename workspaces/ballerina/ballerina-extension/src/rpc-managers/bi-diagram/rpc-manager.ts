@@ -17,28 +17,33 @@ import {
     BIConnectorsRequest,
     BIConnectorsResponse,
     BICopilotContextRequest,
+    BIDeleteByComponentInfoRequest,
+    BIDeleteByComponentInfoResponse,
     BIDiagramAPI,
     BIFlowModelRequest,
     BIFlowModelResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
-    BIModuleNodesRequest,
-    BIModuleNodesResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
+    BIModuleNodesRequest,
+    BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
-    ConfigVariableResponse,
+    BI_COMMANDS,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
+    ConfigVariableResponse,
     CreateComponentResponse,
     DIRECTORY_MAP,
+    EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    FlowNode,
     OverviewFlow,
     ProjectComponentsResponse,
     ProjectRequest,
@@ -55,24 +60,26 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
-    BI_COMMANDS,
-    FlowNode,
-    EVENT_TYPE,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
 import {
-    Uri, ViewColumn, commands, window, workspace, tasks, Task,
-    TaskDefinition, ShellExecution
+    ShellExecution,
+    Task,
+    TaskDefinition,
+    Uri, ViewColumn, commands,
+    tasks,
+    window, workspace
 } from "vscode";
-import { ballerinaExtInstance } from "../../core";
-import { openView, StateMachine, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
 import { extension } from "../../BalExtensionContext";
+import { ballerinaExtInstance } from "../../core";
+import { StateMachine, openView, updateView } from "../../stateMachine";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
+import { writeBallerinaFileDidOpen } from "../../utils/modification";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
 
@@ -88,7 +95,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             }
 
             const params: BIFlowModelRequest = {
-                filePath: Uri.parse(context.documentUri!).fsPath,
+                filePath: context.documentUri,
                 startLine: {
                     line: context.position.startLine ?? 0,
                     offset: context.position.startColumn ?? 0,
@@ -143,14 +150,14 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async updateSource(
         params: BISourceCodeResponse,
-        flowNode: FlowNode,
+        flowNode?: FlowNode,
         isConnector?: boolean,
         isDataMapperFormUpdate?: boolean
     ): Promise<void> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.parse(key);
+            const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
             const edits = value;
 
@@ -181,8 +188,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         }
 
         // Iterate through modificationRequests and apply modifications
-        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+        try {
+            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
                 documentIdentifier: { uri: fileUriString },
                 astModifications: request.modifications,
             })) as SyntaxTree;
@@ -213,7 +221,10 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         position: functionPosition,
                     });
                 }
+                }
             }
+        } catch (error) {
+            console.log(">>> error updating source", error);
         }
         if (!isConnector && !isDataMapperFormUpdate) {
             updateView();
@@ -422,7 +433,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 }
 
                 const request: BISuggestedFlowModelRequest = {
-                    filePath: Uri.parse(context.documentUri!).fsPath,
+                    filePath: context.documentUri,
                     startLine: {
                         line: context.position.startLine ?? 0,
                         offset: context.position.startColumn ?? 0,
@@ -545,7 +556,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
                 const connectionsBalPath = path.join(StateMachine.context().projectUri, "connections.bal");
                 // Write the generated import statements to connections.bal
-                fs.writeFileSync(connectionsBalPath, importStatements.join("\n"));
+                writeBallerinaFileDidOpen(connectionsBalPath, importStatements.join("\n"));
                 // Append the generated connection lines to connections.bal
                 fs.appendFileSync(connectionsBalPath, `\n\n${connectionLines.join("\n")}`);
                 console.log("Generated import statements and connection lines written to connections.bal");
@@ -602,15 +613,12 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequest = params;
             params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
-            
-            if (!fs.existsSync(params.configFilePath)) {
-                
-                // Create config.bal if it doesn't exist
-                fs.writeFileSync(params.configFilePath, "\n");
-                await new Promise((resolve) => setTimeout(resolve, 3000));
 
+            if (!fs.existsSync(params.configFilePath)) {
+                // Create config.bal if it doesn't exist
+                writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
-            
+
             const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
             this.updateSource(response, undefined, false);
             resolve(response);
@@ -729,7 +737,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             }
 
             const params: BIModuleNodesRequest = {
-                filePath: Uri.parse(context.projectUri!).fsPath,
+                filePath: context.projectUri,
             };
 
             StateMachine.langClient()
@@ -844,6 +852,25 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 })
                 .catch((error) => {
                     reject("Error fetching visible types from ls");
+                });
+        });
+    }
+
+    async deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BIDeleteByComponentInfoResponse> {
+        console.log(">>> requesting bi delete node from ls by componentInfo", params);
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .deleteByComponentInfo(params)
+                .then((model) => {
+                    console.log(">>> bi delete node from ls by componentInfo", model);
+                    this.updateSource(model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching delete node from ls by componentInfo", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
                 });
         });
     }

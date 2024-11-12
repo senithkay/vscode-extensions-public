@@ -29,6 +29,7 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     ProjectOverviewResponse,
+    ReadmeContentResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
@@ -55,4 +56,6 @@ export interface MIVisualizerAPI {
     getAvailableRuntimeServices:() => Promise<RuntimeServicesResponse>;
     sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
 }

@@ -121,6 +121,7 @@ export interface TypeBrowserProps {
     serviceEndPosition?: NodePosition;
     isOptional?: boolean;
     isTypeArray?: boolean;
+    handleArray?: boolean;
     label?: string;
     selectedItem?: string;
     widthOffset?: number;
@@ -131,7 +132,7 @@ export interface TypeBrowserProps {
 }
 
 export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps) => {
-    const { id, isOptional, isTypeArray, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange, applyModifications } = props;
+    const { id, isOptional, isTypeArray, handleArray, commonRpcClient, selectedItem, serviceEndPosition, label, widthOffset = 157, sx, borderBox, onChange, applyModifications } = props;
     const [query, setQuery] = useState('');
     const [items, setItems] = useState([]);
     const [isCleared, setIsCleared] = useState(false);
@@ -230,13 +231,13 @@ export const TypeBrowser: React.FC<TypeBrowserProps> = (props: TypeBrowserProps)
                         <label>{label}</label>
                         {isOptional && <Typography className={OptionalLabel} variant="caption">Optional</Typography>}
                     </FormControlLabel>
-                    <FormControlCheckbox>
+                    {handleArray && <FormControlCheckbox>
                         <VSCodeCheckbox
                             checked={isTypeArray || false}
                             onChange={(event: { target: HTMLInputElement; }) => handleArrayChange((event.target as HTMLInputElement).checked)}
                         />
                         <Typography variant="caption" sx={{ textWrap: "nowrap" }}>Is Array</Typography>
-                    </FormControlCheckbox>
+                    </FormControlCheckbox>}
                 </div>
                 <div>
                     <div>

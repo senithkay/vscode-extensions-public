@@ -101,7 +101,7 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const READONLY_MAPPING_FUNCTION_NAME = "mapFunction";
 
-export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript", "markdown"];
 
 export enum EndpointTypes {
     DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",

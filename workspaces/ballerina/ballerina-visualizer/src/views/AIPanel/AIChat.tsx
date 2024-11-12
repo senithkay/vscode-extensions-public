@@ -8,42 +8,32 @@
  *
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+
 import React, { useEffect, useState } from "react";
 import {
     VisualizerLocation,
     GetWorkspaceContextResponse,
-    MACHINE_VIEW,
     ProjectSource,
     SourceFile,
     ProjectDiagnostics,
     InitialPrompt,
+    MappingParameters,
+    DataMappingRecord,
+    PostProcessResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { Collapse } from "react-collapse";
 
 import styled from "@emotion/styled";
-import {
-    materialDark,
-    materialLight,
-    oneLight,
-    okaidia,
-    tomorrow,
-    twilight,
-    coy,
-    funky,
-    dark,
-    dracula,
-    materialOceanic,
-} from "react-syntax-highlighter/dist/cjs/styles/prism";
 import AIChatInput from "./AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer } from "./Components/RoleContainter";
 import { AttachmentResult, AttachmentStatus } from "../../utils/attachmentUtils";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
-import { add } from "lodash";
+import { findRegexMatches } from "../../utils/utils";
+import { Collapse } from "react-collapse";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 interface MarkdownRendererProps {
     markdownContent: string;
@@ -138,18 +128,27 @@ var remaingTokenLessThanOne: boolean = false;
 
 var timeToReset: number;
 
+// Define constants for command keys
+const COMMAND_SCAFFOLD = "/scaffold";
+const COMMAND_TESTS = "/tests";
+const COMMAND_DATAMAP = "/datamap";
+
+// Define constants for command templates
+const TEMPLATE_SCAFFOLD = [
+    "generate code for the use-case: <use-case>",
+    "generate an integration according to the given Readme file",
+];
+const TEMPLATE_TESTS = ["generate test using <servicename> service"];
+const TEMPLATE_DATAMAP = [
+    "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
+    "generate mapping using input as <recordname(s)> and output as <recordname>",
+];
+
+// Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
-    ["/scaffolding", ["generate code for the use-case: <use-case>", "generate an integration according to the given Readme file"]],
-    ["/test", ["generate test using <servicename> service"]],
-    // [
-    //     "/datamapper",
-    //     [
-    //         "generate mapping using the uploaded file",
-    //         "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    //         "generate mapping using input as <recordname(s)> and output as <recordname>",
-    //     ],
-    // ],
-    // ["/typecreator", ["generate types from the <filename> file"]],
+    [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
+    [COMMAND_TESTS, TEMPLATE_TESTS],
+    [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
 ]);
 
 //TOOD: Add the backend URL
@@ -162,13 +161,17 @@ export function AIChat() {
     const [messages, setMessages] = useState<Array<{ role: string; content: string; type: string }>>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [lastQuestionIndex, setLastQuestionIndex] = useState(-1);
-    const messagesEndRef = React.createRef<HTMLDivElement>();
     const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
     const [isCodeLoading, setIsCodeLoading] = useState(false);
     const [currentGeneratingPromptIndex, setCurrentGeneratingPromptIndex] = useState(-1);
     const [isSyntaxError, setIsSyntaxError] = useState(false);
+
+    const messagesEndRef = React.createRef<HTMLDivElement>();
+
     let codeSegmentRendered = false;
     let tempStorage: { [filePath: string]: string } = {};
+    const initialFiles = new Set<string>();
+    const emptyFiles = new Set<string>();
 
     async function fetchBackendUrl() {
         try {
@@ -194,9 +197,10 @@ export function AIChat() {
                     .getAiPanelRpcClient()
                     .getInitialPrompt()
                     .then((initPrompt: InitialPrompt) => {
+                        const command = COMMAND_SCAFFOLD;
+                        const template = commandToTemplate.get(command)?.[1];
                         if (initPrompt.exists) {
-                            // setUserInput(initPrompt.text);
-                            setUserInput("/scaffolding generate an integration according to the given Readme file");
+                            setUserInput(template ? command + " " + template : command);
                         }
                     });
                 rpcClient
@@ -359,31 +363,35 @@ export function AIChat() {
             const commandLength = commandKey.length;
             const messageBody = message.slice(commandLength).trim();
             const parameters = extractParameters(commandKey, messageBody);
+            console.log(parameters);
 
             if (parameters) {
                 switch (commandKey) {
-                    case "/scaffolding": {
-                        await processCodeGeneration(token, [
-                            parameters.length === 1 ? parameters[0] : messageBody,
-                            attachments,
-                        ], message);
+                    case COMMAND_SCAFFOLD: {
+                        await processCodeGeneration(
+                            token,
+                            [
+                                parameters.inputRecord.length === 1 && parameters.inputRecord[0] !== undefined
+                                    ? parameters.inputRecord[0]
+                                    : messageBody,
+                                attachments,
+                            ],
+                            message
+                        );
                         break;
                     }
-                    case "/test": {
-                        await processTestGeneration(content, token, parameters[0]);
+                    case COMMAND_TESTS: {
+                        await processTestGeneration(content, token, parameters.inputRecord[0]);
                         break;
                     }
-                    // case "/datamapper": {
-                    //     if (parameters.length >= 2) {
-                    //         await processDataMappings(message, token, parameters);
-                    //     } else {
-                    //         throw new Error("Error: Invalid parameters for /test command");
-                    //     }
-                    //     break;
-                    // }
-                    // case "typecreator": {
-
-                    // }
+                    case COMMAND_DATAMAP: {
+                        if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
+                            await processDataMappings(message, token, parameters);
+                        } else {
+                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                        }
+                        break;
+                    }
                 }
             } else {
                 throw new Error(
@@ -405,19 +413,20 @@ export function AIChat() {
         return "";
     }
 
-    function extractParameters(command: string, messageBody: string): string[] | null {
+    function extractParameters(command: string, messageBody: string): MappingParameters | null {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(.+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w]+(?:[\\s,]+[\\w]+)*)")
-                .replace(/<recordname>/g, "(.+?)")
-                .replace(/<use-case>/g, "(.+?)");
+                .replace(/<servicename>/g, "(\\S+?)")
+                .replace(/<recordname\(s\)>/g, "([\\w\\[\\]]+(?:[\\s,]+[\\w\\[\\]]+)*)")
+                .replace(/<recordname>/g, "([\\w\\[\\]]+)")
+                .replace(/<use-case>/g, "(.+?)")
+                .replace(/<functionname>/g, "(\\S+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
             const match = messageBody.match(regex);
             if (match) {
-                if (command === "/datamapper" && template.includes("<recordname(s)>")) {
+                if (command === COMMAND_DATAMAP && template.includes("<recordname(s)>")) {
                     const inputRecordNamesRaw = match[1].trim();
                     let inputRecordList: string[];
 
@@ -434,23 +443,31 @@ export function AIChat() {
                     }
 
                     const outputRecordName = match[2].trim();
-
-                    return [inputRecordList.join(","), outputRecordName];
+                    const functionName = match[3]?.trim() || "";
+                    return {
+                        inputRecord: inputRecordList,
+                        outputRecord: outputRecordName,
+                        functionName,
+                    };
                 }
-
-                return match.slice(1).map((param) => param.trim());
+                const [inputRecord, outputRecord, functionName] = match.slice(1).map((param) => param.trim());
+                return {
+                    inputRecord: [inputRecord],
+                    outputRecord,
+                    functionName,
+                };
             }
         }
         return null;
     }
 
-    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], useCase: string) {
-        const [message, attachments] = content;
+    async function processCodeGeneration(token: string, content: [string, AttachmentResult[]], message: string) {
+        const [useCase, attachments] = content;
 
         let assistant_response = "";
         const project: ProjectSource = await rpcClient.getAiPanelRpcClient().getProjectSource();
         const requestBody: any = {
-            usecase: message,
+            usecase: useCase,
             chatHistory: chatArray,
             sourceFiles: project.sourceFiles,
         };
@@ -484,27 +501,18 @@ export function AIChat() {
             }
 
             setIsLoading(false);
-            setMessages((prevMessages) => {
-                const newMessages = [...prevMessages];
-                const statusText = getStatusText(response.status);
-                let error = `Failed to fetch response. Status: ${statusText}`;
-                console.log("Response status: ", response.status);
-                if (response.status == 429) {
-                    response.json().then((body) => {
-                        console.log(body.detail);
-                        error += body.detail;
-                        console.log("Error: ", error);
-                    });
-                }
-                newMessages[newMessages.length - 1].content += error;
-                newMessages[newMessages.length - 1].type = "Error";
-                return newMessages;
-            });
-            throw new Error("Failed to fetch response");
+            let error = `Failed to fetch response.`;
+            if (response.status == 429) {
+                response.json().then((body) => {
+                    error += ` Cause: ${body.detail}`;
+                });
+            }
+            throw new Error(error);
         }
-        const reader = response.body?.getReader();
+        const reader: ReadableStreamDefaultReader<Uint8Array> = response.body?.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let codeSnippetBuffer = "";
         remainingTokenPercentage = "Unlimited";
         setIsCodeLoading(true);
         while (true) {
@@ -536,27 +544,22 @@ export function AIChat() {
                 let textDelta = event.body.text;
                 assistant_response += textDelta;
 
-                setMessages((prevMessages) => {
-                    const newMessages = [...prevMessages];
-                    newMessages[newMessages.length - 1].content += textDelta;
-                    return newMessages;
-                });
+                handleContentBlockDelta(textDelta);
             } else if (event.event == "functions") {
                 functions = event.body;
             } else if (event.event == "message_stop") {
-                //extract new source files from resp
-                const newSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
-                // Check diagnostics
-                const diags: ProjectDiagnostics = await rpcClient
-                    .getAiPanelRpcClient()
-                    .getShadowDiagnostics(newSourceFiles);
-                if (diags.diagnostics.length > 0) {
+                const postProcessResp: PostProcessResponse = await rpcClient
+                    .getAiPanelRpcClient().postProcess({
+                        assistant_response: assistant_response
+                    })
+                assistant_response = postProcessResp.assistant_response;
+                if (postProcessResp.diagnostics.diagnostics.length > 0) {
                     console.log("Diagnostics : ");
-                    console.log(diags.diagnostics);
+                    console.log(postProcessResp.diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
-                        diagnostics: diags.diagnostics,
+                        diagnostics: postProcessResp.diagnostics,
                     };
                     const startTime = performance.now();
                     const response = await fetchWithToken(
@@ -568,7 +571,7 @@ export function AIChat() {
                                 Authorization: `Bearer ${token}`,
                             },
                             body: JSON.stringify({
-                                usecase: message,
+                                usecase: useCase,
                                 chatHistory: chatArray,
                                 sourceFiles: project.sourceFiles,
                                 diagnosticRequest: diagReq,
@@ -598,6 +601,11 @@ export function AIChat() {
                     }
                 } else {
                     setIsCodeLoading(false);
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content = assistant_response;
+                        return newMessages;
+                    });
                 }
             } else if (event.event == "error") {
                 console.log("Streaming Error: " + event.body);
@@ -613,7 +621,31 @@ export function AIChat() {
             }
         }
 
-        const userMessage = getUserMessage([useCase, attachments]);
+        function handleContentBlockDelta(textDelta: string) {
+            const matchText = codeSnippetBuffer + textDelta;
+            const matchedResult = findRegexMatches(matchText);
+            if (matchedResult.length > 0) {
+                if (matchedResult[0].end === matchText.length) {
+                    codeSnippetBuffer = matchText;
+                } else {
+                    codeSnippetBuffer = "";
+                    setMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        newMessages[newMessages.length - 1].content += matchText;
+                        return newMessages;
+                    });
+                }
+            } else {
+                codeSnippetBuffer = "";
+                setMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    newMessages[newMessages.length - 1].content += matchText;
+                    return newMessages;
+                });
+            }
+        }
+
+        const userMessage = getUserMessage([message, attachments]);
         addChatEntry("user", userMessage);
         const diagnosedSourceFiles: ProjectSource = getProjectFromResponse(assistant_response);
         setIsSyntaxError(await rpcClient.getAiPanelRpcClient().checkSyntaxError(diagnosedSourceFiles));
@@ -630,6 +662,11 @@ export function AIChat() {
                 try {
                     const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
                     tempStorage[filePath] = originalContent;
+                    if (originalContent === "") {
+                        emptyFiles.add(filePath);
+                    } else {
+                        initialFiles.add(filePath);
+                    }
                 } catch (error) {
                     tempStorage[filePath] = "";
                 }
@@ -638,6 +675,7 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
+        await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
 
@@ -648,16 +686,18 @@ export function AIChat() {
     ) => {
         for (const { filePath } of codeSegments) {
             const originalContent = tempStorage[filePath];
-            if (originalContent === "") {
+            if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
+                // Delete the file if it didn't initially exist in the workspace
                 try {
                     await rpcClient.getAiPanelRpcClient().deleteFromProject({ filePath: filePath });
                 } catch (error) {
-                    console.error(`Error clearing file ${filePath}:`, error);
+                    console.error(`Error deleting file ${filePath}:`, error);
                 }
             } else {
+                const revertContent = emptyFiles.has(filePath) ? "" : originalContent;
                 await rpcClient
                     .getAiPanelRpcClient()
-                    .addToProject({ filePath: filePath, content: originalContent, isTestCode: isTestCode });
+                    .addToProject({ filePath: filePath, content: revertContent, isTestCode: isTestCode });
             }
         }
         tempStorage = {};
@@ -677,7 +717,7 @@ export function AIChat() {
         let generatedTestCode = "";
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
-            assistant_response += `\n\n<progress>Generating tests for the ${serviceName} service... This may take a moment.</progress>`;
+            assistant_response += `\n\n<progress>Generating tests for the ${serviceName} service. This may take a moment.</progress>`;
             newMessages[newMessages.length - 1].content = assistant_response;
             return newMessages;
         });
@@ -688,7 +728,7 @@ export function AIChat() {
         generatedTestCode = response.testContent;
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
-            assistant_response += `\n<progress>Analyzing generated tests for potential issues...</progress>`;
+            assistant_response += `\n<progress>Analyzing generated tests for potential issues.</progress>`;
             newMessages[newMessages.length - 1].content = assistant_response;
             return newMessages;
         });
@@ -697,7 +737,7 @@ export function AIChat() {
         if (diagnostics.diagnostics.length > 0) {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                assistant_response += `\n<progress>Refining tests based on feedback to ensure accuracy and reliability...</progress>`;
+                assistant_response += `\n<progress>Refining tests based on feedback to ensure accuracy and reliability.</progress>`;
                 newMessages[newMessages.length - 1].content = assistant_response;
                 return newMessages;
             });
@@ -732,30 +772,22 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    interface Record {
-        type: string;
-        isArray: boolean;
-        filePath: string;
-    }
-
-    async function processDataMappings(message: string, token: string, parameters: string[]) {
-        console.log(parameters);
+    async function processDataMappings(message: string, token: string, parameters: MappingParameters) {
         let assistant_response = "";
+        setIsLoading(true);
 
-        setMessages((prevMessages) => {
-            const newMessages = [...prevMessages];
-            assistant_response += `Generating mappings for the records ${parameters.join(", ")}. Please wait...`;
-            newMessages[newMessages.length - 1].content = assistant_response;
-            return newMessages;
-        });
+        const inputParams = parameters.inputRecord;
+        const outputParam = parameters.outputRecord;
+        const functionName = parameters.functionName || "transform";
 
-        const inputParams = parameters.slice(0, -1);
-        const outputParam = parameters[parameters.length - 1];
+        const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
+
+        if (invalidPattern.test(functionName)) {
+            throw new Error("Error: Please provide a valid function name without special characters.");
+        }
 
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
-
-        const recordMap: Map<string, Record> = new Map();
-
+        const recordMap: Map<string, DataMappingRecord> = new Map();
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -764,36 +796,54 @@ export function AIChat() {
                 }
                 mod.records.forEach((rec) => {
                     const recFilePath = filepath + rec.filePath;
-                    recordMap.set(rec.name, { ...rec, type: rec.name, isArray: false, filePath: recFilePath });
+                    recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
                 });
             });
         });
 
         try {
-            const inputs: Record[] = [];
-            for (const param of inputParams) {
-                const rec = recordMap.get(param);
+            const inputs: DataMappingRecord[] = inputParams.map((param) => {
+                const isArray = param.endsWith("[]");
+                const recordName = param.replace(/\[\]$/, "");
+                const rec = recordMap.get(recordName);
+
                 if (!rec) {
-                    throw new Error(`Input parameter "${param}" does not match any record name.`);
+                    throw new Error(`Input parameter "${recordName}" does not match any record name.`);
                 }
-                inputs.push(rec);
+
+                return { ...rec, isArray };
+            });
+
+            const outputRecordName = outputParam.replace(/\[\]$/, "");
+            const outputIsArray = outputParam.endsWith("[]");
+            const output = recordMap.get(outputRecordName);
+
+            if (!output) {
+                throw new Error(`Output parameter "${outputRecordName}" does not match any record name.`);
             }
 
-            const output = recordMap.get(outputParam);
-            if (!output) {
-                throw new Error(`Output parameter "${outputParam}" does not match any record name.`);
-            }
+            const outputRecord: DataMappingRecord = { ...output, isArray: outputIsArray };
 
             const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord({
                 backendUri: "",
                 token: "",
                 inputRecordTypes: inputs,
-                outputRecordType: output,
+                outputRecordType: outputRecord,
+                functionName,
             });
-
             setIsLoading(false);
             setIsCodeLoading(false);
-            assistant_response += `\n\n<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+
+            assistant_response = `Mappings consist of the following:\n`;
+            if (inputParams.length === 1) {
+                assistant_response += `- **Input Record**: ${inputParams[0]}\n`;
+            } else {
+                assistant_response += `- **Input Records**: ${inputParams.join(", ")}\n`;
+            }
+            assistant_response += `- **Output Record**: ${outputParam}\n`;
+            assistant_response += `- **Function Name**: ${functionName}\n`;
+            assistant_response += `<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
                 newMessages[newMessages.length - 1].content = assistant_response;
@@ -810,7 +860,7 @@ export function AIChat() {
             });
             throw new Error("Failed to generate Mappings.");
         }
-
+        addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
 
@@ -905,21 +955,51 @@ export function AIChat() {
                             )}
                             {splitContent(message.content).map((segment, i) => {
                                 if (segment.type === SegmentType.Code) {
-                                    return (
-                                        <CodeSegment
-                                            key={i}
-                                            segmentText={segment.text}
-                                            loading={isLoading && showGeneratingFiles}
-                                            fileName={segment.fileName}
-                                            handleAddAllCodeSegmentsToWorkspace={handleAddAllCodeSegmentsToWorkspace}
-                                            handleRevertChanges={handleRevertChanges}
-                                            isReady={!isCodeLoading}
-                                            message={message}
-                                            buttonsActive={showGeneratingFiles}
-                                            isSyntaxError={isSyntaxError}
-                                            isTestCode={segment.isTestCode}
-                                        />
-                                    );
+                                    const nextSegment = splitContent(message.content)[i + 1];
+                                    if (
+                                        nextSegment &&
+                                        (nextSegment.type === SegmentType.Code ||
+                                            (nextSegment.type === SegmentType.Text && nextSegment.text.trim() === ""))
+                                    ) {
+                                        return;
+                                    } else {
+                                        const codeSegments = [];
+                                        let j = i;
+                                        while (j >= 0) {
+                                            const prevSegment = splitContent(message.content)[j];
+                                            if (prevSegment.type === SegmentType.Code) {
+                                                codeSegments.unshift({
+                                                    source: prevSegment.text.trim(),
+                                                    fileName: prevSegment.fileName,
+                                                });
+                                            } else if (
+                                                prevSegment.type === SegmentType.Text &&
+                                                prevSegment.text.trim() === ""
+                                            ) {
+                                                j--;
+                                                continue;
+                                            } else {
+                                                break;
+                                            }
+                                            j--;
+                                        }
+                                        return (
+                                            <CodeSection
+                                                key={i}
+                                                codeSegments={codeSegments}
+                                                loading={isLoading && showGeneratingFiles}
+                                                handleAddAllCodeSegmentsToWorkspace={
+                                                    handleAddAllCodeSegmentsToWorkspace
+                                                }
+                                                handleRevertChanges={handleRevertChanges}
+                                                isReady={!isCodeLoading}
+                                                message={message}
+                                                buttonsActive={showGeneratingFiles}
+                                                isSyntaxError={isSyntaxError}
+                                                isTestCode={segment.isTestCode}
+                                            />
+                                        );
+                                    }
                                 } else if (segment.type === SegmentType.Progress) {
                                     return (
                                         <ProgressTextSegment
@@ -1006,10 +1086,87 @@ export function AIChat() {
     );
 }
 
+// ---------- CODE-SEGMENT ----------
+
+interface EntryContainerProps {
+    isOpen: boolean;
+}
+
+const EntryContainer = styled.div({
+    display: "flex",
+    alignItems: "center",
+    marginTop: "10px",
+    cursor: "pointer",
+    padding: "10px",
+    backgroundColor: "var(--vscode-list-hoverBackground)",
+    "&:hover": {
+        backgroundColor: "var(--vscode-badge-background)",
+    },
+});
+
+const CodeSegmentHeader = styled.div({
+    display: "flex",
+    alignItems: "center",
+    marginTop: "10px",
+    cursor: "pointer",
+    padding: "6px 8px",
+    backgroundColor: "var(--vscode-list-hoverBackground)",
+});
+
 interface CodeSegmentProps {
-    segmentText: string;
+    source: string;
+    fileName: string;
+    language?: string;
+}
+
+const CodeSegment: React.FC<CodeSegmentProps> = ({ source, fileName, language = "ballerina" }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div>
+            <CodeSegmentHeader onClick={() => setIsOpen(!isOpen)}>
+                <div style={{ flex: 9, fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                    {isOpen ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                    {fileName}
+                </div>
+            </CodeSegmentHeader>
+            <Collapse isOpened={isOpen}>
+                <div style={{ backgroundColor: "var(--vscode-list-hoverBackground)", padding: "6px" }}>
+                    <pre
+                        style={{
+                            backgroundColor: "var(--vscode-editorWidget-background)",
+                            margin: 0,
+                            padding: 2,
+                            borderRadius: 6,
+                        }}
+                    >
+                        <SyntaxHighlighter
+                            language={language}
+                            style={{
+                                'pre[class*="language-"]': {
+                                    backgroundColor: "var(--vscode-editorWidget-background)",
+                                    color: "var(--vscode-editor-foreground)",
+                                    overflowX: "auto",
+                                    padding: "6px",
+                                },
+                                'code[class*="language-"]': {
+                                    backgroundColor: "var(--vscode-editorWidget-background)",
+                                    color: "var(--vscode-editor-foreground)",
+                                },
+                            }}
+                        >
+                            {source}
+                        </SyntaxHighlighter>
+                    </pre>
+                </div>
+            </Collapse>
+        </div>
+    );
+};
+
+interface CodeSectionProps {
+    codeSegments: CodeSegmentProps[];
     loading: boolean;
-    fileName?: string;
     isReady: boolean;
     handleAddAllCodeSegmentsToWorkspace: (
         codeSegment: any,
@@ -1027,22 +1184,99 @@ interface CodeSegmentProps {
     isTestCode: boolean;
 }
 
-interface EntryContainerProps {
-    isOpen: boolean;
-}
+const CodeSection: React.FC<CodeSectionProps> = ({
+    codeSegments,
+    loading,
+    isReady,
+    handleAddAllCodeSegmentsToWorkspace,
+    handleRevertChanges,
+    message,
+    buttonsActive,
+    isSyntaxError,
+    isTestCode,
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isCodeAdded, setIsCodeAdded] = useState(false);
 
-//@ts-ignore
-const EntryContainer = styled.div<EntryContainerProps>(({ isOpen }) => ({
-    display: "flex",
-    alignItems: "center",
-    marginTop: "10px",
-    cursor: "pointer",
-    padding: "10px",
-    backgroundColor: isOpen ? "var(--vscode-list-hoverBackground)" : "var(--vscode-editorHoverWidget-background)",
-    "&:hover": {
-        backgroundColor: "var(--vscode-list-hoverBackground)",
-    },
-}));
+    const language = "ballerina";
+    let name = loading
+        ? "Generating " + (isTestCode ? "Tests..." : "Integration...")
+        : isTestCode
+        ? "Ballerina Tests"
+        : "Ballerina Integration";
+
+    const allCodeSegments = splitContent(message.content)
+        .filter((segment) => segment.type === SegmentType.Code)
+        .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
+
+    return (
+        <div>
+            <EntryContainer onClick={() => !loading && setIsOpen(!isOpen)}>
+                <div style={{ flex: 9, fontWeight: "bold" }}>{name}</div>
+                <div style={{ marginLeft: "auto" }}>
+                    {!loading && isReady && language === "ballerina" && (
+                        <>
+                            {!isCodeAdded ? (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAddAllCodeSegmentsToWorkspace(
+                                            allCodeSegments,
+                                            setIsCodeAdded,
+                                            isTestCode
+                                        );
+                                    }}
+                                    tooltip={
+                                        isSyntaxError
+                                            ? "Syntax issues detected in generated integration. Reattempt required"
+                                            : ""
+                                    }
+                                    disabled={!buttonsActive || isSyntaxError}
+                                >
+                                    <Codicon name="add" />
+                                    &nbsp;&nbsp;Add to Integration
+                                </Button>
+                            ) : (
+                                <Button
+                                    appearance="icon"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, isTestCode);
+                                    }}
+                                    disabled={!buttonsActive}
+                                >
+                                    <Codicon name="history" />
+                                    &nbsp;&nbsp;Revert to Checkpoint
+                                </Button>
+                            )}
+                        </>
+                    )}
+                </div>
+            </EntryContainer>
+            <Collapse isOpened={isOpen}>
+                <div
+                    style={{
+                        backgroundColor: "var(--vscode-editorWidget-background)",
+                        padding: "8px",
+                        gap: "8px",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    {codeSegments.map((segment, index) => (
+                        <CodeSegment
+                            key={index}
+                            source={segment.source}
+                            fileName={segment.fileName}
+                            language={segment.language}
+                        />
+                    ))}
+                </div>
+            </Collapse>
+        </div>
+    );
+};
 
 export function replaceCodeBlocks(originalResp: string, newResp: string): string {
     // Create a map to store new code blocks by filename
@@ -1098,100 +1332,6 @@ function identifyLanguage(segmentText: string): string {
         return "";
     }
 }
-
-const CodeSegment: React.FC<CodeSegmentProps> = ({
-    segmentText,
-    loading,
-    fileName,
-    isReady,
-    handleAddAllCodeSegmentsToWorkspace,
-    handleRevertChanges,
-    message,
-    buttonsActive,
-    isSyntaxError,
-    isTestCode,
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [isCodeAdded, setIsCodeAdded] = useState(false);
-
-    // const language = identifyLanguage(segmentText);
-    const language = "ballerina";
-    let name = loading ? "Generating Integration..." : "Ballerina Integration";
-
-    // switch (language) {
-    //     case "xml":
-    //         const xmlMatch = segmentText.match(/(name|key)="([^"]+)"/);
-    //         name = xmlMatch ? xmlMatch[2] : "XML File";
-    //         break;
-    //     case "toml":
-    //         name = "deployment.toml"; // Default name
-    //         break;
-    //     case "ballerina":
-    //         name = "Ballerina file";
-    //         break;
-    //     default:
-    //         name = `${language} file`;
-    //         break;
-    // }
-
-    const allCodeSegments = splitContent(message.content)
-        .filter((segment) => segment.type === SegmentType.Code)
-        .map((segment) => ({ segmentText: segment.text, filePath: segment.fileName }));
-
-    return (
-        <div>
-            <EntryContainer isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
-                <div style={{ flex: 9, fontWeight: "bold" }}>{name}</div>
-                <div style={{ marginLeft: "auto" }}>
-                    {!loading && isReady && language === "ballerina" && (
-                        <>
-                            {!isCodeAdded ? (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAddAllCodeSegmentsToWorkspace(
-                                            allCodeSegments,
-                                            setIsCodeAdded,
-                                            isTestCode
-                                        );
-                                    }}
-                                    tooltip={
-                                        isSyntaxError
-                                            ? "Syntax issues detected in generated integration. Reattempt required"
-                                            : ""
-                                    }
-                                    disabled={!buttonsActive || isSyntaxError}
-                                >
-                                    <Codicon name="add" />
-                                    &nbsp;&nbsp;Add to Integration
-                                </Button>
-                            ) : (
-                                <Button
-                                    appearance="icon"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRevertChanges(allCodeSegments, setIsCodeAdded, isTestCode);
-                                    }}
-                                    disabled={!buttonsActive}
-                                >
-                                    <Codicon name="history" />
-                                    &nbsp;&nbsp;Revert to Checkpoint
-                                </Button>
-                            )}
-                        </>
-                    )}
-                    {/* {!loading && !isReady &&language === 'ballerina' &&
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "4%" }}>
-                        <ProgressRing sx={{ position: "relative" }} />
-                        <Icon name="sync" sx={{ animation: "spin 2s linear infinite" }} />
-                    </div>
-                    } */}
-                </div>
-            </EntryContainer>
-        </div>
-    );
-};
 
 export async function fetchWithToken(url: string, options: RequestInit, rpcClient: any) {
     let response = await fetch(url, options);
@@ -1283,6 +1423,7 @@ enum SegmentType {
 
 interface Segment {
     type: SegmentType;
+    language?: string;
     loading: boolean;
     text: string;
     fileName?: string;
@@ -1293,12 +1434,12 @@ interface Segment {
 function splitHalfGeneratedCode(content: string): Segment[] {
     const segments: Segment[] = [];
     // Regex to capture filename and optional test attribute
-    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```ballerina([\s\S]*?)$/g;
+    const regex = /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)$/g;
     let match;
     let lastIndex = 0;
 
     while ((match = regex.exec(content)) !== null) {
-        const [fullMatch, fileName, testValue, code] = match;
+        const [fullMatch, fileName, testValue, language, code] = match;
         const isTestCode = testValue === "true";
 
         if (match.index > lastIndex) {
@@ -1314,6 +1455,7 @@ function splitHalfGeneratedCode(content: string): Segment[] {
         // Code segment
         segments.push({
             type: SegmentType.Code,
+            language: language,
             loading: true,
             text: code,
             fileName: fileName,
@@ -1338,9 +1480,9 @@ function splitHalfGeneratedCode(content: string): Segment[] {
 export function splitContent(content: string): Segment[] {
     const segments: Segment[] = [];
 
-    // Combined regex to capture either <code ...>```ballerina code ```</code> or <progress>Text</progress>
+    // Combined regex to capture either <code ...>```<language> code ```</code> or <progress>Text</progress>
     const regex =
-        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```ballerina([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
+        /<code\s+filename="([^"]+)"(?:\s+test=(true|false))?>\s*```(\w+)\s*([\s\S]*?)```\s*<\/code>|<progress>([\s\S]*?)<\/progress>|<attachment>([\s\S]*?)<\/attachment>|<error>([\s\S]*?)<\/error>/g;
     let match;
     let lastIndex = 0;
 
@@ -1365,7 +1507,8 @@ export function splitContent(content: string): Segment[] {
             // <code> block matched
             const fileName = match[1];
             const testValue = match[2];
-            const code = match[3];
+            const language = match[3];
+            const code = match[4];
             const isTestCode = testValue === "true";
 
             updateLastProgressSegmentLoading();
@@ -1374,11 +1517,12 @@ export function splitContent(content: string): Segment[] {
                 loading: false,
                 text: code,
                 fileName: fileName,
+                language: language,
                 isTestCode: isTestCode,
             });
-        } else if (match[4]) {
+        } else if (match[5]) {
             // <progress> block matched
-            const progressText = match[4];
+            const progressText = match[5];
 
             updateLastProgressSegmentLoading();
             segments.push({
@@ -1386,9 +1530,9 @@ export function splitContent(content: string): Segment[] {
                 loading: true,
                 text: progressText,
             });
-        } else if (match[5]) {
+        } else if (match[6]) {
             // <attachment> block matched
-            const attachmentName = match[5].trim();
+            const attachmentName = match[6].trim();
 
             updateLastProgressSegmentLoading();
 
@@ -1403,9 +1547,9 @@ export function splitContent(content: string): Segment[] {
                     text: attachmentName,
                 });
             }
-        } else if (match[6]) {
+        } else if (match[7]) {
             // <error> block matched
-            const errorMessage = match[6].trim();
+            const errorMessage = match[7].trim();
 
             updateLastProgressSegmentLoading(true);
             segments.push({

@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CommandIds } from "@wso2-enterprise/choreo-core";
-import { type ExtensionContext, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
+import { CommandIds, type ContextItemEnriched } from "@wso2-enterprise/choreo-core";
+import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, commands, window } from "vscode";
+import { ext } from "../extensionVariables";
 import { authStore } from "../stores/auth-store";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { removeContext } from "./create-directory-context-cmd";
@@ -29,6 +30,7 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 					quickPickOptions.push(
 						{ kind: QuickPickItemKind.Separator, label: "Selected Project" },
 						{ label: selected?.project?.name!, detail: selected?.org?.name, picked: true },
+						{ label: "Open in Console", detail: `Open the project '${selected.project?.name}' in Choreo console` },
 					);
 				}
 
@@ -66,11 +68,20 @@ export function manageProjectContextCommand(context: ExtensionContext) {
 					title: "Manage Project",
 				});
 
-				if (selection?.label === "Link with a different project" || selection?.label === "Link with a project") {
+				if (selection?.label === "Open in Console") {
+					commands.executeCommand(CommandIds.OpenInConsole, { project: selected?.project, organization: selected?.org });
+				} else if (selection?.label === "Link with a different project" || selection?.label === "Link with a project") {
 					commands.executeCommand(CommandIds.CreateDirectoryContext);
 				} else if ((selection as any)?.item) {
+					const selectedItem: ContextItemEnriched = (selection as any)?.item;
 					await waitForContextStoreToLoad();
-					contextStore.getState().changeContext((selection as any)?.item);
+					if (selectedItem.org?.id) {
+						await window.withProgress(
+							{ title: `Switching to organization ${selectedItem.org.name}...`, location: ProgressLocation.Notification },
+							() => ext?.clients?.rpcClient?.changeOrgContext(selectedItem.org?.id?.toString()!),
+						);
+					}
+					contextStore.getState().changeContext(selectedItem);
 				} else if (selection?.label === "Unlink workspace") {
 					await waitForContextStoreToLoad();
 					removeContext(selected?.project!, selected?.org!, selected?.contextDirs.map((item) => item.projectRootFsPath)!);

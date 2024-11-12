@@ -30,6 +30,7 @@ import {
     getHistory,
     getProjectOverview,
     getProjectStructure,
+    getReadmeContent,
     getWorkspaces,
     goBack,
     goHome,
@@ -37,6 +38,7 @@ import {
     goToSource,
     log,
     openExternal,
+    openReadme,
     openView,
     reloadWindow,
     retrieveContext,
@@ -73,4 +75,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
     messenger.onRequest(sendSwaggerProxyRequest, (args: SwaggerProxyRequest) => rpcManger.sendSwaggerProxyRequest(args));
     messenger.onRequest(openExternal, (args: OpenExternalRequest) => rpcManger.openExternal(args));
+    messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
+    messenger.onNotification(openReadme, () => rpcManger.openReadme());
 }
