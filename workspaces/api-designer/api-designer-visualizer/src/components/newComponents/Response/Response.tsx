@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { MediaType as M, Response as R, Schema } from '../../../Definitions/ServiceDefinitions';
+import { Content, MediaType as M, Response as R, Schema } from '../../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
@@ -15,6 +15,7 @@ import { Headers } from '../Headers/Headers';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Button, Codicon, Dropdown } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
+import { MediaTypes } from '../../../constants';
 
 const SubSectionWrapper = styled.div`
     display: flex;
@@ -31,8 +32,32 @@ interface ResponseProps {
 export function Response(props: ResponseProps) {
     const { response, onResponseChange } = props;
     const { rpcClient } = useVisualizerContext();
-    const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(Object.keys(response?.content)[0]);
+    const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(response?.content && Object.keys(response?.content)[0]);
     const [description, setDescription] = useState<string | undefined>(response?.description);
+    const responseMediaTypes = response?.content && Object.keys(response?.content);
+
+    const handleOptionChange = (options: string[]) => {
+        const newResponse: R = {
+            ...response,
+            content: options.reduce((acc, item) => {
+                acc[item] = response.content[item] || { schema: { type: "object" } };
+                return acc;
+            }, {} as Content)
+        };
+        setSelectedMediaType(options[0]);
+        onResponseChange(newResponse);
+    };
+
+    const handleConfigureClick = () => {
+        rpcClient.selectQuickPickItems({
+            title: "Select Types",
+            items: MediaTypes.map(item => ({ label: item, picked: responseMediaTypes.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleOptionChange(resp.map(item => item.label))
+            }
+        })
+    };
 
     const handleResponsesChange = (response: R) => {
         onResponseChange(response);
@@ -67,7 +92,7 @@ export function Response(props: ResponseProps) {
         setDescription(evt.target.value);
         handleResponsesChange({ ...response, description: evt.target.value });
     };
-    const allMediaTypes = Object.keys(response?.content);
+    const allMediaTypes = response?.content && Object.keys(response?.content);
 
     return (
         <SubSectionWrapper>
@@ -92,11 +117,11 @@ export function Response(props: ResponseProps) {
                         </Button>
                         <Dropdown
                             id="media-type-dropdown"
-                            value={selectedMediaType || "application/json"}
-                            items={allMediaTypes.map(mediaType => ({ label: mediaType, value: mediaType }))}
+                            value={selectedMediaType}
+                            items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
                             onValueChange={(value) => setSelectedMediaType(value)}
                         />
-                        <Button tooltip='Configure Content Types' onClick={null} appearance='icon'>
+                        <Button tooltip='Configure Content Types' onClick={handleConfigureClick} appearance='icon'>
                             <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
                         </Button>
                     </>

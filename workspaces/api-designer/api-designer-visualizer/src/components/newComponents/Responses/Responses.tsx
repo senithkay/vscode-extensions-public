@@ -6,12 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Responses as Rs, Response as R, ReferenceObject as Ro } from '../../../Definitions/ServiceDefinitions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tabs, ViewItem } from '../../Tabs/Tabs';
 import { Response } from '../Response/Response';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
+import SectionHeader from '../SectionHeader/SectionHeader';
+import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { StatusCodes } from '../../../constants';
 
 interface ResponsesProps {
     responses: Rs;
@@ -26,7 +29,17 @@ const isRefereceObject = (value: Rs | R): value is R => {
 // Title, Vesrion are mandatory fields
 export function Responses(props: ResponsesProps) {
     const { responses, onResponsesChange } = props;
+    const { rpcClient } = useVisualizerContext();
     const [selectedStatusCode, setSelectedStatusCode] = useState<string | undefined>(responses && Object.keys(responses)[0]);
+
+    const statusCodes = responses && Object.keys(responses);
+    const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ id: statusCode, name: statusCode }));
+    const referenceObjects: string[] = null; // TODO: Use context to find the reference objects
+    const statusCode: string[] = statusCodes && statusCodes?.map((status) => {
+        const statusValue = StatusCodes[status as keyof typeof StatusCodes]; // Type assertion added here
+        return `${status}: ${statusValue}`;
+    });
+    const statusCodeList: string[] = Object.entries(StatusCodes).map(([key, value]) => `${key}: ${value}`);
 
     const handleResponsesChange = (responses: Rs) => {
         onResponsesChange(responses);
@@ -48,12 +61,44 @@ export function Responses(props: ResponsesProps) {
         handleResponsesChange(newResponses);
     };
 
-    const statusCodes = responses && Object.keys(responses);
-    const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ id: statusCode, name: statusCode }));
-    const referenceObjects: string[] = null; // TODO: Use context to find the reference objects
+    const handleStatusCodeChange = (statusCodes: string[]) => {
+        const valueRemovedStatusCodes = statusCodes.map((status) => status.split(":")[0]);
+        const newResponses: Rs = valueRemovedStatusCodes.reduce((acc, item) => {
+            acc[item] = responses[item] || { description: "", content: {} };
+            return acc;
+        }, {} as Rs);
+        setSelectedStatusCode(statusCodes[0]);
+        handleResponsesChange(newResponses);
+    };
+
+    const onConfigureResponsesClick = () => {
+        rpcClient.selectQuickPickItems({
+            title: "Select Responses",
+            items: statusCodeList.map(item => ({ label: item, picked: statusCode?.includes(item) }))
+        }).then(resp => {
+            if (resp) {
+                handleStatusCodeChange(resp.map(item => item.label))
+            }
+        })
+    };
+
+    useEffect(() => {
+        if (statusCodes && !statusCodes.includes(selectedStatusCode)) {
+            setSelectedStatusCode(statusCodes[0]);
+        }
+    }, [statusCodes]);
 
     return (
         <>
+            <SectionHeader
+                title="Responses"
+                variant='h2'
+                actionButtons={
+                    <Button tooltip='Configure Responses' onClick={onConfigureResponsesClick} appearance='icon'>
+                        <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
+                    </Button>
+                }
+            />
             {statusTabViewItems?.length > 0 ? (
                 <Tabs views={statusTabViewItems} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
                     {responses && Object.keys(responses)?.map((status) => (

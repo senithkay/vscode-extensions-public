@@ -6,7 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { useContext } from 'react';
 import { MediaType as M } from '../../../Definitions/ServiceDefinitions';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
 
 interface MediaTypeProps {
@@ -17,6 +19,9 @@ interface MediaTypeProps {
 // Title, Vesrion are mandatory fields
 export function MediaType(props: MediaTypeProps) {
     const { mediaType, onMediaTypeChange } = props;
+    const { 
+        props: { openAPI },
+    } = useContext(APIDesignerContext);
 
     const handleContactChange = (contact: M) => {
         onMediaTypeChange(contact);
@@ -27,7 +32,7 @@ export function MediaType(props: MediaTypeProps) {
             <SchemaEditor
                 schema={mediaType?.schema}
                 variant='h3'
-                openAPI={null} // Provide OpenAPI definition throught context
+                openAPI={openAPI} // Provide OpenAPI definition throught context
                 schemaName={mediaType?.schema?.type as string}
                 onSchemaChange={(schema) => handleContactChange({ ...mediaType, schema })}
             />

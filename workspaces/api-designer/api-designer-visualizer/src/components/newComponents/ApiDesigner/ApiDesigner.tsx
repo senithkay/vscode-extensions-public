@@ -36,12 +36,14 @@ export function ApiDesigner(props: ApiDesignerProps) {
     const { openApi, isEditMode, openAPIVersion, onOpenApiChange } = props;
     const [selectedComponent, setSelectedComponent] = useState<string | undefined>("overview");
     const [currentView, setCurrentView] = useState(isEditMode ? Views.EDIT : Views.READ_ONLY);
+    const schemaComponents = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
 
     const contextValue = {
         props: {
             openAPIVersion: openAPIVersion,
             openAPI: openApi,
             selectedComponent,
+            schemaComponents,
             currentView,
         },
         api: {
@@ -67,7 +69,7 @@ export function ApiDesigner(props: ApiDesignerProps) {
     };
 
     const handleApiDesignerChange = (openApi: O) => {
-        onOpenApiChange(openApi);
+        onOpenApiChange({ ...openApi });
     };
     const handleViewChange = (view: string) => {
         setCurrentView(view as Views);
@@ -108,7 +110,7 @@ export function ApiDesigner(props: ApiDesignerProps) {
                             />
                         </div>
                         <div id={Views.READ_ONLY}>
-
+                            {/* TODO: Implement the view mode */}
                         </div>
                     </Tabs>
                 </SplitView>
