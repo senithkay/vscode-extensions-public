@@ -18,7 +18,7 @@ import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
 import FormGenerator from '../Commons/FormGenerator';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
-import { formatForConfigurable, removeConfigurableFormat } from './utils';
+import { formatForConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
 const cardStyle = {
     display: "block",
