@@ -12,9 +12,9 @@ import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, R
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField, Keylookup } from '.';
+import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField, Keylookup, FormKeylookup } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
-import { sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
+import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { openPopup } from '../sidePanel/Pages/mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
@@ -55,7 +55,8 @@ interface Element {
     comboValues?: any[];
     defaultValue?: any;
     allowedConnectionTypes?: string[];
-    keyType?: string;
+    keyType?: any;
+    canAddNew?: boolean;
 }
 
 interface ExpressionValueWithSetter {
@@ -91,12 +92,18 @@ export function FormGenerator(props: FormGeneratorProps) {
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i];
             const key = getNameForController(element.value.name);
-            if (element.type === 'table') {
-                values[key] = getParamManagerConfig(element.value.elements, element.value.tableKey, element.value.tableValue);
-            } else if (element.type === 'attributeGroup') {
-                Object.assign(values, getDefaultValues(element.value.elements));
+            const type = element.type;
+            const value = element.value;
+            const inputType = value.inputType;
+
+            if (type === 'table') {
+                values[key] = getParamManagerConfig(value.elements, value.tableKey, value.tableValue);
+            } else if (type === 'attributeGroup') {
+                Object.assign(values, getDefaultValues(value.elements));
+            } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
+                values[key] = { isExpression: type === "expression", value: value.defaultValue || '' };
             } else {
-                values[key] = element.value.currentValue ?? element.value.defaultValue ?? "";
+                values[key] = value.currentValue ?? value.defaultValue ?? "";
             }
         }
         return values;
@@ -252,7 +259,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'boolean':
                 return (
                     <FormCheckBox
-                        name={getNameForController(element.name)}
+                        name={name}
                         label={element.displayName}
                         control={control}
                     />
@@ -260,7 +267,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'checkbox':
                 return (
                     <FormCheckBox
-                        name={getNameForController(element.name)}
+                        name={name}
                         label={element.displayName}
                         control={control}
                     />
@@ -270,6 +277,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textOrExpression':
             case 'textAreaOrExpression':
             case 'integerOrExpression':
+            case 'expression':
                 return ExpressionFieldComponent({ element, field, helpTipElement });
 
             case 'booleanOrExpression':
@@ -279,7 +287,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 const allowItemCreate = element.inputType === 'comboOrExpression';
                 return (
                     <AutoComplete
-                        name={getNameForController(element.name)}
+                        name={name}
                         label={element.displayName}
                         labelAdornment={helpTipElement}
                         errorMsg={errorMsg}
@@ -293,6 +301,24 @@ export function FormGenerator(props: FormGeneratorProps) {
                     />
                 );
             case 'key':
+            case 'keyOrExpression':
+                return (
+                    <FormKeylookup
+                        control={control}
+                        name={name}
+                        label={element.displayName}
+                        filterType={element.keyType}
+                        allowItemCreate={element.canAddNew}
+                        required={true}
+                        errorMsg={errorMsg}
+                        {...element.inputType === 'keyOrExpression' && { canChangeEx: true }}
+                        {...element.inputType === 'keyOrExpression' && { exprToggleEnabled: true }}
+                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                        onCreateButtonClick={element.canAddNew ? (fetchItems: any, handleValueChange: any) => {
+                            openPopup(rpcClient, element.keyType, fetchItems, handleValueChange);
+                        } : undefined}
+                    />
+                );
             case 'comboOrKey': {
                 return (<Keylookup
                     value={field.value}
@@ -555,7 +581,10 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
-            renderForm(formData.elements)
+            <>
+                {formData.help && <Typography sx={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{formData.help}</Typography>}
+                {renderForm(formData.elements)}
+            </>
         )
     );
 };

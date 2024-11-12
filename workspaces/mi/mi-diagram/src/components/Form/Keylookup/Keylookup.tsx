@@ -324,7 +324,7 @@ export const Keylookup = (props: IKeylookup) => {
 
     return (
         <Container>
-            {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
+            {((isExpressionFieldValue(value) && !value.isExpression) ||
                 !isExpressionFieldValue(value)) ? (
                 <AutoComplete
                     {...rest}
