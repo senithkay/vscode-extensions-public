@@ -16,6 +16,7 @@ import { ExpressionFieldValue } from '@wso2-enterprise/mi-diagram/lib/components
 import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sidePanel/expressionEditor/ExpressionEditor';
 import { colors } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { removeConfigurableFormat, isCertificateFileName, isConfigurable } from './utils';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -246,7 +247,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     label={element.displayName}
                                     errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                                     items={certificates}
-                                    value={field.value.value}
+                                    value={isCertificateFileName(field.value.value) ? field.value.value : ""}
                                     onValueChange={(e: any) => {
                                         field.onChange({ isCertificateFile: true, value: e, type: field.value.type });
                                     }}
@@ -264,13 +265,12 @@ export function FormGenerator(props: FormGeneratorProps) {
                                 onChange={(e: any) => field.onChange({ isCertificateFile: false, value: e.target.value, type: field.value.type })}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
-                                value={field.value.value}
+                                value={isConfigurable(field.value.value) ? removeConfigurableFormat(field.value.value) : ""}
                                 label={element.displayName}
                                 size={50}
                                 placeholder={element.helpTip}
                                 required={element.required === 'true'}
                                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                
                             />
                         )}
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>

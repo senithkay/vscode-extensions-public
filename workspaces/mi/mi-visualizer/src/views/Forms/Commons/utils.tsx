@@ -9,3 +9,13 @@ export function removeConfigurableFormat(formattedValue: string): string {
     }
     return formattedValue;
 }
+
+export function isConfigurable(value: string): boolean {
+    const prefix = "$config:";
+    return value.startsWith(prefix);
+}
+
+export function isCertificateFileName(value: string): boolean {
+    const certificateExtension = ".crt";
+    return value.endsWith(certificateExtension);
+}
