@@ -18,7 +18,7 @@ import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
 import FormGenerator from '../Commons/FormGenerator';
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
-import { formatForConfigurable, removeConfigurableFormat } from '../Commons/utils';
+import { formatForConfigurable, isConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
 const cardStyle = {
     display: "block",
@@ -272,7 +272,10 @@ export function AddConnection(props: AddConnectionProps) {
         const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
         const currentEnvFilePath = projectUri + "/.env";
         const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
-        const currentCertificatePath = connectionFoundParameters.get(tagElementName);
+        
+        const storedTagElementValue = connectionFoundParameters.get(tagElementName);
+        const currentCertificatePath = isCertificateFilePath(storedTagElementValue) ? storedTagElementValue : '';
+        const currentCertificateConfigurableName = isConfigurable(storedTagElementValue) ? storedTagElementValue : '';
         
         if (newCertificatePath) {
             if (isCertificateFilePath(newCertificatePath)) {
@@ -296,7 +299,7 @@ export function AddConnection(props: AddConnectionProps) {
             connectorTag.ele(tagElementName).txt(formatForConfigurable(newCertificateConfigurableName));
             rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
                 configurableName: newCertificateConfigurableName,
-                currentConfigurableName: '',
+                currentConfigurableName: currentCertificateConfigurableName,
                 currentCertificateFileName: currentCertificatePath,
                 storedProjectCertificateDirPath: projectCertificateDirPath,
                 configPropertiesFilePath: currentConfigPropertiesFilePath,
