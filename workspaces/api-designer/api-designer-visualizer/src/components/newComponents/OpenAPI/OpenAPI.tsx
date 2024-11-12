@@ -10,10 +10,11 @@ import { OpenAPI as O } from '../../../Definitions/ServiceDefinitions';
 import { Overview } from '../Overview/Overview';
 import { Paths } from '../Paths/Paths';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface OverviewProps {
     openAPI: O;
-    selectedComponent: string;
     onOpenAPIChange: (openAPIDefinition: O) => void;
 }
 
@@ -21,7 +22,10 @@ interface OverviewProps {
 // Overview is represented with overview-component,
 // Schema is represented with schema-component-schema
 export function OpenAPI(props: OverviewProps) {
-    const { openAPI, selectedComponent, onOpenAPIChange } = props;
+    const { openAPI, onOpenAPIChange } = props;
+    const { 
+        props: { selectedComponent },
+    } = useContext(APIDesignerContext);
     const componetName = selectedComponent.split("-")[0];
 
     const handleOpenAPIChange = (openAPI: O) => {
@@ -36,7 +40,6 @@ export function OpenAPI(props: OverviewProps) {
             {componetName === "paths" && (
                 <Paths 
                     paths={openAPI.paths} 
-                    selectedComponent={selectedComponent}
                     onPathsChange={(paths) => handleOpenAPIChange({ ...openAPI, paths })}
                 />
             )}

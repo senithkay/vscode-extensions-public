@@ -12,27 +12,29 @@ import { Operation, PathItemWrapper, RightPathContainerButtons } from '../Compon
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { getBackgroundColorByMethod, getColorByMethod } from '../../../Utils/OpenAPIUtils';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 
 interface PathTreeViewItemProps {
     id: string;
     openAPI: OpenAPI;
     path: string;
     operation: string;
-    selectedComponent: string;
     onPathTreeViewItemChange: (openAPI : OpenAPI) => void;
-    onSelectedItemChange: (selectedItem: string) => void;
 }
 
 export function PathTreeViewItem(props: PathTreeViewItemProps) {
-    const { id, openAPI, path, operation, selectedComponent, onPathTreeViewItemChange, onSelectedItemChange } = props;
+    const { id, openAPI, path, operation, onPathTreeViewItemChange } = props;
     const { rpcClient } = useVisualizerContext();
+    const { 
+        props: { selectedComponent },
+        api: { onSelectedComponentChange }
+    } = useContext(APIDesignerContext);
 
     const handlePathTreeViewItemChange = (openAPI: OpenAPI) => {
         onPathTreeViewItemChange(openAPI);
     };
-    const handleSelectedItemChange = (selectedItem: string) => {
-        onSelectedItemChange(selectedItem);
-    };
+
     const handleDeleteMethod = (e: React.MouseEvent, path: string, operation: string) => {
         e.stopPropagation();
         rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Operation '${operation}'?`, buttonText: "Delete" }).then(res => {
@@ -46,7 +48,7 @@ export function PathTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => handleSelectedItemChange(`paths-component-${path}-${operation}`)}>
+        <div onClick={() => onSelectedComponentChange(`paths-component-${path}-${operation}`)}>
             <TreeViewItem id={id} selectedId={selectedComponent}>
                 <PathItemWrapper>
                     <Tooltip>

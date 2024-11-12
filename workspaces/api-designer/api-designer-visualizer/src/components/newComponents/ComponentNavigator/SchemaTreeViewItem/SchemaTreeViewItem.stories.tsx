@@ -22,11 +22,9 @@ export const SchemaTreeViewItemStory = () => {
         <SchemaTreeViewItem 
             id="path-tree-view-item"
             schema="Pet"
-            selectedComponent="Pet-Schema"
             onDeleteSchema={(schema: string) => {
                 console.log("Delete Schema", schema);
             }}
-            onSelectedItemChange={null}
         />
     );
 };

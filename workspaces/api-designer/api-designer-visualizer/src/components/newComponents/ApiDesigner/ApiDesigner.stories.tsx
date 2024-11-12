@@ -24,6 +24,8 @@ export const ApiDesignerStory = () => {
     return (
         <ApiDesigner
             openApi={apiDefinition}
+            isEditMode={false}
+            openAPIVersion="3.0.1"
             onOpenApiChange={(openApi: OpenAPI) => {
                 console.log("API Designer Change", openApi);
                 setApiDefinition({ ...openApi });

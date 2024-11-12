@@ -22,10 +22,6 @@ export const SchemaTreeViewStory = () => {
     return (
         <SchemaTreeView
             openAPI={apiDefinition}
-            selectedComponent="Pet-Schema"
-            onSelectedItemChange={(selectedItem: string) => {
-                console.log("Selected Item Change", selectedItem);
-            }}
             onSchemaTreeViewChange={(openAPI: OpenAPI) => {
                 console.log("Schema TreeView Change", openAPI);
                 setApiDefinition(openAPI);

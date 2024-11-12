@@ -11,6 +11,8 @@ import styled from "@emotion/styled";
 import { OpenAPI } from '../../../Definitions/ServiceDefinitions';
 import { PathsTreeView } from './PathsTreeView/PathsTreeView';
 import { SchemaTreeView } from './SchemaTreeView/SchemaTreeView';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface ContainerProps {
     selected?: boolean;
@@ -82,42 +84,34 @@ export const Operation = styled.div<OperationProps>`
 
 interface ComponentNavigatorProps {
     openAPI: OpenAPI;
-    selectedComponent: string;
     onComponentNavigatorChange: (openAPI: OpenAPI) => void;
-    onSelectedItemChange: (selectedItem: string) => void;
 }
 
 export function ComponentNavigator(props: ComponentNavigatorProps) {
-    const { openAPI, selectedComponent, onComponentNavigatorChange, onSelectedItemChange } = props;
-
-    const handleSelectedItemChange = (selectedItem: string) => {
-        onSelectedItemChange(selectedItem);
-    };
+    const { openAPI, onComponentNavigatorChange } = props;
+    const { 
+        props: { selectedComponent },
+        api: { onSelectedComponentChange }
+    } = useContext(APIDesignerContext);
 
     const handleComponentNavigatorChange = (openAPI: OpenAPI) => {
         onComponentNavigatorChange(openAPI);
     };
 
-    console.log("Component Navigator", openAPI);
-
     return (
         <div>
-            <OverviewTitle selected={selectedComponent === "overview"} onClick={() => handleSelectedItemChange("overview")}>
+            <OverviewTitle selected={selectedComponent === "overview"} onClick={() => onSelectedComponentChange("overview")}>
                 <Codicon sx={{ marginTop: -1 }} name="globe" />
                 <Typography variant="h4" sx={{ margin: 0, fontWeight: 300 }}>Overview</Typography>
             </OverviewTitle>
             <PathsTreeView
                 openAPI={openAPI}
-                selectedComponent={selectedComponent}
-                onSelectedItemChange={handleSelectedItemChange}
                 onPathTreeViewChange={handleComponentNavigatorChange}
                 paths={openAPI.paths}
             />
             <SchemaTreeView
                 openAPI={openAPI}
-                selectedComponent={selectedComponent}
                 onSchemaTreeViewChange={handleComponentNavigatorChange}
-                onSelectedItemChange={handleSelectedItemChange}
             />
         </div>
     )

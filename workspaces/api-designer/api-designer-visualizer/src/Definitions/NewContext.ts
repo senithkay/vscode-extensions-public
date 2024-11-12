@@ -16,13 +16,10 @@ export interface APIDesignerContext {
         openAPI: OpenAPI;
         selectedComponent?: string | undefined;
         view?: Views;
-        isNewFile?: boolean;
         currentView?: Views;
     };
     api: {
-        onOpenAPIDefinitionChange: (openAPI: OpenAPI, selectedComponent?: string, currentView?: Views) => void;
         onSelectedComponentChange?: (component: string) => void;
-        onIsNewFileChange?: (isNewFile: boolean) => void;
         onCurrentViewChange?: (currentView: Views) => void;
     };
 }

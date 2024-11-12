@@ -14,6 +14,7 @@ import styled from '@emotion/styled';
 import { SplitView } from '../../SplitView/SplitView';
 import { Tabs } from '../../Tabs/Tabs';
 import { Views } from '../../../constants';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 const SplitViewContainer = styled.div`
     display: flex;
@@ -26,13 +27,44 @@ const NavigationPanelContainer = styled.div`
 
 interface ApiDesignerProps {
     openApi: O;
+    isEditMode: boolean;// Pass the mode
+    openAPIVersion: string;
     onOpenApiChange: (openApi: O) => void;
 }
 
 export function ApiDesigner(props: ApiDesignerProps) {
-    const { openApi, onOpenApiChange } = props;
+    const { openApi, isEditMode, openAPIVersion, onOpenApiChange } = props;
     const [selectedComponent, setSelectedComponent] = useState<string | undefined>("overview");
-    const [currentView, setCurrentView] = useState(Views.READ_ONLY);
+    const [currentView, setCurrentView] = useState(isEditMode ? Views.EDIT : Views.READ_ONLY);
+
+    const contextValue = {
+        props: {
+            openAPIVersion: openAPIVersion,
+            openAPI: openApi,
+            selectedComponent,
+            currentView,
+        },
+        api: {
+            onSelectedComponentChange: (component: string) => {
+                if (component === "Paths-Resources") {
+                    // Get the first path item and set it as the selected item
+                    const paths = openApi?.paths ? Object.keys(openApi.paths) : [];
+                    const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
+                        && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
+                    setSelectedComponent(openApi?.paths && `paths-component-${sanitizedPaths[0]}`);
+                } else if (component === "Schemas-Components") {
+                    // Get the first schema item and set it as the selected item
+                    const schemas = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
+                    setSelectedComponent(schemas && `schemas-component-${schemas[0]}`);
+                } else {
+                    setSelectedComponent(component);
+                }
+            },
+            onCurrentViewChange: (view: Views) => {
+                setCurrentView(view);
+            },
+        },
+    };
 
     const handleApiDesignerChange = (openApi: O) => {
         onOpenApiChange(openApi);
@@ -40,64 +72,47 @@ export function ApiDesigner(props: ApiDesignerProps) {
     const handleViewChange = (view: string) => {
         setCurrentView(view as Views);
     };
-    const handleSelectedComponentChange = (selectedItem: string) => {
-        setSelectedComponent(selectedItem);
-        if (selectedItem === "Paths-Resources") {
-            // Get the first path item and set it as the selected item
-            const paths = openApi?.paths ? Object.keys(openApi.paths) : [];
-            const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
-                && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
-            setSelectedComponent(openApi?.paths && `paths-component-${sanitizedPaths[0]}`);
-        } else if (selectedItem === "Schemas-Components") {
-            // Get the first schema item and set it as the selected item
-            const schemas = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
-            setSelectedComponent(schemas && `schemas-component-${schemas[0]}`);
-        } else {
-            setSelectedComponent(selectedItem);
-        }
-    };
 
     return (
-        <SplitViewContainer>
-            <SplitView defaultWidths={[18, 82]} sx={{ maxWidth: 1200 }} dynamicContainerSx={{ height: "96vh" }}>
-                <NavigationPanelContainer>
-                    {openApi &&
-                        <ComponentNavigator
-                            openAPI={openApi}
-                            onComponentNavigatorChange={handleApiDesignerChange}
-                            selectedComponent={selectedComponent}
-                            onSelectedItemChange={handleSelectedComponentChange}
-                        />
-                    }
-                </NavigationPanelContainer>
-                <Tabs
-                    sx={{ paddingLeft: 10 }}
-                    childrenSx={{ overflowY: "auto", maxHeight: "90vh" }}
-                    tabTitleSx={{ marginLeft: 5 }}
-                    titleContainerSx={{
-                        position: "sticky",
-                        top: 0,
-                        zIndex: 5,
-                    }}
-                    views={[
-                        { id: Views.READ_ONLY, name: 'View' },
-                        { id: Views.EDIT, name: 'Design' },
-                    ]}
-                    currentViewId={currentView}
-                    onViewChange={handleViewChange}
-                >
-                    <div id={Views.EDIT} style={{ minHeight: "90vh" }}>
-                        <OpenAPI
-                            openAPI={openApi}
-                            onOpenAPIChange={handleApiDesignerChange}
-                            selectedComponent={selectedComponent}
-                        />
-                    </div>
-                    <div id={Views.READ_ONLY}>
+        <APIDesignerContext.Provider value={contextValue}>
+            <SplitViewContainer>
+                <SplitView defaultWidths={[18, 82]} sx={{ maxWidth: 1200 }} dynamicContainerSx={{ height: "96vh" }}>
+                    <NavigationPanelContainer>
+                        {openApi &&
+                            <ComponentNavigator
+                                openAPI={openApi}
+                                onComponentNavigatorChange={handleApiDesignerChange}
+                            />
+                        }
+                    </NavigationPanelContainer>
+                    <Tabs
+                        sx={{ paddingLeft: 10 }}
+                        childrenSx={{ overflowY: "auto", maxHeight: "90vh" }}
+                        tabTitleSx={{ marginLeft: 5 }}
+                        titleContainerSx={{
+                            position: "sticky",
+                            top: 0,
+                            zIndex: 5,
+                        }}
+                        views={[
+                            { id: Views.READ_ONLY, name: 'View' },
+                            { id: Views.EDIT, name: 'Design' },
+                        ]}
+                        currentViewId={currentView}
+                        onViewChange={handleViewChange}
+                    >
+                        <div id={Views.EDIT} style={{ minHeight: "90vh" }}>
+                            <OpenAPI
+                                openAPI={openApi}
+                                onOpenAPIChange={handleApiDesignerChange}
+                            />
+                        </div>
+                        <div id={Views.READ_ONLY}>
 
-                    </div>
-                </Tabs>
-            </SplitView>
-        </SplitViewContainer>
+                        </div>
+                    </Tabs>
+                </SplitView>
+            </SplitViewContainer>
+        </APIDesignerContext.Provider>
     )
 }

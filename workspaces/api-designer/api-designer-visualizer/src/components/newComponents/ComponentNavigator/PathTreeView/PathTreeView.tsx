@@ -13,26 +13,27 @@ import { TreeView } from '../../../Treeview/TreeView';
 import { PathTreeViewItem } from '../PathTreeViewItem/PathTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { APIResources } from '../../../../constants';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 
 interface PathTreeViewProps {
     id: string;
     openAPI: OpenAPI;
     path: string;
     operations: string[];
-    selectedComponent: string;
     onPathTreeViewChange: (openAPI: OpenAPI) => void;
-    onSelectedItemChange: (selectedItem: string) => void;
 }
 
 export function PathTreeView(props: PathTreeViewProps) {
-    const { id, openAPI, path, operations, selectedComponent, onPathTreeViewChange, onSelectedItemChange } = props;
+    const { id, openAPI, path, operations, onPathTreeViewChange } = props;
     const { rpcClient } = useVisualizerContext();
+    const { 
+        props: { selectedComponent },
+        api: { onSelectedComponentChange }
+    } = useContext(APIDesignerContext);
 
     const handlePathTreeViewChange = (openAPI: OpenAPI) => {
         onPathTreeViewChange(openAPI);
-    };
-    const handleSelectedItemChange = (selectedItem: string) => {
-        onSelectedItemChange(selectedItem);
     };
     const handleDeletePath = (e: React.MouseEvent, path: string) => {
         e.stopPropagation();
@@ -91,8 +92,6 @@ export function PathTreeView(props: PathTreeViewProps) {
         })
     };
 
-    console.log("PathTreeView: ", selectedComponent);
-
     return (
         <TreeView
             id={id}
@@ -118,7 +117,7 @@ export function PathTreeView(props: PathTreeViewProps) {
                 </PathContainer>
             }
             selectedId={selectedComponent}
-            onSelect={(id) => handleSelectedItemChange(id)}
+            onSelect={(id) => onSelectedComponentChange(id)}
         >
             {operations?.map((operation) => {
                 return (
@@ -127,9 +126,7 @@ export function PathTreeView(props: PathTreeViewProps) {
                         openAPI={openAPI}
                         path={path}
                         operation={operation}
-                        selectedComponent={selectedComponent}
                         onPathTreeViewItemChange={handlePathTreeViewChange}
-                        onSelectedItemChange={handleSelectedItemChange}
                     />
                 );
             })}

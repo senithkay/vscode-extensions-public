@@ -20,6 +20,6 @@ const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 
 export const PathTreeViewItemStory = () => {
     return (
-        <PathTreeViewItem id="path-tree-view-item" openAPI={apiDefinition} path="/pets" operation="get" selectedComponent="paths-component-/pets-get" onPathTreeViewItemChange={() => {}} onSelectedItemChange={() => {}} />
+        <PathTreeViewItem id="path-tree-view-item" openAPI={apiDefinition} path="/pets" operation="get" onPathTreeViewItemChange={() => {}}/>
     );
 };

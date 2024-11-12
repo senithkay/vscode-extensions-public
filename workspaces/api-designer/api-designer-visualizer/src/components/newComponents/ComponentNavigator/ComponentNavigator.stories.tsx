@@ -28,11 +28,6 @@ export const ComponentNavigatorStory = () => {
         <ComponentNavigator
             openAPI={apiDefinition}
             onComponentNavigatorChange={handleComponentNavigatorChange}
-            onSelectedItemChange={(selectedItem: string) => {
-                console.log("Selected Item Change", selectedItem);
-                setSelectedComponent(selectedItem);
-            }}
-            selectedComponent={selectedComponent}
         />
     );
 };

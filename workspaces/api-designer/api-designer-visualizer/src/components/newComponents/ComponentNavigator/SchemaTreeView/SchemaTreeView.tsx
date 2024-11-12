@@ -12,17 +12,22 @@ import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { TreeView } from '../../../Treeview/TreeView';
 import { SchemaTreeViewItem } from '../SchemaTreeViewItem/SchemaTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { Views } from '../../../../constants';
 
 interface PathTreeViewItemProps {
     openAPI: OpenAPI;
-    selectedComponent: string;
-    onSelectedItemChange: (selectedItem: string) => void;
     onSchemaTreeViewChange: (openAPI: OpenAPI) => void;
 }
 
 export function SchemaTreeView(props: PathTreeViewItemProps) {
-    const { openAPI, selectedComponent, onSelectedItemChange, onSchemaTreeViewChange } = props;
+    const { openAPI, onSchemaTreeViewChange } = props;
     const { rpcClient } = useVisualizerContext();
+    const { 
+        props: { selectedComponent },
+        api: { onSelectedComponentChange, onCurrentViewChange }
+    } = useContext(APIDesignerContext);
 
     const handleDeleteSchema = (schema: string) => {
         rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Schema '${schema}'?`, buttonText: "Delete" }).then(res => {
@@ -37,8 +42,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
                     }
                 };
                 onSchemaTreeViewChange(updatedOpenAPIDefinition);
-                // TODO: Udpate the selected component
-                onSelectedItemChange("overview");
+                onSelectedComponentChange("overview");
             }
         });
     };
@@ -59,8 +63,8 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             properties: {}
         };
         onSchemaTreeViewChange(openAPI);
-        onSelectedItemChange(`schemas-component-${newSchemaName}`);
-        // TODO: Switch to edit mode
+        onSelectedComponentChange(`schemas-component-${newSchemaName}`);
+        onCurrentViewChange(Views.EDIT);
     };
 
     const schemaArray = openAPI?.components?.schemas ? Object.keys(openAPI?.components?.schemas) : [];
@@ -81,16 +85,14 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
                 </PathContainer>
             }
             selectedId={selectedComponent}
-            onSelect={onSelectedItemChange}
+            onSelect={onSelectedComponentChange}
         >
             {schemaArray.map((schema: string) => {
                 return (
                     <SchemaTreeViewItem
                         id={`schemas-component-${schema}`}
-                        selectedComponent={selectedComponent}
                         schema={schema}
                         onDeleteSchema={handleDeleteSchema}
-                        onSelectedItemChange={onSelectedItemChange}
                     />
                 );
             })}

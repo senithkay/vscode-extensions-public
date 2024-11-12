@@ -11,18 +11,22 @@ import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../
 import { OpenAPI, Paths } from '../../../../Definitions/ServiceDefinitions';
 import { TreeView } from '../../../Treeview/TreeView';
 import { PathTreeView } from '../PathTreeView/PathTreeView';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 
 interface PathsTreeViewProps {
     openAPI: OpenAPI;
     paths: Paths;
-    selectedComponent: string;
     onPathTreeViewChange: (openAPI: OpenAPI) => void;
-    onSelectedItemChange: (selectedItem: string) => void;
 }
 
 export function PathsTreeView(props: PathsTreeViewProps) {
-    const { openAPI, paths, selectedComponent, onPathTreeViewChange, onSelectedItemChange } = props;
-    
+    const { openAPI, paths, onPathTreeViewChange } = props;
+    const { 
+        props: { selectedComponent },
+        api: { onSelectedComponentChange }
+    } = useContext(APIDesignerContext);
+
     const handleAddPathMethod = (evt: React.MouseEvent) => {
         evt.stopPropagation();
         const newPathVal = Object.keys(openAPI.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPI.paths).length + 1}` : "/path";
@@ -44,7 +48,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
             }
         };
         onPathTreeViewChange(openAPI);
-        onSelectedItemChange(`paths-component-${newPathVal}`);
+        onSelectedComponentChange(`paths-component-${newPathVal}`);
     };
 
     let pathsArray: string[] = [];
@@ -75,7 +79,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                 </PathContainer>
             }
             selectedId={selectedComponent}
-            onSelect={() => onSelectedItemChange("Paths-Resources")}
+            onSelect={() => onSelectedComponentChange("Paths-Resources")}
         >
             {
                 pathsArray.map((path, index) => {
@@ -88,9 +92,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                             openAPI={openAPI}
                             path={path}
                             operations={sanitizedOperations}
-                            selectedComponent={selectedComponent}
                             onPathTreeViewChange={onPathTreeViewChange}
-                            onSelectedItemChange={onSelectedItemChange}
                         />
                     );
                 }

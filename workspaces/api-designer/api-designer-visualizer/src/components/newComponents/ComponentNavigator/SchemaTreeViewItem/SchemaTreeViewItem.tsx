@@ -10,6 +10,8 @@ import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { TreeViewItem } from '../../../Treeview/TreeViewItem';
 import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 
 const SchemaItemWrapper = styled.div`
     display: flex;
@@ -29,13 +31,15 @@ const SchemaItemWrapper = styled.div`
 interface PathTreeViewItemProps {
     id: string;
     schema: string;
-    selectedComponent: string;
-    onSelectedItemChange: (selectedItem: string) => void;
     onDeleteSchema: (schema: string) => void;
 }
 
 export function SchemaTreeViewItem(props: PathTreeViewItemProps) {
-    const { id, schema, selectedComponent, onSelectedItemChange, onDeleteSchema } = props;
+    const { id, schema, onDeleteSchema } = props;
+    const { 
+        props: { selectedComponent },
+        api: { onSelectedComponentChange }
+    } = useContext(APIDesignerContext);
 
     const handleDeleteSchema = (e: React.MouseEvent, schema: string) => {
         e.stopPropagation();
@@ -43,7 +47,7 @@ export function SchemaTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedItemChange(`schemas-component-${schema}`)}>
+        <div onClick={() => onSelectedComponentChange(`schemas-component-${schema}`)}>
             <TreeViewItem id={id} selectedId={selectedComponent}>
                 <SchemaItemWrapper>
                     <Typography

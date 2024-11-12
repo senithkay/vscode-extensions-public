@@ -25,9 +25,7 @@ export const PathTreeViewStory = () => {
             openAPI={apiDefinition}
             path="/pets"
             operations={['get']}
-            selectedComponent="paths-component-/pets-get"
             onPathTreeViewChange={() => {}}
-            onSelectedItemChange={() => {}}
         />
     );
 };

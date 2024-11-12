@@ -22,16 +22,10 @@ export const PathsTreeViewStory = () => {
     return (
         <PathsTreeView
             openAPI={apiDefinition}
-            selectedComponent="paths-component-/pets-get"
             onPathTreeViewChange={
                 (openAPI: OpenAPI) => {
                     console.log("Path TreeView Change", openAPI);
                     setApiDefinition(openAPI);
-                }
-            }
-            onSelectedItemChange={
-                (selectedItem: string) => {
-                    console.log("Selected Item Change", selectedItem);
                 }
             }
             paths={apiDefinition.paths}

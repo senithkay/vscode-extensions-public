@@ -9,15 +9,19 @@
 import { Paths as P, PathItem as PI, Operation as O } from '../../../Definitions/ServiceDefinitions';
 import { PathItem } from '../PathItem/PathItem';
 import { Operation } from "../Operation/Operation";
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface PathsProps {
     paths: P;
-    selectedComponent?: string;
     onPathsChange: (path: P, newPath?: string) => void;
 }
 
 export function Paths(props: PathsProps) {
-    const { paths, selectedComponent, onPathsChange } = props;
+    const { paths, onPathsChange } = props;
+    const { 
+        props: { selectedComponent },
+    } = useContext(APIDesignerContext);
     const handlePathsChange = (pathItem: PI, path: string) => {
         onPathsChange({ ...paths, [path]: pathItem });
     };
