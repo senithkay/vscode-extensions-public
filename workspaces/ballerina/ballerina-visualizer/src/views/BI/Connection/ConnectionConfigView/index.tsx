@@ -10,15 +10,12 @@
 import React, { ReactNode, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ExpressionFormField, Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
-import { FlowNode, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, FormDiagnostics, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { convertBalCompletion, convertToFnSignature } from "../../../../utils/bi";
 import { TRIGGER_CHARACTERS, TriggerCharacter } from "@wso2-enterprise/ballerina-core";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { FieldValues } from "react-hook-form";
-import { UseFormSetError } from "react-hook-form";
-import { UseFormClearErrors } from "react-hook-form";
 
 const Container = styled.div`
     max-width: 600px;
@@ -142,11 +139,10 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
         showDiagnostics: boolean,
         expression: string,
         key: string,
-        setError: UseFormSetError<FieldValues>,
-        clearErrors: UseFormClearErrors<FieldValues>
+        setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void
     ) => {
         if (!showDiagnostics) {
-            clearErrors(key);
+            setDiagnosticsInfo({ key, diagnostics: [] });
             return;
         }
         
@@ -161,13 +157,7 @@ export function ConnectionConfigView(props: ConnectionConfigViewProps) {
             }
         });
 
-        const diagnosticsMessage = response.diagnostics.map((diagnostic) => diagnostic.message).join("\n");
-        
-        if (diagnosticsMessage.length > 0) {
-            setError(key, { message: diagnosticsMessage });
-        } else {
-            clearErrors(key);
-        }
+        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250);
 
     const handleGetCompletions = async (

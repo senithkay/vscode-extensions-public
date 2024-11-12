@@ -11,36 +11,7 @@ import React from "react";
 import { FormField } from "../Form/types";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
 import { useFormContext } from "../../context";
-import styled from "@emotion/styled";
-import { Colors } from "../../resources/constants";
 import { capitalize } from "./utils";
-
-const AddTypeContainer = styled.div<{}>`
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-    justify-content: flex-start;
-    margin-left: 8px;
-`;
-
-const Pill = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    color: ${Colors.GREEN};
-    padding: 2px 4px;
-    border-radius: 20px;
-    border: 1px solid ${Colors.GREEN};
-    font-size: 10px;
-    font-family: monospace;
-    svg {
-        fill: ${Colors.GREEN};
-        stroke: ${Colors.GREEN};
-        height: 12px;
-        width: 12px;
-    }
-`;
 
 interface TextEditorProps {
     field: FormField;
