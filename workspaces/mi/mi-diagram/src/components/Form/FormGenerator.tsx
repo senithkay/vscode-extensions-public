@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, RequiredFormInput, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -23,7 +23,7 @@ const Field = styled.div`
     margin-bottom: 12px;
 `;
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -114,12 +114,13 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
+    const ExpressionFieldComponent = ({ element, field, helpTipElement }: { element: Element, field: any, helpTipElement: React.JSX.Element }) => {
 
         return expressionEditorField !== getNameForController(element.name) ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
+                labelAdornment={helpTipElement}
                 placeholder={element.helpTip}
                 canChange={true}
                 required={element.required === 'true'}
@@ -134,6 +135,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                 <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
                     <label>{element.displayName}</label>
                     {element.required === "true" && <RequiredFormInput />}
+                    <div style={{ paddingTop: '5px' }}>
+                        {helpTipElement}
+                    </div>
                 </div>
                 <ExpressionEditor
                     value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
@@ -188,10 +192,48 @@ export function FormGenerator(props: FormGeneratorProps) {
         );
     }
 
+    function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: React.JSX.Element, field: any) {
+        return <ComponentCard sx={cardStyle} disbaleHoverEffect>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="h3">{element.displayName}</Typography>
+                {isRequired && (<RequiredFormInput />)}
+                <div style={{ paddingTop: '5px' }}>
+                    {helpTipElement}
+                </div>
+            </div>
+            <Typography variant="body3">{element.description}</Typography>
+
+            <ParamManager
+                paramConfigs={field.value}
+                readonly={false}
+                onChange={(values) => {
+                    values.paramValues = values.paramValues.map((param: any) => {
+                        const property: ParamValue[] = param.paramValues;
+                        param.key = property[0].value;
+                        param.value = (property[1].value as ExpressionFieldValue).value;
+                        param.icon = 'query';
+                        return param;
+                    });
+                    field.onChange(values);
+                }} />
+        </ComponentCard>;
+    }
+
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
         const isRequired = element.required === 'true';
         const errorMsg = errors[name] && errors[name].message.toString();
+        const helpTip = element.helpTip;
+
+        const helpTipElement = helpTip ? (
+            <Tooltip
+                content={helpTip}
+                position='right'
+            >
+                <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
+            </Tooltip>
+        ) : null;
+
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -200,6 +242,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (
                     <TextField {...field}
                         label={element.displayName}
+                        labelAdornment={helpTipElement}
                         size={50}
                         placeholder={element.helpTip}
                         required={isRequired}
@@ -222,37 +265,23 @@ export function FormGenerator(props: FormGeneratorProps) {
                         control={control}
                     />
                 );
-            case 'combo':
-                const comboitems = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
-                return (
-                    <AutoComplete
-                        name={getNameForController(element.name)}
-                        label={element.displayName}
-                        errorMsg={errorMsg}
-                        items={comboitems}
-                        value={field.value}
-                        onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }}
-                        required={isRequired}
-                        allowItemCreate={false}
-                    />
-                );
             case 'stringOrExpression':
             case 'stringOrExpresion':
             case 'textOrExpression':
             case 'textAreaOrExpression':
             case 'integerOrExpression':
-                return ExpressionFieldComponent({ element, field });
+                return ExpressionFieldComponent({ element, field, helpTipElement });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
+            case 'combo':
                 const items = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
                 const allowItemCreate = element.inputType === 'comboOrExpression';
                 return (
                     <AutoComplete
                         name={getNameForController(element.name)}
                         label={element.displayName}
+                        labelAdornment={helpTipElement}
                         errorMsg={errorMsg}
                         items={items}
                         value={field.value}
@@ -269,6 +298,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     value={field.value}
                     filterType={element.keyType as any}
                     label={element.displayName}
+                    labelAdornment={helpTipElement}
                     allowItemCreate={element.inputType === 'comboOrKey'}
                     onValueChange={field.onChange}
                     required={isRequired}
@@ -281,25 +311,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             }
             case 'ParamManager': {
                 return (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <Typography variant="h3">{element.displayName}</Typography>
-                        <Typography variant="body3">{element.description}</Typography>
-
-                        <ParamManager
-                            paramConfigs={field.value}
-                            readonly={false}
-                            onChange={(values) => {
-                                values.paramValues = values.paramValues.map((param: any) => {
-                                    const property: ParamValue[] = param.paramValues;
-                                    param.key = property[0].value;
-                                    param.value = (property[1].value as ExpressionFieldValue).value;
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                field.onChange(values);
-                            }}
-                        />
-                    </ComponentCard>
+                    ParamManagerComponent(element, isRequired, helpTipElement, field)
                 );
             }
             default:
@@ -464,7 +476,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                     renderControllerIfConditionMet(element)
                 );
             }
-            return null;
         });
     };
 
@@ -511,7 +522,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             );
         } else {
             if (getValues(name)) {
-                setValue(name, "")
+                setValue(name, undefined)
             }
         }
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import React, { useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Codicon, Container, RequiredFormInput, TextField, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
@@ -63,6 +63,7 @@ export interface ExpressionFieldValue {
 export interface ExpressionFieldProps {
     id?: string;
     label: string;
+    labelAdornment?: ReactNode;
     placeholder?: string;
     value?: ExpressionFieldValue;
     required?: boolean;
@@ -76,6 +77,7 @@ export interface ExpressionFieldProps {
 
 interface ExBtnComponentProps {
     label: string;
+    labelAdornment?: ReactNode;
     ref: React.Ref<HTMLInputElement>;
     required: boolean;
     disabled: boolean;
@@ -103,7 +105,7 @@ const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
 }
 
 const ExBtnComponent = (props: ExBtnComponentProps) => {
-    const { label, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange, errorMsg } = props;
+    const { label, labelAdornment, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange, errorMsg } = props;
 
     return <>
         <FlexLabelContainer>
@@ -118,6 +120,7 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
         <TextField
             placeholder={placeholder}
             label={label}
+            labelAdornment={labelAdornment}
             required={required}
             disabled={disabled}
             icon={{
@@ -136,7 +139,7 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
 }
 
 export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFieldProps>((props, ref) => {
-    const { label, placeholder, required, disabled, openExpressionEditor, onChange, canChange, errorMsg, sx } = props;
+    const { label, labelAdornment, placeholder, required, disabled, openExpressionEditor, onChange, canChange, errorMsg, sx } = props;
     let value = props.value;
     const [isExpression, setIsExpression] = React.useState(value?.isExpression || false);
 
@@ -161,6 +164,7 @@ export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFiel
     return <Container sx={sx}>
         <ExBtnComponent
             label={label}
+            labelAdornment={labelAdornment}
             ref={textFieldRef}
             required={required}
             disabled={disabled}

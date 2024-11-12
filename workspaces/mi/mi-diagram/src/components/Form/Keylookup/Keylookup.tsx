@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
@@ -52,6 +52,7 @@ interface IKeylookupBase {
     // AutoComplete props
     id?: string;
     label?: string;
+    labelAdornment?: ReactNode;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -355,6 +356,7 @@ export const Keylookup = (props: IKeylookup) => {
             ) : (
                 <ExpressionField
                     label={props.label}
+                    labelAdornment={props.labelAdornment}
                     placeholder={props.placeholder}
                     required={props.required}
                     disabled={props.disabled}
