@@ -97,6 +97,8 @@ export type ExpressionBarBaseProps = {
     getExpressionBarIcon?: () => ReactNode;
     // - Should display the default completion item at the top of the completion list
     showDefaultCompletion?: boolean;
+    // - Should auto select the first completion item in the list
+    autoSelectFirstItem?: boolean;
     // - Get default completion item to be displayed at the top of the completion list
     getDefaultCompletion?: () => ReactNode;
     // - The function to be called when a completion is selected
