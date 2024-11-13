@@ -236,7 +236,7 @@ export function Form(props: FormProps) {
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
-    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics | undefined>(undefined);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -245,6 +245,7 @@ export function Form(props: FormProps) {
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
             const defaultValues: FormValues = {};
+            const diagnosticsMap: FormDiagnostics[] = [];
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
@@ -253,7 +254,10 @@ export function Form(props: FormProps) {
                 } else {
                     defaultValues[field.key] = field.value ?? "";
                 }
+
+                diagnosticsMap.push({ key: field.key, diagnostics: [] });
             });
+            setDiagnosticsInfo(diagnosticsMap);
             reset(defaultValues);
         }
     }, [formFields, reset]);
@@ -319,6 +323,10 @@ export function Form(props: FormProps) {
         }
     };
 
+    const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
+        setDiagnosticsInfo([ ...diagnosticsInfo, diagnostics ])
+    }
+
     const handleGetExpressionDiagnostics = async (
         showDiagnostics: boolean,
         expression: string,
@@ -330,7 +338,7 @@ export function Form(props: FormProps) {
             showDiagnostics,
             expression,
             key,
-            setDiagnosticsInfo,
+            handleSetDiagnosticsInfo,
             isVariableNode,
             watch("type")
         );
@@ -372,27 +380,36 @@ export function Form(props: FormProps) {
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
 
     const isValid = useMemo(() => {
-        const key = diagnosticsInfo?.key;
-        if (!key) {
+        if (!diagnosticsInfo) {
             return true;
         }
 
-        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics || [];
-        if (diagnostics.length === 0) {
-            clearErrors(key);
-            return true;
-        } else {
-            const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
-            setError(key, { type: "validate", message: diagnosticsMessage });
+        let hasDiagnostics: boolean = true;
+        for (const diagnosticsInfoItem of diagnosticsInfo) {
+            const key = diagnosticsInfoItem.key;
+            if (!key) {
+                continue;
+            }
 
-            // If the severity is not ERROR, don't invalidate
-            const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
-            if (hasErrorDiagnostics) {
-                return false;
+            const diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
+            if (diagnostics.length === 0) {
+                clearErrors(key);
+                continue;
             } else {
-                return true;
+                const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+                setError(key, { type: "validate", message: diagnosticsMessage });
+    
+                // If the severity is not ERROR, don't invalidate
+                const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+                if (hasErrorDiagnostics) {
+                    hasDiagnostics = false;
+                } else {
+                    continue;
+                }
             }
         }
+
+        return hasDiagnostics;
     }, [diagnosticsInfo])
 
     const disableSaveButton = !isValid || isValidating;
