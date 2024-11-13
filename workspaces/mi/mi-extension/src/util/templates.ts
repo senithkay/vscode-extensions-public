@@ -16,7 +16,7 @@ export function escapeXml(text: string) {
     .replace(/"/g, '&quot;');
 };
 
-export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string) => `<?xml version="1.0" encoding="UTF-8"?>
+export const rootPomXmlContent = (projectName: string, groupID: string, artifactID: string, projectUuid: string, version: string, miVersion: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
@@ -390,7 +390,7 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.scm.id>integration-project</project.scm.id>
-    <project.runtime.version>4.3.0</project.runtime.version>
+    <project.runtime.version>${miVersion}</project.runtime.version>
     <dockerfile.base.image>wso2/wso2mi:\${project.runtime.version}</dockerfile.base.image>
   </properties>
 </project>`;
