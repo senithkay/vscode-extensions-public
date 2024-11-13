@@ -61,11 +61,17 @@ export function viewComponentCommand(context: ExtensionContext) {
 						for (const item of contextItems) {
 							if (item.orgHandle === selectedOrg.handle && item.projectHandle === selectedProject.handler) {
 								const matchingCts = item.contextDirs.find((ctxItem) => {
-									const componentPath = path.join(ctxItem.projectRootFsPath, selectedComponent.spec.source.github?.path!);
+									const componentPath = path.join(
+										ctxItem.projectRootFsPath,
+										selectedComponent.spec.source.github?.path || selectedComponent.spec.source.bitbucket?.path || "",
+									);
 									return existsSync(componentPath);
 								});
 								if (matchingCts) {
-									matchingPath = path.join(matchingCts.projectRootFsPath, selectedComponent.spec.source.github?.path!);
+									matchingPath = path.join(
+										matchingCts.projectRootFsPath,
+										selectedComponent.spec.source.github?.path || selectedComponent.spec.source.bitbucket?.path || "",
+									);
 									break;
 								}
 							}

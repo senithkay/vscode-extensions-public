@@ -46,6 +46,7 @@ import {
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
+	OpenExternalChoreo,
 	OpenSubDialogRequest,
 	type OpenTestViewReq,
 	type ProxyConfig,
@@ -158,6 +159,9 @@ function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | W
 	});
 	messenger.onRequest(OpenExternal, (url: string) => {
 		vscode.env.openExternal(vscode.Uri.parse(url));
+	});
+	messenger.onRequest(OpenExternalChoreo, (choreoPath: string) => {
+		vscode.env.openExternal(vscode.Uri.joinPath(vscode.Uri.parse(choreoEnvConfig.getConsoleUrl()), choreoPath));
 	});
 	messenger.onRequest(SetWebviewCache, async (params) => {
 		await ext.context.workspaceState.update(params.cacheKey, params.data);

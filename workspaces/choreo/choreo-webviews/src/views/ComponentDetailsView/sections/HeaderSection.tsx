@@ -35,7 +35,8 @@ export const HeaderSection: FC<
 			organization,
 		});
 
-	const openGitPage = () => ChoreoWebViewAPI.getInstance().openExternal(component.spec.source?.github?.repository);
+	const openGitPage = () =>
+		ChoreoWebViewAPI.getInstance().openExternal(component.spec.source?.github?.repository || component.spec.source?.bitbucket?.repository);
 
 	const { mutate: onDeleteComponent, isLoading: deletingComponent } = useMutation({
 		mutationFn: () =>

@@ -9,15 +9,16 @@
 
 import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import type {
-	ComponentKind,
-	ContextItem,
-	ContextItemDir,
-	ContextItemEnriched,
-	ContextStoreComponentState,
-	ContextStoreState,
-	Organization,
-	Project,
+import {
+	type ComponentKind,
+	type ContextItem,
+	type ContextItemDir,
+	type ContextItemEnriched,
+	type ContextStoreComponentState,
+	type ContextStoreState,
+	type Organization,
+	type Project,
+	parseGitURL,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { ProgressLocation, window, workspace } from "vscode";
@@ -25,7 +26,7 @@ import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { showProjectWorkspaceCreateNotification } from "../cmds/create-project-workspace-cmd";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { isSubpath } from "../utils";
 import { authStore } from "./auth-store";
 import { dataCacheStore } from "./data-cache-store";

@@ -529,3 +529,12 @@ export interface OpenApiSpec {
 	swagger: string | number;
 	servers?: { url?: string }[];
 }
+
+export interface CredentialItem {
+	id: string;
+	name: string;
+	createdAt: string;
+	organizationUuid: string;
+	type: string;
+	referenceToken: string;
+}

@@ -9,7 +9,7 @@
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { NewComponentWebviewProps } from "@wso2-enterprise/choreo-core";
+import { GitProvider, type NewComponentWebviewProps, parseGitURL, toSentenceCase } from "@wso2-enterprise/choreo-core";
 import React, { type FC, type ReactNode, useEffect } from "react";
 import type { SubmitHandler, UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
@@ -32,9 +32,11 @@ interface Props extends NewComponentWebviewProps {
 
 export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organization, directoryFsPath, form }) => {
 	const [compDetailsSections] = useAutoAnimate();
-	const [sourceDetailsSections] = useAutoAnimate();
 
 	const repoUrl = form.watch("repoUrl");
+	const credential = form.watch("credential");
+	const parsedRepo = parseGitURL(repoUrl);
+	const provider = parsedRepo ? parsedRepo[2] : null;
 
 	const {
 		data: gitData,
@@ -49,6 +51,21 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		refetchOnWindowFocus: true,
 		cacheTime: 0,
 	});
+
+	const { data: gitCredentials = [], isLoading: isLoadingGitCred } = useQuery({
+		queryKey: ["git-creds", { provider }],
+		queryFn: () =>
+			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getCredentials({ orgId: organization?.id?.toString(), orgUuid: organization.uuid }),
+		select: (gitData) => gitData?.filter((item) => item.type === provider),
+		refetchOnWindowFocus: true,
+		enabled: provider !== GitProvider.GITHUB,
+	});
+
+	useEffect(() => {
+		if (gitCredentials.length > 0 && (form.getValues("credential") || !gitCredentials.some((item) => item.id === form.getValues("credential")))) {
+			form.setValue("credential", gitCredentials[0]?.id);
+		}
+	}, [gitCredentials]);
 
 	const { data: subPath } = useQuery({
 		queryKey: ["sub-path", { gitRoot: gitData?.gitRoot }],
@@ -78,8 +95,8 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		data: branches = [],
 		refetch: refetchBranches,
 		isFetching: isFetchingBranches,
-	} = useGetGitBranches(repoUrl, organization, {
-		enabled: !!repoUrl,
+	} = useGetGitBranches(repoUrl, organization, provider !== GitProvider.GITHUB ? credential : "", {
+		enabled: !!repoUrl && (provider !== GitProvider.GITHUB ? !!credential : true),
 		refetchOnWindowFocus: true,
 	});
 
@@ -103,13 +120,16 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		data: isRepoAuthorizedResp,
 		refetch: refetchRepoAccess,
 	} = useQuery({
-		queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id }],
+		queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id, provider }],
 		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().isRepoAuthorized({
-				repoUrl: repoUrl,
-				orgId: organization.id.toString(),
-			}),
-		enabled: !!repoUrl,
+			ChoreoWebViewAPI.getInstance()
+				.getChoreoRpcClient()
+				.isRepoAuthorized({
+					repoUrl: repoUrl,
+					orgId: organization.id.toString(),
+					credRef: provider !== GitProvider.GITHUB ? credential : "",
+				}),
+		enabled: !!repoUrl && (provider !== GitProvider.GITHUB ? !!credential : true),
 		keepPreviousData: true,
 		refetchOnWindowFocus: true,
 	});
@@ -152,21 +172,44 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		}
 	}
 
+	if (!invalidRepoMsg && provider && provider !== GitProvider.GITHUB && !isLoadingGitCred && gitCredentials?.length === 0) {
+		onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().openExternalChoreo(`organizations/${organization.handle}/settings/credentials`);
+		invalidRepoMsg = `${toSentenceCase(provider)} credentials needs to be configured.`;
+		invalidRepoAction = "Configure Credentials";
+	}
+
 	if (!invalidRepoMsg && repoUrl && !isLoadingRepoAccess && !isRepoAuthorizedResp?.isAccessible) {
-		if (isRepoAuthorizedResp?.retrievedRepos) {
-			invalidRepoMsg = (
-				<span>
-					Choreo lacks access to the selected repository. <span className="font-thin">(Only public repos are allowed within the free tier.)</span>
-				</span>
-			);
-			invalidRepoAction = "Grant Access";
-			onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().triggerGithubInstallFlow(organization.id?.toString());
+		if (provider === GitProvider.GITHUB) {
+			if (isRepoAuthorizedResp?.retrievedRepos) {
+				invalidRepoMsg = (
+					<span>
+						Choreo lacks access to the selected repository. <span className="font-thin">(Only public repos are allowed within the free tier.)</span>
+					</span>
+				);
+				invalidRepoAction = "Grant Access";
+				onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().triggerGithubInstallFlow(organization.id?.toString());
+			} else {
+				invalidRepoMsg = "Please authorize Choreo to access your GitHub repositories.";
+				invalidRepoAction = "Authorize";
+				onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().triggerGithubAuthFlow(organization.id?.toString());
+				invalidRepoBannerType = "info";
+			}
 		} else {
-			invalidRepoMsg = "Please authorize Choreo to access your GitHub repositories.";
-			invalidRepoAction = "Authorize";
-			onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().triggerGithubAuthFlow(organization.id?.toString());
-			invalidRepoBannerType = "info";
+			onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().openExternalChoreo(`organizations/${organization.handle}/settings/credentials`);
+			if (isRepoAuthorizedResp?.retrievedRepos) {
+				invalidRepoMsg = (
+					<span>
+						Selected Credential does not have sufficient permissions.{" "}
+						<span className="font-thin">(Only public repos are allowed within the free tier.)</span>
+					</span>
+				);
+				invalidRepoAction = "Manage Credentials";
+			} else {
+				invalidRepoMsg = `Failed to retrieve ${toSentenceCase(provider)} repositories using the selected credential.`;
+				invalidRepoAction = "Manage Credentials";
+			}
 		}
+
 		onInvalidRepoRefreshClick = refetchRepoAccess;
 		onInvalidRepoRefreshing = isFetchingRepoAccess;
 	}
@@ -183,51 +226,59 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 					control={form.control}
 					wrapClassName="col-span-full"
 				/>
-				<div className="col-span-full grid gap-4 md:grid-cols-2" ref={sourceDetailsSections}>
-					{gitData?.remotes?.length > 0 && (
-						<Dropdown
-							label="Repository"
-							key="gen-details-repo"
-							required
-							name="repoUrl"
-							control={form.control}
-							items={gitData?.remotes}
-							loading={isLoadingGitData}
-						/>
-					)}
-					{invalidRepoMsg && (
-						<Banner
-							type={invalidRepoBannerType}
-							className="col-span-full md:order-last"
-							key="invalid-repo-banner"
-							title={invalidRepoMsg}
-							actionLink={invalidRepoAction && onInvalidRepoActionClick ? { title: invalidRepoAction, onClick: onInvalidRepoActionClick } : undefined}
-							refreshBtn={onInvalidRepoRefreshClick ? { onClick: onInvalidRepoRefreshClick, isRefreshing: onInvalidRepoRefreshing } : undefined}
-						/>
-					)}
-					{!invalidRepoMsg && !isLoadingBranches && branches?.length === 0 && (
-						<Banner
-							type="warning"
-							key="no-branches-banner"
-							className="col-span-full md:order-last"
-							title={"The selected remote repository has no branches. Please publish your local branch to the remote repository."}
-							refreshBtn={{ onClick: refetchBranches, isRefreshing: isFetchingBranches }}
-							actionLink={{ title: "Push Changes", onClick: pushChanges }}
-						/>
-					)}
-					{!invalidRepoMsg && gitData?.remotes?.length > 0 && (
-						<Dropdown
-							label="Branch"
-							key="gen-details-branch"
-							required
-							name="branch"
-							control={form.control}
-							items={branches}
-							disabled={branches?.length === 0 || !isRepoAuthorizedResp?.isAccessible}
-							loading={isLoadingBranches}
-						/>
-					)}
-				</div>
+				{gitData?.remotes?.length > 0 && (
+					<Dropdown
+						label="Repository"
+						key="gen-details-repo"
+						required
+						name="repoUrl"
+						control={form.control}
+						items={gitData?.remotes}
+						loading={isLoadingGitData}
+					/>
+				)}
+				{provider !== GitProvider.GITHUB && gitCredentials?.length > 0 && (
+					<Dropdown
+						label={`${toSentenceCase(provider)} Credential`}
+						key="gen-details-cred"
+						required
+						name="credential"
+						control={form.control}
+						items={gitCredentials?.map((item) => ({ value: item.id, label: item.name }))}
+						loading={isLoadingGitCred}
+					/>
+				)}
+				{!invalidRepoMsg && branches?.length > 0 && (
+					<Dropdown
+						label="Branch"
+						key="gen-details-branch"
+						required
+						name="branch"
+						control={form.control}
+						items={branches}
+						loading={isLoadingBranches}
+					/>
+				)}
+				{invalidRepoMsg && (
+					<Banner
+						type={invalidRepoBannerType}
+						className="col-span-full md:order-last"
+						key="invalid-repo-banner"
+						title={invalidRepoMsg}
+						actionLink={invalidRepoAction && onInvalidRepoActionClick ? { title: invalidRepoAction, onClick: onInvalidRepoActionClick } : undefined}
+						refreshBtn={onInvalidRepoRefreshClick ? { onClick: onInvalidRepoRefreshClick, isRefreshing: onInvalidRepoRefreshing } : undefined}
+					/>
+				)}
+				{!invalidRepoMsg && !isLoadingBranches && branches?.length === 0 && (
+					<Banner
+						type="warning"
+						key="no-branches-banner"
+						className="col-span-full md:order-last"
+						title={"The selected remote repository has no branches. Please publish your local branch to the remote repository."}
+						refreshBtn={{ onClick: refetchBranches, isRefreshing: isFetchingBranches }}
+						actionLink={{ title: "Push Changes", onClick: pushChanges }}
+					/>
+				)}
 			</div>
 
 			<div className="flex justify-end gap-3 pt-6 pb-2">

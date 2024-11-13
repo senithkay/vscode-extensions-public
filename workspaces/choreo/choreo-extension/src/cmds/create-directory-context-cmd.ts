@@ -11,11 +11,11 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmdirSync, unlinkSync
 import * as os from "os";
 import * as path from "path";
 import { dirname } from "path";
-import { CommandIds, type ContextItem, type Organization, type Project, type UserInfo } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ContextItem, type Organization, type Project, type UserInfo, parseGitURL } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { type ExtensionContext, ProgressLocation, Uri, commands, window, workspace } from "vscode";
 import { ext } from "../extensionVariables";
-import { getGitRemotes, getGitRoot, parseGitURL } from "../git/util";
+import { getGitRemotes, getGitRoot } from "../git/util";
 import { contextStore, waitForContextStoreToLoad } from "../stores/context-store";
 import { convertFsPathToUriPath, isSubpath, openDirectory } from "../utils";
 import { getUserInfoForCmd, resolveWorkspaceDirectory, selectOrg, selectProjectWithCreateNew } from "./cmd-utils";

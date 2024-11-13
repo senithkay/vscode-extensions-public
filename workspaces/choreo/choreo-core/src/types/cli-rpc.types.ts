@@ -18,6 +18,7 @@ import type {
 	ComponentKind,
 	ConnectionDetailed,
 	ConnectionListItem,
+	CredentialItem,
 	DeploymentLogsData,
 	DeploymentTrack,
 	Environment,
@@ -37,10 +38,16 @@ export interface BuildPackReq {
 export interface GetBranchesReq {
 	orgId: string;
 	repoUrl: string;
+	credRef: string;
+}
+export interface GetCredentialsReq {
+	orgId: string;
+	orgUuid: string;
 }
 export interface IsRepoAuthorizedReq {
 	orgId: string;
 	repoUrl: string;
+	credRef: string;
 }
 export interface GetComponentItemReq {
 	orgId: string;
@@ -77,6 +84,7 @@ export interface CreateComponentReq {
 	buildPackLang: string;
 	componentDir: string;
 	repoUrl: string;
+	gitCredRef: string;
 	branch: string;
 	langVersion: string;
 	dockerFile: string;
@@ -385,6 +393,7 @@ export interface IChoreoRPCClient {
 	getBuildPacks(params: BuildPackReq): Promise<Buildpack[]>;
 	getRepoBranches(params: GetBranchesReq): Promise<string[]>;
 	isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<IsRepoAuthorizedResp>;
+	getCredentials(params: GetCredentialsReq): Promise<CredentialItem[]>;
 	deleteComponent(params: DeleteCompReq): Promise<void>;
 	getBuilds(params: GetBuildsReq): Promise<BuildKind[]>;
 	createBuild(params: CreateBuildReq): Promise<BuildKind>;
@@ -440,6 +449,9 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	}
 	isRepoAuthorized(params: IsRepoAuthorizedReq): Promise<IsRepoAuthorizedResp> {
 		return this._messenger.sendRequest(ChoreoRpcIsRepoAuthorizedRequest, HOST_EXTENSION, params);
+	}
+	getCredentials(params: GetCredentialsReq): Promise<CredentialItem[]> {
+		return this._messenger.sendRequest(ChoreoRpcGetCredentialsRequest, HOST_EXTENSION, params);
 	}
 	deleteComponent(params: DeleteCompReq): Promise<void> {
 		return this._messenger.sendRequest(ChoreoRpcDeleteComponentRequest, HOST_EXTENSION, params);
@@ -535,6 +547,7 @@ export const ChoreoRpcCreateComponentRequest: RequestType<CreateComponentReq, Co
 export const ChoreoRpcGetBuildPacksRequest: RequestType<BuildPackReq, Buildpack[]> = { method: "rpc/component/getBuildPacks" };
 export const ChoreoRpcGetBranchesRequest: RequestType<GetBranchesReq, string[]> = { method: "rpc/repo/getBranches" };
 export const ChoreoRpcIsRepoAuthorizedRequest: RequestType<IsRepoAuthorizedReq, IsRepoAuthorizedResp> = { method: "rpc/repo/isRepoAuthorized" };
+export const ChoreoRpcGetCredentialsRequest: RequestType<GetCredentialsReq, CredentialItem[]> = { method: "rpc/repo/getCredentials" };
 export const ChoreoRpcDeleteComponentRequest: RequestType<DeleteCompReq, void> = { method: "rpc/component/delete" };
 export const ChoreoRpcCreateBuildRequest: RequestType<CreateBuildReq, BuildKind> = { method: "rpc/build/create" };
 export const ChoreoRpcGetDeploymentTracksRequest: RequestType<GetDeploymentTracksReq, DeploymentTrack[]> = {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ChoreoComponentType, ComponentDisplayType } from "./enums";
+import { ChoreoComponentType, ComponentDisplayType, GitProvider } from "./enums";
 import type { ComponentKind, Organization, Project } from "./types/common.types";
 
 export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
@@ -184,4 +184,43 @@ export const deepEqual = (obj1: any, obj2: any): boolean => {
 
 export const getRandomNumber = (min = 1, max = 1000) => {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+export const parseGitURL = (url?: string): null | [string, string, string] => {
+	let org: string;
+	let repoName: string;
+	let provider: string;
+	if (!url) {
+		return null;
+	}
+
+	if (url.startsWith("https://") || url.startsWith("http://")) {
+		const parts = url.split("/");
+		if (parts.length < 2) {
+			return null;
+		}
+		org = parts[parts.length - 2];
+		repoName = parts[parts.length - 1].replace(".git", "");
+	} else if (url.startsWith("git@")) {
+		const parts = url.split(":");
+		if (parts.length < 2) {
+			return null;
+		}
+		const orgRepo = parts[1].split("/");
+		if (orgRepo.length < 2) {
+			return null;
+		}
+		org = orgRepo[0];
+		repoName = orgRepo[1].replace(".git", "");
+	} else {
+		return null;
+	}
+
+	if (url.includes("bitbucket")) {
+		provider = GitProvider.BITBUCKET;
+	} else {
+		provider = GitProvider.GITHUB;
+	}
+
+	return [org, repoName, provider];
 };

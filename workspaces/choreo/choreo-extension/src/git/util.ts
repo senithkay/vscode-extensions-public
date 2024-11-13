@@ -10,7 +10,7 @@
 import { promises as fs, createReadStream } from "fs";
 import { basename, dirname, join, relative, sep } from "path";
 import type { Readable } from "stream";
-import { ChoreoComponentType, GitProvider } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, GitProvider, parseGitURL } from "@wso2-enterprise/choreo-core";
 import * as byline from "byline";
 import { type Disposable, type Event, EventEmitter, type ExtensionContext } from "vscode";
 import { getLogger } from "../logger/logger";
@@ -594,61 +594,6 @@ export const getGitRoot = async (context: ExtensionContext, directoryPath: strin
 		getLogger().error("Invalid Git Directory", err);
 		throw new Error("Not a Git directory");
 	}
-};
-
-export const parseGitURL = (url?: string): null | [string, string, string] => {
-	let org: string;
-	let repoName: string;
-	let provider: string;
-	if (!url) {
-		return null;
-	}
-
-	if (url.startsWith("https://") || url.startsWith("http://")) {
-		const parts = url.split("/");
-		if (parts.length < 2) {
-			return null;
-		}
-		org = parts[parts.length - 2];
-		repoName = parts[parts.length - 1].replace(".git", "");
-	} else if (url.startsWith("git@")) {
-		const parts = url.split(":");
-		if (parts.length < 2) {
-			return null;
-		}
-		const orgRepo = parts[1].split("/");
-		if (orgRepo.length < 2) {
-			return null;
-		}
-		org = orgRepo[0];
-		repoName = orgRepo[1].replace(".git", "");
-	} else {
-		return null;
-	}
-
-	if (url.includes("bitbucket")) {
-		provider = GitProvider.BITBUCKET;
-	} else {
-		provider = GitProvider.GITHUB;
-	}
-
-	return [org, repoName, provider];
-};
-
-export const isSameRepo = (gitUrl1?: string, gitUrl2?: string): boolean => {
-	const parsedUrl1 = parseGitURL(gitUrl1);
-	if (parsedUrl1 === null) {
-		return false;
-	}
-	const [gitOrg1, gitRepo1] = parsedUrl1;
-
-	const parsedUrl12 = parseGitURL(gitUrl2);
-	if (parsedUrl12 === null) {
-		return false;
-	}
-	const [gitOrg2, gitRepo2] = parsedUrl12;
-
-	return gitOrg1 === gitOrg2 && gitRepo1 === gitRepo2;
 };
 
 export const hasDirtyRepo = async (directoryPath: string, context: ExtensionContext): Promise<boolean> => {

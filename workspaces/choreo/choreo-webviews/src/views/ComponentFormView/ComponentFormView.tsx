@@ -14,13 +14,16 @@ import {
 	ChoreoBuildPackNames,
 	ChoreoComponentType,
 	ChoreoImplementationType,
+	type CreateComponentReq,
 	type Endpoint,
+	GitProvider,
 	type NewComponentWebviewProps,
 	type SubmitComponentCreateReq,
 	WebAppSPATypes,
 	getComponentTypeText,
 	getRandomNumber,
 	makeURLSafe,
+	parseGitURL,
 } from "@wso2-enterprise/choreo-core";
 import React, { type FC, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -71,7 +74,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const genDetailsForm = useForm<ComponentFormGenDetailsType>({
 		resolver: zodResolver(getComponentFormSchemaGenDetails(existingComponents), { async: true }, { mode: "async" }),
 		mode: "all",
-		defaultValues: { name: initialValues?.name || "", subPath: "", gitRoot: "", repoUrl: "", branch: "" },
+		defaultValues: { name: initialValues?.name || "", subPath: "", gitRoot: "", repoUrl: "", branch: "", credential: "" },
 	});
 
 	const name = genDetailsForm.watch("name");
@@ -149,34 +152,55 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 
 			const componentName = makeURLSafe(genDetails.name);
 
+			const parsedRepo = parseGitURL(genDetails.repoUrl);
+			const provider = parsedRepo ? parsedRepo[2] : null;
+
+			const createParams: Partial<CreateComponentReq> = {
+				orgId: organization.id.toString(),
+				orgUUID: organization.uuid,
+				projectId: project.id,
+				projectHandle: project.handler,
+				name: componentName,
+				displayName: genDetails.name,
+				type,
+				buildPackLang: buildDetails.buildPackLang,
+				componentDir: directoryFsPath,
+				repoUrl: genDetails.repoUrl,
+				branch: genDetails.branch,
+				langVersion: buildDetails.langVersion,
+				port: buildDetails.webAppPort,
+			};
+
+			if (provider !== GitProvider.GITHUB) {
+				createParams.gitCredRef = genDetails?.credential;
+			}
+
+			if (buildDetails.buildPackLang === ChoreoImplementationType.Docker) {
+				createParams.dockerFile = buildDetails.dockerFile.replace(/\\/g, "/");
+			}
+
+			if (WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames)) {
+				createParams.spaBuildCommand = buildDetails.spaBuildCommand;
+				createParams.spaNodeVersion = buildDetails.spaNodeVersion;
+				createParams.spaOutputDir = buildDetails.spaOutputDir;
+			}
+
+			if (type === ChoreoComponentType.ApiProxy) {
+				createParams.proxyAccessibility = "external"; // TODO: remove after CLI change
+				createParams.proxyApiContext =
+					gitProxyDetails.proxyContext?.charAt(0) === "/" ? gitProxyDetails.proxyContext.substring(1) : gitProxyDetails.proxyContext;
+				createParams.proxyApiVersion = gitProxyDetails.proxyVersion;
+				createParams.proxyEndpointUrl = gitProxyDetails.proxyTargetUrl;
+			}
+
+			console.log("createParams", createParams);
+
 			const createCompCommandParams: SubmitComponentCreateReq = {
 				org: organization,
 				project: project,
 				autoBuildOnCommit: type === ChoreoComponentType.ApiProxy ? false : buildDetails?.autoBuildOnCommit,
 				type,
-				createParams: {
-					orgId: organization.id.toString(),
-					orgUUID: organization.uuid,
-					projectId: project.id,
-					projectHandle: project.handler,
-					name: componentName,
-					displayName: genDetails.name,
-					type,
-					buildPackLang: buildDetails.buildPackLang,
-					componentDir: directoryFsPath,
-					repoUrl: genDetails.repoUrl,
-					branch: genDetails.branch,
-					langVersion: buildDetails.langVersion,
-					dockerFile: buildDetails.buildPackLang === ChoreoImplementationType.Docker ? buildDetails.dockerFile.replace(/\\/g, "/") : "",
-					port: buildDetails.webAppPort,
-					spaBuildCommand: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaBuildCommand : "",
-					spaNodeVersion: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaNodeVersion : "",
-					spaOutputDir: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaOutputDir : "",
-					proxyAccessibility: "external", // TODO: remove after CLI change
-					proxyApiContext: gitProxyDetails.proxyContext?.charAt(0) === "/" ? gitProxyDetails.proxyContext.substring(1) : gitProxyDetails.proxyContext,
-					proxyApiVersion: gitProxyDetails.proxyVersion,
-					proxyEndpointUrl: gitProxyDetails.proxyTargetUrl,
-				},
+				createParams: createParams as CreateComponentReq,
 			};
 
 			const created = await ChoreoWebViewAPI.getInstance().submitComponentCreate(createCompCommandParams);
@@ -311,7 +335,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 					<HeaderSection
 						title={`Create ${["a", "e", "i", "o", "u"].includes(componentTypeText[0].toLowerCase()) ? "an" : "a"} ${componentTypeText}`}
 						tags={[
-							{ label: "Source Directory", value: subPath && subPath !== '.' ? subPath : directoryName },
+							{ label: "Source Directory", value: subPath && subPath !== "." ? subPath : directoryName },
 							{ label: "Project", value: project.name },
 							{ label: "Organization", value: organization.name },
 						]}

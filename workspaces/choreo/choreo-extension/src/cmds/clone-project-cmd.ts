@@ -9,11 +9,10 @@
 
 import * as os from "os";
 import { join } from "path";
-import { CommandIds, type ComponentKind, GitProvider, type Organization, type Project } from "@wso2-enterprise/choreo-core";
+import { CommandIds, type ComponentKind, GitProvider, type Organization, type Project, parseGitURL } from "@wso2-enterprise/choreo-core";
 import { type ExtensionContext, ProgressLocation, type QuickPickItem, QuickPickItemKind, Uri, commands, window } from "vscode";
 import { ext } from "../extensionVariables";
 import { initGit } from "../git/main";
-import { parseGitURL } from "../git/util";
 import { authStore } from "../stores/auth-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { createDirectory, openDirectory } from "../utils";

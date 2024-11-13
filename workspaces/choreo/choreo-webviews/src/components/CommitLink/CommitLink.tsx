@@ -8,7 +8,7 @@
  */
 
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { getShortenedHash } from "@wso2-enterprise/choreo-core";
+import { GitProvider, getShortenedHash, parseGitURL } from "@wso2-enterprise/choreo-core";
 import classnames from "classnames";
 import React, { type FC, type HTMLProps } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
@@ -21,9 +21,18 @@ interface Props {
 }
 
 export const CommitLink: FC<Props> = ({ className, commitHash, commitMessage, repoPath }) => {
-	const openLink = () => {
-		ChoreoWebViewAPI.getInstance().openExternal(`${repoPath}/commit/${commitHash}`);
+	const openLink = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+		event.stopPropagation();
+
+		const parsedRepo = parseGitURL(repoPath);
+		const provider = parsedRepo ? parsedRepo[2] : null;
+		let commitUrl = `${repoPath}/commit/${commitHash}`;
+		if (provider === GitProvider.BITBUCKET) {
+			commitUrl = `${repoPath}/src/${commitHash}`;
+		}
+		ChoreoWebViewAPI.getInstance().openExternal(commitUrl);
 	};
+
 	return (
 		<VSCodeLink onClick={openLink} className={classnames("text-vsc-foreground", className)} title={`Open Commit (Commit Message: ${commitMessage})`}>
 			{getShortenedHash(commitHash)}

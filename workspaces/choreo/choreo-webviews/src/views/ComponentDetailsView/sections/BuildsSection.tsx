@@ -86,9 +86,9 @@ export const BuildsSection: FC<Props> = (props) => {
 					projectHandle: project.handler,
 					orgId: organization.id?.toString(),
 					displayType: component.spec.type,
-					gitRepoUrl: component.spec.source.github?.repository,
+					gitRepoUrl: component.spec.source.github?.repository || component.spec.source.bitbucket?.repository,
 					gitBranch: deploymentTrack?.branch,
-					subPath: component.spec.source.github?.path,
+					subPath: component.spec.source.github?.path || component?.spec?.source?.bitbucket?.path,
 				});
 			}
 		},
@@ -213,7 +213,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind; onViewBuildDetails: () => void
 				<CommitLink
 					commitHash={item.spec?.revision}
 					commitMessage={item.status?.gitCommit?.message}
-					repoPath={component?.spec?.source?.github?.repository}
+					repoPath={component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository}
 				/>
 			</GridColumnItem>
 			<GridColumnItem label="Status" index={2} lastItem>

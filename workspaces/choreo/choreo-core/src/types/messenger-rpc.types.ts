@@ -56,6 +56,7 @@ export const FileExists: RequestType<string, boolean> = { method: "fileExists" }
 export const ReadFile: RequestType<string, string | null> = { method: "readFile" };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: "executeCommand" };
 export const OpenExternal: RequestType<string, void> = { method: "openExternal" };
+export const OpenExternalChoreo: RequestType<string, void> = { method: "openExternalChoreo" };
 export const SelectCommitToBuild: RequestType<SelectCommitToBuildReq, CommitHistory | undefined> = { method: "selectCommitToBuild" };
 export const OpenComponentViewDrawer: RequestType<OpenComponentViewDrawerReq, void> = { method: "openComponentViewDrawer" };
 export const CloseComponentViewDrawer: RequestType<string, void> = { method: "closeComponentViewDrawer" };

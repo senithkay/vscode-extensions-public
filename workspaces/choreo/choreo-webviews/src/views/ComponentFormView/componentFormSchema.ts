@@ -14,11 +14,13 @@ import {
 	ChoreoImplementationType,
 	type ComponentKind,
 	EndpointType,
+	GitProvider,
 	GoogleProviderBuildPackNames,
 	type OpenApiSpec,
 	WebAppSPATypes,
 	capitalizeFirstLetter,
 	makeURLSafe,
+	parseGitURL,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
 import { z } from "zod";
@@ -34,6 +36,7 @@ export const componentGeneralDetailsSchema = z.object({
 	subPath: z.string(),
 	gitRoot: z.string(),
 	repoUrl: z.string().min(1, "Required"),
+	credential: z.string(),
 	branch: z.string().min(1, "Required"),
 });
 
@@ -181,6 +184,10 @@ export const getComponentFormSchemaGenDetails = (existingComponents: ComponentKi
 	componentGeneralDetailsSchema.partial().superRefine(async (data, ctx) => {
 		if (existingComponents.some((item) => item.metadata.name === makeURLSafe(data.name))) {
 			ctx.addIssue({ path: ["name"], code: z.ZodIssueCode.custom, message: "Name already exists" });
+		}
+		const parsed = parseGitURL(data.repoUrl);
+		if (parsed?.[2] && parsed[2] !== GitProvider.GITHUB && !data.credential) {
+			ctx.addIssue({ path: ["credential"], code: z.ZodIssueCode.custom, message: "Required" });
 		}
 	});
 
