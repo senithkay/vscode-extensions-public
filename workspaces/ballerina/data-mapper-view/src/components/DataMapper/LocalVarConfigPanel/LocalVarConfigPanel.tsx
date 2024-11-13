@@ -177,7 +177,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         <SidePanel
             isOpen={true}
             alignment="right"
-            sx={{transition: "all 0.3s ease-in-out", width: 600}}
+            sx={{ transition: "all 0.3s ease-in-out", width: 600, zIndex: 1000 }}
         >
             <SidePanelTitleContainer>
                 <div>Local Variables</div>
@@ -230,6 +230,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     appearance="primary"
                                     onClick={!hasDiagnostics ? onCancel : undefined}
                                     disabled={hasDiagnostics}
+                                    tooltip={hasDiagnostics ? "Fix errors to continue" : ""}
                                 >
                                     <div className={overlayClasses.doneButton}>Done</div>
                                 </Button>

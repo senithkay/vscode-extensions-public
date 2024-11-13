@@ -16,9 +16,16 @@ import type {
 	ComponentDeployment,
 	ComponentEP,
 	ComponentKind,
+	ConnectionDetailed,
+	ConnectionListItem,
+	DeploymentLogsData,
 	DeploymentTrack,
 	Environment,
+	MarketplaceItem,
+	Pagination,
 	Project,
+	ProjectBuildLogsData,
+	ProxyDeploymentInfo,
 } from "./common.types";
 import type { InboundConfig } from "./config-file.types";
 
@@ -42,6 +49,8 @@ export interface GetComponentItemReq {
 }
 export interface GetComponentsReq {
 	orgId: string;
+	orgHandle: string;
+	projectId: string;
 	projectHandle: string;
 }
 export interface CreateProjectReq {
@@ -59,6 +68,8 @@ export interface DeleteCompReq {
 }
 export interface CreateComponentReq {
 	orgId: string;
+	orgUUID: string;
+	projectId: string;
 	projectHandle: string;
 	name: string;
 	displayName: string;
@@ -73,6 +84,11 @@ export interface CreateComponentReq {
 	spaBuildCommand: string;
 	spaNodeVersion: string;
 	spaOutputDir: string;
+	proxyApiVersion: string;
+	proxyEndpointUrl: string;
+	proxyApiContext: string;
+	// todo: remove
+	proxyAccessibility: string;
 }
 export interface CreateConfigYamlReq {
 	componentDir: string;
@@ -81,9 +97,11 @@ export interface CreateConfigYamlReq {
 }
 export interface GetBuildsReq {
 	orgId: string;
+	componentId: string;
 	componentName: string;
-	projectHandle: string;
-	deploymentTrackId: string;
+	displayType: string;
+	branch: string;
+	apiVersionId: string;
 }
 export interface CreateBuildReq {
 	orgId: string;
@@ -101,7 +119,7 @@ export interface GetDeploymentTracksReq {
 	orgId: string;
 	orgHandler: string;
 	projectId: string;
-	componentId: string;
+	componentHandle: string;
 }
 export interface GetCommitsReq {
 	orgId: string;
@@ -133,16 +151,19 @@ export interface CreateDeploymentReq {
 	orgHandler: string;
 	componentName: string;
 	componentId: string;
+	componentHandle: string;
 	componentDisplayType: string;
 	projectHandle: string;
 	projectId: string;
-	deploymentTrackId: string;
+	versionId: string;
 	commitHash: string;
 	envName: string;
 	envId: string;
 	buildRef: string;
 	cronExpression?: string;
 	cronTimezone?: string;
+	proxyTargetUrl?: string;
+	proxySandboxUrl?: string;
 }
 export interface GetTestKeyReq {
 	apimId: string;
@@ -165,9 +186,199 @@ export interface GetTestKeyResp {
 	validityTime: number;
 }
 
+export interface MarketplaceListResp {
+	/** @format int64 */
+	count: number;
+	pagination: Pagination;
+	data: MarketplaceItem[];
+}
+
+export interface MarketplaceIdlResp {
+	environmentId: string;
+	// biome-ignore lint/suspicious/noExplicitAny: can be any type of data
+	content: any;
+	idlType: string;
+}
+
+export interface GetMarketplaceItemsParams {
+	/** @format int64 @default 20 */
+	limit?: number;
+	/**  Offset of the results. @default 0  */
+	offset?: number;
+	/** Sort by `name`, `createdTime`. By default sorted by `name` */
+	sortBy?: string;
+	/** Whether to sort in ascending order. By default `true`.  @default true */
+	sortAscending?: boolean;
+	/** Search within the content (description, summary and IDL) of the service. @default false */
+	searchContent?: boolean;
+	/** Filter services based on network visibility. Possible values are "project", "org", "public". @default "org" */
+	networkVisibilityFilter?: string;
+	/** Optionally filter services based on service name, description, summary and IDL. */
+	query?: string | null;
+	/** Optionally filter services based on tags. Multiple tags can be provided as a comma separated list. */
+	tags?: string | null;
+	/** Optionally filter services based on categories. Multiple categories can be provided as a comma separated list. */
+	categories?: string | null;
+	/** Optionally filter services based on whether they are third party or not. By default null, meaning this filter is not effective. */
+	isThirdParty?: boolean | null;
+	/** When networkVisibilityFilter is "project", this parameter can be used to filter services */
+	networkVisibilityprojectId?: string | null;
+}
+
+export interface GetMarketplaceListReq {
+	orgId: string;
+	request: GetMarketplaceItemsParams;
+}
+
+export interface GetMarketplaceIdlReq {
+	orgId: string;
+	serviceId: string;
+}
+
+export interface GetConnectionsReq {
+	orgId: string;
+	projectId: string;
+	componentId: string;
+}
+
+export interface GetConnectionItemReq {
+	orgId: string;
+	connectionGroupId: string;
+}
+
+export interface CreateComponentConnectionReq {
+	orgId: string;
+	orgUuid: string;
+	projectId: string;
+	componentId: string;
+	componentPath: string;
+	componentType: string;
+	serviceId: string;
+	serviceVisibility: string;
+	serviceSchemaId: string;
+	name: string;
+	generateCreds: boolean;
+}
+
+export interface DeleteConnectionReq {
+	orgId: string;
+	connectionId: string;
+	connectionName: string;
+	componentPath: string;
+}
+
+export interface GetConnectionGuideReq {
+	orgId: string;
+	orgUuid: string;
+	serviceId: string;
+	configGroupId: string;
+	connectionSchemaId: string;
+	audience: string;
+	isSpa: boolean;
+	isProjectLvlConnection: boolean;
+	buildpackType: string;
+	connectionName: string;
+	configFileType: string;
+}
+
+export interface GetAutoBuildStatusReq {
+	orgId: string;
+	componentId: string;
+	versionId: string;
+}
+
+export interface GetAutoBuildStatusResp {
+	autoBuildId: string;
+	autoBuildEnabled: boolean;
+	componentId: string;
+	versionId: string;
+	envId: string;
+}
+
+export interface ToggleAutoBuildReq {
+	orgId: string;
+	componentId: string;
+	versionId: string;
+	envId: string;
+}
+
+export interface GetConnectionGuideResp {
+	guide: string;
+}
+
+export interface ToggleAutoBuildResp {
+	success: boolean;
+}
+
+export interface GetProxyDeploymentInfoReq {
+	orgId: string;
+	orgHandler: string;
+	orgUuid: string;
+	componentId: string;
+	versionId: string;
+	envId: string;
+}
+
+export interface CheckWorkflowStatusReq {
+	orgId: string;
+	buildId: string;
+	envId: string;
+}
+
+export interface CancelApprovalReq {
+	orgId: string;
+	wkfInstanceId: string;
+}
+
+export interface RequestPromoteApprovalReq {
+	orgId: string;
+	orgHandler: string;
+	envId: string;
+	envName: string;
+	buildId: string;
+	projectId: string;
+	projectName: string;
+	requestComment: string;
+	componentName: string;
+	envFromId: string;
+	envFromName: string;
+}
+
+export interface PromoteProxyDeploymentReq {
+	orgId: string;
+	componentId: string;
+	apiId: string;
+	promoteFromEnvId: string;
+	envId: string;
+	buildId: string;
+}
+
+export interface CheckWorkflowStatusResp {
+	status: string;
+	wkfInstanceId: string;
+}
+
+export interface GetBuildLogsReq {
+	orgId: string;
+	orgHandler: string;
+	componentId: string;
+	displayType: string;
+	projectId: string;
+	buildId: number;
+}
+
+export interface GetBuildLogsForTypeReq {
+	orgId: string;
+	componentId: string;
+	logType: string;
+	buildId: number;
+}
+
 export interface IChoreoRPCClient {
-	getProjects(orgID: string): Promise<Project[]>;
 	getComponentItem(params: GetComponentItemReq): Promise<ComponentKind>;
+	getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
+	// can remove above ones
+	getProjects(orgID: string): Promise<Project[]>;
 	getComponentList(params: GetComponentsReq): Promise<ComponentKind[]>;
 	createProject(params: CreateProjectReq): Promise<Project>;
 	createComponent(params: CreateComponentReq): Promise<ComponentKind>;
@@ -177,7 +388,6 @@ export interface IChoreoRPCClient {
 	deleteComponent(params: DeleteCompReq): Promise<void>;
 	getBuilds(params: GetBuildsReq): Promise<BuildKind[]>;
 	createBuild(params: CreateBuildReq): Promise<BuildKind>;
-	getDeploymentTracks(params: GetDeploymentTracksReq): Promise<DeploymentTrack[]>;
 	getCommits(params: GetCommitsReq): Promise<CommitHistory[]>;
 	getEnvs(params: GetProjectEnvsReq): Promise<Environment[]>;
 	getComponentEndpoints(params: GetComponentEndpointsReq): Promise<ComponentEP[]>;
@@ -185,6 +395,23 @@ export interface IChoreoRPCClient {
 	createDeployment(params: CreateDeploymentReq): Promise<void>;
 	getTestKey(params: GetTestKeyReq): Promise<GetTestKeyResp>;
 	getSwaggerSpec(params: GetSwaggerSpecReq): Promise<object>;
+	getMarketplaceItems(params: GetMarketplaceListReq): Promise<MarketplaceListResp>;
+	getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp>;
+	getConnections(params: GetConnectionsReq): Promise<ConnectionListItem[]>;
+	getConnectionItem(params: GetConnectionItemReq): Promise<ConnectionListItem>;
+	createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed>;
+	deleteConnection(params: DeleteConnectionReq): Promise<void>;
+	getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp>;
+	getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp>;
+	enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
+	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp>;
+	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null>;
+	getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData | null>;
+	getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null>;
+	checkWorkflowStatus(params: CheckWorkflowStatusReq): Promise<CheckWorkflowStatusResp>;
+	cancelApprovalRequest(params: CancelApprovalReq): Promise<void>;
+	requestPromoteApproval(params: RequestPromoteApprovalReq): Promise<void>;
+	promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void>;
 }
 
 export class ChoreoRpcWebview implements IChoreoRPCClient {
@@ -247,6 +474,57 @@ export class ChoreoRpcWebview implements IChoreoRPCClient {
 	getSwaggerSpec(params: GetSwaggerSpecReq): Promise<object> {
 		return this._messenger.sendRequest(ChoreoRpcGetSwaggerRequest, HOST_EXTENSION, params);
 	}
+	getMarketplaceItems(params: GetMarketplaceListReq): Promise<MarketplaceListResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetMarketplaceItems, HOST_EXTENSION, params);
+	}
+	getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetMarketplaceItemIdl, HOST_EXTENSION, params);
+	}
+	getConnections(params: GetConnectionsReq): Promise<ConnectionListItem[]> {
+		return this._messenger.sendRequest(ChoreoRpcGetConnections, HOST_EXTENSION, params);
+	}
+	getConnectionItem(params: GetConnectionItemReq): Promise<ConnectionListItem> {
+		return this._messenger.sendRequest(ChoreoRpcGetConnectionItem, HOST_EXTENSION, params);
+	}
+	createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed> {
+		return this._messenger.sendRequest(ChoreoRpcCreateComponentConnection, HOST_EXTENSION, params);
+	}
+	deleteConnection(params: DeleteConnectionReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcDeleteConnection, HOST_EXTENSION, params);
+	}
+	getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetConnectionGuide, HOST_EXTENSION, params);
+	}
+	getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp> {
+		return this._messenger.sendRequest(ChoreoRpcGetAutoBuildStatus, HOST_EXTENSION, params);
+	}
+	enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		return this._messenger.sendRequest(ChoreoRpcEnableAutoBuild, HOST_EXTENSION, params);
+	}
+	disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		return this._messenger.sendRequest(ChoreoRpcDisableAutoBuild, HOST_EXTENSION, params);
+	}
+	getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null> {
+		return this._messenger.sendRequest(ChoreoRpcGetProxyDeploymentInfo, HOST_EXTENSION, params);
+	}
+	getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData | null> {
+		return this._messenger.sendRequest(ChoreoRpcGetBuildLogs, HOST_EXTENSION, params);
+	}
+	getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null> {
+		return this._messenger.sendRequest(ChoreoRpcGetBuildLogsForType, HOST_EXTENSION, params);
+	}
+	checkWorkflowStatus(params: CheckWorkflowStatusReq): Promise<CheckWorkflowStatusResp> {
+		return this._messenger.sendRequest(ChoreoRpcCheckWorkflowStatus, HOST_EXTENSION, params);
+	}
+	cancelApprovalRequest(params: CancelApprovalReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcCancelWorkflowApproval, HOST_EXTENSION, params);
+	}
+	requestPromoteApproval(params: RequestPromoteApprovalReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcRequestPromoteApproval, HOST_EXTENSION, params);
+	}
+	promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void> {
+		return this._messenger.sendRequest(ChoreoRpcPromoteProxyDeployment, HOST_EXTENSION, params);
+	}
 }
 
 export const ChoreoRpcGetProjectsRequest: RequestType<string, Project[]> = { method: "rpc/project/getProjects" };
@@ -272,3 +550,40 @@ export const ChoreoRpcGetDeploymentStatusRequest: RequestType<GetDeploymentStatu
 export const ChoreoRpcCreateDeploymentRequest: RequestType<CreateDeploymentReq, void> = { method: "rpc/deployment/create" };
 export const ChoreoRpcGetTestKeyRequest: RequestType<GetTestKeyReq, GetTestKeyResp> = { method: "rpc/apim/getTestKey" };
 export const ChoreoRpcGetSwaggerRequest: RequestType<GetSwaggerSpecReq, object> = { method: "rpc/apim/getSwaggerSpec" };
+export const ChoreoRpcGetMarketplaceItems: RequestType<GetMarketplaceListReq, MarketplaceListResp> = {
+	method: "rpc/connections/getMarketplaceItems",
+};
+export const ChoreoRpcGetMarketplaceItemIdl: RequestType<GetMarketplaceIdlReq, MarketplaceIdlResp> = {
+	method: "rpc/connections/getMarketplaceItemIdl",
+};
+export const ChoreoRpcGetConnections: RequestType<GetConnectionsReq, ConnectionListItem[]> = {
+	method: "rpc/connections/getConnections",
+};
+export const ChoreoRpcGetConnectionItem: RequestType<GetConnectionItemReq, ConnectionListItem> = {
+	method: "rpc/connections/getConnectionItem",
+};
+export const ChoreoRpcCreateComponentConnection: RequestType<CreateComponentConnectionReq, ConnectionDetailed> = {
+	method: "rpc/connections/createComponentConnection",
+};
+export const ChoreoRpcDeleteConnection: RequestType<DeleteConnectionReq, void> = { method: "rpc/connections/deleteConnection" };
+export const ChoreoRpcGetConnectionGuide: RequestType<GetConnectionGuideReq, GetConnectionGuideResp> = { method: "rpc/connections/getGuide" };
+export const ChoreoRpcGetAutoBuildStatus: RequestType<GetAutoBuildStatusReq, GetAutoBuildStatusResp> = { method: "rpc/build/getAutoBuildStatus" };
+export const ChoreoRpcEnableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/enableAutoBuild" };
+export const ChoreoRpcDisableAutoBuild: RequestType<ToggleAutoBuildReq, ToggleAutoBuildResp> = { method: "rpc/build/disableAutoBuild" };
+export const ChoreoRpcGetProxyDeploymentInfo: RequestType<GetProxyDeploymentInfoReq, ProxyDeploymentInfo | null> = {
+	method: "rpc/deployment/getProxyDeploymentInfo",
+};
+export const ChoreoRpcGetBuildLogs: RequestType<GetBuildLogsReq, DeploymentLogsData> = { method: "rpc/build/logs" };
+export const ChoreoRpcGetBuildLogsForType: RequestType<GetBuildLogsForTypeReq, ProjectBuildLogsData> = { method: "rpc/build/getLogsForType" };
+export const ChoreoRpcCheckWorkflowStatus: RequestType<CheckWorkflowStatusReq, CheckWorkflowStatusResp> = {
+	method: "rpc/deployment/checkWorkflowStatus",
+};
+export const ChoreoRpcCancelWorkflowApproval: RequestType<CancelApprovalReq, void> = {
+	method: "rpc/deployment/cancelApprovalRequest",
+};
+export const ChoreoRpcRequestPromoteApproval: RequestType<RequestPromoteApprovalReq, void> = {
+	method: "rpc/deployment/requestPromoteApproval",
+};
+export const ChoreoRpcPromoteProxyDeployment: RequestType<PromoteProxyDeploymentReq, void> = {
+	method: "rpc/deployment/promoteProxy",
+};

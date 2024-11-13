@@ -16,7 +16,7 @@ export class RemoveNodeVisitor implements BaseVisitor {
     private nodeId: string;
 
     constructor(originalFlowModel: Flow, nodeId: string) {
-        console.log(">>> remove node visitor started", { nodeId });
+        // console.log(">>> remove node visitor started", { nodeId });
         this.flow = originalFlowModel;
         this.nodeId = nodeId;
     }
@@ -57,7 +57,6 @@ export class RemoveNodeVisitor implements BaseVisitor {
         node.branches.forEach((branch) => {
             branch.children.forEach((child) => {
                 if (child.id === this.nodeId) {
-                    console.log(">>> if remove node", { target: child });
                     const index = branch.children.indexOf(child);
                     branch.children.splice(index, 1);
                     this.skipChildrenVisit = true;

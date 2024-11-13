@@ -116,8 +116,8 @@ namespace S {
         ${({ enabled }) => !enabled && "opacity: 0.5;"}
         &:hover {
             ${({ enabled }) =>
-                enabled &&
-                `
+            enabled &&
+            `
                 background-color: ${Colors.PRIMARY_CONTAINER};
                 border: 1px solid ${Colors.PRIMARY};
             `}
@@ -277,7 +277,7 @@ export function NodeList(props: NodeListProps) {
                 }
 
                 return (
-                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)}>
+                    <S.Component key={node.id + index} enabled={node.enabled} onClick={() => handleAddNode(node)} title={node.label}>
                         <S.IconContainer>{node.icon || <LogIcon />}</S.IconContainer>
                         <S.ComponentTitle>{node.label}</S.ComponentTitle>
                     </S.Component>
@@ -352,8 +352,8 @@ export function NodeList(props: NodeListProps) {
                             {group.items.length > 0 && "id" in group.items.at(0)
                                 ? getNodesContainer(group.items as Node[])
                                 : isConnectionCategory || isProjectFunctionsCategory
-                                ? getConnectionContainer(group.items as Category[])
-                                : getCategoryContainer(group.items as Category[], true)}
+                                    ? getConnectionContainer(group.items as Category[])
+                                    : getCategoryContainer(group.items as Category[], true)}
                         </S.CategoryRow>
                     );
                 })}

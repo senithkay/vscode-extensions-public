@@ -11,22 +11,28 @@ import { StateMachine } from '../stateMachine';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { ExtensionContext, commands, window, workspace } from 'vscode';
 import { SHARED_COMMANDS, BI_COMMANDS } from '@wso2-enterprise/ballerina-core';
+import { extension } from '../biExtentionContext';
 
 export function activateProjectExplorer(context: ExtensionContext, isBI: boolean) {
-	commands.executeCommand('setContext', 'BI.status', 'loading');
+	if (extension.langClient) {
+		commands.executeCommand('setContext', 'BI.status', 'loading');
+	}
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(isBI);
 	const projectTree = window.createTreeView(BI_COMMANDS.PROJECT_EXPLORER, { treeDataProvider: projectExplorerDataProvider });
 	if (isBI) {
 		commands.registerCommand(BI_COMMANDS.REFRESH_COMMAND, () => { projectExplorerDataProvider.refresh(); });
 		commands.executeCommand(BI_COMMANDS.FOCUS_PROJECT_EXPLORER);
 		commands.executeCommand(SHARED_COMMANDS.SHOW_VISUALIZER);
+		commands.executeCommand('setContext', 'BI.project', true);
 	}
 	projectTree.onDidChangeVisibility(res => {
 		if (res.visible) {
 			if (isBI) {
 				projectExplorerDataProvider.refresh();
 			} else {
-				commands.executeCommand('setContext', 'BI.status', 'unknownProject');
+				if (extension.langClient) {
+					commands.executeCommand('setContext', 'BI.status', 'unknownProject');
+				}
 				commands.executeCommand(SHARED_COMMANDS.OPEN_BI_WELCOME);
 			}
 		}

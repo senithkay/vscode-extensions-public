@@ -37,6 +37,7 @@ export const ChoreoWebviewQueryClientProvider = ({ type, children }: { type: str
 						queries: {
 							cacheTime: 1000 * 60 * 60 * 24 * 7 * 31, // 1 month
 							retry: false,
+							refetchOnWindowFocus: false,
 						},
 					},
 				})
