@@ -48,7 +48,7 @@ import * as ts from 'typescript';
 import { DMProject } from "../../datamapper/DMProject";
 import { DM_OPERATORS_FILE_NAME, DM_OPERATORS_IMPORT_NAME, DATAMAP_BACKEND_URL, READONLY_MAPPING_FUNCTION_NAME, USER_CHECK_BACKEND_URL } from "../../constants";
 import { refreshAuthCode } from '../../ai-panel/auth';
-import { fetchBackendUrl, openSignInView, readTSFile, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "./ai-datamapper-utils";
+import { fetchBackendUrl, openSignInView, readTSFile, removeMapFunctionEntry, makeRequest, showMappingEndNotification, showSignedOutNotification } from "../../util/ai-datamapper-utils";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -250,7 +250,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
     // Function to ask whether the user wants to replace all existing mappings with ai generated mappings
     async confirmMappingAction(): Promise<boolean> {
         // Define the message based on the action
-        let message = "This will replace any existing mapping, with AI. Are you sure?";
+        let message = "MI Copilot may modify existing mappings. Do you want to proceed?";
         // Show the confirmation dialog
         const response = await window.showInformationMessage(
             message,
