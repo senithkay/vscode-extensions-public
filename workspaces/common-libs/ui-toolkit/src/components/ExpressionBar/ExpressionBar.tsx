@@ -70,6 +70,7 @@ export type CompletionItem = {
     args?: string[];
     replacementSpan?: number;
     sortText?: string;
+    cursorOffset?: number;
 };
 
 export type ExpressionBarBaseProps = {
