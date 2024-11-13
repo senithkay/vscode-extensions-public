@@ -510,7 +510,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
         const suffix = value.substring(cursorPosition + suffixMatches[1].length);
-        const newCursorPosition = prefix.length + item.value.length;
+        const newCursorPosition = prefix.length + (item.cursorOffset || item.value.length);
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition);
