@@ -81,7 +81,6 @@ export function PathItem(props: PathItemProps) {
             };
         });
         onPathInitiatedChange(false);
-        onCurrentViewChange(Views.EDIT);
         handlePathItemChange({ ...updatedPathItem }, e.target.value ? e.target.value : '/');
     };
     const handlePathParametersChange = (parameters: (Parameter | ReferenceObject)[]) => {

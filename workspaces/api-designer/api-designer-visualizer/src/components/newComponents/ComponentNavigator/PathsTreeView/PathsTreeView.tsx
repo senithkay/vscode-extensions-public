@@ -13,6 +13,7 @@ import { TreeView } from '../../../Treeview/TreeView';
 import { PathTreeView } from '../PathTreeView/PathTreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { Views } from '../../../../constants';
 
 interface PathsTreeViewProps {
     openAPI: OpenAPI;
@@ -24,7 +25,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
     const { openAPI, paths, onPathTreeViewChange } = props;
     const { 
         props: { selectedComponent },
-        api: { onSelectedComponentChange, onPathInitiatedChange }
+        api: { onSelectedComponentChange, onPathInitiatedChange, onCurrentViewChange }
     } = useContext(APIDesignerContext);
 
     const handleAddPathMethod = (evt: React.MouseEvent) => {
@@ -49,6 +50,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
         };
         onPathTreeViewChange(openAPI);
         onPathInitiatedChange(true);
+        onCurrentViewChange(Views.EDIT);
         onSelectedComponentChange(`paths-component-${newPathVal}`);
     };
 
