@@ -21,9 +21,26 @@ export function Paths(props: PathsProps) {
     const { paths, onPathsChange } = props;
     const { 
         props: { selectedComponent },
+        api: { onSelectedComponentChange }
     } = useContext(APIDesignerContext);
     const handlePathsChange = (pathItem: PI, path: string) => {
-        onPathsChange({ ...paths, [path]: pathItem });
+        console.log(selectedComponent);
+        const previousPath = selectedComponent.split("-")[2];
+        if (previousPath !== path) {
+            const newPaths = Object.keys(paths).reduce((acc, key) => {
+                if (key === previousPath) {
+                    // Add new path item
+                    acc[path] = pathItem;
+                    return acc;
+                }
+                acc[key] = paths[key];
+                return acc;
+            }, {} as P);
+            onPathsChange(newPaths, path); // Call onPathsChange with the updated paths
+            onSelectedComponentChange(`paths-component-${path}`);
+        } else {
+            onPathsChange({ ...paths, [path]: pathItem });
+        }
     };
     const handleOperationsChange = (operation: O) => {
         onPathsChange({ 

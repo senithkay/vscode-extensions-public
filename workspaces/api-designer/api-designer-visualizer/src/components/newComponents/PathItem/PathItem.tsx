@@ -8,7 +8,7 @@
  */
 import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { PathItem as P } from '../../../Definitions/ServiceDefinitions';
+import { PathItem as P, Parameter, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useState } from 'react';
 import { getColorByMethod } from '../../Utils/OpenAPIUtils';
@@ -58,6 +58,35 @@ export function PathItem(props: PathItemProps) {
     const handlePathItemChange = (pathItem: P, path: string) => {
         onPathItemChange(pathItem, path);
     };
+    const handlePathFieldChange = (e: any) => {
+        const matches = e.target.value.match(/{(.*?)}/g); // Match all segments within curly braces
+        const pathSegments = matches ? matches.map((match: string) => match.replace(/[{}]/g, '')) : [];
+        // Update the path item with the new path parameters if it is not included
+        let updatedPathItem = { ...pathItem };
+        updatedPathItem.parameters = pathSegments.map((segment: string) => {
+            return {
+                name: segment,
+                in: "path",
+                required: true,
+                description: "",
+                schema: {
+                    type: "string",
+                },
+            };
+        });
+        handlePathItemChange({ ...updatedPathItem }, e.target.value);
+    };
+    const handlePathParametersChange = (parameters: (Parameter | ReferenceObject)[]) => {
+        // Construct the new path item with the updated path parameters
+        const newPathParamString = parameters
+            .filter((param) => param.in === 'path')
+            .map((param) => `{${param.name}}`)
+            .join('/');
+        const pathWithoutParams = path.replace(/{(.*?)}/g, '').replace(/\/+$/, ''); // Remove existing path parameters and trailing slashes
+        const newPath = newPathParamString ? `${pathWithoutParams}/${newPathParamString}` : path;
+        handlePathItemChange({ ...pathItem, parameters }, newPath);
+    };
+
     const handleOptionChange = (options: string[]) => {
         // Update the path item with the selected options
         let updatedPathItem = { ...pathItem };
@@ -138,8 +167,8 @@ export function PathItem(props: PathItemProps) {
                 id="path"
                 sx={{ width: "100%" }}
                 value={path}
-                forceAutoFocus
-                onBlur={(e) => handlePathItemChange({ ...pathItem }, e.target.value)}
+                autoFocus
+                onBlur={handlePathFieldChange}
             />
             {selectedOptions.includes("Summary") && (
                 <TextField
@@ -177,7 +206,7 @@ export function PathItem(props: PathItemProps) {
                 title='Path Parameters'
                 type='path'
                 parameters={pathItem.parameters}
-                onParametersChange={(parameters) => handlePathItemChange({ ...pathItem, parameters }, path)}
+                onParametersChange={(parameters) => handlePathParametersChange(parameters)}
             />
             <Parameters
                 title='Query Parameters'
