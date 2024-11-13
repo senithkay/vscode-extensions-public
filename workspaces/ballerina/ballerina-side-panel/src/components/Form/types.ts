@@ -23,7 +23,8 @@ export type FormField = {
     editable: boolean;
     placeholder?: string;
     documentation: string;
-    value: string;
+    value: string | any[];
+    valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
     paramManagerProps?: ParamConfig;

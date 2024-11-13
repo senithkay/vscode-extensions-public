@@ -19,6 +19,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import * as os from 'os';
+import { writeBallerinaFileDidOpen } from '../../utils/modification';
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
 
@@ -115,15 +116,7 @@ export async function getDiagnostics(
         fs.mkdirSync(tempTestFolderPath, { recursive: true });
     }
     const tempTestFilePath = path.join(tempTestFolderPath, 'test.bal');
-    fs.writeFileSync(tempTestFilePath, testSource.testContent, 'utf8');
-    langClient.didOpen({
-        textDocument: {
-            uri: Uri.file(tempTestFilePath).toString(),
-            languageId: 'ballerina',
-            version: 1,
-            text: testSource.testContent
-        }
-    });
+    writeBallerinaFileDidOpen(tempTestFilePath, testSource.testContent);
 
     const diagnosticsResult = await langClient.getDiagnostics({ documentIdentifier: { uri: Uri.file(tempTestFilePath).toString() } });
     fs.rmSync(tempDir, { recursive: true, force: true });

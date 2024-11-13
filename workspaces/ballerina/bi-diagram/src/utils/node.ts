@@ -60,3 +60,15 @@ export function nodeHasError(node: FlowNode) {
 
     return false;
 }
+
+export function getNodeTitle(node: FlowNode) {
+    const label = node.metadata.label.includes(".") ? node.metadata.label.split(".").pop() : node.metadata.label;
+
+    if (node.codedata?.org === "ballerina" || node.codedata?.org === "ballerinax") {
+        const module = node.codedata.module.includes(".")
+            ? node.codedata.module.split(".").pop()
+            : node.codedata.module;
+        return `${module} : ${label}`;
+    }
+    return label;
+}

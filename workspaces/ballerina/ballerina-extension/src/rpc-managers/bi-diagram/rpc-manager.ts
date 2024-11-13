@@ -43,6 +43,8 @@ import {
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
     FlowNode,
     OverviewFlow,
     ProjectComponentsResponse,
@@ -79,6 +81,7 @@ import { StateMachine, openView, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
+import { writeBallerinaFileDidOpen } from "../../utils/modification";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
 
@@ -94,7 +97,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             }
 
             const params: BIFlowModelRequest = {
-                filePath: Uri.parse(context.documentUri!).fsPath,
+                filePath: context.documentUri,
                 startLine: {
                     line: context.position.startLine ?? 0,
                     offset: context.position.startColumn ?? 0,
@@ -156,7 +159,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.parse(key);
+            const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
             const edits = value;
 
@@ -187,8 +190,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         }
 
         // Iterate through modificationRequests and apply modifications
-        for (const [fileUriString, request] of Object.entries(modificationRequests)) {
-            const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+        try {
+            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
                 documentIdentifier: { uri: fileUriString },
                 astModifications: request.modifications,
             })) as SyntaxTree;
@@ -219,7 +223,10 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                         position: functionPosition,
                     });
                 }
+                }
             }
+        } catch (error) {
+            console.log(">>> error updating source", error);
         }
         if (!isConnector && !isDataMapperFormUpdate) {
             updateView();
@@ -428,7 +435,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 }
 
                 const request: BISuggestedFlowModelRequest = {
-                    filePath: Uri.parse(context.documentUri!).fsPath,
+                    filePath: context.documentUri,
                     startLine: {
                         line: context.position.startLine ?? 0,
                         offset: context.position.startColumn ?? 0,
@@ -551,7 +558,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
                 const connectionsBalPath = path.join(StateMachine.context().projectUri, "connections.bal");
                 // Write the generated import statements to connections.bal
-                fs.writeFileSync(connectionsBalPath, importStatements.join("\n"));
+                writeBallerinaFileDidOpen(connectionsBalPath, importStatements.join("\n"));
                 // Append the generated connection lines to connections.bal
                 fs.appendFileSync(connectionsBalPath, `\n\n${connectionLines.join("\n")}`);
                 console.log("Generated import statements and connection lines written to connections.bal");
@@ -608,15 +615,13 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequest = params;
             params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
-            
-            if (!fs.existsSync(params.configFilePath)) {
-                
-                // Create config.bal if it doesn't exist
-                fs.writeFileSync(params.configFilePath, "\n");
-                await new Promise((resolve) => setTimeout(resolve, 3000));
 
+            if (!fs.existsSync(params.configFilePath)) {
+
+                // Create config.bal if it doesn't exist
+                writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
-            
+
             const response = await StateMachine.langClient().updateConfigVariables(req) as BISourceCodeResponse;
             this.updateSource(response, undefined, false);
             resolve(response);
@@ -735,7 +740,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             }
 
             const params: BIModuleNodesRequest = {
-                filePath: Uri.parse(context.projectUri!).fsPath,
+                filePath: context.projectUri,
             };
 
             StateMachine.langClient()
@@ -785,7 +790,16 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             task: 'run'
         };
 
-        const buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+        let buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+
+        // Get Ballerina home path from settings
+        const config = workspace.getConfiguration('kolab');
+        const ballerinaHome = config.get<string>('home');
+        if (ballerinaHome) {
+            // Add ballerina home to build path only if it's configured
+            buildCommand = path.join(ballerinaHome, 'bin', buildCommand);
+        }
+
         const execution = new ShellExecution(buildCommand);
 
         const task = new Task(
@@ -869,7 +883,20 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
-                });   
+                });
+        });
+    }
+
+    async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getExpressionDiagnostics(params)
+                .then((diagnostics) => {
+                    resolve(diagnostics);
+                })
+                .catch((error) => {
+                    reject("Error fetching expression diagnostics from ls");
+                });
         });
     }
 }

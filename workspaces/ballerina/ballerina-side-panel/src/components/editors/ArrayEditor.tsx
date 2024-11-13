@@ -9,41 +9,40 @@
 
 import React, { useEffect, useState } from "react";
 
-import { Button, Codicon, Dropdown } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, TextField } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 import { FormField } from "../Form/types";
-import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
 import { Colors } from "../../resources/constants";
 
 namespace S {
     export const Container = styled.div({
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px',
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
     });
 
     export const LabelContainer = styled.div({
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
     });
 
     export const Label = styled.label({
-        color: 'var(--vscode-editor-foreground)',
-        textTransform: 'capitalize',
+        color: "var(--vscode-editor-foreground)",
+        textTransform: "capitalize",
     });
 
     export const Description = styled.div({
-        color: 'var(--vscode-list-deemphasizedForeground)',
+        color: "var(--vscode-list-deemphasizedForeground)",
     });
 
-    export const DropdownContainer = styled.div({
-        display: 'flex',
-        gap: '8px',
-        alignItems: 'center',
-        width: '100%',
+    export const EditorContainer = styled.div({
+        display: "flex",
+        gap: "8px",
+        alignItems: "center",
+        width: "100%",
     });
 
     export const AddNewButton = styled(Button)`
@@ -52,10 +51,10 @@ namespace S {
             border-radius: 0px;
             padding: 3px 5px;
             margin-top: 4px;
-        };
+        }
         & > vscode-button > * {
             margin-right: 6px;
-        };
+        }
     `;
 
     export const DeleteButton = styled(Button)`
@@ -65,37 +64,36 @@ namespace S {
     `;
 }
 
-interface MultiSelectEditorProps {
+interface ArrayEditorProps {
     field: FormField;
     label: string;
 }
 
-export function MultiSelectEditor(props: MultiSelectEditorProps) {
+export function ArrayEditor(props: ArrayEditorProps) {
     const { field, label } = props;
     const { form } = useFormContext();
     const { register, unregister, setValue, watch } = form;
 
-    const noOfSelectedValues = field.value === "" ? 1 : field.value.length;
-    const [dropdownCount, setDropdownCount] = useState(noOfSelectedValues);
+    // Initialize with array values or empty array
+    const initialValues = Array.isArray(field.value) ? field.value : [];
+    const [editorCount, setEditorCount] = useState(Math.max(initialValues.length, 1));
 
-    // Watch all the individual dropdown values, including the default value
-    const values = [...Array(dropdownCount)].map((_, index) => {
-        const value = watch(`${field.key}-${index}`);
-        return value || getValueForDropdown(field, index);
-    }).filter(Boolean);
+    // Watch all the individual text field values
+    const values = [...Array(editorCount)]
+        .map((_, index) => {
+            const value = watch(`${field.key}-${index}`);
+            // Use the initial array value if available, otherwise undefined
+            return value ?? (Array.isArray(field.value) ? field.value[index] : undefined);
+        })
+        .filter(Boolean);
 
-    // Update the main field with the array of values
+    // Update the main field.value array whenever individual fields change
     useEffect(() => {
         setValue(field.key, values);
     }, [values, field.key, setValue]);
 
-    // HACK: create values for Scope field
-    if (field.key === "scope") {
-        field.items = ["Global", "Local"];
-    }
-
     const onAddAnother = () => {
-        setDropdownCount((prev) => prev + 1);
+        setEditorCount((prev) => prev + 1);
     };
 
     const onDelete = (indexToDelete: number) => {
@@ -103,16 +101,16 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         unregister(`${field.key}-${indexToDelete}`);
 
         // Unregister and re-register fields after the deleted index to shift them up
-        for (let i = indexToDelete + 1; i < dropdownCount; i++) {
+        for (let i = indexToDelete + 1; i < editorCount; i++) {
             const value = watch(`${field.key}-${i}`);
             unregister(`${field.key}-${i}`);
-            setValue(`${field.key}-${i-1}`, value);
+            setValue(`${field.key}-${i - 1}`, value);
         }
 
         // Update the main field value
         const newValues = values.filter((_, i) => i !== indexToDelete);
         setValue(field.key, newValues);
-        setDropdownCount(prev => prev - 1);
+        setEditorCount((prev) => prev - 1);
     };
 
     return (
@@ -121,19 +119,18 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                 <S.Label>{field.label}</S.Label>
             </S.LabelContainer>
             <S.Description>{field.documentation}</S.Description>
-            {[...Array(dropdownCount)].map((_, index) => (
-                <S.DropdownContainer key={`${field.key}-${index}`}>
-                    <Dropdown
+            {[...Array(editorCount)].map((_, index) => (
+                <S.EditorContainer key={`${field.key}-${index}`}>
+                    <TextField
                         id={`${field.key}-${index}`}
-                        {...register(`${field.key}-${index}`, { 
+                        {...register(`${field.key}-${index}`, {
                             required: !field.optional && index === 0,
-                            value: getValueForDropdown(field, index)
+                            // Initialize with value from the array if available
+                            value: Array.isArray(field.value) ? field.value[index] : '',
                         })}
-                        items={field.items?.map((item) => ({ id: item, content: item, value: item }))}
                         required={!field.optional && index === 0}
                         disabled={!field.editable}
                         sx={{ width: "100%" }}
-                        containerSx={{ width: "100%" }}
                     />
                     {
                         <S.DeleteButton
@@ -145,13 +142,9 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
                             <Codicon name="trash" />
                         </S.DeleteButton>
                     }
-                </S.DropdownContainer>
+                </S.EditorContainer>
             ))}
-            <S.AddNewButton
-                appearance='icon'
-                aria-label="add"
-                onClick={onAddAnother}
-            >
+            <S.AddNewButton appearance="icon" aria-label="add" onClick={onAddAnother}>
                 <Codicon name="add" />
                 {label}
             </S.AddNewButton>

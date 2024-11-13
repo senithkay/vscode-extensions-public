@@ -116,7 +116,7 @@ export function filterCompletions(
             let param: string = '';
     
             details.displayParts.forEach((part) => {
-                if (part.kind === 'parameterName' || part.text === '...') {
+                if (part.kind === 'parameterName' || part.text === '...' || part.text === '?') {
                     param += part.text;
                 } else if (param && part.text === ':') {
                     params.push(param);
@@ -131,9 +131,10 @@ export function filterCompletions(
                 tag: itemTag,
                 label: entry.name,
                 description: details.documentation?.[0]?.text,
-                value: action + entry.name,
+                value: action + entry.name + '()',
                 kind: details.kind as CompletionItemKind,
-                args: params
+                args: params,
+                cursorOffset: (action + entry.name).length + (params.filter(param => !param.includes('?')).length ? 1 : 2)
             }
         } else if (localFunctionNames.includes(entry.name)) {
             completionItem = {

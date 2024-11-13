@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.3.1",
+    "version": "0.3.5",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"

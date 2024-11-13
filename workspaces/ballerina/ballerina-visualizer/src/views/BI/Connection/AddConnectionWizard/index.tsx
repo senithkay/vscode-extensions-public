@@ -52,12 +52,12 @@ enum WizardStep {
 
 interface AddConnectionWizardProps {
     fileName: string; // file path of `connection.bal`
-    linePosition?: LinePosition;
+    target?: LinePosition;
     onClose?: () => void;
 }
 
 export function AddConnectionWizard(props: AddConnectionWizardProps) {
-    const { fileName, linePosition, onClose } = props;
+    const { fileName, target, onClose } = props;
     const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
@@ -81,7 +81,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
         rpcClient
             .getBIDiagramRpcClient()
             .getNodeTemplate({
-                position: linePosition || null,
+                position: target || null,
                 filePath: fileName,
                 id: connector.codedata,
             })
@@ -144,8 +144,8 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 connectionsFilePath = visualizerLocation.documentUri;
                 updatedNode.codedata.lineRange = {
                     fileName: visualizerLocation.documentUri,
-                    startLine: linePosition,
-                    endLine: linePosition,
+                    startLine: target,
+                    endLine: target,
                 };
             }
 
@@ -269,6 +269,7 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         <ConnectionConfigView
                             fileName={fileName}
                             fields={fields}
+                            selectedNode={selectedNodeRef.current}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
