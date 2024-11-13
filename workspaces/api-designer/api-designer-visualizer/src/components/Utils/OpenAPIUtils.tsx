@@ -347,3 +347,13 @@ export function getIdenticalParamName(params: Param[], prefix: string): string {
     }
     return newName;
 }
+
+export function getAllComponents(openApi: OpenAPI): string[] {
+    const schemas = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
+    const parameters = openApi?.components?.parameters ? Object.keys(openApi.components.parameters) : [];
+    const headers = openApi?.components?.headers ? Object.keys(openApi.components.headers) : [];
+    const responses = openApi?.components?.responses ? Object.keys(openApi.components.responses) : [];
+    const requestBodies = openApi?.components?.requestBodies ? Object.keys(openApi.components.requestBodies) : [];
+    
+    return [...schemas, ...parameters, ...headers, ...responses, ...requestBodies];
+}

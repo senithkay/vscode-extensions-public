@@ -15,6 +15,7 @@ import { SplitView } from '../../SplitView/SplitView';
 import { Tabs } from '../../Tabs/Tabs';
 import { Views } from '../../../constants';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { getAllComponents } from '../../Utils/OpenAPIUtils';
 
 const SplitViewContainer = styled.div`
     display: flex;
@@ -36,14 +37,13 @@ export function ApiDesigner(props: ApiDesignerProps) {
     const { openApi, isEditMode, openAPIVersion, onOpenApiChange } = props;
     const [selectedComponent, setSelectedComponent] = useState<string | undefined>("overview");
     const [currentView, setCurrentView] = useState(isEditMode ? Views.EDIT : Views.READ_ONLY);
-    const schemaComponents = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
 
     const contextValue = {
         props: {
             openAPIVersion: openAPIVersion,
             openAPI: openApi,
             selectedComponent,
-            schemaComponents,
+            components: getAllComponents(openApi),
             currentView,
         },
         api: {

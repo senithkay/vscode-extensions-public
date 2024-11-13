@@ -15,7 +15,7 @@ export interface APIDesignerContext {
         openAPIVersion: string;
         openAPI: OpenAPI;
         selectedComponent?: string | undefined;
-        schemaComponents?: string[];
+        components?: string[];
         view?: Views;
         currentView?: Views;
     };

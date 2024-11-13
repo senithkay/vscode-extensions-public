@@ -9,6 +9,8 @@
 import { Button, Codicon, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;
@@ -34,10 +36,16 @@ const ButtonWrapperParams = styled.div`
 `;
 export function ReferenceObject(props: ReferenceObjectsProps) {
     const { id, referenceObject, referenceObjects, onRemoveReferenceObject, onRefernceObjectChange } = props;
+    const { 
+        props: { components },
+    } = useContext(APIDesignerContext); 
 
     const handleParameterChange = (parameter: R) => {
         onRefernceObjectChange(parameter);
     };
+
+    const referenceObjectsList = referenceObjects ? referenceObjects?.map((item) => ({ value: item, label: item })) : 
+        components?.map((item) => ({ value: item, label: item }));
 
     return (
         <HorizontalFieldWrapper>
@@ -45,7 +53,7 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
                 id={`paramType-${referenceObject.$ref}`}
                 value={referenceObject.$ref}
                 containerSx={{ width: "35%" }}
-                items={referenceObjects?.map((item) => ({ value: item, label: item }))}
+                items={referenceObjectsList}
                 onValueChange={(value) => handleParameterChange({ ...referenceObject, $ref: value })}
             />
             <TextField
