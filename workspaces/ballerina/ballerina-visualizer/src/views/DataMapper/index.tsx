@@ -7,28 +7,38 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+
+import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { STModification, HistoryEntry } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { RecordEditor, StatementEditorComponentProps } from "@wso2-enterprise/record-creator";
+import { useExperimentalEnabled } from "../../Hooks";
+import { LoadingRing } from "../../components/Loader";
 
 interface DataMapperProps {
     filePath: string;
     model: FunctionDefinition;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
+    isBI: boolean;
+    applyModifications: (modifications: STModification[], isRecordModification?: boolean) => Promise<void>;
 }
 
 export function DataMapper(props: DataMapperProps) {
-    const { filePath, model, applyModifications } = props;
-    const { rpcClient } = useVisualizerContext();
-    const langServerRpcClient = rpcClient.getLangServerRpcClient();
+    const { filePath, model, isBI, applyModifications } = props;
+    const { rpcClient } = useRpcContext();
+    const langServerRpcClient = rpcClient.getLangClientRpcClient();
     const libraryBrowserRPCClient = rpcClient.getLibraryBrowserRPCClient();
     const recordCreatorRpcClient = rpcClient.getRecordCreatorRpcClient();
 
+    const { experimentalEnabled, isFetchingExperimentalEnabled } = useExperimentalEnabled();
+
     const goToFunction = async (entry: HistoryEntry) => {
         rpcClient.getVisualizerRpcClient().addToHistory(entry);
+    };
+
+    const applyRecordModifications = async (modifications: STModification[]) => {
+        await props.applyModifications(modifications, true);
     };
 
     const renderRecordPanel = (props: {
@@ -41,9 +51,14 @@ export function DataMapper(props: DataMapperProps) {
                 onCancel={props.closeAddNewRecord}
                 recordCreatorRpcClient={recordCreatorRpcClient}
                 {...props}
+                applyModifications={applyRecordModifications}
             />
         );
     };
+
+    if (isFetchingExperimentalEnabled) {
+        return <LoadingRing />;
+    }
 
     return (
         <DataMapperView
@@ -54,6 +69,8 @@ export function DataMapper(props: DataMapperProps) {
             applyModifications={applyModifications}
             goToFunction={goToFunction}
             renderRecordPanel={renderRecordPanel}
+            isBI={isBI}
+            experimentalEnabled={experimentalEnabled}
         />
     );
 };

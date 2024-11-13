@@ -90,8 +90,8 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
     font-size: var(--vscode-font-size);
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: ${hideDropdown ? '100%' : '22px'};
-    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
+    height: ${hideDropdown ? '100%' : '26px'};
+    width: ${hideDropdown ? '100%' : 'calc(100% - 35px)'};
     padding-left: 9px;
     padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
@@ -110,7 +110,7 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
 const LabelContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 `;
 
 const ComboboxInputWrapper = styled.div<DropdownProps>`
@@ -154,7 +154,7 @@ export const NothingFound = styled.div`
     background-color: var(--vscode-editor-background);
 `;
 
-const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
+const DropdownContainer = styled.div<DropdownContainerProps>`
     position: absolute;
     top: 100%;
     max-height: 100px;
@@ -223,7 +223,7 @@ const ComboboxContent: React.FC = styled.div`
     height: 100%;
 `;
 
-const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
+const ComboboxOption = styled.div<ComboboxOptionProps>`
     position: relative;
     cursor: default;
     user-select: none;
@@ -234,7 +234,7 @@ const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
 
-const ComboboxOptionButton: React.FC<ComboboxOptionProps> = styled.div`
+const ComboboxOptionButton = styled.div<ComboboxOptionProps>`
     position: relative;
     cursor: default;
     user-select: none;
@@ -292,7 +292,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const btnId = useMemo(() => name || label || identifier || getItemKey(items[0]), [name, items, label, identifier]);
 
     const handleChange = (item: string | ItemComponent) => {
-        onValueChange && onValueChange(getItemKey(item));
+        const index = items.findIndex(i => i === item);
+        onValueChange && onValueChange(getItemKey(item), index);
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
@@ -345,6 +346,10 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
 
     useEffect(() => {
         setDropdownWidth(inputWrapperRef.current?.clientWidth);
+    }, []);
+
+    useEffect(() => {
+        setDropdownWidth(inputRef.current?.clientWidth);
     }, []);
 
     return (
@@ -444,12 +449,11 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         )}
                                         {filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
                                             const item = getItem(filteredItem);
-                                            const itemKey = getItemKey(filteredItem);
                                             return (
                                                 <ComboboxOption key={i + indexOffset}>
                                                     <Combobox.Option
                                                         className={ComboboxOptionContainer}
-                                                        value={itemKey}
+                                                        value={filteredItem}
                                                         key={i}
                                                     >
                                                         {item}

@@ -9,15 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    GetPersistERModelResponse,
+    PersistERModel,
     PersistDiagramAPI,
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine } from "../../stateMachine";
 import { commands } from "vscode";
+import { StateMachine } from "../../stateMachine";
 
 export class PersistDiagramRpcManager implements PersistDiagramAPI {
 
-    async getPersistERModel(): Promise<GetPersistERModelResponse> {
+    async getPersistERModel(): Promise<PersistERModel> {
         return new Promise(async (resolve) => {
             const currentDoc = StateMachine.context().documentUri;
             const res = await StateMachine.langClient().getPersistERModel({ documentUri: currentDoc});

@@ -9,21 +9,48 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    Connector,
     ConnectorRequest,
     ConnectorResponse,
     ConnectorWizardAPI,
     ConnectorsRequest,
     ConnectorsResponse
 } from "@wso2-enterprise/ballerina-core";
+import { StateMachine } from "../../stateMachine";
+
 
 export class ConnectorWizardRpcManager implements ConnectorWizardAPI {
     async getConnector(params: ConnectorRequest): Promise<ConnectorResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getConnector(params)
+                .then((connector) => {
+                    console.log(">>> received connector", connector);
+                    resolve(connector as Connector);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching connector", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
     }
 
     async getConnectors(params: ConnectorsRequest): Promise<ConnectorsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getConnectors(params)
+                .then((connectors) => {
+                    console.log(">>> received connectors", connectors);
+                    resolve(connectors as ConnectorsResponse);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching connectors", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
     }
 }

@@ -21,6 +21,7 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     OpenViewRequest,
+    ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
     RetrieveContextRequest,
@@ -29,31 +30,32 @@ import {
     SampleDownloadRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
+    ToggleDisplayOverviewRequest,
     UpdateContextRequest,
     WorkspacesResponse,
     addToHistory,
-    toggleDisplayOverview,
-    ToggleDisplayOverviewRequest,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    focusOutput,
+    getAvailableRuntimeServices,
     getCurrentThemeKind,
     getHistory,
+    getProjectOverview,
     getProjectStructure,
     getWorkspaces,
     goBack,
     goHome,
     goSelected,
+    goToSource,
     log,
     openExternal,
     openView,
     reloadWindow,
-    focusOutput,
-    goToSource,
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
-    updateContext,
-    getAvailableRuntimeServices
+    toggleDisplayOverview,
+    updateContext
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -71,6 +73,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
+    }
+
+    getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
+        return this._messenger.sendRequest(getProjectOverview, HOST_EXTENSION, params);
     }
 
     getCurrentThemeKind(): Promise<ColorThemeKind> {

@@ -21,8 +21,10 @@ import { getServerPath } from "../debugger/debugHelper";
 import { TestRunnerConfig } from "./config";
 import { ChildProcess } from "child_process";
 import treeKill = require("tree-kill");
+import { normalize } from "upath";
 const fs = require('fs');
 const child_process = require('child_process');
+const readline = require('readline');
 
 enum EXEC_ARG {
     TESTS = '--tests',
@@ -48,7 +50,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
             window.showErrorMessage("No tests found.");
             return;
         }
-        const projectRoot = getProjectRoot(Uri.parse(queue[0].test.id));
+        const projectRoot = getProjectRoot(Uri.file(queue[0].test.id));
         let stopTestServer: () => void;
 
         if (!projectRoot) {
@@ -73,12 +75,17 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 const serverPath = await getServerPath();
                 if (!serverPath) {
                     window.showErrorMessage("MI server path not found");
-                    throw new Error("Server path not found");
+                    failAllTests();
+                    run.end();
+                    return;
                 }
 
                 const printer = (line: string, isError: boolean) => {
                     printToOutput(run, line, isError);
                 }
+
+                // compile project
+                await compileProject(projectRoot, printer);
 
                 // execute test
                 run.appendOutput(`Starting MI test server\r\n`);
@@ -91,7 +98,8 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 run.appendOutput(`Running tests ${testNames}\r\n`);
 
                 // run tests
-                await runTests(testNames, projectRoot, printer);
+                const triggerID = request?.include?.[0]?.id ?? "";
+                await runTests(testNames, projectRoot, triggerID, printer);
                 const EndTime = Date.now();
                 const timeElapsed = (EndTime - startTime) / queue.length;
 
@@ -109,7 +117,9 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                         let testResults;
                         let testCases;
                         if (test.id.endsWith(".xml")) {
-                            testResults = testsJson[test.id];
+                            const id = normalize(test.id);
+
+                            testResults = Object.entries(testsJson).find(([key]) => normalize(key) === id)?.[1];
                             testCases = test.children;
                         } else {
                             const strs = test.id.split("/");
@@ -178,6 +188,7 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 error.split('\n').forEach((line) => {
                     printToOutput(run, line, true);
                 });
+                failAllTests();
             }
             run.appendOutput(`Test running finished\r\n`);
             run.end();
@@ -187,6 +198,15 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
         } else if (request.profile?.kind == TestRunProfileKind.Debug) {
             window.showErrorMessage("Test debugging is not yet supported.");
             run.end();
+        }
+
+        function failAllTests() {
+            const EndTime = Date.now();
+            const timeElapsed = (EndTime - startTime) / queue.length;
+            for (const { test, } of queue) {
+                const testMessage: TestMessage = new TestMessage("Command failed");
+                run.failed(test, testMessage, timeElapsed);
+            }
         }
     }
 
@@ -250,14 +270,14 @@ function printToOutput(runner: TestRun, line: string, isError: boolean = false) 
     }
 }
 
-async function runTests(testNames: string, projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
+async function compileProject(projectRoot: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
-        const testRunCmd = `${mvnCmd} compile && ${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
+        const testRunCmd = `${mvnCmd} compile`;
 
         let finished = false;
         const onData = (data: string) => {
-            if (data.includes("Finished at:")) {
+            if (data.includes("BUILD SUCCESS")) {
                 finished = true;
                 resolve();
             }
@@ -268,8 +288,39 @@ async function runTests(testNames: string, projectRoot: string, printToOutput?: 
         }
         const onClose = (code: number) => {
             if (code !== 0 && !finished) {
-                reject("Test execution failed");
+                reject("Project build failed");
             }
+        }
+
+        try {
+            runCommand(testRunCmd, projectRoot, onData, onError, onClose, printToOutput);
+        } catch (error) {
+            throw error;
+        }
+    });
+}
+
+async function runTests(testNames: string, projectRoot: string, triggerId: string, printToOutput?: (line: string, isError: boolean) => void): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        const mvnCmd = process.platform === "win32" ? "mvn.cmd" : "mvn";
+        const testLevel = triggerId.endsWith(".xml") ? "unitTest" : triggerId.includes(".xml") ? "testCase" : "testSuite";
+        const basicTestCmd = `${mvnCmd} test -DtestServerType=remote -DtestServerHost=${TestRunnerConfig.getHost()} -DtestServerPort=${TestRunnerConfig.getServerPort()} -P test`;
+
+        let testRunCmd = basicTestCmd;
+        switch (testLevel) {
+            case "unitTest":
+                testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(triggerId)}`;
+                break;
+            case "testCase":
+                testRunCmd = basicTestCmd + ` -DtestFile=${path.basename(path.dirname(triggerId))} -DtestCaseName=${testNames}`;
+                break;
+        }
+
+        const onData = (data: string) => { }
+        const onError = (data: string) => { }
+
+        const onClose = (code: number) => {
+            resolve();
         }
 
         try {
@@ -299,47 +350,53 @@ export function runCommand(command, pathToRun?: string,
 
         if (typeof onData === 'function') {
             cp.stdout.setEncoding('utf8');
+            const rl = readline.createInterface({ input: cp.stdout });
 
             let foundError = false;
-            cp.stdout.on('data', (data) => {
-                data.split('\n').forEach((line) => {
-                    if (line.includes("] ERROR " || line.includes("[error]"))) {
-                        foundError = true;
-                    } else if (line.includes("]  INFO ") || line.includes("[INFO]")) {
-                        foundError = false;
-                    }
+            rl.on('line', (line) => {
+                if (line.includes("] ERROR ") || line.includes("[error]")) {
+                    foundError = true;
+                } else if (line.includes("]  INFO ") || line.includes("[INFO]")) {
+                    foundError = false;
+                }
 
-                    if (printToOutput) {
-                        printToOutput(line, foundError);
-                    }
-                    onData(line);
-                });
+                if (printToOutput) {
+                    printToOutput(line, foundError);
+                }
+                onData(line);
             });
         }
 
         if (typeof onError === 'function') {
             cp.stderr.setEncoding('utf8');
-            cp.stderr.on('data', onError);
+            let errorData = '';
+            cp.stderr.on('data', (data) => {
+                errorData += data;
+            });
+            cp.stderr.on('end', () => onError(errorData));
+        }
 
-            cp.on('error', (data: string) => {
-                data.split('\n').forEach((line) => {
-                    if (printToOutput) {
-                        printToOutput(line, true);
-                    }
-                });
-                if (onError) {
-                    onError(data);
+        cp.on('error', (data: string) => {
+            data.split('\n').forEach((line) => {
+                if (printToOutput) {
+                    printToOutput(line, true);
                 }
             });
-        }
+            if (onError) {
+                onError(data);
+            }
+        });
 
         if (typeof onClose === 'function') {
             cp.on('close', onClose);
         }
 
         return cp;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Failed to spawn process:', error);
+        if (onError) {
+            onError(error.message);
+        }
         throw error;
     }
 }

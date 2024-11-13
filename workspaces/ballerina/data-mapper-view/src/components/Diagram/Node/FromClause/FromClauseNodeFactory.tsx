@@ -41,11 +41,12 @@ export class FromClauseNodeFactory extends AbstractReactFactory<FromClauseNode, 
         return (
             <RecordTypeTreeWidget
                 engine={this.engine}
-                id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.sourceBindingPattern.variableName.value}`}
+                id={`${EXPANDED_QUERY_SOURCE_PORT_PREFIX}.${event.model.nodeLabel}`}
                 typeDesc={event.model.typeDef}
                 getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                 handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                valueLabel={event.model.sourceBindingPattern.variableName.value}
+                valueLabel={event.model.nodeLabel}
+                hasLinkViaCollectClause={event.model.mappedWithCollectClause}
             />
         );
     }

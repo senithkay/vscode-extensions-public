@@ -18,14 +18,12 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
-import { APIS, COMMANDS } from './constants';
-import { openAIWebview } from './ai-panel/aiMachine';
-import { AiPanelWebview } from './ai-panel/webview';
+import { COMMANDS } from './constants';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
 import { getFunctionIOTypes, getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { MockService, STNode, UnitTest, Task, NamedSequence, InboundEndpoint } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest, Task, InboundEndpoint } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
@@ -54,30 +52,6 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: [
                     {
-                        target: 'connectorInit',
-                        cond: (context, event) =>
-                            // Assuming true means project detected
-                            event.data.isProject === true && event.data.emptyProject === true,
-                        actions: assign({
-                            view: (context, event) => MACHINE_VIEW.ADD_ARTIFACT,
-                            projectUri: (context, event) => event.data.projectUri,
-                            isOldProject: (context, event) => false,
-                            displayOverview: (context, event) => true,
-                        })
-                    },
-                    {
-                        target: 'connectorInit',
-                        cond: (context, event) =>
-                            // Assuming true means project detected
-                            event.data.isProject === true && event.data.emptyProject === false,
-                        actions: assign({
-                            view: (context, event) => MACHINE_VIEW.Overview,
-                            projectUri: (context, event) => event.data.projectUri,
-                            isOldProject: (context, event) => false,
-                            displayOverview: (context, event) => true,
-                        })
-                    },
-                    {
                         target: 'oldProjectDetected',
                         cond: (context, event) =>
                             // Assuming true means old project detected
@@ -92,9 +66,10 @@ const stateMachine = createMachine<MachineContext>({
                     {
                         target: 'lsInit',
                         cond: (context, event) =>
-                            // Integration Studio project with disabled overview
-                            event.data.isOldProject === true && event.data.displayOverview === false,
+                            event.data.isOldProject || event.data.isProject,
                         actions: assign({
+                            view: (context, event) => event.data.emptyProject ? MACHINE_VIEW.ADD_ARTIFACT : MACHINE_VIEW.Overview,
+                            projectUri: (context, event) => event.data.projectUri,
                             isOldProject: (context, event) => event.data.isOldProject,
                             displayOverview: (context, event) => event.data.displayOverview
                         })
@@ -116,19 +91,6 @@ const stateMachine = createMachine<MachineContext>({
                         errors: (context, event) => event.data
                     })
                 }
-            }
-        },
-        connectorInit: {
-            invoke: {
-                src: 'waitForConnectorData',
-                onDone: [
-                    {
-                        target: 'projectDetected',
-                        actions: assign({
-                            connectorData: (context, event) => event.data
-                        })
-                    }
-                ]
             }
         },
         projectDetected: {
@@ -334,6 +296,7 @@ const stateMachine = createMachine<MachineContext>({
         waitForLS: (context, event) => {
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
+                log("Waiting for LS to be ready " + new Date().toLocaleTimeString());
                 try {
                     vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                     const instance = await MILanguageClient.getInstance(extension.context);
@@ -348,20 +311,11 @@ const stateMachine = createMachine<MachineContext>({
                     StateMachinePopup.initialize();
 
                     resolve(ls);
+                    log("LS is ready " + new Date().toLocaleTimeString());
                 } catch (error) {
+                    log("Error occured while waiting for LS to be ready " + new Date().toLocaleTimeString());
                     reject(error);
                 }
-            });
-        },
-        waitForConnectorData: (context, event) => {
-            return new Promise(async (resolve, reject) => {
-                fetchConnectorData().then(data => {
-                    if (data) {
-                        resolve(data);
-                    } else {
-                        resolve([]);
-                    }
-                });
             });
         },
         openWebPanel: (context, event) => {
@@ -390,7 +344,7 @@ const stateMachine = createMachine<MachineContext>({
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
 
-                if (context.view?.includes("Form")) {
+                if (context.view?.includes("Form") && !context.view.includes("Test") && !context.view.includes("Mock")) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -582,7 +536,7 @@ export function navigate(entry?: HistoryEntry) {
             stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
         }
     } else {
-        const location = historyStack[historyStack.length - 1].location;
+        const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
 }
@@ -615,23 +569,9 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     }
 }
 
-async function fetchConnectorData() {
-    try {
-        const response = await fetch(APIS.CONNECTOR);
-        const data = await response.json();
-        if (data) {
-            return data['outbound-connector-data'];
-        } else {
-            console.log("Failed to fetch data, but user is connected.");
-            return null;
-        }
-    } catch (error) {
-        console.log("User is offline.", error);
-        return null;
-    }
-}
-
 async function checkIfMiProject() {
+    log('Detecting project ' + new Date().toLocaleTimeString());
+
     let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
     let projectUri = '';
     try {
@@ -691,10 +631,10 @@ async function checkIfMiProject() {
     // Register Project Creation command in any of the above cases
     vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-        console.log('Create New Project');
         log('Create New Project');
     });
 
+    log('Project detection completed ' + new Date().toLocaleTimeString());
     return {
         isProject,
         isOldProject,

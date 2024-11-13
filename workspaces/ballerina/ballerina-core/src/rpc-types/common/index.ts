@@ -12,14 +12,31 @@
  */
 
 import {
+    BallerinaDiagnosticsRequest,
+    BallerinaDiagnosticsResponse,
+    CommandsRequest,
+    CommandsResponse,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
+    FileOrDirResponse,
+    RunExternalCommandRequest,
+    RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
-    WorkspacesFileResponse
+    WorkspacesFileResponse,
+    FileOrDirRequest,
+    WorkspaceRootResponse
 } from "./interfaces";
 
 export interface CommonRPCAPI {
     getTypes: () => Promise<TypeResponse>;
     goToSource: (params: GoToSourceRequest) => void;
     getWorkspaceFiles: (params: WorkspaceFileRequest) => Promise<WorkspacesFileResponse>;
+    getBallerinaDiagnostics: (params: BallerinaDiagnosticsRequest) => Promise<BallerinaDiagnosticsResponse>;
+    executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
+    runBackgroundTerminalCommand: (params: RunExternalCommandRequest) => Promise<RunExternalCommandResponse>;
+    openExternalUrl: (params: OpenExternalUrlRequest) => void;
+    selectFileOrDirPath: (params: FileOrDirRequest) => Promise<FileOrDirResponse>;
+    experimentalEnabled: () => Promise<boolean>;
+    getWorkspaceRoot: () => Promise<WorkspaceRootResponse>;
 }

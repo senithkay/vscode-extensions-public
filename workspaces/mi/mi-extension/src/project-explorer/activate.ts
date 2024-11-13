@@ -19,6 +19,7 @@ import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
 import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
+import { deleteSwagger } from '../util/swagger';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -44,16 +45,16 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		});
 	});
 	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
-        const projectUri = StateMachine.context().projectUri;
-        if (!projectUri) {
-            window.showErrorMessage(
-                'Unable to locate Project URI. Please try again after the extension has fully initialized.'
-            );
-            return;
-        }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
-        console.log('Add Registry Resource');
+		const projectUri = StateMachine.context().projectUri;
+		if (!projectUri) {
+			window.showErrorMessage(
+				'Unable to locate Project URI. Please try again after the extension has fully initialized.'
+			);
+			return;
+		}
+		const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
+		console.log('Add Registry Resource');
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
@@ -168,17 +169,39 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					if (!projectResources) return;
 
 					for (const projectResource of projectResources) {
-						const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
-						if (fileEntry) {
-							projectTree.reveal(fileEntry, { select: true });
+						if (projectResource.label === "Data Integration" || projectResource.label === "Common Artifacts" ||
+							projectResource.label === "Advanced Artifacts") {
+							const projectArtifacts = projectResource?.children;
+							if (projectArtifacts) {
+								for (const artifact of projectArtifacts) {
+									const fileEntry = artifact.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+									if (fileEntry) {
+										projectTree.reveal(fileEntry, { select: true });
 
-							if (viewLocation.identifier !== undefined) {
-								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
-								if (resourceEntry) {
-									projectTree.reveal(resourceEntry, { select: true });
+										if (viewLocation.identifier !== undefined) {
+											const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+											if (resourceEntry) {
+												projectTree.reveal(resourceEntry, { select: true });
+											}
+										}
+										break;
+									}
 								}
 							}
-							break;
+
+						} else {
+							const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+							if (fileEntry) {
+								projectTree.reveal(fileEntry, { select: true });
+
+								if (viewLocation.identifier !== undefined) {
+									const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+									if (resourceEntry) {
+										projectTree.reveal(resourceEntry, { select: true });
+									}
+								}
+								break;
+							}
 						}
 					}
 				}
@@ -328,6 +351,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'localEntry':
 			case 'template':
 			case 'dataSource':
+			case 'connection':
 			case 'data-service':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
@@ -345,6 +369,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
+
+							if (item.contextValue === 'api') {
+								deleteSwagger(fileUri);
+							}
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}

@@ -11,6 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources";
 import { Observations } from "../../types";
+import { useDiagramContext } from "../DiagramContext/DiagramContext";
 
 const Table = styled.table`
     width: 100%;
@@ -47,18 +48,37 @@ interface ObservationLabelProps {
 }
 
 export function ObservationLabel({ observations }: ObservationLabelProps) {
+    const { modelVersion } = useDiagramContext();
+
     // Slice the observations array to include only up to the first 5 elements
     // TODO: Add a "View All" button to view all observations
     const displayedObservations = observations.slice(0, 5);
 
-    const metrics = [
+    let metrics = [
         { name: "Request Count", valueFn: (obs: Observations) => obs.requestCount },
-        { name: "Error Percentage", valueFn: (obs: Observations) => ((obs.errorCount * 100) / obs.requestCount).toFixed(2) + "%" },
+        {
+            name: "Error Percentage",
+            valueFn: (obs: Observations) => ((obs.errorCount * 100) / obs.requestCount).toFixed(2) + "%",
+        },
         { name: "Average Latency", valueFn: (obs: Observations) => convertToMs(obs.avgLatency) + " ms" },
         { name: "99% Latency", valueFn: (obs: Observations) => convertToMs(obs.p99Latency) + " ms" },
         { name: "90% Latency", valueFn: (obs: Observations) => convertToMs(obs.p90Latency) + " ms" },
         { name: "50% Latency", valueFn: (obs: Observations) => convertToMs(obs.p50Latency) + " ms" },
     ];
+
+    if (modelVersion === "v2") {
+        metrics = [
+            { name: "Request Count", valueFn: (obs: Observations) => obs.requestCount.toFixed(0) },
+            {
+                name: "Error Percentage",
+                valueFn: (obs: Observations) => ((obs.errorCount * 100) / obs.requestCount).toFixed(2) + "%",
+            },
+            { name: "Average Latency", valueFn: (obs: Observations) => obs.avgLatency.toFixed(2) + " s" },
+            { name: "99% Latency", valueFn: (obs: Observations) => obs.p99Latency.toFixed(2) + " s" },
+            { name: "90% Latency", valueFn: (obs: Observations) => obs.p90Latency.toFixed(2) + " s" },
+            { name: "50% Latency", valueFn: (obs: Observations) => obs.p50Latency.toFixed(2) + " s" },
+        ];
+    }
 
     function formatNumberWithCommas(x: string): string {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

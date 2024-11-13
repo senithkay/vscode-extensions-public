@@ -14,7 +14,15 @@ import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceDesignerAPI, CommonRPCAPI, STModification } from "@wso2-enterprise/ballerina-core";
+import { ServiceDesignerAPI, CommonRPCAPI, STModification, createImportStatement } from "@wso2-enterprise/ballerina-core";
+import { ContextProvider } from "./ContextProvider";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon, View, ViewHeader, ViewContent, Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
+
+const ServiceHeader = styled.div`
+    padding-left: 24px;
+`;
 
 interface RPCClients {
     serviceDesignerRpcClient: ServiceDesignerAPI;
@@ -29,10 +37,14 @@ interface ServiceDesignerProps {
     applyModifications?: (modifications: STModification[]) => Promise<void>;
     // Callback to send the position of the resource to navigae to code
     goToSource?: (resource: Resource) => void;
+    // If the service designer is for bi
+    isBI?: boolean;
+    // If editing needs to be disabled
+    isEditingDisabled?: boolean;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, rpcClients, applyModifications, goToSource } = props;
+    const { model, rpcClients, applyModifications, goToSource, isEditingDisabled } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
@@ -83,7 +95,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         setServiceFormOpen(false);
     };
     const handleServiceFormSave = async (service: Service) => {
-        const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
+        const content = updateServiceDecl({ BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http" });
         await applyModifications([{
             type: "INSERT",
             isImport: false,
@@ -98,13 +110,13 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         if (goToSource) {
             goToSource(resource);
         } else {
-            commonRpcClient.goToSource({ position: resource.position });
+            commonRpcClient.goToSource({ position: resource.position! });
         }
     };
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, serviceDesignerRpcClient));
+            setServiceConfig(await getService(model, serviceDesignerRpcClient, props.isBI, handleResourceEdit, handleResourceDelete));
         };
         fetchService();
     }, [model]);
@@ -122,42 +134,59 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         }]);
     };
 
+    const handleExportOAS = () => {
+        serviceDesignerRpcClient.exportOASFile({});
+    };
+
     return (
-        <div data-testid="service-design-view">
-            <ServiceDesigner
-                model={serviceConfig}
-                goToSource={handleGoToSource}
-                onResourceEdit={handleResourceEdit}
-                onResourceDelete={handleResourceDelete}
-                onServiceEdit={handleServiceEdit}
-                onResourceAdd={handleResourceFormOpen}
-            />
-            {isResourceFormOpen &&
-                <ResourceForm
-                    isOpen={isResourceFormOpen}
-                    isBallerniaExt={isParentBallerinaExt}
-                    resourceConfig={serviceConfig?.resources.length > 0 ? editingResource : undefined}
-                    onSave={handleResourceFormSave}
-                    onClose={handleResourceFormClose} 
-                    addNameRecord={addNameRecord}
-                    serviceEndPosition={{
-                        startLine: model.closeBraceToken.position.endLine,
-                        startColumn: model.closeBraceToken.position.endColumn,
-                        endLine: model.closeBraceToken.position.endLine,
-                        endColumn: model.closeBraceToken.position.endColumn
-                    }}
-                    commonRpcClient={commonRpcClient}
-                    applyModifications={applyModifications}
-                />
-            }
-            {isServiceFormOpen &&
-                <ServiceForm
-                    isOpen={isServiceFormOpen}
-                    serviceConfig={serviceConfig}
-                    onSave={handleServiceFormSave}
-                    onClose={handleServiceFormClose} 
-                />
-            }
-        </div>
+        <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
+            <div data-testid="service-design-view">
+                <View>
+                    <ViewHeader title={`Service ${serviceConfig?.path}`} codicon="globe" onEdit={!isEditingDisabled && handleServiceEdit}>
+                        {!isEditingDisabled &&
+                            <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
+                                <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                            </VSCodeButton>
+                        }
+                        <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
+                            <Codicon name="export" sx={{ marginRight: 5 }} /> Export OAS
+                        </VSCodeButton>
+                    </ViewHeader>
+                    <ServiceHeader>
+                        {isEditingDisabled && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">This is generated from {serviceConfig?.path} contract</Typography>}
+                        {serviceConfig?.port && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Listening on: {serviceConfig.port}</Typography>}
+                    </ServiceHeader>
+                    <ViewContent padding>
+                        <ServiceDesigner
+                            model={serviceConfig}
+                            onResourceClick={handleGoToSource}
+                            disableServiceHeader={props.isBI}
+                            onResourceEdit={handleResourceEdit}
+                            onResourceDelete={handleResourceDelete}
+                        />
+                    </ViewContent>
+                </View>
+                {isResourceFormOpen &&
+                    <ResourceForm
+                        isOpen={isResourceFormOpen}
+                        isBallerniaExt={isParentBallerinaExt}
+                        resourceConfig={serviceConfig.resources.length > 0 ? editingResource : undefined}
+                        onSave={handleResourceFormSave}
+                        onClose={handleResourceFormClose}
+                        addNameRecord={addNameRecord}
+                        commonRpcClient={commonRpcClient}
+                        applyModifications={applyModifications}
+                    />
+                }
+                {isServiceFormOpen &&
+                    <ServiceForm
+                        isOpen={isServiceFormOpen}
+                        serviceConfig={serviceConfig}
+                        onSave={handleServiceFormSave}
+                        onClose={handleServiceFormClose}
+                    />
+                }
+            </div>
+        </ContextProvider>
     )
 }

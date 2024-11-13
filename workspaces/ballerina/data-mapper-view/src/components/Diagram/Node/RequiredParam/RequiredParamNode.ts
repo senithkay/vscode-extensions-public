@@ -16,6 +16,7 @@ import { getSearchFilteredInput, getTypeOfInputParam } from "../../utils/dm-util
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
+const NODE_ID = "required-param-node";
 
 export class RequiredParamNode extends DataMapperNodeModel {
     public typeDef: TypeField;
@@ -27,14 +28,18 @@ export class RequiredParamNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: RequiredParam,
         public typeDesc: TypeDescriptor,
-        public hasNoMatchingFields?: boolean) {
+        public hasNoMatchingFields?: boolean
+    ) {
         super(
+            `${NODE_ID}${!hasNoMatchingFields && value.paramName.value}`,
             context,
             REQ_PARAM_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.originalTypeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
-        this.typeDef = this.originalTypeDef;
+        if (!hasNoMatchingFields) {
+            this.originalTypeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
+            this.typeDef = this.originalTypeDef;
+        }
     }
 
     async initPorts() {

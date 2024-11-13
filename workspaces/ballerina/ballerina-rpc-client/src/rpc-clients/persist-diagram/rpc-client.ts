@@ -9,8 +9,8 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    GetPersistERModelResponse,
     PersistDiagramAPI,
+    PersistERModel,
     getPersistERModel,
     showProblemPanel
 } from "@wso2-enterprise/ballerina-core";
@@ -24,7 +24,7 @@ export class PersistDiagramRpcClient implements PersistDiagramAPI {
         this._messenger = messenger;
     }
 
-    getPersistERModel(): Promise<GetPersistERModelResponse> {
+    getPersistERModel(): Promise<PersistERModel> {
         return this._messenger.sendRequest(getPersistERModel, HOST_EXTENSION);
     }
 

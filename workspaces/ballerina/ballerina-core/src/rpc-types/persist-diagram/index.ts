@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetPersistERModelResponse } from "./interfaces";
+import { PersistERModel } from "../../interfaces/extended-lang-client";
 
 export interface PersistDiagramAPI {
-    getPersistERModel: () => Promise<GetPersistERModelResponse>;
+    getPersistERModel: () => Promise<PersistERModel>;
     showProblemPanel: () => void;
 }

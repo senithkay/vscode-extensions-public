@@ -693,8 +693,11 @@ export interface EndpointType extends ExtensibleDocumentedType, STNode {
 
 export interface Resource extends STNode {
     inSequenceAttribute?: string;
+    inSequence?: Sequence;
     outSequenceAttribute?: string;
+    outSequence?: Sequence;
     faultSequenceAttribute?: string;
+    faultSequence?: Sequence;
     location: string;
     key: string;
 }
@@ -1822,9 +1825,17 @@ export interface UnitTest extends STNode {
 
 export interface UnitTestArtifacts {
     testArtifact: TestArtifact;
-    supportiveArtifacts: STNode;
-    registryResources: STNode;
+    supportiveArtifacts: SupportiveArtifacts;
+    registryResources: RegistryResources;
     connectorResources: STNode;
+}
+
+export interface SupportiveArtifacts extends STNode {
+    artifacts: Artifact[];
+}
+
+export interface RegistryResources extends STNode {
+    registryResources: Artifact[];
 }
 
 export interface TestArtifact extends STNode {
@@ -1854,6 +1865,11 @@ export interface TestCaseInput extends STNode {
     requestMethod: STNode;
     requestProtocol: STNode;
     payload: STNode;
+    properties?: TestCaseInputProperties;
+}
+
+export interface TestCaseInputProperties extends STNode {
+    properties: Property[];
 }
 
 export interface Assertion extends STNode {

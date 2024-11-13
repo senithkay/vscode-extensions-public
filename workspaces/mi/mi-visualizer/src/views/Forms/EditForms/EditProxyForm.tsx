@@ -61,6 +61,7 @@ type InputsFields = {
     endpoint?: string;
     faultSequenceType?: string;
     faultSequence?: string;
+    faultSequenceEdited?: boolean;
     inSequenceType?: string;
     inSequence?: string;
     inSequenceEdited?: boolean;
@@ -135,6 +136,7 @@ export type EditProxyForm  = {
     trace: boolean;
     inSequenceEdited: boolean;
     outSequenceEdited: boolean;
+    faultSequenceEdited: boolean;
 };
 
 export type SequenceOption = "inline" | "named";
@@ -274,6 +276,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         endpoint: proxyData.target?.endpointAttribute ,
         faultSequenceType: proxyData.target?.faultSequenceAttribute ? "named" : "inline",
         faultSequence: proxyData.target?.faultSequenceAttribute,
+        faultSequenceEdited: false,
         inSequenceType: proxyData.target?.inSequenceAttribute ? "named" : "inline",
         inSequenceEdited: false,
         inSequence: proxyData.target?.inSequenceAttribute,
@@ -315,6 +318,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     const [validationMessage, setValidationMessage] = useState<boolean>(true);
     const intialInSequenceType = proxyData.target?.inSequenceAttribute ? "named" : "inline";
     const intialOutSequenceType = proxyData.target?.outSequenceAttribute ? "named" : "inline";
+    const initialFaultSequenceType = proxyData.target?.faultSequenceAttribute ? "named" : "inline";
     const [message , setMessage] = useState({
         isError: false,
         text: ""
@@ -847,6 +851,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     trace: values.trace,
                                     inSequenceEdited: intialInSequenceType !== values.inSequenceType,
                                     outSequenceEdited: intialOutSequenceType !== values.outSequenceType,
+                                    faultSequenceEdited: initialFaultSequenceType !== values.faultSequenceType,
                                     parameters: parametersParser(),
                                 },
                                 )

@@ -1,9 +1,0 @@
-[package]
-org = "architecturecomponents"
-name = "HelloWorld"
-version = "1.1.0"
-export = ["HelloWorld"]
-distribution = "2201.3.1"
-
-[build-options]
-observabilityIncluded = true

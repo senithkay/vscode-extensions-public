@@ -8,11 +8,15 @@
  */
 
 import React, { useContext, useEffect, useRef, useState } from "react";
+import Fade from '@mui/material/Fade';
+import { Box, Tooltip } from "@mui/material";
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ProjectModel } from "./ProjectModel";
 import { ProjectHeadWidget } from "./ProjectHeadWidget/ProjectHeadWidget";
 import { ProjectName, ProjectNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { Colors } from "../../../resources";
 
 interface ProjectWidgetProps {
     node: ProjectModel;
@@ -74,7 +78,17 @@ export function ProjectWidget(props: ProjectWidgetProps) {
                     isFocused={node.getID() === focusedNodeId || isHovered}
                     menuItems={componentMenu}
                 />
-                <ProjectName>{displayName}</ProjectName>
+                <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
+                    <ProjectName>{displayName}</ProjectName>
+                </Tooltip>
+
+                <Box sx={{ position: 'absolute', top: '26px', padding: '8px', cursor: 'pointer' }} onClick={handleOnWidgetDoubleClick}>
+                    <Fade in={isHovered} timeout={350}>
+                        <Tooltip title="View Project" placement="bottom" enterNextDelay={1000}>
+                            <OpenInNewRoundedIcon sx={{ color: Colors.OUTLINE_VARIANT, fontSize: 20 }} />
+                        </Tooltip>
+                    </Fade>
+                </Box>
             </ProjectNode>
         </>
     );

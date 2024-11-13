@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavButtonGroup } from "./NavButtonGroup";
 import styled from "@emotion/styled";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { Breadcrumbs, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 interface NavigationBarProps {
+    showHome?: boolean
 }
 
 const NavigationContainer = styled.div`
@@ -30,11 +31,14 @@ const FnNavContainer = styled.div`
 
 export function NavigationBar(props: NavigationBarProps) {
 
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient } = useRpcContext();
     const [history, setHistory] = useState<HistoryEntry[]>();
-    rpcClient.getVisualizerRpcClient().getHistory().then(history => setHistory(history));
-    
-    const fromDataMapper = history && history.length > 0 && history[history.length - 1].location.view === "DataMapper";
+
+    useEffect(() => {
+        rpcClient.getVisualizerRpcClient().getHistory().then(history => setHistory(history));
+    }, []);
+
+    const fromDataMapper = history && history.length > 0 && history[history.length - 1].location.view === MACHINE_VIEW.DataMapper;
 
     const [activeLink, links] = useMemo(() => {
         if (fromDataMapper && history[history.length - 1].dataMapperDepth < history.length) {
@@ -71,9 +75,9 @@ export function NavigationBar(props: NavigationBarProps) {
         return [undefined, undefined];
     }, [history, fromDataMapper]);
 
-    return (     
+    return (
         <NavigationContainer id="nav-bar-main">
-            <NavButtonGroup historyStack={history} />
+            <NavButtonGroup historyStack={history} showHome={props.showHome} />
             {fromDataMapper && (
                 <FnNavContainer>
                     <Breadcrumbs

@@ -11,7 +11,6 @@ import * as React from 'react';
 // tslint:disable-next-line:no-duplicate-imports
 import { useState } from "react";
 
-import { css } from '@emotion/css';
 import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
@@ -39,75 +38,7 @@ import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-
-const useStyles = () => ({
-	root: css({
-		flexGrow: 1,
-		width: 400,
-		color: "var(--vscode-input-background)",
-		position: "relative",
-		backgroundColor: "var(--vscode-input-background)",
-		padding: "20px"
-	}),
-	header: css({
-		color: "black",
-		backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
-		display: "flex",
-		height: "40px",
-		padding: "8px"
-	}),
-	typeLabel: css({
-		marginLeft: "3px",
-		padding: "5px",
-		color: "var(--vscode-icon-foreground)",
-		fontWeight: 400,
-		fontSize: "13px",
-		minWidth: "100px",
-		marginRight: "24px",
-	}),
-	boldedTypeLabel: css({
-		fontWeight: 800,
-		fontSize: "14px",
-	}),
-	valueLabel: css({
-		padding: "5px",
-		color: "var(--vscode-icon-foreground)",
-		fontSize: "13px",
-	}),
-	treeLabelOutPort: css({
-		float: "right",
-		width: 'fit-content',
-		marginLeft: "auto",
-	}),
-	treeLabelInPort: css({
-		float: "left",
-		marginRight: "5px",
-		width: 'fit-content',
-	}),
-	label: css({
-		width: "300px",
-		whiteSpace: "nowrap",
-		overflow: "hidden",
-		display: "flex",
-		alignItems: "center",
-		textOverflow: "ellipsis",
-		"&:hover": {
-			overflow: "visible"
-		}
-	}),
-	expandIcon: css({
-		color: "var(--vscode-inputOption-activeForeground)",
-		height: "25px",
-		width: "25px",
-		marginLeft: "auto"
-	}),
-	loader: css({
-		float: "right",
-		marginLeft: "auto",
-		marginRight: '3px',
-		alignSelf: 'center'
-	}),
-});
+import { useIONodesStyles } from '../../../../styles';
 
 export interface PrimitiveTypeOutputWidgetProps {
 	id: string;
@@ -124,7 +55,7 @@ export interface PrimitiveTypeOutputWidgetProps {
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
-	const classes = useStyles();
+	const classes = useIONodesStyles();
 
 	const [isModifyingTypeCast, setIsModifyingTypeCast] = useState(false);
 
@@ -163,7 +94,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					{type && ":"}
 				</span>
 			)}
-			<span className={classes.typeLabel}>
+			<span className={classes.outputTypeLabel}>
 				{unionTypeInfo ? getUnionType() : type}
 			</span>
 		</span>
@@ -287,7 +218,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
-				<span className={classes.treeLabelInPort}>
+				<span className={classes.inPort}>
 					{portIn && !expanded &&
 						<DataMapperPortWidget engine={engine} port={portIn} />
 					}

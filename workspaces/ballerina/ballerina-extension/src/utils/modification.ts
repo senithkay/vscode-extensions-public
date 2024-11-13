@@ -11,39 +11,39 @@ import { normalize } from "path";
 import { Position, Range, Uri, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { writeFileSync } from "fs";
-import { StateMachine, undoRedoManager } from "../stateMachine";
+import { StateMachine, updateView } from "../stateMachine";
 
 interface UpdateFileContentRequest {
-    fileUri: string;
+    filePath: string;
     content: string;
     skipForceSave?: boolean;
 }
 
 export async function applyModifications(fileName: string, modifications: STModification[]): Promise<SyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
+    const ast = await InsertorDelete(modifications);
     return await StateMachine.langClient().stModify({
         documentIdentifier: { uri: Uri.file(fileName).toString() },
-        astModifications: await InsertorDelete(modifications)
+        astModifications: ast
     });
 }
 
-export async function updateFileContent(params: UpdateFileContentRequest): Promise<boolean> {
-    const { fileUri, content, skipForceSave } = params;
-    const langClient = StateMachine.langClient();
-    const normalizedFilePath = normalize(fileUri);
+export async function modifyFileContent(params: UpdateFileContentRequest): Promise<boolean> {
+    const { filePath, content, skipForceSave } = params;
+    const normalizedFilePath = normalize(filePath);
     const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
-    undoRedoManager.addModification(content);
+
     if (doc) {
         const edit = new WorkspaceEdit();
         edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);
         await workspace.applyEdit(edit);
-        langClient.updateStatusBar();
+        StateMachine.langClient().updateStatusBar();
         if (skipForceSave) {
             // Skip saving document and keep in dirty mode
             return true;
         }
         return doc.save();
     } else {
-        langClient.didChange({
+        StateMachine.langClient().didChange({
             contentChanges: [
                 {
                     text: content
@@ -55,7 +55,21 @@ export async function updateFileContent(params: UpdateFileContentRequest): Promi
             }
         });
         writeFileSync(normalizedFilePath, content);
-        langClient.updateStatusBar();
+        StateMachine.langClient().updateStatusBar();
+        updateView();
     }
-    return true;
+
+    return false;
+}
+
+export async function writeBallerinaFileDidOpen(filePath: string, content: string) {
+    writeFileSync(filePath, content.trim());
+    StateMachine.langClient().didOpen({
+        textDocument: {
+            uri: Uri.file(filePath).toString(),
+            languageId: 'ballerina',
+            version: 1,
+            text: content.trim()
+        }
+    });
 }

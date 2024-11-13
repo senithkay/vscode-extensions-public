@@ -27,18 +27,18 @@ import { FocusedInputNode } from '../Node/FocusedInput';
 import { SubMappingNode } from '../Node/SubMapping';
 import { PrimitiveOutputNode } from '../Node/PrimitiveOutput';
 import { useDMExpressionBarStore } from '../../../store/store';
-import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
+import { removePendingMappingTempLinkIfExists } from '../utils/link-utils';
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
 	createLink: CreateLinkState;
 	dragItems: DragDiagramItemsState;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'starting-state' });
 		this.childStates = [new SelectingState()];
 		this.dragCanvas = new DragCanvasState({allowDrag: false});
-		this.createLink = new CreateLinkState();
+		this.createLink = new CreateLinkState(resetState);
 		this.dragItems = new DragDiagramItemsState();
 
 		// determine what was clicked on
@@ -80,7 +80,7 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 					const isExpandOrCollapse = (actionEvent.event.target as Element)
-						.closest('button[id^="button-wrapper"]');
+						.closest('button[id^="expand-or-collapse"]');
 					const isAddElement = (actionEvent.event.target as Element)
 						.closest('button[id^="add-array-element"]');
 					const isAddLocalVariable = (actionEvent.event.target as Element)
@@ -123,7 +123,7 @@ export class DefaultState extends State<DiagramEngine> {
 			link.setSelected(false);
 			link.getSourcePort()?.fireEvent({}, "link-unselected");
 			link.getTargetPort()?.fireEvent({}, "link-unselected");
-			removeArrayToArrayTempLinkIfExists(link);
+			removePendingMappingTempLinkIfExists(link);
 		});
 		useDMExpressionBarStore.getState().resetFocus();
 	}

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ElementHandle, Frame, Locator, Page, expect } from "@playwright/test";
+import { Frame, Locator, Page, expect } from "@playwright/test";
 
 export async function switchToIFrame(
     frameName: string,
@@ -30,8 +30,9 @@ export async function switchToIFrame(
     return childFrame;
 }
 
-export async function getVsCodeButton(page: Frame, text: string, type: 'primary' | 'secondary'): Promise<ElementHandle> {
-    const btn = await page.waitForSelector(`vscode-button:has-text("${text}")`);
+export async function getVsCodeButton(container: Locator, text: string, type: 'primary' | 'secondary'): Promise<Locator> {
+    const btn = container.locator(`vscode-button:has-text("${text}")`);
+    await btn.waitFor();
     expect(await btn.getAttribute('appearance')).toBe(type);
     return btn;
 }

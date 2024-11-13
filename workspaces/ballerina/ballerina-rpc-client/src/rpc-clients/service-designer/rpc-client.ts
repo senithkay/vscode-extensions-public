@@ -9,9 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ExportOASRequest,
+    ExportOASResponse,
     RecordSTRequest,
     RecordSTResponse,
     ServiceDesignerAPI,
+    exportOASFile,
     getRecordST
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -26,5 +29,9 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
         return this._messenger.sendRequest(getRecordST, HOST_EXTENSION, params);
+    }
+
+    exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
+        return this._messenger.sendRequest(exportOASFile, HOST_EXTENSION, params);
     }
 }

@@ -14,6 +14,7 @@ import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/Expres
 import { AutoComplete, Dropdown, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 import { FilterType, Keylookup } from "../Keylookup/Keylookup";
 import styled from "@emotion/styled";
+import { ResourceType } from "@wso2-enterprise/mi-core";
 
 const ParamManagerContainer = styled.div`
     display: flex;
@@ -39,13 +40,15 @@ export interface Param {
     noItemsFoundMessage?: string;
     enableCondition?: EnableCondition;
     filter?: (value: string) => boolean; // For KeyLookup
-    filterType?: FilterType; // For KeyLookup
+    filterType?: FilterType | ResourceType[]; // For KeyLookup
+    artifactTypes?: { registryArtifacts: boolean, artifacts: boolean }; //For KeyLookup
     values?: string[]; // For Dropdown
     openExpressionEditor?: () => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     openInDrawer?: boolean; // For ParamManager
     addParamText?: string; // For ParamManager
     paramFields?: ParamField[]; // For ParamManager
+    additionalData?: any;
 }
 
 interface TypeResolverProps {
@@ -56,14 +59,14 @@ interface TypeResolverProps {
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
     const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
-        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder } = param;
+        canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder, artifactTypes } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
         onChange({ ...param, value: newValue }, param.enableCondition);
     }
 
-    const handleOnExprChange = (newValue: string | ExpressionFieldValue) => {
-        onChange({ ...param, value: newValue }, param.enableCondition);
+    const handleOnExprChange = (newValue: string | ExpressionFieldValue, additionalData: any) => {
+        onChange({ ...param, value: newValue, additionalData }, param.enableCondition);
     }
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,6 +178,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     notItemsFoundMessage={noItemsFoundMessage}
                     filter={filter}
                     filterType={filterType}
+                    artifactTypes={artifactTypes}
                 />
             );
         case "ParamManager":

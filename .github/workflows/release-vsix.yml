@@ -26,8 +26,8 @@ on:
         type: boolean
         required: true
         default: false
-      eggplant:
-        description: Release Eggplant extension
+      bi:
+        description: Release BI extension
         type: boolean
         required: true
         default: false
@@ -59,10 +59,11 @@ jobs:
       choreo: ${{ inputs.choreo }}
       api-chat: ${{ inputs.api-chat }}
       apk: ${{ inputs.apk }}
-      eggplant:  ${{ inputs.eggplant }}
+      bi:  ${{ inputs.bi }}
       mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
+      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX
@@ -117,6 +118,15 @@ jobs:
           echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
 
+      - name: Set Chat API
+        id: chat
+        run: |
+          if [ "${{ github.event.inputs.mi }}" == "true" ]; then
+            echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          else
+            echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
+          fi
+  
       - name: Create a release in wso2/ballerina-vscode repo
         if: ${{ github.event.inputs.ballerina == 'true' }}
         uses: ./.github/actions/release
@@ -124,7 +134,7 @@ jobs:
           repo: wso2/ballerina-vscode
           name: ballerina
           token: ${{ secrets.PUBLISH_PAT }}
-          threadId: ${{ github.run_id }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
 
       - name: Create a release in wso2/choreo-vscode repo
         if: ${{ github.event.inputs.choreo == 'true' }}
@@ -133,7 +143,7 @@ jobs:
           repo: wso2/choreo-vscode
           name: choreo
           token: ${{ secrets.PUBLISH_PAT }}
-          threadId: ${{ github.run_id }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
 
       - name: Create a release in wso2/api-chat-vscode repo
         if: ${{ github.event.inputs.api-chat == 'true' }}
@@ -142,7 +152,7 @@ jobs:
           repo: wso2/api-chat-vscode
           name: api-chat
           token: ${{ secrets.PUBLISH_PAT }}
-          threadId: ${{ github.run_id }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
 
       - name: Create a release in wso2/apk repo
         if: ${{ github.event.inputs.apk == 'true' }}
@@ -150,6 +160,8 @@ jobs:
         with:
           repo: wso2/apk
           name: apk
+          token: ${{ secrets.MI_PUBLISH_PAT }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
  
       - name: Create a release in wso2/mi-vscode repo
         if: ${{ github.event.inputs.mi == 'true' }}
@@ -158,7 +170,7 @@ jobs:
           repo: wso2/mi-vscode
           token: ${{ secrets.MI_PUBLISH_PAT }}
           name: micro-integrator
-          chatAPI: ${{ secrets.MI_EXT_CHAT_API }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
 
       - name: Create PR and notify
         uses: ./.github/actions/pr
@@ -174,13 +186,14 @@ jobs:
           apk: ${{ inputs.apk }}
           apiChat: ${{ inputs.api-chat }}
           mi: ${{ inputs.mi }}
+          chatAPI: ${{ secrets.TOOLING_TEAM_CHAT_API }}
 
   Notify:
     needs: [Release]
     if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/vscode-extensions'}}
     runs-on: ubuntu-latest
     steps:
-      - name: "Release Notification"
+      - name: "Failure Notification"
         run: |
           body=$(cat << EOF
           {
@@ -224,5 +237,5 @@ jobs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.run_id }}" \
+            "${{ secrets.TOOLING_TEAM_CHAT_API }}" \
             -d "$body"

@@ -7,26 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from '@emotion/styled';
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Overlay } from './../Commons/Overlay';
 import { colors } from '../Commons/Colors';
 
 export interface SidePanelProps {
     id?: string;
     className?: string;
-	isOpen?: boolean;
-	overlay?: boolean;
-	children?: React.ReactNode;
-    alignment?: "top"|"bottom"|"left" | "right";
+    isOpen?: boolean;
+    overlay?: boolean;
+    children?: React.ReactNode;
+    alignment?: "top" | "bottom" | "left" | "right";
     isFullWidth?: boolean;
     width?: number;
     sx?: any;
     onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    subPanel?: ReactNode;
+    subPanelWidth?: number;
+    isSubPanelOpen?: boolean;
 }
 
 const SidePanelContainer = styled.div<SidePanelProps>`
     position: fixed;
-    top: ${(props: SidePanelProps) => props.alignment === "bottom" ? "auto":0};
+    top: ${(props: SidePanelProps) => props.alignment === "bottom" ? "auto" : 0};
     left: ${(props: SidePanelProps) => props.alignment === "left" ? 0 : (props.alignment === "bottom" || props.alignment === "top") ? 0 : "auto"};
     right: ${(props: SidePanelProps) => props.alignment === "right" ? 0 : "auto"};
     bottom: ${(props: SidePanelProps) => props.alignment === "bottom" ? 0 : "auto"};
@@ -48,11 +51,29 @@ const SidePanelContainer = styled.div<SidePanelProps>`
     ${(props: SidePanelProps) => props.sx};
 `;
 
-    
+const SubPanelContainer = styled.div<SidePanelProps>`
+    position: fixed;
+    top: 0;
+    ${(props: SidePanelProps) => props.alignment === "left" ? "left" : "right"}: ${(props: SidePanelProps) => `${props.width}px`};
+    width: ${(props: SidePanelProps) => `${props.subPanelWidth}px`};
+    height: 100%;
+    box-shadow: 0 5px 10px 0 var(--vscode-badge-background);
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    z-index: 1999;
+    opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
+    transform: translateX(${(props: SidePanelProps) => props.alignment === 'left'
+            ? (props.isSubPanelOpen ? '0%' : '-100%')
+            : (props.isSubPanelOpen ? '0%' : '100%')});
+    transition: transform 0.4s ease 0.1s, opacity 0.4s ease 0.1s;
+`;
+
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
-    const { id, className, isOpen = false, alignment = "right", width = 312, children, sx, overlay = true, isFullWidth = false } = props;
+    const { id, className, isOpen = false, alignment = "right", width = 312, children, sx, overlay = true, isFullWidth = false, subPanel, subPanelWidth, isSubPanelOpen } = props;
+
     const [open, setOpen] = useState(false);
     const [visible, setVisible] = useState(isOpen);
+    const [subPanelOpen, setSubPanelOpen] = useState(isSubPanelOpen);
 
     const handleTransitionEnd = (event: React.TransitionEvent) => {
         if (event.propertyName === 'transform' && !isOpen) {
@@ -75,8 +96,13 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
             });
         } else {
             setOpen(false);
+            setSubPanelOpen(false);
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        setSubPanelOpen(!!subPanel);
+    }, [subPanel]);
 
     useEffect(() => {
         if (!open && !isOpen) {
@@ -86,14 +112,27 @@ export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
             return () => clearTimeout(timer);
         }
     }, [open, isOpen]);
+
     return (
         <div id={id} className={className}>
             {visible && (
                 <>
-                    { overlay && isOpen && <Overlay sx={{background: colors.vscodeInputBackground, opacity: 0.4}} onClose={handleOverlayClose}/> }
+                    {overlay && isOpen && <Overlay sx={{ background: colors.vscodeInputBackground, opacity: 0.4 }} onClose={handleOverlayClose} />}
                     <SidePanelContainer isOpen={open} alignment={alignment} width={width} isFullWidth={isFullWidth} sx={sx} onTransitionEnd={handleTransitionEnd}>
                         {children}
                     </SidePanelContainer>
+                    {subPanel && (
+                        <SubPanelContainer
+                            isOpen={open}
+                            isSubPanelOpen={subPanelOpen}
+                            alignment={alignment}
+                            width={width}
+                            subPanelWidth={subPanelWidth}
+                            sx={sx}
+                        >
+                            {subPanel}
+                        </SubPanelContainer>
+                    )}
                 </>
             )}
         </div>

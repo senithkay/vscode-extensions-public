@@ -1,9 +1,6 @@
 {
 	"folders": [
 		{
-			"path": "workspaces/choreo/choreo-client"
-		},
-		{
 			"path": "workspaces/choreo/choreo-core"
 		},
 		{

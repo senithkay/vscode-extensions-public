@@ -17,7 +17,7 @@ import { Colors } from "../../../resources/constants";
 import fsPath from "path";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { getValue, isExpressionFieldValue } from "./utils";
-import { ResourceType, MultipleResourceType } from "@wso2-enterprise/mi-core";
+import { ResourceType, MultipleResourceType, Platform } from "@wso2-enterprise/mi-core";
 
 export type FilterType =
     | "sequence"
@@ -63,7 +63,7 @@ interface IKeylookupBase {
     borderBox?: boolean;
     errorMsg?: string;
     value?: string | ExpressionFieldValue;
-    onValueChange?: (value: string | ExpressionFieldValue) => void;
+    onValueChange?: (value: string | ExpressionFieldValue, additionalData?: any) => void;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
@@ -74,6 +74,7 @@ interface IKeylookupBase {
     filter?: (value: string) => boolean;
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
     additionalItems?: string[];
+    artifactTypes?: { registryArtifacts: boolean, artifacts: boolean };
 }
 
 // Define the conditional properties for the ExpressionField
@@ -183,6 +184,7 @@ export const Keylookup = (props: IKeylookup) => {
         canChangeEx,
         openExpressionEditor,
         sx,
+        artifactTypes = { registryArtifacts: true, artifacts: true },
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
@@ -199,9 +201,8 @@ export const Keylookup = (props: IKeylookup) => {
             if (result?.mockServices) {
                 const machineView = await rpcClient.getVisualizerState();
                 const projectUri = machineView.projectUri;
-                const isWindows = navigator.platform.toLowerCase().includes("win");
                 const mockServicesDirs = [projectUri, "src", "test", "resources", "mock-services"];
-                const mockServicesRoot = isWindows ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
+                const mockServicesRoot = machineView.platform === Platform.WINDOWS ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
 
                 result.mockServices.forEach((mockService) => {
                     const fileName = mockService.path.split(mockServicesRoot)[1];
@@ -263,9 +264,11 @@ export const Keylookup = (props: IKeylookup) => {
         let workspaceItems: ItemComponent[] = [];
         let registryItems: ItemComponent[] = [];
         let initialItem: ItemComponent;
-        if (result?.resources) {
+        const registryResources = artifactTypes.registryArtifacts;
+        const resources = artifactTypes.artifacts;
+        if (resources && result?.resources) {
             result.resources.forEach((resource) => {
-                const item = { key: resource.name, item: getItemComponent(resource.name) };
+                const item = { key: resource.name, item: getItemComponent(resource.name, resource.type), path: resource.absolutePath };
                 if (resource.name === getValue(value)) {
                     initialItem = item;
                     return;
@@ -273,9 +276,9 @@ export const Keylookup = (props: IKeylookup) => {
                 workspaceItems.push(item);
             });
         }
-        if (result?.registryResources) {
+        if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
+                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:"), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;
@@ -299,15 +302,15 @@ export const Keylookup = (props: IKeylookup) => {
         setItems(items);
     };
 
-    const handleValueChange = (val: string) => {
+    const handleValueChange = (val: string, index?: number) => {
+        const path = (items[index] as any)?.path;
         if (isExpressionFieldValue(value)) {
             onValueChange && onValueChange({ ...value, value: val });
         } else {
-            onValueChange && onValueChange(val);
+            onValueChange && onValueChange(val, { path });
         }
     };
 
-    
     const ExButton = (props: { isActive: boolean; onClick: () => void }) => {
         return (
             <ExBtn.Container>
@@ -317,11 +320,11 @@ export const Keylookup = (props: IKeylookup) => {
             </ExBtn.Container>
         );
     }
-    
+
     return (
         <Container>
             {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
-            !isExpressionFieldValue(value)) ? (
+                !isExpressionFieldValue(value)) ? (
                 <AutoComplete
                     {...rest}
                     value={getValue(value)}
@@ -348,7 +351,7 @@ export const Keylookup = (props: IKeylookup) => {
                             />
                         ],
                     }}
-                /> 
+                />
             ) : (
                 <ExpressionField
                     label={props.label}

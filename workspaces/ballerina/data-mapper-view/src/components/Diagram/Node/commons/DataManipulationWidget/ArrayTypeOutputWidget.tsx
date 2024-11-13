@@ -10,7 +10,6 @@
 import React, { useMemo, useState } from "react";
 
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { css } from "@emotion/css";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, TypeField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -40,96 +39,7 @@ import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-
-const useStyles = () => ({
-	root: css({
-		flexGrow: 1,
-		width: 400,
-		color: "var(--vscode-input-background)",
-		position: "relative",
-		backgroundColor: "var(--vscode-input-background)",
-		padding: "20px"
-	}),
-	header: css({
-		color: "black",
-		backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
-		display: "flex",
-		height: "40px",
-		padding: "8px"
-	}),
-	typeLabel: css({
-		marginLeft: "3px",
-		padding: "5px",
-		color: "var(--vscode-icon-foreground)",
-		fontWeight: 400,
-		fontSize: "13px",
-		minWidth: "100px",
-		marginRight: "24px"
-	}),
-	boldedTypeLabel: css({
-		fontWeight: 800,
-		fontSize: "14px",
-	}),
-	typeLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		color: "var(--vscode-icon-foreground)",
-		opacity: 0.5
-	}),
-	valueLabel: css({
-		padding: "5px",
-		color: "var(--vscode-icon-foreground)",
-		fontSize: "13px",
-	}),
-	valueLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		color: "var(--vscode-input-foreground)",
-		opacity: 0.5
-	}),
-	treeLabelOutPort: css({
-		float: "right",
-		width: 'fit-content',
-		marginLeft: "auto",
-	}),
-	treeLabelInPort: css({
-		float: "left",
-		marginRight: "5px",
-		width: 'fit-content',
-		display: "flex",
-		alignItems: "center"
-	}),
-	label: css({
-		width: "300px",
-		whiteSpace: "nowrap",
-		overflow: "hidden",
-		display: "flex",
-		textOverflow: "ellipsis",
-		"&:hover": {
-			overflow: "visible"
-		}
-	}),
-	expandIcon: css({
-		color: "var(--vscode-inputOption-activeForeground)",
-		height: "25px",
-		width: "25px",
-		marginLeft: "auto"
-	}),
-	expandIconDisabled: css({
-		color: "var(--vscode-editorHoverWidget-border)",
-	}),
-	treeLabelDisabled: css({
-		backgroundColor: "var(--vscode-editorWidget-background)",
-		'&:hover': {
-			backgroundColor: 'var(--vscode-editorWidget-background)',
-		},
-		cursor: 'not-allowed'
-	}),
-	loader: css({
-		float: "right",
-		marginLeft: "auto",
-		marginRight: '3px',
-		alignSelf: 'center'
-	}),
-});
+import { useIONodesStyles } from "../../../../styles";
 
 export interface ArrayTypeOutputWidgetProps {
 	id: string;
@@ -145,7 +55,7 @@ export interface ArrayTypeOutputWidgetProps {
 
 export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
-	const classes = useStyles();
+	const classes = useIONodesStyles();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [isModifyingTypeCast, setIsModifyingTypeCast] = useState(false);
@@ -202,12 +112,12 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
-				<span className={classnames(classes.valueLabel, isDisabled ? classes.valueLabelDisabled : "")}>
+				<span className={classnames(classes.valueLabel, isDisabled ? classes.labelDisabled : "")}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
 					{typeName && ":"}
 				</span>
 			)}
-			<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+			<span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
 				{unionTypeInfo ? getUnionType() : typeName || ''}
 			</span>
 		</span>
@@ -337,7 +247,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		<>
 			<TreeContainer data-testid={`${id}-node`}>
 				<TreeHeader isSelected={portState !== PortState.Unselected} isDisabled={isDisabled} id={"recordfield-" + id}>
-					<span className={classes.treeLabelInPort}>
+					<span className={classes.inPort}>
 						{portIn && shouldPortVisible && (
 							<DataMapperPortWidget
 								engine={engine}

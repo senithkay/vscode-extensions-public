@@ -10,9 +10,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { css } from '@emotion/css';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
 	DefaultDiagramState,
@@ -29,45 +28,24 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
-import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
+import { ErrorNodeKind } from "../DataMapper/Error/RenderingError";
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
-import * as Labels from "./Label";
-import * as Links from "./Link";
 import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
-import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { LinkConnectorNode } from './Node/LinkConnector';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
-import * as Ports from "./Port";
-import { OFFSETS } from './utils/constants';
-import { useDiagramModel, useRepositionedNodes } from '../Hooks';
-import { Icon } from '@wso2-enterprise/ui-toolkit';
-
-const classes = {
-	buttonWrap: css({
-		position: 'absolute',
-		bottom: 50,
-		right: 20
-	}),
-	iconWrap: css({
-		marginBottom: 10,
-		background: "var(--vscode-input-background)",
-		height: 32,
-		width: 32,
-		borderRadius: 32,
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		cursor: 'pointer',
-		transitionDuration: '0.2s',
-		'&:hover': { opacity: 0.5 },
-	}),
-};
+import { useDiagramModel, useRepositionedNodes, useSearchScrollReset } from '../Hooks';
+import { throttle } from 'lodash';
+import { defaultModelOptions } from './utils/constants';
+import { calculateZoomLevel } from './utils/diagram-utils';
+import { IONodesScrollCanvasAction } from './Actions/IONodesScrollCanvasAction';
+import { ArrowLinkFactory } from './Link/ArrowLink';
+import { useDMSearchStore } from '../../store/store';
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -76,22 +54,12 @@ interface DataMapperDiagramProps {
 	onError?: (kind: ErrorNodeKind) => void;
 }
 
-const defaultModelOptions = { zoom: 90 }
-
 function initDiagramEngine() {
-	// START TODO: clear this up
-	// this is a hack to load all modules for DI to work properly
-	const _NF = Nodes;
-	const _PF = Ports;
-	const _LF = Links;
-	const _LAF = Labels;
-	// END TODO
-
 	const diContext = container.resolve(DataMapperDIContext);
 
 	const engine = new DiagramEngine({
-		registerDefaultPanAndZoomCanvasAction: true,
-		registerDefaultZoomCanvasAction: false
+		registerDefaultPanAndZoomCanvasAction: false,
+		registerDefaultZoomCanvasAction: false,
 	});
 
 	// register model factories
@@ -104,10 +72,13 @@ function initDiagramEngine() {
 	engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
 	engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
 	engine.getPortFactories().registerFactory(new DefaultPortFactory());
+	engine.getLinkFactories().registerFactory(new ArrowLinkFactory());
 
 	// register the default interaction behaviours
 	engine.getStateMachine().pushState(new DefaultDiagramState());
 	engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+	engine.getActionEventBus().registerAction(new IONodesScrollCanvasAction());
 
 	diContext.nodeFactories.forEach((nf) =>
 		engine.getNodeFactories().registerFactory(nf));
@@ -129,13 +100,48 @@ function initDiagramEngine() {
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const { nodes, hideCanvas, onError } = props;
+
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
-	const repositionedNodes = useRepositionedNodes(nodes);
-	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError);
+	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+	const getScreenWidthRef = useRef(() => screenWidth);
+	const devicePixelRatioRef = useRef(window.devicePixelRatio);
 	const [, forceUpdate] = useState({});
 
+	const { inputSearch, outputSearch } = useDMSearchStore.getState();
+
+	const zoomLevel = calculateZoomLevel(screenWidth);
+
+	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel, screenWidth);
+	useSearchScrollReset(diagramModel);
+
 	engine.setModel(diagramModel);
+
+	useEffect(() => {
+		engine.getStateMachine().pushState(new LinkState(true));
+	}, [inputSearch, outputSearch]);
+
+	useEffect(() => {
+		getScreenWidthRef.current = () => screenWidth;
+	}, [screenWidth]);
+
+	const handleResize = throttle(() => {
+		const newScreenWidth = window.innerWidth;
+		const newDevicePixelRatio = window.devicePixelRatio;
+
+		if (newDevicePixelRatio === devicePixelRatioRef.current && newScreenWidth !== getScreenWidthRef.current()) {
+			setScreenWidth(newScreenWidth);
+		}
+		devicePixelRatioRef.current = newDevicePixelRatio;
+	}, 100);
+
+	useEffect(() => {
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
 	useEffect(() => {
         if (!isFetching) {
@@ -145,25 +151,24 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
-			engine.getModel().getNodes().forEach((node) => {
-				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
-					node.initLinks();
-					const targetPortPosition = node.targetPort?.getPosition();
-					if (targetPortPosition) {
-						node.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, targetPortPosition.y - 4.5);
-						forceUpdate({} as any);
-					}
+			const modelNodes = engine.getModel().getNodes();
+			const nodesToUpdate = modelNodes.filter(node => 
+				node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
+			);
+
+			nodesToUpdate.forEach((node: LinkConnectorNode | QueryExpressionNode) => {
+				node.initLinks();
+				const targetPortPosition = node.targetPort?.getPosition();
+				if (targetPortPosition) {
+					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
 				}
 			});
+	
+			if (nodesToUpdate.length > 0) {
+				forceUpdate({});
+			}
 		}
-	}, [diagramModel, isFetching]);
-
-	const resetZoomAndOffset = () => {
-		const currentModel = engine.getModel();
-		currentModel.setZoomLevel(defaultModelOptions.zoom);
-		currentModel.setOffset(0, 0);
-		engine.setModel(currentModel);
-	}
+	}, [diagramModel, isFetching, screenWidth]);
 
 	return (
 		<>
@@ -172,31 +177,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
 						<DataMapperCanvasWidget engine={engine} />
 					</DataMapperCanvasContainerWidget>
-					<div className={classes.buttonWrap}>
-						<div
-							className={classes.iconWrap}
-							onClick={resetZoomAndOffset}
-							data-testid={"reset-zoom"}
-						>
-							<Icon
-								name="cached-round"
-								sx={{ height: "fit-content", width: "fit-content" }}
-								iconSx={{ fontSize: "18px", color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</div>
-						<div
-							className={classes.iconWrap}
-							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
-							data-testid={"fit-to-screen"}
-						>
-							
-							<Icon
-								name="fit-to-screen"
-								sx={{ height: "fit-content", width: "fit-content" }}
-								iconSx={{ fontSize: "14px", color: "var(--vscode-input-placeholderForeground)" }}
-							/>
-						</div>
-					</div>
 				</>
 			)}
 		</>

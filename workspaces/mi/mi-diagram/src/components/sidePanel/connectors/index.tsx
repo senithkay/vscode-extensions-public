@@ -123,11 +123,11 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
     const fetchConnectors = async () => {
         try {
-            const response = await fetch(APIS.CONNECTOR);
-            const data = await response.json();
+            const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+            const data = response.outboundConnectors;
             sidePanelContext.setSidePanelState({
                 ...sidePanelContext,
-                connectors: data['outbound-connector-data'],
+                connectors: data,
             });
         } catch (e) {
             console.error("Error fetching connectors", e);
@@ -436,6 +436,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             marginBottom: '10px'
                                         }}>
                                             <ComponentCard
+                                                id={connector.name}
                                                 key={`${connector.name}-${connector.version}`}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
@@ -498,6 +499,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
+                                                                            id={operation.name}
                                                                             key={operation.name}
                                                                             onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{
@@ -577,6 +579,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
                                             marginBottom: '10px'
                                         }}>
                                             <ComponentCard
+                                                id={connector.name}
                                                 key={`${connector.name}-${connector.version}`}
                                                 onClick={() => selectConnector(connector)}
                                                 sx={{
@@ -643,6 +646,7 @@ export function ConnectorPage(props: ConnectorPageProps) {
 
                                                                     return (
                                                                         <ComponentCard
+                                                                            id={operation.name}
                                                                             key={operation.name}
                                                                             onClick={() => selectOperation(connector, operation.name)}
                                                                             sx={{

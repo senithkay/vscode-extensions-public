@@ -21,14 +21,22 @@ function modityTestCaseData(data: TestCaseEntry) {
     if (data.input.payload && data.input.payload.startsWith("<![CDATA[")) {
         data.input.payload = data.input.payload.substring(9, data.input.payload.length - 3);
     }
-    if ((data?.input?.properties as any)?.properties) {
-        (data.input.properties as any).properties = (data.input.properties as any).properties.map((property: any) => {
-            return {
-                name: property[0],
-                scope: property[1],
-                value: property[2]
-            }
-        });
+    if (data?.input?.properties) {
+        if (
+            (Array.isArray(data.input.properties) &&
+                data.input.properties.length === 0) ||
+            data.input.properties === undefined
+        ) {
+            delete data.input.properties;
+        } else {
+            (data.input.properties as any) = data.input.properties.map((property: any) => {
+                return {
+                    name: property[0],
+                    scope: property[1],
+                    value: property[2]
+                }
+            });
+        }
     }
     const assertions = data.assertions.map((assertion: string[]) => {
         // replace spaces and join camel case
@@ -43,7 +51,7 @@ function modityTestCaseData(data: TestCaseEntry) {
             expectedValue = assertion[2];
             errorMessage = assertion[3];
 
-            if (expectedValue.startsWith("<![CDATA[")) {
+            if (expectedValue?.startsWith("<![CDATA[")) {
                 expectedValue = expectedValue.substring(9, expectedValue.length - 3);
             }
         } else {
@@ -78,11 +86,21 @@ function getTestSuiteMustacheTemplate() {
         <test-artifact>
             <artifact>{{{artifact}}}</artifact>
         </test-artifact>
-        <supporttive-artifacts>
+        <supportive-artifacts>
             {{#supportiveArtifacts}}
-                <artifact>{{{.}}}</artifact>
+            <artifact>{{{.}}}</artifact>
             {{/supportiveArtifacts}}
-        </supporttive-artifacts>
+        </supportive-artifacts>
+        <registry-resources>
+            {{#registryResources}}
+            <registry-resource>
+                <file-name>{{fileName}}</file-name>
+                <artifact>{{artifact}}</artifact>
+                <registry-path>{{registryPath}}</registry-path>
+                <media-type>{{mediaType}}</media-type>
+            </registry-resource>
+            {{/registryResources}}
+        </registry-resources>
     </artifacts>
     <test-cases>
         {{#testCases}}
@@ -103,12 +121,12 @@ function getTestCaseMustacheTemplate() {
                 <request-path>{{{input.requestPath}}}</request-path>{{/input.requestPath}}{{#input.requestMethod}}
                 <request-method>{{input.requestMethod}}</request-method>{{/input.requestMethod}}{{#input.requestProtocol}}
                 <request-protocol>{{input.requestProtocol}}</request-protocol>{{/input.requestProtocol}}{{#input.payload}}
-                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}{{#input.properties}}
+                <payload><![CDATA[{{{input.payload}}}]]></payload>{{/input.payload}}{{#input.properties.length}}
                 <properties>
-                    {{#properties}}
+                    {{#input.properties}}
                     <property name="{{name}}" scope="{{scope}}" value="{{value}}" />
-                    {{/properties}}
-                </properties>{{/input.properties}}
+                    {{/input.properties}}
+                </properties>{{/input.properties.length}}
             </input>
             <assertions>
                 {{#assertions}}

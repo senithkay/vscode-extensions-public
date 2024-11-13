@@ -23,10 +23,9 @@ import {
 
 import { RecordItem } from "./RecordItem";
 import { cx } from "@emotion/css";
-import { Button, Codicon, Icon, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
-import { FormHeaderSection } from "../components/FormComponents/FormFieldComponents/FormHeader/FormHeaderSection";
+import { Button, Codicon, Icon, SidePanelTitleContainer, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 import { Context } from "../Context";
-import { InputLabel, InputLabelDetail, InputWrapper, RecordFormWrapper, useStyles } from "../style";
+import { InputLabel, InputLabelDetail, InputWrapper, RecordFormWrapper, RecordList, useStyles } from "../style";
 import { RecordEditorC } from "../RecordEditor/RecordEditorC";
 
 export interface RecordOverviewProps {
@@ -108,17 +107,17 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     }, [recordNames]);
 
     useEffect(() => {
-        if (fullST && fullST.syntaxTree.source !== originalSource.source) {
-            const createdRecords = getAvailableCreatedRecords(createdDefinitions, fullST.syntaxTree);
-            setRecordNames(getAvailableCreatedRecords(createdDefinitions, fullST.syntaxTree));
+        if (fullST && fullST.source !== originalSource.source) {
+            const createdRecords = getAvailableCreatedRecords(createdDefinitions, fullST);
+            setRecordNames(getAvailableCreatedRecords(createdDefinitions, fullST));
             if (createdRecords.length === 0) {
                 onCancel();
             }
         }
-    }, [fullST.syntaxTree]);
+    }, [fullST]);
 
     const [listRecords, setListRecords] = useState<ReactNode[]>([]);
-    const actualSelectedRecordSt = selectedRecord ? getActualRecordST(fullST.syntaxTree, selectedRecord) : undefined;
+    const actualSelectedRecordSt = selectedRecord ? getActualRecordST(fullST, selectedRecord) : undefined;
 
     const onCancelEdit = () => {
         setSelectedRecord("");
@@ -139,7 +138,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
         setRecordNames(recordNameClone);
         undoRedoManager.updateContent(currentFile.path, currentFile.content);
         undoRedoManager.addModification(currentFile.content);
-        applyModifications(getRemoveCreatedRecordRange(selectedRecords, fullST.syntaxTree));
+        applyModifications(getRemoveCreatedRecordRange(selectedRecords, fullST));
         if (recordNameClone.length === 0) {
             onCancel();
         }
@@ -159,7 +158,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const handleUndo = () => {
         const lastUpdateSource = undoRedoManager.undo();
-        applyModifications([updatePropertyStatement(lastUpdateSource, fullST.syntaxTree.position)]);
+        applyModifications([updatePropertyStatement(lastUpdateSource, fullST.position)]);
         if (lastUpdateSource === originalSource.source) {
             // If original source matches to last updated source we assume there are no newly created record.
             // Hence, we are closing the form.
@@ -171,27 +170,27 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
         <>
             {!selectedRecord ? (
                 <>
-                    <FormHeaderSection
-                        formTitle={"lowcode.develop.configForms.recordEditor.codePanel.title"}
-                        defaultMessage={"Record"}
-                        onCancel={onCancel}
-                    />
+                    <SidePanelTitleContainer sx={{ paddingLeft: 20 }}>
+                        <Typography variant="h3" sx={{ margin: 0 }}>Record Overview</Typography>
+                        <Button onClick={onCancel} appearance="icon"><Codicon name="close" /></Button>
+                    </SidePanelTitleContainer>
                     {listRecords?.length > 0 && (
                         <InputWrapper>
                             <InputLabel>
-                                <Codicon name="check" className={classes.inputSuccessTick} /> {successMsgText}
+                                <Codicon name="check" sx={{marginTop: 2, marginRight: 5 }} className={classes.inputSuccessTick} /> {successMsgText}
                             </InputLabel>
                             <InputLabelDetail>{successMsgTextDetail}</InputLabelDetail>
                         </InputWrapper>
                     )}
-                    <RecordFormWrapper>{listRecords}</RecordFormWrapper>
+                    <RecordList>{listRecords}</RecordList>
                     <div className={classes.recordOptions}>
-                        <Button key={"select-all"} onClick={onSelectAll} className={classes.marginSpace}>
+                        <Button appearance="secondary" key={"select-all"} onClick={onSelectAll} className={classes.marginSpace}>
                             {overviewSelectAll}
                         </Button>
 
                         <div className={cx(classes.deleteRecord, classes.marginSpace)} onClick={onDeleteSelected}>
-                            <Codicon name="trash" /> {deleteSelected}
+                            {/* Add a space betweeen Codicon and deleteSelected */}
+                            <Codicon name="trash" /> &nbsp; &nbsp; {deleteSelected}
                         </div>
 
                         <Tooltip content="Undo" position="bottom-end">
@@ -199,14 +198,15 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                                 onClick={handleUndo}
                                 className={cx(classes.undoButton, classes.marginSpace)}
                                 data-testid="overview-undo"
+                                appearance="icon"
                             >
-                                <Icon name="undo" />
+                                <Codicon name="discard" />
                             </Button>
                         </Tooltip>
                     </div>
                     <div className={classes.doneButtonWrapper}>
                         <Button appearance="primary" onClick={onComplete} data-testId="done-btn">
-                            <Typography variant="h5">{doneButtonText}</Typography>
+                           {doneButtonText}
                         </Button>
                     </div>
                 </>

@@ -7,31 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BallerinaProjectComponents, ComponentInfo } from "../rpc-types/lang-server/interfaces";
 
-function convertToCamelCase(variableName: string): string {
-    return variableName
-        .replace(/\s(.)/g, (a) => {
-            return a.toUpperCase();
-        })
-        .replace(/\s/g, "")
-        .replace(/^(.)/, (b) => {
-            return b.toLowerCase();
-        });
-}
+import { ComponentInfo } from "../interfaces/ballerina";
+import { BallerinaProjectComponents } from "../interfaces/extended-lang-client";
 
-export function genVariableName(defaultName: string, variables: string[], skipCamelCase?: boolean): string {
-    const baseName: string = skipCamelCase ? defaultName : convertToCamelCase(defaultName);
-    let varName: string = baseName.includes(".") ? baseName.split(".").pop() : baseName;
-    let index = 0;
-    while (variables.includes(varName)) {
-        index++;
-        varName = baseName + index;
-    }
-    return varName;
-}
-
-export function getAllVariablesForAi(projectComponents: BallerinaProjectComponents): { [key: string]: any } {
+export function getAllVariablesForAiFrmProjectComponents(projectComponents: BallerinaProjectComponents): { [key: string]: any } {
     const variableCollection: { [key: string]: any } = {};
     projectComponents.packages?.forEach((packageSummary) => {
         packageSummary.modules.forEach((moduleSummary) => {
@@ -67,9 +47,9 @@ export function getAllVariablesForAi(projectComponents: BallerinaProjectComponen
     return variableCollection;
 }
 
-export function getAllVariables(projectComponents: BallerinaProjectComponents): string[] {
+export function getAllVariablesByProjectComponents(projectComponents: BallerinaProjectComponents): string[] {
     const variableCollection: string[] = [];
-    const variableInfo = getAllVariablesForAi(projectComponents);
+    const variableInfo = getAllVariablesForAiFrmProjectComponents(projectComponents);
     Object.keys(variableInfo).map((variable) => {
         variableCollection.push(variable);
     });

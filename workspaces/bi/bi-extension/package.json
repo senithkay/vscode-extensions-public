@@ -1,0 +1,151 @@
+{
+    "name": "kola-extension",
+    "displayName": "Kola",
+    "description": "Project Kola.",
+    "version": "0.3.5",
+    "publisher": "wso2",
+    "repository": {
+        "url": "http://repo.url"
+    },
+    "engines": {
+        "vscode": "^1.84.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "workspaceContains:**/Ballerina.toml"
+    ],
+    "main": "./out/extension",
+    "extensionDependencies": [
+        "wso2.kolab"
+    ],
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "kola-integrator",
+                    "title": "Kola Integrator",
+                    "icon": "$(circuit-board)"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
+                "when": "BI.status == 'unknownProject'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
+                "when": "BI.status == 'noLS'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Loading your workspace, please wait...",
+                "when": "BI.status == 'loading'"
+            }
+        ],
+        "views": {
+            "kola-integrator": [
+                {
+                    "id": "BI.project-explorer",
+                    "name": ""
+                }
+            ]
+        },
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "kolab.show.visualizer",
+                    "when": "view == BI.project-explorer && viewItem == bi-project",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-connection",
+                    "when": "view == BI.project-explorer && viewItem == connections",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.delete",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-entry-point",
+                    "when": "view == BI.project-explorer && viewItem == entryPoint",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-type",
+                    "when": "view == BI.project-explorer && viewItem == types",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-function",
+                    "when": "view == BI.project-explorer && viewItem == functions",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.add-configuration",
+                    "when": "view == BI.project-explorer && viewItem == configurations",
+                    "group": "inline"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "BI.project-explorer.add",
+                    "when": "view == BI.project-explorer && BI.project == true",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BI.project-explorer.overview",
+                    "when": "view == BI.project-explorer && BI.project == true",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "commands": []
+    },
+    "scripts": {
+        "vscode:prepublish": "pnpm run compile",
+        "compile": "webpack --mode production --stats-error-details",
+        "watch-bi": "webpack --mode none --watch",
+        "pretest": "pnpm run compile && pnpm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js",
+        "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
+        "package": "vsce package --no-dependencies",
+        "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
+        "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
+        "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
+        "copyVSIX": "copyfiles *.vsix ./vsix",
+        "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../.."
+    },
+    "dependencies": {
+        "@wso2-enterprise/ballerina-core": "workspace:*",
+        "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+        "xstate": "^4.38.3"
+    },
+    "devDependencies": {
+        "@vscode/vsce": "^2.22.0",
+        "@types/vscode": "^1.84.0",
+        "@types/mocha": "^10.0.3",
+        "@types/node": "18.x",
+        "@typescript-eslint/eslint-plugin": "^6.9.0",
+        "@typescript-eslint/parser": "^6.9.0",
+        "@vscode/test-electron": "^2.3.6",
+        "eslint": "^8.52.0",
+        "glob": "^10.3.10",
+        "mocha": "^10.2.0",
+        "typescript": "^5.2.2",
+        "copyfiles": "^2.4.1",
+        "copy-webpack-plugin": "^11.0.0",
+        "source-map-support": "^0.5.21",
+        "ts-loader": "^9.4.1",
+        "webpack": "^5.56.0",
+        "webpack-cli": "^4.10.0",
+        "webpack-permissions-plugin": "^1.0.9"
+    }
+}

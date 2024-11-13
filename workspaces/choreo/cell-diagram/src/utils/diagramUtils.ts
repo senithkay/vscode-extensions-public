@@ -36,13 +36,14 @@ import {
     MAIN_CELL,
     PROJECT_NODE,
 } from "../resources";
+import { ZoomCanvasAction } from "@projectstorm/react-canvas-core";
 
 // Diagram engine utils
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
-        registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: true,
+        registerDefaultPanAndZoomCanvasAction: false,
+        registerDefaultZoomCanvasAction: false,
     });
     engine.getLinkFactories().registerFactory(new ProjectLinkFactory());
     engine.getPortFactories().registerFactory(new ProjectPortFactory());
@@ -66,6 +67,8 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new EmptyFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+    engine.getActionEventBus().registerAction(new ZoomCanvasAction({ inverseZoom: true }));
     return engine;
 }
 

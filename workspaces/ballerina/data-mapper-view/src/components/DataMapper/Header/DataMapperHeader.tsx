@@ -9,26 +9,42 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 import { SelectionState, ViewOption } from "../DataMapper";
-
+import AutoMapButton from "./AutoMapButton";
 import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import HeaderSearchBox from "./HeaderSearchBox";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
     hasEditDisabled: boolean;
+    experimentalEnabled: boolean;
+    isBI?: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
     onClose?: () => void;
+    autoMapWithAI: () => Promise<void>;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, hasEditDisabled, changeSelection, onConfigOpen, onClose } = props;
+    const {
+        selection,
+        hasEditDisabled,
+        experimentalEnabled,
+        isBI,
+        changeSelection,
+        onConfigOpen,
+        onClose,
+        autoMapWithAI
+    } = props;
+
+    const handleAutoMap = async () => {
+        await autoMapWithAI();
+    };
 
     return (
         <HeaderContainer>
@@ -46,7 +62,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />
                     </FilterBar>
-                    <ConfigureButton onClick={onConfigOpen}/>
+                    <AutoMapButton onClick={handleAutoMap} />
+                    {!isBI && <ConfigureButton onClick={onConfigOpen} />}
                 </>
             )}
             {onClose && (
@@ -89,5 +106,4 @@ const FilterBar = styled.div`
   align-items: center;
   justify-content: flex-end;
   margin-right: 20px;
-  margin-bottom: 3px;
 `;

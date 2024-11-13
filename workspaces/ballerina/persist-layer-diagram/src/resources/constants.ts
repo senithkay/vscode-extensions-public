@@ -9,19 +9,6 @@
 
 import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 
-export enum Colors {
-    DEFAULT_TEXT = '#40404B',
-    PRIMARY = '#5567D5',
-    PRIMARY_LIGHT = '#CBCEDB',
-    PRIMARY_SELECTED = '#ffaf4d',
-    PRIMARY_FOCUSED = '#d59155',
-    SECONDARY = '#F0F1FB',
-    SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2',
-    NODE_BACKGROUND = '#F7F8FB',
-    NODE_BORDER = '#CBCEDB'
-}
-
 export const dagreEngine = new DagreEngine({
     graph: {
         rankdir: 'LR',

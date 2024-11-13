@@ -53,6 +53,7 @@ jobs:
       choreo: false
       apk: false
       version: ${{ inputs.version }}
+      skipBallerinaUiTests: true
 
   Release:
     name: Release VSIX
@@ -124,3 +125,4 @@ jobs:
           choreo: true
           ballerina: true
           apk: true
+          chatAPI: ${{ secrets.TOOLING_TEAM_CHAT_API }}

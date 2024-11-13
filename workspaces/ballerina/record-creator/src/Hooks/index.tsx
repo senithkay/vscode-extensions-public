@@ -8,11 +8,11 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { BallerinaProjectComponents, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export const useBallerinaVersion = (
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): {
     ballerinaVersion: string;
     isFetching: boolean;
@@ -36,6 +36,7 @@ export const useBallerinaVersion = (
     } = useQuery({
         queryKey: ["fetchBallerinaVersion"],
         queryFn: fetchBallerinaVersion,
+        networkMode: 'always'
     });
 
     return { ballerinaVersion, isFetching, isError, refetch };
@@ -43,7 +44,7 @@ export const useBallerinaVersion = (
 
 export const useFullST = (
     filePath: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): {
     fullST: SyntaxTreeResponse;
     isFetching: boolean;
@@ -69,6 +70,7 @@ export const useFullST = (
     } = useQuery({
         queryKey: ["fetchFullST", filePath],
         queryFn: fetchFullST,
+        networkMode: 'always'
     });
 
     return { fullST, isFetching, isError, refetch };
@@ -76,7 +78,7 @@ export const useFullST = (
 
 export const useBallerinaProjectComponent = (
     filePath: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): {
     ballerinaProjectComponents: BallerinaProjectComponents;
     isFetching: boolean;
@@ -104,6 +106,7 @@ export const useBallerinaProjectComponent = (
     } = useQuery({
         queryKey: ["fetchBallerinaProjectComponents", filePath],
         queryFn: fetchBallerinaProjectComponents,
+        networkMode: 'always'
     });
 
     return { ballerinaProjectComponents, isFetching, isError, refetch };

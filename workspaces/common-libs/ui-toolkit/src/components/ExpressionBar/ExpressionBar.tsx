@@ -8,17 +8,55 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef } from 'react';
-import { Icon } from '../Icon/Icon';
+import React, { forwardRef, ReactNode } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { InputProps } from '../TextField/TextField';
+import { Button } from '../Button/Button';
+import { ThemeColors } from '../../styles';
+import { Icon } from '../Icon/Icon';
+import { Codicon } from '../Codicon/Codicon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
+    Array: 'array',
+    Alias: 'alias',
+    Boolean: 'boolean',
+    Class: 'class',
+    Color: 'color',
+    Constant: 'constant',
+    Constructor: 'constructor',
+    Enum: 'enum',
+    EnumMember: 'enum-member',
+    Event: 'event',
+    Field: 'field',
+    File: 'file',
+    Folder: 'folder',
     Function: 'function',
+    Interface: 'interface',
+    Key: 'key',
+    Keyword: 'keyword',
     Method: 'method',
+    Misc: 'misc',
+    Module: 'module',
+    Namespace: 'namespace',
+    Null: 'null',
+    Number: 'number',
+    Object: 'object',
+    Operator: 'operator',
+    Package: 'package',
     Parameter: 'parameter',
     Property: 'property',
+    Reference: 'reference',
+    Ruler: 'ruler',
+    Snippet: 'snippet',
+    String: 'string',
+    Struct: 'struct',
+    Structure: 'structure',
+    Text: 'text',
+    TypeParameter: 'type-parameter',
+    Unit: 'unit',
+    Value: 'value',
+    Variable: 'variable',
 } as const;
 
 export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMPLETION_ITEM_KIND];
@@ -27,10 +65,12 @@ export type CompletionItem = {
     tag?: string;
     label: string;
     value: string;
-    description: string;
+    description?: string;
     kind: CompletionItemKind;
     args?: string[];
     replacementSpan?: number;
+    sortText?: string;
+    cursorOffset?: number;
 };
 
 export type ExpressionBarBaseProps = {
@@ -39,26 +79,59 @@ export type ExpressionBarBaseProps = {
     value: string;
     placeholder?: string;
     sx?: React.CSSProperties;
-    completions: CompletionItem[];
     inputProps?: InputProps;
-    onChange: (value: string) => Promise<void>;
-    onFocus?: () => Promise<void>;
-    onBlur?: () => Promise<void>;
-    onCompletionSelect: (value: string) => Promise<void>;
-    onSave: (value: string) => Promise<void>;
+    textBoxType?: 'TextField' | 'TextArea';
+    onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
+    onFocus?: (e?: any) => void | Promise<void>;
+    onBlur?: (e?: any) => void | Promise<void>;
+    onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
-    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
+    onClose?: () => void;
+    onRemove?: () => void;
+    useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
+    shouldDisableOnSave?: boolean;
+
+    // Completion item props
+    // - The list of completions to be displayed
+    completions: CompletionItem[];
+    // - Get a custom icon for the expression bar
+    getExpressionBarIcon?: () => ReactNode;
+    // - Should display the default completion item at the top of the completion list
+    showDefaultCompletion?: boolean;
+    // - Should auto select the first completion item in the list
+    autoSelectFirstItem?: boolean;
+    // - Get default completion item to be displayed at the top of the completion list
+    getDefaultCompletion?: () => ReactNode;
+    // - The function to be called when a completion is selected
+    onCompletionSelect?: (value: string) => void | Promise<void>;
+    // - The function to be called when the default completion is selected
+    onDefaultCompletionSelect?: () => void | Promise<void>;
+
+    // Function signature props
+    // - Returns information about the function that is currently being edited
+    extractArgsFromFunction?: (
+        value: string,
+        cursorPosition: number
+    ) => Promise<{
+        label: string;
+        args: string[];
+        currentArgIndex: number;
+    }>;
+    handleHelperPaneOpen?: () => void;
 };
 
 export type ExpressionBarProps = ExpressionBarBaseProps & {
     id?: string;
+    name?: string;
 };
 
 export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
-    focus: (text?: string) => Promise<void>;
-    blur: (text?: string) => Promise<void>;
-    saveExpression: (text?: string) => Promise<void>;
+    inputElement: HTMLInputElement | HTMLTextAreaElement;
+    focus: () => void;
+    blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
+    saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
+    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components
@@ -68,8 +141,7 @@ namespace Ex {
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
-        height: 32px;
-        padding-inline: 8px;
+        min-height: 32px;
         gap: 8px;
         box-sizing: border-box;
 
@@ -85,14 +157,27 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, ...rest } = props;
+    const { id, handleHelperPaneOpen, getExpressionBarIcon, onRemove, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
-            <Icon name="function-icon" />
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
+            {(handleHelperPaneOpen || getExpressionBarIcon) && (
+                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+                    {getExpressionBarIcon ? (
+                        getExpressionBarIcon()
+                    ) : (
+                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                    )}
+                </Button>
+            )}
+            {onRemove && (
+                <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
+                    <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
+                </Button>
+            )}
         </Ex.Container>
     );
 });

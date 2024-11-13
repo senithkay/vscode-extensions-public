@@ -24,8 +24,8 @@ import {
 } from "../../../utils/dm-utils";
 import { OutputSearchHighlight } from "../Search";
 
-import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { useIONodesStyles } from "../../../../styles";
 
 export interface PrimitiveTypedEditableElementWidgetProps {
     parentId: string;
@@ -51,7 +51,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         isArrayElement,
         hasHoveredParent
     } = props;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
 
     const fieldName = getFieldName(field);
     const typeName = field.type.typeName;
@@ -143,7 +143,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                         hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                 >
-                    <span className={classes.treeLabelInPort}>
+                    <span className={classes.inPort}>
                         {portIn &&
                             <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
                         }

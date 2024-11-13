@@ -213,22 +213,21 @@ import {
     ExtendedDSSQueryGenRequest,
     DSSFetchTablesRequest,
     DSSFetchTablesResponse,
-    DSSQueryGenRequest,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
-    tryOutMediator,
     MediatorTryOutRequest,
     MediatorTryOutResponse,
     SavePayloadRequest,
     GetPayloadRequest,
-    GetPayloadResponse
+    GetPayloadResponse,
+    RegistryArtifact
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
 import { copy } from 'fs-extra';
-import { isEqual } from "lodash";
+import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
@@ -270,6 +269,8 @@ const { XMLParser, XMLBuilder } = require("fast-xml-parser");
 const connectorsPath = path.join(".metadata", ".Connectors");
 
 const undoRedo = new UndoRedoManager();
+
+const connectorCache = new Map<string, any>();
 
 export class MiDiagramRpcManager implements MiDiagramAPI {
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
@@ -2922,12 +2923,8 @@ ${endpointAttributes}
 
     async writeContentToFile(params: WriteContentToFileRequest): Promise<WriteContentToFileResponse> {
         const fetchConnectors = async (name) => {
-            const response = await fetch(APIS.CONNECTOR);
-            if (!response.ok) {
-                console.error('Failed to fetch connectors');
-            }
-            const data = await response.json();
-            const connector = data['outbound-connector-data']?.find(connector => connector.name === name);
+            const data = await this.getStoreConnectorJSON();
+            const connector = data?.outboundConnectors?.find(connector => connector.name === name);
             if (connector) {
                 return connector.download_url;
             } else {
@@ -3563,7 +3560,11 @@ ${endpointAttributes}
             for (let i = 0; i < artifacts.length; i++) {
                 tempArtifactNames.push(artifacts[i].name);
             }
-            resolve({ artifacts: tempArtifactNames });
+            let artifactsWithAdditionalData: RegistryArtifact[] = [];
+            if (params.withAdditionalData) {
+                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+            }
+            resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });
     }
 
@@ -3601,9 +3602,24 @@ ${endpointAttributes}
 
     async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
-            const connectorDataState = StateMachine.context().connectorData;
-            if (connectorDataState !== undefined) {
-                resolve({ data: connectorDataState });
+            try {
+                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data')) {
+                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data') });
+                    return;
+                }
+                const response = await fetch(APIS.CONNECTOR);
+                const data = await response.json();
+                if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
+                    connectorCache.set('inbound-connector-data', data['inbound-connector-data']);
+                    connectorCache.set('outbound-connector-data', data['outbound-connector-data']);
+                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'] });
+                } else {
+                    console.log("Failed to fetch connectors. Status: " + data.status + ", Reason: " + data.reason);
+                    reject("Failed to fetch connectors.");
+                }
+            } catch (error) {
+                console.log("User is offline.", error);
+                reject("Failed to fetch connectors.");
             }
         });
 
@@ -3830,7 +3846,7 @@ ${endpointAttributes}
             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 ${keyValuesXML}`;
 
-            const filePath = path.join(localEntryPath, `${connectionName}.xml`);
+            const filePath = params?.filePath?.length ? params.filePath : path.join(localEntryPath, `${connectionName}.xml`);
             if (!fs.existsSync(localEntryPath)) {
                 fs.mkdirSync(localEntryPath);
             }
@@ -4312,8 +4328,9 @@ ${keyValuesXML}`;
                 if (!name) {
                     throw new Error('Name is required');
                 }
-                const projeectRoot = workspace.getWorkspaceFolder(Uri.file(artifact))?.uri.fsPath;
-                const testDir = path.join(projeectRoot!, 'src', 'test', "wso2mi");
+                const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(artifact)) || workspace.workspaceFolders?.[0];
+                const projectRoot = workspaceFolder?.uri.fsPath;
+                const testDir = path.join(projectRoot!, 'src', 'test', "wso2mi");
                 filePath = path.join(testDir, `${name}.xml`);
 
                 if (fs.existsSync(filePath)) {
@@ -4332,6 +4349,7 @@ ${keyValuesXML}`;
             }
 
             await replaceFullContentToFile(filePath, content);
+            await this.rangeFormat({ uri: filePath });
 
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test suite ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
@@ -4381,7 +4399,7 @@ ${keyValuesXML}`;
             workspaceEdit.replace(Uri.file(filePath), range, params.content);
             await workspace.applyEdit(workspaceEdit);
 
-            await this.rangeFormat({ uri: filePath, range: this.getFormatRange(range, params.content) });
+            await this.rangeFormat({ uri: filePath });
 
             const openFileButton = 'Open File';
             window.showInformationMessage(`Test case ${!filePath ? "created" : "updated"} successfully`, openFileButton).then(selection => {
@@ -4887,11 +4905,11 @@ ${keyValuesXML}`;
             }
 
             const sanitizedXml = xml.replace(/^\s*[\r\n]/gm, '');
-            
+
             const xmlLineCount = sanitizedXml.split('\n').length;
             const insertRange = { start: position, end: position };
-            const formatRange = { 
-                start: position, 
+            const formatRange = {
+                start: position,
                 end: { line: position.line + xmlLineCount - 1, character: 0 }
             };
             await this.applyEdit({ text: sanitizedXml, documentUri, range: insertRange });

@@ -20,16 +20,23 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
+import {
+    getLetClauseVarNames,
+    getFromClauseNodeLabel,
+    getSearchFilteredInput,
+    getTypeFromStore
+} from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
-export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
+export const QUERY_EXPR_LET_NODE_TYPE = "datamapper-node-record-type-desc-let";
+const NODE_ID = "query-expr-let-node";
 
 export class LetClauseNode extends DataMapperNodeModel {
 
     public sourceTypeDesc: RecordTypeDesc;
     public typeDef: TypeField;
     public sourceBindingPattern: CaptureBindingPattern;
+    public nodeLabel: string;
     public x: number;
     public numberOfFields:  number;
     public hasNoMatchingFields: boolean;
@@ -38,10 +45,12 @@ export class LetClauseNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: LetClause) {
+        public value: LetClause
+    ) {
         super(
+            `${NODE_ID}-${getLetClauseVarNames(value).join('.')}`,
             context,
-            QUERY_EXPR_SOURCE_NODE_TYPE
+            QUERY_EXPR_LET_NODE_TYPE
         );
         this.numberOfFields = 1;
         this.letVarDecl = value.letVarDeclarations[0] as LetVarDecl;
@@ -52,6 +61,7 @@ export class LetClauseNode extends DataMapperNodeModel {
             this.originalTypeDef = getTypeFromStore(expr.position as NodePosition);
             this.typeDef = this.originalTypeDef;
         }
+        this.nodeLabel = getFromClauseNodeLabel(bindingPattern, expr);
     }
 
     initPorts(): void {

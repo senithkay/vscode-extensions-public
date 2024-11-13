@@ -55,6 +55,7 @@ import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const UNION_TYPE_NODE_TYPE = "data-mapper-node-union-type";
+const NODE_ID = "union-type-node";
 
 export class UnionTypeNode extends DataMapperNodeModel {
 
@@ -78,6 +79,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         public typeDef: TypeField
     ) {
         super(
+            NODE_ID,
             context,
             UNION_TYPE_NODE_TYPE
         );
@@ -478,7 +480,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 this.x = x;
                 this.y = y;
             }
-            super.setPosition(x, y || this.y);
+            super.setPosition(x, y);
         }
     }
 }

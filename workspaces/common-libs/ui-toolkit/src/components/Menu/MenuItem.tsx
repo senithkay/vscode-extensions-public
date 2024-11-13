@@ -27,7 +27,8 @@ const Container = styled.div<ContainerProps>`
     padding: 6px 10px;
     cursor: pointer;
     &:hover, &.active {
-        background: var(--vscode-focusBorder);
+        color: var(--vscode-button-foreground);
+        background: var(--vscode-button-background);
     };
     ${(props: ContainerProps) => props.sx};
 `;

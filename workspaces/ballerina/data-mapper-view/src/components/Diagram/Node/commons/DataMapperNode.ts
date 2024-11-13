@@ -58,7 +58,8 @@ import {
 	getInnermostExpressionBody,
 	getInputNodes,
 	getOptionalRecordField,
-	isComplexExpression
+	isComplexExpression,
+	isOptionalAndNillableField
 } from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
@@ -82,8 +83,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	private diagramModel: DiagramModel;
 
 	constructor(
+		public id: string,
 		public context: IDataMapperContext,
-		type: string) {
+		type: string
+	) {
 		super({
 			type
 		});
@@ -127,7 +130,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden, isOptional);
+						fieldPort, collapsedFields, isCollapsed ? true : hidden, isOptionalAndNillableField(subField));
 				});
 			}
 		}

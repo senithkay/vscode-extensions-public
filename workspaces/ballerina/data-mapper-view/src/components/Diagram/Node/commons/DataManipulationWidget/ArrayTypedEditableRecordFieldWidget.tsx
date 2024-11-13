@@ -40,9 +40,9 @@ import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
-import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { useIONodesStyles } from "../../../../styles";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -73,7 +73,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         hasHoveredParent
     } = props;
     const { handleCollapse, filePath } = context;
-    const classes = useStyles();
+    const classes = useIONodesStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -178,7 +178,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    isDisabled ? classes.valueLabelDisabled : "")}
+                    isDisabled ? classes.labelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
@@ -186,7 +186,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 {fieldName && typeName && ":"}
             </span>
             {typeName !== '[]' ? (
-                <span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+                <span className={classnames(classes.outputTypeLabel, isDisabled ? classes.labelDisabled : "")}>
                     {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             ) : (
@@ -231,7 +231,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </DiagnosticTooltip>
                     ) : (
                         <span
-                            className={classes.value}
+                            className={classes.outputNodeValue}
                             onClick={handleEditValue}
                             data-testid={`array-widget-field-${portIn?.getName()}`}
                         >
@@ -296,22 +296,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     }
                 }
                 return (
-                    <>
-                        <TreeBody>
-                            <PrimitiveTypedEditableElementWidget
-                                parentId={fieldId}
-                                field={element.member}
-                                engine={engine}
-                                getPort={getPort}
-                                context={context}
-                                fieldIndex={index}
-                                deleteField={deleteField}
-                                isArrayElement={true}
-                                hasHoveredParent={isHovered || hasHoveredParent}
-                            />
-                        </TreeBody>
-                        <br />
-                    </>
+                    <PrimitiveTypedEditableElementWidget
+                        parentId={fieldId}
+                        field={element.member}
+                        engine={engine}
+                        getPort={getPort}
+                        context={context}
+                        fieldIndex={index}
+                        deleteField={deleteField}
+                        isArrayElement={true}
+                        hasHoveredParent={isHovered || hasHoveredParent}
+                    />
                 );
             })
         );
@@ -320,7 +315,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const addElementButton = useMemo(() => {
         return (
             <Button
-                className={classes.addIcon}
+                className={classes.addArrayElementButton}
                 appearance="icon"
                 aria-label="add"
                 onClick={onAddElementClick}
@@ -480,8 +475,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     return (
         <div
-            className={classnames(classes.treeLabel, classes.treeLabelArray,
-                isDisabled ? classes.treeLabelDisabled : "",
+            className={classnames(
+                classes.treeLabelArray,
                 hasHoveredParent ? classes.treeLabelParentHovered : ""
             )}
         >
@@ -496,7 +491,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                 >
-                    <span className={classes.treeLabelInPort}>
+                    <span className={classes.inPort}>
                         {portIn && (
                             <DataMapperPortWidget
                                 engine={engine}

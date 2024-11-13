@@ -13,12 +13,12 @@ import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
 import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { NodeContainer } from "../../resources/styles/styles";
 import { getComponentName } from "../../utils/common-util";
 
 import { RecordFieldWidget } from "./RecordFields/RecordField";
 import { RecordHeadWidget } from "./RecordHead/RecordHead";
 import { RecordNodeModel } from "./RecordNodeModel";
-import { RecordNode } from "./styles";
 
 interface RecordNodeWidgetProps {
     node: RecordNodeModel;
@@ -31,7 +31,7 @@ export function RecordNodeWidget(props: RecordNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.recordObject.name;
 
     return (
-        <RecordNode isSelected={isNodeSelected} data-testid={`record-node-${node?.recordObject?.name}`}>
+        <NodeContainer isSelected={isNodeSelected} data-testid={`record-node-${node?.recordObject?.name}`}>
             <RecordHeadWidget engine={engine} node={node} />
             {node.recordObject.recordFields.map((field, index) => {
                 return (
@@ -44,6 +44,6 @@ export function RecordNodeWidget(props: RecordNodeWidgetProps) {
                 );
             })
             }
-        </RecordNode>
+        </NodeContainer>
     );
 }

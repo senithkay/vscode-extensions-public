@@ -14,7 +14,7 @@ import {
     getFormattedModuleName,
     keywords,
     PrimitiveBalType,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import {
     ClientResourceAccessAction,
     CommaToken,
