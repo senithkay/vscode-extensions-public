@@ -20,6 +20,7 @@ import {
     renderDeleteButton,
     renderEditButton,
     renderExpressionTooltip,
+    renderFunctionCallTooltip,
     renderPortWidget
 } from './LinkConnectorWidgetComponents';
 import { useDMExpressionBarStore } from "../../../../store/store";
@@ -38,6 +39,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
 
     const diagnostic = node.hasError() ? node.diagnostics[0] : null;
     const value = node.value;
+    const isFuctionCall = node.mapping.isFunctionCall;
 
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
@@ -64,7 +66,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
                 <div className={classes.header}>
                     {renderPortWidget(engine, node.inPort, `${node?.value}-input`)}
-                    {renderExpressionTooltip()}
+                    {isFuctionCall ? renderFunctionCallTooltip() :  renderExpressionTooltip()}
                     {renderEditButton(onClickEdit, node?.value)}
                     {deleteInProgress ? (
                         loadingScreen

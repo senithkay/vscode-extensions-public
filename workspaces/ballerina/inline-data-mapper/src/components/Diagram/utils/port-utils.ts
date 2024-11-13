@@ -33,6 +33,8 @@ export function getOutputPort(
 
         return [actualPort, mappedPort];
     }
+
+    return [undefined, undefined];
 }
 
 export function getTargetPortPrefix(node: NodeModel): string {

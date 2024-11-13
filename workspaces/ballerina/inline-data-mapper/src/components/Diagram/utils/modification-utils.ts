@@ -6,7 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { PortModel } from "@projectstorm/react-diagrams-core";
 import { DataMapperLinkModel } from "../Link";
+import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { InputOutputPortModel } from "../Port";
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {
     
@@ -17,6 +20,22 @@ export async function modifySourceForMultipleMappings(link: DataMapperLinkModel)
 	if (!targetPort) {
 		return;
 	}
+}
+
+export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string, suffix: string = '') {
+	const targetNode = targetPort.getNode() as DataMapperNodeModel;
+	const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+	const sourceInputAccessExpr = (newValue || buildInputAccessExpr(sourceField)) + suffix;
+	const expr = (targetPort as InputOutputPortModel).value;
+
+	// let updatedExpr;
+	// if (Node.isPropertyAssignment(expr)) {
+	// 	updatedExpr = expr.setInitializer(sourceInputAccessExpr);
+	// } else {
+	// 	updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
+	// }
+
+	// await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {

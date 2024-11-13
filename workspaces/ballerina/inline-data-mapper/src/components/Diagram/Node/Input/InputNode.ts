@@ -39,7 +39,9 @@ export class InputNode extends DataMapperNodeModel {
 
         if (this.inputType) {
             const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const parentPort = this.addPortsForHeader(this.inputType, this.identifier, "OUT", undefined, collapsedFields);
+            const parentPort = this.addPortsForHeader(
+                this.inputType, this.identifier, "OUT", undefined, undefined, collapsedFields
+            );
 
             if (this.inputType.kind === TypeKind.Record) {
                 const fields = this.inputType.fields;

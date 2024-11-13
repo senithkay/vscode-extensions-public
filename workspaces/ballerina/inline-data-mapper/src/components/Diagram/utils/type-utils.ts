@@ -21,3 +21,12 @@ export function getTypeName(field: IOType): string {
 
 	return typeName;
 }
+
+export function getDMTypeDim(ioType: IOType) {
+    let dim = 0;
+    while (ioType?.kind == TypeKind.Array) {
+        dim++;
+        ioType = ioType.memberType;
+    }
+    return dim;
+}

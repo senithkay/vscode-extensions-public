@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { IOType } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
-import { buildInputAccessExpr, createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
+import { createSourceForMapping, modifySourceForMultipleMappings, updateExistingValue } from "../../utils/modification-utils";
+import { getMappingType } from "../../utils/common-utils";
+import { genArrayElementAccessSuffix, getValueType } from "../../utils/common-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
@@ -20,10 +21,16 @@ export interface InputOutputPortModelGenerics {
 
 export const INPUT_OUTPUT_PORT = "input-output-port";
 
-enum ValueType {
+export enum ValueType {
 	Default,
 	Empty,
 	NonEmpty
+}
+
+export enum MappingType {
+	ArrayToArray = "array-array",
+	ArrayToSingleton = "array-singleton",
+	Default = undefined // This is for non-array mappings currently
 }
 
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
@@ -34,6 +41,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public field: IOType,
 		public portName: string,
 		public portType: "IN" | "OUT",
+		public value?: Mapping,
 		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
 		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: InputOutputPortModel,
@@ -49,45 +57,40 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		});
 		this.linkedPorts = [];
 	}
-
+	
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
-				// const targetPortHasLinks = Object.values(targetPort.links)
-				// 	?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-				const targetPortHasLinks = false;
+				
+				const mappingType = getMappingType(sourcePort, targetPort);
+				if (mappingType === MappingType.ArrayToArray) {
+					// Source update behavior is determined by the user when connecting arrays.
+					return;
+				}
 
-				const targetNode = targetPort.getNode() as DataMapperNodeModel;
-				const valueType = this.getValueType(lm);
+				let elementAccessSuffix = '';
+				if (mappingType === MappingType.ArrayToSingleton) {
+					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
+				}
+
+				const targetPortHasLinks = Object.values(targetPort.links)
+					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+				const valueType = getValueType(lm);
 
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
-					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
-					
-					if (targetPort) {
-						const typeWithValue = (targetPort as InputOutputPortModel).field;
-						// const expr = (typeWithValue as IOType).mapping.expression;
-
-						let updatedExpr;
-						// if (Node.isPropertyAssignment(expr)) {
-						// 	updatedExpr = expr.setInitializer(sourceInputAccessExpr);
-						// } else {
-							// updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
-						// }
-
-						// await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
-					}
+					await updateExistingValue(sourcePort, targetPort, undefined, elementAccessSuffix);
 				} else if (targetPortHasLinks) {
 					await modifySourceForMultipleMappings(lm);
 				} else {
-					createSourceForMapping(lm);
+					await createSourceForMapping(lm);
 				}
 			})
 		});
-		return lm as any;
+
+		return lm;
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {
@@ -121,22 +124,5 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		}
 		return this.portType !== port.portType && !isLinkExists
 				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
-	}
-
-	getValueType(lm: DataMapperLinkModel): ValueType {
-		const field = (lm.getTargetPort() as InputOutputPortModel).field as IOType;
-
-		// if (field.mapping) {
-		// 	let expr = field.mapping?.expression;
-	
-		// 	// if (Node.isPropertyAssignment(expr)) {
-		// 	// 	expr = expr.getInitializer();
-		// 	// }
-		// 	if (expr !== undefined) {
-		// 		// return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
-		// 	}
-		// }
-
-		return ValueType.Empty;
 	}
 }
