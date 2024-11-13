@@ -170,7 +170,7 @@ jobs:
           repo: wso2/mi-vscode
           token: ${{ secrets.MI_PUBLISH_PAT }}
           name: micro-integrator
-          chatAPI: ${{ secrets.MI_TEAM_CHAT_API }}
+          chatAPI: ${{ steps.chat.outputs.chatAPI }}
 
       - name: Create PR and notify
         uses: ./.github/actions/pr
@@ -186,7 +186,7 @@ jobs:
           apk: ${{ inputs.apk }}
           apiChat: ${{ inputs.api-chat }}
           mi: ${{ inputs.mi }}
-          chatAPI: ${{ steps.chat.outputs.chatAPI }}
+          chatAPI: ${{ secrets.TOOLING_TEAM_CHAT_API }}
 
   Notify:
     needs: [Release]

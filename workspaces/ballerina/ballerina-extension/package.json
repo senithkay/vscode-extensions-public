@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.3.1",
+    "version": "0.3.5",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -28,6 +28,9 @@
         "workspaceContains:**/Ballerina.toml",
         "onNotebook:kolab-notebook",
         "onUri"
+    ],
+    "extensionDependencies": [
+        "anweber.httpbook"
     ],
     "contributes": {
         "languages": [
@@ -501,6 +504,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.tryit",
+                "title": "Open Try It",
+                "category": "Ballerina"
+            },
+            {
                 "command": "kolab.open.ai.panel",
                 "title": "Open AI Panel",
                 "category": "Ballerina",
@@ -535,6 +543,12 @@
                 "title": "Add Connection",
                 "icon": "$(add)",
                 "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.delete",
+                "title": "Delete",
+                "icon": "$(trash)",
                 "category": "BI"
             },
             {

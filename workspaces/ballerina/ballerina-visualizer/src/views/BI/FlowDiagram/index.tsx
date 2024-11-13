@@ -34,6 +34,8 @@ import {
     TriggerCharacter,
     SubPanel,
     SubPanelView,
+    Diagnostic,
+    FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -58,7 +60,7 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
 
@@ -194,7 +196,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         updateFlowModel = true
     ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
-            position: target,
+            position: target.startLine,
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
@@ -464,6 +466,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
+        if (!targetRef.current) {
+            return;
+        }
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -501,6 +506,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
+                documentUri: model.fileName,
+                metadata: {
+                    target: targetRef.current.startLine,
+                },
             },
             isPopup: true,
         });
@@ -650,6 +659,38 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         250
     );
 
+    const handleExpressionDiagnostics = debounce(async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+        setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+        shouldUpdateNode?: boolean,
+        variableType?: string
+    ) => {
+        if (!showDiagnostics) {
+            setDiagnosticsInfo({ key, diagnostics: [] });
+            return;
+        }
+
+        // HACK: For variable nodes, update the type value in the node
+        if (shouldUpdateNode) {
+            selectedNodeRef.current.properties["type"].value = variableType;
+        }
+        
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: model.fileName,
+            context: {
+                expression: expression,
+                startLine: targetRef.current.startLine,
+                offset: 0,
+                node: selectedNodeRef.current,
+                property: key
+            },
+        });
+        
+        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+    }, 250);
+
     const handleSubPanel = (subPanel: SubPanel) => {
         setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
@@ -710,12 +751,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
 
         const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
+        let filteredTypes = visibleTypes.filter((type) => {
             const lowerCaseText = effectiveText.toLowerCase();
             const lowerCaseLabel = type.label.toLowerCase();
 
             return lowerCaseLabel.includes(lowerCaseText);
         });
+        // Remove description from each type as its duplicate information
+        filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
 
         setFilteredTypes(filteredTypes);
     }, 250);
@@ -821,54 +864,55 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                 subPanel={findSubPanelComponent(subPanel)}
             >
-                {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <div onClick={onDiscardSuggestions}>
+                <div onClick={onDiscardSuggestions}>
+                    {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
                             onAddConnection={handleOnAddConnection}
                             onClose={handleOnCloseSidePanel}
                         />
-                    </div>
-                )}
-                {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
-                    <NodeList
-                        categories={categories}
-                        onSelect={handleOnSelectNode}
-                        onSearchTextChange={handleSearchFunction}
-                        onAddFunction={handleOnAddFunction}
-                        onClose={handleOnCloseSidePanel}
-                        title={"Functions"}
-                        onBack={handleOnFormBack}
-                    />
-                )}
-                {sidePanelView === SidePanelView.FORM && (
-                    <FormGenerator
-                        fileName={model.fileName}
-                        node={selectedNodeRef.current}
-                        nodeFormTemplate={nodeTemplateRef.current}
-                        connections={model.connections}
-                        clientName={selectedClientName.current}
-                        targetLineRange={targetRef.current}
-                        projectPath={projectPath}
-                        editForm={showEditForm.current}
-                        onSubmit={handleOnFormSubmit}
-                        isActiveSubPanel={showSubPanel}
-                        openSubPanel={handleSubPanel}
-                        expressionEditor={{
-                            completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
-                            triggerCharacters: TRIGGER_CHARACTERS,
-                            retrieveCompletions: handleGetCompletions,
-                            retrieveVisibleTypes: handleGetVisibleTypes,
-                            extractArgsFromFunction: extractArgsFromFunction,
-                            onCompletionSelect: handleCompletionSelect,
-                            onCancel: handleExpressionEditorCancel,
-                            onBlur: handleExpressionEditorBlur,
-                        }}
-                        updatedExpressionField={updatedExpressionField}
-                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                    />
-                )}
+                    )}
+                    {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={handleSearchFunction}
+                            onAddFunction={handleOnAddFunction}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.FORM && (
+                        <FormGenerator
+                            fileName={model.fileName}
+                            node={selectedNodeRef.current}
+                            nodeFormTemplate={nodeTemplateRef.current}
+                            connections={model.connections}
+                            clientName={selectedClientName.current}
+                            targetLineRange={targetRef.current}
+                            projectPath={projectPath}
+                            editForm={showEditForm.current}
+                            onSubmit={handleOnFormSubmit}
+                            isActiveSubPanel={showSubPanel}
+                            openSubPanel={handleSubPanel}
+                            expressionEditor={{
+                                completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
+                                triggerCharacters: TRIGGER_CHARACTERS,
+                                retrieveCompletions: handleGetCompletions,
+                                retrieveVisibleTypes: handleGetVisibleTypes,
+                                extractArgsFromFunction: extractArgsFromFunction,
+                                getExpressionDiagnostics: handleExpressionDiagnostics,
+                                onCompletionSelect: handleCompletionSelect,
+                                onCancel: handleExpressionEditorCancel,
+                                onBlur: handleExpressionEditorBlur,
+                            }}
+                            updatedExpressionField={updatedExpressionField}
+                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                        />
+                    )}
+                </div>
             </PanelContainer>
         </>
     );

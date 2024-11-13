@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { cloneDeep } from "lodash";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
     Colors,
@@ -28,7 +29,7 @@ import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { nodeHasError } from "../../../utils/node";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -195,7 +196,9 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const isMenuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-        model.setAroundLinksDisabled(model.node.suggested);
+        if (model.node.suggested) {
+            model.setAroundLinksDisabled(model.node.suggested === true);
+        }
     }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -246,13 +249,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-
-    // show module name in the title if org is ballerina or ballerinax
-    const nodeTitle =
-        model.node.codedata?.org === "ballerina" || model.node.codedata?.org === "ballerinax"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
-            : model.node.metadata.label;
-
+    const nodeTitle = getNodeTitle(model.node);
     const hasError = nodeHasError(model.node);
 
     return (

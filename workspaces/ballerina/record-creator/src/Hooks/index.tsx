@@ -36,6 +36,7 @@ export const useBallerinaVersion = (
     } = useQuery({
         queryKey: ["fetchBallerinaVersion"],
         queryFn: fetchBallerinaVersion,
+        networkMode: 'always'
     });
 
     return { ballerinaVersion, isFetching, isError, refetch };
@@ -69,6 +70,7 @@ export const useFullST = (
     } = useQuery({
         queryKey: ["fetchFullST", filePath],
         queryFn: fetchFullST,
+        networkMode: 'always'
     });
 
     return { fullST, isFetching, isError, refetch };
@@ -104,6 +106,7 @@ export const useBallerinaProjectComponent = (
     } = useQuery({
         queryKey: ["fetchBallerinaProjectComponents", filePath],
         queryFn: fetchBallerinaProjectComponents,
+        networkMode: 'always'
     });
 
     return { ballerinaProjectComponents, isFetching, isError, refetch };

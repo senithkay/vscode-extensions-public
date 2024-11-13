@@ -250,8 +250,12 @@ export function LibrariesView(props: LibrariesViewProps) {
 
     function handleAddFunction(node: Node): void {
         console.log("====== Add Function", node);
-        // TODO: Pass codedata and get the function signature
-        const functionSignature = node?.metadata?.codedata?.module ? `${node.metadata.codedata.module}:${node.metadata.codedata.symbol}` : node.metadata?.codedata?.symbol;
+        // TODO: Pass codedata and get the function signature/name from LS
+        const functionSignature = node?.metadata?.codedata?.module 
+            ? node.metadata.codedata.module.includes('.')
+                ? `${node.metadata.codedata.module.split('.').pop()}:${node.metadata.codedata.symbol}` 
+                : `${node.metadata.codedata.module}:${node.metadata.codedata.symbol}`
+            : node.metadata?.codedata?.symbol;
         const updateData: ExpressionFormField = {
             value: functionSignature + "(",
             key: editorKey,

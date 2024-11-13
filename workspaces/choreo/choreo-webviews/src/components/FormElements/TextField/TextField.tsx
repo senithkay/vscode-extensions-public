@@ -29,6 +29,19 @@ interface Props {
 export const TextField: FC<Props> = (props) => {
 	const { label, required, loading, name, control, disabled, type, placeholder, wrapClassName } = props;
 
+	if (!control) {
+		return (
+			<FormElementWrap label={label} required={required} loading={loading} wrapClassName={wrapClassName}>
+				<VSCodeTextField
+					className={classnames("w-full border-[0.5px] border-transparent")}
+					disabled={disabled || loading || undefined}
+					type={type}
+					placeholder={placeholder}
+				/>
+			</FormElementWrap>
+		);
+	}
+
 	return (
 		<Controller
 			name={name}
