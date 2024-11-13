@@ -27,7 +27,8 @@ import {
     SyntaxTree,
     TypeResponse,
     WorkspaceFileRequest,
-    WorkspacesFileResponse
+    WorkspaceRootResponse,
+    WorkspacesFileResponse,
 } from "@wso2-enterprise/ballerina-core";
 import child_process from 'child_process';
 import { Uri, commands, env, window, workspace } from "vscode";
@@ -195,5 +196,12 @@ export class CommonRpcManager implements CommonRPCAPI {
 
     async openExternalUrl(params: OpenExternalUrlRequest): Promise<void> {
         env.openExternal(Uri.parse(params.url));
+    }
+
+    async getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
+        return new Promise(async (resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            resolve ( workspaceFolders ? { path: workspaceFolders[0].uri.fsPath } : { path: "" });
+        });
     }
 }

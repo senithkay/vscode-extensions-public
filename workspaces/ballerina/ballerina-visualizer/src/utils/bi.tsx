@@ -25,7 +25,7 @@ import {
     Branch,
     LineRange,
     ExpressionCompletionItem,
-    SignatureHelpResponse
+    SignatureHelpResponse,
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -74,7 +74,7 @@ export function convertBICategoriesToSidePanelCategories(categories: Category[])
 
 export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
     const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
-    const functionCategory = panelCategories.find((category) => category.title === "Project")
+    const functionCategory = panelCategories.find((category) => category.title === "Project");
     if (functionCategory && !functionCategory.items.length) {
         functionCategory.description = "No functions defined. Click below to create a new function.";
     }
@@ -112,10 +112,14 @@ export function convertNodePropertyToFormField(
         label: property.metadata?.label || "",
         type: property.valueType,
         optional: property.optional,
+        advanced: property.advanced,
+        placeholder: property.placeholder,
         editable: isFieldEditable(property, connections, clientName),
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
+        valueType: getFormFieldValueType(property),
         items: getFormFieldItems(property, connections),
+        diagnostics: property.diagnostics?.diagnostics || [],
     };
     return formField;
 }
@@ -137,14 +141,26 @@ function getFormFieldValue(expression: Property, clientName?: string) {
         console.log(">>> client name as set field value", clientName);
         return clientName;
     }
-    return expression.value;
+    return expression.value as string;
 }
 
-function getFormFieldItems(expression: Property, connections: FlowNode[]) {
+function getFormFieldValueType(expression: Property): string | undefined {
+    if (!expression.valueTypeConstraint) {
+        return undefined;
+    }
+
+    if (Array.isArray(expression.valueTypeConstraint)) {
+        return undefined;
+    }
+
+    return expression.valueTypeConstraint;
+}
+
+function getFormFieldItems(expression: Property, connections: FlowNode[]): string[] {
     if (expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
-        return connections.map((connection) => connection.properties?.variable?.value);
+        return connections.map((connection) => connection.properties?.variable?.value as string);
     } else if (expression.valueType === "MULTIPLE_SELECT" || expression.valueType === "SINGLE_SELECT") {
-        return expression.valueTypeConstraint;
+        return expression.valueTypeConstraint as string[];
     }
     return undefined;
 }
@@ -182,7 +198,10 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
-            if (activeNode.codedata?.node === "ACTION_CALL") {
+            if (
+                activeNode.codedata?.node === "REMOTE_ACTION_CALL" ||
+                activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
+            ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             }
             return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
@@ -256,7 +275,10 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
     const labelArray = completion.label.split("/");
     const tag = labelArray.length > 1 ? labelArray.slice(0, -1).join("/") : undefined;
     const label = labelArray[labelArray.length - 1];
-    const kind = completion.detail.split(/(?=[A-Z])/).map(word => word.toLowerCase()).join('-') as CompletionItemKind;
+    const kind = completion.detail
+        .split(/(?=[A-Z])/)
+        .map((word) => word.toLowerCase())
+        .join("-") as CompletionItemKind;
     const value = completion.filterText ?? completion.insertText;
     const description = completion.detail;
     const sortText = completion.sortText;
@@ -267,8 +289,8 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         value,
         description,
         kind,
-        sortText
-    }
+        sortText,
+    };
 }
 
 export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
@@ -280,20 +302,31 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
         return undefined;
     }
     const label = fnMatch.groups?.label;
-    const args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+
+    let args: string[] = [];
+    if (fnMatch.groups?.args !== "") {
+        // For functions with arguments
+       args = fnMatch.groups?.args.split(",").map((arg) => arg.trim())
+    }
 
     return {
         label,
         args,
-        currentArgIndex: signatureHelp.activeParameter
-    }
+        currentArgIndex: signatureHelp.activeParameter,
+    };
 }
 
 export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
     return visibleTypes.map((type) => ({
         label: type,
-        description: `Type: ${type}`,
         value: type,
-        kind: COMPLETION_ITEM_KIND.TypeParameter
+        kind: COMPLETION_ITEM_KIND.TypeParameter,
     }));
 }
+
+export const clearDiagramZoomAndPosition = () => {
+    localStorage.removeItem("diagram-file-path");
+    localStorage.removeItem("diagram-zoom-level");
+    localStorage.removeItem("diagram-offset-x");
+    localStorage.removeItem("diagram-offset-y");
+};

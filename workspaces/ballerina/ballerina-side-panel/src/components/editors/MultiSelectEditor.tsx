@@ -15,6 +15,7 @@ import styled from "@emotion/styled";
 import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
+import { Colors } from "../../resources/constants";
 
 namespace S {
     export const Container = styled.div({
@@ -31,6 +32,7 @@ namespace S {
 
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
+        textTransform: 'capitalize',
     });
 
     export const Description = styled.div({
@@ -58,7 +60,7 @@ namespace S {
 
     export const DeleteButton = styled(Button)`
         & > vscode-button {
-            color: var(--vscode-editorGutter-deletedBackground);
+            color: ${Colors.ERROR};
         }
     `;
 }

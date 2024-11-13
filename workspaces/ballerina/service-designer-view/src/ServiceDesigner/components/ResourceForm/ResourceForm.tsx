@@ -19,7 +19,7 @@ import styled from '@emotion/styled';
 import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
-import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, Diagnostic, STModification } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { useServiceDesignerContext } from '../../Context';
@@ -55,7 +55,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
-	const { setDiagnostics, setDPosition, serviceEndPosition } = useServiceDesignerContext();
+	const { diagnostics, setDiagnostics, setDPosition, serviceEndPosition } = useServiceDesignerContext();
 
 	const { rpcClient } = useRpcContext();
 
@@ -110,12 +110,17 @@ export function ResourceForm(props: ResourceFormProps) {
 				skipSemiColon: true,
 				checkSeverity: 1
 			});
-		if (diag?.diagnostics.length > 0) {
+		if (diag?.diagnostics.length > 0 && haveValidDiagnostics(diag.diagnostics)) {
 			setDiagnostics(diag.diagnostics);
 		} else {
 			setDiagnostics([]);
 		}
 		setIsLoading(false);
+	}
+
+	const haveValidDiagnostics = (diagnostics: Diagnostic[]) => {
+		const skip = ["BCE2095"];
+		return !diagnostics.some(diagnostic => skip.includes(diagnostic.code as string));
 	}
 	const debouncedHandleDiagnostics = debounce(handleDiagnostics, 500);
 
@@ -132,7 +137,7 @@ export function ResourceForm(props: ResourceFormProps) {
 		paramString += (advancedParams.size > 0 && parameters.length > 0) ? ", " : "";
 
 		if (payload) {
-			const payloadType = `@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""} ${parameters.length > 0 ? ", " : ""}`;
+			const payloadType = `@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""} ${(advancedParams.size > 0 || parameters.length > 0) ? ", " : ""}`;
 			paramString += payloadType;
 		}
 
@@ -210,7 +215,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
 
 					<ActionButtons
-						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}
+						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save", disabled: diagnostics.length > 0 }}
 						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 						sx={{ justifyContent: "flex-end" }}
 					/>
