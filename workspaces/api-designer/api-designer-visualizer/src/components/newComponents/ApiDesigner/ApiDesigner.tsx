@@ -37,12 +37,14 @@ export function ApiDesigner(props: ApiDesignerProps) {
     const { openApi, isEditMode, openAPIVersion, onOpenApiChange } = props;
     const [selectedComponent, setSelectedComponent] = useState<string | undefined>("overview");
     const [currentView, setCurrentView] = useState(isEditMode ? Views.EDIT : Views.READ_ONLY);
+    const [pathInitiated, setPathInitiated] = useState(false);
 
     const contextValue = {
         props: {
             openAPIVersion: openAPIVersion,
             openAPI: openApi,
             selectedComponent,
+            pathInitiated,
             components: getAllComponents(openApi),
             currentView,
         },
@@ -64,6 +66,9 @@ export function ApiDesigner(props: ApiDesignerProps) {
             },
             onCurrentViewChange: (view: Views) => {
                 setCurrentView(view);
+            },
+            onPathInitiatedChange: (pathInitiated: boolean) => {
+                setPathInitiated(pathInitiated);
             },
         },
     };

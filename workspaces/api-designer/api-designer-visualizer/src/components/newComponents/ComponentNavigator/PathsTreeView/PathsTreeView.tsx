@@ -24,7 +24,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
     const { openAPI, paths, onPathTreeViewChange } = props;
     const { 
         props: { selectedComponent },
-        api: { onSelectedComponentChange }
+        api: { onSelectedComponentChange, onPathInitiatedChange }
     } = useContext(APIDesignerContext);
 
     const handleAddPathMethod = (evt: React.MouseEvent) => {
@@ -48,6 +48,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
             }
         };
         onPathTreeViewChange(openAPI);
+        onPathInitiatedChange(true);
         onSelectedComponentChange(`paths-component-${newPathVal}`);
     };
 

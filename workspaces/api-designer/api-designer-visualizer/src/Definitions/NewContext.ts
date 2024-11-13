@@ -16,11 +16,13 @@ export interface APIDesignerContext {
         openAPI: OpenAPI;
         selectedComponent?: string | undefined;
         components?: string[];
+        pathInitiated?: boolean;
         view?: Views;
         currentView?: Views;
     };
     api: {
         onSelectedComponentChange?: (component: string) => void;
         onCurrentViewChange?: (currentView: Views) => void;
+        onPathInitiatedChange?: (pathInitiated: boolean) => void;
     };
 }

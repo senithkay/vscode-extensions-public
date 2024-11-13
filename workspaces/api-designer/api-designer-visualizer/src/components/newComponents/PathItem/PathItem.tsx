@@ -10,9 +10,11 @@ import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from 
 import styled from "@emotion/styled";
 import { PathItem as P, Parameter, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { getColorByMethod } from '../../Utils/OpenAPIUtils';
 import { Parameters } from '../Parameters/Parameters';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { Views } from '../../../constants';
 
 const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -47,6 +49,10 @@ export function PathItem(props: PathItemProps) {
     const { pathItem, path, onPathItemChange } = props;
     const [description, setDescription] = useState<string>(pathItem?.description || "");
     const { rpcClient } = useVisualizerContext();
+    const { 
+        props: { pathInitiated },
+        api: { onPathInitiatedChange, onCurrentViewChange }
+    } = useContext(APIDesignerContext);
     let selectedOptions: string[] = [];
     if (pathItem && pathItem.summary === "" || pathItem.summary) {
         selectedOptions.push("Summary");
@@ -74,7 +80,9 @@ export function PathItem(props: PathItemProps) {
                 },
             };
         });
-        handlePathItemChange({ ...updatedPathItem }, e.target.value);
+        onPathInitiatedChange(false);
+        onCurrentViewChange(Views.EDIT);
+        handlePathItemChange({ ...updatedPathItem }, e.target.value ? e.target.value : '/');
     };
     const handlePathParametersChange = (parameters: (Parameter | ReferenceObject)[]) => {
         // Construct the new path item with the updated path parameters
@@ -83,7 +91,7 @@ export function PathItem(props: PathItemProps) {
             .map((param) => `{${param.name}}`)
             .join('/');
         const pathWithoutParams = path.replace(/{(.*?)}/g, '').replace(/\/+$/, ''); // Remove existing path parameters and trailing slashes
-        const newPath = newPathParamString ? `${pathWithoutParams}/${newPathParamString}` : path;
+        const newPath = `${pathWithoutParams}/${newPathParamString}`;
         handlePathItemChange({ ...pathItem, parameters }, newPath);
     };
 
@@ -168,6 +176,7 @@ export function PathItem(props: PathItemProps) {
                 sx={{ width: "100%" }}
                 value={path}
                 autoFocus
+                forceAutoFocus={pathInitiated}
                 onBlur={handlePathFieldChange}
             />
             {selectedOptions.includes("Summary") && (
