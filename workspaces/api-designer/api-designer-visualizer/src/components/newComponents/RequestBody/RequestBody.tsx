@@ -82,7 +82,7 @@ export function RequestBody(props: RequestBodyProps) {
         if (selectedMediaType) {
             // Update the schema of the selected media type
             const newRequestBody: R = {
-                requestBody,
+                ...requestBody,
                 content: {
                     ...requestBody.content,
                     [selectedMediaType]: mediaType

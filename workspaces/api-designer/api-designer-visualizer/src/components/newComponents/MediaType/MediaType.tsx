@@ -23,7 +23,7 @@ export function MediaType(props: MediaTypeProps) {
         props: { openAPI },
     } = useContext(APIDesignerContext);
 
-    const handleContactChange = (contact: M) => {
+    const handleSchemaChange = (contact: M) => {
         onMediaTypeChange(contact);
     };
 
@@ -34,7 +34,7 @@ export function MediaType(props: MediaTypeProps) {
                 variant='h3'
                 openAPI={openAPI} // Provide OpenAPI definition throught context
                 schemaName={mediaType?.schema?.type as string}
-                onSchemaChange={(schema) => handleContactChange({ ...mediaType, schema })}
+                onSchemaChange={(schema) => handleSchemaChange({ ...mediaType, schema })}
             />
             {/* TODO: Add Support for examples and other fields */}
         </>
