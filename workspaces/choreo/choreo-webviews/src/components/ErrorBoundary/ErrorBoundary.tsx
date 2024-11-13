@@ -47,11 +47,7 @@ class ErrorBoundaryC extends Component<ErrorBoundaryCProps, ErrorBoundaryState> 
 
 	render() {
 		if (this.state.hasError) {
-			return (
-				<Banner type="error" className="m-6">
-					Oops! Something went wrong. Please reopen this window and try again
-				</Banner>
-			);
+			return <Banner type="error" className="m-6" title="Oops! Something went wrong. Please reopen this window and try again" />;
 		}
 
 		return <div key={`Error-boundary-${this.state.clearedCache ? "with" : "with-reset"}-cache`}>{this.props.children}</div>;

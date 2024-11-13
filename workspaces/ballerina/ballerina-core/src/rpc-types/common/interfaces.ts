@@ -30,6 +30,9 @@ export interface File {
     path: string;
 }
 
+export interface WorkspaceRootResponse {
+    path: string;
+}
 
 export interface WorkspacesFileResponse {
     workspaceRoot: string;

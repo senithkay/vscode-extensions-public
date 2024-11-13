@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
+import { cloneDeep } from "lodash";
 import { ApiCallNodeModel } from "./ApiCallNodeModel";
 import {
     Colors,
@@ -28,6 +29,7 @@ import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -96,7 +98,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
+        max-width: ${NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -194,7 +196,9 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const isMenuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-        model.setAroundLinksDisabled(model.node.suggested);
+        if (model.node.suggested) {
+            model.setAroundLinksDisabled(model.node.suggested === true);
+        }
     }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -245,19 +249,15 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-
-    // show module name in the title if org is ballerina or ballerinax
-    const nodeTitle =
-        model.node.codedata?.org === "ballerina" || model.node.codedata?.org === "ballerinax"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
-            : model.node.metadata.label;
+    const nodeTitle = getNodeTitle(model.node);
+    const hasError = nodeHasError(model.node);
 
     return (
         <NodeStyles.Node>
             <NodeStyles.Box
                 disabled={disabled}
                 hovered={isBoxHovered}
-                hasError={model.node.diagnostics?.hasDiagnostics}
+                hasError={hasError}
                 onMouseEnter={() => setIsBoxHovered(true)}
                 onMouseLeave={() => setIsBoxHovered(false)}
             >
@@ -272,9 +272,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                             <NodeStyles.Description>{model.node.properties.variable?.value}</NodeStyles.Description>
                         </NodeStyles.Header>
                         <NodeStyles.ActionButtonGroup>
-                            {model.node.diagnostics?.hasDiagnostics && (
-                                <DiagnosticsPopUp node={model.node} />
-                            )}
+                            {hasError && <DiagnosticsPopUp node={model.node} />}
                             <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                                 <MoreVertIcon />
                             </NodeStyles.MenuButton>

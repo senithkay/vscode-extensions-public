@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import type { ComponentKind, Organization, Project, WebviewProps } from "@wso2-enterprise/choreo-core";
+import { type ComponentKind, type Organization, type Project, type WebviewProps, getComponentKey } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { ext } from "../extensionVariables";
+import { dataCacheStore } from "../stores/data-cache-store";
 import { webviewStateStore } from "../stores/webview-state-store";
 import { WebViewPanelRpc } from "./WebviewRPC";
 import { getUri } from "./utils";
@@ -22,17 +23,17 @@ class ComponentDetailsView {
 	private _disposables: vscode.Disposable[] = [];
 	private _rpcHandler: WebViewPanelRpc;
 
-	constructor(extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryPath?: string) {
+	constructor(extensionUri: vscode.Uri, organization: Organization, project: Project, component: ComponentKind, directoryFsPath?: string) {
 		this._panel = ComponentDetailsView.createWebview(component);
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, organization, project, component, directoryPath);
+		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, organization, project, component, directoryFsPath);
 		this._rpcHandler = new WebViewPanelRpc(this._panel);
 	}
 
 	private static createWebview(component: ComponentKind): vscode.WebviewPanel {
 		const panel = vscode.window.createWebviewPanel(
 			`ComponentDetailsView-${component.metadata.name}`,
-			`Component: ${component.metadata.displayName}`,
+			component.metadata.displayName,
 			vscode.ViewColumn.One,
 			{ enableScripts: true, retainContextWhenHidden: true },
 		);
@@ -52,7 +53,7 @@ class ComponentDetailsView {
 		organization: Organization,
 		project: Project,
 		component: ComponentKind,
-		directoryPath?: string,
+		directoryFsPath?: string,
 	) {
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, extensionUri, ["resources", "jslibs", "main.js"]);
@@ -80,10 +81,11 @@ class ComponentDetailsView {
                   document.getElementById("root"),
                   ${JSON.stringify({
 										type: "ComponentDetailsView",
-										directoryPath,
+										directoryFsPath,
 										organization,
 										project,
 										component,
+										initialEnvs: dataCacheStore.getState().getEnvs(organization.handle, project.handler),
 									} as WebviewProps)}
                 );
               }
@@ -121,15 +123,22 @@ export const closeComponentDetailsView = (orgHandle: string, projectHandle: stri
 	}
 };
 
-export const showComponentDetailsView = (org: Organization, project: Project, component: ComponentKind, componentPath: string) => {
+export const showComponentDetailsView = (
+	org: Organization,
+	project: Project,
+	component: ComponentKind,
+	directoryFsPath: string,
+	viewColumn?: vscode.ViewColumn,
+) => {
 	const webView = getComponentDetailsView(org.handle, project.handler, component.metadata.name);
-	const componentKey = `${org.handle}-${project.handler}-${component.metadata.name}`;
+	const componentKey = getComponentKey(org, project, component);
 
 	if (webView) {
-		webView?.reveal();
+		webView?.reveal(viewColumn);
 	} else {
-		const componentDetailsView = new ComponentDetailsView(ext.context.extensionUri, org, project, component, componentPath);
-		componentDetailsView.getWebview()?.reveal();
+		webviewStateStore.getState().onCloseComponentDrawer(getComponentKey(org, project, component));
+		const componentDetailsView = new ComponentDetailsView(ext.context.extensionUri, org, project, component, directoryFsPath);
+		componentDetailsView.getWebview()?.reveal(viewColumn);
 		componentViewMap.set(componentKey, componentDetailsView);
 
 		webviewStateStore.getState().setOpenedComponentKey(componentKey ?? "");

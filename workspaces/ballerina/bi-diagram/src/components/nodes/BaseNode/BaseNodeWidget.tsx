@@ -25,6 +25,7 @@ import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -100,7 +101,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
+        max-width: ${NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -255,11 +256,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         });
     }
 
-    // show module name in the title if org is ballerina
-    const nodeTitle =
-        model.node.codedata?.org === "ballerina"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
-            : model.node.metadata.label;
+    const nodeTitle = getNodeTitle(model.node);
 
     const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
 
@@ -276,11 +273,13 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         nodeDescription = model.node.properties.msg.value;
     }
 
+    const hasError = nodeHasError(model.node);
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
             disabled={model.node.suggested}
-            hasError={model.node.diagnostics?.hasDiagnostics ?? false}
+            hasError={hasError}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -298,9 +297,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                         <NodeStyles.Description>{nodeDescription}</NodeStyles.Description>
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
-                        {model.node.diagnostics?.hasDiagnostics && (
-                            <DiagnosticsPopUp node={model.node} />
-                        )}
+                        {hasError && <DiagnosticsPopUp node={model.node} />}
                         <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                             <MoreVertIcon />
                         </NodeStyles.MenuButton>

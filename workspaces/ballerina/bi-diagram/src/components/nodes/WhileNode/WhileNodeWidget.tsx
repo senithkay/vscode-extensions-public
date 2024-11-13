@@ -17,6 +17,7 @@ import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
+import { nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -166,7 +167,9 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const isMenuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-        model.setAroundLinksDisabled(model.node.suggested);
+        if (model.node.suggested) {
+            model.setAroundLinksDisabled(model.node.suggested === true);
+        }
     }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -213,6 +216,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
 
     const disabled = model.node.suggested;
     const viewState = model.node.viewState;
+    const hasError = nodeHasError(model.node);
 
     return (
         <NodeStyles.Node>
@@ -224,7 +228,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                         onMouseLeave={() => setIsHovered(false)}
                         selected={model.isSelected()}
                         hovered={isHovered}
-                        hasError={model.node.diagnostics?.hasDiagnostics}
+                        hasError={hasError}
                     >
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -249,7 +253,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
                 </NodeStyles.StyledButton>
-                {model.node.diagnostics?.hasDiagnostics && (
+                {hasError && (
                     <NodeStyles.ErrorIcon>
                         <DiagnosticsPopUp node={model.node} />
                     </NodeStyles.ErrorIcon>

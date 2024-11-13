@@ -8,10 +8,9 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import * as vscode from 'vscode';
 import {
-    AIVisualizerLocation,
     ColorThemeKind,
+    EVENT_TYPE,
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
@@ -19,12 +18,16 @@ import {
     HistoryEntry,
     HistoryEntryResponse,
     LogRequest,
+    MACHINE_VIEW,
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
     OpenExternalRequest,
     OpenExternalResponse,
     OpenViewRequest,
+    POPUP_EVENT_TYPE,
+    PopupVisualizerLocation,
+    ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
     RetrieveContextRequest,
@@ -33,30 +36,25 @@ import {
     SampleDownloadRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
+    ToggleDisplayOverviewRequest,
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse,
-    ToggleDisplayOverviewRequest,
-    POPUP_EVENT_TYPE,
-    PopupVisualizerLocation,
-    EVENT_TYPE,
-    MACHINE_VIEW,
+    WorkspacesResponse
 } from "@wso2-enterprise/mi-core";
+import * as https from "https";
+import Mustache from "mustache";
 import fetch from 'node-fetch';
-import { workspace, window, commands, env, Uri } from "vscode";
+import * as vscode from 'vscode';
+import { Uri, commands, env, window, workspace } from "vscode";
+import { extension } from "../../MIExtensionContext";
+import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
-import { openAIWebview } from "../../ai-panel/aiMachine";
-import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
-import { log, outputChannel } from "../../util/logger";
-import axios from "axios";
-import * as https from "https";
-import { DebuggerConfig } from "../../debugger/config";
 import { SwaggerServer } from "../../swagger/server";
-import Mustache from "mustache";
+import { goToSource, handleOpenFile } from "../../util/fileOperations";
+import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
 import { COMMANDS } from '../../constants';
@@ -413,5 +411,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
     async setMIHomeForMIVersion(miVersion: string): Promise<boolean> {
         return await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+    }
+    async getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getOverviewModel();
+            resolve(res);
+        });
     }
 }

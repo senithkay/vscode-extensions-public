@@ -14,10 +14,12 @@ import { InputProps } from '../TextField/TextField';
 import { Button } from '../Button/Button';
 import { ThemeColors } from '../../styles';
 import { Icon } from '../Icon/Icon';
+import { Codicon } from '../Codicon/Codicon';
 
 // Types
 export const COMPLETION_ITEM_KIND = {
     Array: 'array',
+    Alias: 'alias',
     Boolean: 'boolean',
     Class: 'class',
     Color: 'color',
@@ -63,11 +65,12 @@ export type CompletionItem = {
     tag?: string;
     label: string;
     value: string;
-    description: string;
+    description?: string;
     kind: CompletionItemKind;
     args?: string[];
     replacementSpan?: number;
     sortText?: string;
+    cursorOffset?: number;
 };
 
 export type ExpressionBarBaseProps = {
@@ -77,11 +80,14 @@ export type ExpressionBarBaseProps = {
     placeholder?: string;
     sx?: React.CSSProperties;
     inputProps?: InputProps;
+    textBoxType?: 'TextField' | 'TextArea';
     onChange: (value: string, updatedCursorPosition: number) => void | Promise<void>;
-    onFocus?: () => void | Promise<void>;
-    onBlur?: () => void | Promise<void>;
+    onFocus?: (e?: any) => void | Promise<void>;
+    onBlur?: (e?: any) => void | Promise<void>;
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
+    onClose?: () => void;
+    onRemove?: () => void;
     useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
     shouldDisableOnSave?: boolean;
 
@@ -92,6 +98,8 @@ export type ExpressionBarBaseProps = {
     getExpressionBarIcon?: () => ReactNode;
     // - Should display the default completion item at the top of the completion list
     showDefaultCompletion?: boolean;
+    // - Should auto select the first completion item in the list
+    autoSelectFirstItem?: boolean;
     // - Get default completion item to be displayed at the top of the completion list
     getDefaultCompletion?: () => ReactNode;
     // - The function to be called when a completion is selected
@@ -119,9 +127,11 @@ export type ExpressionBarProps = ExpressionBarBaseProps & {
 
 export type ExpressionBarRef = {
     shadowRoot: ShadowRoot;
+    inputElement: HTMLInputElement | HTMLTextAreaElement;
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
-    saveExpression: (value?: string) => Promise<void>; // Saves the expression with the provided value
+    saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
+    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components
@@ -147,20 +157,27 @@ namespace Ex {
 }
 
 export const ExpressionBar = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, getExpressionBarIcon, ...rest } = props;
+    const { id, handleHelperPaneOpen, getExpressionBarIcon, onRemove, ...rest } = props;
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
-                {getExpressionBarIcon ? (
-                    getExpressionBarIcon()
-                ) : (
-                    <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                )}
-            </Button>
+            {(handleHelperPaneOpen || getExpressionBarIcon) && (
+                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
+                    {getExpressionBarIcon ? (
+                        getExpressionBarIcon()
+                    ) : (
+                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                    )}
+                </Button>
+            )}
+            {onRemove && (
+                <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
+                    <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
+                </Button>
+            )}
         </Ex.Container>
     );
 });

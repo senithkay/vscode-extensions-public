@@ -10,6 +10,7 @@
 import { ChoreoBuildPackNames } from "./types/common.types";
 
 export const CommandIds = {
+	FocusChoreoProjectActivity: "choreo.activity.project.focus",
 	SignIn: "wso2.choreo.sign.in",
 	SignInWithAuthCode: "wso2.choreo.sign.in.with.authCode",
 	SignOut: "wso2.choreo.sign.out",
@@ -24,6 +25,9 @@ export const CommandIds = {
 	ManageDirectoryContext: "wso2.choreo.project.manage.context",
 	RefreshDirectoryContext: "wso2.choreo.project.refresh",
 	CreateProjectWorkspace: "wso2.choreo.project.create.workspace",
+	CreateComponentDependency: "wso2.choreo.component.create.dependency",
+	ViewDependency: "wso2.choreo.component.view.dependency",
+	// TODO: add command & code lens to delete dependency
 };
 
 export const WebAppSPATypes = [ChoreoBuildPackNames.React, ChoreoBuildPackNames.Vue, ChoreoBuildPackNames.Angular];

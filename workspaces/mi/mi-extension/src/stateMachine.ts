@@ -575,7 +575,7 @@ export function navigate(entry?: HistoryEntry) {
             stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
         }
     } else {
-        const location = historyStack[historyStack.length - 1].location;
+        const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
 }

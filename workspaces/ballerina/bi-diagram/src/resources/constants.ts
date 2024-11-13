@@ -115,7 +115,7 @@ export const NODE_PADDING = 8;
 
 // position
 export const DIAGRAM_CENTER_X = 0;
-export const NODE_GAP_Y = 40;
+export const NODE_GAP_Y = 50;
 export const NODE_GAP_X = 60;
 
 // custom nodes

@@ -18,7 +18,13 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_GAP_X, NODE_HEIGHT, VSCODE_MARGIN, WHILE_NODE_WIDTH } from "../resources/constants";
+import {
+    BUTTON_NODE_HEIGHT,
+    EMPTY_NODE_WIDTH,
+    NODE_GAP_X,
+    VSCODE_MARGIN,
+    WHILE_NODE_WIDTH,
+} from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
@@ -193,10 +199,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
                     true,
                     branchEmptyNodeModel.metadata?.draft ? false : true // else branch is draft
                 );
+                const noElseBranch = branchEmptyNodeModel.metadata?.draft;
                 const linkIn = createNodesLink(ifNodeModel, branchEmptyNode, {
                     id: getBranchInLinkId(node.id, branch.label, index),
-                    label: getBranchLabel(branch),
-                    brokenLine: true,
+                    label: noElseBranch ? "" : getBranchLabel(branch),
+                    brokenLine: noElseBranch,
                     showAddButton: false,
                 });
                 const linkOut = createNodesLink(branchEmptyNode, endIfEmptyNode, {
@@ -357,11 +364,15 @@ export class NodeFactoryVisitor implements BaseVisitor {
         this.endVisitWhile(node, parent);
     }
 
-    beginVisitActionCall(node: FlowNode, parent?: FlowNode): void {
+    beginVisitRemoteActionCall(node: FlowNode, parent?: FlowNode): void {
         if (node.id) {
             this.createApiCallNode(node);
             this.addSuggestionsButton(node);
         }
+    }
+
+    beginVisitResourceActionCall(node: FlowNode, parent?: FlowNode): void {
+        this.beginVisitRemoteActionCall(node, parent);
     }
 
     beginVisitEmpty(node: FlowNode, parent?: FlowNode): void {
@@ -369,8 +380,11 @@ export class NodeFactoryVisitor implements BaseVisitor {
         if (node.id.endsWith("-last")) {
             const lastNodeModel = new EndNodeModel(node.id);
             lastNodeModel.setPosition(node.viewState.x, node.viewState.y);
-            this.nodes.push(lastNodeModel);
-            this.updateNodeLinks(node, lastNodeModel, { showArrow: true });
+            this.updateNodeLinks(node, lastNodeModel, { showArrow: true, showButtonAlways: this.nodes.length === 1 });
+            if (Object.keys(lastNodeModel.getInPort().getLinks()).length > 0) {
+                // only render the last node model if it has links
+                this.nodes.push(lastNodeModel);
+            }
             return;
         }
         // skip node creation

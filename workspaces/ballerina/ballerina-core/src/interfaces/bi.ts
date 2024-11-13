@@ -9,6 +9,7 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
+import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 
 export type { NodePosition };
 
@@ -60,7 +61,9 @@ export type Property = {
     value: string | ELineRange;
     optional: boolean;
     editable: boolean;
-    valueTypeConstraint?: string[];
+    advanced?: boolean;
+    placeholder?: string;
+    valueTypeConstraint?: string | string[];
 };
 
 export type Diagnostic = {
@@ -132,6 +135,16 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
 }
 
+export enum DIRECTORY_SUB_TYPE {
+    FUNCTION = "function",
+    CONNECTION = "connection",
+    TYPE = "type",
+    CONFIGURATION = "configuration",
+    SERVICE = "service",
+    AUTOMATION = "automation",
+    TRIGGER = "trigger"
+}
+
 export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
@@ -186,7 +199,9 @@ export type NodePropertyKey =
     | "collection"
     | "view"
     | "variable"
-    | "defaultable";
+    | "defaultable"
+    | "scope"
+    | "functionName";
 
 export type BranchKind = "block" | "worker";
 
@@ -199,7 +214,8 @@ export type NodeKind =
     | "DRAFT"
     | "EVENT_START"
     | "IF"
-    | "ACTION_CALL"
+    | "REMOTE_ACTION_CALL"
+    | "RESOURCE_ACTION_CALL"
     | "RETURN"
     | "EXPRESSION"
     | "ERROR_HANDLER"
@@ -269,4 +285,10 @@ export type ConfigVariable = {
     branches: Branch[];
     id: string;
     returning: boolean;
+    diagnostics?: Diagnostic;
 };
+
+export type FormDiagnostics = {
+    key: string;
+    diagnostics: VSCodeDiagnostic[];
+}
