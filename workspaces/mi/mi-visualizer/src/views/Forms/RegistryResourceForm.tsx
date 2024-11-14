@@ -236,11 +236,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             {!createOptionValue && (<>
                 <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
                     <Button appearance="secondary" onClick={openFile}>
-                        <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
                         <div style={{ color: colors.editorForeground }}>Browse file</div>
                     </Button>
                     <Button appearance="secondary" onClick={openFolder}>
-                        <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
                         <div style={{ color: colors.editorForeground }}>Browse folder</div>
                     </Button>
                     <Typography variant="body3" {...register("filePath")}>
