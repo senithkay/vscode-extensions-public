@@ -8,7 +8,7 @@
  */
 import { DMDiagnostic, TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { BinaryExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -29,6 +29,7 @@ import { ArrayOutputNode } from "../ArrayOutput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { PrimitiveOutputNode } from "../PrimitiveOutput";
 import { ExpressionLabelModel } from "../../Label";
+import { convertToObject } from "@wso2-enterprise/ui-toolkit";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -36,6 +37,7 @@ const NODE_ID = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: InputOutputPortModel[] = [];
+    public sourceValues:{[key: string]: Node} = {};
     public targetPort: InputOutputPortModel;
     public targetMappedPort: InputOutputPortModel;
 
@@ -84,6 +86,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     initPorts(): void {
         const prevSourcePorts = this.sourcePorts;
         this.sourcePorts = [];
+        this.sourceValues = {};
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
         this.outPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "OUT"), "OUT");
@@ -98,6 +101,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const inputPort = getInputPort(inputNode, field);
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
                     this.sourcePorts.push(inputPort);
+                    this.sourceValues[inputPort.getID()] = field;
                 }
             }
         })
@@ -191,12 +195,15 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     lm.setTargetPort(this.inPort);
                     lm.setSourcePort(sourcePort);
 
-                    lm.addLabel(new ExpressionLabelModel({
-                        link: lm as DataMapperLinkModel,
-                        value: undefined,
-                        context: undefined,
-                        isSubLinkLabel: true,
-                    }));
+                    if (this.sourcePorts.length > 1) {
+                        lm.addLabel(new ExpressionLabelModel({
+                            link: lm,
+                            value: undefined,
+                            context: undefined,
+                            isSubLinkLabel: true,
+                            deleteLink: () => this.deleteSubLink(this.sourceValues[sourcePort.getID()], sourcePort.fieldFQN)
+                        }));
+                    }
 
                     lm.registerListener({
                         selectionChanged(event) {
@@ -305,6 +312,30 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             });
             await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
         }
+    }
+
+    public async deleteSubLink(subLinkValue: Node, fieldFQN: string): Promise<void> {
+        console.log('delsub', fieldFQN);
+        let childNode = subLinkValue;
+        let parentNode = childNode.getParent();
+        console.log('parent',parentNode.getText(), parentNode.getParent().getText());
+        while(parentNode && !Node.isBinaryExpression(parentNode)) {
+            console.log(parentNode);
+            childNode = parentNode;
+            parentNode = childNode.getParent();
+        }
+
+        const leftNode = (parentNode as BinaryExpression).getLeft();
+        const rightNode = (parentNode as BinaryExpression).getRight();
+
+        if (leftNode === childNode) {
+            parentNode.replaceWithText(rightNode.getText());
+            await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
+        } else if (rightNode === childNode) {
+            parentNode.replaceWithText(leftNode.getText());
+            await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
+        }
+        
     }
 
     public setInnerNode(innerNode: Node): void {
