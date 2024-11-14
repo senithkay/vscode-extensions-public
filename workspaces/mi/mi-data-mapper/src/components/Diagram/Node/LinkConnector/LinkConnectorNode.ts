@@ -8,7 +8,7 @@
  */
 import { DMDiagnostic, TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { BinaryExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
+import { BinaryExpression, CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -30,6 +30,7 @@ import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletin
 import { PrimitiveOutputNode } from "../PrimitiveOutput";
 import { ExpressionLabelModel } from "../../Label";
 import { convertToObject } from "@wso2-enterprise/ui-toolkit";
+import { Call } from "../../../../../../syntax-tree/lib/src";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -315,26 +316,41 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     public async deleteSubLink(subLinkValue: Node, fieldFQN: string): Promise<void> {
-        console.log('delsub', fieldFQN);
+        
         let childNode = subLinkValue;
         let parentNode = childNode.getParent();
-        console.log('parent',parentNode.getText(), parentNode.getParent().getText());
-        while(parentNode && !Node.isBinaryExpression(parentNode)) {
+
+        function shouldGetParent(node: Node): boolean {
+            if(Node.isCallExpression(node)) {
+                return node.getArguments().length === 1;
+            }
+            return !Node.isBinaryExpression(node);
+        }
+
+        while(parentNode && shouldGetParent(parentNode)) {
             console.log(parentNode);
             childNode = parentNode;
             parentNode = childNode.getParent();
         }
 
-        const leftNode = (parentNode as BinaryExpression).getLeft();
-        const rightNode = (parentNode as BinaryExpression).getRight();
+        if (Node.isBinaryExpression(parentNode)) {
+            const leftNode = (parentNode as BinaryExpression).getLeft();
+            const rightNode = (parentNode as BinaryExpression).getRight();
 
-        if (leftNode === childNode) {
-            parentNode.replaceWithText(rightNode.getText());
-            await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
-        } else if (rightNode === childNode) {
-            parentNode.replaceWithText(leftNode.getText());
+            if (leftNode === childNode) {
+                parentNode.replaceWithText(rightNode.getText());
+                await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
+            } else if (rightNode === childNode) {
+                parentNode.replaceWithText(leftNode.getText());
+                await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
+            }
+        } else if (Node.isCallExpression(parentNode)){
+            const indexToRemove = parentNode.getArguments().indexOf(childNode);
+            parentNode.removeArgument(indexToRemove);
             await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
         }
+
+       
         
     }
 
