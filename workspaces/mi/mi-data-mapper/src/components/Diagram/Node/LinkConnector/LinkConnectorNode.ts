@@ -28,6 +28,7 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { PrimitiveOutputNode } from "../PrimitiveOutput";
+import { ExpressionLabelModel } from "../../Label";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -189,6 +190,14 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
                     lm.setTargetPort(this.inPort);
                     lm.setSourcePort(sourcePort);
+
+                    lm.addLabel(new ExpressionLabelModel({
+                        link: lm as DataMapperLinkModel,
+                        value: undefined,
+                        context: undefined,
+                        isSubLinkLabel: true,
+                    }));
+
                     lm.registerListener({
                         selectionChanged(event) {
                             if (event.isSelected) {
