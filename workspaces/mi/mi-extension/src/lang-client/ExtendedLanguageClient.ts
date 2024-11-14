@@ -305,4 +305,8 @@ export class ExtendedLanguageClient extends LanguageClient {
     async tryOutMediator(req:MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this.sendRequest("synapse/tryOutMediator", req);
     }
+
+    async getMediatorInputOutputSchema(req:MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this.sendRequest("synapse/mediatorInputOutputSchema", req);
+    }
 }

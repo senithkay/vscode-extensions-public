@@ -341,4 +341,5 @@ export interface MiDiagramAPI {
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
     getInputPayload: (params:GetPayloadRequest) => Promise<GetPayloadResponse>;
+    getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
 }
