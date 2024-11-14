@@ -122,7 +122,7 @@ const ScriptForm = (props: AddMediatorProps) => {
         } else {
             edits = [{range: props.nodePosition, text: xml}];
         }
-        const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({file: props.documentUri, line:props.nodePosition.start.line,column:props.nodePosition.start.character+1, edits: edits, isServerLess:true});
+        const res = await rpcClient.getMiDiagramRpcClient().getMediatorInputOutputSchema({file: props.documentUri, line:props.nodePosition.start.line,column:props.nodePosition.start.character+1, edits: edits});
         setSchema(res);
     }
 

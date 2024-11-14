@@ -322,6 +322,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async getMediatorInputOutputSchema(params:MediatorTryOutRequest):Promise<MediatorTryOutResponse>{
+        return new Promise(async (resolve) => {
+            const projectUri = StateMachine.context().projectUri!;
+            const payloadPath = path.join(projectUri,".tryout","input.json");
+            const payload = fs.readFileSync(payloadPath,"utf8");
+            // const payloadJson = JSON.parse(payload);
+            params.inputPayload =payload
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getMediatorInputOutputSchema(params);
+            resolve(res);
+        });
+    }
+
     async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
         const isGetSTFromUriRequest = (params: any): params is GetSTFromUriRequest => {
             return (params as GetSTFromUriRequest).documentUri !== undefined;
