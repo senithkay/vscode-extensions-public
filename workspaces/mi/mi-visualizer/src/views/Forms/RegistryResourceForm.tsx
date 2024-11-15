@@ -199,7 +199,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             resourceName: values.resourceName,
             artifactName: values.artifactName,
             registryPath: values.registryPath,
-            registryRoot: values.registryType,
+            registryRoot: '',
             createOption: values.createOption
         }
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
@@ -252,12 +252,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 label="Artifact Name"
                 errorMsg={errors.artifactName?.message.toString()}
                 {...register("artifactName")}
-            />
-            <RadioButtonGroup
-                label="Select registry type"
-                id="registryType"
-                options={[{ content: "Governance registry (gov)", value: "gov" }, { content: "Configuration registry (conf)", value: "conf" }]}
-                {...register("registryType")}
             />
             <TextField
                 id='registryPath'

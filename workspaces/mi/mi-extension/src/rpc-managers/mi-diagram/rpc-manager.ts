@@ -3363,10 +3363,10 @@ ${endpointAttributes}
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            let transformedPath = "/_system/governance/mi-resources";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
