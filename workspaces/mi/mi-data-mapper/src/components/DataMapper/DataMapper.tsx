@@ -279,6 +279,9 @@ export function MIDataMapper(props: MIDataMapperProps) {
         <div className={classes.root}>
             {fnST && (
                 <DataMapperHeader
+                    fnST={fnST}
+                    inputTrees={inputTrees}
+                    outputTree={outputTree}
                     filePath={filePath}
                     views={views}
                     switchView={switchView}
