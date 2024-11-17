@@ -81,6 +81,7 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetConfigurableEntriesResponse,
     GetResourceUsagesResponse,
     GetCertificateFileMapRequest,
     GetCertificateFileMapResponse,
@@ -3856,6 +3857,14 @@ ${keyValuesXML}`;
         });
     }
 
+    async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConfigurableEntries();
+            resolve({ configurableEntries: res });
+        });
+    }
+ 
     async getResourceUsages(): Promise<GetResourceUsagesResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;

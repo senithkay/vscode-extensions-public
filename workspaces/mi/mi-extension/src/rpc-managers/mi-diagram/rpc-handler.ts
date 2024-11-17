@@ -138,6 +138,7 @@ import {
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getConfigurableEntries,
     getResourceUsages,
     getCertificateFileMap,
     getAllTestSuites,
@@ -238,7 +239,8 @@ import {
     addDriverToLib,
     deleteDriverFromLib,
     AddDriverToLibRequest,
-    getAllAPIcontexts
+    getAllAPIcontexts,
+    GetConfigurableEntriesRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -347,6 +349,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
+    messenger.onRequest(getConfigurableEntries, () => rpcManger.getConfigurableEntries());
     messenger.onRequest(getResourceUsages, () => rpcManger.getResourceUsages());
     messenger.onRequest(getCertificateFileMap, (args: GetCertificateFileMapRequest) => rpcManger.getCertificateFileMap(args));
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));

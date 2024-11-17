@@ -1549,6 +1549,14 @@ export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
 
+export interface GetConfigurableEntriesRequest {
+    configurableEntryType: string;
+}
+
+export interface GetConfigurableEntriesResponse {
+    configurableEntries: { name: string; type: string }[];
+}
+
 export interface GetResourceUsagesResponse {
     usages?: string[];
 }
