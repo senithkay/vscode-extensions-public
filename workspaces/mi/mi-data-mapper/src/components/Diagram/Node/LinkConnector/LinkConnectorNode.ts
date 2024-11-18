@@ -38,7 +38,7 @@ const NODE_ID = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: InputOutputPortModel[] = [];
-    public sourceValueNodes:{[key: string]: Node[]} = {};
+    public sourceValues:{[key: string]: Node[]} = {};
     public targetPort: InputOutputPortModel;
     public targetMappedPort: InputOutputPortModel;
 
@@ -87,7 +87,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     initPorts(): void {
         const prevSourcePorts = this.sourcePorts;
         this.sourcePorts = [];
-        this.sourceValueNodes = {};
+        this.sourceValues = {};
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
         this.outPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "OUT"), "OUT");
@@ -102,9 +102,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const inputPort = getInputPort(inputNode, field);
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
                     this.sourcePorts.push(inputPort);
-                    this.sourceValueNodes[inputPort.getID()] = [field];
+                    this.sourceValues[inputPort.getID()] = [field];
                 } else{
-                    this.sourceValueNodes[inputPort.getID()].push(field);
+                    this.sourceValues[inputPort.getID()].push(field);
                 }
             }
         })
@@ -319,34 +319,36 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public async deleteSubLink(sourcePortId: string): Promise<void> {
 
-        const subLinkValueNodes = this.sourceValueNodes[sourcePortId];
+        const subLinkValuesTexts = this.sourceValues[sourcePortId].map(node => node.getText());
 
-        for (let subLinkValueNode of subLinkValueNodes) {
+        for (let subLinkValueText of subLinkValuesTexts) {
 
-            if (subLinkValueNode.wasForgotten()) continue;
+            let subLinkValue = this.valueNode.getDescendants().find(node => node.getText() === subLinkValueText);
 
-            let parentSubLinkValueNode = subLinkValueNode.getParent();
+            if (!subLinkValue || subLinkValue.wasForgotten()) continue;
 
-            while (parentSubLinkValueNode && shouldUpdateParent(parentSubLinkValueNode, subLinkValueNode)) {
-                subLinkValueNode = parentSubLinkValueNode;
-                parentSubLinkValueNode = subLinkValueNode.getParent();
+            let parentSubLinkValue = subLinkValue.getParent();
+
+            while (parentSubLinkValue && shouldUpdateParent(parentSubLinkValue, subLinkValue)) {
+                subLinkValue = parentSubLinkValue;
+                parentSubLinkValue = subLinkValue.getParent();
             }
 
-            if (Node.isBinaryExpression(parentSubLinkValueNode)) {
-                const leftNode = (parentSubLinkValueNode as BinaryExpression).getLeft();
-                const rightNode = (parentSubLinkValueNode as BinaryExpression).getRight();
+            if (Node.isBinaryExpression(parentSubLinkValue)) {
+                const leftNode = (parentSubLinkValue as BinaryExpression).getLeft();
+                const rightNode = (parentSubLinkValue as BinaryExpression).getRight();
 
-                if (leftNode === subLinkValueNode) {
-                    parentSubLinkValueNode.replaceWithText(rightNode.getText());
-                } else if (rightNode === subLinkValueNode) {
-                    parentSubLinkValueNode.replaceWithText(leftNode.getText());
+                if (leftNode === subLinkValue) {
+                    parentSubLinkValue.replaceWithText(rightNode.getText());
+                } else if (rightNode === subLinkValue) {
+                    parentSubLinkValue.replaceWithText(leftNode.getText());
                 }
-            } else if (Node.isCallExpression(parentSubLinkValueNode)) {
-                const indexToRemove = parentSubLinkValueNode.getArguments().indexOf(subLinkValueNode);
-                parentSubLinkValueNode.removeArgument(indexToRemove);
-            } else if (Node.isElementAccessExpression(parentSubLinkValueNode)) {
-                subLinkValueNode.replaceWithText('0');
-            }else  if (Node.isPropertyAssignment(parentSubLinkValueNode) || Node.isVariableStatement(parentSubLinkValueNode) || Node.isReturnStatement(parentSubLinkValueNode)) {
+            } else if (Node.isCallExpression(parentSubLinkValue)) {
+                const indexToRemove = parentSubLinkValue.getArguments().indexOf(subLinkValue);
+                parentSubLinkValue.removeArgument(indexToRemove);
+            } else if (Node.isElementAccessExpression(parentSubLinkValue)) {
+                subLinkValue.replaceWithText('0');
+            }else  if (Node.isPropertyAssignment(parentSubLinkValue) || Node.isVariableStatement(parentSubLinkValue) || Node.isReturnStatement(parentSubLinkValue)) {
                 await this.deleteLink();
                 return;
             }
