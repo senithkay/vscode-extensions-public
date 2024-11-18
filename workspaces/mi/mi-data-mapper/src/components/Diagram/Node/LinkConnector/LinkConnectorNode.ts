@@ -327,7 +327,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
             let parentSubLinkValueNode = subLinkValueNode.getParent();
 
-            while (parentSubLinkValueNode && shouldUpdateParent(parentSubLinkValueNode)) {
+            while (parentSubLinkValueNode && shouldUpdateParent(parentSubLinkValueNode, subLinkValueNode)) {
                 subLinkValueNode = parentSubLinkValueNode;
                 parentSubLinkValueNode = subLinkValueNode.getParent();
             }
@@ -344,18 +344,36 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             } else if (Node.isCallExpression(parentSubLinkValueNode)) {
                 const indexToRemove = parentSubLinkValueNode.getArguments().indexOf(subLinkValueNode);
                 parentSubLinkValueNode.removeArgument(indexToRemove);
+            } else if (Node.isElementAccessExpression(parentSubLinkValueNode)) {
+                subLinkValueNode.replaceWithText('0');
+            }else  if (Node.isPropertyAssignment(parentSubLinkValueNode) || Node.isVariableStatement(parentSubLinkValueNode) || Node.isReturnStatement(parentSubLinkValueNode)) {
+                await this.deleteLink();
+                return;
             }
 
         }
 
         await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
 
-        function shouldUpdateParent(node: Node): boolean {
-            if (Node.isCallExpression(node)) {
-                return node.getArguments().length === 1;
+        function shouldUpdateParent(parentNode: Node, childNode: Node): boolean {
+            if (Node.isCallExpression(parentNode)) {
+                return parentNode.getArguments().length === 1;
             }
-            return !Node.isBinaryExpression(node);
+            
+            if (Node.isElementAccessExpression(parentNode) ) {
+                const argExpr = parentNode.getArgumentExpression();
+                if (argExpr == childNode && argExpr.getType().isNumber()) {
+                    return false;
+                }
+            }
+
+            if (Node.isPropertyAssignment(parentNode) || Node.isVariableStatement(parentNode) || Node.isReturnStatement(parentNode)) {
+                return false;
+            }
+
+            return !Node.isBinaryExpression(parentNode);
         }
+        
 
     }
 
