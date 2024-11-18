@@ -14,9 +14,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { useForm } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
-import FormGenerator from '../Commons/FormGenerator';
 import { useEffect, useState } from 'react';
-import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
+import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
 
 const ParamManagerContainer = styled.div`
     width: ; 100%;
@@ -290,6 +289,7 @@ export function AddInboundConnector(props: AddInboundConnectorProps) {
                 control={control}
                 errors={errors}
                 setValue={setValue}
+                reset={reset}
                 watch={watch}
                 getValues={getValues} />
             {formData && formData.additionalParameters && (

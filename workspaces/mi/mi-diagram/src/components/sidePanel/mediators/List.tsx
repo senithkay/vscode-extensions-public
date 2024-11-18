@@ -7,14 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import React, { ReactNode } from 'react';
+import { ComponentCard, IconLabel, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
-import { getAllMediators } from './Values';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
+import { MediatorForm } from './Form';
 
 const ButtonGrid = styled.div`
     display: grid;
@@ -38,14 +40,34 @@ interface MediatorProps {
 }
 export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
-    const allMediators = getAllMediators({
-        nodePosition: props.nodePosition,
-        trailingSpace: props.trailingSpace,
-        documentUri: props.documentUri,
-        previousNode: sidePanelContext.previousNode,
-        nextNode: sidePanelContext.nextNode,
-        parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
-    });
+    const { rpcClient } = useVisualizerContext();
+    const [allMediators, setAllMediators] = React.useState<GetMediatorsResponse>();
+
+    useEffect(() => {
+        const fetchMediators = async () => {
+            const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
+                documentUri: props.documentUri,
+                position: props.nodePosition,
+            });
+            setAllMediators(mediatorsList ?? {});
+        };
+        fetchMediators();
+    }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
+        const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+            mediatorType: mediator.tag,
+        });
+
+        if (!mediatorDetails) {
+            return;
+        }
+        const form =
+            <div style={{ padding: '20px' }}>
+                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+            </div>;
+        sidepanelAddPage(sidePanelContext, form, `Add ${mediator.title}`, getMediatorIconsFromFont(mediator.icon, isMostPopular));
+    }
 
     const searchForm = (value: string, search?: boolean) => {
         const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '');
@@ -69,7 +91,7 @@ export function Mediators(props: MediatorProps) {
     };
 
     const MediatorList = () => {
-        let mediators: any;
+        let mediators: GetMediatorsResponse;
         if (props.searchValue) {
             mediators = searchForm(props.searchValue, true);
         } else {
@@ -82,12 +104,12 @@ export function Mediators(props: MediatorProps) {
                     <div key={key}>
                         <h4>{FirstCharToUpperCase(key)}</h4>
                         <ButtonGrid>
-                            {(values as any[]).map((action: { form: ReactNode, operationName: React.Key; tooltip: string; title: string; }) => (
-                                <Tooltip content={action.tooltip} position='bottom' sx={{zIndex: 2010}}>
+                            {values.map((mediator: Mediator) => (
+                                <Tooltip content={mediator.description} position='bottom' sx={{ zIndex: 2010 }}>
                                     <ComponentCard
-                                        id={action.title}
-                                        key={action.operationName}
-                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.operationName.toString(), getMediatorIconsFromFont(action.operationName as string, key === "most popular"))}
+                                        id={mediator.type}
+                                        key={mediator.description}
+                                        onClick={() => getMediator(mediator, key === "most popular")}
                                         sx={{
                                             '&:hover, &.active': {
                                                 '.icon svg g': {
@@ -110,10 +132,10 @@ export function Mediators(props: MediatorProps) {
                                         }}
                                     >
                                         <IconContainer>
-                                            {getMediatorIconsFromFont(action.operationName as string, key === "most popular")}
+                                            {getMediatorIconsFromFont(mediator.icon, key === "most popular")}
                                         </IconContainer>
                                         <div >
-                                            <IconLabel>{FirstCharToUpperCase(action.operationName.toString())}</IconLabel>
+                                            <IconLabel>{FirstCharToUpperCase(mediator.title)}</IconLabel>
                                         </div>
                                     </ComponentCard>
                                 </Tooltip>
@@ -125,14 +147,21 @@ export function Mediators(props: MediatorProps) {
                                 borderColor: "var(--vscode-panel-border)",
                             }} />
                         }
-                    </div>
-                ))}
+                    </div >
+                ))
+                }
             </>
     }
 
     return (
         <div>
-            <MediatorList />
+            {!allMediators ? (
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                    <ProgressRing />
+                </div>
+            ) : (
+                <MediatorList />
+            )}
         </div>
     );
 }

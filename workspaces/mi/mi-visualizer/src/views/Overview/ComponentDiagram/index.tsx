@@ -52,6 +52,9 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const handleAddConnection = () => {
     };
 
+    const handleOnDeleteComponent = () => {
+    };
+
     const handleGoToConnection = async (connection: Connection) => {
         if ((connection as any).path) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -79,7 +82,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 onAddConnection={handleAddConnection}
                 onEntryPointSelect={handleGoToEntryPoints}
                 onConnectionSelect={handleGoToConnection}
-                onDeleteComponent={handleDeleteConnection}
+                onDeleteComponent={handleOnDeleteComponent}
             />
         </DiagramContainer>
     );

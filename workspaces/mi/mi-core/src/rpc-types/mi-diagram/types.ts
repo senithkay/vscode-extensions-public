@@ -9,7 +9,7 @@
  */
 
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
+import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
 
 interface Record {
     name: string;
@@ -21,6 +21,7 @@ export interface ApplyEditRequest {
     documentUri: string;
     range: Range;
     disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -1372,7 +1373,7 @@ export interface GetBackendRootUrlResponse {
 }
 export interface ListRegistryArtifactsRequest {
     path: string;
-    withAdditionalData?:boolean
+    withAdditionalData?: boolean
 }
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
@@ -1528,8 +1529,8 @@ export interface GetConnectorConnectionsResponse {
 }
 
 export interface SaveInboundEPUischemaRequest {
-    connectorName:string;
-    uiSchema:string;
+    connectorName: string;
+    uiSchema: string;
 }
 
 export interface GetInboundEPUischemaRequest {
@@ -1752,4 +1753,45 @@ export interface GetSubFoldersResponse {
 export interface FileRenameRequest {
     existingPath: string;
     newPath: string;
+}
+
+export interface GetMediatorsRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface GetMediatorsResponse {
+    [key: string]: Mediator[];
+}
+
+export interface Mediator {
+    title: string;
+    tag:string;
+    type: string;
+    description: string;
+    icon: string;
+}
+
+export interface GetMediatorRequest {
+    mediatorType: string;
+    documentUri?: string;
+    range?: Range;
+}
+
+export interface GetMediatorResponse {
+    form: string;
+}
+
+export interface UpdateMediatorRequest {
+    documentUri: string;
+    range: Range;
+    mediatorType: string;
+    oldValues?: any;
+    values: any;
+    dirtyFields?: string[];
+    trailingSpace?: string;
+}
+
+export interface UpdateMediatorResponse {
+    textEdits: TextEdit[];
 }

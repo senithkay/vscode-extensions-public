@@ -206,6 +206,7 @@ interface BaseProps {
     notItemsFoundMessage?: string;
     hideDropdown?: boolean;
     errorMsg?: string;
+    labelAdornment?: ReactNode 
 }
 
 // Define the conditional properties
@@ -270,6 +271,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         actionBtns,
         required,
         label,
+        labelAdornment,
         notItemsFoundMessage,
         widthOffset = 157,
         nullable,
@@ -359,6 +361,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                     <LabelContainer>
                         <label htmlFor={id}>{label}</label>
                         {(required && label) && (<RequiredFormInput />)}
+                        {labelAdornment && labelAdornment}
                     </LabelContainer>
                 )}
                 <ComboboxContent>

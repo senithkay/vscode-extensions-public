@@ -199,7 +199,12 @@ import {
     DriverPathResponse,
     AddDriverToLibRequest,
     AddDriverToLibResponse,
-    APIContextsResponse
+    APIContextsResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -252,6 +257,9 @@ export const getDefaultEndpoint: RequestType<RetrieveDefaultEndpointRequest, Ret
 export const createDataService: RequestType<CreateDataServiceRequest, CreateDataServiceResponse> = { method: `${_preFix}/createDataService` };
 export const createDssDataSource: RequestType<CreateDssDataSourceRequest, CreateDssDataSourceResponse> = { method: `${_preFix}/createDssDataSource` };
 export const getDataService: RequestType<RetrieveDataServiceRequest, RetrieveDataServiceResponse> = { method: `${_preFix}/getDataService` };
+export const askDriverPath: RequestType<void, DriverPathResponse> = { method: `${_preFix}/askDriverPath` };
+export const addDriverToLib: RequestType<AddDriverToLibRequest, AddDriverToLibResponse> = { method: `${_preFix}/addDriverToLib` };
+export const deleteDriverFromLib: NotificationType<AddDriverToLibRequest> = { method: `${_preFix}/deleteDriverFromLib` };
 export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeWebView` };
 export const openDiagram: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openDiagram` };
 export const openFile: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openFile` };
@@ -269,9 +277,9 @@ export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteCon
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };
-export const initUndoRedoManager: RequestType<UndoRedoParams, void> = { method: `${_preFix}/initUndoRedoManager` };
-export const undo: NotificationType<UndoRedoParams> = { method: `${_preFix}/undo` };
-export const redo: NotificationType<UndoRedoParams> = { method: `${_preFix}/redo` };
+export const initUndoRedoManager: NotificationType<UndoRedoParams> = { method: `${_preFix}/initUndoRedoManager` };
+export const undo: RequestType<UndoRedoParams, boolean> = { method: `${_preFix}/undo` };
+export const redo: RequestType<UndoRedoParams, boolean> = { method: `${_preFix}/redo` };
 export const getDefinition: RequestType<GetDefinitionRequest, GetDefinitionResponse> = { method: `${_preFix}/getDefinition` };
 export const getTextAtRange: RequestType<GetTextAtRangeRequest, GetTextAtRangeResponse> = { method: `${_preFix}/getTextAtRange` };
 export const getDiagnostics: RequestType<GetDiagnosticsReqeust, GetDiagnosticsResponse> = { method: `${_preFix}/getDiagnostics` };
@@ -297,9 +305,6 @@ export const saveInboundEPUischema: RequestType<SaveInboundEPUischemaRequest, bo
 export const getInboundEPUischema: RequestType<GetInboundEPUischemaRequest, GetInboundEPUischemaResponse> = { method: `${_preFix}/getInboundEPUischema` };
 export const createDataSource: RequestType<DataSourceTemplate, CreateDataSourceResponse> = { method: `${_preFix}/createDataSource` };
 export const getDataSource: RequestType<GetDataSourceRequest, DataSourceTemplate> = { method: `${_preFix}/getDataSource` };
-export const askDriverPath: RequestType<void, DriverPathResponse> = { method: `${_preFix}/askDriverPath` };
-export const addDriverToLib: RequestType<AddDriverToLibRequest, AddDriverToLibResponse> = { method: `${_preFix}/addDriverToLib` };
-export const deleteDriverFromLib: RequestType<AddDriverToLibRequest, void> = { method: `${_preFix}/deleteDriverFromLib` };
 export const getIconPathUri: RequestType<GetIconPathUriRequest, GetIconPathUriResponse> = { method: `${_preFix}/getIconPathUri` };
 export const getUserAccessToken: RequestType<void, GetUserAccessTokenResponse> = { method: `${_preFix}/getUserAccessToken` };
 export const createConnection: RequestType<CreateConnectionRequest, CreateConnectionResponse> = { method: `${_preFix}/createConnection` };
@@ -308,8 +313,8 @@ export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
+export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
-export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` }
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
 export const refreshAccessToken: NotificationType<void> = { method: `${_preFix}/refreshAccessToken` };
@@ -329,9 +334,12 @@ export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDe
 export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };
 export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
-export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_preFix}/renameFile` };
+export const renameFile: NotificationType<FileRenameRequest> = { method: `${_preFix}/renameFile` };
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
 export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
+export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
+export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
+export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };

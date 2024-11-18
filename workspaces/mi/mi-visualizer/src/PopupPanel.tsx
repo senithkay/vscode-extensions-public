@@ -25,6 +25,7 @@ import path from 'path';
 import { ConnectorStore } from './views/Forms/ConnectionForm';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { AddDriver } from './views/Popup/AddDriver';
+import { SequenceWizard } from './views/Forms/SequenceForm';
 
 const ViewContainer = styled.div`
     
@@ -98,6 +99,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                 case MACHINE_VIEW.AddDriverPopup:
                     setViewComponent(<AddDriver handlePopupClose={props.handleClose} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
                     break;
+                case MACHINE_VIEW.SequenceForm:
+                    setViewComponent(<SequenceWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
+                    break;    
                 default:
                     setViewComponent(null);
             }

@@ -42,6 +42,9 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         case "endpoint":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.EndPointForm }, isPopup: true });
             break;
+        case "sequence":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceForm }, isPopup: true });
+            break;
         case "datasource":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.DssDataSourceForm, documentUri: documentUri, customProps }, isPopup: true });
             break;

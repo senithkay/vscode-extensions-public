@@ -24,6 +24,7 @@ import {
     ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    ReadmeContentResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
     RuntimeServicesResponse,
@@ -42,6 +43,7 @@ import {
     getHistory,
     getProjectOverview,
     getProjectStructure,
+    getReadmeContent,
     getWorkspaces,
     goBack,
     goHome,
@@ -49,6 +51,7 @@ import {
     goToSource,
     log,
     openExternal,
+    openReadme,
     openView,
     reloadWindow,
     retrieveContext,
@@ -194,5 +197,13 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     isMISet(): Promise<boolean> {
         return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
+    }
+    
+    getReadmeContent(): Promise<ReadmeContentResponse> {
+        return this._messenger.sendRequest(getReadmeContent, HOST_EXTENSION);
+    }
+
+    openReadme(): void {
+        return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 }
