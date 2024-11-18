@@ -66,7 +66,7 @@ export function Mediators(props: MediatorProps) {
             <div style={{ padding: '20px' }}>
                 <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
             </div>;
-        sidepanelAddPage(sidePanelContext, form, `Add ${mediator.title}`, getMediatorIconsFromFont(mediator.icon, isMostPopular));
+        sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
     }
 
     const searchForm = (value: string, search?: boolean) => {
@@ -132,7 +132,7 @@ export function Mediators(props: MediatorProps) {
                                         }}
                                     >
                                         <IconContainer>
-                                            {getMediatorIconsFromFont(mediator.icon, key === "most popular")}
+                                            {getMediatorIconsFromFont(mediator.tag, key === "most popular")}
                                         </IconContainer>
                                         <div >
                                             <IconLabel>{FirstCharToUpperCase(mediator.title)}</IconLabel>

@@ -1778,7 +1778,8 @@ export interface GetMediatorRequest {
 }
 
 export interface GetMediatorResponse {
-    form: string;
+    form: any;
+    title: string;
 }
 
 export interface UpdateMediatorRequest {
