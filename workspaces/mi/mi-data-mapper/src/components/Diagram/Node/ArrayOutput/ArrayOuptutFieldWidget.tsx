@@ -66,8 +66,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [isLoading, setLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
-    const [_isAddingElement, setIsAddingElement] = useState(false);
-    const isAddingElement = true;
+    const [isAddingElement, setIsAddingElement] = useState(false);
+    
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
     const viewsStore = useDMViewsStore();
