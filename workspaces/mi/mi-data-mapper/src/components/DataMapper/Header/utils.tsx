@@ -183,7 +183,7 @@ export function shouldCompletionsAppear(
     if (termBeforeCursor.length === 0) return true;
 
     const lastChar = termBeforeCursor[termBeforeCursor.length - 1];
-    if (!isNaN(Number(lastChar)) || ['"', ')', ']', '}'].includes(lastChar)) return false;
+    if (!isNaN(Number(lastChar)) || [')', ']', '}', '"', "'", '`'].includes(lastChar)) return false;
 
     if (termBeforeCursor.split('"').length % 2 == 0) return false;
     if (termBeforeCursor.split("'").length % 2 == 0) return false;
