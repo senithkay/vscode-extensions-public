@@ -39,20 +39,20 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         case "Service": {
             return getSource(createServiceDeclartion({
                 serviceBasePath: "/", listenerConfig: {
-                    createNewListener: false, listenerName: "", listenerConfig: "9090"
+                    createNewListener: false, listenerName: "", listenerPort: "9090"
                 }
             }, targetPosition, false));
         }
         case "Listener": {
             return getSource(createListenerDeclartion({
                 listenerName: "'listener",
-                listenerConfig: "9090"
+                listenerPort: "9090"
             }, targetPosition, false, 'http'));
         }
         case "GraphqlListener": {
             return getSource(createListenerDeclartion({
                 listenerName: "graphqlListener",
-                listenerConfig: "9090"
+                listenerPort: "9090"
             }, targetPosition, false, 'graphql'));
         }
         case "Main": {
