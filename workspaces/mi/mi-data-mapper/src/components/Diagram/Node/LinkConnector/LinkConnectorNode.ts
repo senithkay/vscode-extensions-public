@@ -38,7 +38,7 @@ const NODE_ID = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: InputOutputPortModel[] = [];
-    public sourceValues:{[key: string]: Node} = {};
+    public sourceValueNodes:{[key: string]: Node[]} = {};
     public targetPort: InputOutputPortModel;
     public targetMappedPort: InputOutputPortModel;
 
@@ -87,7 +87,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     initPorts(): void {
         const prevSourcePorts = this.sourcePorts;
         this.sourcePorts = [];
-        this.sourceValues = {};
+        this.sourceValueNodes = {};
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
         this.outPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "OUT"), "OUT");
@@ -102,7 +102,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const inputPort = getInputPort(inputNode, field);
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
                     this.sourcePorts.push(inputPort);
-                    this.sourceValues[inputPort.getID()] = field;
+                    this.sourceValueNodes[inputPort.getID()] = [field];
+                } else{
+                    this.sourceValueNodes[inputPort.getID()].push(field);
                 }
             }
         })
@@ -202,7 +204,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                             value: undefined,
                             context: undefined,
                             isSubLinkLabel: true,
-                            deleteLink: () => this.deleteSubLink(this.sourceValues[sourcePort.getID()], sourcePort.fieldFQN)
+                            deleteLink: () => this.deleteSubLink(sourcePort.getID())
                         }));
                     }
 
@@ -315,43 +317,46 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         }
     }
 
-    public async deleteSubLink(subLinkValue: Node, fieldFQN: string): Promise<void> {
-        
-        let childNode = subLinkValue;
-        let parentNode = childNode.getParent();
+    public async deleteSubLink(sourcePortId: string): Promise<void> {
 
-        function shouldGetParent(node: Node): boolean {
-            if(Node.isCallExpression(node)) {
+        const subLinkValueNodes = this.sourceValueNodes[sourcePortId];
+
+        for (let subLinkValueNode of subLinkValueNodes) {
+
+            if (subLinkValueNode.wasForgotten()) continue;
+
+            let parentSubLinkValueNode = subLinkValueNode.getParent();
+
+            while (parentSubLinkValueNode && shouldUpdateParent(parentSubLinkValueNode)) {
+                subLinkValueNode = parentSubLinkValueNode;
+                parentSubLinkValueNode = subLinkValueNode.getParent();
+            }
+
+            if (Node.isBinaryExpression(parentSubLinkValueNode)) {
+                const leftNode = (parentSubLinkValueNode as BinaryExpression).getLeft();
+                const rightNode = (parentSubLinkValueNode as BinaryExpression).getRight();
+
+                if (leftNode === subLinkValueNode) {
+                    parentSubLinkValueNode.replaceWithText(rightNode.getText());
+                } else if (rightNode === subLinkValueNode) {
+                    parentSubLinkValueNode.replaceWithText(leftNode.getText());
+                }
+            } else if (Node.isCallExpression(parentSubLinkValueNode)) {
+                const indexToRemove = parentSubLinkValueNode.getArguments().indexOf(subLinkValueNode);
+                parentSubLinkValueNode.removeArgument(indexToRemove);
+            }
+
+        }
+
+        await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
+
+        function shouldUpdateParent(node: Node): boolean {
+            if (Node.isCallExpression(node)) {
                 return node.getArguments().length === 1;
             }
             return !Node.isBinaryExpression(node);
         }
 
-        while(parentNode && shouldGetParent(parentNode)) {
-            console.log(parentNode);
-            childNode = parentNode;
-            parentNode = childNode.getParent();
-        }
-
-        if (Node.isBinaryExpression(parentNode)) {
-            const leftNode = (parentNode as BinaryExpression).getLeft();
-            const rightNode = (parentNode as BinaryExpression).getRight();
-
-            if (leftNode === childNode) {
-                parentNode.replaceWithText(rightNode.getText());
-                await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
-            } else if (rightNode === childNode) {
-                parentNode.replaceWithText(leftNode.getText());
-                await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
-            }
-        } else if (Node.isCallExpression(parentNode)){
-            const indexToRemove = parentNode.getArguments().indexOf(childNode);
-            parentNode.removeArgument(indexToRemove);
-            await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
-        }
-
-       
-        
     }
 
     public setInnerNode(innerNode: Node): void {
