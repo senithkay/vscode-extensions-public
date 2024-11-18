@@ -11,7 +11,7 @@ import { IOType, Mapping } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { createSourceForMapping, modifySourceForMultipleMappings, updateExistingValue } from "../../utils/modification-utils";
+import { createSourceForMapping, getUpdatedMappings, updateExistingValue } from "../../utils/modification-utils";
 import { getMappingType } from "../../utils/common-utils";
 import { genArrayElementAccessSuffix, getValueType } from "../../utils/common-utils";
 
@@ -83,7 +83,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
 					await updateExistingValue(sourcePort, targetPort, undefined, elementAccessSuffix);
 				} else if (targetPortHasLinks) {
-					await modifySourceForMultipleMappings(lm);
+					const updatedMappings = await getUpdatedMappings(lm);
 				} else {
 					await createSourceForMapping(lm);
 				}

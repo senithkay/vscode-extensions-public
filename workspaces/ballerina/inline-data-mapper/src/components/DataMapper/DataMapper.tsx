@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import { IDMModel } from "@wso2-enterprise/ballerina-core";
@@ -19,6 +19,10 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { NodeInitVisitor } from "../../visitors/NodeInitVisitor";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { traverseNode } from "../../utils/model-utils";
+import { View } from "./Views/DataMapperView";
+import { getTypeName } from "../Diagram/utils/type-utils";
+import { useDMSearchStore } from "../../store/store";
+import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 
 const classes = {
     root: css({
@@ -32,22 +36,94 @@ export interface InlineDataMapperProps {
     model: IDMModel;
 }
 
+enum ActionType {
+    ADD_VIEW,
+    SWITCH_VIEW,
+    EDIT_VIEW
+}
+
+type ViewAction = {
+    type: ActionType,
+    payload: {
+        view?: View,
+        index?: number
+    },
+}
+
+function viewsReducer(state: View[], action: ViewAction) {
+    switch (action.type) {
+        case ActionType.ADD_VIEW:
+            return [...state, action.payload.view];
+        case ActionType.SWITCH_VIEW:
+            return state.slice(0, action.payload.index + 1);
+        case ActionType.EDIT_VIEW:
+            return [...state.slice(0, state.length - 1), action.payload.view];
+        default:
+            return state;
+    }
+}
+
 export function InlineDataMapper(props: InlineDataMapperProps) {
     const { model } = props;
+
+    const initialView = [{
+        label: `${getTypeName(model.inputTypes[0])} -> ${getTypeName(model.outputType)}`,
+        model: model
+    }];
+
+    const [views, dispatch] = useReducer(viewsReducer, initialView);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
+
+    const { resetSearchStore } = useDMSearchStore();
+
+    const addView = useCallback((view: View) => {
+        dispatch({ type: ActionType.ADD_VIEW, payload: { view } });
+        resetSearchStore();
+    }, [resetSearchStore]);
+
+    const switchView = useCallback((navigateIndex: number) => {
+        dispatch({ type: ActionType.SWITCH_VIEW, payload: { index: navigateIndex } });
+        resetSearchStore();
+    }, [resetSearchStore]);
+
+    const editView = useCallback((newData: View) => {
+        dispatch({ type: ActionType.EDIT_VIEW, payload: { view: newData } });
+        resetSearchStore();
+    }, [resetSearchStore]);
 
     const hasInternalError = false;
 
     useEffect(() => {
-        async function generateNodes() {
-            const context = new DataMapperContext(model);
-
-            const nodeInitVisitor = new NodeInitVisitor(context);
-            traverseNode(model, nodeInitVisitor);
-            setNodes(nodeInitVisitor.getNodes());
-
-        }
         generateNodes();
+        setupKeyboardShortcuts();
+
+        return () => {
+            KeyboardNavigationManager.getClient().resetMouseTrapInstance();
+        };
+    }, [views]);
+
+    const generateNodes = () => {
+        const context = new DataMapperContext(model, views, addView);
+        const nodeInitVisitor = new NodeInitVisitor(context);
+        traverseNode(model, nodeInitVisitor);
+        setNodes(nodeInitVisitor.getNodes());
+    };
+
+    const setupKeyboardShortcuts = () => {
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => handleVersionChange('dmUndo'));
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => handleVersionChange('dmRedo'));
+    };
+
+    const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
+        // TODO: Implement undo/redo
+    };
+
+    useEffect(() => {
+        const context = new DataMapperContext(model, views, addView);
+        const nodeInitVisitor = new NodeInitVisitor(context);
+        traverseNode(model, nodeInitVisitor);
+        setNodes(nodeInitVisitor.getNodes());
     }, [model]);
 
     return (

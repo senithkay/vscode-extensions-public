@@ -15,18 +15,50 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
     
 }
 
-export async function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
+export async function getUpdatedMappings(link: DataMapperLinkModel) {
 	const targetPort = link.getTargetPort();
 	if (!targetPort) {
 		return;
 	}
+
+	const outputPortModel = targetPort as InputOutputPortModel;
+	const targetNode = outputPortModel.getNode() as DataMapperNodeModel;
+	const mappings = targetNode.context.model.mappings;
+	const input = (link.getSourcePort() as InputOutputPortModel).optionalOmittedFieldFQN;
+
+	console.log("==updatedMappings before", mappings);
+
+	const updatedMappings = mappings.map(mapping => {
+		if (mapping.output === outputPortModel.optionalOmittedFieldFQN) {
+			return {
+				...mapping,
+				inputs: [...mapping.inputs, input],
+				expression: mapping.expression + ' + ' + input
+			};
+		}
+		return mapping;
+	});
+
+	return updatedMappings;
 }
 
 export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string, suffix: string = '') {
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
-	const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
-	const sourceInputAccessExpr = (newValue || buildInputAccessExpr(sourceField)) + suffix;
-	const expr = (targetPort as InputOutputPortModel).value;
+	const mappings = targetNode.context.model.mappings;
+
+	const existingMapping = mappings.find(mapping => mapping.output === targetPort.getID());
+	if (!existingMapping) {
+		return;
+	}
+
+	existingMapping.inputs = [newValue || buildInputAccessExpr(sourcePort.getID()) + suffix];
+
+	console.log("==existingMapping", existingMapping);
+
+
+	// const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
+	// const sourceInputAccessExpr = (newValue || buildInputAccessExpr(sourceField)) + suffix;
+	// const expr = (targetPort as InputOutputPortModel).value;
 
 	// let updatedExpr;
 	// if (Node.isPropertyAssignment(expr)) {
