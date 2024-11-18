@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { Parameter as P, ReferenceObject as R } from "../../../Definitions/ServiceDefinitions";
 import { Parameters } from "./Parameters";
+import { ReadOnlyParameters } from "./ReadOnlyParameters";
 
 export default {
     component: Parameters,
@@ -68,5 +69,11 @@ export const ParametersStoryWithReferenceObject = () => {
     }
     return (
         <Parameters title="Query Parameters" type="query" parameters={referenceObjects} onParametersChange={onReferenceObjectsChange} currentReferences={currentReferenceObjects} />
+    );
+}
+
+export const ReadOnlyParametersStory = () => {
+    return (
+        <ReadOnlyParameters title="Query Parameters" type="query" parameters={parameters} />
     );
 }

@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { MediaType as M, RequestBody as R } from "../../../Definitions/ServiceDefinitions";
 import { RequestBody } from "./RequestBody";
+import { ReadOnlyRequestBody } from "./ReadOnlyRequestBody";
 
 export default {
     component: RequestBody,
@@ -78,3 +79,9 @@ export const RequestBodyStory = () => {
         <RequestBody requestBody={r} onRequestBodyChange={handleRequestBodyChange} />
     );
 };
+
+export const ReadOnlyRequestBodyStory = () => {
+    return (
+        <ReadOnlyRequestBody requestBody={RequestB} />
+    );
+}

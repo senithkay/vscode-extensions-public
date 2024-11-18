@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { Response as R } from "../../../Definitions/ServiceDefinitions";
 import { Response } from "./Response";
+import { ReadOnlyResponse } from "./ReadOnlyResponse";
 
 export default {
     component: Response,
@@ -52,10 +53,15 @@ const response: R = {
 export const ResponsesStory = () => {
     const [r, setR] = useState<R>(response);
     const handleResponseChange = (response: R) => {
-        console.log("Response changed", response);
         setR(response);
     }
     return (
         <Response response={r} onResponseChange={handleResponseChange} />
     );
 };
+
+export const ReadOnlyResponsesStory = () => {
+    return (
+        <ReadOnlyResponse response={response} />
+    );
+}

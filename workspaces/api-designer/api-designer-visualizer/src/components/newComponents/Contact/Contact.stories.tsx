@@ -10,6 +10,7 @@
 import { OpenAPI } from "../../../Definitions/ServiceDefinitions";
 import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
 import { Contact } from "./Contact";
+import { ReadOnlyContact } from "./ReadOnlyContact";
 
 export default {
     component: Contact,
@@ -23,3 +24,9 @@ export const ContactStory = () => {
         <Contact contact={apiDefinition.info.contact} onContactChange={() => {}} />
     );
 };
+
+export const ReadOnlyContactStory = () => {
+    return (
+        <ReadOnlyContact contact={apiDefinition.info.contact} />
+    );
+}

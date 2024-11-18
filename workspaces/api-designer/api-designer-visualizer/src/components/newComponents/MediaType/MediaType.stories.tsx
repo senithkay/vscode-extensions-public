@@ -9,6 +9,7 @@
 
 import { MediaType as M } from "../../../Definitions/ServiceDefinitions";
 import { MediaType } from "./MediaType";
+import { ReadOnlyMediaType } from "./ReadOnlyMediaType";
 
 export default {
     component: MediaType,
@@ -37,3 +38,9 @@ export const MedaiTypeStory = () => {
         <MediaType mediaType={MediaT} onMediaTypeChange={(mediaType: M) => {console.log(mediaType)}} />
     );
 };
+
+export const ReadOnlyMediaTypeStory = () => {
+    return (
+        <ReadOnlyMediaType mediaType={MediaT} />
+    );
+}

@@ -9,6 +9,7 @@
 
 import { Parameter as P } from "../../../Definitions/ServiceDefinitions";
 import { Parameter } from "./Parameter";
+import { ReadOnlyParameter } from "./ReadOnlyParameter";
 
 export default {
     component: Parameter,
@@ -30,3 +31,9 @@ export const ParameterStory = () => {
         <Parameter id={1} parameter={parameter} onRemoveParameter={null} onParameterChange={() => {}} />
     );
 };
+
+export const ReadOnlyParameterStory = () => {
+    return (
+        <ReadOnlyParameter parameter={parameter} />
+    );
+}

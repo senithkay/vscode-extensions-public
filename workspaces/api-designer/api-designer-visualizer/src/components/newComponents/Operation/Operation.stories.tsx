@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { Operation as O, Parameter, ReferenceObject, RequestBody, Responses } from "../../../Definitions/ServiceDefinitions";
 import { Operation } from "./Operation";
+import { ReadOnlyOperation } from "./ReadOnlyOperation";
 
 export default {
     component: Operation,
@@ -133,3 +134,13 @@ export const OperationStory = () => {
         />
     );
 };
+
+export const ReadOnlyOperationStory = () => {
+    return (
+        <ReadOnlyOperation
+            operation={operation}
+            method="post"
+            path="/path"
+        />
+    );
+}

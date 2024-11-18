@@ -10,6 +10,7 @@ import { useState } from "react";
 import { OpenAPI } from "../../../Definitions/ServiceDefinitions";
 import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
 import { Overview } from "./Overview";
+import { ReadOnlyOverview } from "./ReadOnlyOverview";
 
 export default {
     component: Overview,
@@ -20,7 +21,6 @@ const apiDefinition: OpenAPI = petstoreJSON as unknown as OpenAPI;
 
 export const OverviewStory = () => {
     const [apiDefinition, setApiDefinition] = useState<OpenAPI>(petstoreJSON as unknown as OpenAPI);
-    console.log("apiDefinition", apiDefinition);
     const handleOpenApiDefinitionChange = (openAPIDefinition: OpenAPI) => {
         console.log("change", openAPIDefinition);
         setApiDefinition(openAPIDefinition);
@@ -33,3 +33,9 @@ export const OverviewStory = () => {
         />
     );
 };
+
+export const ReadOnlyOverviewStory = () => {
+    return (
+        <ReadOnlyOverview openAPIDefinition={apiDefinition} />
+    );
+}

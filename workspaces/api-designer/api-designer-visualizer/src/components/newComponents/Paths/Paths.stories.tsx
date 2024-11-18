@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Paths as P } from "../../../Definitions/ServiceDefinitions";
 import { Paths } from "./Paths";
 import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
+import { ReadOnlyPaths } from "./ReadOnlyPaths";
 
 export default {
     component: Paths,
@@ -29,3 +30,9 @@ export const PathsStory = () => {
         <Paths paths={pi} onPathsChange={handlePathItemChange} />
     );
 };
+
+export const ReadOnlyPathsStory = () => {
+    return (
+        <ReadOnlyPaths paths={paths} />
+    );
+}

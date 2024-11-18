@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { Headers as H } from "../../../Definitions/ServiceDefinitions";
 import { Headers } from "./Headers";
+import { ReadOnlyHeaders } from "./ReadOnlyHeaders";
 
 export default {
     component: Headers,
@@ -46,3 +47,11 @@ export const HeadersStory = () => {
         />
     );
 };
+
+export const ReadOnlyHeadersStory = () => {
+    return (
+        <ReadOnlyHeaders
+            headers={HS}
+        />
+    );
+}

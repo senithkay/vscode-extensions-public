@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { Responses as R } from "../../../Definitions/ServiceDefinitions";
 import { Responses } from "./Responses";
+import { ReadOnlyResponses } from "./ReadOnlyResponses";
 
 export default {
     component: Responses,
@@ -132,3 +133,9 @@ export const ResponsesWithReferenceObjectStory = () => {
         <Responses responses={r} onResponsesChange={handleResponsesChange} />
     );
 };
+
+export const ReadOnlyResponsesStory = () => {
+    return (
+        <ReadOnlyResponses responses={responses} />
+    );
+}

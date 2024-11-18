@@ -10,6 +10,7 @@
 import { useState } from "react";
 import { PathItem as P } from "../../../Definitions/ServiceDefinitions";
 import { PathItem } from "./PathItem";
+import { ReadOnlyPathItem } from "./ReadOnlyPathItem";
 
 export default {
     component: PathItem,
@@ -98,3 +99,9 @@ export const PathItemStory = () => {
         <PathItem pathItem={pi} path={path} onPathItemChange={handlePathItemChange} />
     );
 };
+
+export const ReadOnlyPathItemStory = () => {
+    return (
+        <ReadOnlyPathItem pathItem={pathItem} path="/path" />
+    );
+}

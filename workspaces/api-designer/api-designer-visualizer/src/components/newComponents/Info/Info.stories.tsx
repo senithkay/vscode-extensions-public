@@ -11,6 +11,7 @@ import { useState } from "react";
 import { OpenAPI } from "../../../Definitions/ServiceDefinitions";
 import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
 import { Info } from "./Info";
+import { ReadOnlyInfo } from "./ReadOnlyInfo";
 
 export default {
     component: Info,
@@ -34,3 +35,9 @@ export const InfoStory = () => {
         />
     );
 };
+
+export const ReadOnlyInfoStory = () => {
+    return (
+        <ReadOnlyInfo info={apiDefinition.info} />
+    );
+}

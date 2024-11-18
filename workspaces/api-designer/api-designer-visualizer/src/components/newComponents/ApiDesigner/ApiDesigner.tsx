@@ -16,6 +16,7 @@ import { Tabs } from '../../Tabs/Tabs';
 import { Views } from '../../../constants';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { getAllComponents } from '../../Utils/OpenAPIUtils';
+import { ReadOnlyOpenAPI } from '../OpenAPI/ReadOnlyOpenAPI';
 
 const SplitViewContainer = styled.div`
     display: flex;
@@ -115,7 +116,9 @@ export function ApiDesigner(props: ApiDesignerProps) {
                             />
                         </div>
                         <div id={Views.READ_ONLY}>
-                            {/* TODO: Implement the view mode */}
+                            <ReadOnlyOpenAPI
+                                openAPI={openApi}
+                            />
                         </div>
                     </Tabs>
                 </SplitView>
