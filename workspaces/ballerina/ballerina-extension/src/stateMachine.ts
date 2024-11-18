@@ -34,6 +34,11 @@ const stateMachine = createMachine<MachineContext>(
             errorCode: null,
             view: MACHINE_VIEW.Overview
         },
+        on: {
+            RESET_TO_EXTENSION_READY: {
+                target: "extensionReady"
+            }
+        },
         states: {
             initialize: {
                 invoke: {
@@ -359,6 +364,9 @@ export const StateMachine = {
     langClient: () => { return stateService.getSnapshot().context.langClient; },
     state: () => { return stateService.getSnapshot().value as MachineStateValue; },
     sendEvent: (eventType: EVENT_TYPE) => { stateService.send({ type: eventType }); },
+    resetToExtensionReady: () => {
+        stateService.send({ type: 'RESET_TO_EXTENSION_READY' });
+    },
 };
 
 export function openView(type: EVENT_TYPE, viewLocation: VisualizerLocation) {

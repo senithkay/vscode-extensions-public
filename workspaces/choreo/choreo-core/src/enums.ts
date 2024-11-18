@@ -14,6 +14,7 @@ export enum ComponentDisplayType {
 	Webhook = "webhook",
 	Websocket = "webSocket",
 	Proxy = "proxy",
+	GitProxy = "gitProxy",
 	ByocCronjob = "byocCronjob",
 	ByocJob = "byocJob",
 	GraphQL = "graphql",
@@ -43,12 +44,13 @@ export enum ComponentDisplayType {
 	BuildpackCronJob = "buildpackCronjob",
 	BuildpackWebApp = "buildpackWebApp",
 	BuildpackWebhook = "buildpackWebhook",
-	BuildpackRestApi = "buildpackRestApi",
 	BuildRestApi = "buildpackRestApi",
 	PostmanTestRunner = "byocTestRunnerDockerfileLess",
 	BallerinaEventHandler = "ballerinaEventHandler",
 	BallerinaService = "ballerinaService",
 	BallerinaWebhook = "ballerinaWebhook",
+	ExternalConsumer = "externalConsumer",
+	PrismMockService = "prismMockService",
 }
 
 export enum DeploymentStatus {
@@ -88,6 +90,7 @@ export enum ChoreoImplementationType {
 	PHP = "php",
 	Ruby = "ruby",
 	MicroIntegrator = "microintegrator",
+	Prism = "prism",
 }
 
 export enum ChoreoComponentType {
@@ -100,3 +103,39 @@ export enum ChoreoComponentType {
 	TestRunner = "testRunner",
 	ApiProxy = "proxy",
 }
+
+export enum ComponentViewDrawers {
+	Test = "Test",
+	CreateConnection = "CreateConnection",
+	ConnectionGuide = "ConnectionGuide",
+}
+
+export enum EndpointType {
+	REST = "REST",
+	GraphQL = "GraphQL",
+	GRPC = "GRPC",
+	TCP = "TCP",
+	UDP = "UDP",
+}
+
+export enum WorkflowInstanceStatus {
+	ENABLED = "ENABLED",
+	// user needs to wait for the approval
+	PENDING = "PENDING",
+	// user need to submit new one
+	NOT_FOUND = "NOT_FOUND",
+	REJECTED = "REJECTED",
+	TIMEOUT = "TIMEOUT",
+	CANCELLED = "CANCELLED",
+	// good to proceed
+	DISABLED = "DISABLED",
+	APPROVED = "APPROVED",
+}
+
+export const ServiceInfoVisibilityEnum = {
+	Public: "PUBLIC",
+	Organization: "ORGANIZATION",
+	Project: "PROJECT",
+} as const;
+
+export type ServiceInfoVisibilityEnum = (typeof ServiceInfoVisibilityEnum)[keyof typeof ServiceInfoVisibilityEnum];

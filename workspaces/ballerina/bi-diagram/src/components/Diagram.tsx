@@ -75,7 +75,6 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         if (diagramEngine) {
-            console.log(">>> diagram engine created");
             const { nodes, links } = getDiagramData();
             drawDiagram(nodes, links);
         }
@@ -92,7 +91,7 @@ export function Diagram(props: DiagramProps) {
         // TODO: move to a separate function
         // get only do block
         let flowModel = cloneDeep(model);
-        console.log(">>> rearranged models", { flowModel, model });
+        console.log(">>> rearranged diagram model", { new: flowModel, original: model });
         const globalErrorHandleBlock = model.nodes.find((node) => node.codedata.node === "ERROR_HANDLER");
         if (globalErrorHandleBlock) {
             hasErrorFlow.current = true;

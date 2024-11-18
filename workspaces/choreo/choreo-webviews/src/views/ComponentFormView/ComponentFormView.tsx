@@ -10,189 +10,174 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import {
 	ChoreoBuildPackNames,
 	ChoreoComponentType,
+	ChoreoImplementationType,
+	type Endpoint,
 	type NewComponentWebviewProps,
 	type SubmitComponentCreateReq,
 	WebAppSPATypes,
+	getComponentTypeText,
+	getRandomNumber,
 	makeURLSafe,
 } from "@wso2-enterprise/choreo-core";
-import React, { type FC, type ReactNode, useEffect } from "react";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import React, { type FC, useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { Banner } from "../../components/Banner";
-import { Button } from "../../components/Button";
-import { Codicon } from "../../components/Codicon";
-import { Divider } from "../../components/Divider";
-import { Dropdown } from "../../components/FormElements/Dropdown";
-import { PathSelect } from "../../components/FormElements/PathSelect";
-import { TextField } from "../../components/FormElements/TextField";
 import { HeaderSection } from "../../components/HeaderSection";
-import { useGetBuildPacks, useGetGitBranches, useGetGitRemotes } from "../../hooks/use-queries";
+import { type StepItem, VerticalStepper } from "../../components/VerticalStepper";
+import { useComponentList } from "../../hooks/use-queries";
 import { ChoreoWebViewAPI } from "../../utilities/vscode-webview-rpc";
-import { type componentFormSchema, getComponentFormSchema } from "./componentFormSchema";
+import {
+	type componentBuildDetailsSchema,
+	type componentEndpointsFormSchema,
+	type componentGeneralDetailsSchema,
+	type componentGitProxyFormSchema,
+	getComponentEndpointsFormSchema,
+	getComponentFormSchemaBuildDetails,
+	getComponentFormSchemaGenDetails,
+	getComponentGitProxyFormSchema,
+	sampleEndpointItem,
+} from "./componentFormSchema";
+import { ComponentFormBuildSection } from "./sections/ComponentFormBuildSection";
+import { ComponentFormEndpointsSection } from "./sections/ComponentFormEndpointsSection";
+import { ComponentFormGenDetailsSection } from "./sections/ComponentFormGenDetailsSection";
+import { ComponentFormGitProxySection } from "./sections/ComponentFormGitProxySection";
+import { ComponentFormSummarySection } from "./sections/ComponentFormSummarySection";
 
-type ComponentFormType = z.infer<typeof componentFormSchema>;
+type ComponentFormGenDetailsType = z.infer<typeof componentGeneralDetailsSchema>;
+type ComponentFormBuildDetailsType = z.infer<typeof componentBuildDetailsSchema>;
+type ComponentFormEndpointsType = z.infer<typeof componentEndpointsFormSchema>;
+type ComponentFormGitProxyType = z.infer<typeof componentGitProxyFormSchema>;
 
-export const ComponentFormView: FC<NewComponentWebviewProps> = ({
-	project,
-	organization,
-	directoryPath,
-	directoryFsPath,
-	directoryName,
-	initialValues,
-	existingComponents,
-}) => {
+export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
+	const {
+		project,
+		organization,
+		directoryFsPath,
+		directoryUriPath,
+		initialValues,
+		directoryName,
+		existingComponents: existingComponentsCache,
+	} = props;
+	const type = initialValues?.type;
 	const [formSections] = useAutoAnimate();
-	const [compDetailsSections] = useAutoAnimate();
-	const [sourceDetailsSections] = useAutoAnimate();
-	const [buildConfigSections] = useAutoAnimate();
 
-	const form = useForm<ComponentFormType>({
-		resolver: zodResolver(getComponentFormSchema(existingComponents, directoryFsPath), { async: true }, { mode: "async" }),
+	const [stepIndex, setStepIndex] = useState(0);
+
+	const { data: existingComponents = [] } = useComponentList(project, organization, { initialData: existingComponentsCache });
+
+	const genDetailsForm = useForm<ComponentFormGenDetailsType>({
+		resolver: zodResolver(getComponentFormSchemaGenDetails(existingComponents), { async: true }, { mode: "async" }),
+		mode: "all",
+		defaultValues: { name: initialValues?.name || "", subPath: "", gitRoot: "", repoUrl: "", branch: "" },
+	});
+
+	const name = genDetailsForm.watch("name");
+	const gitRoot = genDetailsForm.watch("gitRoot");
+	const subPath = genDetailsForm.watch("subPath");
+
+	const buildDetailsForm = useForm<ComponentFormBuildDetailsType>({
+		resolver: zodResolver(getComponentFormSchemaBuildDetails(type, directoryFsPath, gitRoot), { async: true }, { mode: "async" }),
 		mode: "all",
 		defaultValues: {
-			name: "",
-			type: initialValues?.type ?? "",
 			buildPackLang: initialValues?.buildPackLang ?? "",
-			langVersion: "",
-			subPath: initialValues?.subPath || "",
-			repoUrl: "",
-			branch: "",
 			dockerFile: "",
-			port: 8080,
-			outboundVisibility: "Public",
+			langVersion: "",
 			spaBuildCommand: "npm run build",
 			spaNodeVersion: "20.0.0",
 			spaOutputDir: "build",
+			webAppPort: 8080,
+			autoBuildOnCommit: true,
+			useDefaultEndpoints: true,
 		},
 	});
 
-	const selectedType = form.watch("type");
-	const selectedLang = form.watch("buildPackLang");
-	const subPath = form.watch("subPath");
-	const repoUrl = form.watch("repoUrl");
+	const useDefaultEndpoints = buildDetailsForm.watch("useDefaultEndpoints");
+	const buildPackLang = buildDetailsForm.watch("buildPackLang");
 
-	const { data: hasEndpoints } = useQuery({
-		queryKey: ["directory-has-endpoints", { directoryPath, subPath, selectedLang }],
-		queryFn: async () => {
-			const compPath = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, subPath]);
-			return ChoreoWebViewAPI.getInstance().readServiceEndpoints(compPath);
-		},
-		select: (resp) => resp?.endpoints?.length > 0,
-		enabled: selectedType === ChoreoComponentType.Service && !!selectedLang,
+	const endpointDetailsForm = useForm<ComponentFormEndpointsType>({
+		resolver: zodResolver(getComponentEndpointsFormSchema(directoryFsPath), { async: true }, { mode: "async" }),
+		mode: "all",
+		defaultValues: { endpoints: [] },
 	});
 
-	const { isLoading: isLoadingBuildPacks, data: buildpacks = [] } = useGetBuildPacks(selectedType, organization, {
+	const gitProxyForm = useForm<ComponentFormGitProxyType>({
+		resolver: zodResolver(getComponentGitProxyFormSchema(directoryFsPath), { async: true }, { mode: "async" }),
+		mode: "all",
+		defaultValues: {
+			proxyTargetUrl: "",
+			proxyVersion: "v1.0",
+			// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema. add back networkVisibilities: "Public"
+			componentConfig: { type: "REST", schemaFilePath: "", docPath: "", thumbnailPath: "" },
+		},
+	});
+
+	useQuery({
+		queryKey: ["service-dir-endpoints", { directoryFsPath, type }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalEndpointsConfig(directoryFsPath),
+		select: (resp) => resp?.endpoints,
 		refetchOnWindowFocus: false,
-		enabled: !!selectedType,
+		enabled: type === ChoreoComponentType.Service,
+		onSuccess: (resp) => {
+			endpointDetailsForm.setValue("endpoints", resp?.length > 0 ? resp : [{ ...sampleEndpointItem, name: name || "endpoint-1" }]);
+		},
 	});
 
-	useEffect(() => {
-		if (!buildpacks.find((item) => item.language === selectedLang)) {
-			// Reset build pack selection if its invalid
-			setTimeout(() => {
-				form.setValue("buildPackLang", "");
-				form.setValue("langVersion", "");
-			}, 100);
-		}
-	}, [form, selectedLang, buildpacks]);
-
-	useEffect(() => {
-		form.trigger("subPath");
-	}, [selectedLang]);
-
-	const { isLoading: isLoadingRemotes, data: gitRemotes = [] } = useGetGitRemotes(directoryFsPath, subPath, {
-		keepPreviousData: true,
+	useQuery({
+		queryKey: ["read-local-proxy-config", { directoryFsPath, type }],
+		queryFn: () => ChoreoWebViewAPI.getInstance().readLocalProxyConfig(directoryFsPath),
+		select: (resp) => resp?.proxy,
+		refetchOnWindowFocus: false,
+		enabled: type === ChoreoComponentType.ApiProxy,
+		onSuccess: (resp) => {
+			gitProxyForm.setValue("componentConfig.type", resp?.type ?? "REST");
+			gitProxyForm.setValue("componentConfig.schemaFilePath", resp?.schemaFilePath ?? "");
+			gitProxyForm.setValue("componentConfig.thumbnailPath", resp?.thumbnailPath ?? "");
+			gitProxyForm.setValue("componentConfig.docPath", resp?.docPath ?? "");
+			// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema
+			// gitProxyForm.setValue("componentConfig.networkVisibilities", resp?.networkVisibilities ?? []);
+		},
 	});
-
-	useEffect(() => {
-		if (gitRemotes.length > 0 && !gitRemotes.includes(form.getValues("repoUrl"))) {
-			form.setValue("repoUrl", gitRemotes[0]);
-		}
-	}, [form, gitRemotes]);
-
-	const { isLoading: isLoadingBranches, data: branches = [] } = useGetGitBranches(repoUrl, organization, {
-		enabled: !!repoUrl,
-	});
-
-	useEffect(() => {
-		if (branches?.length > 0 && (!form.getValues("branch") || !branches.includes(form.getValues("branch")))) {
-			if (branches.includes("main")) {
-				form.setValue("branch", "main");
-			} else if (branches.includes("master")) {
-				form.setValue("branch", "master");
-			} else {
-				form.setValue("branch", branches[0]);
-			}
-		}
-	}, [form, branches]);
-
-	const {
-		isLoading: isCheckingRepoAccess,
-		isFetching: isFetchingRepoAccess,
-		data: isRepoAuthorizedResp,
-		refetch: refetchRepoAccess,
-	} = useQuery({
-		queryKey: ["git-repo-access", { repo: repoUrl, orgId: organization?.id }],
-		queryFn: () =>
-			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().isRepoAuthorized({
-				repoUrl: repoUrl,
-				orgId: organization.id.toString(),
-			}),
-		enabled: !!repoUrl,
-		keepPreviousData: true,
-	});
-
-	const selectedBuildPack = buildpacks?.find((item) => item.language === selectedLang);
-
-	const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(",")?.reverse() ?? [];
-
-	useEffect(() => {
-		if (supportedVersions.length > 0 && (!form.getValues("langVersion") || !supportedVersions.includes(form.getValues("langVersion")))) {
-			form.setValue("langVersion", supportedVersions[0]);
-		}
-	}, [supportedVersions]);
 
 	const { mutate: createComponent, isLoading: isCreatingComponent } = useMutation({
-		mutationFn: async (data: ComponentFormType) => {
-			const componentName = makeURLSafe(data.name);
+		mutationFn: async () => {
+			const genDetails = genDetailsForm.getValues();
+			const buildDetails = buildDetailsForm.getValues();
+			const gitProxyDetails = gitProxyForm.getValues();
 
-			const componentDir = await ChoreoWebViewAPI.getInstance().joinFilePaths([directoryFsPath, data.subPath]);
+			const componentName = makeURLSafe(genDetails.name);
 
 			const createCompCommandParams: SubmitComponentCreateReq = {
 				org: organization,
 				project: project,
+				autoBuildOnCommit: type === ChoreoComponentType.ApiProxy ? false : buildDetails?.autoBuildOnCommit,
+				type,
 				createParams: {
 					orgId: organization.id.toString(),
+					orgUUID: organization.uuid,
+					projectId: project.id,
 					projectHandle: project.handler,
 					name: componentName,
-					displayName: data.name,
-					type: data.type,
-					buildPackLang: data.buildPackLang,
-					componentDir,
-					repoUrl: data.repoUrl,
-					branch: data.branch,
-					langVersion: data.langVersion,
-					dockerFile: data.dockerFile,
-					port: data.port,
-					spaBuildCommand: data.spaBuildCommand,
-					spaNodeVersion: data.spaNodeVersion,
-					spaOutputDir: data.spaOutputDir,
+					displayName: genDetails.name,
+					type,
+					buildPackLang: buildDetails.buildPackLang,
+					componentDir: directoryFsPath,
+					repoUrl: genDetails.repoUrl,
+					branch: genDetails.branch,
+					langVersion: buildDetails.langVersion,
+					dockerFile: buildDetails.buildPackLang === ChoreoImplementationType.Docker ? buildDetails.dockerFile.replace(/\\/g, "/") : "",
+					port: buildDetails.webAppPort,
+					spaBuildCommand: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaBuildCommand : "",
+					spaNodeVersion: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaNodeVersion : "",
+					spaOutputDir: WebAppSPATypes.includes(buildDetails.buildPackLang as ChoreoBuildPackNames) ? buildDetails.spaOutputDir : "",
+					proxyAccessibility: "external", // TODO: remove after CLI change
+					proxyApiContext: gitProxyDetails.proxyContext?.charAt(0) === "/" ? gitProxyDetails.proxyContext.substring(1) : gitProxyDetails.proxyContext,
+					proxyApiVersion: gitProxyDetails.proxyVersion,
+					proxyEndpointUrl: gitProxyDetails.proxyTargetUrl,
 				},
 			};
-
-			if (data.type === ChoreoComponentType.Service && !hasEndpoints) {
-				createCompCommandParams.endpoint = {
-					name: componentName,
-					port: data.port,
-					networkVisibility: data.outboundVisibility,
-					type: "REST",
-					context: "/",
-				};
-			}
 
 			const created = await ChoreoWebViewAPI.getInstance().submitComponentCreate(createCompCommandParams);
 
@@ -202,237 +187,140 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = ({
 		},
 	});
 
-	const onSubmit: SubmitHandler<ComponentFormType> = (data) => createComponent(data);
+	const { mutate: submitEndpoints, isLoading: isSubmittingEndpoints } = useMutation({
+		mutationFn: (endpoints: Endpoint[] = []) => {
+			return ChoreoWebViewAPI.getInstance().createLocalEndpointsConfig({ componentDir: directoryFsPath, endpoints });
+		},
+		onSuccess: () => setStepIndex(stepIndex + 1),
+	});
 
-	const buildConfigs: ReactNode[] = [];
-	if (
-		[ChoreoBuildPackNames.Ballerina, ChoreoBuildPackNames.MicroIntegrator, ChoreoBuildPackNames.StaticFiles].includes(
-			selectedLang as ChoreoBuildPackNames,
-		)
-	) {
-		// do nothing
-	} else if (selectedLang === ChoreoBuildPackNames.Docker) {
-		buildConfigs.push(
-			<PathSelect
-				name="dockerFile"
-				label="Dockerfile path"
-				required
-				control={form.control}
-				basePath={directoryPath}
-				directoryName={directoryName}
-				type="file"
-				key="docker-path"
-				promptTitle="Select Dockerfile"
-				wrapClassName="col-span-full"
-			/>,
-		);
-		if (selectedType === ChoreoComponentType.WebApplication) {
-			buildConfigs.push(<TextField label="Port" key="port" required name="port" control={form.control} />);
+	const { mutate: submitProxyConfig, isLoading: isSubmittingProxyConfig } = useMutation({
+		mutationFn: (data: ComponentFormGitProxyType) => {
+			return ChoreoWebViewAPI.getInstance().createLocalProxyConfig({
+				componentDir: directoryFsPath,
+				proxy: {
+					type: data.componentConfig?.type,
+					schemaFilePath: data.componentConfig?.schemaFilePath,
+					docPath: data.componentConfig?.docPath,
+					thumbnailPath: data.componentConfig?.thumbnailPath,
+					// TODO: Re-enable this once networkVisibilities is supported in the git proxy schema
+					// networkVisibilities: data.componentConfig?.networkVisibilities?.length>0 ? data.componentConfig?.networkVisibilities : undefined,
+				},
+			});
+		},
+		onSuccess: () => setStepIndex(stepIndex + 1),
+	});
+
+	const steps: StepItem[] = [
+		{
+			label: "General Details",
+			content: (
+				<ComponentFormGenDetailsSection
+					{...props}
+					key="gen-details-step"
+					form={genDetailsForm}
+					componentType={type}
+					onNextClick={() => {
+						gitProxyForm.setValue(
+							"proxyContext",
+							genDetailsForm.getValues()?.name ? `/${makeURLSafe(genDetailsForm.getValues()?.name)}` : `/path-${getRandomNumber()}`,
+						);
+						setStepIndex(stepIndex + 1);
+					}}
+				/>
+			),
+		},
+	];
+
+	if (type !== ChoreoComponentType.ApiProxy) {
+		steps.push({
+			label: "Build Details",
+			content: (
+				<ComponentFormBuildSection
+					{...props}
+					key="build-details-step"
+					onNextClick={() => setStepIndex(stepIndex + 1)}
+					onBackClick={() => setStepIndex(stepIndex - 1)}
+					form={buildDetailsForm}
+					selectedType={type}
+					subPath={subPath}
+					gitRoot={gitRoot}
+					baseUriPath={directoryUriPath}
+				/>
+			),
+		});
+	}
+
+	if (type === ChoreoComponentType.Service) {
+		if (buildPackLang !== ChoreoBuildPackNames.MicroIntegrator || (buildPackLang === ChoreoBuildPackNames.MicroIntegrator && !useDefaultEndpoints)) {
+			steps.push({
+				label: "Endpoint Details",
+				content: (
+					<ComponentFormEndpointsSection
+						{...props}
+						key="endpoints-step"
+						componentName={name || "component"}
+						onNextClick={(data) => submitEndpoints(data.endpoints as Endpoint[])}
+						onBackClick={() => setStepIndex(stepIndex - 1)}
+						isSaving={isSubmittingEndpoints}
+						form={endpointDetailsForm}
+					/>
+				),
+			});
 		}
-	} else if (WebAppSPATypes.includes(selectedLang as ChoreoBuildPackNames)) {
-		buildConfigs.push(
-			<TextField label="Node Version" key="node-version" required name="spaNodeVersion" control={form.control} placeholder="Eg: 18, 18.1.2" />,
-		);
-		buildConfigs.push(
-			<TextField
-				label="Build Command"
-				key="build-command"
-				required
-				name="spaBuildCommand"
-				control={form.control}
-				placeholder="npm run build / yarn build"
-			/>,
-		);
-		buildConfigs.push(
-			<TextField label="Build Output Directory" key="spa-out-dir" required name="spaOutputDir" control={form.control} placeholder="build" />,
-		);
-	} else if (selectedLang) {
-		// Build pack type
-		buildConfigs.push(
-			<Dropdown
-				label="Language Version"
-				key="lang-version"
-				required
-				name="langVersion"
-				control={form.control}
-				items={supportedVersions}
-				disabled={supportedVersions?.length === 0}
-			/>,
-		);
-
-		if (selectedType === ChoreoComponentType.WebApplication) {
-			buildConfigs.push(<TextField label="Port" key="port" required name="port" control={form.control} placeholder="8080" />);
-		}
+	}
+	if (type === ChoreoComponentType.ApiProxy) {
+		steps.push({
+			label: "Proxy Details",
+			content: (
+				<ComponentFormGitProxySection
+					{...props}
+					key="git-proxy-step"
+					onNextClick={(data) => submitProxyConfig(data)}
+					onBackClick={() => setStepIndex(stepIndex - 1)}
+					isSaving={isSubmittingProxyConfig}
+					form={gitProxyForm}
+				/>
+			),
+		});
 	}
 
-	const endpointConfigs: ReactNode[] = [];
-	if (selectedType === ChoreoComponentType.Service && !!selectedLang && !hasEndpoints) {
-		endpointConfigs.push(<TextField label="Port" required name="port" control={form.control} placeholder="8080" />);
-		endpointConfigs.push(
-			<Dropdown
-				label="Visibility"
-				key="outboundVisibility"
-				required
-				name="outboundVisibility"
-				items={["Public", "Organization", "Project"]}
-				control={form.control}
-			/>,
-		);
-	}
+	steps.push({
+		label: "Summary",
+		content: (
+			<ComponentFormSummarySection
+				{...props}
+				key="summary-step"
+				genDetailsForm={genDetailsForm}
+				buildDetailsForm={buildDetailsForm}
+				endpointDetailsForm={endpointDetailsForm}
+				gitProxyForm={gitProxyForm}
+				onNextClick={() => createComponent()}
+				onBackClick={() => setStepIndex(stepIndex - 1)}
+				isCreating={isCreatingComponent}
+			/>
+		),
+	});
 
-	let invalidRepoMsg: ReactNode = "";
-	if (!isLoadingRemotes && gitRemotes?.length === 0) {
-		invalidRepoMsg = "The directory does not contain any Git remotes.";
-	} else if (repoUrl && !isCheckingRepoAccess && !isRepoAuthorizedResp?.isAccessible) {
-		invalidRepoMsg = (
-			<div className="flex items-center">
-				<div className="flex-1">
-					{isRepoAuthorizedResp?.retrievedRepos
-						? "Choreo lacks access to this repository. Please grant access by clicking"
-						: "Please authorize Choreo to access your GitHub repositories by clicking"}{" "}
-					<VSCodeLink
-						className="font-bold text-vsc-list-warningForeground"
-						onClick={
-							isRepoAuthorizedResp?.retrievedRepos
-								? () => ChoreoWebViewAPI.getInstance().triggerGithubInstallFlow(organization.id?.toString())
-								: () => ChoreoWebViewAPI.getInstance().triggerGithubAuthFlow(organization.id?.toString())
-						}
-					>
-						here
-					</VSCodeLink>
-					. {isRepoAuthorizedResp?.retrievedRepos ? "(Only public repos are allowed within the free tier.)" : ""}
-				</div>
-				<Button
-					appearance="icon"
-					className="text-vsc-list-warningForeground"
-					title="Refresh access repository status"
-					onClick={() => refetchRepoAccess()}
-					disabled={isFetchingRepoAccess}
-				>
-					<Codicon name="refresh" />
-				</Button>
-			</div>
-		);
-	}
+	const componentTypeText = getComponentTypeText(type);
 
 	return (
 		<div className="flex flex-row justify-center p-1 md:p-3 lg:p-4 xl:p-6">
 			<div className="container">
 				<form className="mx-auto flex max-w-4xl flex-col gap-2 p-4">
 					<HeaderSection
-						title="Create New Component"
+						title={`Create ${["a", "e", "i", "o", "u"].includes(componentTypeText[0].toLowerCase()) ? "an" : "a"} ${componentTypeText}`}
 						tags={[
+							{ label: "Source Directory", value: subPath && subPath !== '.' ? subPath : directoryName },
 							{ label: "Project", value: project.name },
 							{ label: "Organization", value: organization.name },
 						]}
 					/>
 					<div className="mt-4 flex flex-col gap-6" ref={formSections}>
-						<div className="grid gap-4 md:grid-cols-2" ref={compDetailsSections}>
-							<TextField label="Name" required name="name" placeholder="component-name" control={form.control} />
-							<Dropdown
-								label="Type"
-								required
-								name="type"
-								items={[
-									{ label: "Service", value: ChoreoComponentType.Service },
-									{ label: "Scheduled Task", value: ChoreoComponentType.ScheduledTask },
-									{ label: "Manual Task", value: ChoreoComponentType.ManualTrigger },
-									{ label: "Web Application", value: ChoreoComponentType.WebApplication },
-									// TODO: Re-enable this after testing webhooks
-									// { label: "Webhook", value: ChoreoComponentType.Webhook },
-								]}
-								control={form.control}
-							/>
-							{selectedType && (
-								<Dropdown
-									label="Build Pack"
-									required
-									name="buildPackLang"
-									control={form.control}
-									items={buildpacks?.map((item) => ({
-										label: item.displayName,
-										value: item.language,
-									}))}
-									loading={isLoadingBuildPacks}
-									disabled={buildpacks.length === 0}
-								/>
-							)}
-						</div>
-						<div>
-							<FormSectionHeader title="Component Source" />
-							<div className="grid gap-4 md:grid-cols-2">
-								<PathSelect
-									name="subPath"
-									label={selectedLang === ChoreoBuildPackNames.Docker ? "Docker Context" : "Directory"}
-									required
-									control={form.control}
-									basePath={directoryPath}
-									directoryName={directoryName}
-									type="directory"
-									promptTitle="Select Component Directory"
-									wrapClassName="col-span-full"
-								/>
-								<div className="col-span-full grid gap-4 md:grid-cols-2" ref={sourceDetailsSections}>
-									{gitRemotes?.length > 0 && (
-										<Dropdown label="Repository" required name="repoUrl" control={form.control} items={gitRemotes} loading={isLoadingRemotes} />
-									)}
-									{invalidRepoMsg && (
-										<Banner type="warning" className="col-span-full md:order-last">
-											{invalidRepoMsg}
-										</Banner>
-									)}
-									{!invalidRepoMsg && gitRemotes?.length > 0 && (
-										<Dropdown
-											label="Branch"
-											required
-											name="branch"
-											control={form.control}
-											items={branches}
-											disabled={branches?.length === 0 || !isRepoAuthorizedResp?.isAccessible}
-											loading={isLoadingBranches}
-										/>
-									)}
-								</div>
-							</div>
-						</div>
-						{buildConfigs.length > 0 && (
-							<div>
-								<FormSectionHeader title="Build Configurations" />
-								<div className="grid gap-4 md:grid-cols-2" ref={buildConfigSections}>
-									{buildConfigs}
-								</div>
-							</div>
-						)}
-						{endpointConfigs.length > 0 && (
-							<div>
-								<FormSectionHeader title="Endpoint Configurations" />
-								<div className="grid gap-4 md:grid-cols-2">{endpointConfigs}</div>
-							</div>
-						)}
-					</div>
-					<div className="flex justify-end gap-3 pt-8 pb-4">
-						<Button onClick={() => ChoreoWebViewAPI.getInstance().closeWebView()} appearance="secondary">
-							Cancel
-						</Button>
-						<Button
-							onClick={form.handleSubmit(onSubmit)}
-							title={invalidRepoMsg ? "Invalid repo selection" : ""}
-							disabled={!!invalidRepoMsg || isCreatingComponent}
-						>
-							{isCreatingComponent ? "Creating..." : "Create"}
-						</Button>
+						<VerticalStepper currentStep={stepIndex} steps={steps} />
 					</div>
 				</form>
 			</div>
-		</div>
-	);
-};
-
-const FormSectionHeader = ({ title }: { title: string }) => {
-	return (
-		<div className="mb-2 flex items-center gap-2 sm:gap-4">
-			<Divider className="flex-1" />
-			<h1 className="font-light text-base opacity-50">{title}</h1>
 		</div>
 	);
 };

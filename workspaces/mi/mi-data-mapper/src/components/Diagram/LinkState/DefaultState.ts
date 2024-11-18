@@ -34,11 +34,11 @@ export class DefaultState extends State<DiagramEngine> {
 	createLink: CreateLinkState;
 	dragItems: DragDiagramItemsState;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'starting-state' });
 		this.childStates = [new SelectingState()];
 		this.dragCanvas = new DragCanvasState({allowDrag: false});
-		this.createLink = new CreateLinkState();
+		this.createLink = new CreateLinkState(resetState);
 		this.dragItems = new DragDiagramItemsState();
 
 		// determine what was clicked on
@@ -80,7 +80,7 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 					const isExpandOrCollapse = (actionEvent.event.target as Element)
-						.closest('button[id^="button-wrapper"]');
+						.closest('button[id^="expand-or-collapse"]');
 					const isAddElement = (actionEvent.event.target as Element)
 						.closest('button[id^="add-array-element"]');
 					const isAddLocalVariable = (actionEvent.event.target as Element)

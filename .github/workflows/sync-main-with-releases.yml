@@ -33,7 +33,7 @@ jobs:
           git checkout -b $TEMP_BRANCH
           
           # Pull changes from release branch
-          git pull origin $RELEASE_BRANCH
+          git pull --rebase origin $RELEASE_BRANCH
 
       - name: Create Pull Request
         id: commit

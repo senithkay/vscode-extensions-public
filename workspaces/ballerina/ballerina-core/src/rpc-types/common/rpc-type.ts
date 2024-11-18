@@ -21,7 +21,8 @@ import {
     TypeResponse,
     WorkspaceFileRequest,
     WorkspacesFileResponse,
-    FileOrDirRequest
+    FileOrDirRequest,
+    WorkspaceRootResponse
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -35,3 +36,4 @@ export const runBackgroundTerminalCommand: RequestType<RunExternalCommandRequest
 export const openExternalUrl: NotificationType<OpenExternalUrlRequest> = { method: `${_preFix}/openExternalUrl` };
 export const selectFileOrDirPath: RequestType<FileOrDirRequest, FileOrDirResponse> = { method: `${_preFix}/selectFileOrDirPath` };
 export const experimentalEnabled: RequestType<void, boolean> = { method: `${_preFix}/experimentalEnabled` };
+export const getWorkspaceRoot: RequestType<void, WorkspaceRootResponse> = { method: `${_preFix}/getWorkspaceRoot` };

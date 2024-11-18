@@ -83,7 +83,7 @@ export function ResourcePath(props: ResourcePathProps) {
 					}}
 				>
 					<Dropdown
-						sx={{ width: 160, marginTop: 2 }}
+						sx={{ width: 160 }}
 						isRequired
 						errorMsg=""
 						id="drop-down"
@@ -96,10 +96,13 @@ export function ResourcePath(props: ResourcePathProps) {
 				<TextField
 					sx={{ marginLeft: 15, flexGrow: 1 }}
 					autoFocus
-					errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && diag.message.includes(path))?.message}
+					errorMsg={diagnostics.find(diag => diag.range.start.line === dPosition.startLine && (diag.message.includes(path) || diag.code === "BCE0400"))?.message}
 					label="Resource Path"
 					size={70}
-					onTextChange={handlePathChange}
+					onTextChange={(input) => {
+						const trimmedInput = input.startsWith('/') ? input.slice(1) : input;
+						handlePathChange(trimmedInput);
+					}}
 					placeholder="path/foo"
 					value={path}
 					onFocus={(e) => e.target.select()}

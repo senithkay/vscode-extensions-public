@@ -9,7 +9,15 @@
 
 import React, { useState } from "react";
 import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
-import { Button, LocationSelector, TextField, Typography, View, ViewContent, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import {
+    Button,
+    LocationSelector,
+    TextField,
+    Typography,
+    View,
+    ViewContent,
+    ErrorBanner,
+} from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { css } from "@emotion/css";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -17,7 +25,9 @@ import { SERVICE_VIEW } from "./constants";
 import { BIHeader } from "../BIHeader";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
-import { useVisualizerContext } from "../../../Context";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 const FormContainer = styled.div`
     display: flex;
@@ -45,9 +55,36 @@ const CardGrid = styled.div`
     width: 100%;
 `;
 
-const ErrorMsg = css`
-    margin-top: 10px;
-`;
+const schema = yup.object({
+    name: yup.string().when("$selectedModule", {
+        is: "Scratch",
+        then: () =>
+            yup
+                .string()
+                .required("Service name is required")
+                .matches(/^\S*$/, "Service name cannot contain spaces")
+                .matches(/^[a-zA-Z]/, "Service name must start with a letter")
+                .matches(/^[a-zA-Z0-9]*$/, "Service name cannot contain special characters"),
+        otherwise: () => yup.string().optional(),
+    }),
+    path: yup
+        .string()
+        .required("Path is required")
+        .matches(/^\//, "Path must start with /")
+        .matches(
+            /^[\/a-zA-Z0-9\-_\/]*$/,
+            "Path can only contain letters, numbers, hyphens, underscores and forward slashes"
+        ),
+    port: yup
+        .string()
+        .required("Port is required")
+        .matches(/^\d+$/, "Port must be a number")
+        .test(
+            "port-range",
+            "Port must be between 0 and 65535",
+            (value) => !value || (parseInt(value) >= 0 && parseInt(value) <= 65535)
+        ),
+});
 
 type ServiceType = "Scratch" | "OAS";
 
@@ -58,21 +95,38 @@ export interface HttpFormProps {
 export function HttpForm(props: HttpFormProps) {
     const { handleView } = props;
     const { rpcClient } = useRpcContext();
-    const [name, setName] = useState("");
-    const [path, setPath] = useState("");
     const [specPath, setSpecPath] = useState("");
-    const [port, setPort] = useState("");
-    const [file, setFile] = useState("");
     const [selectedModule, setSelectedModule] = useState<ServiceType>("Scratch");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const { setPopupMessage } = useVisualizerContext();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: yupResolver(schema),
+        defaultValues: {
+            name: "",
+            path: "/",
+            port: "9090",
+        },
+        mode: "onChange",
+        context: { selectedModule },
+    });
 
-    const handleCreateService = async () => {
+    const onSubmit = async (data: any) => {
         setIsLoading(true);
-        const res = await rpcClient.getBIDiagramRpcClient().createComponent({ type: DIRECTORY_MAP.SERVICES, serviceType: { name, path, port, specPath } });
-        setIsLoading(res.response);
+        const res = await rpcClient.getBIDiagramRpcClient().createComponent({
+            type: DIRECTORY_MAP.SERVICES,
+            serviceType: {
+                name: data.name,
+                path: data.path,
+                port: data.port,
+                specPath: specPath,
+            },
+        });
+        setIsLoading(false);
         setError(res.error);
     };
 
@@ -85,14 +139,18 @@ export function HttpForm(props: HttpFormProps) {
         setSpecPath(projectDirectory.path);
     };
 
-    const validate = () => {
+    const formHasError = () => {
+        if (isLoading) {
+            return true;
+        }
         if (selectedModule === "Scratch") {
-            return !name || !path || !port || isLoading;
+            return Object.keys(errors).length > 0;
         }
         if (selectedModule === "OAS") {
-            return !specPath || isLoading;
+            return !specPath || !!errors.port?.message;
         }
-    }
+        return false;
+    };
 
     return (
         <View>
@@ -100,15 +158,15 @@ export function HttpForm(props: HttpFormProps) {
                 <BIHeader />
                 <Container>
                     <FormContainer>
-                        <Typography variant="h2">Create HTTP Service</Typography>
+                        <Typography variant="h2">Create an HTTP Service</Typography>
                         <BodyText>
-                            Design your HTTP service using the our Service Designer or import an OpenAPI
-                            Specification (OAS) file to set it up quickly.
+                            Design your HTTP service using the our Service Designer or import an OpenAPI Specification
+                            (OAS) file to set it up quickly.
                         </BodyText>
                         <CardGrid>
                             <ButtonCard
                                 title="Design From Scratch"
-                                description="Design your HTTP service using our service design tool."
+                                description="Design your HTTP service using our service designer."
                                 active={selectedModule === "Scratch"}
                                 onClick={() => handleSelection("Scratch")}
                             />
@@ -119,25 +177,26 @@ export function HttpForm(props: HttpFormProps) {
                                 onClick={() => handleSelection("OAS")}
                             />
                         </CardGrid>
-                        {selectedModule === "Scratch" &&
+                        {selectedModule === "Scratch" && (
                             <>
                                 <TextField
-                                    onTextChange={setName}
+                                    {...register("name")}
                                     sx={{ marginTop: 20 }}
-                                    value={name}
                                     label="Service Name"
                                     placeholder="Enter service name"
+                                    errorMsg={errors.name?.message}
+                                    autoFocus
                                 />
                                 <TextField
-                                    onTextChange={setPath}
+                                    {...register("path")}
                                     sx={{ marginTop: 20 }}
-                                    value={path}
                                     label="Path"
                                     placeholder="Enter service path"
+                                    errorMsg={errors.path?.message}
                                 />
                             </>
-                        }
-                        {selectedModule === "OAS" &&
+                        )}
+                        {selectedModule === "OAS" && (
                             <>
                                 <LocationSelector
                                     sx={{ marginTop: 20 }}
@@ -147,20 +206,16 @@ export function HttpForm(props: HttpFormProps) {
                                     onSelect={handleFileSelect}
                                 />
                             </>
-                        }
+                        )}
                         <TextField
-                            onTextChange={setPort}
+                            {...register("port")}
                             sx={{ marginTop: 20 }}
-                            value={port}
                             label="Port"
                             placeholder="Enter service port"
+                            errorMsg={errors.port?.message}
                         />
                         <ButtonWrapper>
-                            <Button
-                                disabled={validate()}
-                                onClick={handleCreateService}
-                                appearance="primary"
-                            >
+                            <Button disabled={formHasError()} onClick={handleSubmit(onSubmit)} appearance="primary">
                                 Create Service
                             </Button>
                         </ButtonWrapper>
@@ -171,3 +226,7 @@ export function HttpForm(props: HttpFormProps) {
         </View>
     );
 }
+
+const ErrorMsg = css`
+    margin-top: 10px;
+`;

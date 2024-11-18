@@ -30,3 +30,45 @@ export function getBranchId(nodeId: string, branchLabel: string, branchIndex: nu
 export function getBranchInLinkId(nodeId: string, branchLabel: string, branchIndex: number) {
     return `${nodeId}-${branchLabel}-branch-${branchIndex}-in-link`;
 }
+
+export function nodeHasError(node: FlowNode) {
+    if (!node) {
+        return false;
+    }
+
+    // Check branch properties
+    if (node.branches) {
+        return node.branches.some((branch) => {
+            if (!branch.properties) {
+                return false;
+            }
+            return Object.values(branch.properties).some((property) =>
+                property?.diagnostics?.diagnostics?.some((diagnostic) => diagnostic.severity === "ERROR")
+            );
+        });
+    }
+
+    // Check properties
+    if (node.properties) {
+        const hasPropertyError = Object.values(node.properties).some((property) =>
+            property?.diagnostics?.diagnostics?.some((diagnostic) => diagnostic.severity === "ERROR")
+        );
+        if (hasPropertyError) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+export function getNodeTitle(node: FlowNode) {
+    const label = node.metadata.label.includes(".") ? node.metadata.label.split(".").pop() : node.metadata.label;
+
+    if (node.codedata?.org === "ballerina" || node.codedata?.org === "ballerinax") {
+        const module = node.codedata.module.includes(".")
+            ? node.codedata.module.split(".").pop()
+            : node.codedata.module;
+        return `${module} : ${label}`;
+    }
+    return label;
+}
