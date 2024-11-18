@@ -12,6 +12,7 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ExpressionFieldValue } from "../Form/ExpressionField/ExpressionInput";
 import { BaseNodeModel } from "../nodes/BaseNodeModel";
 import { NodeLinkModel } from "../NodeLink/NodeLinkModel";
+import { MediatorNodeModel } from "../nodes/MediatorNode/MediatorNodeModel";
 
 export interface SidePanelPage {
     content: ReactNode;
@@ -27,7 +28,7 @@ interface SidePanelContext {
     nodeRange?: Range;
     trailingSpace?: string;
     operationName?: string;
-    node?: BaseNodeModel | NodeLinkModel;
+    node?: MediatorNodeModel | NodeLinkModel;
     parentNode?: string;
     previousNode?: string;
     nextNode?: string;
@@ -50,10 +51,27 @@ const SidePanelContext = React.createContext<SidePanelContext>({
     expressionEditor: {
         isOpen: false,
         value: undefined,
-        setValue: () => {},
+        setValue: () => { },
     },
     pageStack: [],
 })
+
+export const DefaultSidePanelState: SidePanelContext = {
+    // Mediator related
+    isOpen: false,
+    isEditing: false,
+    formValues: {},
+    node: undefined,
+    nodeRange: undefined,
+    trailingSpace: undefined,
+    isFormOpen: false,
+    pageStack: [],
+};
+
+export function clearSidePanelState(sidePanelContext: SidePanelContext) {
+    const state = structuredClone(DefaultSidePanelState);
+    if (sidePanelContext?.setSidePanelState) sidePanelContext.setSidePanelState({ ...state, setSidePanelState: sidePanelContext.setSidePanelState });
+}
 
 export const SidePanelProvider = SidePanelContext.Provider
 export default SidePanelContext
