@@ -32,6 +32,7 @@ export interface FormGeneratorProps {
     watch: any;
     getValues: any;
     certificates?: string[];
+    configurableEntries?: { name: string, type: string}[];
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
 }
@@ -54,7 +55,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, certificates, skipGeneralHeading, ignoreFields } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, certificates, configurableEntries, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -260,18 +261,32 @@ export function FormGenerator(props: FormGeneratorProps) {
                             </div>
                         )}
                         {field.value.type === 'configurable' && (
-                            <TextField 
-                                name={field.name}
-                                onChange={(e: any) => field.onChange({ isCertificateFile: false, value: e.target.value, type: field.value.type })}
-                                onBlur={field.onBlur}
-                                ref={field.ref}
-                                value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
-                                label={element.displayName}
-                                size={50}
-                                placeholder={element.helpTip}
-                                required={element.required === 'true'}
-                                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                            />
+                            <div>
+                                <AutoComplete
+                                    name={getNameForController(element.name)}
+                                    label={element.displayName}
+                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                    items={configurableEntries?.filter(entry => entry.type === 'cert').map(entry => entry.name) || []}
+                                    value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
+                                    onValueChange={(e: any) => {
+                                        field.onChange({ isCertificateFile: false, value: e, type: field.value.type });
+                                    }}
+                                    required={false}
+                                    allowItemCreate={false}
+                                />
+                                {/* <TextField 
+                                    name={field.name}
+                                    onChange={(e: any) => field.onChange({ isCertificateFile: false, value: e.target.value, type: field.value.type })}
+                                    onBlur={field.onBlur}
+                                    ref={field.ref}
+                                    value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
+                                    label={element.displayName}
+                                    size={50}
+                                    placeholder={element.helpTip}
+                                    required={element.required === 'true'}
+                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                /> */}
+                            </div>
                         )}
                         <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
                             {/* <AutoComplete

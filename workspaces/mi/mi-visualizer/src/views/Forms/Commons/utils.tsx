@@ -11,8 +11,8 @@ export function removeConfigurableFormat(formattedValue: string): string {
 }
 
 export function isConfigurable(value: string): boolean {
-    const prefix = "$config:";
-    return value.startsWith(prefix);
+    const pattern = /^\$config:/;
+    return pattern.test(value);
 }
 
 export function isCertificateFileName(value: string): boolean {

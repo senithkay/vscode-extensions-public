@@ -57,6 +57,7 @@ export function AddConnection(props: AddConnectionProps) {
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
     const [certificatesList, setCertificatesList] = useState([]);
+    const [configurableEntries, setConfigurableEntries] = useState([]);
     // const [currentCertificatePath, setCurrentCertificatePath] = useState('');
     const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
     // const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
@@ -94,6 +95,9 @@ export function AddConnection(props: AddConnectionProps) {
                 const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
                 const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
                 setCertificatesList(certificateFiles);
+
+                const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
+                setConfigurableEntries(fetchedConfigurableEntries.configurableEntries);
 
                 setFormData(connectionFormJSON.formJSON);
                 reset({
@@ -147,6 +151,9 @@ export function AddConnection(props: AddConnectionProps) {
                 const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
                 const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
                 setCertificatesList(certificateFiles);
+
+                const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
+                setConfigurableEntries(fetchedConfigurableEntries.configurableEntries);
 
                 // Populate form with existing values
                 if (connectionFormJSON.formJSON !== "") {
@@ -583,6 +590,7 @@ export function AddConnection(props: AddConnectionProps) {
                             watch={watch}
                             getValues={getValues}
                             certificates={certificatesList}
+                            configurableEntries={configurableEntries}
                             skipGeneralHeading={true}
                             ignoreFields={["connectionName"]} />
                         <FormActions>
