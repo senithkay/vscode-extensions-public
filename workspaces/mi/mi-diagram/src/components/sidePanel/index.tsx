@@ -12,6 +12,7 @@ import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
 import { MediatorForm } from './mediators/Form';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { getMediatorIconsFromFont } from '../../resources/icons/mediatorIcons/icons';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -58,7 +59,7 @@ export interface SidePanelListProps {
 export const sidepanelAddPage = (sidePanelContext: SidePanelContext, content: any, title?: string, icon?: string | ReactNode) => {
     sidePanelContext.setSidePanelState({
         ...sidePanelContext,
-        pageStack: [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }],
+        pageStack: sidePanelContext?.pageStack?.length > 0 ? [...sidePanelContext.pageStack, { content, title, isOpen: true, icon }] : [{ content, title, isOpen: true, icon }],
     });
 }
 
@@ -115,7 +116,6 @@ const SidePanelList = (props: SidePanelListProps) => {
     useEffect(() => {
         const fetchMediators = async () => {
             setLoading(true);
-            let mediatorsPage;
 
             if (sidePanelContext.isEditing && sidePanelContext.operationName) {
                 if (sidePanelContext.operationName === "connector") {
@@ -125,7 +125,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri={props.documentUri}
                         connectorName={sidePanelContext.formValues.connectorName}
                         operationName={sidePanelContext.formValues.operationName} />;
-                    mediatorsPage = { content: form, title: `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}` };
+                    sidepanelAddPage(sidePanelContext, form, `Edit ${FirstCharToUpperCase(sidePanelContext.formValues.title)}`);
                 } else if (Object.values(DATA_SERVICE_NODES).includes(sidePanelContext.operationName)) {
                     const allForms = getAllDataServiceForms({
                         nodePosition: props.nodePosition,
@@ -135,7 +135,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
                     const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
                     if (form) {
-                        mediatorsPage = { content: form.form, title: `Edit ${form.title}` };
+                        sidepanelAddPage(sidePanelContext, form, `Edit ${form.title}`);
                     }
                 } else {
 
@@ -149,16 +149,12 @@ const SidePanelList = (props: SidePanelListProps) => {
                         return;
                     }
                     const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.tag} isUpdate={true} documentUri={props.documentUri} range={props.nodePosition} />;
-                    mediatorsPage = { content: form, title: `Edit ${sidePanelContext.operationName}` };
+                    sidepanelAddPage(sidePanelContext, form, `Edit ${mediatorDetails.title}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
                 }
             } else {
-                mediatorsPage = { content: <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> };
+                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> ;
+                sidepanelAddPage(sidePanelContext, home);
             }
-
-            sidePanelContext.setSidePanelState({
-                ...sidePanelContext,
-                pageStack: [mediatorsPage]
-            });
             setLoading(false);
         }
         fetchMediators();

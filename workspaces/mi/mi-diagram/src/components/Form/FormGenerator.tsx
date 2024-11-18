@@ -72,14 +72,8 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(false);
     const handleOnCancelExprEditorRef = useRef(() => { });
-
-    useEffect(() => {
-        const defaultValues = getDefaultValues(formData.elements);
-        reset(defaultValues);
-        setIsLoading(false);
-    }, [props.formData]);
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
@@ -87,26 +81,19 @@ export function FormGenerator(props: FormGeneratorProps) {
         };
     }, [sidePanelContext.pageStack]);
 
-    function getDefaultValues(elements: any[]) {
-        const values: any = {};
-        for (let i = 0; i < elements.length; i++) {
-            const element = elements[i];
-            const key = getNameForController(element.value.name);
-            const type = element.type;
-            const value = element.value;
-            const inputType = value.inputType;
+    function getDefaultValue(element: any) {
+        const key = getNameForController(element.value.name);
+        const type = element.type;
+        const value = element.value;
+        const inputType = value.inputType;
 
-            if (type === 'table') {
-                values[key] = getParamManagerConfig(value.elements, value.tableKey, value.tableValue);
-            } else if (type === 'attributeGroup') {
-                Object.assign(values, getDefaultValues(value.elements));
-            } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
-                values[key] = { isExpression: type === "expression", value: value.defaultValue || '' };
-            } else {
-                values[key] = value.currentValue ?? value.defaultValue ?? "";
-            }
+        if (type === 'table') {
+            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue);
+        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
+            return { isExpression: type === "expression", value: value.defaultValue || '' };
+        } else {
+            return value.currentValue ?? value.defaultValue ?? "";
         }
-        return values;
     }
 
     function getNameForController(name: string | number) {
@@ -517,16 +504,17 @@ export function FormGenerator(props: FormGeneratorProps) {
             element.value.inputType = 'ParamManager';
         }
 
+        const defaultValue = getDefaultValue(element);
+        if (getValues(name) === undefined) {
+            setValue(name, defaultValue);
+        }
         if (shouldRender) {
-            if (getValues(name) === undefined && element.value.defaultValue) {
-                setValue(name, element.value.defaultValue)
-            }
 
             return (
                 <Controller
                     name={name}
                     control={control}
-                    defaultValue={element.value.defaultValue ?? ""}
+                    defaultValue={defaultValue}
                     rules={
                         {
                             ...(element.value.required === 'true') && {

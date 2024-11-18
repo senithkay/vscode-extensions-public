@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
-import SidePanelContext from "../SidePanelContexProvider";
+import SidePanelContext, { clearSidePanelState, DefaultSidePanelState } from "../SidePanelContexProvider";
 import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
 import { getParamManagerValues } from "../Pages/mediators/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
@@ -53,14 +53,7 @@ export function MediatorForm(props: MediatorFormProps) {
             documentUri,
             range
         });
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            isOpen: false,
-            isEditing: false,
-            formValues: undefined,
-            nodeRange: undefined,
-            operationName: undefined
-        });
+        clearSidePanelState(sidePanelContext);
     }
 
     const handleOnClose = () => {
