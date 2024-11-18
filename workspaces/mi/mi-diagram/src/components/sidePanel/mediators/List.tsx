@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
-import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
@@ -17,20 +16,7 @@ import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
 import { MediatorForm } from './Form';
-
-const ButtonGrid = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 5px;
-`;
-
-const IconContainer = styled.div`
-    width: 30px;
-
-    & img {
-        width: 25px;
-    }
-`;
+import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 
 interface MediatorProps {
     nodePosition: any;
@@ -101,53 +87,20 @@ export function Mediators(props: MediatorProps) {
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {Object.entries(mediators).map(([key, values]) => (
-                    <div key={key}>
-                        <h4>{FirstCharToUpperCase(key)}</h4>
-                        <ButtonGrid>
+                    <div key={key} style={{ marginTop: '15px' }}>
+                        <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={false}>
                             {values.map((mediator: Mediator) => (
-                                <Tooltip content={mediator.description} position='bottom' sx={{ zIndex: 2010 }}>
-                                    <ComponentCard
-                                        id={mediator.type}
-                                        key={mediator.description}
-                                        onClick={() => getMediator(mediator, key === "most popular")}
-                                        sx={{
-                                            '&:hover, &.active': {
-                                                '.icon svg g': {
-                                                    fill: 'var(--vscode-editor-foreground)'
-                                                },
-                                                backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                border: '0.5px solid var(--vscode-focusBorder)'
-                                            },
-                                            alignItems: 'center',
-                                            border: '0.5px solid var(--vscode-editor-foreground)',
-                                            borderRadius: 2,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            height: 20,
-                                            justifyContent: 'left',
-                                            marginBottom: 10,
-                                            padding: 10,
-                                            transition: '0.3s',
-                                            width: 172
-                                        }}
-                                    >
-                                        <IconContainer>
-                                            {getMediatorIconsFromFont(mediator.tag, key === "most popular")}
-                                        </IconContainer>
-                                        <div >
-                                            <IconLabel>{FirstCharToUpperCase(mediator.title)}</IconLabel>
-                                        </div>
-                                    </ComponentCard>
-                                </Tooltip>
+                                <GridButton
+                                    title={mediator.title}
+                                    description={mediator.description}
+                                    icon={
+                                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                    }
+                                    onClick={() => getMediator(mediator, key === "most popular")}
+                                />
                             ))}
-                        </ButtonGrid>
-                        {/* Avoid adding hr to the last elemet */}
-                        {key !== Object.keys(mediators)[Object.keys(mediators).length - 1] &&
-                            <hr style={{
-                                borderColor: "var(--vscode-panel-border)",
-                            }} />
-                        }
-                    </div >
+                        </ButtonGroup >
+                    </div>
                 ))
                 }
             </>
