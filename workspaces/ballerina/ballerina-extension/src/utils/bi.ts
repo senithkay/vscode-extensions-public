@@ -294,7 +294,7 @@ export async function createBITriggerListener(params: ComponentRequest): Promise
 
         modulePart.members.forEach(member => {
             const isMatchingMember = (member: any) => {
-                return STKindChecker.isListenerDeclaration(member) && member.variableName.value === possibleName
+                return STKindChecker.isListenerDeclaration(member) && member.variableName.value === possibleName;
             };
             if (isMatchingMember(member)) {
                 targetPosition = member.position;

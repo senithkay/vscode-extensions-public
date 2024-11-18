@@ -60,7 +60,7 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                 context: {
                     includeDeclaration: false
                 }
-            }
+            };
             const references = await StateMachine.langClient().getReferences(refReq);
 
             for (const res of references) {
@@ -76,10 +76,10 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                             if (STKindChecker.isServiceDeclaration(member) && member.expressions && member.expressions.length > 0) {
                                 const expression = member.expressions[0];
                                 if (JSON.stringify(expression.position) === JSON.stringify(nameRef.position)) {
-                                    services.push({ name: getServiceName(member), service: member, filePath })
+                                    services.push({ name: getServiceName(member), service: member, filePath });
                                 }
                             }
-                        })
+                        });
                     }
                 } catch (error) {
                     console.log(error);
