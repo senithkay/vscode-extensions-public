@@ -98,7 +98,7 @@ export function ListenerView(props: ListenerViewProps) {
                     }
                     {listener?.services.map((service, index) => (
                         <ListItem key={index} onClick={() => goToService(service.filePath, service.service.position)}>
-                            <Typography variant="h3">{service.name}</Typography>
+                            <Typography variant="h3">{service.name || listener.trigger.name}</Typography>
                         </ListItem>
                     ))}
                 </ListContainer>
