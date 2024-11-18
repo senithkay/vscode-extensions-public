@@ -11,36 +11,62 @@ import type {
 	BuildKind,
 	BuildPackReq,
 	Buildpack,
+	CancelApprovalReq,
+	CheckWorkflowStatusReq,
+	CheckWorkflowStatusResp,
 	CommitHistory,
 	ComponentDeployment,
 	ComponentEP,
 	ComponentKind,
+	ConnectionDetailed,
+	ConnectionListItem,
 	CreateBuildReq,
+	CreateComponentConnectionReq,
 	CreateComponentReq,
 	CreateConfigYamlReq,
 	CreateDeploymentReq,
 	CreateProjectReq,
 	DeleteCompReq,
+	DeleteConnectionReq,
+	DeploymentLogsData,
 	DeploymentTrack,
 	Environment,
+	GetAutoBuildStatusReq,
+	GetAutoBuildStatusResp,
 	GetBranchesReq,
+	GetBuildLogsForTypeReq,
+	GetBuildLogsReq,
 	GetBuildsReq,
 	GetCommitsReq,
 	GetComponentEndpointsReq,
 	GetComponentItemReq,
 	GetComponentsReq,
+	GetConnectionGuideReq,
+	GetConnectionGuideResp,
+	GetConnectionItemReq,
+	GetConnectionsReq,
 	GetDeploymentStatusReq,
 	GetDeploymentTracksReq,
+	GetMarketplaceIdlReq,
+	GetMarketplaceListReq,
 	GetProjectEnvsReq,
+	GetProxyDeploymentInfoReq,
 	GetSwaggerSpecReq,
 	GetTestKeyReq,
 	GetTestKeyResp,
 	IChoreoRPCClient,
 	IsRepoAuthorizedReq,
 	IsRepoAuthorizedResp,
+	MarketplaceIdlResp,
+	MarketplaceListResp,
 	Project,
+	ProjectBuildLogsData,
+	PromoteProxyDeploymentReq,
+	ProxyDeploymentInfo,
+	RequestPromoteApprovalReq,
+	ToggleAutoBuildReq,
+	ToggleAutoBuildResp,
 	UserInfo,
-	ViewBuildLogsReq,
 } from "@wso2-enterprise/choreo-core";
 import { type MessageConnection, Trace, type Tracer } from "vscode-jsonrpc";
 import { handlerError } from "../error-utils";
@@ -168,7 +194,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 			throw new Error("RPC client is not initialized");
 		}
 		const response = await this.client.sendRequest<{ components: ComponentKind[] }>("component/getList", params);
-		return response.components;
+		return response.components || [];
 	}
 
 	async getBuildPacks(params: BuildPackReq) {
@@ -227,6 +253,13 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 			throw new Error("RPC client is not initialized");
 		}
 		await this.client.sendRequest("auth/signOut");
+	}
+
+	async changeOrgContext(orgId: string): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest<{ orgId: string }>("auth/changeOrg", { orgId });
 	}
 
 	async createBuild(params: CreateBuildReq): Promise<BuildKind> {
@@ -288,6 +321,17 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		return response?.deployment ?? null;
 	}
 
+	async getProxyDeploymentInfo(params: GetProxyDeploymentInfoReq): Promise<ProxyDeploymentInfo | null> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: { deploymentInfo: ProxyDeploymentInfo | undefined } | undefined = await this.client.sendRequest(
+			"deployment/getProxyDeploymentInfo",
+			params,
+		);
+		return response?.deploymentInfo ?? null;
+	}
+
 	async createDeployment(params: CreateDeploymentReq): Promise<void> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
@@ -295,12 +339,20 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		await this.client.sendRequest("deployment/create", params);
 	}
 
-	async getBuildLogs(params: ViewBuildLogsReq): Promise<string> {
+	async getBuildLogs(params: GetBuildLogsReq): Promise<DeploymentLogsData> {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		const response: { logs: string } = await this.client.sendRequest("build/logs", params);
-		return response.logs;
+		const response: any = await this.client.sendRequest("build/logs", params);
+		return response.data?.data as DeploymentLogsData;
+	}
+
+	async getBuildLogsForType(params: GetBuildLogsForTypeReq): Promise<ProjectBuildLogsData | null> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: any = await this.client.sendRequest("build/getLogsForType", params);
+		return response.data ? (response.data as ProjectBuildLogsData) : null;
 	}
 
 	async obtainGithubToken(params: { code: string; orgId: string }): Promise<void> {
@@ -324,6 +376,114 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		}
 		const response: { swagger: object } = await this.client.sendRequest("apim/getSwaggerSpec", params);
 		return response.swagger;
+	}
+
+	async getMarketplaceItems(params: GetMarketplaceListReq): Promise<MarketplaceListResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: MarketplaceListResp = await this.client.sendRequest("connections/getMarketplaceItems", params);
+		return response;
+	}
+
+	async getMarketplaceIdl(params: GetMarketplaceIdlReq): Promise<MarketplaceIdlResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: MarketplaceIdlResp = await this.client.sendRequest("connections/getMarketplaceItemIdl", params);
+		return response;
+	}
+
+	async getConnections(params: GetConnectionsReq): Promise<ConnectionListItem[]> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ConnectionListItem[] = await this.client.sendRequest("connections/getConnections", params);
+		return response;
+	}
+
+	async getConnectionItem(params: GetConnectionItemReq): Promise<ConnectionListItem> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ConnectionListItem = await this.client.sendRequest("connections/getConnectionItem", params);
+		return response;
+	}
+
+	async createComponentConnection(params: CreateComponentConnectionReq): Promise<ConnectionDetailed> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ConnectionDetailed = await this.client.sendRequest("connections/createComponentConnection", params);
+		return response;
+	}
+
+	async deleteConnection(params: DeleteConnectionReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("connections/deleteConnection", params);
+	}
+
+	async getConnectionGuide(params: GetConnectionGuideReq): Promise<GetConnectionGuideResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: GetConnectionGuideResp = await this.client.sendRequest("connections/getGuide", params);
+		return response;
+	}
+
+	async getAutoBuildStatus(params: GetAutoBuildStatusReq): Promise<GetAutoBuildStatusResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: GetAutoBuildStatusResp = await this.client.sendRequest("build/getAutoBuildStatus", params);
+		return response;
+	}
+
+	async enableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ToggleAutoBuildResp = await this.client.sendRequest("build/enableAutoBuild", params);
+		return response;
+	}
+
+	async disableAutoBuildOnCommit(params: ToggleAutoBuildReq): Promise<ToggleAutoBuildResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: ToggleAutoBuildResp = await this.client.sendRequest("build/disableAutoBuild", params);
+		return response;
+	}
+
+	async checkWorkflowStatus(params: CheckWorkflowStatusReq): Promise<CheckWorkflowStatusResp> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response: { data: CheckWorkflowStatusResp } = await this.client.sendRequest("deployment/checkWorkflowStatus", params);
+		return response?.data;
+	}
+
+	async cancelApprovalRequest(params: CancelApprovalReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("deployment/cancelApprovalRequest", params);
+	}
+
+	async requestPromoteApproval(params: RequestPromoteApprovalReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("deployment/requestPromoteApproval", params);
+	}
+
+	async promoteProxyDeployment(params: PromoteProxyDeploymentReq): Promise<void> {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		await this.client.sendRequest("deployment/promoteProxy", params);
 	}
 }
 

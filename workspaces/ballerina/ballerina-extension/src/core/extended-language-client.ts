@@ -117,6 +117,10 @@ import {
     ReferenceLSRequest,
     Reference,
     VisibleTypesResponse
+    VisibleTypesResponse,
+    BIDeleteByComponentInfoRequest,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -179,12 +183,14 @@ enum EXTENDED_APIS {
     BI_COPILOT_CONTEXT = 'flowDesignService/getCopilotContext',
     BI_SOURCE_CODE = 'flowDesignService/getSourceCode',
     BI_DELETE_NODE = 'flowDesignService/deleteFlowNode',
+    BI_DELETE_BY_COMPONENT_INFO = 'flowDesignService/deleteComponent',
     BI_AVAILABLE_NODES = 'flowDesignService/getAvailableNodes',
     BI_GET_FUNCTIONS = 'flowDesignService/getFunctions',
     BI_NODE_TEMPLATE = 'flowDesignService/getNodeTemplate',
     BI_CONNECTOR = 'flowDesignService/getConnectors',
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
+    BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
@@ -194,7 +200,8 @@ enum EXTENDED_APIS {
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
     BI_VISIBLE_TYPES = 'expressionEditor/types',
-    REFERENCES = 'textDocument/references'
+    REFERENCES = 'textDocument/references',
+    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -648,6 +655,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_NODE, params);
     }
 
+    async deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest<BISourceCodeResponse>(EXTENDED_APIS.BI_DELETE_BY_COMPONENT_INFO, params);
+    }
+
     async getSequenceDiagramModel(params: SequenceModelRequest): Promise<SequenceModelResponse> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL);
         return this.sendRequest(EXTENDED_APIS.SEQUENCE_DIAGRAM_MODEL, params);
@@ -675,6 +686,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getReferences(params: ReferenceLSRequest): Promise<Reference[]> {
         return this.sendRequest(EXTENDED_APIS.REFERENCES, params);
+    }
+
+    async addErrorHandler(params: BIModuleNodesRequest): Promise<BISourceCodeResponse> {
+        return this.sendRequest(EXTENDED_APIS.BI_GEN_ERROR_HANDLER, params);
+    }
+
+    async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return this.sendRequest<ExpressionDiagnosticsResponse>(EXTENDED_APIS.BI_EXPRESSION_DIAGNOSTICS, params);
     }
 
     // <------------ BI APIS END --------------->

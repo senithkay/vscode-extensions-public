@@ -7,16 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ChoreoBuildPackNames, ComponentDisplayType, type ComponentKind } from "@wso2-enterprise/choreo-core";
+import {
+	ChoreoBuildPackNames,
+	ChoreoImplementationType,
+	ComponentDisplayType,
+	type ComponentKind,
+	getTypeForDisplayType,
+} from "@wso2-enterprise/choreo-core";
 import React, { type FC } from "react";
-import { getBuildpackForComponent, getTypeForDisplayType } from "../utils";
 import { type IRightPanelSectionItem, RightPanelSection, RightPanelSectionItem } from "./RightPanelSection";
 
 export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ component }) => {
 	const buildConfigList = getBuildConfigViewList(component);
 
 	return (
-		<RightPanelSection title="Build Configurations" showDivider={false}>
+		<RightPanelSection title="Build Configurations">
 			{buildConfigList.map((item) => (
 				<RightPanelSectionItem key={item.label} {...item} />
 			))}
@@ -25,8 +30,12 @@ export const BuildConfigsSection: FC<{ component: ComponentKind }> = ({ componen
 };
 
 const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionItem[] => {
+	const buildConfigs: IRightPanelSectionItem[] = [];
+
 	const componentBuildPack = getBuildpackForComponent(component);
-	const buildConfigs: IRightPanelSectionItem[] = [{ label: "Build Pack", value: componentBuildPack }];
+	if (componentBuildPack) {
+		buildConfigs.push({ label: "Build Pack", value: componentBuildPack });
+	}
 
 	const dirPath = component.spec.source?.github?.path || component.spec.source?.bitbucket?.path;
 
@@ -52,11 +61,29 @@ const getBuildConfigViewList = (component: ComponentKind): IRightPanelSectionIte
 		buildConfigs.push({ label: "Output Directory", value: component.spec?.build?.webapp?.outputDir });
 	} else {
 		// Build pack type
-		buildConfigs.push({ label: "Language Version", value: component.spec?.build?.buildpack?.version });
-		if (getTypeForDisplayType(component.spec.type) === "web-app") {
+		if (component.spec?.build?.buildpack?.version) {
+			buildConfigs.push({ label: "Language Version", value: component.spec?.build?.buildpack?.version });
+		}
+		if (getTypeForDisplayType(component.spec.type) === "web-app" && component.spec?.build?.docker?.port) {
 			buildConfigs.push({ label: "Port", value: component.spec?.build?.docker?.port });
 		}
 	}
 
 	return buildConfigs;
+};
+
+const getBuildpackForComponent = (component: ComponentKind) => {
+	let lang = "";
+	if (component.spec.build?.buildpack?.language) {
+		lang = component.spec.build?.buildpack?.language;
+	} else if (component.spec.build?.docker?.dockerFilePath) {
+		lang = ChoreoImplementationType.Docker;
+	} else if (component.spec.build?.webapp?.type) {
+		lang = component.spec.build?.webapp?.type;
+	} else if (component.spec.build?.ballerina) {
+		lang = ChoreoImplementationType.Ballerina;
+	}
+	// TODO: check mi and prism buildpacks as well
+
+	return lang.toLowerCase();
 };

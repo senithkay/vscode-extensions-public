@@ -45,7 +45,7 @@ export enum HTTP_METHOD {
 
 export function generateNewResourceFunction(data: ResourceDefinition): string {
     // Your Handlebars template
-    const templateString = `resource function {{{ METHOD }}} {{{ PATH }}} ( {{{ PARAMETERS }}} ) returns {{#if ADD_RETURN}}{{{ADD_RETURN}}}|{{/if}}http:InternalServerError  {do {} on fail error e { log:printError(e.message()); return http:INTERNAL_SERVER_ERROR; }}`;
+    const templateString = `resource function {{{ METHOD }}} {{{ PATH }}} ( {{{ PARAMETERS }}} ) returns {{#if ADD_RETURN}}{{{ADD_RETURN}}}|{{/if}}http:InternalServerError  {do {} on fail error e { return http:INTERNAL_SERVER_ERROR; }}`;
     // Compile the template
     const compiledTemplate = Handlebars.compile(templateString);
     // Apply data to the template
@@ -126,7 +126,7 @@ export function getDefaultResponse(httpMethod: HTTP_METHOD): number {
 }
 
 export function getCodeFromResponse(response: string, httpMethod: HTTP_METHOD): number {
-    const code = responseCodes.find((responseCode) => responseCode.source === response);
+    const code = responseCodes.find((responseCode) => responseCode.source.toLowerCase() === response?.toLowerCase());
     return code?.code || getDefaultResponse(httpMethod);
 }
 
@@ -367,20 +367,21 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPC
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
             const resource = await getResource(member, rpcClient, isBI);
-            const editAction: Item = {
-                id: "edit",
-                label: "Edit",
-                onClick: () => handleResourceEdit(resource),
-            };
-            const deleteAction: Item = {
-                id: "delete",
-                label: "Delete",
-                onClick: () => handleResourceDelete(resource),
-            };
-            const moreActions: Item[] = [editAction, deleteAction];
-            if (canEdit) {
-                resource.additionalActions = moreActions;
-            }
+            // If we want to add more actions to the resource menu do following
+            //const editAction: Item = {
+            //     id: "edit",
+            //     label: "Edit",
+            //     onClick: () => handleResourceEdit(resource),
+            // };
+            // const deleteAction: Item = {
+            //     id: "delete",
+            //     label: "Delete",
+            //     onClick: () => handleResourceDelete(resource),
+            // };
+            // const moreActions: Item[] = [editAction, deleteAction];
+            // if (canEdit) {
+            //     resource.additionalActions = moreActions;
+            // }
             resources.push(resource);
         }
         if (STKindChecker.isObjectMethodDefinition(member)) {

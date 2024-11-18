@@ -92,6 +92,13 @@ export function AddComponentView() {
                     view: MACHINE_VIEW.AddTriggerWizard,
                 }
             });
+        } else if (key === DIRECTORY_MAP.TYPES) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.TypeDiagram,
+                }
+            });
         } else if (key === DIRECTORY_MAP.CONFIGURATIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
@@ -128,7 +135,7 @@ export function AddComponentView() {
                             <ButtonCard
                                 icon={<Codicon name="globe" />}
                                 title="Service"
-                                description="Start your integration with a HTTP service."
+                                description="Start your integration with an HTTP service."
                                 onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                             />
                             <ButtonCard

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useEffect, useImperativeHandle, useState, useRef } from "react";
+import React, { forwardRef, useMemo, useEffect, useImperativeHandle, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
@@ -23,7 +23,7 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -186,6 +186,14 @@ export interface FormProps {
             args: string[];
             currentArgIndex: number;
         }>;
+        getExpressionDiagnostics?: (
+            showDiagnostics: boolean,
+            expression: string,
+            key: string,
+            setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+            shouldUpdateNode?: boolean,
+            variableType?: string
+        ) => Promise<void>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
@@ -215,10 +223,24 @@ export const Form = forwardRef((props: FormProps, ref) => {
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+
+    const {
+        control,
+        getValues,
+        register,
+        unregister,
+        handleSubmit,
+        reset,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
+        formState: { isValidating, errors }
+    } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -306,6 +328,23 @@ export const Form = forwardRef((props: FormProps, ref) => {
         }
     };
 
+    const handleGetExpressionDiagnostics = async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+    ) => {
+        // HACK: For variable nodes, update the type value in the node
+        const isVariableNode = selectedNode === "VARIABLE";
+        await expressionEditor?.getExpressionDiagnostics(
+            showDiagnostics,
+            expression,
+            key,
+            setDiagnosticsInfo,
+            isVariableNode,
+            watch("type")
+        );
+    }
+
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
 
@@ -325,15 +364,47 @@ export const Form = forwardRef((props: FormProps, ref) => {
             setValue,
             watch,
             register,
-            unregister
+            unregister,
+            setError,
+            clearErrors,
+            formState: { isValidating, errors }
         },
-        expressionEditor,
+        expressionEditor: {
+            ...expressionEditor,
+            getExpressionDiagnostics: handleGetExpressionDiagnostics
+        },
         targetLineRange,
         fileName
     };
 
     // Find the first editable field
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
+
+    const isValid = useMemo(() => {
+        const key = diagnosticsInfo?.key;
+        if (!key) {
+            return true;
+        }
+
+        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics || [];
+        if (diagnostics.length === 0) {
+            clearErrors(key);
+            return true;
+        } else {
+            const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+            setError(key, { type: "validate", message: diagnosticsMessage });
+
+            // If the severity is not ERROR, don't invalidate
+            const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+            if (hasErrorDiagnostics) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }, [diagnosticsInfo])
+
+    const disableSaveButton = !isValid || isValidating;
 
     // TODO: support multiple type fields
     return (
@@ -387,7 +458,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         <S.DataMapperRow>
                             <S.UseDataMapperButton
                                 appearance="secondary"
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
                             >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
@@ -442,12 +513,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
                         {isNewDataMapper ? (
                             <S.PrimaryButton
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
                             >
                                 Create Mapping
                             </S.PrimaryButton>
                         ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                                 Save
                             </S.PrimaryButton>
                         )}

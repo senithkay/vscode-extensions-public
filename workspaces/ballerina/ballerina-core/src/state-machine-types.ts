@@ -9,6 +9,7 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { LinePosition } from "./interfaces/common";
 
 export type MachineStateValue =
     | 'initialize'
@@ -88,6 +89,7 @@ export interface VisualizerMetadata {
     haveLS?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
+    target?: LinePosition;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

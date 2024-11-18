@@ -9,6 +9,7 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
+import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 
 export type { NodePosition };
 
@@ -62,7 +63,7 @@ export type Property = {
     editable: boolean;
     advanced?: boolean;
     placeholder?: string;
-    valueTypeConstraint?: string[];
+    valueTypeConstraint?: string | string[];
 };
 
 export type Diagnostic = {
@@ -135,6 +136,16 @@ export enum DIRECTORY_MAP {
     CONFIGURATIONS = "configurations",
 }
 
+export enum DIRECTORY_SUB_TYPE {
+    FUNCTION = "function",
+    CONNECTION = "connection",
+    TYPE = "type",
+    CONFIGURATION = "configuration",
+    SERVICE = "service",
+    AUTOMATION = "automation",
+    TRIGGER = "trigger"
+}
+
 export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
@@ -191,6 +202,7 @@ export type NodePropertyKey =
     | "view"
     | "variable"
     | "defaultable"
+    | "scope"
     | "functionName";
 
 export type BranchKind = "block" | "worker";
@@ -275,4 +287,10 @@ export type ConfigVariable = {
     branches: Branch[];
     id: string;
     returning: boolean;
+    diagnostics?: Diagnostic;
 };
+
+export type FormDiagnostics = {
+    key: string;
+    diagnostics: VSCodeDiagnostic[];
+}

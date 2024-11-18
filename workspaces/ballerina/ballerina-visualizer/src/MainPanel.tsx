@@ -254,7 +254,7 @@ const MainPanel = () => {
                         rpcClient.getVisualizerLocation().then((location) => {
                             rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
                                 if (variables.configVariables.length > 0) {
-                                    const variable = variables.configVariables.find(
+                                    const variableIndex = variables.configVariables.findIndex(
                                         (v) => {
                                             const bindingPattern = value.syntaxTree.typedBindingPattern.bindingPattern;
                                             if (bindingPattern.kind === "CaptureBindingPattern") {
@@ -265,11 +265,9 @@ const MainPanel = () => {
                                     );
 
                                     setViewComponent(
-                                        <EditConfigurableVariables
-                                            isOpen={true}
-                                            variable={variable}
-                                            title="Edit Configurable Variable"
-                                        />
+                                        <ViewConfigurableVariables 
+                                            variableIndex={variableIndex} 
+                                            isExternallauncher={true}/>
                                     );
                                 }
                             });

@@ -18,7 +18,7 @@ import { authStore } from "./stores/auth-store";
 import { contextStore, getContextKey, waitForContextStoreToLoad } from "./stores/context-store";
 import { dataCacheStore } from "./stores/data-cache-store";
 import { locationStore } from "./stores/location-store";
-import { openDirectory } from "./utils";
+import { delay, openDirectory } from "./utils";
 
 export function activateURIHandlers() {
 	window.registerUriHandler({
@@ -40,8 +40,10 @@ export function activateURIHandlers() {
 						},
 						async () => {
 							try {
-								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode);
+								const orgId = contextStore?.getState().state?.selected?.org?.id?.toString();
+								const userInfo = await ext.clients.rpcClient.signInWithAuthCode(authCode, orgId);
 								if (userInfo) {
+									await delay(1000);
 									authStore.getState().loginSuccess(userInfo);
 								}
 							} catch (error: any) {
@@ -75,9 +77,21 @@ export function activateURIHandlers() {
 				}
 				getUserInfoForCmd("open project").then(async (userInfo) => {
 					const org = userInfo?.organizations.find((item) => item.handle === orgHandle);
+					if (!org) {
+						window.showErrorMessage(`Failed to find project organization for ${orgHandle}`);
+						return;
+					}
 					const cacheProjects = dataCacheStore.getState().getProjects(orgHandle);
-					const project = cacheProjects?.find((item) => item.handler === projectHandle);
-					if (!org || !project) {
+					let project = cacheProjects?.find((item) => item.handler === projectHandle);
+					if (!project) {
+						const projects = await window.withProgress(
+							{ title: `Fetching projects of organization ${org.name}...`, location: ProgressLocation.Notification },
+							() => ext.clients.rpcClient.getProjects(org.id.toString()),
+						);
+						project = projects?.find((item) => item.handler === projectHandle);
+					}
+					if (!project) {
+						window.showErrorMessage(`Failed to find project for ${projectHandle}`);
 						return;
 					}
 

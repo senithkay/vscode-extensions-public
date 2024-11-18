@@ -25,7 +25,7 @@ import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { nodeHasError } from "../../../utils/node";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -101,7 +101,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)`
-        max-width: ${NODE_WIDTH - 50}px;
+        max-width: ${NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -256,11 +256,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         });
     }
 
-    // show module name in the title if org is ballerina
-    const nodeTitle =
-        model.node.codedata?.org === "ballerina"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
-            : model.node.metadata.label;
+    const nodeTitle = getNodeTitle(model.node);
 
     const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
 

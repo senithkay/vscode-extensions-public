@@ -11,7 +11,7 @@
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
 import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
-import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField } from "./ballerina";
+import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
@@ -495,8 +495,19 @@ export type BISourceCodeResponse = {
     };
 };
 
+export type BIDeleteByComponentInfoRequest = {
+    filePath: string;
+    component: ComponentInfo;
+}
+
+export type BIDeleteByComponentInfoResponse = {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+};
+
 export interface BIAvailableNodesRequest {
-    position: LineRange;
+    position: LinePosition;
     filePath: string;
 }
 
@@ -708,6 +719,23 @@ export interface Reference {
     uri: string;
     range: Range;
 }
+export interface Info {
+    expression: string;
+    startLine: LinePosition;
+    offset: number;
+    node: FlowNode;
+    branch?: string;
+    property: string;
+}
+
+export interface ExpressionDiagnosticsRequest {
+    filePath: string;
+    context: Info;
+}
+
+export interface ExpressionDiagnosticsResponse {
+    diagnostics: Diagnostic[];
+}
 
 // <------------ BI INTERFACES --------->
 
@@ -735,6 +763,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

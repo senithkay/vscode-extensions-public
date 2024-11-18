@@ -137,7 +137,6 @@ function MappingInProgressMessage() {
         const interval = setInterval(() => {
             index = (index + 1) % messages.length;
             setMessage(messages[index]);
-            console.log(".:.", index);
         }, 10000); // 10 seconds
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
@@ -280,6 +279,9 @@ export function MIDataMapper(props: MIDataMapperProps) {
         <div className={classes.root}>
             {fnST && (
                 <DataMapperHeader
+                    fnST={fnST}
+                    inputTrees={inputTrees}
+                    outputTree={outputTree}
                     filePath={filePath}
                     views={views}
                     switchView={switchView}

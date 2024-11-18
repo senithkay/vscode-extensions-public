@@ -10,7 +10,7 @@
 import * as vscode from 'vscode';
 import { window, Uri } from 'vscode';
 import path = require('path');
-import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject } from "@wso2-enterprise/ballerina-core";
+import { DIRECTORY_MAP, ProjectStructureArtifactResponse, ProjectStructureResponse, SHARED_COMMANDS, BI_COMMANDS, buildProjectStructure, PackageConfigSchema, BallerinaProject, DIRECTORY_SUB_TYPE } from "@wso2-enterprise/ballerina-core";
 import { extension } from "../biExtentionContext";
 
 interface Property {
@@ -170,13 +170,13 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Entry Points",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'home',
-        true
+        'start',
+        false
     );
     entryPoints.contextValue = "entryPoint";
-    entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES]);
+    entryPoints.children = getComponents(components.directoryMap[DIRECTORY_MAP.SERVICES], DIRECTORY_MAP.SERVICES);
     if (components.directoryMap[DIRECTORY_MAP.AUTOMATION].length > 0) {
-        entryPoints.children.push(...getComponents(components.directoryMap[DIRECTORY_MAP.AUTOMATION]));
+        entryPoints.children.push(...getComponents(components.directoryMap[DIRECTORY_MAP.AUTOMATION], DIRECTORY_MAP.AUTOMATION));
     }
     entries.push(entryPoints);
 
@@ -201,7 +201,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         false
     );
     connections.contextValue = "connections";
-    connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS]);
+    connections.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONNECTIONS], DIRECTORY_MAP.CONNECTIONS);
+
     entries.push(connections);
 
     // Types
@@ -216,7 +217,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     types.children = getComponents([
         ...components.directoryMap[DIRECTORY_MAP.TYPES],
         ...components.directoryMap[DIRECTORY_MAP.RECORDS],
-    ]);
+    ], DIRECTORY_MAP.TYPES);
     entries.push(types);
 
     // Functions
@@ -228,7 +229,7 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         false
     );
     functions.contextValue = "functions";
-    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.FUNCTIONS]);
+    functions.children = getComponents(components.directoryMap[DIRECTORY_MAP.FUNCTIONS], DIRECTORY_MAP.FUNCTIONS);
     entries.push(functions);
 
     // Configurations
@@ -240,13 +241,13 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         false
     );
     configs.contextValue = "configurations";
-    configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS]);
+    configs.children = getComponents(components.directoryMap[DIRECTORY_MAP.CONFIGURATIONS], DIRECTORY_MAP.CONFIGURATIONS);
     entries.push(configs);
 
     return entries;
 }
 
-function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplorerEntry[] {
+function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIRECTORY_MAP): ProjectExplorerEntry[] {
     const entries: ProjectExplorerEntry[] = [];
     for (const comp of items) {
         const fileEntry = new ProjectExplorerEntry(
@@ -260,6 +261,25 @@ function getComponents(items: ProjectStructureArtifactResponse[]): ProjectExplor
             "command": SHARED_COMMANDS.SHOW_VISUALIZER,
             "arguments": [vscode.Uri.parse(comp.path), comp.position]
         };
+
+        // Define a mapping for item types to context values
+        const contextValueMap: { [key in DIRECTORY_MAP]: string } = {
+            [DIRECTORY_MAP.SERVICES]: DIRECTORY_SUB_TYPE.SERVICE,
+            [DIRECTORY_MAP.AUTOMATION]: DIRECTORY_SUB_TYPE.AUTOMATION,
+            [DIRECTORY_MAP.CONNECTIONS]: DIRECTORY_SUB_TYPE.CONNECTION,
+            [DIRECTORY_MAP.TYPES]: DIRECTORY_SUB_TYPE.TYPE,
+            [DIRECTORY_MAP.FUNCTIONS]: DIRECTORY_SUB_TYPE.FUNCTION,
+            [DIRECTORY_MAP.CONFIGURATIONS]: DIRECTORY_SUB_TYPE.CONFIGURATION,
+            [DIRECTORY_MAP.TRIGGERS]: DIRECTORY_SUB_TYPE.TRIGGER,
+            [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE
+        };
+
+        fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
+        // Service path is used to identify the service using getBallerniaProject API
+        if(itemType === DIRECTORY_MAP.SERVICES || DIRECTORY_SUB_TYPE.AUTOMATION) {
+            fileEntry.tooltip = comp.context;
+        }
+
         fileEntry.children = getComponents(comp.resources);
         entries.push(fileEntry);
     }

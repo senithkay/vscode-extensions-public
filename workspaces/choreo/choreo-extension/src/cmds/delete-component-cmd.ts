@@ -14,7 +14,6 @@ import { ext } from "../extensionVariables";
 import { contextStore } from "../stores/context-store";
 import { dataCacheStore } from "../stores/data-cache-store";
 import { closeComponentDetailsView } from "../webviews/ComponentDetailsView";
-import { closeAllComponentTestView } from "../webviews/ComponentTestView";
 import { getUserInfoForCmd, selectComponent, selectOrg, selectProject } from "./cmd-utils";
 
 export function deleteComponentCommand(context: ExtensionContext) {
@@ -79,8 +78,6 @@ export function deleteComponentCommand(context: ExtensionContext) {
 									});
 
 									closeComponentDetailsView(selectedOrg.handle, selectedProject.handler, selectedComponent.metadata.name);
-
-									closeAllComponentTestView(selectedOrg.handle, selectedProject.handler, selectedComponent.metadata.name);
 
 									const compCache = dataCacheStore.getState().getComponents(selectedOrg.handle, selectedProject.handler);
 									dataCacheStore.getState().setComponents(

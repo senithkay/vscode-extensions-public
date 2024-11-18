@@ -39,9 +39,10 @@ export const addClosingBracketIfNeeded = (text: string) => {
     return updatedText;
 };
 
-export const setCursor = (inputRef: RefObject<HTMLTextAreaElement>, position: number) => {
-    inputRef.current.focus();
-    inputRef.current.shadowRoot.querySelector('textarea').setSelectionRange(position, position);
+export const setCursor = (inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>, inputElementType: 'input' | 'textarea', position: number) => {
+    const inputElement = inputRef.current.shadowRoot.querySelector(inputElementType);
+    inputElement.focus();
+    inputElement.setSelectionRange(position, position);
 };
 
 export const getIcon = (kind: CompletionItemKind) => {
