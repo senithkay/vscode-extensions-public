@@ -443,6 +443,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
                                         true : false
                                     }
+                                    sx={{ paddingBottom: '0px', gap: '0px' }}
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
