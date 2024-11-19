@@ -119,7 +119,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 labelAdornment={helpTipElement}
                 placeholder={element.helpTip}
                 canChange={canChange}
-                required={element.required === 'true'}
+                required={element.required || element.required === 'true'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -211,7 +211,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
-        const isRequired = element.required === 'true';
+        const isRequired = typeof element.required === 'boolean' ? element.required : element.required === 'true';
         const errorMsg = errors[name] && errors[name].message.toString();
         const helpTip = element.helpTip;
 
