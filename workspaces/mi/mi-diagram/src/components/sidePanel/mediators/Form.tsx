@@ -13,9 +13,9 @@ import { useForm } from "react-hook-form";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
-import SidePanelContext, { clearSidePanelState, DefaultSidePanelState } from "../SidePanelContexProvider";
+import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
 import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
-import { getParamManagerValues } from "../Pages/mediators/common";
+import { getParamManagerValues } from "../../Form/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 

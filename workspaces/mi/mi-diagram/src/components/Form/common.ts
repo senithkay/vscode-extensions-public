@@ -10,7 +10,8 @@
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { ParamConfig } from '../../../Form';
+import { ExpressionFieldValue, ParamConfig, ParamField, ParamValue } from '.';
+import { generateSpaceSeperatedStringFromParamValues } from '../../utils/commons';
 
 export interface AddMediatorProps {
     nodePosition: Range;
@@ -115,4 +116,37 @@ export const getParamManagerFromValues = (values: any[], keyIndex?: number, valu
         }
     });
     return paramValues;
+}
+
+export const getParamManagerOnChange = (element: any, values: ParamConfig) => {
+    return values.paramValues.map((param: any, index: number) => {
+        const paramFields = values.paramFields;
+        const paramValues: ParamValue[] = param.paramValues;
+        param.key = getParamManagerKeyOrValue(element.elements, element.tableKey, paramFields, paramValues) || index + 1;
+        param.value = getParamManagerKeyOrValue(element.elements, element.tableValue, paramFields, paramValues) || '';
+        param.icon = 'query';;
+
+        paramValues.forEach((value: any, index: number) => {
+            if (paramFields[index].type === 'ParamManager') {
+                const elements = element?.elements[index]?.value;
+                value.value.paramValues = getParamManagerOnChange(elements, value.value);
+            }
+        });
+
+        return param;
+    });
+}
+
+const getParamManagerKeyOrValue = (elements: any, key: string, fields: ParamField[], values: ParamValue[]) => {
+    const keyIndex = elements?.findIndex((field: any) => field?.value?.name === key);
+    if (keyIndex === undefined || keyIndex === -1 || keyIndex >= fields.length) {
+        return 0;
+    }
+    if (fields[keyIndex].type === 'ParamManager') {
+        return generateSpaceSeperatedStringFromParamValues(values[keyIndex].value as ParamConfig);
+    } else if (fields[keyIndex].type === 'ExprField') {
+        return (values[keyIndex].value as ExpressionFieldValue).value;
+    }
+
+    return values[keyIndex].value ?? '';
 }

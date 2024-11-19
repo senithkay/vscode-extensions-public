@@ -12,11 +12,11 @@ import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, R
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField, Keylookup, FormKeylookup } from '.';
+import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keylookup, FormKeylookup } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { getParamManagerFromValues, openPopup } from '../sidePanel/Pages/mediators/common';
+import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const Field = styled.div`
@@ -57,6 +57,9 @@ interface Element {
     allowedConnectionTypes?: string[];
     keyType?: any;
     canAddNew?: boolean;
+    elements?: any[];
+    tableKey?: string;
+    tableValue?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -200,13 +203,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 paramConfigs={field.value}
                 readonly={false}
                 onChange={(values) => {
-                    values.paramValues = values.paramValues.map((param: any) => {
-                        const property: ParamValue[] = param.paramValues;
-                        param.key = property[0].value;
-                        param.value = (property[1].value as ExpressionFieldValue).value;
-                        param.icon = 'query';
-                        return param;
-                    });
+                    values.paramValues = getParamManagerOnChange(element, values);
                     field.onChange(values);
                 }} />
         </ComponentCard>;
@@ -337,7 +334,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         const tableKeys: string[] = [];
         elements.forEach((attribute: any) => {
             const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
-            let defaultValue: any = [];
+            let defaultValue: any = attribute.value.defaultValue;
 
             tableKeys.push(name);
             const isRequired = required == true || required == 'true';
@@ -370,7 +367,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
-                ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                ...(type === 'Dropdown') && { values: comboValues },
                 ...(type === 'KeyLookup') && { filterType: attribute.value.keyType },
                 ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
             };
@@ -383,8 +380,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 paramField.paramManager = {
                     paramConfigs: {
                         paramValues: paramValues2,
-                        paramFields: [paramFields2
-                        ]
+                        paramFields: paramFields2
                     },
                     openInDrawer: true,
                     addParamText: `New ${displayName}`
