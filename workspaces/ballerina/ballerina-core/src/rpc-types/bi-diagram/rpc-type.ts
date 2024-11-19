@@ -35,6 +35,8 @@ import {
     VisibleTypesResponse,
     BIDeleteByComponentInfoRequest,
     BIDeleteByComponentInfoResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -69,3 +71,4 @@ export const getSignatureHelp: RequestType<SignatureHelpRequest, SignatureHelpRe
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
 export const runProject: NotificationType<void> = { method: `${_preFix}/runProject` };
 export const getVisibleTypes: RequestType<VisibleTypesRequest, VisibleTypesResponse> = { method: `${_preFix}/getVisibleTypes` };
+export const getExpressionDiagnostics: RequestType<ExpressionDiagnosticsRequest, ExpressionDiagnosticsResponse> = { method: `${_preFix}/getExpressionDiagnostics` };

@@ -15,9 +15,12 @@ import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
-import { ListRegistryArtifactsResponse, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
+import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
+import { spawn } from "child_process";
+import { RPCLayer } from "../RPCLayer";
+import { VisualizerWebview } from "../visualizer/webview";
 
 interface ProgressMessage {
     message: string;
@@ -33,7 +36,7 @@ async function selectFileDownloadPath(): Promise<string> {
     return "";
 }
 
-async function downloadFile(url, filePath, progressCallback) {
+async function downloadFile(url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
     const writer = fs.createWriteStream(filePath);
     let totalBytes = 0;
     try {
@@ -41,10 +44,28 @@ async function downloadFile(url, filePath, progressCallback) {
             responseType: 'stream',
             onDownloadProgress: (progressEvent) => {
                 totalBytes = progressEvent.total!;
-                const progress = (progressEvent.loaded / totalBytes) * 100;
+                const formatSize = (sizeInBytes: number) => {
+                    const sizeInKB = sizeInBytes / 1024;
+                    if (sizeInKB < 1024) {
+                        return `${Math.floor(sizeInKB)} KB`;
+                    } else {
+                        return `${Math.floor(sizeInKB / 1024)} MB`;
+                    }
+                };
+                const progress: DownloadProgressData = {
+                    percentage: Math.round((progressEvent.loaded * 100) / totalBytes),
+                    downloadedAmount: formatSize(progressEvent.loaded),
+                    downloadSize: formatSize(totalBytes)
+                };
                 if (progressCallback) {
                     progressCallback(progress);
                 }
+                // Notify the visualizer
+                RPCLayer._messenger.sendNotification(
+                    onDownloadProgress,
+                    { type: 'webview', webviewType: VisualizerWebview.viewType },
+                    progress
+                );
             }
         });
         response.data.pipe(writer);
@@ -890,5 +911,120 @@ export function goToSource(filePath: string, position?: Range) {
     function updateEditor(textEditor: TextEditor, range: VSCodeRange) {
         textEditor.revealRange(range, TextEditorRevealType.InCenter);
         textEditor.selection = new Selection(range.start, range.start);
+    }
+}
+
+export async function downloadWithProgress(url: string, downloadPath: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async (progress) => {
+        let lastPercentageReported = 0;
+        const handleProgress = (downloadProgress: DownloadProgressData) => {
+            const percentCompleted = downloadProgress.percentage;
+            if (percentCompleted > lastPercentageReported) {
+                progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${downloadProgress.downloadSize}` });
+                lastPercentageReported = percentCompleted;
+            }
+        };
+        await downloadFile(url, downloadPath, handleProgress).catch((error) => {
+            if (fs.existsSync(downloadPath)) {
+                fs.unlinkSync(downloadPath);
+            }
+        });
+    });
+}
+
+export async function extractWithProgress(filePath: string, destination: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async () => {
+        await extractArchive(filePath, destination);
+    });
+}
+export async function performTaskWithProgress(
+    task: () => Promise<void>,
+    title: string,
+    cancellable = false
+) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: cancellable,
+    }, async (progress, cancellationToken) => {
+
+        let cancelled = false;
+        cancellationToken.onCancellationRequested(() => {
+            cancelled = true;
+        });
+
+        try {
+            await task();
+        } catch (error) {
+            window.showErrorMessage(`Error while performing the task: ${error}`);
+        }
+    });
+}
+
+async function extractArchive(filePath: string, destination: string) {
+    const platform = process.platform;
+
+    function runCommand(command: string, args: string[] = [], options = {}) {
+        return new Promise<void>((resolve, reject) => {
+            const child = spawn(command, args, options);
+
+            child.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            child.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            child.on('error', (error) => {
+                reject(error);
+            });
+
+            child.on('close', (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`Unzip failed with code ${code}`));
+                }
+            });
+        });
+    }
+
+    try {
+        if (filePath.endsWith('.zip')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path "${filePath}" -DestinationPath "${destination}" -Force`]);
+            } else {
+                await runCommand('unzip', ['-o', filePath, '-d', destination]);
+            }
+        } else if (filePath.endsWith('.tar') || filePath.endsWith('.tar.gz') || filePath.endsWith('.tgz')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `tar -xf "${filePath}" -C "${destination}"`]);
+            } else {
+                await runCommand('tar', ['-xf', filePath, '-C', destination]);
+            }
+        } else {
+            throw new Error('Unsupported file type');
+        }
+    } catch (error) {
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        
+        if (errorMessage.includes("Unzip failed with code") && fs.existsSync(destination)) {
+            fs.unlinkSync(filePath);
+        }
+        
+        if (errorMessage.includes("ENOENT")) {
+            window.showErrorMessage('unzip or tar command not found. Please install these to extract the archive.'); 
+        }
+
+        throw new Error(`Error while extracting the archive: ${errorMessage}`);
     }
 }

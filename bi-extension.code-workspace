@@ -1,28 +1,35 @@
 {
 	"folders": [
 		{
+			"path": "workspaces/ballerina/ballerina-visualizer"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-extension"
+		},
+		{
+			"path": "workspaces/ballerina/component-diagram"
+		},
+		{
 			"path": "workspaces/bi/bi-extension"
 		},
 		{
-			"path": "workspaces/bi/webview"
+			"path": "workspaces/ballerina/ballerina-core"
 		},
 		{
-			"path": "workspaces/bi/bi-diagram-2"
+			"path": "workspaces/ballerina/ballerina-rpc-client"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-side-panel"
+		},
+		{
+			"path": "workspaces/ballerina/service-designer-view"
+		},
+		{
+			"path": "workspaces/common-libs/service-designer"
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
-		},
-		{
-			"path": "workspaces/bi/bi-core"
-		},
-		{
-			"path": "workspaces/bi/bi-rpc-client"
-		},
-		{
-			"path": "workspaces/bi/bi-overview"
 		}
 	],
-	"settings": {
-		"typescript.tsc.autoDetect": "off"
-	}
+	"settings": {}
 }

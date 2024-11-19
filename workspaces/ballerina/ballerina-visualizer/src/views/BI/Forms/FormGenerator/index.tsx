@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertNodePropertiesToFormFields,
@@ -49,6 +49,14 @@ interface FormProps {
             args: string[];
             currentArgIndex: number;
         }>;
+        getExpressionDiagnostics?: (
+            showDiagnostics: boolean,
+            expression: string,
+            key: string,
+            setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+            shouldUpdateNode?: boolean,
+            variableType?: string
+        ) => Promise<void>;
         onCompletionSelect: (value: string) => Promise<void>;
         onCancel: () => void;
         onBlur: () => void;
@@ -96,6 +104,11 @@ export function FormGenerator(props: FormProps) {
             console.log(">>> Form properties", { formProperties, formTemplateProperties, enrichedNodeProperties });
         }
         if (Object.keys(formProperties).length === 0) {
+            // update node position
+            node.codedata.lineRange = {
+                ...targetLineRange,
+                fileName: fileName,
+            };
             // add node to source code
             onSubmit();
             return;

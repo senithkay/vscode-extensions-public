@@ -193,6 +193,10 @@ export function AddForm(props: ConfigFormProps) {
                         onCompletionSelect: handleCompletionSelect,
                         onCancel: handleExpressionEditorCancel,
                         onBlur: handleExpressionEditorBlur,
+                        getExpressionDiagnostics: () => {
+                            // TODO: Implement this to support diagnostics
+                            return Promise.resolve();
+                        }
                     }}
                 />
 

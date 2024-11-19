@@ -60,6 +60,8 @@ import { escapeXml } from '../../util/templates';
 import path from "path";
 
 const fs = require('fs');
+import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
+import { COMMANDS } from '../../constants';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -375,7 +377,45 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             resolve({ success: isSuccess });
         });
     }
+    async downloadJava(miVersion: string): Promise<string> {
+        const javaPath = await downloadJava(miVersion);
+        return javaPath;
+    }
+    async downloadMI(miVersion: string): Promise<string> {
+        const miPath = await downloadMI(miVersion);
+        return miPath;
+    }
+    async getSupportedMIVersions(): Promise<string[]> {
+        return getSupportedMIVersions();
+    }
 
+    async isJavaHomeSet(): Promise<boolean> {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            return await ensureJavaSetup(miVersion);
+        } catch (error) {
+            return false;
+        }
+    }
+    async isMISet(): Promise<boolean> {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+            return ensureMISetup(projectUri, miVersion);
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async getMIVersionFromPom(): Promise<string> {
+        return getMIVersionFromPom();
+    }
+    async setJavaHomeForMIVersion(miVersion: string): Promise<boolean> {
+        return await vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
+    }
+    async setMIHomeForMIVersion(miVersion: string): Promise<boolean> {
+        return await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+    }
     async getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;

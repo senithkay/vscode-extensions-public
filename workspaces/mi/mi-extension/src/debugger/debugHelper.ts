@@ -15,7 +15,7 @@ import { extension } from '../MIExtensionContext';
 import { getBuildCommand, getRunCommand, getStopCommand } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
-import { INCORRECT_SERVER_PATH_MSG, SELECTED_SERVER_PATH } from './constants';
+import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH, INCORRECT_SERVER_PATH_MSG } from './constants';
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
@@ -27,6 +27,8 @@ import { DebuggerConfig } from './config';
 import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
+import { getJavaHomeFromConfig, getServerPathFromConfig } from '../util/onboardingUtils';
+import { env } from 'process';
 const child_process = require('child_process');
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
@@ -144,7 +146,11 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
         const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
 
         const buildCommand = getBuildCommand();
-        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri });
+        const envVariables = {
+            ...process.env,
+            ...setJavaHomeInEnvironmentAndPath()
+        };
+        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri,env: envVariables });
         showServerOutputChannel();
 
         buildProcess.stdout.on('data', (data) => {
@@ -238,10 +244,11 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
             const definedEnvVariables = DebuggerConfig.getEnvVariables();
             const envVariables = {
                 ...process.env,
+                ...setJavaHomeInEnvironmentAndPath(),
                 ...definedEnvVariables
-              };
+            };
 
-            serverProcess = child_process.spawn(`${runCommand}`, [], { shell: true, env: envVariables});
+            serverProcess = child_process.spawn(`${runCommand}`, [], { shell: true, env: envVariables });
             showServerOutputChannel();
 
             if (serverProcess.stdout) {
@@ -276,7 +283,8 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
             if (stopCommand === undefined) {
                 reject(INCORRECT_SERVER_PATH_MSG);
             } else {
-                const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true });
+                const env = setJavaHomeInEnvironmentAndPath();
+                const stopProcess = child_process.spawn(`${stopCommand}`, [], { shell: true, env });
                 showServerOutputChannel();
 
                 let killTimeout = setTimeout(() => {
@@ -374,16 +382,33 @@ export async function executeTasks(serverPath: string, isDebug: boolean): Promis
 }
 
 export async function getServerPath(): Promise<string | undefined> {
-    const currentPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+    const config = vscode.workspace.getConfiguration('MI');
+    const currentPath = getServerPathFromConfig();
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-        const updatedPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+        const updatedPath = config.get(CONFIG_SERVER_PATH) as string;
         if (updatedPath) {
             return path.normalize(updatedPath);
         }
         return updatedPath;
     }
     return path.normalize(currentPath);
+}
+export function setJavaHomeInEnvironmentAndPath(): { [key: string]: string; } {
+    const config = vscode.workspace.getConfiguration('MI');
+    const javaHome = getJavaHomeFromConfig();
+    const env = { ...process.env };
+    if (javaHome) {
+        env['JAVA_HOME'] = javaHome;
+    }
+    const sanitizedEnv: { [key: string]: string } = {};
+
+    for (const key in env) {
+        if (env[key] !== undefined) {
+            sanitizedEnv[key] = env[key] as string;
+        }
+    }
+    return sanitizedEnv;
 }
 
 export async function deleteCapp(serverPath: string): Promise<void> {
