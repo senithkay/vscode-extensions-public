@@ -72,6 +72,8 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     FileDirResponse,
     FileStructure,
     GenerateAPIResponse,
@@ -4885,6 +4887,13 @@ ${keyValuesXML}`;
         });
     }
 
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getExpressionCompletions(params);
+            resolve(res);
+        });
+    }
 }
 
 export async function askProjectPath() {

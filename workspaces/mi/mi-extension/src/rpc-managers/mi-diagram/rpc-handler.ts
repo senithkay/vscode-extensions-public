@@ -36,6 +36,7 @@ import {
     DownloadInboundConnectorRequest,
     EditAPIRequest,
     ExportProjectRequest,
+    ExpressionCompletionsRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
     GetAvailableConnectorRequest,
@@ -155,6 +156,7 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getExpressionCompletions,
     getFailoverEndpoint,
     getHttpEndpoint,
     getIconPathUri,
@@ -373,4 +375,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
     messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
+    messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }

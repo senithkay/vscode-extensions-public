@@ -199,7 +199,9 @@ import {
     DriverPathResponse,
     AddDriverToLibRequest,
     AddDriverToLibResponse,
-    APIContextsResponse
+    APIContextsResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -335,3 +337,4 @@ export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
+export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
