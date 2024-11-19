@@ -232,7 +232,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         allowItemCreate={allowItemCreate}
                     />
                 );
-            case 'file':
+            case 'certificateFileOrConfigurable':
                 return (
                     <div>
                         <RadioButtonGroup 

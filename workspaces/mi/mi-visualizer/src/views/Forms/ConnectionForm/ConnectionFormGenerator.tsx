@@ -166,7 +166,7 @@ export function AddConnection(props: AddConnectionProps) {
                                 const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
                                     prefix: prefix.split(':')[1], uri: uri
                                 })) : [];
-                                if (inputType === 'file') {
+                                if (inputType === 'certificateFileOrConfigurable') {
                                     if (isCertificateFilePath(value)) {
                                         setValue(param.name, { isCertificateFile: true, type: 'file', value });
                                     } else {
