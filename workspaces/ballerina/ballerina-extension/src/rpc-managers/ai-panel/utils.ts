@@ -798,31 +798,47 @@ async function filterResponse(resp: Response): Promise<string | ErrorCode> {
     }
 }
 
-function extractKeys(key: string, parameterDefinitions: ParameterMetadata ): { parentKey: string[], itemKey:string, combinedKey: string } {
+function extractKeys(key: string, parameterDefinitions: ParameterMetadata): { parentKey: string[], itemKey: string, combinedKey: string } {
     let innerKey: string;
     let itemKey: string = "";
     let combinedKey: string = "";
 
     // Handle the key for nullable and optional fields
     key = key.replace(/\?.*$/, "");
-    if (key.startsWith("{") && key.endsWith("}")) {
+    
+    // Check for a nested mapping like 'from var ... in ...'
+    const nestedMappingMatch = key.match(/from\s+var\s+(\w+)\s+in\s+([\w.]+)\s+/);
+    if (nestedMappingMatch) {
+        itemKey = nestedMappingMatch[1]; 
+        innerKey = nestedMappingMatch[2]; 
+
+        const keys = innerKey.split(".");
+        combinedKey = keys.slice(0, keys.length - 1).join(".");
+    } else if (key.startsWith("{") && key.endsWith("}")) {
+        // Handle complex nested mappings in braces
         const matches = key.match(/\{\s*([^}]+)\s*\}/);
         innerKey = matches ? matches[1] : key;
-        const firstKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0];
-        innerKey = firstKey || ""; 
-    } 
-    else if (key.includes('from var') && key.includes('select')) {
-        const match = key.match(/from\s+var\s+\w+\s+in\s+([\w.]+)\s+/);
-        innerKey = match ? match[1] : key;
-    } else {
-        innerKey = key.match(/\(([^)]+)\)/)?.[1] || key;
 
+        // Use regex to find each deeply nested mapping within braces
+        const nestedKeys = innerKey.match(/[\w.]+:\s*([\w.]+)/g);
+        if (nestedKeys) {
+            const parsedKeys = nestedKeys.map(kv => kv.split(":")[1].trim());
+            innerKey = parsedKeys[0] || ""; // Assume the first entry for simplicity if multiple mappings
+        } else {
+            // Fallback for simpler cases
+            innerKey = innerKey.split(",").map(kv => kv.split(":")[1].trim())[0] || ""; 
+        }
+    } else {
+        // Standard case
+        innerKey = key.match(/\(([^)]+)\)/)?.[1] || key;
+        
         innerKey = innerKey
             .replace(/^check\s*/, '')
             .replace(/\.ensureType\(\)$/, '')
             .replace(/\.toString\(\)$/, '');
     }
 
+    // Split the innerKey to get parent keys and field name
     let keys = innerKey.split(".");
     let fieldName = keys.pop()!;
     let parentKey = keys.slice(0, keys.length);
@@ -836,27 +852,6 @@ function extractKeys(key: string, parameterDefinitions: ParameterMetadata ): { p
             break;
         }
     }
+
     return { parentKey, itemKey, combinedKey };
-}
-
-function checkDeeplyNestedRecordArray(parentKey: string[], parameterDefinitions: ParameterMetadata, metadataType: string): boolean {
-    let currentMetadata = parameterDefinitions[metadataType];
-
-    for (let i = 0; i < parentKey.length; i++) {
-        if (currentMetadata[parentKey[i]]["type"] === "record[]") {
-            if (i === parentKey.length - 1) {
-                return true;
-            } else {
-                currentMetadata = currentMetadata[parentKey[i]]["fields"];
-            }
-        } else {
-            if (i === parentKey.length - 1) {
-                return false;
-            } else {
-                currentMetadata = currentMetadata[parentKey[i]]["fields"];
-                continue;
-            }
-        }
-    }
-    return false;
 }
