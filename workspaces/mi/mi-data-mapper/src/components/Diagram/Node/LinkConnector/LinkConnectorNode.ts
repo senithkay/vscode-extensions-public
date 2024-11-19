@@ -8,7 +8,7 @@
  */
 import { DMDiagnostic, TypeKind } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { BinaryExpression, CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, SyntaxKind } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -28,6 +28,9 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { ArrayOutputNode } from "../ArrayOutput";
 import { LinkDeletingVisitor } from "../../../../components/Visitors/LinkDeletingVistior";
 import { PrimitiveOutputNode } from "../PrimitiveOutput";
+import { ExpressionLabelModel } from "../../Label";
+import { convertToObject } from "@wso2-enterprise/ui-toolkit";
+import { Call } from "../../../../../../syntax-tree/lib/src";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -35,6 +38,7 @@ const NODE_ID = "link-connector-node";
 export class LinkConnectorNode extends DataMapperNodeModel {
 
     public sourcePorts: InputOutputPortModel[] = [];
+    public sourceValues:{[key: string]: Node[]} = {};
     public targetPort: InputOutputPortModel;
     public targetMappedPort: InputOutputPortModel;
 
@@ -83,6 +87,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     initPorts(): void {
         const prevSourcePorts = this.sourcePorts;
         this.sourcePorts = [];
+        this.sourceValues = {};
         this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "IN"), "IN");
         this.outPort = new IntermediatePortModel(md5(JSON.stringify(getPosition(this.valueNode)) + "OUT"), "OUT");
@@ -97,9 +102,12 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const inputPort = getInputPort(inputNode, field);
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
                     this.sourcePorts.push(inputPort);
+                    this.sourceValues[inputPort.getID()] = [field];
+                } else {
+                    this.sourceValues[inputPort.getID()].push(field);
                 }
             }
-        })
+        });
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
@@ -189,6 +197,17 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
                     lm.setTargetPort(this.inPort);
                     lm.setSourcePort(sourcePort);
+
+                    if (this.sourcePorts.length > 1) {
+                        lm.addLabel(new ExpressionLabelModel({
+                            link: lm,
+                            value: undefined,
+                            context: undefined,
+                            isSubLinkLabel: true,
+                            deleteLink: () => this.deleteSubLink(sourcePort.getID())
+                        }));
+                    }
+
                     lm.registerListener({
                         selectionChanged(event) {
                             if (event.isSelected) {
@@ -296,6 +315,67 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             });
             await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
         }
+    }
+
+    public async deleteSubLink(sourcePortId: string): Promise<void> {
+
+        const subLinkValuesTexts = this.sourceValues[sourcePortId].map(node => node.getText());
+
+        for (let subLinkValueText of subLinkValuesTexts) {
+
+            let subLinkValue = this.valueNode.getDescendants().find(node => node.getText() === subLinkValueText);
+
+            if (!subLinkValue || subLinkValue.wasForgotten()) continue;
+
+            let parentSubLinkValue = subLinkValue.getParent();
+
+            while (parentSubLinkValue && shouldUpdateParent(parentSubLinkValue, subLinkValue)) {
+                subLinkValue = parentSubLinkValue;
+                parentSubLinkValue = subLinkValue.getParent();
+            }
+
+            if (Node.isBinaryExpression(parentSubLinkValue)) {
+                const leftNode = (parentSubLinkValue as BinaryExpression).getLeft();
+                const rightNode = (parentSubLinkValue as BinaryExpression).getRight();
+
+                if (leftNode === subLinkValue) {
+                    parentSubLinkValue.replaceWithText(rightNode.getText());
+                } else if (rightNode === subLinkValue) {
+                    parentSubLinkValue.replaceWithText(leftNode.getText());
+                }
+            } else if (Node.isCallExpression(parentSubLinkValue)) {
+                const indexToRemove = parentSubLinkValue.getArguments().indexOf(subLinkValue);
+                parentSubLinkValue.removeArgument(indexToRemove);
+            } else if (Node.isElementAccessExpression(parentSubLinkValue)) {
+                subLinkValue.replaceWithText('0');
+            } else if (Node.isPropertyAssignment(parentSubLinkValue) || Node.isVariableStatement(parentSubLinkValue) || Node.isReturnStatement(parentSubLinkValue)) {
+                await this.deleteLink();
+                return;
+            }
+
+        }
+
+        await this.context.applyModifications(this.valueNode.getSourceFile().getFullText());
+
+        function shouldUpdateParent(parentNode: Node, childNode: Node): boolean {
+            if (Node.isCallExpression(parentNode)) {
+                return parentNode.getArguments().length === 1;
+            }
+
+            if (Node.isElementAccessExpression(parentNode)) {
+                const argExpr = parentNode.getArgumentExpression();
+                if (argExpr == childNode && argExpr.getType().isNumber()) {
+                    return false;
+                }
+            }
+
+            if (Node.isPropertyAssignment(parentNode) || Node.isVariableStatement(parentNode) || Node.isReturnStatement(parentNode)) {
+                return false;
+            }
+
+            return !Node.isBinaryExpression(parentNode);
+        }
+
     }
 
     public setInnerNode(innerNode: Node): void {
