@@ -16,7 +16,7 @@ import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamF
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { openPopup } from '../sidePanel/Pages/mediators/common';
+import { getParamManagerFromValues, openPopup } from '../sidePanel/Pages/mediators/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const Field = styled.div`
@@ -82,13 +82,12 @@ export function FormGenerator(props: FormGeneratorProps) {
     }, [sidePanelContext.pageStack]);
 
     function getDefaultValue(element: any) {
-        const key = getNameForController(element.value.name);
         const type = element.type;
         const value = element.value;
         const inputType = value.inputType;
 
         if (type === 'table') {
-            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue);
+            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, value.currentValue);
         } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
             return { isExpression: type === "expression", value: value.defaultValue || '' };
         } else {
@@ -332,8 +331,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string) => {
-        let paramValues: any = [];
+    const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, values?: any[]) => {
         let paramFields: any = [];
 
         const tableKeys: string[] = [];
@@ -395,6 +393,9 @@ export function FormGenerator(props: FormGeneratorProps) {
             paramFields.push(paramField);
         })
 
+        let keyIndex = tableKeys.indexOf(tableKey) ?? 0;
+        let valueIndex = tableKeys.indexOf(tableValue) ?? 1;
+        const paramValues = values ? getParamManagerFromValues(values, keyIndex, valueIndex) : [];
         return { paramValues, paramFields };
 
         function generateParammanagerCondition(enableCondition: any[], keys: string[]) {
