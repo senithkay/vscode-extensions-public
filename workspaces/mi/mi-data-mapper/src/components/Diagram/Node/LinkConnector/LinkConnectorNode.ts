@@ -103,11 +103,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
                     this.sourcePorts.push(inputPort);
                     this.sourceValues[inputPort.getID()] = [field];
-                } else{
+                } else {
                     this.sourceValues[inputPort.getID()].push(field);
                 }
             }
-        })
+        });
 
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
@@ -348,7 +348,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 parentSubLinkValue.removeArgument(indexToRemove);
             } else if (Node.isElementAccessExpression(parentSubLinkValue)) {
                 subLinkValue.replaceWithText('0');
-            }else  if (Node.isPropertyAssignment(parentSubLinkValue) || Node.isVariableStatement(parentSubLinkValue) || Node.isReturnStatement(parentSubLinkValue)) {
+            } else if (Node.isPropertyAssignment(parentSubLinkValue) || Node.isVariableStatement(parentSubLinkValue) || Node.isReturnStatement(parentSubLinkValue)) {
                 await this.deleteLink();
                 return;
             }
@@ -361,8 +361,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             if (Node.isCallExpression(parentNode)) {
                 return parentNode.getArguments().length === 1;
             }
-            
-            if (Node.isElementAccessExpression(parentNode) ) {
+
+            if (Node.isElementAccessExpression(parentNode)) {
                 const argExpr = parentNode.getArgumentExpression();
                 if (argExpr == childNode && argExpr.getType().isNumber()) {
                     return false;
@@ -375,7 +375,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
             return !Node.isBinaryExpression(parentNode);
         }
-        
 
     }
 

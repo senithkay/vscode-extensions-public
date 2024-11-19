@@ -64,11 +64,6 @@ export const useStyles = () => ({
             filter: 'brightness(0.95)',
         },
     }),
-    separator: css({
-        height: 'fit-content',
-        width: '1px',
-        backgroundColor: 'var(--vscode-editor-lineHighlightBorder)',
-    }),
     loadingContainer: css({
         padding: '10px',
     })
