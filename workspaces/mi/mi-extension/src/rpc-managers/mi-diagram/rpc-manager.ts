@@ -4888,10 +4888,15 @@ ${keyValuesXML}`;
     }
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getExpressionCompletions(params);
-            resolve(res);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const langClient = StateMachine.context().langClient!;
+                const res = await langClient.getExpressionCompletions(params);
+                resolve(res);
+            } catch (error) {
+                console.error(`Error getting expression completions: ${error}`);
+                reject(error);
+            }
         });
     }
 }
