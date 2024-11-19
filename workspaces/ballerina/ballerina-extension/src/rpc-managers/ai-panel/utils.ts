@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
@@ -113,11 +113,20 @@ export async function getParamDefinitions(
             paramType = param.typeName.source;
         }
 
+        const position = param.typeName.kind === "QualifiedNameReference"
+            ? {
+                line: (param.typeName as QualifiedNameReference).identifier.position.startLine,
+                offset: (param.typeName as QualifiedNameReference).identifier.position.startColumn
+            }
+            : {
+                line: parameter.position.startLine,
+                offset: parameter.position.startColumn
+            };
         const parameterDefinition = await StateMachine.langClient().getTypeFromSymbol({
             documentIdentifier: {
                 uri: fileUri
             },
-            positions: [{ "line": parameter.position.startLine, "offset": parameter.position.startColumn }]
+            positions: [position]
         });
 
         if ('types' in parameterDefinition && parameterDefinition.types.length > 1) {
@@ -143,8 +152,16 @@ export async function getParamDefinitions(
             };
         }
         inputs = { ...inputs, [paramName]: (inputDefinition as RecordDefinitonObject).recordFields };
-        inputMetadata = { ...inputMetadata, [paramName]: { "isArrayType": parameter.typeName.kind === "ArrayTypeDesc"? true : false ,"parameterName": paramName, "parameterType": paramType, "type": parameter.typeName.kind === "ArrayTypeDesc" ? "record[]" : "record", "fields": (inputDefinition as RecordDefinitonObject).recordFieldsMetadata } };
-            
+        inputMetadata = {
+            ...inputMetadata,
+            [paramName]: {
+                "isArrayType": parameter.typeName.kind === "ArrayTypeDesc",
+                "parameterName": paramName,
+                "parameterType": paramType,
+                "type": parameter.typeName.kind === "ArrayTypeDesc" ? "record[]" : "record",
+                "fields": (inputDefinition as RecordDefinitonObject).recordFieldsMetadata
+            }
+        };
         if (parameter.typeName.kind === "ArrayTypeDesc") {
             hasArrayParams = true;
         }
@@ -160,18 +177,26 @@ export async function getParamDefinitions(
         if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type.memberTypeDesc)) {
             return INVALID_PARAMETER_TYPE;
         }
-    } else if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
+    } else if (!STKindChecker.isSimpleNameReference(fnSt.functionSignature.returnTypeDesc.type) &&
+        !STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)) {
         return INVALID_PARAMETER_TYPE;
     } 
+
+    const returnTypePosition = STKindChecker.isQualifiedNameReference(fnSt.functionSignature.returnTypeDesc.type)
+        ? {
+            line: fnSt.functionSignature.returnTypeDesc.type.identifier.position.startLine,
+            offset: fnSt.functionSignature.returnTypeDesc.type.identifier.position.startColumn
+        }
+        : {
+            line: fnSt.functionSignature.returnTypeDesc.type.position.startLine,
+            offset: fnSt.functionSignature.returnTypeDesc.type.position.startColumn
+        };
 
     const outputTypeDefinition = await StateMachine.langClient().getTypeFromSymbol({
         documentIdentifier: {
             uri: fileUri
         },
-        positions: [{
-            "line": fnSt.functionSignature.returnTypeDesc.type.position.startLine,
-            "offset": fnSt.functionSignature.returnTypeDesc.type.position.startColumn
-        }]
+        positions: [returnTypePosition]
     });
 
     const outputDefinition = navigateTypeInfo('types' in outputTypeDefinition && outputTypeDefinition.types[0].type.fields, false);
@@ -414,76 +439,92 @@ export async function refreshAccessToken(): Promise<string> {
     }
 }
 
-function navigateTypeInfo(typeInfos: FormField[], isNill: boolean): RecordDefinitonObject | ErrorCode {
+function navigateTypeInfo(
+    typeInfos: FormField[],
+    isNill: boolean
+): RecordDefinitonObject | ErrorCode {
     let recordFields: { [key: string]: any } = {};
     let recordFieldsMetadata: { [key: string]: any } = {};
+
     for (const field of typeInfos) {
+        let typeName = field.typeName;
         if (field.typeName === "record") {
             const temporaryRecord = navigateTypeInfo(field.fields, false);
-            recordFields = { ...recordFields, [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields };
+            recordFields = {
+                ...recordFields,
+                [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields
+            };
             recordFieldsMetadata = {
                 ...recordFieldsMetadata,
                 [field.name]: {
-                    "nullable": isNill,
-                    "optional": field.optional,
-                    "type": "record",
-                    "typeInstance": field.name,
-                    "typeName": field.typeName,
-                    "fields": (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
+                    nullable: isNill,
+                    optional: field.optional,
+                    type: "record",
+                    typeInstance: field.name,
+                    typeName: field.typeName,
+                    fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
                 }
             };
         } else if (field.typeName === "union" || field.typeName === "intersection") {
             for (const member of field.members) {
                 if (member.typeName === "()") {
                     continue;
-                } 
+                }
                 if (!("fields" in member)) {
-                    const typeName = field.typeInfo.name;
-                    recordFields[field.name] = { "type": typeName, "comment": "" };
+                    const memberTypeName = field.typeInfo.name;
+                    recordFields[field.name] = { type: memberTypeName, comment: "" };
                     recordFieldsMetadata[field.name] = {
-                        "nullable": true,
-                        "optional": field.optional,
-                        "typeName": typeName,
-                        "type": typeName,
-                        "typeInstance": field.name
+                        nullable: true,
+                        optional: field.optional,
+                        typeName: memberTypeName,
+                        type: memberTypeName,
+                        typeInstance: field.name
                     };
                 }
             }
-        } else if (field.typeName === "array" && field.memberType.hasOwnProperty("fields")) {
-            let arrayFields = {};
-            let arrayFieldsMetadata = {};
-            
-            const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
-            arrayFields = { ...arrayFields, ...(temporaryRecord as RecordDefinitonObject).recordFields };
-            arrayFieldsMetadata = { ...arrayFieldsMetadata, ...(temporaryRecord as RecordDefinitonObject).recordFieldsMetadata };
-            
-            recordFields = { ...recordFields, [field.name]: arrayFields };
-            recordFieldsMetadata = {
-                ...recordFieldsMetadata,
-                [field.name]: {
-                    "typeName": "record[]",
-                    "type": "record[]",
-                    "typeInstance": field.name,
-                    "nullable": isNill,
-                    "optional": field.optional,
-                    "fields": arrayFieldsMetadata
+        } else if (field.typeName === "array") {
+            if (field.memberType.typeName === "union") {
+                const unionTypeNames = field.memberType.members
+                    .map((member: any) => member.name)
+                    .join(" | ");
+                typeName = `${unionTypeNames}`;
+            } else if (field.memberType.hasOwnProperty("fields")) {
+                const temporaryRecord = navigateTypeInfo(field.memberType.fields, false);
+                recordFields = {
+                    ...recordFields,
+                    [field.name]: (temporaryRecord as RecordDefinitonObject).recordFields
+                };
+                recordFieldsMetadata = {
+                    ...recordFieldsMetadata,
+                    [field.name]: {
+                        typeName: "record[]",
+                        type: "record[]",
+                        typeInstance: field.name,
+                        nullable: isNill,
+                        optional: field.optional,
+                        fields: (temporaryRecord as RecordDefinitonObject).recordFieldsMetadata
+                    }
+                };
+                continue;
+            } else {
+                typeName = `${field.memberType.typeName}[]`;
+                recordFields[field.name] = { type: typeName, comment: "" };
+                recordFieldsMetadata[field.name] = {
+                    typeName: typeName,
+                    type: typeName,
+                    typeInstance: field.name,
+                    nullable: isNill,
+                    optional: field.optional
                 }
             };
         } else {
-            let typeName = field.typeName;
-            if (field.typeName === "array") {
-                typeName = `${field.memberType.typeName}[]`;
-            }
-            recordFields = { ...recordFields, [field.name]: { "type": typeName, "comment": "" } };
-            recordFieldsMetadata = {
-                ...recordFieldsMetadata,
-                [field.name]: {
-                    "typeName": typeName,
-                    "type": typeName,
-                    "typeInstance": field.name,
-                    "nullable": isNill,
-                    "optional": field.optional
-                }
+            recordFields[field.name] = { type: typeName, comment: "" };
+            recordFieldsMetadata[field.name] = {
+                typeName: typeName,
+                type: typeName,
+                typeInstance: field.name,
+                nullable: isNill,
+                optional: field.optional
             };
         }
     }
