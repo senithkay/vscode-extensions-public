@@ -169,14 +169,13 @@ export function SubLinkLabelWidget(props: SubLinkLabelWidgetProps) {
         }
     }
 
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
-        // for direct links, disable link widgets if both sides are collapsed
-        return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
-        // for links with intermediary nodes,
-        // disable link widget if either source or target port is collapsed
-        return null;
-    }
+const bothCollapsed = isSourceCollapsed && isTargetCollapsed;
+const eitherCollapsed = isSourceCollapsed || isTargetCollapsed;
+
+if ((valueNode && bothCollapsed) || (!valueNode && eitherCollapsed)) {
+    // Disable link widgets based on collapse states
+    return null;
+}
 
 
     if (linkStatus === LinkState.TemporaryLink) {
