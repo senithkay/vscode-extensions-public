@@ -1548,6 +1548,11 @@ export interface GetAllRegistryPathsRequest {
 export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
+
+export interface GetAllResourcePathsResponse {
+    resourcePaths: string[];
+}
+
 export interface GetAllArtifactsRequest {
     path: string;
 }
