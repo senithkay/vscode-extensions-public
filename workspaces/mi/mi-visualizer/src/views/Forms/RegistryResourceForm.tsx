@@ -53,13 +53,13 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
-            artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
-                'Artifact name already exists', value => {
-                    return !regArtifactNames.includes(value);
-                }).test('validateArtifactNameInWorkspace',
-                    'A file already exists in the workspace with this artifact name', value => {
-                        return !artifactNames.includes(value);
-                    }),
+            // artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
+            //     'Artifact name already exists', value => {
+            //         return !regArtifactNames.includes(value);
+            //     }).test('validateArtifactNameInWorkspace',
+            //         'A file already exists in the workspace with this artifact name', value => {
+            //             return !artifactNames.includes(value);
+            //         }),
             registryPath: yup.string().test('validateRegistryPath', 'Resource already exists', value => {
                 const formattedPath = formatRegistryPath(value);
                 return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
@@ -197,11 +197,12 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             templateType: values.templateType,
             filePath: values.filePath,
             resourceName: values.resourceName,
-            artifactName: values.artifactName,
+            artifactName: '',
             registryPath: values.registryPath,
             registryRoot: '',
             createOption: values.createOption
         }
+        
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
         rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
         rpcClient.getMiDiagramRpcClient().closeWebView();
@@ -247,12 +248,12 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     </Typography>
                 </div>
             </>)}
-            <TextField
+            {/* <TextField
                 id='artifactName'
                 label="Artifact Name"
                 errorMsg={errors.artifactName?.message.toString()}
                 {...register("artifactName")}
-            />
+            /> */}
             <TextField
                 id='registryPath'
                 label="Registry Path"
