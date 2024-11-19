@@ -10,7 +10,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, Typography } from '@wso2-enterprise/ui-toolkit';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerValues } from '../mediators/common';
+import { AddMediatorProps, getParamManagerValues } from '../../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
