@@ -57,7 +57,7 @@ export function MediatorForm(props: MediatorFormProps) {
     }
 
     const handleOnClose = () => {
-        sidepanelGoBack(sidePanelContext);
+        sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
     }
 
     return (<FormContainer>
