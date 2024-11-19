@@ -25,8 +25,8 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
     const { openAPI, onSchemaTreeViewChange } = props;
     const { rpcClient } = useVisualizerContext();
     const { 
-        props: { selectedComponent },
-        api: { onSelectedComponentChange, onCurrentViewChange }
+        props: { selectedComponentID },
+        api: { onSelectedComponentIDChange, onCurrentViewChange }
     } = useContext(APIDesignerContext);
 
     const handleDeleteSchema = (schema: string) => {
@@ -42,7 +42,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
                     }
                 };
                 onSchemaTreeViewChange(updatedOpenAPIDefinition);
-                onSelectedComponentChange("overview");
+                onSelectedComponentIDChange("overview");
             }
         });
     };
@@ -63,7 +63,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             properties: {}
         };
         onSchemaTreeViewChange(openAPI);
-        onSelectedComponentChange(`schemas-component-${newSchemaName}`);
+        onSelectedComponentIDChange(`schemas-component-${newSchemaName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
@@ -84,8 +84,8 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
                     </RightPathContainerButtons>
                 </PathContainer>
             }
-            selectedId={selectedComponent}
-            onSelect={onSelectedComponentChange}
+            selectedId={selectedComponentID}
+            onSelect={onSelectedComponentIDChange}
         >
             {schemaArray.map((schema: string) => {
                 return (

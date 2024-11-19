@@ -18,15 +18,16 @@ interface OverviewProps {
     onOpenAPIChange: (openAPIDefinition: O) => void;
 }
 
-// Path parent component is represented with paths-component-path-method, 
-// Overview is represented with overview-component,
-// Schema is represented with schema-component-schema
+// Path parent component ID is represented with paths-component-${path},
+// Method component ID is represented with paths-component-${path}-${method},
+// Overview component ID is represented with overview-component,
+// Schema component ID is represented with schema-component-schema
 export function OpenAPI(props: OverviewProps) {
     const { openAPI, onOpenAPIChange } = props;
     const { 
-        props: { selectedComponent },
+        props: { selectedComponentID },
     } = useContext(APIDesignerContext);
-    const componetName = selectedComponent.split("-")[0];
+    const componetName = selectedComponentID.split("-")[0];
 
     const handleOpenAPIChange = (openAPI: O) => {
         onOpenAPIChange(openAPI);
@@ -46,13 +47,13 @@ export function OpenAPI(props: OverviewProps) {
             {componetName === "schemas" && (
                 <SchemaEditor
                     openAPI={openAPI}
-                    schema={openAPI.components.schemas[selectedComponent.split("-")[2]]}
-                    schemaName={selectedComponent.split("-")[2]}
+                    schema={openAPI.components.schemas[selectedComponentID.split("-")[2]]}
+                    schemaName={selectedComponentID.split("-")[2]}
                     onSchemaChange={
                         (schema) => handleOpenAPIChange({ 
                             ...openAPI, components: { 
                                 ...openAPI.components, schemas: { 
-                                    ...openAPI.components.schemas, [selectedComponent.split("-")[2]]: schema 
+                                    ...openAPI.components.schemas, [selectedComponentID.split("-")[2]]: schema 
                                 } 
                             } 
                         }

@@ -23,9 +23,9 @@ interface OverviewProps {
 export function ReadOnlyOpenAPI(props: OverviewProps) {
     const { openAPI } = props;
     const { 
-        props: { selectedComponent },
+        props: { selectedComponentID },
     } = useContext(APIDesignerContext);
-    const componetName = selectedComponent.split("-")[0];
+    const componetName = selectedComponentID.split("-")[0];
 
     return (
         <>
@@ -39,8 +39,8 @@ export function ReadOnlyOpenAPI(props: OverviewProps) {
             )}
             {componetName === "schemas" && (
                 <ReadOnlySchemaEditor
-                    schema={openAPI.components.schemas[selectedComponent.split("-")[2]]}
-                    schemaName={selectedComponent.split("-")[2]}
+                    schema={openAPI.components.schemas[selectedComponentID.split("-")[2]]}
+                    schemaName={selectedComponentID.split("-")[2]}
                 />
             )}
         </>

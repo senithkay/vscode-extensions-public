@@ -90,8 +90,8 @@ interface ComponentNavigatorProps {
 export function ComponentNavigator(props: ComponentNavigatorProps) {
     const { openAPI, onComponentNavigatorChange } = props;
     const { 
-        props: { selectedComponent },
-        api: { onSelectedComponentChange }
+        props: { selectedComponentID },
+        api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
 
     const handleComponentNavigatorChange = (openAPI: OpenAPI) => {
@@ -100,7 +100,7 @@ export function ComponentNavigator(props: ComponentNavigatorProps) {
 
     return (
         <div>
-            <OverviewTitle selected={selectedComponent === "overview"} onClick={() => onSelectedComponentChange("overview")}>
+            <OverviewTitle selected={selectedComponentID === "overview"} onClick={() => onSelectedComponentIDChange("overview")}>
                 <Codicon sx={{ marginTop: -1 }} name="globe" />
                 <Typography variant="h4" sx={{ margin: 0, fontWeight: 300 }}>Overview</Typography>
             </OverviewTitle>

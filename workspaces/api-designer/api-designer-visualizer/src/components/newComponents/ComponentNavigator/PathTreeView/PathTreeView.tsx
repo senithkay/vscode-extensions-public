@@ -28,8 +28,8 @@ export function PathTreeView(props: PathTreeViewProps) {
     const { id, openAPI, path, operations, onPathTreeViewChange } = props;
     const { rpcClient } = useVisualizerContext();
     const { 
-        props: { selectedComponent },
-        api: { onSelectedComponentChange }
+        props: { selectedComponentID },
+        api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
 
     const handlePathTreeViewChange = (openAPI: OpenAPI) => {
@@ -116,8 +116,8 @@ export function PathTreeView(props: PathTreeViewProps) {
                     </RightPathContainerButtons>
                 </PathContainer>
             }
-            selectedId={selectedComponent}
-            onSelect={(id) => onSelectedComponentChange(id)}
+            selectedId={selectedComponentID}
+            onSelect={(id) => onSelectedComponentIDChange(id)}
         >
             {operations?.map((operation) => {
                 return (

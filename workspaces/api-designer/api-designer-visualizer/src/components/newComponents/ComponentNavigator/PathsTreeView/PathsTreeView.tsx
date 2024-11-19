@@ -24,8 +24,8 @@ interface PathsTreeViewProps {
 export function PathsTreeView(props: PathsTreeViewProps) {
     const { openAPI, paths, onPathTreeViewChange } = props;
     const { 
-        props: { selectedComponent },
-        api: { onSelectedComponentChange, onPathInitiatedChange, onCurrentViewChange }
+        props: { selectedComponentID },
+        api: { onSelectedComponentIDChange, onPathInitiatedChange, onCurrentViewChange }
     } = useContext(APIDesignerContext);
 
     const handleAddPathMethod = (evt: React.MouseEvent) => {
@@ -51,7 +51,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
         onPathTreeViewChange(openAPI);
         onPathInitiatedChange(true);
         onCurrentViewChange(Views.EDIT);
-        onSelectedComponentChange(`paths-component-${newPathVal}`);
+        onSelectedComponentIDChange(`paths-component-${newPathVal}`);
     };
 
     let pathsArray: string[] = [];
@@ -81,8 +81,8 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                     </RightPathContainerButtons>
                 </PathContainer>
             }
-            selectedId={selectedComponent}
-            onSelect={() => onSelectedComponentChange("Paths-Resources")}
+            selectedId={selectedComponentID}
+            onSelect={() => onSelectedComponentIDChange("Paths-Resources")}
         >
             {
                 pathsArray.map((path, index) => {

@@ -37,8 +37,8 @@ interface PathTreeViewItemProps {
 export function SchemaTreeViewItem(props: PathTreeViewItemProps) {
     const { id, schema, onDeleteSchema } = props;
     const { 
-        props: { selectedComponent },
-        api: { onSelectedComponentChange }
+        props: { selectedComponentID },
+        api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
 
     const handleDeleteSchema = (e: React.MouseEvent, schema: string) => {
@@ -47,8 +47,8 @@ export function SchemaTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentChange(`schemas-component-${schema}`)}>
-            <TreeViewItem id={id} selectedId={selectedComponent}>
+        <div onClick={() => onSelectedComponentIDChange(`schemas-component-${schema}`)}>
+            <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <SchemaItemWrapper>
                     <Typography
                         sx={{

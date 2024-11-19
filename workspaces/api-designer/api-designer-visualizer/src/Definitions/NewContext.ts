@@ -14,14 +14,14 @@ export interface APIDesignerContext {
     props: {
         openAPIVersion: string;
         openAPI: OpenAPI;
-        selectedComponent?: string | undefined;
+        selectedComponentID?: string | undefined;
         components?: string[];
         pathInitiated?: boolean;
         view?: Views;
         currentView?: Views;
     };
     api: {
-        onSelectedComponentChange?: (component: string) => void;
+        onSelectedComponentIDChange?: (component: string) => void;
         onCurrentViewChange?: (currentView: Views) => void;
         onPathInitiatedChange?: (pathInitiated: boolean) => void;
     };

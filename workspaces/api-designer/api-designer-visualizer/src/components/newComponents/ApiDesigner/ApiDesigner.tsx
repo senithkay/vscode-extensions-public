@@ -36,7 +36,7 @@ interface ApiDesignerProps {
 
 export function ApiDesigner(props: ApiDesignerProps) {
     const { openApi, isEditMode, openAPIVersion, onOpenApiChange } = props;
-    const [selectedComponent, setSelectedComponent] = useState<string | undefined>("overview");
+    const [selectedComponentID, setSelectedComponentID] = useState<string | undefined>("overview");
     const [currentView, setCurrentView] = useState(isEditMode ? Views.EDIT : Views.READ_ONLY);
     const [pathInitiated, setPathInitiated] = useState(false);
 
@@ -44,25 +44,25 @@ export function ApiDesigner(props: ApiDesignerProps) {
         props: {
             openAPIVersion: openAPIVersion,
             openAPI: openApi,
-            selectedComponent,
+            selectedComponentID,
             pathInitiated,
             components: getAllComponents(openApi),
             currentView,
         },
         api: {
-            onSelectedComponentChange: (component: string) => {
+            onSelectedComponentIDChange: (component: string) => {
                 if (component === "Paths-Resources") {
                     // Get the first path item and set it as the selected item
                     const paths = openApi?.paths ? Object.keys(openApi.paths) : [];
                     const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
                         && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
-                    setSelectedComponent(openApi?.paths && `paths-component-${sanitizedPaths[0]}`);
+                    setSelectedComponentID(openApi?.paths && `paths-component-${sanitizedPaths[0]}`);
                 } else if (component === "Schemas-Components") {
                     // Get the first schema item and set it as the selected item
                     const schemas = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
-                    setSelectedComponent(schemas && `schemas-component-${schemas[0]}`);
+                    setSelectedComponentID(schemas && `schemas-component-${schemas[0]}`);
                 } else {
-                    setSelectedComponent(component);
+                    setSelectedComponentID(component);
                 }
             },
             onCurrentViewChange: (view: Views) => {

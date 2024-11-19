@@ -19,10 +19,10 @@ interface PathsProps {
 export function ReadOnlyPaths(props: PathsProps) {
     const { paths } = props;
     const { 
-        props: { selectedComponent },
+        props: { selectedComponentID },
     } = useContext(APIDesignerContext);
-    const selectedPath = selectedComponent.split("-")[2];
-    const selectedMethod = selectedComponent.split("-")[3];
+    const selectedPath = selectedComponentID.split("-")[2];
+    const selectedMethod = selectedComponentID.split("-")[3];
     const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath][selectedMethod] as O;
     return (
         <>

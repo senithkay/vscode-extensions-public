@@ -23,7 +23,7 @@ const defaultContext: APIDesignerContextDef = {
     },
     api: {
         onCurrentViewChange: () => {},
-        onSelectedComponentChange: () => {}
+        onSelectedComponentIDChange: () => {}
     }
 }
 

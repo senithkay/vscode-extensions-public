@@ -20,12 +20,11 @@ interface PathsProps {
 export function Paths(props: PathsProps) {
     const { paths, onPathsChange } = props;
     const { 
-        props: { selectedComponent },
-        api: { onSelectedComponentChange }
+        props: { selectedComponentID },
+        api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
     const handlePathsChange = (pathItem: PI, path: string) => {
-        console.log(selectedComponent);
-        const previousPath = selectedComponent.split("-")[2];
+        const previousPath = selectedComponentID.split("-")[2];
         if (previousPath !== path) {
             const newPaths = Object.keys(paths).reduce((acc, key) => {
                 if (key === previousPath) {
@@ -37,7 +36,7 @@ export function Paths(props: PathsProps) {
                 return acc;
             }, {} as P);
             onPathsChange(newPaths, path); // Call onPathsChange with the updated paths
-            onSelectedComponentChange(`paths-component-${path}`);
+            onSelectedComponentIDChange(`paths-component-${path}`);
         } else {
             onPathsChange({ ...paths, [path]: pathItem });
         }
@@ -51,8 +50,8 @@ export function Paths(props: PathsProps) {
             }
         });
     };
-    const selectedPath = selectedComponent.split("-")[2];
-    const selectedMethod = selectedComponent.split("-")[3];
+    const selectedPath = selectedComponentID.split("-")[2];
+    const selectedMethod = selectedComponentID.split("-")[3];
     const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath][selectedMethod] as O;
     return (
         <>
