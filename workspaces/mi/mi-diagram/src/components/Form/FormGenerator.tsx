@@ -89,7 +89,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, value.currentValue);
         } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
-            return { isExpression: type === "expression", value: value.defaultValue || '' };
+            return { isExpression: inputType === "expression", value: value.defaultValue || '' };
         } else {
             return value.currentValue ?? value.defaultValue ?? "";
         }
@@ -107,7 +107,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, field, helpTipElement }: { element: Element, field: any, helpTipElement: React.JSX.Element }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element }) => {
 
         return expressionEditorField !== getNameForController(element.name) ? (
             <ExpressionField
@@ -115,7 +115,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 label={element.displayName}
                 labelAdornment={helpTipElement}
                 placeholder={element.helpTip}
-                canChange={true}
+                canChange={canChange}
                 required={element.required === 'true'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
@@ -264,7 +264,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, field, helpTipElement });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
