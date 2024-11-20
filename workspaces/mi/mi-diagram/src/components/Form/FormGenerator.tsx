@@ -109,13 +109,15 @@ export function FormGenerator(props: FormGeneratorProps) {
         const type = element.type;
         const value = element.value;
         const inputType = value.inputType;
+        const currentValue = value.currentValue ?? value.defaultValue;
 
         if (type === 'table') {
-            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, value.currentValue);
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
-            return { isExpression: inputType === "expression", value: value.defaultValue || '' };
+            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
+        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
+            (!currentValue || !('isExpression' in currentValue))) {
+            return { isExpression: inputType === "expression", value: currentValue ?? "" };
         } else {
-            return value.currentValue ?? value.defaultValue ?? "";
+            return currentValue ?? "";
         }
     }
 
