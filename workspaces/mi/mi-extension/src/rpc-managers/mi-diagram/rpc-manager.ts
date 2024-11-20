@@ -3361,8 +3361,8 @@ ${endpointAttributes}
         return new Promise(async (resolve) => {
             const artifactNameLastPart = (params.createOption === "import" ? params.filePath.split(path.sep).pop() : params.resourceName) || '';
             let artifactName = 'resources' + params.registryPath.replace(path.sep, "_") + '_' + artifactNameLastPart;
-            artifactName = artifactName.replace(/_+/g, '_');
-            
+            artifactName = artifactName.replace(/_+/g, '_').replace(/\./g, '_');
+
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
