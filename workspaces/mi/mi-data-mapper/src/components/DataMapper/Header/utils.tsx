@@ -188,10 +188,5 @@ export function shouldCompletionsAppear(
     if (!partialText && lastChar != '.') return false;
     if (!isNaN(Number(partialText)) || [')', ']', '}', '"', "'", '`'].includes(lastChar)) return false;
 
-    if (termBeforeCursor.split('"').length % 2 == 0) return false;
-    if (termBeforeCursor.split("'").length % 2 == 0) return false;
-    if (termBeforeCursor.split('`').length % 2 == 0) return false;
-
-
     return true;
 }
