@@ -156,8 +156,7 @@ export function getStopCommand(serverPath: string): string | undefined {
 
 // Function to load environment variables from .env file
 export function loadEnvVariables(filePath: string): void {
-    const absolutePath = path.resolve(filePath);
-    const fileContent = fs.readFileSync(absolutePath, { encoding: 'utf8' });
+    const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
 
     const lines = fileContent.split('\n');
 

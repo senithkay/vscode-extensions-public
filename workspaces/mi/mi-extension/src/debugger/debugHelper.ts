@@ -232,7 +232,6 @@ const debugConsole = vscode.debug.activeDebugConsole;
 export async function startServer(serverPath: string, isDebug: boolean): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
-        const fs = require("fs");
         const filePath = path.resolve(projectUri, '.env');
         if (fs.existsSync(filePath)) {
             loadEnvVariables(filePath)
