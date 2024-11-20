@@ -141,7 +141,7 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 	const directoryMap = data.directoryMap;
 	if (directoryMap) {
 		const projectRoot = new RegistryExplorerEntry(
-			`Registry ${project.name}`,
+			`Resources ${project.name}`,
 			vscode.TreeItemCollapsibleState.Expanded,
 			{ name: project.name, path: project.uri.fsPath, type: 'registry' },
 			'registry'
@@ -157,40 +157,71 @@ function generateTreeDataOfRegistry(project: vscode.WorkspaceFolder, data: Proje
 	const directoryMap = data.directoryMap;
 	const resources = (directoryMap as any)?.src?.main?.wso2mi?.resources;
 	if (resources && resources['registry']) {
-		const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
-		const gov = resources['registry']['gov'];
-		const conf = resources['registry']['conf'];
-		const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
-		const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
-		if (gov) {
-			const govEntry = new RegistryExplorerEntry(
-				'gov',
-				isCollapsibleState(isCollapsibleGov),
-				{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
-			);
-			govEntry.id = 'gov';
-			govEntry.contextValue = 'gov';
-			govEntry.children = genRegistryProjectStructureEntry(gov);
-			projectRoot.children = projectRoot.children ?? [];
-			projectRoot.children.push(govEntry);
-		}
-		if (conf) {
-			const confEntry = new RegistryExplorerEntry(
-				'conf',
-				isCollapsibleState(isCollapsibleConf),
-				{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
-			);
-			confEntry.id = 'conf';
-			confEntry.contextValue = 'conf';
-			confEntry.children = genRegistryProjectStructureEntry(conf);
-			projectRoot.children = projectRoot.children ?? [];
-			projectRoot.children.push(confEntry);
+		// const regPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+		// const gov = resources['registry']['gov'];
+		// const conf = resources['registry']['conf'];
+		const allResources = resources['folderNode'];
+		// const isCollapsibleGov = gov && ((gov.files && gov.files.length > 0) || (gov.folders && gov.folders.length > 0));
+		// const isCollapsibleConf = conf && ((conf.files && conf.files.length > 0) || (conf.folders && conf.folders.length > 0));
+		// const isCollapsibleAllResources= allResources && ((allResources.files && allResources.files.length > 0) || (allResources.folders && allResources.folders.length > 0));
+		// if (gov) {
+		// 	const govEntry = new RegistryExplorerEntry(
+		// 		'gov',
+		// 		isCollapsibleState(isCollapsibleGov),
+		// 		{ name: 'gov', path: path.join(regPath, 'gov'), type: 'gov' },
+		// 	);
+		// 	govEntry.id = 'gov';
+		// 	govEntry.contextValue = 'gov';
+		// 	govEntry.children = genRegistryProjectStructureEntry(gov);
+		// 	projectRoot.children = projectRoot.children ?? [];
+		// 	projectRoot.children.push(govEntry);
+		// }
+		// if (conf) {
+		// 	const confEntry = new RegistryExplorerEntry(
+		// 		'conf',
+		// 		isCollapsibleState(isCollapsibleConf),
+		// 		{ name: 'conf', path: path.join(regPath, 'conf'), type: 'conf' },
+		// 	);
+		// 	confEntry.id = 'conf';
+		// 	confEntry.contextValue = 'conf';
+		// 	confEntry.children = genRegistryProjectStructureEntry(conf);
+		// 	projectRoot.children = projectRoot.children ?? [];
+		// 	projectRoot.children.push(confEntry);
+		// }
+		if (allResources) {
+			// const allResourcesEntry = new RegistryExplorerEntry(
+			// 	'resources',
+			// 	isCollapsibleState(isCollapsibleAllResources),
+			// 	{ name: 'allResources', path: path.join(regPath, 'allResources'), type: 'allResources' },
+			// );
+			// allResourcesEntry.id = 'allResources';
+			// allResourcesEntry.contextValue = 'allResources';
+			// allResourcesEntry.children = genResourceProjectStructureEntry(allResources);
+			// projectRoot.children = projectRoot.children ?? [];
+			// projectRoot.children.push(allResourcesEntry);
+			projectRoot.children = genResourceProjectStructureEntry(allResources);
 		}
 	}
 }
 
 function isCollapsibleState(state: boolean): vscode.TreeItemCollapsibleState {
 	return state ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None;
+}
+
+function checkExistenceOfResource(resourcePath: string): boolean {
+	if (registryDetails.artifacts) {
+		for (const artifact of registryDetails.artifacts) {
+			let transformedPath = artifact.path.replace("/_system/governance/mi-resources", '/resources');
+			if (!artifact.isCollection) {
+				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
+			}
+			if (transformedPath === resourcePath) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
 }
 
 function checkExistanceOfRegistryResource(registryPath: string): boolean {
@@ -207,6 +238,59 @@ function checkExistanceOfRegistryResource(registryPath: string): boolean {
 		return false;
 	}
 	return false;
+}
+
+function genResourceProjectStructureEntry(data: RegistryResourcesFolder): RegistryExplorerEntry[] {
+	const result: RegistryExplorerEntry[] = [];
+	const resPathPrefix = path.join("wso2mi", "resources");
+	if (data) {
+		if (data.files) {
+			for (const entry of data.files) {
+				const explorerEntry = new RegistryExplorerEntry(entry.name, isCollapsibleState(false), {
+					name: entry.name,
+					type: 'resource',
+					path: `${entry.path}`
+				}, 'code', true);
+				explorerEntry.id = entry.path;
+				explorerEntry.command = {
+					"title": "Edit Resource",
+					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
+					"arguments": [vscode.Uri.file(entry.path)]
+				};
+				result.push(explorerEntry);
+				const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+				const resourcePath = entry.path.substring(lastIndex);
+				if (checkExistenceOfResource(resourcePath)) {
+					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+					explorerEntry.contextValue = "registry-without-metadata";
+				}
+			}
+		}
+		if (data.folders) {
+			for (const entry of data.folders) {
+				if (entry.name !== ".meta") {
+					const explorerEntry = new RegistryExplorerEntry(entry.name,
+						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+						{
+							name: entry.name,
+							type: 'resource',
+							path: `${entry.path}`
+						}, 'folder', true);
+					explorerEntry.children = genResourceProjectStructureEntry(entry);
+					result.push(explorerEntry);
+					const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+					const resourcePath = entry.path.substring(lastIndex);
+					if (checkExistanceOfRegistryResource(resourcePath)) {
+						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+						explorerEntry.contextValue = "registry-without-metadata";
+					}
+				}
+			}
+		}
+	}
+	return result;
 }
 
 function genRegistryProjectStructureEntry(data: RegistryResourcesFolder): RegistryExplorerEntry[] {
