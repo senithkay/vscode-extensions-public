@@ -161,12 +161,9 @@ export function getStopCommand(serverPath: string): string | undefined {
 // Function to load environment variables from .env file
 export function loadEnvVariables(filePath: string): void {
     const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-
     const lines = fileContent.split('\n');
-
     lines.forEach(line => {
         const trimmedLine = line.trim();
-
         // Ignore empty lines or comments
         if (trimmedLine && trimmedLine[0] !== '#') {
             const [key, value] = trimmedLine.split('=');
