@@ -115,6 +115,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             const partialTextMatcher = textFieldValueRef.current.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
             const partialText = (partialTextMatcher && partialTextMatcher.length) ? partialTextMatcher[partialTextMatcher.length-1] : undefined;
 
+            if (!partialText) {
+                return [];
+            }
+
             let fileContent = nodeForSuggestions.getSourceFile().getFullText();
 
             fileContent = fileContent.slice(0, completionReqPosStart.current) + ' ' + textFieldValueRef.current + fileContent.slice(completionReqPosEnd.current);
