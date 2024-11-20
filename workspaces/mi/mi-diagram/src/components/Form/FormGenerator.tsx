@@ -114,7 +114,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
         } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
-            (!currentValue || !('isExpression' in currentValue))) {
+            (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
         } else {
             return currentValue ?? "";
