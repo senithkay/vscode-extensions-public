@@ -6,8 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { InlineDataMapperModelRequest, InlineDataMapperSourceRequest } from "../../interfaces/extended-lang-client";
+import { IDMModel } from "../../interfaces/inline-data-mapper";
 import { IOTypeRequest, IOTypeResponse } from "./interfaces";
 
 export interface InlineDataMapperAPI {
     getIOTypes: (params: IOTypeRequest) => Promise<IOTypeResponse>;
+    getDataMapperModel: (params: InlineDataMapperModelRequest) => Promise<IDMModel>;
+    getDataMapperSource: (params: InlineDataMapperSourceRequest) => Promise<IDMModel>;
 }

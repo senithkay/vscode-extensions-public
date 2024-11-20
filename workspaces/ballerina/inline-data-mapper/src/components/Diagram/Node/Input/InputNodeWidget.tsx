@@ -48,7 +48,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 
     const portOut = getPort(`${id}.OUT`);
 
-    const hasFields = !!dmType?.fields?.length;
+    const hasFields = !!dmType.type?.fields?.length;
 
     let expanded = true;
     if (portOut && portOut.collapsed) {
@@ -128,7 +128,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
             {expanded && hasFields && (
                 <TreeBody>
                     {
-                        dmType.fields.map((field, index) => {
+                        dmType.type.fields.map((field, index) => {
                             return (
                                 <InputNodeTreeItemWidget
                                     key={index}

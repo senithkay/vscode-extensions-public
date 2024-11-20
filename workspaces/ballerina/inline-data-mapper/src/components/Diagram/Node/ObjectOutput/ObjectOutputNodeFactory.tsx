@@ -26,7 +26,6 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 	}
 
 	generateReactWidget(event: { model: ObjectOutputNode; }): JSX.Element {
-		let valueLabel: string;
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -41,9 +40,9 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 						getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
 						context={event.model.context}
 						mappings={event.model.filterdMappings}
-						valueLabel={valueLabel}
+						valueLabel={event.model.outputType.id}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
-						originalTypeName={event.model.filteredOutputType?.fieldName}
+						originalTypeName={event.model.filteredOutputType.type?.name}
 					/>
 				)}
 			</>

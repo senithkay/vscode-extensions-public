@@ -11,7 +11,7 @@ import { PortModel } from "@projectstorm/react-diagrams-core";
 import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { getDMTypeDim } from "./type-utils";
 import { DataMapperLinkModel } from "../Link";
-import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, Type, TypeKind } from "@wso2-enterprise/ballerina-core";
 
 export function findMappingByOutput(mappings: Mapping[], outputId: string): Mapping {
     return mappings.find(mapping => mapping.output === outputId);
@@ -60,8 +60,9 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
     return ValueType.Empty;
 }
 
-export function isDefaultValue(ioType: IOType, value: string): boolean {
-	const defaultValue = getDefaultValue(ioType.kind);
+export function isDefaultValue(field: IOType | Type, value: string): boolean {
+    const type = 'type' in field ? field.type : field;
+	const defaultValue = getDefaultValue(type.typeName);
     const targetValue =  value?.trim().replace(/(\r\n|\n|\r|\s)/g, "")
 	return targetValue === "null" ||  defaultValue === targetValue;
 }

@@ -9,7 +9,7 @@
 
 import React from "react";
 
-import { NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";
@@ -25,7 +25,9 @@ import { MapEditor } from "./MapEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
+    node: FlowNode;
     selectedNode?: NodeKind;
+    projectPath?: string;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
@@ -34,7 +36,7 @@ interface FormFieldEditorProps {
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
+    const { field, node, selectedNode, projectPath, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
         props;
 
     if (field.type === "MULTIPLE_SELECT") {
@@ -79,17 +81,19 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
             <ContextAwareExpressionEditor
                 ref={ref}
                 field={field}
+                node={node}
                 openSubPanel={openSubPanel}
                 isActiveSubPanel={isActiveSubPanel}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
+                projectPath={projectPath}
             />
         );
     } else if (field.type === "VIEW") {
         // Skip this property
         return <></>;
     } else if (field.type === "PARAM_MANAGER") {
-        return <ParamManagerEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <ParamManagerEditor field={field} node={node} handleOnFieldFocus={handleOnFieldFocus} />;
     } else {
         // Default to text editor
         // Readonly fields are also treated as text editor

@@ -14,15 +14,17 @@ export function traverseNode(model: IDMModel, visitor: BaseVisitor) {
     visitor.beginVisit?.(model);
 
     // Visit input types
-    for (const inputType of model.inputTypes) {
-        traverseIOType(inputType, model, visitor);
+    if (model.mappings.inputs.length > 0) {
+        for (const inputType of model.mappings.inputs) {
+            traverseIOType(inputType, model, visitor);
+        }
     }
 
     // Visit output type
-    traverseIOType(model.outputType, model, visitor);
+    traverseIOType(model.mappings.output, model, visitor);
 
     // Visit mappings
-    for (const mapping of model.mappings) {
+    for (const mapping of model.mappings.mappings) {
         visitor.beginVisitMapping?.(mapping, model);
         visitor.endVisitMapping?.(mapping, model);
     }

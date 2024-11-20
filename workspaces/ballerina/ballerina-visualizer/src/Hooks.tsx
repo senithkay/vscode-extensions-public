@@ -10,7 +10,7 @@ import React from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { LinePosition } from '@wso2-enterprise/ballerina-core';
+import { FlowNode, LinePosition } from '@wso2-enterprise/ballerina-core';
 
 export const useExperimentalEnabled = () => {
     const { rpcClient } = useRpcContext();
@@ -28,6 +28,36 @@ export const useExperimentalEnabled = () => {
 
     return { experimentalEnabled, isFetchingExperimentalEnabled, isError, refetch };
 };
+
+export const useInlineDataMapperModel = (
+    filePath: string,
+    flowNode: FlowNode,
+    propertyKey: string,
+    position: LinePosition
+) => {
+    const { rpcClient } = useRpcContext();
+    const getIDMModel = async () => {
+        try {
+            const res = await rpcClient
+                .getInlineDataMapperRpcClient()
+                .getDataMapperModel({ filePath, flowNode, propertyKey, position });
+            return res;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const {
+        data: model,
+        isFetching,
+        isError,
+        refetch
+    } = useQuery(['getIDMModel', { filePath, position }], () => getIDMModel(), { networkMode: 'always' });
+
+    return {model, isFetching, isError, refetch};
+};
+
 
 export const useIOTypes = (filePath: string, position: LinePosition) => {
     const { rpcClient } = useRpcContext();

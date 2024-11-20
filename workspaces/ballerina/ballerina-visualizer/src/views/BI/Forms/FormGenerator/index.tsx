@@ -215,6 +215,7 @@ export function FormGenerator(props: FormProps) {
             {fields && fields.length > 0 && (
                 <Form
                     formFields={fields}
+                    node={node}
                     projectPath={projectPath}
                     selectedNode={node.codedata.node}
                     openRecordEditor={handleOpenRecordEditor}

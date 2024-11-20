@@ -42,11 +42,15 @@ export interface IDMDiagnostic {
 export interface IOType {
     id: string;
     category?: InputCategory;
-    kind: TypeKind;
-    typeName?: string;
-    fieldName?: string;
-    fields?: IOType[];
-    memberType?: IOType;
+    type: Type;
+}
+
+export interface Type {
+    kind?: TypeKind;
+    typeName?: TypeKind;
+    name?: string;
+    fields?: Type[];
+    memberType?: Type;
     defaultValue?: unknown;
     optional?: boolean;
 }
@@ -57,10 +61,16 @@ export interface Mapping {
     expression: string;
     diagnostics?: IDMDiagnostic[];
     isComplex?: boolean;
+    isFunctionCall?: boolean;
 }
 
 export interface IDMModel {
-    inputTypes: IOType[];
-    outputType: IOType;
-    mappings: Mapping[];
+    // TODO: Refine the model (remove the mappings key)
+    mappings: {
+        inputs: IOType[];
+        output: IOType;
+        mappings: Mapping[];
+        source: string;
+        view: string;
+    }
 }

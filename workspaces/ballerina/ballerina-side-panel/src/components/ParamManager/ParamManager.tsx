@@ -17,6 +17,7 @@ import { FormProps } from '../Form';
 import { FormField, FormValues } from '../Form/types';
 import { Controller } from 'react-hook-form';
 import { useFormContext } from '../../context';
+import { FlowNode } from '@wso2-enterprise/ballerina-core';
 
 export interface Parameter {
     id: number;
@@ -35,6 +36,7 @@ export interface ParamConfig {
 
 export interface ParamManagerProps {
     paramConfigs: ParamConfig;
+    node: FlowNode;
     onChange?: (parameters: ParamConfig) => void,
     readonly?: boolean;
 }
@@ -50,11 +52,12 @@ const ParamContainer = styled.div`
 
 export interface ParamManagerEditorProps {
     field: FormField;
+    node: FlowNode;
     handleOnFieldFocus?: (key: string) => void;
 }
 
 export function ParamManagerEditor(props: ParamManagerEditorProps) {
-    const { field } = props;
+    const { field, node } = props;
     const { form } = useFormContext();
     const { control, setValue } = form;
     return (
@@ -66,6 +69,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
                 render={({ field: { onChange } }) => (
                     <ParamManager
                         paramConfigs={field.paramManagerProps}
+                        node={node}
                         onChange={async (config: ParamConfig) => {
                             onChange(config.paramValues);
                         }}
@@ -78,7 +82,7 @@ export function ParamManagerEditor(props: ParamManagerEditorProps) {
 }
 
 export function ParamManager(props: ParamManagerProps) {
-    const { paramConfigs, readonly, onChange } = props;
+    const { paramConfigs, node, readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
     const [parameters, setParameters] = useState<Parameter[]>(paramConfigs.paramValues);
@@ -165,6 +169,7 @@ export function ParamManager(props: ParamManagerProps) {
                         <ParamEditor
                             parameter={param}
                             paramFields={paramConfigs.formFields}
+                            node={node}
                             onSave={onSaveParam}
                             onCancelEdit={onParamEditCancel}
                         />

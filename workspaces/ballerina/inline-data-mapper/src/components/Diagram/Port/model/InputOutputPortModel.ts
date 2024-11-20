@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { IOType, Mapping } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping, Type } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
 import { IntermediatePortModel } from "../IntermediatePort";
@@ -38,7 +38,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: IOType,
+		public field: IOType | Type,
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public value?: Mapping,

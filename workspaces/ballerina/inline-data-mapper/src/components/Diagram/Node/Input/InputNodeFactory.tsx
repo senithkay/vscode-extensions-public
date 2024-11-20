@@ -29,7 +29,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
             return (
                 <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
             );
-        } else if (event.model.inputType && event.model.inputType.kind === TypeKind.Record) {
+        } else if (event.model.inputType && event.model.inputType.type.typeName === TypeKind.Record) {
             return (
                 <InputNodeWidget
                     engine={this.engine}
@@ -45,7 +45,7 @@ export class InputNodeFactory extends AbstractReactFactory<InputNode, DiagramEng
                 id={event.model.inputType?.id}
                 dmType={event.model.inputType}
                 getPort={(portId: string) => event.model.getPort(portId) as InputOutputPortModel}
-                valueLabel={event.model.inputType?.fieldName}
+                valueLabel={event.model.inputType.type?.name}
             />
         )
     }

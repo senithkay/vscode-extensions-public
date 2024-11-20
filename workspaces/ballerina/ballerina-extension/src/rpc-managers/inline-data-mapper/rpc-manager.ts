@@ -9,9 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    IDMModel,
     IOTypeRequest,
     IOTypeResponse,
     InlineDataMapperAPI,
+    InlineDataMapperModelRequest,
+    InlineDataMapperSourceRequest,
     TypeFromSymbolParams,
     TypesFromSymbol,
     VisibleVariableTypes,
@@ -79,6 +82,26 @@ export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
                 outputType: outputTypeTransformed
             };
             resolve(response);
+        });
+    }
+
+    async getDataMapperModel(params: InlineDataMapperModelRequest): Promise<IDMModel> {
+        return new Promise(async (resolve) => {
+            const dataMapperModel = await StateMachine
+                .langClient()
+                .getInlineDataMapperMappings(params);
+
+            resolve(dataMapperModel as IDMModel);
+        });
+    }
+
+    async getDataMapperSource(params: InlineDataMapperSourceRequest): Promise<IDMModel> {
+        return new Promise(async (resolve) => {
+            const dataMapperModel = await StateMachine
+                .langClient()
+                .getInlineDataMapperSource(params) as IDMModel;
+
+            resolve(dataMapperModel);
         });
     }
 }

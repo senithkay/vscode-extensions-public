@@ -26,9 +26,7 @@ export async function getUpdatedMappings(link: DataMapperLinkModel) {
 	const mappings = targetNode.context.model.mappings;
 	const input = (link.getSourcePort() as InputOutputPortModel).optionalOmittedFieldFQN;
 
-	console.log("==updatedMappings before", mappings);
-
-	const updatedMappings = mappings.map(mapping => {
+	const updatedMappings = mappings.mappings.map(mapping => {
 		if (mapping.output === outputPortModel.optionalOmittedFieldFQN) {
 			return {
 				...mapping,
@@ -46,14 +44,12 @@ export async function updateExistingValue(sourcePort: PortModel, targetPort: Por
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
 	const mappings = targetNode.context.model.mappings;
 
-	const existingMapping = mappings.find(mapping => mapping.output === targetPort.getID());
+	const existingMapping = mappings.mappings.find(mapping => mapping.output === targetPort.getID());
 	if (!existingMapping) {
 		return;
 	}
 
 	existingMapping.inputs = [newValue || buildInputAccessExpr(sourcePort.getID()) + suffix];
-
-	console.log("==existingMapping", existingMapping);
 
 
 	// const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;

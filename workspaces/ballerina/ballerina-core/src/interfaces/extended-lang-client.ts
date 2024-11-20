@@ -17,6 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
+import { Mapping } from "./inline-data-mapper";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -261,6 +262,17 @@ export interface VisibleType {
 export interface TypeWithIdentifier {
     name: string;
     type: TypeField;
+}
+
+export interface InlineDataMapperModelRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    propertyKey: string;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequest {
+    mappings: Mapping[];
 }
 
 export interface GraphqlDesignServiceParams {

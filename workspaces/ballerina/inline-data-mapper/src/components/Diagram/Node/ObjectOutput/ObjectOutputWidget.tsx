@@ -74,7 +74,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 
 	const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-	const fields = outputType.fields || [];
+	const fields = outputType.type.fields || [];
 	const hasFields = fields.length > 0;
 
 	const portIn = getPort(`${id}.IN`);

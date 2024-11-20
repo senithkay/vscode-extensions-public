@@ -67,7 +67,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
     const { model } = props;
 
     const initialView = [{
-        label: `${getTypeName(model.inputTypes[0])} -> ${getTypeName(model.outputType)}`,
+        label: 'Root', // TODO: Pick a better label
         model: model
     }];
 

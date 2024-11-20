@@ -186,7 +186,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         if (target instanceof InputOutputPortModel) {
             const targetPortField = target.field;
 
-            if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
+            const type = 'type' in targetPortField ? targetPortField.type : targetPortField;
+            if (type.typeName === TypeKind.Array && type?.memberType) {
                 // await applyArrayFunction(link, targetPortField.memberType);
             }
         }

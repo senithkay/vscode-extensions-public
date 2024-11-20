@@ -23,7 +23,7 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -158,6 +158,7 @@ namespace S {
 }
 export interface FormProps {
     formFields: FormField[];
+    node: FlowNode;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -204,6 +205,7 @@ export interface FormProps {
 export function Form(props: FormProps) {
     const {
         formFields,
+        node,
         projectPath,
         selectedNode,
         onSubmit,
@@ -406,6 +408,8 @@ export function Form(props: FormProps) {
                         {variableField &&
                             <EditorFactory
                                 field={variableField}
+                                node={node}
+                                projectPath={projectPath}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                             />
@@ -413,6 +417,8 @@ export function Form(props: FormProps) {
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
+                                node={node}
+                                projectPath={projectPath}
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={openSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
@@ -435,6 +441,8 @@ export function Form(props: FormProps) {
                                     <EditorFactory
                                         ref={exprRef}
                                         field={field}
+                                        node={node}
+                                        projectPath={projectPath}
                                         selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={openSubPanel}
@@ -489,6 +497,8 @@ export function Form(props: FormProps) {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
+                                            node={node}
+                                            projectPath={projectPath}
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={openSubPanel}
                                             isActiveSubPanel={isActiveSubPanel}

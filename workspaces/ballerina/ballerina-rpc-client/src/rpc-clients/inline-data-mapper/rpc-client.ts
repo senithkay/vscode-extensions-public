@@ -9,9 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    IDMModel,
     IOTypeRequest,
     IOTypeResponse,
     InlineDataMapperAPI,
+    InlineDataMapperModelRequest,
+    InlineDataMapperSourceRequest,
+    getDataMapperModel,
+    getDataMapperSource,
     getIOTypes
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -26,5 +31,13 @@ export class InlineDataMapperRpcClient implements InlineDataMapperAPI {
 
     getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
         return this._messenger.sendRequest(getIOTypes, HOST_EXTENSION, params);
+    }
+
+    getDataMapperModel(params: InlineDataMapperModelRequest): Promise<IDMModel> {
+        return this._messenger.sendRequest(getDataMapperModel, HOST_EXTENSION, params);
+    }
+
+    getDataMapperSource(params: InlineDataMapperSourceRequest): Promise<IDMModel> {
+        return this._messenger.sendRequest(getDataMapperSource, HOST_EXTENSION, params);
     }
 }
