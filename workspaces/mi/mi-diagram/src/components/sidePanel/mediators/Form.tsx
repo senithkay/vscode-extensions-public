@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FormActions, Button } from "@wso2-enterprise/ui-toolkit";
+import { FormActions, Button, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import FormGenerator from "../../Form/FormGenerator";
@@ -58,6 +58,12 @@ export function MediatorForm(props: MediatorFormProps) {
 
     const handleOnClose = () => {
         sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
+    }
+
+    if (!mediatorData) {
+        return <ErrorBanner
+            errorMsg="Mediator data not found. Please try again."
+        />
     }
 
     return (<FormContainer>
