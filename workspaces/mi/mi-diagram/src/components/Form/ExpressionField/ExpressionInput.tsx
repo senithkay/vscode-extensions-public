@@ -38,7 +38,6 @@ export const Label = styled.label`
 export const FlexLabelContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin-bottom: 4px;
 `;
 
 export const Link = styled.a`
@@ -46,7 +45,7 @@ export const Link = styled.a`
     font-size: 12px;
     margin-left: auto;
     margin-right: 15px;
-    margin-bottom: -5px;
+    margin-bottom: -20px;
     color: var(--vscode-editor-foreground);
 `;
 
