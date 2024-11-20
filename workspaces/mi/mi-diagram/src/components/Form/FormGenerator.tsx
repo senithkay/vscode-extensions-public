@@ -18,6 +18,7 @@ import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../side
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { CodeTextArea } from './CodeTextArea';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -52,6 +53,7 @@ interface Element {
     description?: string;
     required: string;
     helpTip: any;
+    placeholder: any;
     comboValues?: any[];
     defaultValue?: any;
     allowedConnectionTypes?: string[];
@@ -224,6 +226,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             </Tooltip>
         ) : null;
 
+        let placeholder = element.placeholder;
+        if (helpTip?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(helpTip.conditionField));
+            const conditionalPlaceholder = helpTip.values.find((value: any) => value[conditionFieldValue]);
+            placeholder = conditionalPlaceholder?.[conditionFieldValue];
+        }
+
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -323,6 +332,16 @@ export function FormGenerator(props: FormGeneratorProps) {
                     ParamManagerComponent(element, isRequired, helpTipElement, field)
                 );
             }
+            case 'codeTextArea':
+                return (<CodeTextArea
+                    {...field}
+                    label={element.displayName}
+                    placeholder={placeholder}
+                    required={isRequired}
+                    resize="vertical"
+                    growRange={{ start: 5, offset: 10 }}
+                    errorMsg={errorMsg}
+                />);
             default:
                 return null;
         }
