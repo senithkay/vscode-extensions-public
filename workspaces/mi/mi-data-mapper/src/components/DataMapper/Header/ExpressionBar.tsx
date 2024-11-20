@@ -90,7 +90,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const portChanged = !!(focusedPort && lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort.fieldFQN);
 
-    const getCompletions = async (): Promise<CompletionItem[]> => {
+    const getCompletions = async (skipSurroundCheck?: boolean): Promise<CompletionItem[]> => {
 
         if (!focusedPort && !focusedFilter) {
             return [];
@@ -111,7 +111,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             const partialTextMatcher = textFieldValueRef.current.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
             const partialText = (partialTextMatcher && partialTextMatcher.length) ? partialTextMatcher[partialTextMatcher.length-1] : undefined;
 
-            if (!shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition, partialText)) {
+            if (!skipSurroundCheck && !shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition, partialText)) {
                 return [];
             }
 
@@ -267,30 +267,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         });
     }, [disabled, action, lastFocusedPort, lastFocusedFilter]);
 
-    const initializeValue = async () => {
-        const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-        const fnBody = focusedNode.context.functionST.getBody() as Block;
-
-        let objLitExpr: ObjectLiteralExpression;
-        let parentPort = focusedPort?.parentModel;
-
-        while (parentPort) {
-            const parentValue = parentPort.typeWithValue?.value;
-            if (parentValue && Node.isObjectLiteralExpression(parentValue)) {
-                objLitExpr = parentValue;
-                break;
-            }
-            parentPort = parentPort?.parentModel;
-        }
-
-        const propertyAssignment = await createSourceForUserInput(
-            focusedPort?.typeWithValue, objLitExpr, "", fnBody
-        );
-
-        const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
-        focusedPort.typeWithValue.setValue(portValue);
-    }
-
     const initPortWithValue = async (port: InputOutputPortModel, value: string) => {
         const focusedNode = port.getNode() as DataMapperNodeModel;
         const fnBody = focusedNode.context.functionST.getBody() as Block;
@@ -441,6 +417,14 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         triggerRerender((prev)=>!prev);
     };
 
+    const handleShortcut = async (e: React.KeyboardEvent):Promise<boolean> => {
+        if (e.key == ' '){
+            setCompletions(await getCompletions(true));
+            return true;
+        }
+        return false;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const useDisableOnChange = (fn: (...args: any[]) => Promise<any>) => {
         return useMutation({
@@ -491,6 +475,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 useTransaction={useDisableOnChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                onShortcut={handleShortcut}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>
