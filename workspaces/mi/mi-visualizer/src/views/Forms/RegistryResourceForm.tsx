@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { Dropdown, Button, TextField, FormView, FormActions, RadioButtonGroup, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -18,6 +18,8 @@ import { colors } from "@wso2-enterprise/ui-toolkit";
 
 export interface RegistryWizardProps {
     path: string;
+    isPopup?: boolean;
+    handlePopupClose?: () => void;
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
@@ -191,7 +193,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     }
 
     const handleCreateRegResource = async (values: InputsFields) => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+        const projectDir = props.path ? (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path : (await rpcClient.getVisualizerState()).projectUri;
         const regRequest: CreateRegistryResourceRequest = {
             projectDirectory: projectDir,
             templateType: values.templateType,
@@ -203,12 +205,20 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             createOption: values.createOption
         }
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
-        rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: values.resourceName },
+                isPopup: true
+            });
+        } else {
+            rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
+            rpcClient.getMiDiagramRpcClient().closeWebView();
+        }
     }
 
     const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        props.handlePopupClose ? props.handlePopupClose() : rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
     return (
@@ -279,7 +289,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 >
                     Create
                 </Button>
-                <Button appearance="secondary" onClick={openOverview}>
+                <Button appearance="secondary" onClick={handleBackButtonClick}>
                     Cancel
                 </Button>
             </FormActions>

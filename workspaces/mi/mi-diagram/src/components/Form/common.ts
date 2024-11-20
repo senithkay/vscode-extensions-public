@@ -52,6 +52,9 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         case "addDriver":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.AddDriverPopup, documentUri: documentUri, customProps }, isPopup: true });
             break;
+        case "addResource":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.RegistryResourceForm, documentUri: documentUri, customProps }, isPopup: true });
+            break;
         default:
             return;
     }

@@ -332,20 +332,27 @@ export function FormGenerator(props: FormGeneratorProps) {
                         } : undefined}
                     />
                 );
-            case 'comboOrKey': {
+            case 'comboOrKey':
+            case 'registry':
+            case 'resource': {
+                let onCreateButtonClick;
+                if (!Array.isArray(element.keyType)) {
+                    onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                        openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: element.keyType });
+                    }
+                }
+
                 return (<Keylookup
                     value={field.value}
-                    filterType={element.keyType as any}
+                    filterType={(element.keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.inputType === 'comboOrKey'}
+                    allowItemCreate={true}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
                     additionalItems={element.comboValues}
-                    onCreateButtonClick={(element.inputType === 'comboOrKey' && !Array.isArray(element.keyType)) ? (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange);
-                    } : undefined}
+                    onCreateButtonClick={onCreateButtonClick}
                 />)
             }
             case 'ParamManager': {
