@@ -188,7 +188,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             canSelectFolders: false,
             canSelectMany: false,
             defaultUri: "",
-            title: "Select a file to be imported as registry resource"
+            title: "Select a file to be imported as a resource"
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
             setValue("filePath", response.filePath, { shouldDirty: true });
@@ -201,7 +201,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             canSelectFolders: true,
             canSelectMany: false,
             defaultUri: "",
-            title: "Select a folder to be imported to registry as a collection"
+            title: "Select a folder to be imported to as a collection"
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
             setValue("filePath", response.filePath, { shouldDirty: true });
@@ -231,7 +231,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     };
 
     return (
-        <FormView title="Create New Registry Resource" onClose={handleBackButtonClick}>
+        <FormView title="Create New Resource" onClose={handleBackButtonClick}>
             <RadioButtonGroup
                 label="Create Options"
                 id="createOption"
@@ -268,7 +268,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             </>)}
             <TextField
                 id='registryPath'
-                label="Registry Path"
+                label="Resource Path"
                 errorMsg={errors.registryPath?.message.toString()}
                 {...register("registryPath")}
             />

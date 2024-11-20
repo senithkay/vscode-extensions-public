@@ -52,7 +52,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
             );
             return;
         }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
+        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
         console.log('Add Registry Resource');
 	});
