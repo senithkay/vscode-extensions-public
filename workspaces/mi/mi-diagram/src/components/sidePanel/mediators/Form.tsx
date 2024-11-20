@@ -18,6 +18,7 @@ import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
 import { getParamManagerValues } from "../../Form/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { ERROR_MESSAGES } from "../../../resources/constants";
 
 export interface MediatorFormProps {
     mediatorData: GetMediatorResponse
@@ -62,7 +63,7 @@ export function MediatorForm(props: MediatorFormProps) {
 
     if (!mediatorData) {
         return <ErrorBanner
-            errorMsg="Mediator data not found. Please try again."
+            errorMsg={ERROR_MESSAGES.ERROR_LOADING_MEDIATORS}
         />
     }
 

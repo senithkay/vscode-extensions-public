@@ -291,3 +291,7 @@ export const DATA_SERVICE = {
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
 }
+
+export const ERROR_MESSAGES = {
+    ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
+}
