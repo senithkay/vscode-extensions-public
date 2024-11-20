@@ -4892,7 +4892,11 @@ ${keyValuesXML}`;
             try {
                 const langClient = StateMachine.context().langClient!;
                 const res = await langClient.getExpressionCompletions(params);
-                resolve(res);
+                if (!res.isIncomplete) {
+                    resolve(res);
+                } else {
+                    reject(new Error('Incomplete completions'));
+                }
             } catch (error) {
                 console.error(`Error getting expression completions: ${error}`);
                 reject(error);

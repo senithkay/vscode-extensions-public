@@ -1770,4 +1770,7 @@ export interface ExpressionCompletionItem {
     insertTextFormat: number;
 }
 
-export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
+export type ExpressionCompletionsResponse = {
+    isIncomplete: boolean;
+    items: ExpressionCompletionItem[];
+};
