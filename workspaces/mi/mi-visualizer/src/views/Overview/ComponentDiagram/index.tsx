@@ -61,6 +61,8 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         }
     };
 
+    const handleDeleteConnection = async (component: EntryPoint | Connection) => { };
+
     if (!projectStructure) {
         return (
             <SpinnerContainer>
@@ -77,6 +79,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 onAddConnection={handleAddConnection}
                 onEntryPointSelect={handleGoToEntryPoints}
                 onConnectionSelect={handleGoToConnection}
+                onDeleteComponent={handleDeleteConnection}
             />
         </DiagramContainer>
     );

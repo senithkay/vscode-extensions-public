@@ -54,6 +54,14 @@ import {
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
+    downloadJava,
+    downloadMI,
+    getSupportedMIVersions,
+    getMIVersionFromPom,
+    setJavaHomeForMIVersion,
+    setMIHomeForMIVersion,
+    isJavaHomeSet,
+    isMISet,
     toggleDisplayOverview,
     updateContext
 } from "@wso2-enterprise/mi-core";
@@ -157,5 +165,34 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     openExternal(params: OpenExternalRequest): Promise<OpenExternalResponse> {
         return this._messenger.sendRequest(openExternal, HOST_EXTENSION, params);
+    }
+
+    downloadJava(params: string): Promise<string>{
+        return this._messenger.sendRequest(downloadJava, HOST_EXTENSION, params);
+    }
+
+    downloadMI(params: string): Promise<string>{
+        return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
+    }
+
+    getSupportedMIVersions(): Promise<string[]> {
+        return this._messenger.sendRequest(getSupportedMIVersions, HOST_EXTENSION);
+    }
+
+    getMIVersionFromPom(): Promise<string> {
+        return this._messenger.sendRequest(getMIVersionFromPom, HOST_EXTENSION);
+    }
+    setJavaHomeForMIVersion(params: string): Promise<boolean> {
+        return this._messenger.sendRequest(setJavaHomeForMIVersion, HOST_EXTENSION, params);
+    }
+    setMIHomeForMIVersion(params: string): Promise<boolean> {
+        return this._messenger.sendRequest(setMIHomeForMIVersion, HOST_EXTENSION, params);
+    }
+
+    isJavaHomeSet(): Promise<boolean> {
+        return this._messenger.sendRequest(isJavaHomeSet, HOST_EXTENSION);
+    }
+    isMISet(): Promise<boolean> {
+        return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
     }
 }

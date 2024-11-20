@@ -122,7 +122,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const { fields, value, otherVal } = mapping;
             const field = fields[fields.length - 1];
     
-            if (!value || !value.getText() || (otherVal && Node.isCallExpression(otherVal))) {
+            if (!value || !value.getText() || (otherVal && (Node.isCallExpression(otherVal) || Node.isBinaryExpression(otherVal)))) {
                 // Unsupported mapping
                 return;
             }

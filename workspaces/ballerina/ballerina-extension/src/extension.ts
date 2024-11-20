@@ -32,6 +32,8 @@ import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
 import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
 import { RPCLayer } from './RPCLayer';
+import { activateAIFeatures } from './features/ai/activator';
+import { activateTryItCommand } from './features/tryit/activator';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -128,12 +130,18 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         // <------------ OTHER FEATURES ----------->
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
-        
+
         //TOOD: Remove. Temp workaround to disable auth
         extension.context.secrets.store('BallerinaAIUser', 'abc');
         extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
         //activate ai panel
         activateAiPanel(ballerinaExtInstance);
+
+        // Activate AI features
+        activateAIFeatures(ballerinaExtInstance);
+
+        // Activate Try It command
+        activateTryItCommand(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
@@ -146,6 +154,9 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+
+        // LS Extension fails
+        commands.executeCommand('setContext', 'BI.status', 'noLS');
 
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();

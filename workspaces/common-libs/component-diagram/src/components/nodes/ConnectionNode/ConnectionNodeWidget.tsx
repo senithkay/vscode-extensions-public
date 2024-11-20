@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
@@ -18,9 +18,10 @@ import {
     NEW_CONNECTION,
     CON_NODE_HEIGHT,
 } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
+import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -66,6 +67,10 @@ export namespace NodeStyles {
         right: 6px;
     `;
 
+    export const MenuButton = styled(Button)`
+        border-radius: 5px;
+    `;
+
     export const TopPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
@@ -85,7 +90,7 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText)<NodeStyleProp>`
+    export const Title = styled(StyledText) <NodeStyleProp>`
         max-width: ${CON_NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
@@ -128,12 +133,15 @@ interface ConnectionNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> { }
 
 export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onAddConnection, onConnectionSelect } = useDiagramContext();
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(menuAnchorEl);
+
+    const { onAddConnection, onConnectionSelect, onDeleteComponent } = useDiagramContext();
     // TODO: fix this database icon hack with icon prop from node model
     const databaseNames = [
         "MySQL",
@@ -148,13 +156,27 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     ];
     const hasDatabaseName = databaseNames.some((name) => model.node.name.toLowerCase().includes(name.toLowerCase()));
 
-    const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleOnClick = () => {
         if (model.node.id === NEW_CONNECTION) {
             onAddConnection();
         } else {
             onConnectionSelect(model.node);
         }
     };
+
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        event.stopPropagation();
+        setMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setMenuAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        { id: "edit", label: "Edit", onClick: () => handleOnClick() },
+        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
+    ];
 
     return (
         <NodeStyles.Node
@@ -172,7 +194,25 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
                     <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
                     {<NodeStyles.Description>Connection</NodeStyles.Description>}
                 </NodeStyles.Header>
+                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                    <MoreVertIcon />
+                </NodeStyles.MenuButton>
             </NodeStyles.Row>
+            <Popover
+                open={isMenuOpen}
+                anchorEl={menuAnchorEl}
+                handleClose={handleOnMenuClose}
+                sx={{
+                    padding: 0,
+                    borderRadius: 0,
+                }}
+            >
+                <Menu>
+                    {menuItems.map((item) => (
+                        <MenuItem key={item.id} item={item} />
+                    ))}
+                </Menu>
+            </Popover>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );

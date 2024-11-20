@@ -210,6 +210,7 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					<span className={classes.label}>
 						<FieldActionWrapper>
 							<Button
+								id={"expand-or-collapse-" + id} 
 								appearance="icon"
 								tooltip="Expand/Collapse"
 								sx={{ marginLeft: indentation }}

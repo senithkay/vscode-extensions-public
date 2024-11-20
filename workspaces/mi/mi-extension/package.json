@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -123,6 +123,16 @@
             "type": "number",
             "default": 8290,
             "description": "Port to check the readiness of the MI server"
+          },
+          "MI.serverPath": {
+            "type": "string",
+            "default": "",
+            "description": "Location to store MI archives, considering the user's home directory"
+          },
+          "MI.javaHome": {
+            "type": "string",
+            "default": "",
+            "description": "Java Home path"
           }
         }
       }
@@ -159,7 +169,7 @@
       {
         "view": "MI.project-explorer",
         "contents": "Loading...",
-        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
       },
       {
         "view": "MI.project-explorer",
@@ -173,12 +183,17 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
+        "contents": "Some errors occurred while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
       },
       {
         "view": "testing",
         "contents": "[Add Unit Test](command:MI.test.add.suite)"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Micro Integrator is not set up. Please set up the MI server and Java home to continue.\n[Set up MI server](command:MI.change.server)\n[Set Java Home](command:MI.change.java)",
+        "when": "MI.status == 'notSetUp'"
       }
     ],
     "commands": [
@@ -406,6 +421,11 @@
       {
         "command": "MI.change.server",
         "title": "Add MI server",
+        "category": "MI"
+      },
+      {
+        "command": "MI.change.java",
+        "title": "Set Java Home",
         "category": "MI"
       },
       {

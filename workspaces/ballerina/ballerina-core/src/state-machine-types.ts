@@ -9,6 +9,7 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { LinePosition } from "./interfaces/common";
 
 export type MachineStateValue =
     | 'initialize'
@@ -53,6 +54,7 @@ export enum MACHINE_VIEW {
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
     ViewConfigVariables = "View Config Variables",
+    EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
@@ -85,6 +87,7 @@ export interface VisualizerMetadata {
     haveLS?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
+    target?: LinePosition;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {

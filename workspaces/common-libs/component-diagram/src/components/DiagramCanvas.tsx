@@ -31,7 +31,8 @@ export namespace DiagramStyles {
             width: 100%;
         }
 
-        background-color: ${Colors.SURFACE_BRIGHT};
+        background-image: radial-gradient(var(--vscode-editor-inactiveSelectionBackground) 10%, transparent 0px);
+        background-size: 16px 16px;
         font-family: "GilmerRegular";
     `;
 

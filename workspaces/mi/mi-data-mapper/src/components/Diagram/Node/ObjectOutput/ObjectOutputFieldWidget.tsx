@@ -312,6 +312,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         {fields && (
                             <FieldActionWrapper>
                                 <Button
+                                    id={"expand-or-collapse-" + fieldId} 
                                     appearance="icon"
                                     tooltip="Expand/Collapse"
                                     sx={{ marginLeft: indentation }}

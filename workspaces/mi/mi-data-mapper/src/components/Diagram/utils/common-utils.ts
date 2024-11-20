@@ -508,7 +508,8 @@ export function canConnectWithLinkConnector(
 ): boolean {
     const noOfPropAccessNodes = inputAccessNodes.length;
     const isCallExpr = noOfPropAccessNodes === 1 && isNodeCallExpression(inputAccessNodes[0]);
-    return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
+    const isBinaryExpr = Node.isBinaryExpression(expr);
+    return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr)) || isBinaryExpr;
 }
 
 export function hasCallExpression(node: Node): boolean {

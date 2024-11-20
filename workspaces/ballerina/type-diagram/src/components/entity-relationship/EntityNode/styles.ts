@@ -52,6 +52,7 @@ export const EntityName: React.FC<any> = styled.span`
     &:hover {
         color: ${(props: StyleProps) => props.isClickable ? ThemeColors.PRIMARY : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `pointer` : ``};
+        text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
 `;
 

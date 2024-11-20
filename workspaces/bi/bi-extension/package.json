@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.1.4",
+    "version": "0.3.5",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
@@ -17,7 +17,9 @@
         "workspaceContains:**/Ballerina.toml"
     ],
     "main": "./out/extension",
-    "extensionDependencies": [ "wso2.kolab" ],
+    "extensionDependencies": [
+        "wso2.kolab"
+    ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -31,8 +33,13 @@
         "viewsWelcome": [
             {
                 "view": "BI.project-explorer",
-                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://ei.docs.wso2.com).",
+                "contents": "Welcome to Kola Integrator. You can open a folder containing a Kola integration or create a new integration.\n[Open Kola Integration](command:vscode.openFolder)\n[Create New Integration](command:kolab.open.bi.welcome)\nTo learn more about how to use Kola Integrator in VS Code [read our docs](https://wso2.github.io/docs-kola/).",
                 "when": "BI.status == 'unknownProject'"
+            },
+            {
+                "view": "BI.project-explorer",
+                "contents": "Welcome to Kola Integrator! The Kola distribution is required but not found. [Set up Kola distribution](command:kolab.open.bi.welcome) to get started.",
+                "when": "BI.status == 'noLS'"
             },
             {
                 "view": "BI.project-explorer",
@@ -44,7 +51,7 @@
             "kola-integrator": [
                 {
                     "id": "BI.project-explorer",
-                    "name": "Overview"
+                    "name": ""
                 }
             ]
         },
@@ -58,6 +65,11 @@
                 {
                     "command": "BI.project-explorer.add-connection",
                     "when": "view == BI.project-explorer && viewItem == connections",
+                    "group": "inline"
+                },
+                {
+                    "command": "BI.project-explorer.delete",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration",
                     "group": "inline"
                 },
                 {
@@ -80,6 +92,18 @@
                     "when": "view == BI.project-explorer && viewItem == configurations",
                     "group": "inline"
                 }
+            ],
+            "view/title": [
+                {
+                    "command": "BI.project-explorer.add",
+                    "when": "view == BI.project-explorer && BI.project == true",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BI.project-explorer.overview",
+                    "when": "view == BI.project-explorer && BI.project == true",
+                    "group": "navigation"
+                }
             ]
         },
         "commands": []
@@ -92,7 +116,7 @@
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js",
         "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
-        "package": "vsce package --no-dependencies --pre-release",
+        "package": "vsce package --no-dependencies",
         "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
         "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX",
