@@ -9,7 +9,7 @@
 
 import React, { useEffect } from "react";
 
-import { FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, LinePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { DataMapperView } from "@wso2-enterprise/ballerina-inline-data-mapper";
 
 import { useInlineDataMapperModel } from "../../Hooks";
@@ -20,13 +20,17 @@ interface InlineDataMapperProps {
     flowNode: FlowNode;
     propertyKey: string;
     position: LinePosition;
+    onClosePanel: (subPanel: SubPanel) => void;
 }
 
 export function InlineDataMapper(props: InlineDataMapperProps) {
-    const { filePath, flowNode, propertyKey, position } = props;
+    const { filePath, flowNode, propertyKey, position, onClosePanel } = props;
 
     const { model, isFetching, isError } = useInlineDataMapperModel(filePath, flowNode, propertyKey, position);
 
+    const onClose = () => {
+        onClosePanel({ view: SubPanelView.UNDEFINED });
+    }
 
     useEffect(() => {
         // Hack to hit the error boundary
@@ -157,7 +161,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
 
     return (
         <>
-            {isFetching ? <ProgressIndicator /> : <DataMapperView model={model} />}
+            {isFetching ? <ProgressIndicator /> : <DataMapperView model={model} onClose={onClose} />}
         </>
     );
 };

@@ -20,7 +20,6 @@ import { NodeInitVisitor } from "../../visitors/NodeInitVisitor";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { traverseNode } from "../../utils/model-utils";
 import { View } from "./Views/DataMapperView";
-import { getTypeName } from "../Diagram/utils/type-utils";
 import { useDMSearchStore } from "../../store/store";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 
@@ -34,6 +33,7 @@ const classes = {
 
 export interface InlineDataMapperProps {
     model: IDMModel;
+    onClose: () => void;
 }
 
 enum ActionType {
@@ -64,7 +64,7 @@ function viewsReducer(state: View[], action: ViewAction) {
 }
 
 export function InlineDataMapper(props: InlineDataMapperProps) {
-    const { model } = props;
+    const { model, onClose } = props;
 
     const initialView = [{
         label: 'Root', // TODO: Pick a better label
@@ -132,7 +132,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                 {model && (
                     <DataMapperHeader
                         hasEditDisabled={false}
-                        onClose={undefined}
+                        onClose={onClose}
                     />
                 )}
                 {nodes.length > 0 && (
