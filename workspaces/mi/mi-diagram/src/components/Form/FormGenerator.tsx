@@ -469,7 +469,6 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
-            const name = getNameForController(element.value.name);
 
             if (element.type === 'attributeGroup') {
                 return (
@@ -492,6 +491,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     </>
                 );
             } else {
+                const name = getNameForController(element.value.name);
                 if (element.value.hidden) {
                     setValue(name, element.value.defaultValue ?? "");
                     return;
