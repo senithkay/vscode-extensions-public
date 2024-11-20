@@ -77,14 +77,33 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };
-    }, [sidePanelContext.pageStack]);
+
+        if (formData.elements) {
+            const defaultValues = getDefaultValues(formData.elements);
+            reset(defaultValues);
+        }
+        setIsLoading(false);
+    }, [sidePanelContext.pageStack, formData]);
+
+    function getDefaultValues(elements: any[]) {
+        const defaultValues: Record<string, any> = {};
+        elements.forEach((element: any) => {
+            const name = getNameForController(element.value.name);
+            if (element.type === 'attributeGroup') {
+                Object.assign(defaultValues, getDefaultValues(element.value.elements));
+            } else {
+                defaultValues[name] = getDefaultValue(element);
+            }
+        });
+        return defaultValues;
+    }
 
     function getDefaultValue(element: any) {
         const type = element.type;
@@ -521,17 +540,12 @@ export function FormGenerator(props: FormGeneratorProps) {
             element.value.inputType = 'ParamManager';
         }
 
-        const defaultValue = getDefaultValue(element);
-        if (getValues(name) === undefined) {
-            setValue(name, defaultValue);
-        }
         if (shouldRender) {
 
             return (
                 <Controller
                     name={name}
                     control={control}
-                    defaultValue={defaultValue}
                     rules={
                         {
                             ...(element.value.required === 'true') && {
