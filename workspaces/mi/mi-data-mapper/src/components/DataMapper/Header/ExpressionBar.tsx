@@ -108,14 +108,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             
             const relativeCursorPosition = textFieldRef.current.inputElement.selectionStart;
 
-            if (!shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition)){
-                return [];
-            }
-
             const partialTextMatcher = textFieldValueRef.current.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
             const partialText = (partialTextMatcher && partialTextMatcher.length) ? partialTextMatcher[partialTextMatcher.length-1] : undefined;
 
-            if (!partialText) {
+            if (!shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition, partialText)) {
                 return [];
             }
 
