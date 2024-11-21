@@ -1316,6 +1316,7 @@ export interface BrowseFileRequest {
     defaultUri: string;
     title: string;
     openLabel?: string;
+    filters?: { [key: string]: string[] };
 }
 
 export type ResourceType =

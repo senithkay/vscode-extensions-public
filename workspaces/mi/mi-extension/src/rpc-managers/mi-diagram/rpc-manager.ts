@@ -3355,6 +3355,7 @@ ${endpointAttributes}
                 canSelectFiles: params.canSelectFiles,
                 canSelectFolders: params.canSelectFolders,
                 canSelectMany: params.canSelectMany,
+                filters: params.filters,
                 defaultUri: params.defaultUri ? Uri.file(params.defaultUri) : Uri.file(os.homedir()),
                 title: params.title,
                 ...params.openLabel && { openLabel: params.openLabel },

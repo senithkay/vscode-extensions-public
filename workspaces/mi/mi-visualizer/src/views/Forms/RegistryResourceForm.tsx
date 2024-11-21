@@ -190,6 +190,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             canSelectFiles: true,
             canSelectFolders: false,
             canSelectMany: false,
+            filters: { 'types': [props.type] },
             defaultUri: "",
             title: "Select a file to be imported as a resource"
         }
