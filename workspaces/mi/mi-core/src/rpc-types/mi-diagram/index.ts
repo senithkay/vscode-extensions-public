@@ -203,7 +203,12 @@ import {
     MediatorTryOutResponse,
     SavePayloadRequest,
     GetPayloadRequest,
-    GetPayloadResponse
+    GetPayloadResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -342,4 +347,7 @@ export interface MiDiagramAPI {
     saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
     getInputPayload: (params:GetPayloadRequest) => Promise<GetPayloadResponse>;
     getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
+    getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
+    updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
 }

@@ -98,11 +98,12 @@ interface FormGroupProps {
     title: string;
     children?: React.ReactNode;
     isCollapsed?: boolean;
+    sx?: any;
 }
 
-export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
+export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true, sx }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
-    
+
     useEffect(() => {
         setCollapsed(isCollapsed);
     }, [isCollapsed]);
@@ -119,7 +120,7 @@ export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollaps
                 </Button>
             </div>
             {!collapsed &&
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px', ...sx }}>
                     {children}
                 </div>
             }

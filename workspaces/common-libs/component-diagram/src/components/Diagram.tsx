@@ -17,7 +17,6 @@ import {
     getModelId,
     getNodeId,
     loadDiagramZoomAndPosition,
-    registerListeners,
     resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";

@@ -42,7 +42,13 @@ import {
     DSSQueryGenRequest,
     DSSQueryGenResponse,
     MediatorTryOutRequest,
-    MediatorTryOutResponse
+    MediatorTryOutResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest,
+    UpdateMediatorResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -222,11 +228,11 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async saveInboundEPUischema(req: SaveInboundEPUischemaRequest): Promise<boolean> {
-        return this.sendRequest("synapse/saveInboundConnectorSchema", { connectorName: req.connectorName, uiSchema: req.uiSchema});
+        return this.sendRequest("synapse/saveInboundConnectorSchema", { connectorName: req.connectorName, uiSchema: req.uiSchema });
     }
 
     async getInboundEPUischema(req: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
-        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorName: req.connectorName  });
+        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorName: req.connectorName });
     }
 
     async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
@@ -248,7 +254,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     async generateSchemaFromContent(req: SchemaGenFromContentRequest): Promise<SchemaGenResponse> {
         return this.sendRequest("synapse/generateSchemaFromContent", req);
     }
-    
+
     async generateAPI(req: GenerateAPIRequest): Promise<GenerateAPIResponse> {
         return this.sendRequest("synapse/generateAPI", req);
     }
@@ -302,11 +308,26 @@ export class ExtendedLanguageClient extends LanguageClient {
         });
     }
 
-    async tryOutMediator(req:MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+    async tryOutMediator(req: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this.sendRequest("synapse/tryOutMediator", req);
     }
 
-    async getMediatorInputOutputSchema(req:MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+    async getMediatorInputOutputSchema(req: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this.sendRequest("synapse/mediatorInputOutputSchema", req);
+    }
+
+    async getMediators(request: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return this.sendRequest("synapse/getMediators", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.position });
+    }
+
+    async getMediator(request: GetMediatorRequest): Promise<GetMediatorResponse> {
+        if (request.documentUri && request.range) {
+            return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
+        }
+        return this.sendRequest("synapse/getMediatorUISchema", request);
+    }
+
+    async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
+        return this.sendRequest("synapse/generateSynapseConfig", request);
     }
 }

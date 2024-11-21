@@ -51,17 +51,17 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager" | "ExprField";
     label?: string;
     placeholder?: string;
-    defaultValue?: string | boolean;
+    defaultValue?: any;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
     nullable?: boolean;
     allowItemCreate?: boolean;
     noItemsFoundMessage?: string;
     enableCondition?: (ConditionParams | string | ConditionParams[])[];
-    openExpressionEditor?: () => void; // For ExpressionField
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: any) => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup

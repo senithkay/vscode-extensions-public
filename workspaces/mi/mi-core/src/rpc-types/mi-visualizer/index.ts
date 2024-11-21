@@ -29,6 +29,7 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     ProjectOverviewResponse,
+    ReadmeContentResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 export interface MIVisualizerAPI {
@@ -52,7 +53,17 @@ export interface MIVisualizerAPI {
     updateContext: (params: UpdateContextRequest) => Promise<void>;
     retrieveContext: (params: RetrieveContextRequest) => Promise<RetrieveContextResponse>;
     showNotification: (params: NotificationRequest) => Promise<NotificationResponse>;
-    getAvailableRuntimeServices:() => Promise<RuntimeServicesResponse>;
+    getAvailableRuntimeServices: () => Promise<RuntimeServicesResponse>;
     sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
+    downloadJava: (params: string) => Promise<string>;
+    downloadMI: (params: string) => Promise<string>;
+    getSupportedMIVersions: () => Promise<string[]>;
+    getMIVersionFromPom: () => Promise<string>;
+    setJavaHomeForMIVersion: (params: string) => Promise<boolean>;
+    setMIHomeForMIVersion: (params: string) => Promise<boolean>;
+    isJavaHomeSet: () => Promise<boolean>;
+    isMISet: () => Promise<boolean>;
 }

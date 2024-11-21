@@ -11,9 +11,70 @@ import React, { useEffect } from "react";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
-import { View, ViewContent, ViewHeader } from "../../components/View";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { ViewHeader } from "../../components/View";
+import { Button, Codicon, colors, ErrorBanner, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
 import ComponentDiagram from "./ComponentDiagram";
+import styled from "@emotion/styled";
+import ReactMarkdown from "react-markdown";
+import { VSCodeLink, VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
+import { ERROR_MESSAGES } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
+
+const Body = styled.div`
+    padding: 0 32px;
+    background: ${colors.vscodeEditorBackground};
+    min-height: calc(100vh - 60px);
+`;
+
+const Columns = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+    }
+`;
+
+const Column = styled.div<{ width?: string }>`
+    display: block;
+    width: ${({ width }: { width?: string }) => width || 'auto'};
+    background: ${colors.vscodeTextCodeBlockBackground};
+    border-radius: 12px;
+    box-shadow: 0 4px 12px ${({ isDarkMode }: any) => isDarkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)'}; // Increased shadow for better visibility
+    padding: 24px;
+`;
+
+const ProjectInfoColumn = styled(Column)`
+    width: 300px;
+    @media (max-width: 600px) {
+        width: auto;
+    }
+`;
+
+
+const TabContainer = styled.div`
+    display: flex;
+    margin-bottom: 24px;
+    padding: 8px;
+    border-radius: 8px;
+`;
+
+const TabContent = styled.div`
+    width: 100%;
+    animation: fadeIn 0.2s ease-in;
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+`;
+
+const Readme = styled.div`
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 200px;
+    overflow: auto;
+`;
 
 interface OverviewProps {
 }
@@ -25,26 +86,61 @@ function Overview(props: OverviewProps) {
     const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
     const [projectOverview, setProjectOverview] = React.useState<ProjectOverviewResponse>(undefined);
+    const [activeTab, setActiveTab] = React.useState<'diagram' | 'structure'>('diagram');
+    const [readmeContent, setReadmeContent] = React.useState<string>("");
+    const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
     useEffect(() => {
-        rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
-            setWorkspaces(response.workspaces);
-            setActiveWorkspaces(response.workspaces[0]);
-            changeWorkspace(response.workspaces[0].fsPath);
-        });
+        const fetchWorkspaces = async () => {
+            try {
+                const response = await rpcClient.getMiVisualizerRpcClient().getWorkspaces();
+                setWorkspaces(response.workspaces);
+                setActiveWorkspaces(response.workspaces[0]);
+                changeWorkspace(response.workspaces[0].fsPath);
+
+            } catch (error) {
+                console.error('Error fetching workspaces:', error);
+            }
+
+            rpcClient.onDocumentSave(async (data: any) => {
+                if (data.uri.endsWith("README.md")) {
+                    await getReadmeContent();
+                }
+            });
+
+            await getReadmeContent();
+
+            setIsLoading(false);
+        };
+        fetchWorkspaces();
     }, []);
 
     useEffect(() => {
         if (workspaces && selected) {
             rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
                 setProjectStructure(response);
+            }).catch((error) => {
+                console.error('Error getting project structure:', error);
+                setProjectStructure(undefined);
             });
 
             rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
                 setProjectOverview(response);
+            }).catch((error) => {
+                console.error('Error getting project overview:', error);
+                setProjectOverview(undefined);
             });
         }
     }, [selected, props]);
+
+    async function getReadmeContent() {
+        try {
+            const readme = await rpcClient.getMiVisualizerRpcClient().getReadmeContent();
+            setReadmeContent(readme.content);
+        } catch (error) {
+            console.error('Error fetching README content on document save:', error);
+        }
+    }
 
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
@@ -60,7 +156,6 @@ function Overview(props: OverviewProps) {
         });
     }
 
-
     const handleAddArtifact = () => {
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
@@ -70,45 +165,121 @@ function Overview(props: OverviewProps) {
         })
     }
 
+    const handleEditReadme = () => {
+        rpcClient.getMiVisualizerRpcClient().openReadme();
+    }
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <ProgressRing />
+            </div>
+        );
+    }
+
     return (
-        <View>
-            <ViewHeader
-                title={"Project: " + activeWorkspaces?.name}
-                icon="project"
-                iconSx={{ fontSize: "15px" }}
-            >
-                <Button
-                    appearance="primary"
-                    onClick={handleAddArtifact}
-                    tooltip="Add Artifact"
+        <div style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 30px)', padding: '10px 0' }}>
+            <div style={{ padding: '0 16px' }}>
+                <ViewHeader
+                    title={"Project: " + activeWorkspaces?.name}
+                    icon="project"
+                    iconSx={{ fontSize: "18px", color: "#0066cc" }}
                 >
-                    <Codicon name="add" sx={{ marginRight: "4px" }} />
-                    Add Artifact
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={handleBuild}
-                    tooltip="Build"
-                >
-                    <Codicon name="combine" sx={{ marginRight: "4px" }} />
-                    Build
-                </Button>
-                <Button
-                    appearance="icon"
-                    onClick={handleExport}
-                    tooltip="Export"
-                >
-                    <Codicon name="export" sx={{ marginRight: "4px" }} />
-                    Export
-                </Button>
-            </ViewHeader>
-            <ViewContent padding>
-                <ComponentDiagram projectStructure={projectOverview} projectName={activeWorkspaces?.name} />
-            </ViewContent>
-            <ViewContent padding>
-                {projectStructure && <ProjectStructureView projectStructure={projectStructure} workspaceDir={selected} />}
-            </ViewContent>
-        </View>
+                    <Button
+                        appearance="primary"
+                        onClick={handleAddArtifact}
+                        tooltip="Add Artifact"
+                        sx={{
+                            background: "#0066cc",
+                            '&:hover': {
+                                background: "#0052a3"
+                            }
+                        }}
+                    >
+                        <Codicon name="add" sx={{ marginRight: "8px" }} />
+                        Add Artifact
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={handleBuild}
+                        tooltip="Build"
+                        sx={{ margin: "0 8px" }}
+                    >
+                        <Codicon name="combine" sx={{ marginRight: "4px" }} />
+                        Build
+                    </Button>
+                    <Button
+                        appearance="icon"
+                        onClick={handleExport}
+                        tooltip="Export"
+                    >
+                        <Codicon name="export" sx={{ marginRight: "4px" }} />
+                        Export
+                    </Button>
+                </ViewHeader>
+            </div>
+            <Body>
+                <Columns>
+                    <Column style={{ flex: '1' }}>
+                        <VSCodePanels>
+                            <VSCodePanelTab id="component-diagram">Component Diagram</VSCodePanelTab>
+                            <VSCodePanelTab id="project-structure">Project Structure</VSCodePanelTab>
+
+                            <PanelContent id={"component-diagram"} >
+                                <TabContent style={{ height: '400px', overflow: 'hidden', borderRadius: '8px' }}>
+                                    {projectOverview ? (<ComponentDiagram
+                                        projectStructure={projectOverview}
+                                        projectName={activeWorkspaces?.name}
+                                    />) : (
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                            <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW} />
+                                        </div>
+                                    )
+                                    }
+                                </TabContent>
+                            </PanelContent>
+
+                            <PanelContent id={"project-structure"} >
+                                <TabContent>
+                                    {projectStructure && (
+                                        <ProjectStructureView
+                                            projectStructure={projectStructure}
+                                            workspaceDir={selected}
+                                        />
+                                    )}
+                                </TabContent>
+                            </PanelContent>
+                        </VSCodePanels>
+                    </Column>
+                    <ProjectInfoColumn>
+                        <Typography variant="h3" sx={{ margin: '0 0 16px 0' }}>Project Information</Typography>
+                    </ProjectInfoColumn>
+                </Columns>
+                <Column style={{ marginTop: '16px' }}>
+                    <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
+                        Project Readme
+                        {readmeContent && <Icon name="edit" isCodicon onClick={handleEditReadme} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />}
+                    </Typography>
+                    <Readme>
+                        {readmeContent ? (
+                            <ReactMarkdown>{readmeContent}</ReactMarkdown>
+                        ) : (
+                            <div style={{ display: 'flex', marginTop: '20px', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                <Typography variant="h3" sx={{ marginBottom: '16px' }}>
+                                    Add a README
+                                </Typography>
+                                <Typography variant="body1" sx={{ marginBottom: '24px', color: 'var(--vscode-descriptionForeground)' }}>
+                                    Describe your integration and generate your constructs with AI
+                                </Typography>
+                                <VSCodeLink onClick={handleEditReadme}>
+                                    Add a README
+                                </VSCodeLink>
+                            </div>
+                        )}
+                    </Readme>
+                </Column>
+            </Body>
+        </div>
     );
 }
 export default React.memo(Overview);

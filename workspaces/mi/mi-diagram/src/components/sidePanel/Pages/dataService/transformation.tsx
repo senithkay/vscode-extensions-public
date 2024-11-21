@@ -12,7 +12,7 @@ import { AutoComplete, Button, ProgressIndicator, TextField, Typography } from '
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps } from '../mediators/common';
+import { AddMediatorProps } from '../../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';

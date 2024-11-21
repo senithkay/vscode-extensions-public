@@ -117,8 +117,10 @@ export class BaseNodeModel extends NodeModel {
             await new Promise(resolve => setTimeout(resolve, 1));
 
             sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
                 isOpen: true,
                 operationName,
+                tag: stNode.tag,
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: formData,

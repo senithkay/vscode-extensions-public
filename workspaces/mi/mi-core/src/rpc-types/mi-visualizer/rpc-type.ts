@@ -30,6 +30,7 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     ProjectOverviewResponse,
+    ReadmeContentResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -58,3 +59,15 @@ export const showNotification: RequestType<NotificationRequest, NotificationResp
 export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
 export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerProxyResponse> = { method: `${_preFix}/sendSwaggerProxyRequest` };
 export const openExternal: RequestType<OpenExternalRequest, OpenExternalResponse> = { method: `${_preFix}/openExternal` };
+export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
+export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
+
+export const downloadJava: RequestType<string, string> = { method: `${_preFix}/downloadJava` };
+export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
+export const getSupportedMIVersions: RequestType<void, string[]> = { method: `${_preFix}/getSupportedMIVersions` };
+export const getMIVersionFromPom: RequestType<void, string> = { method: `${_preFix}/getMIVersionFromPom` };
+export const setJavaHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setJavaHomeForMIVersion` };
+export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setMIHomeForMIVersion` };
+
+export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
+export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };

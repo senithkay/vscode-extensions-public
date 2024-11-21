@@ -79,6 +79,7 @@ export const COMMANDS = {
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
+    CHANGE_JAVA_HOME: 'MI.change.java',
     BUILD_PROJECT: 'MI.build-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
@@ -101,7 +102,7 @@ export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
 export const READONLY_MAPPING_FUNCTION_NAME = "mapFunction";
 
-export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript", "markdown"];
 
 export enum EndpointTypes {
     DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",

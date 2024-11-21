@@ -30,6 +30,7 @@ import {
     ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    ReadmeContentResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
     RuntimeServicesResponse,
@@ -46,7 +47,7 @@ import * as https from "https";
 import Mustache from "mustache";
 import fetch from 'node-fetch';
 import * as vscode from 'vscode';
-import { Uri, commands, env, window, workspace } from "vscode";
+import { Uri, ViewColumn, commands, env, window, workspace } from "vscode";
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
@@ -56,6 +57,11 @@ import { SwaggerServer } from "../../swagger/server";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
+import path from "path";
+
+const fs = require('fs');
+import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
+import { COMMANDS } from '../../constants';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -371,12 +377,98 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             resolve({ success: isSuccess });
         });
     }
+    async downloadJava(miVersion: string): Promise<string> {
+        const javaPath = await downloadJava(miVersion);
+        return javaPath;
+    }
+    async downloadMI(miVersion: string): Promise<string> {
+        const miPath = await downloadMI(miVersion);
+        return miPath;
+    }
+    async getSupportedMIVersions(): Promise<string[]> {
+        return getSupportedMIVersions();
+    }
 
+    async isJavaHomeSet(): Promise<boolean> {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            return await ensureJavaSetup(miVersion);
+        } catch (error) {
+            return false;
+        }
+    }
+    async isMISet(): Promise<boolean> {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+            return ensureMISetup(projectUri, miVersion);
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async getMIVersionFromPom(): Promise<string> {
+        return getMIVersionFromPom();
+    }
+    async setJavaHomeForMIVersion(miVersion: string): Promise<boolean> {
+        return await vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
+    }
+    async setMIHomeForMIVersion(miVersion: string): Promise<boolean> {
+        return await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+    }
     async getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getOverviewModel();
             resolve(res);
+        });
+    }
+
+    openReadme(): void {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            window.showErrorMessage("No workspace folder is open.");
+            return;
+        }
+
+        const projectRoot = workspaceFolders[0].uri.fsPath;
+        const readmePath = path.join(projectRoot, "README.md");
+
+        if (!fs.existsSync(readmePath)) {
+            // Create README.md if it doesn't exist
+            fs.writeFileSync(readmePath, "# Project Overview\n\nAdd your project description here.");
+        }
+
+        // Open README.md in the editor
+        workspace.openTextDocument(readmePath).then((doc) => {
+            window.showTextDocument(doc, ViewColumn.Beside);
+        });
+    }
+
+    async getReadmeContent(): Promise<ReadmeContentResponse> {
+        return new Promise((resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders || workspaceFolders.length === 0) {
+                resolve({ content: "" });
+                return;
+            }
+
+            const projectRoot = workspaceFolders[0].uri.fsPath;
+            const readmePath = path.join(projectRoot, "README.md");
+
+            if (!fs.existsSync(readmePath)) {
+                resolve({ content: "" });
+                return;
+            }
+
+            fs.readFile(readmePath, "utf8", (err, data) => {
+                if (err) {
+                    console.error("Error reading README.md:", err);
+                    resolve({ content: "" });
+                } else {
+                    resolve({ content: data });
+                }
+            });
         });
     }
 }

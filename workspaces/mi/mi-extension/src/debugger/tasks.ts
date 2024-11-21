@@ -10,36 +10,40 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { createTempDebugBatchFile } from './debugHelper';
+import { createTempDebugBatchFile, setJavaHomeInEnvironmentAndPath } from './debugHelper';
 import { ERROR_LOG, logDebug } from '../util/logger';
 
 export function getBuildTask(): vscode.Task {
-    const commandToExecute = "mvn clean install -Dmaven.test.skip=true";
-
+    const commandToExecute = process.platform === 'win32' ? ".\\mvnw.cmd clean install" : "./mvnw clean install";
+    const env = setJavaHomeInEnvironmentAndPath();  
     const buildTask = new vscode.Task(
         { type: 'mi-build' },
         vscode.TaskScope.Workspace,
         'build',
         'mi',
-        new vscode.ShellExecution(commandToExecute)
+        new vscode.ShellExecution(commandToExecute,
+            { env }
+        )
     );
-
     return buildTask;
 }
 
 export function getBuildCommand(): string {
-    return "mvn clean install -Dstyle.color=never -Dmaven.test.skip=true";
+    return process.platform === 'win32' ? ".\\mvnw.cmd clean install -Dstyle.color=never" : "./mvnw clean install -Dstyle.color=never";
 }
 
 export function getDockerTask(): vscode.Task {
-    const commandToExecute = "mvn clean install -Dmaven.test.skip=true -P docker";
+    const commandToExecute = process.platform === 'win32' ? ".\\mvnw.cmd clean install -P docker" : "./mvnw clean install -P docker";
+    const env = setJavaHomeInEnvironmentAndPath();  
 
     const dockerTask = new vscode.Task(
         { type: 'mi-docker' },
         vscode.TaskScope.Workspace,
         'docker',
         'mi',
-        new vscode.ShellExecution(commandToExecute)
+        new vscode.ShellExecution(commandToExecute,
+            { env }
+        )
     );
 
     return dockerTask;
@@ -59,15 +63,15 @@ export async function getRunTask(serverPath: string, isDebug: boolean): Promise<
 
     if (isDebug) {
         // HACK to get the server to run as the debugger since MI 4.2.0 version's .bat file is not supported to run java variables
-        if(process.platform === 'win32'){
-                const binDirectoryPath = path.join(serverPath, 'bin');
-                try {
-                    const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
-                    command = copiedBatchFile;
-                } catch (error) {
-                    vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
-                    return undefined;
-                }
+        if (process.platform === 'win32') {
+            const binDirectoryPath = path.join(serverPath, 'bin');
+            try {
+                const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
+                command = copiedBatchFile;
+            } catch (error) {
+                vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
+                return undefined;
+            }
         } else {
             command = `${binPath} -Desb.debug=true`;
         }
@@ -98,15 +102,15 @@ export async function getRunCommand(serverPath: string, isDebug: boolean): Promi
 
     if (isDebug) {
         // HACK to get the server to run as the debugger since MI 4.2.0 version's .bat file is not supported to run java variables
-        if(process.platform === 'win32'){
-                const binDirectoryPath = path.join(serverPath, 'bin');
-                try {
-                    const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
-                    command = copiedBatchFile;
-                } catch (error) {
-                    vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
-                    return undefined;
-                }
+        if (process.platform === 'win32') {
+            const binDirectoryPath = path.join(serverPath, 'bin');
+            try {
+                const copiedBatchFile = await createTempDebugBatchFile(binPath, binDirectoryPath);
+                command = copiedBatchFile;
+            } catch (error) {
+                vscode.window.showErrorMessage(`Error while creating temporary debug batch file: ${error}`);
+                return undefined;
+            }
         } else {
             command = `"${binPath}" -Desb.debug=true`;
         }

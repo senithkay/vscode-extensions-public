@@ -22,7 +22,7 @@ import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
 import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
-import { SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
+import { clearSidePanelState, DefaultSidePanelState, SidePanelProvider } from "./sidePanel/SidePanelContexProvider";
 import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
@@ -150,20 +150,7 @@ export function Diagram(props: DiagramProps) {
         }
     });
 
-    const [sidePanelState, setSidePanelState] = useState({
-        // Mediator related
-        isOpen: false,
-        isTryoutOpen: false,
-        inputOutput:{},
-        isEditing: false,
-        formValues: {},
-        node: undefined,
-        nodeRange: undefined,
-        trailingSpace: undefined,
-        isFormOpen: false,
-        pageStack: [],
-        currentPageIndex: 0
-    });
+    const [sidePanelState, setSidePanelState] = useState(DefaultSidePanelState);
 
     useEffect(() => {
         const { flow, fault } = diagramData;
@@ -363,15 +350,10 @@ export function Diagram(props: DiagramProps) {
 
                 const isAddBtn = node instanceof NodeLinkModel;
                 let nodeX, nodeY, nodeWidth, nodeHeight;
-                if (isAddBtn) {
-                    const position = node.getAddButtonPosition();
+                if (node) {
+                    const position = isAddBtn ? node.getAddButtonPosition() : node.getPosition();
                     nodeX = position.x * zoomLevel;
-                    nodeY = position.y * zoomLevel;;
-                    nodeWidth = node.nodeWidth * zoomLevel;
-                    nodeHeight = node.nodeHeight * zoomLevel;
-                } else if (node) {
-                    nodeX = node.position.x * zoomLevel;
-                    nodeY = node.position.y * zoomLevel;
+                    nodeY = position.y * zoomLevel;
                     nodeWidth = node.nodeWidth * zoomLevel;
                     nodeHeight = node.nodeHeight * zoomLevel;
                 }
@@ -489,7 +471,9 @@ export function Diagram(props: DiagramProps) {
                         alignment="right"
                         width={SIDE_PANEL_WIDTH}
                         overlay
-                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isEditing: false, formValues: {}, node: undefined, nodeRange: undefined })}
+                        onClose={() => {
+                            clearSidePanelState(sidePanelState);
+                        }}
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} />
                     </SidePanel>

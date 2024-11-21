@@ -7,28 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import React, { ReactNode } from 'react';
-import styled from '@emotion/styled';
+import { ErrorBanner, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
-import { getAllMediators } from './Values';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
-
-const ButtonGrid = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px 5px;
-`;
-
-const IconContainer = styled.div`
-    width: 30px;
-
-    & img {
-        width: 25px;
-    }
-`;
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
+import { MediatorForm } from './Form';
+import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
+import { ERROR_MESSAGES } from '../../../resources/constants';
 
 interface MediatorProps {
     nodePosition: any;
@@ -38,14 +27,38 @@ interface MediatorProps {
 }
 export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
-    const allMediators = getAllMediators({
-        nodePosition: props.nodePosition,
-        trailingSpace: props.trailingSpace,
-        documentUri: props.documentUri,
-        previousNode: sidePanelContext.previousNode,
-        nextNode: sidePanelContext.nextNode,
-        parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
-    });
+    const { rpcClient } = useVisualizerContext();
+    const [allMediators, setAllMediators] = React.useState<GetMediatorsResponse>();
+    const [isLoading, setIsLoading] = React.useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchMediators = async () => {
+            try {
+                const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
+                    documentUri: props.documentUri,
+                    position: props.nodePosition,
+                });
+                setAllMediators(mediatorsList);
+            } catch (error) {
+                console.error('Error fetching mediators:', error);
+                setAllMediators(undefined);
+            }
+            setIsLoading(false);
+        };
+        fetchMediators();
+    }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
+        const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+            mediatorType: mediator.tag,
+        });
+
+        const form =
+            <div style={{ padding: '20px' }}>
+                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+            </div>;
+        sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
+    }
 
     const searchForm = (value: string, search?: boolean) => {
         const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '');
@@ -69,70 +82,48 @@ export function Mediators(props: MediatorProps) {
     };
 
     const MediatorList = () => {
-        let mediators: any;
+        let mediators: GetMediatorsResponse;
         if (props.searchValue) {
             mediators = searchForm(props.searchValue, true);
         } else {
             mediators = allMediators;
         }
 
+        if (!mediators) {
+            return <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_MEDIATORS} />;
+        }
+
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {Object.entries(mediators).map(([key, values]) => (
-                    <div key={key}>
-                        <h4>{FirstCharToUpperCase(key)}</h4>
-                        <ButtonGrid>
-                            {(values as any[]).map((action: { form: ReactNode, operationName: React.Key; tooltip: string; title: string; }) => (
-                                <Tooltip content={action.tooltip} position='bottom' sx={{zIndex: 2010}}>
-                                    <ComponentCard
-                                        id={action.title}
-                                        key={action.operationName}
-                                        onClick={() => sidepanelAddPage(sidePanelContext, action.form, action.operationName.toString(), getMediatorIconsFromFont(action.operationName as string, key === "most popular"))}
-                                        sx={{
-                                            '&:hover, &.active': {
-                                                '.icon svg g': {
-                                                    fill: 'var(--vscode-editor-foreground)'
-                                                },
-                                                backgroundColor: 'var(--vscode-pickerGroup-border)',
-                                                border: '0.5px solid var(--vscode-focusBorder)'
-                                            },
-                                            alignItems: 'center',
-                                            border: '0.5px solid var(--vscode-editor-foreground)',
-                                            borderRadius: 2,
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            height: 20,
-                                            justifyContent: 'left',
-                                            marginBottom: 10,
-                                            padding: 10,
-                                            transition: '0.3s',
-                                            width: 172
-                                        }}
-                                    >
-                                        <IconContainer>
-                                            {getMediatorIconsFromFont(action.operationName as string, key === "most popular")}
-                                        </IconContainer>
-                                        <div >
-                                            <IconLabel>{FirstCharToUpperCase(action.operationName.toString())}</IconLabel>
-                                        </div>
-                                    </ComponentCard>
-                                </Tooltip>
+                    <div key={key} style={{ marginTop: '15px' }}>
+                        <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={false}>
+                            {values.map((mediator: Mediator) => (
+                                <GridButton
+                                    title={mediator.title}
+                                    description={mediator.description}
+                                    icon={
+                                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                    }
+                                    onClick={() => getMediator(mediator, key === "most popular")}
+                                />
                             ))}
-                        </ButtonGrid>
-                        {/* Avoid adding hr to the last elemet */}
-                        {key !== Object.keys(mediators)[Object.keys(mediators).length - 1] &&
-                            <hr style={{
-                                borderColor: "var(--vscode-panel-border)",
-                            }} />
-                        }
+                        </ButtonGroup >
                     </div>
-                ))}
+                ))
+                }
             </>
     }
 
     return (
         <div>
-            <MediatorList />
+            {isLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                    <ProgressRing />
+                </div>
+            ) : (
+                <MediatorList />
+            )}
         </div>
     );
 }
