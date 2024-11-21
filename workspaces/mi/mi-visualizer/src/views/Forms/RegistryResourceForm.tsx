@@ -150,9 +150,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         }
     }
 
-    const formatResourcePath = (path: string) => {
+    const formatResourcePath = (resourceDirPath: string) => {
         let resPath = 'resources:';
-        resPath = path.startsWith('/') ? resPath + path.substring(1) : resPath + path;
+        resPath = resourceDirPath.startsWith('/') ? resPath + resourceDirPath.substring(1) : resPath + resourceDirPath;
         if (createOptionValue) {
             resPath.endsWith('/') ? resPath = resPath + getValues("resourceName") + getFileExtension()
                 : resPath = resPath + '/' + getValues("resourceName") + getFileExtension();
@@ -226,10 +226,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
         if (props.isPopup) {
-            const pathSeparator = process.platform === "win32" ? "\\" : "/";
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: `resources:${values.registryPath.substring(1)}${pathSeparator}${values.resourceName}` },
+                location: { view: null, recentIdentifier: formatResourcePath(values.registryPath) },
                 isPopup: true
             });
         } else {
