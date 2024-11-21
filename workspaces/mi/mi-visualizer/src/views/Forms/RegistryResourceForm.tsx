@@ -20,6 +20,7 @@ export interface RegistryWizardProps {
     path: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    type?: string;
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
@@ -225,9 +226,10 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
         if (props.isPopup) {
+            const pathSeparator = process.platform === "win32" ? "\\" : "/";
             rpcClient.getMiVisualizerRpcClient().openView({
                 type: POPUP_EVENT_TYPE.CLOSE_VIEW,
-                location: { view: null, recentIdentifier: values.resourceName },
+                location: { view: null, recentIdentifier: `resources:${values.registryPath.substring(1)}${pathSeparator}${values.resourceName}` },
                 isPopup: true
             });
         } else {
