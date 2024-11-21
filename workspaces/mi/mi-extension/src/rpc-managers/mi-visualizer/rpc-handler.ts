@@ -83,6 +83,8 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
     messenger.onRequest(sendSwaggerProxyRequest, (args: SwaggerProxyRequest) => rpcManger.sendSwaggerProxyRequest(args));
     messenger.onRequest(openExternal, (args: OpenExternalRequest) => rpcManger.openExternal(args));
+    messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
+    messenger.onNotification(openReadme, () => rpcManger.openReadme());
     messenger.onRequest(downloadJava, (args: string) => rpcManger.downloadJava(args));
     messenger.onRequest(downloadMI, (args: string) => rpcManger.downloadMI(args));
     messenger.onRequest(getSupportedMIVersions, () => rpcManger.getSupportedMIVersions());
@@ -91,6 +93,4 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(setMIHomeForMIVersion, (args: string) => rpcManger.setMIHomeForMIVersion(args));
     messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
     messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
-    messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
-    messenger.onNotification(openReadme, () => rpcManger.openReadme());
 }

@@ -249,7 +249,6 @@ import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/
 import { UndoRedoManager } from "../../undoRedoManager";
 import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile } from "../../util";
 import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
-import { importCapp } from "../../util/importCapp";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
@@ -261,6 +260,7 @@ import { dockerfileContent, rootPomXmlContent } from "../../util/templates";
 import { replaceFullContentToFile } from "../../util/workspace";
 import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
+import { importCapp } from "../../util/importCapp";
 import { getDefaultProjectPath } from "../../util/onboardingUtils";
 const AdmZip = require('adm-zip');
 

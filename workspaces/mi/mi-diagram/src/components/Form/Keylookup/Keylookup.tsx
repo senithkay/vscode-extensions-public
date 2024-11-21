@@ -119,10 +119,6 @@ const Container = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: "2px",
-
-    "*": {
-        boxSizing: "border-box"
-    }
 });
 
 const ItemContainer = styled.div({

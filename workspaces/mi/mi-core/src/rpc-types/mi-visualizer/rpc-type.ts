@@ -59,6 +59,8 @@ export const showNotification: RequestType<NotificationRequest, NotificationResp
 export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
 export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerProxyResponse> = { method: `${_preFix}/sendSwaggerProxyRequest` };
 export const openExternal: RequestType<OpenExternalRequest, OpenExternalResponse> = { method: `${_preFix}/openExternal` };
+export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
+export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
 
 export const downloadJava: RequestType<string, string> = { method: `${_preFix}/downloadJava` };
 export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
@@ -69,5 +71,3 @@ export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${
 
 export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
 export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
-export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
-export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };

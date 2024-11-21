@@ -57,11 +57,11 @@ import { SwaggerServer } from "../../swagger/server";
 import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
-import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
-import { COMMANDS } from '../../constants';
 import path from "path";
 
 const fs = require('fs');
+import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
+import { COMMANDS } from '../../constants';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {

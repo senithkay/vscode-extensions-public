@@ -170,11 +170,19 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(openExternal, HOST_EXTENSION, params);
     }
 
-    downloadJava(params: string): Promise<string>{
+    getReadmeContent(): Promise<ReadmeContentResponse> {
+        return this._messenger.sendRequest(getReadmeContent, HOST_EXTENSION);
+    }
+
+    openReadme(): void {
+        return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
+    }
+
+    downloadJava(params: string): Promise<string> {
         return this._messenger.sendRequest(downloadJava, HOST_EXTENSION, params);
     }
 
-    downloadMI(params: string): Promise<string>{
+    downloadMI(params: string): Promise<string> {
         return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
     }
 
@@ -197,13 +205,5 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     isMISet(): Promise<boolean> {
         return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
-    }
-    
-    getReadmeContent(): Promise<ReadmeContentResponse> {
-        return this._messenger.sendRequest(getReadmeContent, HOST_EXTENSION);
-    }
-
-    openReadme(): void {
-        return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 }

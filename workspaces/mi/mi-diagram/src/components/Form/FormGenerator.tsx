@@ -13,12 +13,13 @@ import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
 import parse from 'html-react-parser';
-import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField, Keylookup, FormKeylookup } from '.';
+import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keylookup, FormKeylookup } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { openPopup } from '../sidePanel/Pages/mediators/common';
+import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
+import { CodeTextArea } from './CodeTextArea';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -53,11 +54,15 @@ interface Element {
     description?: string;
     required: string;
     helpTip: any;
+    placeholder: any;
     comboValues?: any[];
     defaultValue?: any;
     allowedConnectionTypes?: string[];
     keyType?: any;
     canAddNew?: boolean;
+    elements?: any[];
+    tableKey?: string;
+    tableValue?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -73,27 +78,47 @@ export function FormGenerator(props: FormGeneratorProps) {
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     useEffect(() => {
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };
-    }, [sidePanelContext.pageStack]);
+
+        if (formData.elements) {
+            const defaultValues = getDefaultValues(formData.elements);
+            reset(defaultValues);
+        }
+        setIsLoading(false);
+    }, [sidePanelContext.pageStack, formData]);
+
+    function getDefaultValues(elements: any[]) {
+        const defaultValues: Record<string, any> = {};
+        elements.forEach((element: any) => {
+            const name = getNameForController(element.value.name);
+            if (element.type === 'attributeGroup') {
+                Object.assign(defaultValues, getDefaultValues(element.value.elements));
+            } else {
+                defaultValues[name] = getDefaultValue(element);
+            }
+        });
+        return defaultValues;
+    }
 
     function getDefaultValue(element: any) {
-        const key = getNameForController(element.value.name);
         const type = element.type;
         const value = element.value;
         const inputType = value.inputType;
+        const currentValue = value.currentValue ?? value.defaultValue;
 
         if (type === 'table') {
-            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue);
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType)) {
-            return { isExpression: type === "expression", value: value.defaultValue || '' };
+            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
+        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
+            (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
+            return { isExpression: inputType === "expression", value: currentValue ?? "" };
         } else {
-            return value.currentValue ?? value.defaultValue ?? "";
+            return currentValue ?? "";
         }
     }
 
@@ -109,16 +134,16 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, field, helpTipElement }: { element: Element, field: any, helpTipElement: React.JSX.Element }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
 
         return expressionEditorField !== getNameForController(element.name) ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
                 labelAdornment={helpTipElement}
-                placeholder={element.helpTip}
-                canChange={true}
-                required={element.required === 'true'}
+                placeholder={placeholder}
+                canChange={canChange}
+                required={element.required || element.required === 'true'}
                 isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
@@ -203,13 +228,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 paramConfigs={field.value}
                 readonly={false}
                 onChange={(values) => {
-                    values.paramValues = values.paramValues.map((param: any) => {
-                        const property: ParamValue[] = param.paramValues;
-                        param.key = property[0].value;
-                        param.value = (property[1].value as ExpressionFieldValue).value;
-                        param.icon = 'query';
-                        return param;
-                    });
+                    values.paramValues = getParamManagerOnChange(element, values);
                     field.onChange(values);
                 }} />
         </ComponentCard>;
@@ -217,7 +236,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
-        const isRequired = element.required === 'true';
+        const isRequired = typeof element.required === 'boolean' ? element.required : element.required === 'true';
         const errorMsg = errors[name] && errors[name].message.toString();
         const helpTip = element.helpTip;
 
@@ -230,6 +249,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             </Tooltip>
         ) : null;
 
+        let placeholder = element.placeholder;
+        if (placeholder?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(placeholder.conditionField));
+            const conditionalPlaceholder = placeholder.values.find((value: any) => value[conditionFieldValue]);
+            placeholder = conditionalPlaceholder?.[conditionFieldValue];
+        }
+
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -240,7 +266,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         label={element.displayName}
                         labelAdornment={helpTipElement}
                         size={50}
-                        placeholder={element.helpTip}
+                        placeholder={placeholder}
                         required={isRequired}
                         errorMsg={errorMsg}
                     />
@@ -267,7 +293,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, field, helpTipElement });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
@@ -308,20 +334,27 @@ export function FormGenerator(props: FormGeneratorProps) {
                         } : undefined}
                     />
                 );
-            case 'comboOrKey': {
+            case 'comboOrKey':
+            case 'registry':
+            case 'resource': {
+                let onCreateButtonClick;
+                if (!Array.isArray(element.keyType)) {
+                    onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                        openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: element.keyType });
+                    }
+                }
+
                 return (<Keylookup
                     value={field.value}
-                    filterType={element.keyType as any}
+                    filterType={(element.keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.inputType === 'comboOrKey'}
+                    allowItemCreate={true}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
                     additionalItems={element.comboValues}
-                    onCreateButtonClick={(element.inputType === 'comboOrKey' && !Array.isArray(element.keyType)) ? (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.keyType, fetchItems, handleValueChange);
-                    } : undefined}
+                    onCreateButtonClick={onCreateButtonClick}
                 />)
             }
             case 'ParamManager': {
@@ -329,19 +362,28 @@ export function FormGenerator(props: FormGeneratorProps) {
                     ParamManagerComponent(element, isRequired, helpTipElement, field)
                 );
             }
+            case 'codeTextArea':
+                return (<CodeTextArea
+                    {...field}
+                    label={element.displayName}
+                    placeholder={placeholder}
+                    required={isRequired}
+                    resize="vertical"
+                    growRange={{ start: 5, offset: 10 }}
+                    errorMsg={errorMsg}
+                />);
             default:
                 return null;
         }
     };
 
-    const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string) => {
-        let paramValues: any = [];
+    const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, values?: any[]) => {
         let paramFields: any = [];
 
         const tableKeys: string[] = [];
         elements.forEach((attribute: any) => {
             const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
-            let defaultValue: any = [];
+            let defaultValue: any = attribute.value.defaultValue;
 
             tableKeys.push(name);
             const isRequired = required == true || required == 'true';
@@ -374,7 +416,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
-                ...(type === 'Dropdown') && { values: comboValues.map((value: string) => `${value}`), },
+                ...(type === 'Dropdown') && { values: comboValues },
                 ...(type === 'KeyLookup') && { filterType: attribute.value.keyType },
                 ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
             };
@@ -387,8 +429,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 paramField.paramManager = {
                     paramConfigs: {
                         paramValues: paramValues2,
-                        paramFields: [paramFields2
-                        ]
+                        paramFields: paramFields2
                     },
                     openInDrawer: true,
                     addParamText: `New ${displayName}`
@@ -397,6 +438,9 @@ export function FormGenerator(props: FormGeneratorProps) {
             paramFields.push(paramField);
         })
 
+        let keyIndex = tableKeys.indexOf(tableKey) ?? 0;
+        let valueIndex = tableKeys.indexOf(tableValue) ?? 1;
+        const paramValues = values ? getParamManagerFromValues(values, keyIndex, valueIndex) : [];
         return { paramValues, paramFields };
 
         function generateParammanagerCondition(enableCondition: any[], keys: string[]) {
@@ -434,7 +478,6 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
-            const name = getNameForController(element.value.name);
 
             if (element.type === 'attributeGroup') {
                 return (
@@ -448,6 +491,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     isCollapsed={(element.value.groupName === "Advanced" || !!element.value.isCollapsed) ?
                                         true : false
                                     }
+                                    sx={{ paddingBottom: '0px', gap: '0px' }}
                                 >
                                     {renderForm(element.value.elements)}
                                 </FormGroup>
@@ -456,6 +500,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     </>
                 );
             } else {
+                const name = getNameForController(element.value.name);
                 if (element.value.hidden) {
                     setValue(name, element.value.defaultValue ?? "");
                     return;
@@ -506,17 +551,12 @@ export function FormGenerator(props: FormGeneratorProps) {
             element.value.inputType = 'ParamManager';
         }
 
-        const defaultValue = getDefaultValue(element);
-        if (getValues(name) === undefined) {
-            setValue(name, defaultValue);
-        }
         if (shouldRender) {
 
             return (
                 <Controller
                     name={name}
                     control={control}
-                    defaultValue={defaultValue}
                     rules={
                         {
                             ...(element.value.required === 'true') && {

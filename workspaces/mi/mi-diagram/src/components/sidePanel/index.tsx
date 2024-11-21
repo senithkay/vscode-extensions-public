@@ -145,14 +145,11 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri: props?.documentUri
                     });
 
-                    if (!mediatorDetails) {
-                        return;
-                    }
                     const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.tag} isUpdate={true} documentUri={props.documentUri} range={props.nodePosition} />;
-                    sidepanelAddPage(sidePanelContext, form, `Edit ${mediatorDetails.title}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
+                    sidepanelAddPage(sidePanelContext, form, `Edit ${mediatorDetails?.title || sidePanelContext.tag}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
                 }
             } else {
-                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} /> ;
+                const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
                 sidepanelAddPage(sidePanelContext, home);
             }
             setLoading(false);

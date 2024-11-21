@@ -82,7 +82,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 onAddConnection={handleAddConnection}
                 onEntryPointSelect={handleGoToEntryPoints}
                 onConnectionSelect={handleGoToConnection}
-                onDeleteComponent={handleOnDeleteComponent}
+                onDeleteComponent={handleDeleteConnection}
             />
         </DiagramContainer>
     );

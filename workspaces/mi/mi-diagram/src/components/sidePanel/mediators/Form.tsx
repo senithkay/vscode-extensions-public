@@ -7,17 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FormActions, Button } from "@wso2-enterprise/ui-toolkit";
+import { FormActions, Button, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
-import SidePanelContext, { clearSidePanelState, DefaultSidePanelState } from "../SidePanelContexProvider";
+import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
 import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
-import { getParamManagerValues } from "../Pages/mediators/common";
+import { getParamManagerValues } from "../../Form/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { ERROR_MESSAGES } from "../../../resources/constants";
 
 export interface MediatorFormProps {
     mediatorData: GetMediatorResponse
@@ -57,7 +58,13 @@ export function MediatorForm(props: MediatorFormProps) {
     }
 
     const handleOnClose = () => {
-        sidepanelGoBack(sidePanelContext);
+        sidePanelContext.pageStack.length > 1 ? sidepanelGoBack(sidePanelContext) : clearSidePanelState(sidePanelContext);
+    }
+
+    if (!mediatorData) {
+        return <ErrorBanner
+            errorMsg={ERROR_MESSAGES.ERROR_LOADING_MEDIATORS}
+        />
     }
 
     return (<FormContainer>
