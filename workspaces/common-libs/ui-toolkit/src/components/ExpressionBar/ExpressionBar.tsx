@@ -106,8 +106,8 @@ export type ExpressionBarBaseProps = {
     onCompletionSelect?: (value: string) => void | Promise<void>;
     // - The function to be called when the default completion is selected
     onDefaultCompletionSelect?: () => void | Promise<void>;
-    // - The function to be called when ctrl + key pressed. Should return true to prevent default key press behavior
-    onShortcut?: (e: React.KeyboardEvent) => Promise<boolean>;
+    // - The function to be called when a manual completion request is made (when ctrl+space pressed)
+    onManualCompletionRequest?: () => void | Promise<void>;
 
     // Function signature props
     // - Returns information about the function that is currently being edited

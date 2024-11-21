@@ -417,13 +417,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         triggerRerender((prev)=>!prev);
     };
 
-    const handleShortcut = async (e: React.KeyboardEvent):Promise<boolean> => {
-        if (e.key == ' '){
-            setCompletions(await getCompletions(true));
-            return true;
-        }
-        return false;
-    }
+    const handleManualCompletionRequest = async () => {
+        setCompletions(await getCompletions(true));
+    };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const useDisableOnChange = (fn: (...args: any[]) => Promise<any>) => {
@@ -475,7 +471,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 useTransaction={useDisableOnChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                onShortcut={handleShortcut}
+                onManualCompletionRequest={handleManualCompletionRequest}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>

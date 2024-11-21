@@ -413,7 +413,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onClose,
         onCompletionSelect,
         onDefaultCompletionSelect,
-        onShortcut,
+        onManualCompletionRequest,
         extractArgsFromFunction,
         useTransaction,
         onFocus,
@@ -674,8 +674,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             }
         }
 
-        if (e.ctrlKey && onShortcut && (await onShortcut(e))) {
+        if (onManualCompletionRequest && e.ctrlKey && e.key === ' ') {
             e.preventDefault();
+            await onManualCompletionRequest();
             return;
         }
 
