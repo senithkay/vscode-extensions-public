@@ -20,6 +20,7 @@ export interface RegistryWizardProps {
     path: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    type?: string;
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },

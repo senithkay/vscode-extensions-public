@@ -104,7 +104,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<SequenceWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
                 case MACHINE_VIEW.RegistryResourceForm:
-                    setViewComponent(<RegistryResourceForm handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
+                    setViewComponent(<RegistryResourceForm handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} type={machineSate.customProps.type} />);
                     break;
                 default:
                     setViewComponent(null);
