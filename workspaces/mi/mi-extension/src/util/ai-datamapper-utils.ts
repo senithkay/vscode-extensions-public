@@ -8,12 +8,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  * 
  */
-import path = require("path");
-import { MiDiagramRpcManager } from "../mi-diagram/rpc-manager";
-import { MiVisualizerRpcManager } from "../mi-visualizer/rpc-manager";
+import { MiDiagramRpcManager } from "../rpc-managers/mi-diagram/rpc-manager";
+import { MiVisualizerRpcManager } from "../rpc-managers/mi-visualizer/rpc-manager";
 import { Project, QuoteKind } from "ts-morph";
-import { StateMachine } from "../../stateMachine";
-import { getSources } from "../../util/dataMapper";
+import { StateMachine } from "../stateMachine";
+import { getSources } from "./dataMapper";
 
 export async function fetchBackendUrl() {
     try {
@@ -23,12 +22,16 @@ export async function fetchBackendUrl() {
         // Do something with backendRootUri
     } catch (error) {
         console.error('Failed to fetch backend URL:', error);
+        throw error;
     }
 }
 
 export function openSignInView() {
     let miDiagramRpcClient: MiDiagramRpcManager = new MiDiagramRpcManager();
-    miDiagramRpcClient.executeCommand({ commands: ["MI.openAiPanel"] });
+    miDiagramRpcClient.executeCommand({ commands: ["MI.openAiPanel"] })
+        .catch(error => {
+            console.error('Failed to open sign-in view:', error);
+        });
 }
 
 // Function to read the TypeScript file which contains the schema interfaces to be mapped
@@ -37,8 +40,8 @@ export function readTSFile(): string {
     const sourcePath = StateMachine.context().dataMapperProps?.filePath;
     // Check if sourcePath is defined
     if (sourcePath) {
-        const [tsFullText, _] = getSources(sourcePath);
         try {
+            const [tsFullText, _] = getSources(sourcePath);
             return tsFullText;
         } catch (error) {
             console.error('Failed to read TypeScript file: ', error);
@@ -87,12 +90,14 @@ export async function makeRequest(url: string, token: string, tsContent: string)
         },
         body: JSON.stringify({ ts_file: tsContent })
     });
-    if (!response.ok) throw new Error(`Error while checking token: ${response.statusText}`);
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Request failed with status ${response.status}: ${errorText}`);
+    }
     return response.json();
 }
 
-export function showMappingEndNotification() {
-    const message = "Please note that automated mapping is powered by AI, and mistakes or surprises are inevitable. \n\nIt is recommended to confirm generated mappings using the </> TS file.";
+function showNotification(message: string, options: string[] = []) {
     let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
     miVisualizerRpcClient.retrieveContext({
         key: "showDmLandingMessage",
@@ -101,7 +106,7 @@ export function showMappingEndNotification() {
         if (response.value ?? true) {
             miVisualizerRpcClient.showNotification({
                 message: message,
-                options: ["Don't show this again"],
+                options: options,
                 type: "info",
             }).then((response) => {
                 if (response.selection) {
@@ -114,29 +119,15 @@ export function showMappingEndNotification() {
             });
         }
     });
-};
+}
+
+// Then use it:
+export function showMappingEndNotification() {
+    const message = "Please note that automated mapping is powered by AI, and mistakes or surprises are inevitable. \n\nIt is recommended to confirm generated mappings using the </> TS file.";
+    showNotification(message, ["Don't show this again"]);
+}
 
 export function showSignedOutNotification() {
     const message = "Account not found. \n\n Please sign in and try again.";
-    let miVisualizerRpcClient: MiVisualizerRpcManager = new MiVisualizerRpcManager();
-    miVisualizerRpcClient.retrieveContext({
-        key: "showDmLandingMessage",
-        contextType: "workspace"
-    }).then((response) => {
-        if (response.value ?? true) {
-            miVisualizerRpcClient.showNotification({
-                message: message,
-                options: [],
-                type: "info",
-            }).then((response) => {
-                if (response.selection) {
-                    miVisualizerRpcClient.updateContext({
-                        key: "showDmLandingMessage",
-                        value: false,
-                        contextType: "workspace"
-                    });
-                }
-            });
-        }
-    });
-};
+    showNotification(message);
+}

@@ -189,7 +189,7 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
         }
@@ -255,7 +255,7 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             resolve(false);
         }
@@ -495,15 +495,15 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             if (platform === 'win32') {
                 tempPath = tempPath.replace(/\\/g, '/');
             }
-            tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
-            var regPath = "";
-            if (tempPath.startsWith('gov')) {
-                regPath = '/_system/governance/';
-                regPath = regPath + tempPath.replace('gov/', '');
-            } else {
-                regPath = '/_system/config/';
-                regPath = regPath + tempPath.replace('conf/', '');
-            }
+            tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
+            var regPath = "/_system/governance/mi-resources/" + tempPath;
+            // if (tempPath.startsWith('gov')) {
+            //     regPath = '/_system/governance/';
+            //     regPath = regPath + tempPath.replace('gov/', '');
+            // } else {
+            //     regPath = '/_system/config/';
+            //     regPath = regPath + tempPath.replace('conf/', '');
+            // }
             if (fs.lstatSync(filePath).isDirectory()) {
                 removeEntryFromArtifactXML(workspaceFolder, regPath, "");
                 await rm(filePath, { recursive: true, force: true });

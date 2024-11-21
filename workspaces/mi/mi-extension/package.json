@@ -154,7 +154,7 @@
         },
         {
           "id": "MI.registry-explorer",
-          "name": "Registry Explorer",
+          "name": "Resource Explorer",
           "visibility": "collapsed"
         }
       ],

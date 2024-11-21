@@ -15,11 +15,17 @@ import ExpressionBarWrapper from "./ExpressionBar";
 import { View } from "../Views/DataMapperView";
 import { DataMapperNodeModel } from "../../Diagram/Node/commons/DataMapperNode";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 import AIMapButton from './AIMapButton';
 import { DataMapWriteRequest } from "@wso2-enterprise/mi-core";
+import { FunctionDeclaration } from "ts-morph";
+import { DMType } from "@wso2-enterprise/mi-core";
+import { doesMappingExist } from "../../../index";
 
 export interface DataMapperHeaderProps {
+    fnST: FunctionDeclaration;
+    inputTrees: DMType[];
+    outputTree: DMType;
     filePath: string;
     views: View[];
     switchView: (index: number) => void;
@@ -35,13 +41,16 @@ export interface DataMapperHeaderProps {
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading, setIsMapping, isMapping } = props;
+    const { filePath, views, switchView, hasEditDisabled, onClose, applyModifications, onDataMapButtonClick: onDataMapClick, onDataMapClearClick: onClear, setIsLoading, isLoading, setIsMapping, isMapping, fnST, inputTrees, outputTree } = props;
     const { rpcClient } = useVisualizerContext();
 
     const handleDataMapButtonClick = async () => {
         try {
-            let choice = await rpcClient.getMiDataMapperRpcClient().confirmMappingAction();
-            if (choice) {
+            let mappingExist = doesMappingExist(fnST, inputTrees, outputTree), choice;
+            if (mappingExist) {
+                choice = await rpcClient.getMiDataMapperRpcClient().confirmMappingAction();
+            }
+            if (!mappingExist || choice) {
                 props.setIsLoading(true);
                 let authstatus = await rpcClient.getMiDataMapperRpcClient().authenticateUser();
                 if (authstatus === false) {
@@ -62,12 +71,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     };
 
     const handleDataMapClearButtonClick = async () => {
-        const dm = "return {}";
-
-        const dataMapWriteRequest: DataMapWriteRequest = {
-            dataMapping: dm
-        };
-        await rpcClient.getMiDataMapperRpcClient().writeDataMapping(dataMapWriteRequest);
+        await rpcClient.getMiDataMapperRpcClient().writeDataMapping({ dataMapping: '' });
     };
 
     return (
