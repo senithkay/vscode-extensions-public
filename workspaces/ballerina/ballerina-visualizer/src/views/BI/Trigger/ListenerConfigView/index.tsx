@@ -74,19 +74,12 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
                 val.value = data[val.key]
             }
         })
-    };
-
-    const handleTriggerSave = async () => {
-        if (listenerFieldsRef.current) {
-            listenerFieldsRef.current.triggerSave();
-        }
-        console.log("Updated handleListenerSubmit", listenerFields);
-        const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        await wait(1000); // Wait for 1 second
-
         const response: ComponentTriggerType = {
             name: name,
-            listener: listenerFields,
+            listener: listenerFields.map(field => ({
+                ...field,
+                value: typeof field.value === 'string' ? field.value : field.value.join(',')
+            })),
             listenerOnly: true,
             functions: {},
             service: [],
@@ -94,6 +87,25 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
         }
         onSubmit(response);
     };
+
+    // const handleTriggerSave = async () => {
+    //     if (listenerFieldsRef.current) {
+    //         listenerFieldsRef.current.triggerSave();
+    //     }
+    //     console.log("Updated handleListenerSubmit", listenerFields);
+    //     const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    //     await wait(1000); // Wait for 1 second
+
+    //     const response: ComponentTriggerType = {
+    //         name: name,
+    //         listener: listenerFields,
+    //         listenerOnly: true,
+    //         functions: {},
+    //         service: [],
+    //         serviceTypes: {}
+    //     }
+    //     onSubmit(response);
+    // };
 
 
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
@@ -161,7 +173,6 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
                             <FormGroup title="Listener Configuration" isCollapsed={false}>
                                 <Form
                                     ref={listenerFieldsRef}
-                                    hideSave={true}
                                     formFields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     expressionEditor={
@@ -177,11 +188,11 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
                             </FormGroup>
                         </FormContainer>
                     }
-                    <ButtonWrapper>
+                    {/* <ButtonWrapper>
                         <Button appearance="primary" onClick={handleTriggerSave}>
                             Create Trigger
                         </Button>
-                    </ButtonWrapper>
+                    </ButtonWrapper> */}
                 </>
             }
         </Container>

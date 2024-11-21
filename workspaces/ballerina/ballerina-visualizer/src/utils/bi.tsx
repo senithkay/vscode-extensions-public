@@ -306,41 +306,16 @@ export function convertTriggerServiceTypes(trigger: Trigger): Record<string, Fun
 
 export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
     const formFields: FormField[] = [];
-
-    for (const key in trigger.listenerParams) {
-        if (trigger.listenerParams.hasOwnProperty(key)) {
-            const expression = trigger.listenerParams[key];
-            if (expression.fields?.length > 0) {
-                for (const field in expression.fields) {
-                    const fieldExp = expression.fields[field];
-                    const formField: FormField = {
-                        key: fieldExp.name,
-                        label: fieldExp.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                        documentation: fieldExp.name,
-                        optional: fieldExp.optional,
-                        advanced: fieldExp.optional,
-                        type: fieldExp.typeName,
-                        editable: true,
-                        value: ""
-                    }
-                    formFields.push(formField);
-                }
-            } else {
-                const formField: FormField = {
-                    key: expression.name,
-                    label: expression.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                    documentation: expression.name,
-                    optional: expression.optional,
-                    type: expression.typeName,
-                    editable: true,
-                    advanced: expression.optional,
-                    value: expression.defaultValue
-                }
-                formFields.push(formField);
-            }
+    for (const key in trigger.listener.properties) {
+        const expression = trigger.listener.properties[key];
+        const formField: FormField = {
+            key: key,
+            label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+            type: expression.valueType,
+            ...expression
         }
+        formFields.push(formField);
     }
-
     return formFields;
 }
 

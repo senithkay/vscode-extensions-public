@@ -24,7 +24,6 @@ import { BIHeader } from "../../BIHeader";
 
 const Container = styled.div`
     width: 100%;
-    overflow: scroll;
     height: inherit;
 `;
 

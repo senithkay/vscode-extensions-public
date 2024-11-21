@@ -116,7 +116,6 @@ import {
     VisibleTypesRequest,
     ReferenceLSRequest,
     Reference,
-    VisibleTypesResponse
     VisibleTypesResponse,
     BIDeleteByComponentInfoRequest,
     ExpressionDiagnosticsRequest,

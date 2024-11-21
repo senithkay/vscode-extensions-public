@@ -223,7 +223,8 @@ export interface Package {
 
 export interface BallerinaTriggerInfo extends BallerinaTrigger {
     serviceTypes: ServiceType[],
-    listenerParams: Parameter[],
+    listenerParams?: Parameter[],
+    listener: any,
     documentation?: string,
 }
 
