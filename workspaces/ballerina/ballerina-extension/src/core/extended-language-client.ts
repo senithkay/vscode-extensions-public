@@ -119,7 +119,13 @@ import {
     VisibleTypesResponse,
     BIDeleteByComponentInfoRequest,
     ExpressionDiagnosticsRequest,
-    ExpressionDiagnosticsResponse
+    ExpressionDiagnosticsResponse,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
+    TriggerModelRequest,
+    TriggerModelResponse,
+    TriggerSourceCodeRequest,
+    TriggerSourceCodeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -200,7 +206,10 @@ enum EXTENDED_APIS {
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
     BI_VISIBLE_TYPES = 'expressionEditor/types',
     REFERENCES = 'textDocument/references',
-    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics'
+    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
+    BI_TRIGGER_MODELS = 'triggerDesignService/getTriggerModels',
+    BI_TRIGGER_MODEL = 'triggerDesignService/getTriggerModel',
+    BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -693,6 +702,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return this.sendRequest<ExpressionDiagnosticsResponse>(EXTENDED_APIS.BI_EXPRESSION_DIAGNOSTICS, params);
+    }
+
+    async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_TRIGGER_MODELS, params);
+    }
+
+    async getTriggerModel(params: TriggerModelRequest): Promise<TriggerModelResponse> {
+        return this.sendRequest<TriggerModelResponse>(EXTENDED_APIS.BI_TRIGGER_MODEL, params);
+    }
+
+    async getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this.sendRequest<TriggerSourceCodeResponse>(EXTENDED_APIS.BI_TRIGGER_SOURCE_CODE, params);
     }
 
     // <------------ BI APIS END --------------->

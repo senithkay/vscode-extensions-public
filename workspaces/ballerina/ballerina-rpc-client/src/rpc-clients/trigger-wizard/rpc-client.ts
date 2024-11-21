@@ -12,12 +12,21 @@ import {
     ServicesByListenerRequest,
     ServicesByListenerResponse,
     Trigger,
+    TriggerModelRequest,
+    TriggerModelResponse,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
     TriggerParams,
+    TriggerSourceCodeRequest,
+    TriggerSourceCodeResponse,
     TriggerWizardAPI,
     Triggers,
     TriggersParams,
     getServicesByListener,
     getTrigger,
+    getTriggerModel,
+    getTriggerModels,
+    getTriggerSourceCode,
     getTriggers
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -40,5 +49,17 @@ export class TriggerWizardRpcClient implements TriggerWizardAPI {
 
     getServicesByListener(params: ServicesByListenerRequest): Promise<ServicesByListenerResponse> {
         return this._messenger.sendRequest(getServicesByListener, HOST_EXTENSION, params);
+    }
+
+    getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        return this._messenger.sendRequest(getTriggerModels, HOST_EXTENSION, params);
+    }
+
+    getTriggerModel(params: TriggerModelRequest): Promise<TriggerModelResponse> {
+        return this._messenger.sendRequest(getTriggerModel, HOST_EXTENSION, params);
+    }
+
+    getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this._messenger.sendRequest(getTriggerSourceCode, HOST_EXTENSION, params);
     }
 }

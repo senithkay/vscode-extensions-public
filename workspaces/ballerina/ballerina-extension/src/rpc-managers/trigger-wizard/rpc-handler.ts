@@ -10,10 +10,16 @@
  */
 import {
     ServicesByListenerRequest,
+    TriggerModelRequest,
+    TriggerModelsRequest,
     TriggerParams,
+    TriggerSourceCodeRequest,
     TriggersParams,
     getServicesByListener,
     getTrigger,
+    getTriggerModel,
+    getTriggerModels,
+    getTriggerSourceCode,
     getTriggers
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
@@ -24,4 +30,7 @@ export function registerTriggerWizardRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTriggers, (args: TriggersParams) => rpcManger.getTriggers(args));
     messenger.onRequest(getTrigger, (args: TriggerParams) => rpcManger.getTrigger(args));
     messenger.onRequest(getServicesByListener, (args: ServicesByListenerRequest) => rpcManger.getServicesByListener(args));
+    messenger.onRequest(getTriggerModels, (args: TriggerModelsRequest) => rpcManger.getTriggerModels(args));
+    messenger.onRequest(getTriggerModel, (args: TriggerModelRequest) => rpcManger.getTriggerModel(args));
+    messenger.onRequest(getTriggerSourceCode, (args: TriggerSourceCodeRequest) => rpcManger.getTriggerSourceCode(args));
 }

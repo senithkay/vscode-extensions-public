@@ -737,6 +737,35 @@ export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
 }
 
+
+// <-------- Trigger Related ------->
+export interface TriggerModelsRequest {
+
+}
+
+export interface TriggerModelsResponse {
+
+}
+
+
+export interface TriggerModelRequest {
+
+}
+
+export interface TriggerModelResponse {
+
+}
+
+
+export interface TriggerSourceCodeRequest {
+
+}
+
+export interface TriggerSourceCodeResponse {
+
+}
+// <-------- Trigger Related ------->
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -764,6 +793,9 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
+    getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
+    getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

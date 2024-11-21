@@ -16,14 +16,20 @@ import {
     ServicesByListenerResponse,
     SyntaxTree,
     Trigger,
+    TriggerModelRequest,
+    TriggerModelResponse,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
     TriggerParams,
+    TriggerSourceCodeRequest,
+    TriggerSourceCodeResponse,
     TriggerWizardAPI,
     Triggers,
     TriggersParams
 } from "@wso2-enterprise/ballerina-core";
-import { StateMachine } from "../../stateMachine";
+import { ListenerDeclaration, ModulePart, STKindChecker, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
-import { ListenerDeclaration, ModulePart, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { StateMachine } from "../../stateMachine";
 
 export class TriggerWizardRpcManager implements TriggerWizardAPI {
     async getTriggers(params: TriggersParams): Promise<Triggers> {
@@ -104,6 +110,21 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
             }
             resolve({ listener, services, trigger });
         });
+    }
+
+    async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getTriggerModel(params: TriggerModelRequest): Promise<TriggerModelResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }
 
