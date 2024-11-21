@@ -3359,9 +3359,7 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            const artifactNameLastPart = (params.createOption === "import" ? params.filePath.split(path.sep).pop() : params.resourceName) || '';
-            let artifactName = 'resources' + params.registryPath.replace(path.sep, "_") + '_' + artifactNameLastPart;
-            artifactName = artifactName.replace(/_+/g, '_').replace(/\./g, '_');
+            let artifactName = 'resources' + params.registryPath.replace(path.sep, "_").replace(/_+/g, '_');
 
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
@@ -3375,13 +3373,14 @@ ${endpointAttributes}
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
+                    artifactName = artifactName + "_" + fileName;
+                    artifactName = artifactName.replace(/\./g, '_');
+
                     const registryPath = path.join(registryDir, params.registryPath);
                     const destPath = path.join(registryPath, fileName);
                     if (!fs.existsSync(registryPath)) {
                         fs.mkdirSync(registryPath, { recursive: true });
                     }
-                    // artifactName = 'resources' + params.registryPath.replace(/\//g, "_") + '_' + ;
-                    // artifactName = artifactName.replace(/_+/g, '_');
                     if (fs.statSync(params.filePath).isDirectory()) {
                         fs.cpSync(params.filePath, destPath, { recursive: true });
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
@@ -3402,6 +3401,7 @@ ${endpointAttributes}
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
@@ -3418,6 +3418,7 @@ ${endpointAttributes}
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 let fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
