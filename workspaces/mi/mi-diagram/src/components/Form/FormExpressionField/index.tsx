@@ -110,14 +110,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         debouncedRetrieveCompletions,
     ]);
 
-    const useTransaction = (fn: (...args: any[]) => Promise<any>): { mutate: any; data: any; isLoading: boolean } => {
-        return {
-            mutate: fn,
-            data: null,
-            isLoading: false
-        };
-    };
-
     const handleChange = async (value: string, updatedCursorPosition: number) => {
         onChange(value);
         cursorPositionRef.current = updatedCursorPosition;
@@ -159,8 +151,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onBlur={handleBlur}
                     onCancel={onCancel}
                     completions={completions}
-                    shouldDisableOnSave={false}
-                    useTransaction={useTransaction}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>
