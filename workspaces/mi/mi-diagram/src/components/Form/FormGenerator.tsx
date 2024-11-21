@@ -133,14 +133,14 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
 
         return expressionEditorField !== getNameForController(element.name) ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
                 labelAdornment={helpTipElement}
-                placeholder={element.helpTip}
+                placeholder={placeholder}
                 canChange={canChange}
                 required={element.required || element.required === 'true'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
@@ -248,9 +248,9 @@ export function FormGenerator(props: FormGeneratorProps) {
         ) : null;
 
         let placeholder = element.placeholder;
-        if (helpTip?.conditionField) {
-            const conditionFieldValue = watch(getNameForController(helpTip.conditionField));
-            const conditionalPlaceholder = helpTip.values.find((value: any) => value[conditionFieldValue]);
+        if (placeholder?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(placeholder.conditionField));
+            const conditionalPlaceholder = placeholder.values.find((value: any) => value[conditionFieldValue]);
             placeholder = conditionalPlaceholder?.[conditionFieldValue];
         }
 
@@ -264,7 +264,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         label={element.displayName}
                         labelAdornment={helpTipElement}
                         size={50}
-                        placeholder={element.helpTip}
+                        placeholder={placeholder}
                         required={isRequired}
                         errorMsg={errorMsg}
                     />
@@ -291,7 +291,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
