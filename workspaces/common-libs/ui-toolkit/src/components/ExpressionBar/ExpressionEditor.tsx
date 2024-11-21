@@ -105,6 +105,9 @@ const DropdownBody = styled.div<StyleBase>`
 
 const FnSignatureBody = styled.div<StyleBase>`
     width: 350px;
+    height: 36px;
+    display: flex;
+    align-items: center;
     margin-block: 2px;
     padding-block: 8px;
     border-radius: 8px;
@@ -456,7 +459,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                 left: rect.left,
             });
             setFnSignatureElPosition({
-                top: rect.top - 32,
+                top: rect.top - 40, // 36px height from fnSignatureEl + 4px of margin
                 left: rect.left,
             });
         }
