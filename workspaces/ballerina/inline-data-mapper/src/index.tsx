@@ -10,6 +10,7 @@
 import React from "react";
 
 /** @jsx jsx */
+import type {} from "@emotion/styled";
 import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IDMModel } from "@wso2-enterprise/ballerina-core";

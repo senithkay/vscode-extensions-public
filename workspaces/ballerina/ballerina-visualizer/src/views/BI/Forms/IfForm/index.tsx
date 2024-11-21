@@ -425,6 +425,7 @@ export function IfForm(props: IfFormProps) {
                                 ref={exprRef}
                                 control={control}
                                 field={field}
+                                node={node}
                                 watch={watch}
                                 completions={activeEditor === index ? filteredCompletions : []}
                                 triggerCharacters={TRIGGER_CHARACTERS}

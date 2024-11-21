@@ -246,7 +246,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const handleInlineDataMapperOpen = () => {
         handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                filePath: `${projectPath}/${effectiveFileName}`,
+                filePath: contextFileName,
                 flowNode: node,
                 position: {
                     line: effectiveTargetLineRange.startLine.line,
