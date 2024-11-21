@@ -494,13 +494,15 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
-        const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
-        if (cursorInFunction) {
-            // Update function signature if the cursor is inside a function
-            await updateFnSignature(text, updatedCursorPosition);
-        } else if (fnSignature) {
-            // Clear the function signature if the cursor is not in a function
-            setFnSignature(undefined);
+        if (extractArgsFromFunction) {
+            const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
+            if (cursorInFunction) {
+                // Update function signature if the cursor is inside a function
+                await updateFnSignature(text, updatedCursorPosition);
+            } else if (fnSignature) {
+                // Clear the function signature if the cursor is not in a function
+                setFnSignature(undefined);
+            }
         }
     };
 
