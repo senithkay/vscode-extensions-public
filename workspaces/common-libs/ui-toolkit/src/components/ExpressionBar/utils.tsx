@@ -13,9 +13,9 @@ import { Codicon } from '../Codicon/Codicon';
 
 export const checkCursorInFunction = (text: string, cursorPosition: number) => {
     const effectiveText = text.substring(0, cursorPosition);
-    const lastOpenBracketIndex = effectiveText.lastIndexOf('(');
-    const lastCloseBracketIndex = effectiveText.lastIndexOf(')') ?? 0;
-    const cursorInFunction = lastOpenBracketIndex && (lastOpenBracketIndex > lastCloseBracketIndex);
+    const effectiveOpenBracketCount = (effectiveText.match(/\(/g) || []).length;
+    const effectiveCloseBracketCount = (effectiveText.match(/\)/g) || []).length;
+    const cursorInFunction = effectiveOpenBracketCount > effectiveCloseBracketCount;
 
     return cursorInFunction;
 };
