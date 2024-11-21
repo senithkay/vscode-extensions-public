@@ -39,9 +39,15 @@ export const addClosingBracketIfNeeded = (text: string) => {
     return updatedText;
 };
 
-export const setCursor = (inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>, inputElementType: 'input' | 'textarea', position: number) => {
+export const setCursor = (
+    inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>,
+    inputElementType: 'input' | 'textarea',
+    value: string,
+    position: number
+) => {
     const inputElement = inputRef.current.shadowRoot.querySelector(inputElementType);
     inputElement.focus();
+    inputElement.value = value;
     inputElement.setSelectionRange(position, position);
 };
 
