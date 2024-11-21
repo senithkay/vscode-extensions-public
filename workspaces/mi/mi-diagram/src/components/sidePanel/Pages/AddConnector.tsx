@@ -495,7 +495,9 @@ const AddConnector = (props: AddConnectorProps) => {
                             watch={watch}
                             getValues={getValues}
                             skipGeneralHeading={true}
-                            ignoreFields={["connectionName"]} />
+                            ignoreFields={["connectionName"]}
+                            connections={connections}
+                            addNewConnection={addNewConnection} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                             <Button
                                 appearance="primary"

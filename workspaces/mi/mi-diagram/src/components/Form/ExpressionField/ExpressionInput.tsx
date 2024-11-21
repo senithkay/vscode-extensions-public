@@ -30,6 +30,20 @@ const ExButtonWrapper = styled.div<{ isActive: boolean }>`
     }
 `;
 
+const ExButtonWrapperTextArea = styled.div<{ isActive: boolean }>`
+    z-index: 1000;
+    right: 43px;
+    position: absolute;
+    margin-top: 25px;
+    padding: 3px;
+    cursor: pointer;
+    background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_INACTIVE};
+    border: 1px solid ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE_BORDER : "transparent"};
+    &:hover {
+        background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_HOVER};
+    }
+`;
+
 export const Label = styled.label`
     font-size: var(--type-ramp-base-font-size);
     color: var(--vscode-editor-foreground);
@@ -93,15 +107,23 @@ interface ExBtnComponentProps {
     errorMsg?: string;
 }
 
-const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
+const ExButton = (props: { isActive: boolean, isTextArea: boolean, onClick: () => void }) => {
     return (
-        <ExButtonWrapper isActive={props.isActive} onClick={props.onClick}>
-            <Typography sx={
-                {
+        props.isTextArea ? (
+            <ExButtonWrapperTextArea isActive={props.isActive} onClick={props.onClick}>
+                <Typography sx={{
                     textAlign: "center",
                     margin: 0
                 }} variant="h6">EX</Typography>
-        </ExButtonWrapper>
+            </ExButtonWrapperTextArea>
+        ) : (
+            <ExButtonWrapper isActive={props.isActive} onClick={props.onClick}>
+                <Typography sx={{
+                    textAlign: "center",
+                    margin: 0
+                }} variant="h6">EX</Typography>
+            </ExButtonWrapper>
+        )
     );
 }
 
@@ -125,8 +147,9 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
                 labelAdornment={labelAdornment}
                 required={required}
                 disabled={disabled}
+                resize={"vertical"}
                 icon={{
-                    iconComponent: <ExButton isActive={isExActive} onClick={() => {
+                    iconComponent: <ExButton isActive={isExActive} isTextArea={isTextArea} onClick={() => {
                         if (canChange) {
                             setIsExpression(!isExActive);
                         }
@@ -145,7 +168,7 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
                 required={required}
                 disabled={disabled}
                 icon={{
-                    iconComponent: <ExButton isActive={isExActive} onClick={() => {
+                    iconComponent: <ExButton isActive={isExActive} isTextArea={false} onClick={() => {
                         if (canChange) {
                             setIsExpression(!isExActive);
                         }

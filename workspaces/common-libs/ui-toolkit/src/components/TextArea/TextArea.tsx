@@ -64,7 +64,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
             rows, resize, errorMsg, sx, onTextChange, labelAdornment, icon, ...rest
         } = props;
 
-        const { iconComponent, position = "start", onClick: iconClick } = icon || {};
+        const { iconComponent, onClick: iconClick } = icon || {};
 
         const handleChange = (e: any) => {
             onTextChange && onTextChange(e.target.value);
@@ -72,6 +72,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         };
         return (
             <Container sx={sx}>
+                {iconComponent && <div onClick={iconClick} style={{ display: "flex" }}>{iconComponent}</div>}
                 <VSCodeTextArea
                     ref={ref}
                     autoFocus={autoFocus}
@@ -87,7 +88,6 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     onChange={handleChange}
                     onInput={handleChange}
                 >
-                    {iconComponent && <div onClick={iconClick} slot={position} style={{ display: "flex", alignItems: "center" }}>{iconComponent}</div>}
                     <LabelContainer>
                         <div style={{ color: "var(--vscode-editor-foreground)" }}>
                             <label htmlFor={`${id}-label`}>{label}</label>
