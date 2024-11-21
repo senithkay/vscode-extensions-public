@@ -12,6 +12,7 @@ import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, R
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
+import parse from 'html-react-parser';
 import { ExpressionFieldValue, ExpressionField, ParamManager, ParamValue, ParamField, Keylookup, FormKeylookup } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
@@ -118,6 +119,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.helpTip}
                 canChange={true}
                 required={element.required === 'true'}
+                isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -570,7 +572,17 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
-                {formData.help && <Typography sx={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{formData.help}</Typography>}
+                {formData.help && (
+                    <div
+                        style={{
+                            padding: "10px",
+                            marginBottom: "20px",
+                            borderBottom: "1px solid var(--vscode-editorWidget-border)"
+                        }}
+                    >
+                        {parse(formData.help)}
+                    </div>
+                )}
                 {renderForm(formData.elements)}
             </>
         )

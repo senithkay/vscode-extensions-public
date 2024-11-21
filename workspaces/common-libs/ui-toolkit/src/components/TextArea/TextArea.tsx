@@ -6,17 +6,26 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ComponentProps, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import styled from '@emotion/styled';
 
+interface IconProps {
+    iconComponent: ReactNode;
+    position?: "start" | "end";
+    onClick?: () => void;
+}
+
+
 export interface TextAreaProps extends ComponentProps<"textarea"> {
     label?: string;
+    labelAdornment?: ReactNode;
     id?: string;
     className?: string;
     autoFocus?: boolean;
+    icon?: IconProps;
     required?: boolean;
     errorMsg?: string;
     placeholder?: string;
@@ -52,8 +61,11 @@ const LabelContainer = styled.div<ContainerProps>`
 export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     function TextArea(props: TextAreaProps, ref: React.ForwardedRef<HTMLTextAreaElement>) {
         const { label, id, className, autoFocus, required, validationMessage, cols = 40,
-            rows, resize, errorMsg, sx, onTextChange, ...rest
+            rows, resize, errorMsg, sx, onTextChange, labelAdornment, icon, ...rest
         } = props;
+
+        const { iconComponent, position = "start", onClick: iconClick } = icon || {};
+
         const handleChange = (e: any) => {
             onTextChange && onTextChange(e.target.value);
             props.onChange && props.onChange(e);
@@ -75,8 +87,12 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
                     onChange={handleChange}
                     onInput={handleChange}
                 >
-                    <LabelContainer><div style={{ color: "var(--vscode-editor-foreground)" }}>
-                        <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
+                    {iconComponent && <div onClick={iconClick} slot={position} style={{ display: "flex", alignItems: "center" }}>{iconComponent}</div>}
+                    <LabelContainer>
+                        <div style={{ color: "var(--vscode-editor-foreground)" }}>
+                            <label htmlFor={`${id}-label`}>{label}</label>
+                        </div> {(required && label) && (<RequiredFormInput />)}
+                        {labelAdornment && labelAdornment}
                     </LabelContainer>
                 </VSCodeTextArea>
                 {errorMsg && (

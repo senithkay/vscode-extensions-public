@@ -9,7 +9,7 @@
 
 import React, { ReactNode, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { Codicon, Container, RequiredFormInput, TextField, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Container, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 const Colors = {
     INPUT_OPTION_ACTIVE: "var(--vscode-inputOption-activeBackground)",
@@ -73,6 +73,7 @@ export interface ExpressionFieldProps {
     canChange: boolean;
     sx?: any;
     errorMsg?: string;
+    isTextArea?: boolean;
 }
 
 interface ExBtnComponentProps {
@@ -82,6 +83,7 @@ interface ExBtnComponentProps {
     required: boolean;
     disabled: boolean;
     isExActive: boolean;
+    isTextArea?: boolean;
     openExpressionEditor: (value: any, setValue: any) => void;
     placeholder: string;
     setIsExpression: React.Dispatch<React.SetStateAction<boolean>>;
@@ -105,7 +107,7 @@ const ExButton = (props: { isActive: boolean, onClick: () => void }) => {
 }
 
 const ExBtnComponent = (props: ExBtnComponentProps) => {
-    const { label, labelAdornment, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange, errorMsg } = props;
+    const { label, labelAdornment, required, isExActive, disabled, openExpressionEditor, placeholder, setIsExpression: setIsExpression, value, setValue, onChange, canChange, errorMsg, isTextArea } = props;
 
     return <>
         <FlexLabelContainer>
@@ -117,29 +119,50 @@ const ExBtnComponent = (props: ExBtnComponentProps) => {
                 </Link>
             )}
         </FlexLabelContainer>
-        <TextField
-            placeholder={placeholder}
-            label={label}
-            labelAdornment={labelAdornment}
-            required={required}
-            disabled={disabled}
-            icon={{
-                iconComponent: <ExButton isActive={isExActive} onClick={() => {
-                    if (canChange) {
-                        setIsExpression(!isExActive);
-                    }
-                }} />,
-                position: "end"
-            }}
-            value={value.value}
-            onTextChange={event => onChange({ isExpression: isExActive, value: event } as any)}
-            errorMsg={errorMsg}
-        />
+        {isTextArea ? (
+            <TextArea
+                placeholder={placeholder}
+                label={label}
+                labelAdornment={labelAdornment}
+                required={required}
+                disabled={disabled}
+                icon={{
+                    iconComponent: <ExButton isActive={isExActive} onClick={() => {
+                        if (canChange) {
+                            setIsExpression(!isExActive);
+                        }
+                    }} />,
+                    position: "end"
+                }}
+                value={value.value}
+                onTextChange={event => onChange({ isExpression: isExActive, value: event } as any)}
+                errorMsg={errorMsg}
+            />
+        ) : (
+            <TextField
+                placeholder={placeholder}
+                label={label}
+                labelAdornment={labelAdornment}
+                required={required}
+                disabled={disabled}
+                icon={{
+                    iconComponent: <ExButton isActive={isExActive} onClick={() => {
+                        if (canChange) {
+                            setIsExpression(!isExActive);
+                        }
+                    }} />,
+                    position: "end"
+                }}
+                value={value.value}
+                onTextChange={event => onChange({ isExpression: isExActive, value: event } as any)}
+                errorMsg={errorMsg}
+            />
+        )}
     </>;
 }
 
 export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFieldProps>((props, ref) => {
-    const { label, labelAdornment, placeholder, required, disabled, openExpressionEditor, onChange, canChange, errorMsg, sx } = props;
+    const { label, labelAdornment, placeholder, required, disabled, openExpressionEditor, onChange, canChange, errorMsg, sx, isTextArea } = props;
     let value = props.value;
     const [isExpression, setIsExpression] = React.useState(value?.isExpression || false);
 
@@ -169,6 +192,7 @@ export const ExpressionField = React.forwardRef<HTMLInputElement, ExpressionFiel
             required={required}
             disabled={disabled}
             isExActive={isExpression}
+            isTextArea={isTextArea}
             openExpressionEditor={openExpressionEditor}
             placeholder={placeholder}
             setIsExpression={setIsExpression}
