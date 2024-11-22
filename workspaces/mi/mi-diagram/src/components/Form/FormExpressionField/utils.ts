@@ -47,9 +47,18 @@ const mapCompletionItemKind = (kind: number): CompletionItemKind => {
 };
 
 export const modifyCompletion = (completion: ExpressionCompletionItem): CompletionItem => {
+    let completionValue = completion.insertText;
+
+    // For functions add the opening bracket
+    const fnRegex = /\w+(?=\(.*\))/;
+    const fnMatch = completion.insertText.match(fnRegex);
+    if (fnMatch) {
+        completionValue = `${fnMatch}(`;
+    }
+
     return {
         label: completion.label,
-        value: completion.insertText,
+        value: completionValue,
         kind: mapCompletionItemKind(completion.kind),
         description: completion.detail,
         sortText: completion.sortText
