@@ -233,7 +233,7 @@ export function Form(props: FormProps) {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors }
+        formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -470,7 +470,10 @@ export function Form(props: FormProps) {
                         <S.DataMapperRow>
                             <S.UseDataMapperButton
                                 appearance="secondary"
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                                onClick={handleSubmit((data) => isDirty
+                                    ? handleOnSave({...data, isDataMapperFormUpdate: true})
+                                    : handleOnUseDataMapper()
+                                )}
                             >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
