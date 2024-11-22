@@ -39,7 +39,7 @@ import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
 import { log } from '../util/logger';
-import { CONFIG_JAVA_HOME } from '../debugger/constants';
+import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH } from '../debugger/constants';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -119,10 +119,10 @@ export class MILanguageClient {
     }
 
     public async checkJDKCompatibility(javaHome: string): Promise<boolean> {
-        const env = { ...process.env }; 
+        const env = { ...process.env };
         env.PATH = `${path.join(javaHome, 'bin')}${path.delimiter}${env.PATH}`;
         const { stderr } = await exec('java -version',
-            {env: env}
+            { env: env }
         );
         const isCompatible = this.isCompatibleJDKVersion(stderr);
         return isCompatible;
@@ -281,8 +281,10 @@ export class MILanguageClient {
 
             }
             let extensionPath = extensions.getExtension("wso2.micro-integrator")!.extensionPath;
+            const config = workspace.getConfiguration('MI');
+            const currentServerPath = config.get<string>(CONFIG_SERVER_PATH);
             xml['xml']['extensionPath'] = [`${extensionPath}`];
-            xml['xml']['miServerPath'] = "/Users/thuvarakan/Downloads/wso2mi-4.3.0";
+            xml['xml']['miServerPath'] = currentServerPath;
             xml['xml']['catalogs'] = [`${extensionPath}/synapse-schemas/catalog.xml`];
             xml['xml']['useCache'] = true;
             return xml;
