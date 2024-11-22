@@ -120,6 +120,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const handleCancel = () => {
         retrieveCompletions.cancel();
         setCompletions([]);
+
+        onCancel?.();
     };
 
     const handleFocus = async () => {
@@ -149,7 +151,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onChange={handleChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
-                    onCancel={onCancel}
+                    onCancel={handleCancel}
                     completions={completions}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
