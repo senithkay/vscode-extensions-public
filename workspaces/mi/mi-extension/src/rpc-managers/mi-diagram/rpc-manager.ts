@@ -3434,7 +3434,7 @@ ${endpointAttributes}
                 if (!fs.existsSync(registryPath)) {
                     fs.mkdirSync(registryPath, { recursive: true });
                 }
-                await replaceFullContentToFile(destPath, fileContent ? fileContent : "");
+                fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
