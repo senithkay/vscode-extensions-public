@@ -14,19 +14,17 @@ import { Button, Codicon, CompletionItem, ErrorBanner, ExpressionBar, Expression
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
-import { ConfigurePanelData, FlowNode, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
 import { debounce } from 'lodash';
 import { Colors } from '../../resources/constants';
 import { sanitizeType } from './utils';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
-    node: FlowNode;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
-    projectPath?: string;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
@@ -153,7 +151,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const {
         control,
         field,
-        node,
         watch,
         completions,
         triggerCharacters,
@@ -170,7 +167,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         isActiveSubPanel,
         targetLineRange,
         fileName,
-        projectPath,
         handleOnFieldFocus,
         autoFocus
     } = props as ExpressionEditorProps;
@@ -247,7 +243,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const handleInlineDataMapperOpen = () => {
         handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
                 filePath: contextFileName,
-                flowNode: node,
+                flowNode: undefined, // This will be updated in the Form component
                 position: {
                     line: effectiveTargetLineRange.startLine.line,
                     offset: effectiveTargetLineRange.startLine.offset,

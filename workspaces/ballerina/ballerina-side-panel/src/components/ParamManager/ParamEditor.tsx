@@ -10,24 +10,21 @@
 
 import React, { useState } from 'react';
 
-import { EditorContainer, EditorContent } from './styles';
+import { EditorContainer } from './styles';
 import { Parameter } from './ParamManager';
-import Form, { FormProps } from '../Form';
+import Form from '../Form';
 import { FormField, FormValues } from '../Form/types';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { useFormContext } from '../../context';
-import { FlowNode } from '@wso2-enterprise/ballerina-core';
 
 export interface ParamProps {
     parameter: Parameter;
     paramFields: FormField[];
-    node: FlowNode;
     onSave: (param: Parameter) => void;
     onCancelEdit: (param?: Parameter) => void;
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { parameter, paramFields, node, onSave, onCancelEdit } = props;
+    const { parameter, paramFields, onSave, onCancelEdit } = props;
     const { expressionEditor: { completions, retrieveCompletions, retrieveVisibleTypes, getExpressionDiagnostics, onCancel } } = useFormContext();
 
     const [fields, setFields] = useState<FormField[]>(paramFields);
@@ -42,7 +39,6 @@ export function ParamEditor(props: ParamProps) {
         <EditorContainer>
             <Form
                 formFields={fields}
-                node={node}
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
                 expressionEditor={{

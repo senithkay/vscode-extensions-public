@@ -158,7 +158,6 @@ namespace S {
 }
 export interface FormProps {
     formFields: FormField[];
-    node: FlowNode;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -200,12 +199,12 @@ export interface FormProps {
     };
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
 }
 
 export function Form(props: FormProps) {
     const {
         formFields,
-        node,
         projectPath,
         selectedNode,
         onSubmit,
@@ -219,7 +218,8 @@ export function Form(props: FormProps) {
         targetLineRange,
         fileName,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        mergeFormDataWithFlowNode
     } = props;
 
     const {
@@ -321,6 +321,25 @@ export function Form(props: FormProps) {
         }
     };
 
+    const handleOpenSubPanel = (subPanel: SubPanel) => {
+        let updatedSubPanel = subPanel;
+        if (subPanel.view === SubPanelView.INLINE_DATA_MAPPER) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            const inlineDMProps = {
+                ...subPanel.props.inlineDataMapper,
+                flowNode: flowNode,
+            };
+            updatedSubPanel = {
+                ...subPanel,
+                props: {
+                    ...subPanel.props,
+                    inlineDataMapper: inlineDMProps,
+                },
+            };
+        }
+        openSubPanel(updatedSubPanel);
+    };
+
     const handleGetExpressionDiagnostics = async (
         showDiagnostics: boolean,
         expression: string,
@@ -408,8 +427,6 @@ export function Form(props: FormProps) {
                         {variableField &&
                             <EditorFactory
                                 field={variableField}
-                                node={node}
-                                projectPath={projectPath}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
                             />
@@ -417,10 +434,8 @@ export function Form(props: FormProps) {
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
-                                node={node}
-                                projectPath={projectPath}
                                 openRecordEditor={handleOpenRecordEditor}
-                                openSubPanel={openSubPanel}
+                                openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
                             />
                         )}
@@ -441,11 +456,9 @@ export function Form(props: FormProps) {
                                     <EditorFactory
                                         ref={exprRef}
                                         field={field}
-                                        node={node}
-                                        projectPath={projectPath}
                                         selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
-                                        openSubPanel={openSubPanel}
+                                        openSubPanel={handleOpenSubPanel}
                                         isActiveSubPanel={isActiveSubPanel}
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
@@ -497,10 +510,8 @@ export function Form(props: FormProps) {
                                         <EditorFactory
                                             ref={exprRef}
                                             field={field}
-                                            node={node}
-                                            projectPath={projectPath}
                                             openRecordEditor={handleOpenRecordEditor}
-                                            openSubPanel={openSubPanel}
+                                            openSubPanel={handleOpenSubPanel}
                                             isActiveSubPanel={isActiveSubPanel}
                                             handleOnFieldFocus={handleOnFieldFocus}
                                         />

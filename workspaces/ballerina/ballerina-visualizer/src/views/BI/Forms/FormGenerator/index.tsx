@@ -8,19 +8,31 @@
  */
 
 import { useEffect, useState } from "react";
-import { EVENT_TYPE, FlowNode, LineRange, NodePosition, SubPanel, VisualizerLocation, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import {
+    EVENT_TYPE,
+    FlowNode,
+    LineRange,
+    NodePosition,
+    SubPanel,
+    VisualizerLocation,
+    FormDiagnostics
+} from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertNodePropertiesToFormFields,
     enrichFormPropertiesWithValueConstraint,
-    getFormProperties,
-    updateNodeProperties,
+    getFormProperties
 } from "../../../../utils/bi";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
-import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import {
+    createNodeWithUpdatedLineRange,
+    processFormData,
+    removeEmptyNodes,
+    updateNodeWithProperties
+} from "../form-utils";
 
 interface FormProps {
     fileName: string;
@@ -130,47 +142,29 @@ export function FormGenerator(props: FormProps) {
     const handleOnSubmit = (data: FormValues) => {
         console.log(">>> on form generator submit", data);
         if (node && targetLineRange) {
-            let updatedNode: FlowNode = {
-                ...node,
-                codedata: {
-                    ...node.codedata,
-                    lineRange: {
-                        ...node.codedata.lineRange,
-                        startLine: targetLineRange.startLine,
-                        endLine: targetLineRange.endLine,
-                    },
-                },
-            };
-
-            // assign to a existing variable
-            if ("update-variable" in data) {
-                data["variable"] = data["update-variable"];
-                data["type"] = "";
-            }
-
-            if (node.branches?.at(0)?.properties) {
-                // branch properties
-                // TODO: Handle multiple branches
-                const updatedNodeProperties = updateNodeProperties(data, node.branches.at(0).properties);
-                updatedNode.branches.at(0).properties = updatedNodeProperties;
-            } else if (node.properties) {
-                // node properties
-                const updatedNodeProperties = updateNodeProperties(data, node.properties);
-                updatedNode.properties = updatedNodeProperties;
-            } else {
-                console.error(">>> Error updating source code. No properties found");
-            }
+            const updatedNode = mergeFormDataWithFlowNode(data, targetLineRange);
             console.log(">>> Updated node", updatedNode);
-
-            // check all nodes and remove empty nodes
-            const removeEmptyNodeVisitor = new RemoveEmptyNodesVisitor(updatedNode);
-            traverseNode(updatedNode, removeEmptyNodeVisitor);
-            const updatedNodeWithoutEmptyNodes = removeEmptyNodeVisitor.getNode();
-
+            
             const isDataMapperFormUpdate = data["isDataMapperFormUpdate"];
-
-            onSubmit(updatedNodeWithoutEmptyNodes, isDataMapperFormUpdate);
+            onSubmit(updatedNode, isDataMapperFormUpdate);
         }
+    };
+
+    const mergeFormDataWithFlowNode = (
+        data: FormValues,
+        targetLineRange: LineRange
+    ): FlowNode => {
+        // Create updated node with new line range
+        const updatedNode = createNodeWithUpdatedLineRange(node, targetLineRange);
+        
+        // assign to a existing variable
+        const processedData = processFormData(data);
+        
+        // Update node properties
+        const nodeWithUpdatedProps = updateNodeWithProperties(node, updatedNode, processedData);
+        
+        // check all nodes and remove empty nodes
+        return removeEmptyNodes(nodeWithUpdatedProps);
     };
 
     const handleOpenView = async (filePath: string, position: NodePosition) => {
@@ -215,7 +209,6 @@ export function FormGenerator(props: FormProps) {
             {fields && fields.length > 0 && (
                 <Form
                     formFields={fields}
-                    node={node}
                     projectPath={projectPath}
                     selectedNode={node.codedata.node}
                     openRecordEditor={handleOpenRecordEditor}
@@ -228,6 +221,7 @@ export function FormGenerator(props: FormProps) {
                     fileName={fileName}
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
+                    mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
                 />
             )}
             {showRecordEditor && (
