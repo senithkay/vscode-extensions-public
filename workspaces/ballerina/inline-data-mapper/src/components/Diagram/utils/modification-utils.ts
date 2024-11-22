@@ -15,7 +15,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
     
 }
 
-export async function getUpdatedMappings(link: DataMapperLinkModel) {
+export async function modifySourceForMultipleMappings(link: DataMapperLinkModel) {
 	const targetPort = link.getTargetPort();
 	if (!targetPort) {
 		return;
@@ -27,7 +27,9 @@ export async function getUpdatedMappings(link: DataMapperLinkModel) {
 	const input = (link.getSourcePort() as InputOutputPortModel).optionalOmittedFieldFQN;
 
 	const updatedMappings = mappings.mappings.map(mapping => {
-		if (mapping.output === outputPortModel.optionalOmittedFieldFQN) {
+		const portNameParts = outputPortModel.portName.split('.');
+		const portId = portNameParts.slice(1).join('.');
+		if (mapping.output === portId) {
 			return {
 				...mapping,
 				inputs: [...mapping.inputs, input],
@@ -37,7 +39,7 @@ export async function getUpdatedMappings(link: DataMapperLinkModel) {
 		return mapping;
 	});
 
-	return updatedMappings;
+	return await targetNode.context.applyModifications(updatedMappings);
 }
 
 export async function updateExistingValue(sourcePort: PortModel, targetPort: PortModel, newValue?: string, suffix: string = '') {

@@ -13,7 +13,7 @@ import React from "react";
 import type {} from "@emotion/styled";
 import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { IDMModel } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, Mapping } from "@wso2-enterprise/ballerina-core";
 import { ErrorBoundary } from "@wso2-enterprise/ui-toolkit";
 
 import { InlineDataMapper } from "./components/DataMapper/DataMapper";
@@ -39,17 +39,16 @@ const globalStyles = css`
 
 export interface DataMapperViewProps {
     model: IDMModel;
+    applyModifications: (mappings: Mapping[]) => Promise<void>;
     onClose: () => void;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
-    const { model, onClose } = props;
-
     return (
         <ErrorBoundary errorMsg="An error occurred while redering the Inline Data Mapper">
             <QueryClientProvider client={queryClient}>
                 <Global styles={globalStyles} />
-                <InlineDataMapper model={model} onClose={onClose} />
+                <InlineDataMapper {...props}/>
             </QueryClientProvider>
         </ErrorBoundary>
     );

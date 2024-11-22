@@ -10,7 +10,7 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { IDMModel } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, Mapping } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
@@ -33,6 +33,7 @@ const classes = {
 
 export interface InlineDataMapperProps {
     model: IDMModel;
+    applyModifications: (mappings: Mapping[]) => Promise<void>;
     onClose: () => void;
 }
 
@@ -64,7 +65,7 @@ function viewsReducer(state: View[], action: ViewAction) {
 }
 
 export function InlineDataMapper(props: InlineDataMapperProps) {
-    const { model, onClose } = props;
+    const { model, applyModifications, onClose } = props;
 
     const initialView = [{
         label: 'Root', // TODO: Pick a better label
@@ -103,7 +104,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
     }, [views]);
 
     const generateNodes = () => {
-        const context = new DataMapperContext(model, views, addView);
+        const context = new DataMapperContext(model, views, addView, applyModifications);
         const nodeInitVisitor = new NodeInitVisitor(context);
         traverseNode(model, nodeInitVisitor);
         setNodes(nodeInitVisitor.getNodes());
@@ -118,13 +119,6 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
     const handleVersionChange = async (action: 'dmUndo' | 'dmRedo') => {
         // TODO: Implement undo/redo
     };
-
-    useEffect(() => {
-        const context = new DataMapperContext(model, views, addView);
-        const nodeInitVisitor = new NodeInitVisitor(context);
-        traverseNode(model, nodeInitVisitor);
-        setNodes(nodeInitVisitor.getNodes());
-    }, [model]);
 
     return (
         <DataMapperErrorBoundary hasError={hasInternalError}>
