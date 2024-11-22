@@ -19,6 +19,7 @@ import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionFiel
 import { handleOpenExprEditor, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
+import { FormGenerator } from '../../..';
 
 const cardStyle = {
     display: "block",
@@ -72,7 +73,7 @@ const AddConnector = (props: AddConnectorProps) => {
     const [connections, setConnections] = useState([] as any);
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
-    const { control, handleSubmit, setValue, formState: { errors }, getValues, watch } = useForm();
+    const { control, handleSubmit, setValue, reset, formState: { errors }, getValues, watch } = useForm();
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
@@ -374,285 +375,9 @@ const AddConnector = (props: AddConnectorProps) => {
         });
     }
 
-    const ExpressionFieldComponent = ({ element, field }: { element: Element, field: any }) => {
-
-        return <ExpressionField
-            {...field} label={element.displayName}
-            placeholder={element.helpTip}
-            canChange={true}
-            required={element.required === 'true'}
-            defaultValue={{ isExpression: false, value: element.defaultValue, namespaces: {} }}
-            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-            openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-        />
-    }
-
-    const renderFormElement = (element: Element, field: any) => {
-        switch (element.inputType) {
-            case 'string':
-                if (element.name === 'connectionName') {
-                    return null;
-                }
-                return (
-                    <TextField {...field}
-                        label={element.displayName}
-                        size={50}
-                        placeholder={element.helpTip}
-                        required={element.required === 'true'}
-                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                    />
-                );
-            case 'boolean':
-                return (
-                    <FormCheckBox
-                        name={getNameForController(element.name)}
-                        label={element.displayName}
-                        control={control}
-                    />
-                );
-            case 'checkbox':
-                return (
-                    <FormCheckBox
-                        name={getNameForController(element.name)}
-                        label={element.displayName}
-                        control={control}
-                    />
-                );
-            case 'combo':
-                const comboitems = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
-                return (
-                    <AutoComplete
-                        name={getNameForController(element.name)}
-                        label={element.displayName}
-                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                        items={comboitems}
-                        value={field.value}
-                        onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }}
-                        required={element.required === 'true'}
-                        allowItemCreate={false}
-                    />
-                );
-            case 'stringOrExpression':
-            case 'stringOrExpresion':
-            case 'textOrExpression':
-            case 'textAreaOrExpression':
-            case 'integerOrExpression':
-                return ExpressionFieldComponent({ element, field });
-
-            case 'booleanOrExpression':
-            case 'comboOrExpression':
-                const items = element.inputType === 'booleanOrExpression' ? ["true", "false"] : element.comboValues;
-                const allowItemCreate = element.inputType === 'comboOrExpression';
-                return (
-                    <AutoComplete
-                        name={getNameForController(element.name)}
-                        label={element.displayName}
-                        errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                        items={items}
-                        value={field.value}
-                        onValueChange={(e: any) => {
-                            field.onChange(e);
-                        }}
-                        required={element.required === 'true'}
-                        allowItemCreate={allowItemCreate}
-                    />
-                );
-            case 'connection':
-                return (
-                    <>
-                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                                <label>{element.displayName}</label>
-                                {element.required === 'true' && <RequiredFormInput />}
-                            </div>
-                            <LinkButton onClick={() => addNewConnection()}>
-                                <Codicon name="plus" />Add new connection
-                            </LinkButton>
-                        </div>
-                        <AutoComplete
-                            name="configKey"
-                            errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
-                            items={connections}
-                            value={field.value}
-                            onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }}
-                            required={element.required === 'true'}
-                            allowItemCreate={false}
-                        />
-                    </>);
-
-            default:
-                return null;
-        }
-    };
-
-    const renderForm: any = (elements: any[]) => {
-        return elements.map((element: { type: string; value: any; }) => {
-            if (element.type === 'attribute') {
-                if (element.value.hidden) {
-                    setValue(getNameForController(element.value.name), element.value.defaultValue ?? "");
-                    return;
-                }
-
-                if (element.value.enableCondition) {
-                    return (
-                        renderControllerIfConditionMet(element)
-                    );
-                }
-
-                if (element.value.name === "configRef") {
-                    element.value.name = "configKey";
-                }
-
-                if (getValues(getNameForController(element.value.name)) === undefined && element.value.defaultValue) {
-                    setValue(getNameForController(element.value.name), element.value.defaultValue)
-                }
-
-                if (element.value.inputType === 'connection' && !props.fromConnectorStore && !sidePanelContext.formValues?.form) {
-                    !getValues(element.value.name) && setValue(element.value.name, connections[0]);
-                    return;
-                }
-
-                return <Controller
-                    name={getNameForController(element.value.name)}
-                    control={control}
-                    defaultValue={element.value.defaultValue ?? ""}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
-                        }
-                    }
-                    render={({ field }) => (
-                        <Field>
-                            {renderFormElement(element.value, field)}
-                        </Field>
-                    )}
-                />;
-            } else if (element.type === 'attributeGroup') {
-                if (element.value.groupName === "Search") {
-                    return;
-                }
-
-                return (
-                    <>
-                        {element.value.groupName === "General" ? renderForm(element.value.elements) :
-                            <>
-                                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                    <h3 style={{ margin: '0 0 15px 0' }}>{element.value.groupName}</h3>
-                                    {renderForm(element.value.elements)}
-                                </ComponentCard>
-                            </>
-                        }
-                    </>
-                );
-            }
-            return null;
-        });
-    };
 
     if (isLoading) {
         return <ProgressIndicator />;
-    }
-
-    const renderControllerIfConditionMet = (element: any) => {
-        let watchStatements: boolean;
-
-        if (Array.isArray(element.value.enableCondition)) {
-            const firstElement = element.value.enableCondition[0];
-
-            if (firstElement === "AND") {
-                // Handle AND conditions
-                watchStatements = true;
-                const conditions = element.value.enableCondition.slice(1);
-                const statements = conditions.forEach((condition: any) => {
-                    const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    if (!(watch(conditionKey) === conditionValue && watchStatements)) {
-                        watchStatements = false;
-                    }
-                });
-            } else if (firstElement === "OR") {
-                // Handle OR conditions
-                watchStatements = false;
-                const conditions = element.value.enableCondition.slice(1);
-                const statements = conditions.forEach((condition: any) => {
-                    const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    if (watch(conditionKey) === conditionValue || watchStatements) {
-                        watchStatements = true;
-                    }
-                });
-            } else if (firstElement === "NOT") {
-                // Handle NOT conditions
-                watchStatements = false;
-                const condition = element.value.enableCondition.slice(1)[0];
-                if (condition) {
-                    const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    watchStatements = watch(conditionKey) !== conditionValue;
-                }
-            } else {
-                // Handle Single condition
-                const condition = element.value.enableCondition[0];
-                if (condition) {
-                    const key = Object.keys(condition)[0];
-                    const conditionKey = getNameForController(key);
-                    const conditionValue = condition[key];
-                    watchStatements = watch(conditionKey) === conditionValue;
-                }
-            }
-        }
-
-        if (watchStatements) {
-            if (!getValues(getNameForController(element.value.name))) {
-                setValue(getNameForController(element.value.name), element.value.defaultValue)
-            }
-
-            return (
-                <Controller
-                    name={getNameForController(element.value.name)}
-                    control={control}
-                    defaultValue={element.value.defaultValue ?? ""}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
-                        }
-                    }
-                    render={({ field }) => (
-                        <Field>
-                            {renderFormElement(element.value, field)}
-                        </Field>
-                    )}
-                />
-            );
-        } else {
-            if (getValues(getNameForController(element.value.name))) {
-                setValue(getNameForController(element.value.name), "")
-            }
-
-        }
-
-        return null; // Return null if conditions are not met
     }
 
     return (
@@ -760,7 +485,19 @@ const AddConnector = (props: AddConnectorProps) => {
                     ))
                 ) :
                     <>
-                        {renderForm(props.formData.elements)}
+                        {/* {renderForm(props.formData.elements)} */}
+                        <FormGenerator
+                            formData={formData}
+                            control={control}
+                            errors={errors}
+                            setValue={setValue}
+                            reset={reset}
+                            watch={watch}
+                            getValues={getValues}
+                            skipGeneralHeading={true}
+                            ignoreFields={["connectionName"]}
+                            connections={connections}
+                            addNewConnection={addNewConnection} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                             <Button
                                 appearance="primary"
