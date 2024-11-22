@@ -36,14 +36,37 @@ type InputsFields = {
     registryType?: "gov" | "conf";
 };
 
-const initialRegistryResource: InputsFields = {
-    templateType: "XSLT File",
+const getInitialRegistryResource = (type: string): InputsFields => ({
+    templateType: getTemplateType(type),
     filePath: "Please select a file or folder",
     resourceName: "",
     artifactName: "",
-    registryPath: "/",
+    registryPath: type ? '/' + type : '/',
     createOption: "new",
     registryType: "gov"
+});
+
+const getTemplateType = (type: string) => {
+    switch (type) {
+        case "xslt":
+            return "XSLT File";
+        case "xsl":
+            return "XSL File";
+        case "xsd":
+            return "XSD File";
+        case "wsdl":
+            return "WSDL File";
+        case "yaml":
+            return "YAML File";
+        case "json":
+            return "JSON File";
+        case "js":
+            return "Javascript File";
+        case "dmc":
+            return "Data Mapper";
+        default:
+            return "XSLT File";
+    }
 };
 
 export function RegistryResourceForm(props: RegistryWizardProps) {
@@ -102,7 +125,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         setValue,
         watch
     } = useForm<InputsFields>({
-        defaultValues: initialRegistryResource,
+        defaultValues: getInitialRegistryResource(props.type),
         resolver: yupResolver(schema),
         mode: "onChange",
     });
