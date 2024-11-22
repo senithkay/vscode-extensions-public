@@ -310,16 +310,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                         </div>
                     </div>
                 );
-            case 'configurable':
-                return (
-                    <TextField {...field}
-                    label={element.displayName}
-                    size={50}
-                    placeholder={element.helpTip}
-                    required={element.required === 'true'}
-                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                />
-                );
             case 'link':
                 return (
                     <div>
