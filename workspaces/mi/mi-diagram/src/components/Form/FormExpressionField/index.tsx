@@ -100,7 +100,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 offset: cursorPosition,
             });
             const modifiedCompletions =
-                completions?.items.map((completion: any) => modifyCompletion(completion)) ?? [];
+                completions?.items
+                    .map((completion: any) => modifyCompletion(completion))
+                    .sort((a, b) => a.sortText.localeCompare(b.sortText)) ?? [];
             setCompletions(modifiedCompletions);
         },
         [rpcClient]
