@@ -17,7 +17,7 @@ import {
     ExpressionBarRef,
     RequiredFormInput,
 } from '@wso2-enterprise/ui-toolkit';
-import { Position } from 'vscode-languageserver-types';
+import { Range } from 'vscode-languageserver-types';
 import { modifyCompletion } from './utils';
 import { debounce } from 'lodash';
 import styled from '@emotion/styled';
@@ -29,7 +29,7 @@ import styled from '@emotion/styled';
  * @param required - Whether the expression is required
  * @param value - The value of the expression
  * @param placeholder - The placeholder of the expression
- * @param position - The position of the node with the expression
+ * @param nodeRange - The range of the node with the expression
  * @param onChange - Callback function to be called when the expression changes
  * @param onFocus - Callback function to be called when the expression is focused
  * @param onBlur - Callback function to be called when the expression is blurred
@@ -42,7 +42,7 @@ type FormExpressionFieldProps = {
     required: boolean;
     value: string;
     placeholder: string;
-    position: Position;
+    nodeRange: Range;
     onChange: (value: string) => void;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
@@ -77,7 +77,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         required,
         value,
         placeholder,
-        position,
+        nodeRange,
         onChange,
         onCancel,
         errorMsg,
@@ -96,7 +96,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             const completions = await rpcClient.getMiDiagramRpcClient().getExpressionCompletions({
                 documentUri,
                 expression,
-                position,
+                position: nodeRange.start,
                 offset: cursorPosition,
             });
             const modifiedCompletions =
