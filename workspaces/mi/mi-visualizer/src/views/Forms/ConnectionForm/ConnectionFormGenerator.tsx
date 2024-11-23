@@ -159,12 +159,6 @@ export function AddConnection(props: AddConnectionProps) {
                                 }
                                 initialConnectionFoundParameters.set(param.name, value);
                             }
-                            // if (param.name === 'trustStoreCertificatePath') {
-                            //     setCurrentCertificatePath(param.value);
-                            // }
-                            // if (param.name === 'certificateConfigurableName') {
-                            //     setCurrentCertificateConfigurableName(param.value)
-                            // }
                         });
                     }
                     setConnectionFoundParameters(initialConnectionFoundParameters);
@@ -365,54 +359,6 @@ export function AddConnection(props: AddConnectionProps) {
                 }
             }
         });
-
-        // if (values['certificateConfigurableName']) {
-        //     const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-        //     const currentEnvFilePath = projectUri + "/.env";
-        //     const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
-
-        //     const certificateConfigurableName = values['certificateConfigurableName'];
-        //     if (certificateConfigurableName) {
-        //         rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
-        //             configurableName: certificateConfigurableName,
-        //             currentConfigurableName: currentCertificateConfigurableName,
-        //             currentCertificateFileName: connectionFoundParameters.get('certificateConfigurableName'),
-        //             storedProjectCertificateDirPath: projectCertificateDirPath,
-        //             configPropertiesFilePath: currentConfigPropertiesFilePath,
-        //             envFilePath: currentEnvFilePath,
-        //             certificateUsages: certificateUsageObj
-        //         })
-        //         connectorTag.ele('certificateConfigurableName').txt(certificateConfigurableName);
-        //     }
-        // }
-
-        // if (values['trustStoreCertificatePath']) {
-        //     const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-        //     const currentEnvFilePath = projectUri + "/.env";
-        //     const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
-
-        //     const currentCertificateFilePath = values['trustStoreCertificatePath'];
-
-        //     if (currentCertificateFilePath) {
-        //         if (isCertificateFilePath(currentCertificateFilePath)) {
-        //             const fileName = currentCertificateFilePath.split('/').pop();
-        //             if (currentCertificatePath !== currentCertificateFilePath) {
-        //                 connectorTag.ele('trustStoreCertificatePath').txt(fileName);
-        //                 rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
-        //                     certificateFilePath: currentCertificateFilePath, 
-        //                     currentCertificateFileName: currentCertificatePath,
-        //                     currentConfigurableName: currentCertificateConfigurableName,
-        //                     storedProjectCertificateDirPath: projectCertificateDirPath, 
-        //                     configPropertiesFilePath: currentConfigPropertiesFilePath, 
-        //                     envFilePath: currentEnvFilePath,
-        //                     certificateUsages: certificateUsageObj
-        //                 });
-        //             }
-        //         } else {
-        //             connectorTag.ele('trustStoreCertificatePath').txt(currentCertificateFilePath);
-        //         }
-        //     } 
-        // }
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
