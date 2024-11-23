@@ -177,17 +177,16 @@ export function getInnermostPropAsmtNode(propertyAssignment: PropertyAssignment)
 export function shouldCompletionsAppear(
     value: string,
     cursorPosition: number,
+    partialText: string,
 ): boolean {
+
+    if (!value) return true;
+
     const termBeforeCursor = value.substring(0, cursorPosition).trim();
-
-    if (termBeforeCursor.length === 0) return true;
-
     const lastChar = termBeforeCursor[termBeforeCursor.length - 1];
-    if (!isNaN(Number(lastChar)) || ['"', ')', ']', '}'].includes(lastChar)) return false;
 
-    if (termBeforeCursor.split('"').length % 2 == 0) return false;
-    if (termBeforeCursor.split("'").length % 2 == 0) return false;
-    if (termBeforeCursor.split('`').length % 2 == 0) return false;
+    if (!partialText && lastChar != '.') return false;
+    if (!isNaN(Number(partialText)) || [')', ']', '}', '"', "'", '`'].includes(lastChar)) return false;
 
     return true;
 }
