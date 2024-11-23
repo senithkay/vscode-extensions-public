@@ -17,6 +17,7 @@ import { ExpressionEditor } from '@wso2-enterprise/mi-diagram/lib/components/sid
 import { colors } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { removeConfigurableFormat, isCertificateFileName, isConfigurable } from './utils';
+import { Keylookup } from '@wso2-enterprise/mi-diagram/lib/components/Form/Keylookup/Keylookup';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -55,7 +56,7 @@ interface ExpressionValueWithSetter {
 
 
 export function FormGenerator(props: FormGeneratorProps) {
-    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, certificates, configurableEntries, skipGeneralHeading, ignoreFields } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, getValues, watch, skipGeneralHeading, ignoreFields } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -243,14 +244,14 @@ export function FormGenerator(props: FormGeneratorProps) {
                         />
                         {field.value.type === 'file' && (
                             <div>
-                                <AutoComplete
+                                <Keylookup 
                                     name={getNameForController(element.name)}
                                     label={element.displayName}
                                     errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                    items={certificates}
+                                    filterType='crt'
                                     value={field.value.value && isCertificateFileName(field.value.value) ? field.value.value : ""}
                                     onValueChange={(e: any) => {
-                                        field.onChange({ isCertificateFile: true, value: e, type: field.value.type });
+                                        field.onChange({ isCertificateFile: true, value: e, type: field.value.type })
                                     }}
                                     required={false}
                                     allowItemCreate={false}
@@ -262,11 +263,12 @@ export function FormGenerator(props: FormGeneratorProps) {
                         )}
                         {field.value.type === 'configurable' && (
                             <div>
-                                <AutoComplete
+                                <Keylookup 
                                     name={getNameForController(element.name)}
                                     label={element.displayName}
                                     errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                    items={configurableEntries?.filter(entry => entry.type === 'cert').map(entry => entry.name) || []}
+                                    filter={(configurableType) => configurableType === "cert"}
+                                    filterType='configurable'
                                     value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
                                     onValueChange={(e: any) => {
                                         field.onChange({ isCertificateFile: false, value: e, type: field.value.type });
@@ -274,40 +276,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     required={false}
                                     allowItemCreate={false}
                                 />
-                                {/* <TextField 
-                                    name={field.name}
-                                    onChange={(e: any) => field.onChange({ isCertificateFile: false, value: e.target.value, type: field.value.type })}
-                                    onBlur={field.onBlur}
-                                    ref={field.ref}
-                                    value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
-                                    label={element.displayName}
-                                    size={50}
-                                    placeholder={element.helpTip}
-                                    required={element.required === 'true'}
-                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                /> */}
                             </div>
                         )}
-                        <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
-                            {/* <AutoComplete
-                                name={getNameForController(element.name)}
-                                label={element.displayName}
-                                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                items={certificates}
-                                value={field.value.value}
-                                onValueChange={(e: any) => {
-                                    field.onChange({ isCertificateFile: true, value: e});
-                                }}
-                                required={false}
-                                allowItemCreate={false}
-                            /> */}
-                            {/* <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
-                                <div style={{ color: colors.editorForeground }}>Add file</div>
-                            </Button> */}
-                            {/* <Typography variant="body3">
-                                {errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString() ? errors[getNameForController(element.name)].message.toString() : watch(element.name)}
-                            </Typography> */}
-                        </div>
                     </div>
                 );
             case 'link':

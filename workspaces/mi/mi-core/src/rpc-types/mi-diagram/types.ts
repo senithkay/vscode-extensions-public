@@ -1340,6 +1340,7 @@ export type ResourceType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry";
 
 export interface MultipleResourceType {

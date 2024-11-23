@@ -42,10 +42,12 @@ export type FilterType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry"
     | "mockService"
     | "dssQuery"
     | "dssDataSource"
+    | "configurable"
 
 // Interfaces
 interface IKeylookupBase {
@@ -245,6 +247,17 @@ export const Keylookup = (props: IKeylookup) => {
                 });
             }
             setItems(configNames);
+            return;
+        }
+
+        if (filterType === "configurable") {
+            const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
+            const items = fetchedConfigurableEntries.configurableEntries;
+            let result = items.map(item => item.name);
+            if (filter) {
+                result = items.filter((item) => filter(item.type)).map(item => item.name) || [];
+            }
+            setItems(result);
             return;
         }
 
