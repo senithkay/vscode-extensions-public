@@ -12,7 +12,6 @@ import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import parse from 'html-react-parser';
 import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keylookup, FormKeylookup } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
@@ -638,17 +637,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
-                {/* {formData.help && (
-                    <div
-                        style={{
-                            padding: "10px",
-                            marginBottom: "20px",
-                            borderBottom: "1px solid var(--vscode-editorWidget-border)"
-                        }}
-                    >
-                        {parse(formData.help)}
-                    </div>
-                )} */}
+                {formData.help && <Typography sx={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{formData.help}</Typography>}
                 {renderForm(formData.elements)}
             </>
         )
