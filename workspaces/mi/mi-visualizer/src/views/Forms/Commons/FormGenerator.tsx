@@ -83,7 +83,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             title: "Select a file to be imported."
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(async (response) =>{
-            setValue(filePathPropertyName, {isCertificateFile: true, value: response.filePath, type: 'file'}, { shouldDirty: true });
+            setValue(filePathPropertyName, {isCertificate: true, value: response.filePath, type: 'file'}, { shouldDirty: true });
         }).catch(e => { console.log(e); })
     }
 
@@ -240,7 +240,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                             value={field.value.type}
                             orientation="horizontal"
                             options={[{ content: "File", value: "file" }, { content: "Configurable", value: "configurable" }]}
-                            onChange={(e: any) => field.onChange({ isCertificateFile: true, value: field.value.value, type: e.target.value })}
+                            onChange={(e: any) => field.onChange({ isCertificate: true, value: field.value.value, type: e.target.value })}
                         />
                         {field.value.type === 'file' && (
                             <div>
@@ -251,7 +251,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     filterType='crt'
                                     value={field.value.value && isCertificateFileName(field.value.value) ? field.value.value : ""}
                                     onValueChange={(e: any) => {
-                                        field.onChange({ isCertificateFile: true, value: e, type: field.value.type })
+                                        field.onChange({ isCertificate: true, value: e, type: field.value.type })
                                     }}
                                     required={false}
                                     allowItemCreate={false}
@@ -271,7 +271,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     filterType='configurable'
                                     value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
                                     onValueChange={(e: any) => {
-                                        field.onChange({ isCertificateFile: false, value: e, type: field.value.type });
+                                        field.onChange({ isCertificate: true, value: e, type: field.value.type });
                                     }}
                                     required={false}
                                     allowItemCreate={false}

@@ -150,9 +150,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 })) : [];
                                 if (inputType === 'certificateFileOrConfigurable') {
                                     if (isCertificateFilePath(value)) {
-                                        setValue(param.name, { isCertificateFile: true, type: 'file', value });
+                                        setValue(param.name, { isCertificate: true, type: 'file', value });
                                     } else {
-                                        setValue(param.name, { isCertificateFile: true, type: 'configurable', value: removeConfigurableFormat(value) });
+                                        setValue(param.name, { isCertificate: true, type: 'configurable', value: removeConfigurableFormat(value) });
                                     }
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
@@ -322,7 +322,7 @@ export function AddConnection(props: AddConnectionProps) {
                     const namespaces = values[key].namespaces;
                     const value = values[key].value;
                     const isExpression = values[key].isExpression;
-                    const isCertificateFile = values[key].isCertificateFile;
+                    const isCertificate = values[key].isCertificate;
                     const type = values[key].type;
 
                     if (value) {
@@ -337,11 +337,13 @@ export function AddConnection(props: AddConnectionProps) {
                             } else {
                                 connectorTag.ele(key).txt(`{${value}}`);
                             }
-                        } else if (isCertificateFile) {
-                            handleCertificateFile(projectUri, key, value, '', connectorTag, certificateUsageObj);
-                        } else if (type === 'configurable') {
-                            handleCertificateFile(projectUri, key, '', value, connectorTag, certificateUsageObj);
-                        }
+                        } else if (isCertificate) {
+                            if (type === 'file') {
+                                handleCertificateFile(projectUri, key, value, '', connectorTag, certificateUsageObj);
+                            } else if (type === 'configurable') {
+                                handleCertificateFile(projectUri, key, '', value, connectorTag, certificateUsageObj);    
+                            }
+                        } 
                         else {
                             connectorTag.ele(key).txt(value);
                         }
