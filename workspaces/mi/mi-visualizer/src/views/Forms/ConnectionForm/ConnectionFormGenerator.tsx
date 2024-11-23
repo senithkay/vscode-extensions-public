@@ -56,11 +56,7 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
-    const [certificatesList, setCertificatesList] = useState([]);
-    const [configurableEntries, setConfigurableEntries] = useState([]);
-    // const [currentCertificatePath, setCurrentCertificatePath] = useState('');
     const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
-    // const [currentCertificateConfigurableName, setCurrentCertificateConfigurableName] = useState('');
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -91,13 +87,6 @@ export function AddConnection(props: AddConnectionProps) {
                 const connectionUiSchema = props.connector.connectionUiSchema[getValues('connectionType')];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
-
-                const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
-                const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
-                setCertificatesList(certificateFiles);
-
-                const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
-                setConfigurableEntries(fetchedConfigurableEntries.configurableEntries);
 
                 setFormData(connectionFormJSON.formJSON);
                 reset({
@@ -147,13 +136,6 @@ export function AddConnection(props: AddConnectionProps) {
 
                 const parameters = connectionFound.parameters
                 const initialConnectionFoundParameters = new Map<any, any>();   
-
-                const resourceUsagesResult =  await rpcClient.getMiDiagramRpcClient().getResourceUsages();
-                const certificateFiles = Object.keys(resourceUsagesResult).filter(resource => resource.endsWith('.crt'));
-                setCertificatesList(certificateFiles);
-
-                const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
-                setConfigurableEntries(fetchedConfigurableEntries.configurableEntries);
 
                 // Populate form with existing values
                 if (connectionFormJSON.formJSON !== "") {
@@ -589,8 +571,6 @@ export function AddConnection(props: AddConnectionProps) {
                             setValue={setValue}
                             watch={watch}
                             getValues={getValues}
-                            certificates={certificatesList}
-                            configurableEntries={configurableEntries}
                             skipGeneralHeading={true}
                             ignoreFields={["connectionName"]} />
                         <FormActions>
