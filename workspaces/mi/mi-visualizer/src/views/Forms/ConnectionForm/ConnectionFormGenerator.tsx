@@ -263,7 +263,7 @@ export function AddConnection(props: AddConnectionProps) {
         if (newCertificatePath) {
             if (isCertificateFilePath(newCertificatePath)) {
                 const newCertificateFileName = newCertificatePath.split('/').pop();
-                connectorTag.ele(tagElementName).txt(newCertificateFileName);
+                connectorTag.ele(tagElementName).txt('resources:certificates/' + newCertificateFileName);
                 if (currentCertificatePath !== newCertificatePath) {
                     rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
                         certificateFilePath: newCertificatePath, 
