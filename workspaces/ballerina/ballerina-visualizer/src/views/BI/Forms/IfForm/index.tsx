@@ -69,7 +69,7 @@ export function IfForm(props: IfFormProps) {
     const [activeEditor, setActiveEditor] = useState<number>(0);
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
-    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics | undefined>(undefined);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
     const exprRef = useRef<ExpressionBarRef>(null);
 
@@ -107,6 +107,11 @@ export function IfForm(props: IfFormProps) {
             }
         });
     }, []);
+
+    const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
+        const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
+        setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
+    }
 
     const handleExpressionEditorCancel = () => {
         setFilteredCompletions([]);
@@ -324,7 +329,7 @@ export function IfForm(props: IfFormProps) {
         key: string
     ) => {
         if (!showDiagnostics) {
-            setDiagnosticsInfo({ key, diagnostics: [] });
+            handleSetDiagnosticsInfo({ key, diagnostics: [] });
             return;
         }
         
@@ -340,7 +345,7 @@ export function IfForm(props: IfFormProps) {
             }
         });
 
-        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+        handleSetDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250);
 
     const handleGetCompletions = async (
@@ -388,27 +393,36 @@ export function IfForm(props: IfFormProps) {
     };
 
     const isValid = useMemo(() => {
-        const key = diagnosticsInfo?.key;
-        if (!key) {
+        if (!diagnosticsInfo) {
             return true;
         }
 
-        const diagnostics: Diagnostic[] = diagnosticsInfo?.diagnostics || [];
-        if (diagnostics.length === 0) {
-            clearErrors(key);
-            return true;
-        } else {
-            const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
-            setError(key, { type: "validate", message: diagnosticsMessage });
+        let hasDiagnostics: boolean = true;
+        for (const diagnosticsInfoItem of diagnosticsInfo) {
+            const key = diagnosticsInfoItem.key;
+            if (!key) {
+                continue;
+            }
 
-            // If the severity is not ERROR, don't invalidate
-            const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
-            if (hasErrorDiagnostics) {
-                return false;
+            const diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
+            if (diagnostics.length === 0) {
+                clearErrors(key);
+                continue;
             } else {
-                return true;
+                const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+                setError(key, { type: "validate", message: diagnosticsMessage });
+    
+                // If the severity is not ERROR, don't invalidate
+                const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+                if (hasErrorDiagnostics) {
+                    hasDiagnostics = false;
+                } else {
+                    continue;
+                }
             }
         }
+
+        return hasDiagnostics;
     }, [diagnosticsInfo])
 
     const disableSaveButton = !isValid || isValidating;
