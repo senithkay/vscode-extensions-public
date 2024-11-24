@@ -141,22 +141,16 @@ export interface SampleDownloadRequest {
 
 export interface HandleCertificateFileRequest {
     certificateFilePath: string;
-    currentCertificateFileName: string;
-    currentConfigurableName: string;
     storedProjectCertificateDirPath: string;
     configPropertiesFilePath: string;
     envFilePath: string;
-    certificateUsages: object;
 }
 
 export interface HandleCertificateConfigurableRequest {
     configurableName: string;
-    currentConfigurableName: string;
-    currentCertificateFileName: string;
     storedProjectCertificateDirPath: string;
     configPropertiesFilePath: string;
     envFilePath: string;
-    certificateUsages: object;
 }
 
 export interface FileAppendRequest {

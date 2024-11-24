@@ -267,12 +267,9 @@ export function AddConnection(props: AddConnectionProps) {
                 if (currentCertificatePath !== newCertificatePath) {
                     rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
                         certificateFilePath: newCertificatePath, 
-                        currentCertificateFileName: currentCertificatePath,
-                        currentConfigurableName: currentCertificateConfigurableName,
                         storedProjectCertificateDirPath: projectCertificateDirPath, 
                         configPropertiesFilePath: currentConfigPropertiesFilePath, 
-                        envFilePath: currentEnvFilePath,
-                        certificateUsages: certificateUsageObj
+                        envFilePath: currentEnvFilePath
                     });
                 }
             } else {
@@ -282,12 +279,9 @@ export function AddConnection(props: AddConnectionProps) {
             connectorTag.ele(tagElementName).txt(formatForConfigurable(newCertificateConfigurableName));
             rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
                 configurableName: newCertificateConfigurableName,
-                currentConfigurableName: currentCertificateConfigurableName,
-                currentCertificateFileName: currentCertificatePath,
                 storedProjectCertificateDirPath: projectCertificateDirPath,
                 configPropertiesFilePath: currentConfigPropertiesFilePath,
-                envFilePath: currentEnvFilePath,
-                certificateUsages: certificateUsageObj
+                envFilePath: currentEnvFilePath
             });
         } else {
             connectorTag.ele(tagElementName).txt(currentCertificatePath);
@@ -307,12 +301,6 @@ export function AddConnection(props: AddConnectionProps) {
 
         const visualizerState = await rpcClient.getVisualizerState();
         const projectUri = visualizerState.projectUri;
-
-        const resourceUsagesResult: any = await rpcClient.getMiDiagramRpcClient().getResourceUsages();
-        const certificateUsageObj: any = new Object();
-        Object.keys(resourceUsagesResult).forEach(key => {
-            certificateUsageObj[key] = resourceUsagesResult[key];
-        });
 
         // Fill the values
         Object.keys(values).forEach((key: string) => {
@@ -339,9 +327,9 @@ export function AddConnection(props: AddConnectionProps) {
                             }
                         } else if (isCertificate) {
                             if (type === 'file') {
-                                handleCertificateFile(projectUri, key, value, '', connectorTag, certificateUsageObj);
+                                handleCertificateFile(projectUri, key, value, '', connectorTag, {});
                             } else if (type === 'configurable') {
-                                handleCertificateFile(projectUri, key, '', value, connectorTag, certificateUsageObj);    
+                                handleCertificateFile(projectUri, key, '', value, connectorTag, {});    
                             }
                         } 
                         else {

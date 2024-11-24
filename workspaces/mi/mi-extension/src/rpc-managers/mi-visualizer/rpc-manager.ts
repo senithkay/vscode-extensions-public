@@ -61,6 +61,7 @@ import { DebuggerConfig } from "../../debugger/config";
 import { SwaggerServer } from "../../swagger/server";
 import Mustache from "mustache";
 import { escapeXml } from '../../util/templates';
+import path = require("path");
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -168,32 +169,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async handleCertificateConfigurable(params: HandleCertificateConfigurableRequest): Promise<void> {
-        if (params.currentConfigurableName !== "") {
-            await deleteLineFromFile(params.configPropertiesFilePath, `${params.currentConfigurableName}:cert\n`);
-            await deleteLineFromFile(params.envFilePath, `${params.currentConfigurableName}\n`);
-        }
-        if (params.currentCertificateFileName && params.currentCertificateFileName !== "") {
-            const certificateUsedFiles = params.certificateUsages[params.currentCertificateFileName].resourceUsedFiles;
-            if (!certificateUsedFiles || certificateUsedFiles.length === 1) {
-                await deleteFile(params.storedProjectCertificateDirPath + params.currentCertificateFileName);
-            }
-        }
         await appendContent(params.configPropertiesFilePath, `${params.configurableName}:cert\n`);
         await appendContent(params.envFilePath, `${params.configurableName}\n`);
     }
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
         const fileName = getFileName(params.certificateFilePath);
-        if (params.currentConfigurableName && params.currentConfigurableName !== "") {
-            await deleteLineFromFile(params.configPropertiesFilePath, `${params.currentConfigurableName}:cert\n`);
-            await deleteLineFromFile(params.envFilePath, `${params.currentConfigurableName}\n`);
-        }
-        if (params.currentCertificateFileName && params.currentCertificateFileName !== "") {
-            const certificateUsedFiles = params.certificateUsages[params.currentCertificateFileName].resourceUsedFiles;
-            if (!certificateUsedFiles || certificateUsedFiles.length === 1) {
-                await deleteFile(params.storedProjectCertificateDirPath + params.currentCertificateFileName);
-            }
-        }
         await copyFile(params.certificateFilePath, params.storedProjectCertificateDirPath + fileName + '.crt');
     }
 
