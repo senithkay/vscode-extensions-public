@@ -35,6 +35,9 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    HandleCertificateFileRequest,
+    HandleCertificateConfigurableRequest,
+    FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -52,9 +55,10 @@ import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { goToSource, handleOpenFile, appendContent, getFileName, copyFile } from "../../util/fileOperations";
+import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import path from "path";
@@ -166,6 +170,23 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async handleCertificateConfigurable(params: HandleCertificateConfigurableRequest): Promise<void> {
+        const configPropertiesFilePath = [params.projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [params.projectUri, '.env'].join(path.sep);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:cert\n`);
+        await appendContent(envFilePath, `${params.configurableName}\n`);
+    }
+
+    async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
+        const certificateDirPath = [params.projectUri, 'src', 'main', 'wso2mi', 'resources', 'certificates'].join(path.sep);
+        const fileName = getFileName(params.certificateFilePath);
+        await copyFile(params.certificateFilePath, certificateDirPath + path.sep + fileName + '.crt');
+    }
+
+    async appendContentToFile(params: FileAppendRequest): Promise<boolean> {
+        return appendContent(params.filePath, params.content);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {

@@ -1343,6 +1343,7 @@ export type ResourceType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry";
 
 export interface MultipleResourceType {
@@ -1554,6 +1555,18 @@ export interface GetAllRegistryPathsResponse {
 
 export interface GetAllResourcePathsResponse {
     resourcePaths: string[];
+}
+
+export interface GetConfigurableEntriesRequest {
+    configurableEntryType: string;
+}
+
+export interface GetConfigurableEntriesResponse {
+    configurableEntries: { name: string; type: string }[];
+}
+
+export interface GetResourceUsagesResponse {
+    usages?: string[];
 }
 
 export interface GetAllArtifactsRequest {

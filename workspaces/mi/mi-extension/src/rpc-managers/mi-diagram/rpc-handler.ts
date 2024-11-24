@@ -156,6 +156,8 @@ import {
     getAllMockServices,
     getAllRegistryPaths,
     getAllResourcePaths,
+    getConfigurableEntries,
+    getResourceUsages,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -241,7 +243,8 @@ import {
     updateTestCase,
     updateTestSuite,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    DSSQueryGenRequest,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -351,6 +354,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
     messenger.onRequest(getAllResourcePaths, () => rpcManger.getAllResourcePaths());
+    messenger.onRequest(getConfigurableEntries, () => rpcManger.getConfigurableEntries());
+    messenger.onRequest(getResourceUsages, () => rpcManger.getResourceUsages());
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());

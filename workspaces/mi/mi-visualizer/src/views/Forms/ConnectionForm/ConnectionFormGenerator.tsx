@@ -15,7 +15,10 @@ import { create } from 'xmlbuilder2';
 import { useForm, Controller } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
-import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
+import { ParamConfig, ParamManager } from '@wso2-enterprise/mi-diagram';
+import FormGenerator from '../Commons/FormGenerator';
+import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
+import { formatForConfigurable, isConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
 const cardStyle = {
     display: "block",
@@ -44,7 +47,8 @@ export interface AddConnectionProps {
     handlePopupClose?: () => void;
 }
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion', 'file'];
+const certificateDirPath = 'src/main/wso2mi/resources/certificates/'
 
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes, handlePopupClose } = props;
@@ -52,6 +56,7 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
+    const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? "",
@@ -130,6 +135,7 @@ export function AddConnection(props: AddConnectionProps) {
                 });
 
                 const parameters = connectionFound.parameters
+                const initialConnectionFoundParameters = new Map<any, any>();   
 
                 // Populate form with existing values
                 if (connectionFormJSON.formJSON !== "") {
@@ -142,10 +148,20 @@ export function AddConnection(props: AddConnectionProps) {
                                 const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
                                     prefix: prefix.split(':')[1], uri: uri
                                 })) : [];
-                                setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
+                                if (inputType === 'certificateFileOrConfigurable') {
+                                    if (isCertificateFilePath(value)) {
+                                        setValue(param.name, { isCertificate: true, type: 'file', value });
+                                    } else {
+                                        setValue(param.name, { isCertificate: true, type: 'configurable', value: removeConfigurableFormat(value) });
+                                    }
+                                } else {
+                                    setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
+                                }
+                                initialConnectionFoundParameters.set(param.name, value);
                             }
                         });
                     }
+                    setConnectionFoundParameters(initialConnectionFoundParameters);
                 } else {
                     // Handle connections without uischema
                     // Remove connection name from param manager fields
@@ -219,6 +235,54 @@ export function AddConnection(props: AddConnectionProps) {
         return inputType;
     }
 
+    function getFileName(filePath: string): string {
+        const fileNameWithExt = filePath.split('/').pop();
+        return fileNameWithExt.split('.')[0];
+    }
+
+    function isValidConfigFormat(input: string): boolean {
+        const trimmedInput = input.trim();
+        const regex = /^\$config:[a-zA-Z]*/;
+        return regex.test(trimmedInput);
+    }
+
+    function isCertificateFilePath(path: string): boolean {
+        const extensionPattern = /\.crt$/;
+        return extensionPattern.test(path);
+    }
+
+    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, newCertificateConfigurableName: string, connectorTag: XMLBuilder) {
+        const storedTagElementValue = connectionFoundParameters.get(tagElementName);
+        const currentCertificatePath = isCertificateFilePath(storedTagElementValue) ? storedTagElementValue : '';
+        const currentCertificateConfigurableName = isConfigurable(storedTagElementValue) ? storedTagElementValue : '';
+        
+        if (newCertificatePath) {
+            if (isCertificateFilePath(newCertificatePath)) {
+                const newCertificateFileName = newCertificatePath.split('/').pop();
+                connectorTag.ele(tagElementName).txt('resources:certificates/' + newCertificateFileName);
+                if (currentCertificatePath !== newCertificatePath) {
+                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
+                        projectUri: projectUri,
+                        certificateFilePath: newCertificatePath
+                    });
+                }
+            } else {
+                connectorTag.ele(tagElementName).txt(currentCertificatePath);
+            }
+        } else if (newCertificateConfigurableName) {
+            const formattedConfigurableName = formatForConfigurable(newCertificateConfigurableName);
+            connectorTag.ele(tagElementName).txt(formattedConfigurableName);
+            if (currentCertificateConfigurableName !== formattedConfigurableName) {
+                rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
+                    projectUri: projectUri,
+                    configurableName: newCertificateConfigurableName
+                });
+            }
+        } else {
+            connectorTag.ele(tagElementName).txt(currentCertificatePath);
+        }
+    }
+
     const onAddConnection = async (values: any) => {
 
         const template = create();
@@ -230,6 +294,9 @@ export function AddConnection(props: AddConnectionProps) {
             console.error("Errors in saving connection form", errors);
         }
 
+        const visualizerState = await rpcClient.getVisualizerState();
+        const projectUri = visualizerState.projectUri;
+
         // Fill the values
         Object.keys(values).forEach((key: string) => {
             if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
@@ -238,6 +305,8 @@ export function AddConnection(props: AddConnectionProps) {
                     const namespaces = values[key].namespaces;
                     const value = values[key].value;
                     const isExpression = values[key].isExpression;
+                    const isCertificate = values[key].isCertificate;
+                    const type = values[key].type;
 
                     if (value) {
                         if (isExpression) {
@@ -251,12 +320,20 @@ export function AddConnection(props: AddConnectionProps) {
                             } else {
                                 connectorTag.ele(key).txt(`{${value}}`);
                             }
-                        } else {
+                        } else if (isCertificate) {
+                            if (type === 'file') {
+                                handleCertificateFile(projectUri, key, value, '', connectorTag);
+                            } else if (type === 'configurable') {
+                                handleCertificateFile(projectUri, key, '', value, connectorTag);    
+                            }
+                        } 
+                        else {
                             connectorTag.ele(key).txt(value);
                         }
                     }
                 } else {
                     const value = values[key];
+                    
                     if (typeof value === 'string' && value.includes('<![CDATA[')) {
                         // Handle CDATA
                         const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
@@ -270,8 +347,6 @@ export function AddConnection(props: AddConnectionProps) {
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
-        const visualizerState = await rpcClient.getVisualizerState();
-        const projectUri = visualizerState.projectUri;
         const sep = visualizerState.pathSeparator;
         const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 

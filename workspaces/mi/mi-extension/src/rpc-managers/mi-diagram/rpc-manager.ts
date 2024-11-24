@@ -90,6 +90,8 @@ import {
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
     GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
+    GetResourceUsagesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -3875,6 +3877,22 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getResourceFiles();
             resolve({ resourcePaths: res });
+        });
+    }
+    
+    async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConfigurableEntries();
+            resolve({ configurableEntries: res });
+        });
+    }
+ 
+    async getResourceUsages(): Promise<GetResourceUsagesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getResourceUsages();
+            resolve(res);
         });
     }
 

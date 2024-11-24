@@ -73,6 +73,8 @@ import {
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
     GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
+    GetResourceUsagesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -223,6 +225,8 @@ import {
     getAllMockServices,
     getAllRegistryPaths,
     getAllResourcePaths,
+    getConfigurableEntries,
+    getResourceUsages,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -765,6 +769,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
         return this._messenger.sendRequest(getAllResourcePaths, HOST_EXTENSION);
     }
+
+    getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return this._messenger.sendRequest(getConfigurableEntries, HOST_EXTENSION);
+    }
+
+    getResourceUsages(): Promise<GetResourceUsagesResponse> {
+        return this._messenger.sendRequest(getResourceUsages, HOST_EXTENSION);
+    } 
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
         return this._messenger.sendRequest(getAllArtifacts, HOST_EXTENSION, params);

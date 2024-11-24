@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, RequiredFormInput, TextField, Tooltip, Typography, RadioButtonGroup } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -19,6 +19,7 @@ import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
+import { removeConfigurableFormat, isCertificateFileName, isConfigurable } from './utils';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -370,6 +371,58 @@ export function FormGenerator(props: FormGeneratorProps) {
                     growRange={{ start: 5, offset: 10 }}
                     errorMsg={errorMsg}
                 />);
+            case 'certificateFileOrConfigurable':
+                const fileType = 'crt'
+                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                    openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: fileType });
+                }
+                return (
+                    <div>
+                        <RadioButtonGroup 
+                            value={field.value.type}
+                            orientation="horizontal"
+                            options={[{ content: "File", value: "file" }, { content: "Configurable", value: "configurable" }]}
+                            onChange={(e: any) => field.onChange({ isCertificate: true, value: field.value.value, type: e.target.value })}
+                        />
+                        {field.value.type === 'file' && (
+                            <div>
+                                <Keylookup 
+                                    name={getNameForController(element.name)}
+                                    label={element.displayName}
+                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                    filterType={fileType}                                    
+                                    value={field.value.value && isCertificateFileName(field.value.value) ? field.value.value : ""}
+                                    onValueChange={(e: any) => {
+                                        field.onChange({ isCertificate: true, value: e, type: field.value.type })
+                                    }}
+                                    required={false}
+                                    allowItemCreate={true}
+                                    onCreateButtonClick={onCreateButtonClick}
+                                />
+                                {/* <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
+                                    <div style={{ color: colors.editorForeground }}>Add file</div>
+                                </Button> */}
+                            </div>
+                        )}
+                        {field.value.type === 'configurable' && (
+                            <div>
+                                <Keylookup 
+                                    name={getNameForController(element.name)}
+                                    label={element.displayName}
+                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                                    filter={(configurableType) => configurableType === "cert"}
+                                    filterType='configurable'
+                                    value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
+                                    onValueChange={(e: any) => {
+                                        field.onChange({ isCertificate: true, value: e, type: field.value.type });
+                                    }}
+                                    required={false}
+                                    allowItemCreate={false}
+                                />
+                            </div>
+                        )}
+                    </div>
+                );
             default:
                 return null;
         }
