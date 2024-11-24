@@ -64,8 +64,6 @@ import {
     UpdateRegistryMetadataResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
-    GetCertificateFileMapRequest,
-    GetCertificateFileMapResponse,
     BrowseFileRequest,
     CreateMessageProcessorRequest,
     CreateMessageProcessorResponse,
@@ -310,7 +308,6 @@ export interface MiDiagramAPI {
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getConfigurableEntries: () => Promise<GetConfigurableEntriesResponse>;
     getResourceUsages: () => Promise<GetResourceUsagesResponse>;
-    getCertificateFileMap: (params: GetCertificateFileMapRequest) => Promise<GetCertificateFileMapResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;

@@ -1562,14 +1562,6 @@ export interface GetResourceUsagesResponse {
     usages?: string[];
 }
 
-export interface GetCertificateFileMapRequest {
-    connectorName: string;
-}
-
-export interface GetCertificateFileMapResponse {
-    certificateFileMap: Map<string, string[]>;
-}
-
 export interface GetAllArtifactsRequest {
     path: string;
 }
