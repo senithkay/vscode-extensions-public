@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
+import { ArrayLiteralExpression, Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -76,7 +76,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
 	const wasBodyForgotten = body && body.wasForgotten();
-	const hasValue = dmTypeWithValue && dmTypeWithValue?.elements && dmTypeWithValue.elements.length > 0;
+	const hasValue = !!dmTypeWithValue;
 	const isBodyArrayLitExpr = !wasBodyForgotten && Node.isArrayLiteralExpression(body);
 	const elements = !wasBodyForgotten && isBodyArrayLitExpr ? body.getElements() : [];
 	const hasDiagnostics = !wasBodyForgotten
@@ -117,7 +117,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
 	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
 
-	const handleExpand = () => {
+	const handleExpand = (expanded: boolean) => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
 			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
@@ -136,24 +136,36 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			returnStatement?.remove();
 			fnBody.addStatements('return []');
 			await context.applyModifications(fnBody.getSourceFile().getFullText());
+			handleExpand(false);
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleArrayDeletion = async () => {
-		setLoading(true);
-		try {
-			await deleteField(dmTypeWithValue.value);
-		} finally {
-			setLoading(false);
-		}
-	};
+	const handleAddArrayElement = async () => {
+        setIsAddingElement(true)
+        
+			const typeKind = dmTypeWithValue.type?.memberType.kind;
+            const defaultValue = getDefaultValue(typeKind);
+			const bodyNodeForgotten = body && body.wasForgotten();
+			const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
+			const arrayLitExpr = hasValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
 
-	const handleEditValue = () => {
-		if (portIn)
-			setExprBarFocusedPort(portIn);
-	};
+            let targetExpr = arrayLitExpr;
+            if (!body) {
+                const fnBody = context.functionST.getBody() as Block;
+                fnBody.addStatements([`return [];`]);
+                const returnStatement = fnBody.getStatements()
+                    .find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+                targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
+            }
+            const updatedTargetExpr = targetExpr.addElement(defaultValue);
+            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+			handleExpand(false);
+            setIsAddingElement(false);
+        
+    };
+
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
@@ -203,8 +215,8 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 				onClick: handleArrayInitialization
 			}
 			: {
-				title: ValueConfigOption.EditValue,
-				onClick: handleEditValue
+				title: ValueConfigOption.AddElement,
+				onClick: handleAddArrayElement
 			},
 		{
 			title: ValueConfigOption.MakeChildFieldsOptional,
@@ -239,7 +251,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 								id={"expand-or-collapse-" + id} 
 								appearance="icon"
 								tooltip="Expand/Collapse"
-								onClick={handleExpand}
+								onClick={()=>handleExpand(expanded)}
 								data-testid={`${id}-expand-icon-mapping-target-node`}
 								sx={{ marginLeft: indentation }}
 							>
