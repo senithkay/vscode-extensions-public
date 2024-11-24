@@ -4917,10 +4917,9 @@ ${keyValuesXML}`;
                 let edits = response.textEdits;
 
                 for (const edit of edits) {
-                    let range = new Range(edit.range.start.line, edit.range.start.character, edit.range.end.line, edit.range.end.character);
                     await this.applyEdit({
                         documentUri: param.documentUri,
-                        range,
+                        range: edit.range,
                         text: edit.newText,
                         disableUndoRedo: true
                     });
