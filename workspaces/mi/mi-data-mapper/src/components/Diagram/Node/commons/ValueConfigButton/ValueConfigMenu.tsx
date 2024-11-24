@@ -24,6 +24,7 @@ const useStyles = () => ({
 export enum ValueConfigOption {
     InitializeWithValue = "Initialize With Default Value",
     EditValue = "Edit Value",
+    AddElement = "Add Element",
     InitializeArray = "Initialize Array",
     DeleteValue = "Delete Value",
     DeleteElement = "Delete Element",
