@@ -29,6 +29,7 @@ import {
     SwaggerProxyResponse,
     OpenExternalRequest,
     OpenExternalResponse,
+    ProjectOverviewResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -36,7 +37,8 @@ import { RequestType, NotificationType } from "vscode-messenger-common";
 const _preFix = "mi-visualizer";
 export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `${_preFix}/getWorkspaces` };
 export const getProjectStructure: RequestType<ProjectStructureRequest, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
-export const getCurrentThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getCurrentTheme` };
+export const getProjectOverview: RequestType<ProjectStructureRequest, ProjectOverviewResponse> = { method: `${_preFix}/getProjectOverview` };
+export const getCurrentThemeKind: RequestType<void, ColorThemeKind> = { method: `${_preFix}/getCurrentThemeKind` };
 export const openView: NotificationType<OpenViewRequest> = { method: `${_preFix}/openView` };
 export const reloadWindow: RequestType<void, void> = { method: `${_preFix}/reloadWindow` };
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
@@ -56,3 +58,13 @@ export const showNotification: RequestType<NotificationRequest, NotificationResp
 export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
 export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerProxyResponse> = { method: `${_preFix}/sendSwaggerProxyRequest` };
 export const openExternal: RequestType<OpenExternalRequest, OpenExternalResponse> = { method: `${_preFix}/openExternal` };
+
+export const downloadJava: RequestType<string, string> = { method: `${_preFix}/downloadJava` };
+export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
+export const getSupportedMIVersions: RequestType<void, string[]> = { method: `${_preFix}/getSupportedMIVersions` };
+export const getMIVersionFromPom: RequestType<void, string> = { method: `${_preFix}/getMIVersionFromPom` };
+export const setJavaHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setJavaHomeForMIVersion` };
+export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setMIHomeForMIVersion` };
+
+export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
+export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };

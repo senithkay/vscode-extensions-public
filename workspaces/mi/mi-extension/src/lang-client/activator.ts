@@ -39,6 +39,7 @@ import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
 import { log } from '../util/logger';
+import { CONFIG_JAVA_HOME } from '../debugger/constants';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -117,25 +118,29 @@ export class MILanguageClient {
         return true;
     }
 
-    public async checkJDKCompatibility(): Promise<boolean> {
-        const { stderr } = await exec('java -version');
+    public async checkJDKCompatibility(javaHome: string): Promise<boolean> {
+        const env = { ...process.env }; 
+        env.PATH = `${path.join(javaHome, 'bin')}${path.delimiter}${env.PATH}`;
+        const { stderr } = await exec('java -version',
+            {env: env}
+        );
         const isCompatible = this.isCompatibleJDKVersion(stderr);
         return isCompatible;
     }
 
     private async launch() {
         try {
-            const { JAVA_HOME } = process.env;
-
-            const isJDKCompatible = await this.checkJDKCompatibility();
-            if (!isJDKCompatible) {
-                const errorMessage = `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`;
-                window.showErrorMessage(errorMessage);
-                this.updateErrors(ERRORS.INCOMPATIBLE_JDK);
-                throw new Error(errorMessage);
-            }
+            const config = workspace.getConfiguration('MI');
+            const JAVA_HOME: string | undefined = config.get(CONFIG_JAVA_HOME);
 
             if (JAVA_HOME) {
+                const isJDKCompatible = await this.checkJDKCompatibility(JAVA_HOME);
+                if (!isJDKCompatible) {
+                    const errorMessage = `Incompatible JDK version detected. Please install JDK ${this.COMPATIBLE_JDK_VERSION} or above.`;
+                    window.showErrorMessage(errorMessage);
+                    this.updateErrors(ERRORS.INCOMPATIBLE_JDK);
+                    throw new Error(errorMessage);
+                }
                 let executable: string = path.join(JAVA_HOME, 'bin', 'java');
                 let schemaPath = this.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
                 let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));

@@ -693,7 +693,7 @@ importers:
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/bi-diagram': link:../bi-diagram
-      '@wso2-enterprise/component-diagram': link:../component-diagram
+      '@wso2-enterprise/component-diagram': link:../../common-libs/component-diagram
       '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/persist-layer-diagram': link:../persist-layer-diagram
@@ -774,51 +774,6 @@ importers:
       '@projectstorm/react-diagrams-routing': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
-      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
-      dagre: 0.8.5
-      lodash: 4.17.21
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-    devDependencies:
-      '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
-      '@types/dagre': 0.7.52
-      '@types/lodash': 4.14.202
-      '@types/react': 17.0.75
-      '@types/react-dom': 17.0.14
-      copyfiles: 2.4.1
-      typescript: 4.9.5
-
-  ../../workspaces/ballerina/component-diagram:
-    specifiers:
-      '@emotion/react': ^11.9.3
-      '@emotion/styled': ^11.10.5
-      '@projectstorm/geometry': ^6.7.4
-      '@projectstorm/react-canvas-core': ^6.7.4
-      '@projectstorm/react-diagrams': ^6.7.4
-      '@projectstorm/react-diagrams-core': ^6.7.4
-      '@projectstorm/react-diagrams-defaults': ^6.7.4
-      '@projectstorm/react-diagrams-routing': ^6.7.4
-      '@storybook/react': ^6.3.7
-      '@types/dagre': ~0.7.52
-      '@types/lodash': ~4.14.202
-      '@types/react': ^17.0.14
-      '@types/react-dom': ^17.0.9
-      '@wso2-enterprise/ui-toolkit': workspace:*
-      copyfiles: ^2.4.1
-      dagre: ~0.8.5
-      lodash: ~4.17.21
-      react: ~18.2.0
-      react-dom: ~18.2.0
-      typescript: ^4.3.5
-    dependencies:
-      '@emotion/react': 11.11.4_ujupp4aqvz5yjxfmu635blrdgm
-      '@emotion/styled': 11.11.0_jwuiumyj4eeb4ggxu6dhhwwtmq
-      '@projectstorm/geometry': 6.7.4
-      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
-      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
-      '@projectstorm/react-diagrams-defaults': 6.7.4_qudwbk4fbis32hnzuxpdo4wjza
-      '@projectstorm/react-diagrams-routing': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       dagre: 0.8.5
       lodash: 4.17.21
@@ -2004,6 +1959,51 @@ importers:
       webpack-cli: 5.1.4_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_fsfaki5eyzmxu77y2afce3sch4
 
+  ../../workspaces/common-libs/component-diagram:
+    specifiers:
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
+      '@projectstorm/geometry': ^6.7.4
+      '@projectstorm/react-canvas-core': ^6.7.4
+      '@projectstorm/react-diagrams': ^6.7.4
+      '@projectstorm/react-diagrams-core': ^6.7.4
+      '@projectstorm/react-diagrams-defaults': ^6.7.4
+      '@projectstorm/react-diagrams-routing': ^6.7.4
+      '@storybook/react': ^6.3.7
+      '@types/dagre': ~0.7.52
+      '@types/lodash': ~4.14.202
+      '@types/react': ^17.0.14
+      '@types/react-dom': ^17.0.9
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      copyfiles: ^2.4.1
+      dagre: ~0.8.5
+      lodash: ~4.17.21
+      react: ~18.2.0
+      react-dom: ~18.2.0
+      typescript: ^4.3.5
+    dependencies:
+      '@emotion/react': 11.11.4_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/styled': 11.11.0_jwuiumyj4eeb4ggxu6dhhwwtmq
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
+      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams-defaults': 6.7.4_qudwbk4fbis32hnzuxpdo4wjza
+      '@projectstorm/react-diagrams-routing': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
+      '@wso2-enterprise/ui-toolkit': link:../ui-toolkit
+      dagre: 0.8.5
+      lodash: 4.17.21
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@types/dagre': 0.7.52
+      '@types/lodash': 4.14.202
+      '@types/react': 17.0.75
+      '@types/react-dom': 17.0.14
+      copyfiles: 2.4.1
+      typescript: 4.9.5
+
   ../../workspaces/common-libs/font-wso2-vscode:
     specifiers:
       '@vscode/codicons': 0.0.33
@@ -2873,6 +2873,7 @@ importers:
       '@types/vscode-webview': ^1.57.4
       '@uiw/react-codemirror': ~4.21.22
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/component-diagram': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-data-mapper': workspace:*
       '@wso2-enterprise/mi-diagram': workspace:*
@@ -2928,6 +2929,7 @@ importers:
       '@types/vscode-webview': 1.57.5
       '@uiw/react-codemirror': 4.21.24_4ndsyykedba3u2psgexaldpule
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@wso2-enterprise/component-diagram': link:../../common-libs/component-diagram
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-data-mapper': link:../mi-data-mapper
       '@wso2-enterprise/mi-diagram': link:../mi-diagram
@@ -3516,7 +3518,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
-      '@babel/helper-annotate-as-pure': 7.22.5
+      '@babel/helper-annotate-as-pure': 7.24.7
       regexpu-core: 5.3.2
       semver: 6.3.1
     dev: true
@@ -3528,7 +3530,7 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.23.9
-      '@babel/helper-annotate-as-pure': 7.22.5
+      '@babel/helper-annotate-as-pure': 7.24.7
       regexpu-core: 5.3.2
       semver: 6.3.1
     dev: true
@@ -3540,7 +3542,7 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.24.9
-      '@babel/helper-annotate-as-pure': 7.22.5
+      '@babel/helper-annotate-as-pure': 7.24.7
       regexpu-core: 5.3.2
       semver: 6.3.1
     dev: true
@@ -3861,7 +3863,7 @@ packages:
       '@babel/core': ^7.0.0
     dependencies:
       '@babel/core': 7.23.9
-      '@babel/helper-annotate-as-pure': 7.22.5
+      '@babel/helper-annotate-as-pure': 7.24.7
       '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-wrap-function': 7.22.20
     dev: true
@@ -4312,8 +4314,10 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.24.9
-      '@babel/helper-create-class-features-plugin': 7.23.10_@babel+core@7.24.9
+      '@babel/helper-create-class-features-plugin': 7.25.4_@babel+core@7.24.9
       '@babel/helper-plugin-utils': 7.24.8
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@babel/plugin-proposal-decorators/7.23.9_@babel+core@7.24.9:
@@ -5055,7 +5059,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/helper-plugin-utils': 7.22.5
+      '@babel/helper-plugin-utils': 7.24.8
     dev: true
 
   /@babel/plugin-syntax-typescript/7.23.3_@babel+core@7.24.4:
@@ -5065,7 +5069,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.24.4
-      '@babel/helper-plugin-utils': 7.22.5
+      '@babel/helper-plugin-utils': 7.24.8
     dev: false
 
   /@babel/plugin-syntax-typescript/7.23.3_@babel+core@7.24.9:
@@ -5075,7 +5079,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.24.9
-      '@babel/helper-plugin-utils': 7.22.5
+      '@babel/helper-plugin-utils': 7.24.8
 
   /@babel/plugin-syntax-unicode-sets-regex/7.18.6:
     resolution: {integrity: sha512-727YkEAPwSIQTv5im8QHz3upqp92JTWhidIC81Tdx4VJYIte/VndKf1qKrfnnhPLiPghStWfvC/iFaMCQu7Nqg==}
@@ -8142,7 +8146,7 @@ packages:
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-validator-option': 7.24.8
       '@babel/plugin-syntax-jsx': 7.23.3_@babel+core@7.24.9
-      '@babel/plugin-transform-modules-commonjs': 7.23.3_@babel+core@7.24.9
+      '@babel/plugin-transform-modules-commonjs': 7.24.8_@babel+core@7.24.9
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.9
     transitivePeerDependencies:
       - supports-color
@@ -8407,6 +8411,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -11342,86 +11357,6 @@ packages:
       playwright: 1.46.1
     dev: false
 
-  /@pmmmwh/react-refresh-webpack-plugin/0.5.11_bqo55rngdrakdb65vm4enlxnaa:
-    resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
-    engines: {node: '>= 10.13'}
-    peerDependencies:
-      '@types/webpack': 4.x || 5.x
-      react-refresh: '>=0.10.0 <1.0.0'
-      sockjs-client: ^1.4.0
-      type-fest: '>=0.17.0 <5.0.0'
-      webpack: '>=4.43.0 <6.0.0'
-      webpack-dev-server: 3.x || 4.x
-      webpack-hot-middleware: 2.x
-      webpack-plugin-serve: 0.x || 1.x
-    peerDependenciesMeta:
-      '@types/webpack':
-        optional: true
-      sockjs-client:
-        optional: true
-      type-fest:
-        optional: true
-      webpack-dev-server:
-        optional: true
-      webpack-hot-middleware:
-        optional: true
-      webpack-plugin-serve:
-        optional: true
-    dependencies:
-      '@types/webpack': 4.41.38
-      ansi-html-community: 0.0.8
-      common-path-prefix: 3.0.0
-      core-js-pure: 3.35.1
-      error-stack-parser: 2.1.4
-      find-up: 5.0.0
-      html-entities: 2.4.0
-      loader-utils: 2.0.4
-      react-refresh: 0.11.0
-      schema-utils: 3.3.0
-      source-map: 0.7.4
-      webpack: 5.90.1_webpack-cli@4.10.0
-      webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
-    dev: true
-
-  /@pmmmwh/react-refresh-webpack-plugin/0.5.11_dzluv2jgpeh4rdlo5ht6m2xgce:
-    resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
-    engines: {node: '>= 10.13'}
-    peerDependencies:
-      '@types/webpack': 4.x || 5.x
-      react-refresh: '>=0.10.0 <1.0.0'
-      sockjs-client: ^1.4.0
-      type-fest: '>=0.17.0 <5.0.0'
-      webpack: '>=4.43.0 <6.0.0'
-      webpack-dev-server: 3.x || 4.x
-      webpack-hot-middleware: 2.x
-      webpack-plugin-serve: 0.x || 1.x
-    peerDependenciesMeta:
-      '@types/webpack':
-        optional: true
-      sockjs-client:
-        optional: true
-      type-fest:
-        optional: true
-      webpack-dev-server:
-        optional: true
-      webpack-hot-middleware:
-        optional: true
-      webpack-plugin-serve:
-        optional: true
-    dependencies:
-      ansi-html-community: 0.0.8
-      common-path-prefix: 3.0.0
-      core-js-pure: 3.35.1
-      error-stack-parser: 2.1.4
-      find-up: 5.0.0
-      html-entities: 2.4.0
-      loader-utils: 2.0.4
-      react-refresh: 0.11.0
-      schema-utils: 3.3.0
-      source-map: 0.7.4
-      webpack: 5.90.1
-    dev: true
-
   /@pmmmwh/react-refresh-webpack-plugin/0.5.11_huwbmoqutg6zralpejlchsnhpu:
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
     engines: {node: '>= 10.13'}
@@ -11499,6 +11434,45 @@ packages:
       webpack-dev-server: 4.15.1_w46lltld4evug5kpkz4iei6qt4
     dev: false
 
+  /@pmmmwh/react-refresh-webpack-plugin/0.5.15_bqo55rngdrakdb65vm4enlxnaa:
+    resolution: {integrity: sha512-LFWllMA55pzB9D34w/wXUCf8+c+IYKuJDgxiZ3qMhl64KRMBHYM1I3VdGaD2BV5FNPV2/S2596bppxHbv2ZydQ==}
+    engines: {node: '>= 10.13'}
+    peerDependencies:
+      '@types/webpack': 4.x || 5.x
+      react-refresh: '>=0.10.0 <1.0.0'
+      sockjs-client: ^1.4.0
+      type-fest: '>=0.17.0 <5.0.0'
+      webpack: '>=4.43.0 <6.0.0'
+      webpack-dev-server: 3.x || 4.x || 5.x
+      webpack-hot-middleware: 2.x
+      webpack-plugin-serve: 0.x || 1.x
+    peerDependenciesMeta:
+      '@types/webpack':
+        optional: true
+      sockjs-client:
+        optional: true
+      type-fest:
+        optional: true
+      webpack-dev-server:
+        optional: true
+      webpack-hot-middleware:
+        optional: true
+      webpack-plugin-serve:
+        optional: true
+    dependencies:
+      '@types/webpack': 4.41.38
+      ansi-html: 0.0.9
+      core-js-pure: 3.35.1
+      error-stack-parser: 2.1.4
+      html-entities: 2.4.0
+      loader-utils: 2.0.4
+      react-refresh: 0.11.0
+      schema-utils: 4.2.0
+      source-map: 0.7.4
+      webpack: 5.90.1_webpack-cli@4.10.0
+      webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
+    dev: true
+
   /@pmmmwh/react-refresh-webpack-plugin/0.5.15_dzluv2jgpeh4rdlo5ht6m2xgce:
     resolution: {integrity: sha512-LFWllMA55pzB9D34w/wXUCf8+c+IYKuJDgxiZ3qMhl64KRMBHYM1I3VdGaD2BV5FNPV2/S2596bppxHbv2ZydQ==}
     engines: {node: '>= 10.13'}
@@ -11570,8 +11544,8 @@ packages:
       react-refresh: 0.11.0
       schema-utils: 4.2.0
       source-map: 0.7.4
-      webpack: 5.90.1_webpack-cli@5.1.4
-      webpack-dev-server: 4.15.1_w46lltld4evug5kpkz4iei6qt4
+      webpack: 5.90.1_webpack-cli@4.10.0
+      webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.15_uarzviow5dtqpcejxqcau6mby4:
@@ -21097,7 +21071,7 @@ packages:
     dependencies:
       '@babel/preset-flow': 7.23.3
       '@babel/preset-react': 7.23.3
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_dzluv2jgpeh4rdlo5ht6m2xgce
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_dzluv2jgpeh4rdlo5ht6m2xgce
       '@storybook/addons': 6.5.16
       '@storybook/builder-webpack5': 6.5.16_7sjm5uif3lrlodkmlzqsvrpzla
       '@storybook/client-logger': 6.5.16
@@ -21184,7 +21158,7 @@ packages:
     dependencies:
       '@babel/preset-flow': 7.23.3
       '@babel/preset-react': 7.23.3
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_huwbmoqutg6zralpejlchsnhpu
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_huwbmoqutg6zralpejlchsnhpu
       '@storybook/addons': 6.5.16_biqbaboplfbrettd7655fr4n2y
       '@storybook/builder-webpack5': 6.5.16_3drelh4patqykizeafkkam2jwq
       '@storybook/client-logger': 6.5.16
@@ -21273,7 +21247,7 @@ packages:
     dependencies:
       '@babel/preset-flow': 7.23.3
       '@babel/preset-react': 7.23.3
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_dzluv2jgpeh4rdlo5ht6m2xgce
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_dzluv2jgpeh4rdlo5ht6m2xgce
       '@storybook/addons': 6.5.16_biqbaboplfbrettd7655fr4n2y
       '@storybook/client-logger': 6.5.16
       '@storybook/core': 6.5.16_bf3xiuj7ktjeptksqocp6ts6fm
@@ -21360,7 +21334,7 @@ packages:
     dependencies:
       '@babel/preset-flow': 7.23.3
       '@babel/preset-react': 7.23.3
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_dzluv2jgpeh4rdlo5ht6m2xgce
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_dzluv2jgpeh4rdlo5ht6m2xgce
       '@storybook/addons': 6.5.16_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/client-logger': 6.5.16
       '@storybook/core': 6.5.16_slesnratezklfpxo7ktuppm53u
@@ -21448,7 +21422,7 @@ packages:
       '@babel/core': 7.23.9
       '@babel/preset-flow': 7.23.3_@babel+core@7.23.9
       '@babel/preset-react': 7.23.3_@babel+core@7.23.9
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_bqo55rngdrakdb65vm4enlxnaa
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_bqo55rngdrakdb65vm4enlxnaa
       '@storybook/addons': 6.5.16_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/builder-webpack5': 6.5.16_zcr2axyjpwtcx22mmlotm7tkri
       '@storybook/client-logger': 6.5.16
@@ -21538,7 +21512,7 @@ packages:
       '@babel/core': 7.23.9
       '@babel/preset-flow': 7.23.3_@babel+core@7.23.9
       '@babel/preset-react': 7.23.3_@babel+core@7.23.9
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_bqo55rngdrakdb65vm4enlxnaa
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_bqo55rngdrakdb65vm4enlxnaa
       '@storybook/addons': 6.5.16_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/builder-webpack5': 6.5.16_pbeiujmzrcqhzogbvun7w2vb3m
       '@storybook/client-logger': 6.5.16
@@ -21628,7 +21602,7 @@ packages:
       '@babel/core': 7.24.9
       '@babel/preset-flow': 7.23.3_@babel+core@7.24.9
       '@babel/preset-react': 7.23.3_@babel+core@7.24.9
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_huwbmoqutg6zralpejlchsnhpu
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_huwbmoqutg6zralpejlchsnhpu
       '@storybook/addons': 6.5.16_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/builder-webpack5': 6.5.16_zcr2axyjpwtcx22mmlotm7tkri
       '@storybook/client-logger': 6.5.16
@@ -21717,7 +21691,7 @@ packages:
     dependencies:
       '@babel/preset-flow': 7.23.3
       '@babel/preset-react': 7.23.3
-      '@pmmmwh/react-refresh-webpack-plugin': 0.5.11_dzluv2jgpeh4rdlo5ht6m2xgce
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.15_dzluv2jgpeh4rdlo5ht6m2xgce
       '@storybook/addons': 6.5.16_biqbaboplfbrettd7655fr4n2y
       '@storybook/client-logger': 6.5.16
       '@storybook/core': 6.5.16_vbrkzaottjtn7cf2piigorbtdm
@@ -23985,7 +23959,6 @@ packages:
 
   /@types/prop-types/15.7.13:
     resolution: {integrity: sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==}
-    dev: false
 
   /@types/q/1.5.8:
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
@@ -24067,7 +24040,7 @@ packages:
   /@types/react/17.0.75:
     resolution: {integrity: sha512-MSA+NzEzXnQKrqpO63CYqNstFjsESgvJAdAyyJ1n6ZQq/GLgf6nOfIKwk+Twuz0L1N6xPe+qz5xRCJrbhMaLsw==}
     dependencies:
-      '@types/prop-types': 15.7.11
+      '@types/prop-types': 15.7.13
       '@types/scheduler': 0.16.8
       csstype: 3.1.3
 
@@ -25696,7 +25669,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

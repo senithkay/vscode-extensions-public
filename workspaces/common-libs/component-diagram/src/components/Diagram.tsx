@@ -178,7 +178,6 @@ export function Diagram(props: DiagramProps) {
                 resetDiagramZoomAndPosition();
                 loadDiagramZoomAndPosition(diagramEngine);
             }
-            diagramEngine.repaintCanvas();
         }, 200);
     };
 

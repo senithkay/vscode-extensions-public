@@ -338,6 +338,7 @@ export interface CreateProjectRequest {
     groupID?: string;
     artifactID?: string;
     version?: string;
+    miVersion: string;
 }
 
 export interface ImportProjectRequest {
