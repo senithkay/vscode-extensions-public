@@ -169,13 +169,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async handleCertificateConfigurable(params: HandleCertificateConfigurableRequest): Promise<void> {
-        await appendContent(params.configPropertiesFilePath, `${params.configurableName}:cert\n`);
-        await appendContent(params.envFilePath, `${params.configurableName}\n`);
+        const configPropertiesFilePath = [params.projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [params.projectUri, '.env'].join(path.sep);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:cert\n`);
+        await appendContent(envFilePath, `${params.configurableName}\n`);
     }
 
     async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
+        const certificateDirPath = [params.projectUri, 'src', 'main', 'wso2mi', 'resources', 'certificates'].join(path.sep);
         const fileName = getFileName(params.certificateFilePath);
-        await copyFile(params.certificateFilePath, params.storedProjectCertificateDirPath + fileName + '.crt');
+        await copyFile(params.certificateFilePath, certificateDirPath + path.sep + fileName + '.crt');
     }
 
     async appendContentToFile(params: FileAppendRequest): Promise<boolean> {

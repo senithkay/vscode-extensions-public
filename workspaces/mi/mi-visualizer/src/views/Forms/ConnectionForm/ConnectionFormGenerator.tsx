@@ -251,11 +251,7 @@ export function AddConnection(props: AddConnectionProps) {
         return extensionPattern.test(path);
     }
 
-    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, newCertificateConfigurableName: string, connectorTag: XMLBuilder, certificateUsageObj: object) {
-        const currentConfigPropertiesFilePath = projectUri + "/src/main/wso2mi/resources/conf/config.properties";
-        const currentEnvFilePath = projectUri + "/.env";
-        const projectCertificateDirPath = projectUri + "/" + certificateDirPath;
-        
+    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, newCertificateConfigurableName: string, connectorTag: XMLBuilder) {
         const storedTagElementValue = connectionFoundParameters.get(tagElementName);
         const currentCertificatePath = isCertificateFilePath(storedTagElementValue) ? storedTagElementValue : '';
         const currentCertificateConfigurableName = isConfigurable(storedTagElementValue) ? storedTagElementValue : '';
@@ -266,23 +262,22 @@ export function AddConnection(props: AddConnectionProps) {
                 connectorTag.ele(tagElementName).txt('resources:certificates/' + newCertificateFileName);
                 if (currentCertificatePath !== newCertificatePath) {
                     rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
-                        certificateFilePath: newCertificatePath, 
-                        storedProjectCertificateDirPath: projectCertificateDirPath, 
-                        configPropertiesFilePath: currentConfigPropertiesFilePath, 
-                        envFilePath: currentEnvFilePath
+                        projectUri: projectUri,
+                        certificateFilePath: newCertificatePath
                     });
                 }
             } else {
                 connectorTag.ele(tagElementName).txt(currentCertificatePath);
             }
         } else if (newCertificateConfigurableName) {
-            connectorTag.ele(tagElementName).txt(formatForConfigurable(newCertificateConfigurableName));
-            rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
-                configurableName: newCertificateConfigurableName,
-                storedProjectCertificateDirPath: projectCertificateDirPath,
-                configPropertiesFilePath: currentConfigPropertiesFilePath,
-                envFilePath: currentEnvFilePath
-            });
+            const formattedConfigurableName = formatForConfigurable(newCertificateConfigurableName);
+            connectorTag.ele(tagElementName).txt(formattedConfigurableName);
+            if (currentCertificateConfigurableName !== formattedConfigurableName) {
+                rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
+                    projectUri: projectUri,
+                    configurableName: newCertificateConfigurableName
+                });
+            }
         } else {
             connectorTag.ele(tagElementName).txt(currentCertificatePath);
         }
@@ -327,9 +322,9 @@ export function AddConnection(props: AddConnectionProps) {
                             }
                         } else if (isCertificate) {
                             if (type === 'file') {
-                                handleCertificateFile(projectUri, key, value, '', connectorTag, {});
+                                handleCertificateFile(projectUri, key, value, '', connectorTag);
                             } else if (type === 'configurable') {
-                                handleCertificateFile(projectUri, key, '', value, connectorTag, {});    
+                                handleCertificateFile(projectUri, key, '', value, connectorTag);    
                             }
                         } 
                         else {

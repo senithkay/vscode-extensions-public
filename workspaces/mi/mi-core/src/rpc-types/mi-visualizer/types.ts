@@ -140,17 +140,13 @@ export interface SampleDownloadRequest {
 }
 
 export interface HandleCertificateFileRequest {
+    projectUri: string;
     certificateFilePath: string;
-    storedProjectCertificateDirPath: string;
-    configPropertiesFilePath: string;
-    envFilePath: string;
 }
 
 export interface HandleCertificateConfigurableRequest {
+    projectUri: string;
     configurableName: string;
-    storedProjectCertificateDirPath: string;
-    configPropertiesFilePath: string;
-    envFilePath: string;
 }
 
 export interface FileAppendRequest {
