@@ -1802,3 +1802,24 @@ export interface UpdateMediatorRequest {
 export interface UpdateMediatorResponse {
     textEdits: TextEdit[];
 }
+export interface ExpressionCompletionsRequest {
+    documentUri: string;
+    expression: string;
+    position: Position;
+    offset: number;
+}
+
+export interface ExpressionCompletionItem {
+    label: string;
+    kind: number;
+    detail: string;
+    sortText: string;
+    filterText: string;
+    insertText: string;
+    insertTextFormat: number;
+}
+
+export type ExpressionCompletionsResponse = {
+    isIncomplete: boolean;
+    items: ExpressionCompletionItem[];
+};

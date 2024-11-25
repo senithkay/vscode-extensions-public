@@ -41,6 +41,7 @@ import {
     ExportProjectRequest,
     ExtendedDSSQueryGenRequest,
     FileRenameRequest,
+    ExpressionCompletionsRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
     GetAvailableConnectorRequest,
@@ -174,6 +175,7 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getExpressionCompletions,
     getFailoverEndpoint,
     getHttpEndpoint,
     getIconPathUri,
@@ -383,4 +385,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
     messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
     messenger.onNotification(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
+    messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }

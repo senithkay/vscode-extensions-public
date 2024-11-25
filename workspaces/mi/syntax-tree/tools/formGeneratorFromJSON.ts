@@ -607,7 +607,7 @@ import { ParamManager, ParamConfig, ParamValue } from '../../../../Form/ParamMan
 import { generateSpaceSeperatedStringFromParamValues } from '../../../../../utils/commons';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../../..';
 import ExpressionEditor from '../../../expressionEditor/ExpressionEditor';
-import { CodeTextArea } from '../../../../Form/CodeTextArea';
+import { CodeTextArea } from '../../../../Form';
 
 const cardStyle = { 
     display: "block", 

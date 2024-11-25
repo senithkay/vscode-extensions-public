@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -44,6 +44,8 @@ export interface FormGeneratorProps {
     getValues: any;
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
+    connections?: string[];
+    addNewConnection?: any;
 }
 
 interface Element {
@@ -73,7 +75,7 @@ interface ExpressionValueWithSetter {
 export function FormGenerator(props: FormGeneratorProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields, connections, addNewConnection } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -133,16 +135,17 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
 
         return expressionEditorField !== getNameForController(element.name) ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
                 labelAdornment={helpTipElement}
-                placeholder={element.helpTip}
+                placeholder={placeholder}
                 canChange={canChange}
                 required={element.required || element.required === 'true'}
+                isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -248,9 +251,9 @@ export function FormGenerator(props: FormGeneratorProps) {
         ) : null;
 
         let placeholder = element.placeholder;
-        if (helpTip?.conditionField) {
-            const conditionFieldValue = watch(getNameForController(helpTip.conditionField));
-            const conditionalPlaceholder = helpTip.values.find((value: any) => value[conditionFieldValue]);
+        if (placeholder?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(placeholder.conditionField));
+            const conditionalPlaceholder = placeholder.values.find((value: any) => value[conditionFieldValue]);
             placeholder = conditionalPlaceholder?.[conditionFieldValue];
         }
 
@@ -264,7 +267,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         label={element.displayName}
                         labelAdornment={helpTipElement}
                         size={50}
-                        placeholder={element.helpTip}
+                        placeholder={placeholder}
                         required={isRequired}
                         errorMsg={errorMsg}
                     />
@@ -291,7 +294,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
@@ -370,6 +373,30 @@ export function FormGenerator(props: FormGeneratorProps) {
                     growRange={{ start: 5, offset: 10 }}
                     errorMsg={errorMsg}
                 />);
+            case 'connection':
+                return (
+                    <>
+                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                <label>{element.displayName}</label>
+                                {element.required === 'true' && <RequiredFormInput />}
+                            </div>
+                            <LinkButton onClick={() => addNewConnection()}>
+                                <Codicon name="plus" />Add new connection
+                            </LinkButton>
+                        </div>
+                        <AutoComplete
+                            name="configKey"
+                            errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
+                            items={connections}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={element.required === 'true'}
+                            allowItemCreate={false}
+                        />
+                    </>);
             default:
                 return null;
         }
@@ -538,7 +565,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const renderControllerIfConditionMet = (element: any) => {
-        const name = getNameForController(element.value.name);
+        const name = element.value.name === 'configRef' ? 'configKey' : getNameForController(element.value.name);
         let shouldRender: boolean = true;
 
         if (Array.isArray(element.value.enableCondition)) {
@@ -610,7 +637,14 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
-                {formData.help && <Typography sx={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{formData.help}</Typography>}
+                {formData.help && (
+                    <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
+                        {typeof formData.help === 'string' && formData.help.includes('<') 
+                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} /> 
+                            : <Typography variant="body3">{formData.help}</Typography>
+                        }
+                    </div>
+                )}
                 {renderForm(formData.elements)}
             </>
         )
