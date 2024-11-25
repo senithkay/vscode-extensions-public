@@ -65,6 +65,8 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     FileDirResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
@@ -245,6 +247,7 @@ import {
     getESBConfigs,
     getEndpointDirectory,
     getEndpointsAndSequences,
+    getExpressionCompletions,
     getFailoverEndpoint,
     getHttpEndpoint,
     getIconPathUri,
@@ -904,5 +907,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     updateMediator(params: UpdateMediatorRequest): Promise<void> {
         return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
+    }
+
+    getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
     }
 }

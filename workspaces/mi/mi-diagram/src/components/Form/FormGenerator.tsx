@@ -690,7 +690,14 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
-                {formData.help && <Typography sx={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{formData.help}</Typography>}
+                {formData.help && (
+                    <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
+                        {typeof formData.help === 'string' && formData.help.includes('<') 
+                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} /> 
+                            : <Typography variant="body3">{formData.help}</Typography>
+                        }
+                    </div>
+                )}
                 {renderForm(formData.elements)}
             </>
         )

@@ -19,18 +19,6 @@ import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-di
 import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { formatForConfigurable, isConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
-const cardStyle = {
-    display: "block",
-    padding: "10px 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
-};
-
-const Error = styled.span`
-    color: var(--vscode-errorForeground);
-    font-size: 12px;
-`;
-
 const ParamManagerContainer = styled.div`
     width: 100%;
 `;
@@ -62,6 +50,7 @@ export function AddConnection(props: AddConnectionProps) {
             connectionType: allowedConnectionTypes ? allowedConnectionTypes[0] : "",
         }
     });
+    const [connectionType, setConnectionType] = useState(undefined);
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -81,9 +70,10 @@ export function AddConnection(props: AddConnectionProps) {
 
         const fetchFormData = async () => {
             // Fetch form on creation
-            if (getValues('connectionType')) {
+            const currentConnectionType = getValues('connectionType');
+            if (currentConnectionType && currentConnectionType !== connectionType) {
 
-                const connectionUiSchema = props.connector.connectionUiSchema[getValues('connectionType')];
+                const connectionUiSchema = props.connector.connectionUiSchema[currentConnectionType];
 
                 const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
@@ -92,6 +82,7 @@ export function AddConnection(props: AddConnectionProps) {
                     name: watch('name'),
                     connectionType: watch('connectionType')
                 });
+                setConnectionType(currentConnectionType);
             }
         };
 
@@ -368,7 +359,7 @@ export function AddConnection(props: AddConnectionProps) {
         }
     };
 
-    const onAddInitConnection = async (values: any) => {
+    const onAddInitConnection = async () => {
 
         const name = getValues("name") ?? 'CONNECTION_1';
         const template = create();

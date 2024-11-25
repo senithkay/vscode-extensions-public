@@ -19,7 +19,6 @@ import {
 import { FormField } from "../Form/types";
 import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
 import {S} from "../editors/ExpressionEditor";
 import { sanitizeType } from "./utils";
 
@@ -57,14 +56,6 @@ export function TypeEditor(props: TypeEditorProps) {
     const cursorPositionRef = useRef<number | undefined>(undefined);
     const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
     const [focused, setFocused] = useState<boolean>(false);
-
-    // Use to disable the expression editor on save and completion selection
-    const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
-        return useMutation({
-            mutationFn: fn,
-            networkMode: 'always',
-        });
-    };
 
     const handleFocus = async (value: string) => {
         setFocused(true);
@@ -144,8 +135,6 @@ export function TypeEditor(props: TypeEditorProps) {
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={handleCancel}
-                            useTransaction={useTransaction}
-                            shouldDisableOnSave={false}
                             placeholder={field.placeholder}
                             autoFocus={autoFocus}
                             sx={{ paddingInline: '0' }}
