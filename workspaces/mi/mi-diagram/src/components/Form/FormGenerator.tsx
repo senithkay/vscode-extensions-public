@@ -58,6 +58,7 @@ interface Element {
     placeholder: any;
     comboValues?: any[];
     defaultValue?: any;
+    currentValue?: any;
     allowedConnectionTypes?: string[];
     keyType?: any;
     canAddNew?: boolean;
@@ -83,6 +84,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     useEffect(() => {
+        setIsLoading(true);
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };
@@ -136,8 +138,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
+        const name = getNameForController(element.name);
 
-        return expressionEditorField !== getNameForController(element.name) ? (
+        return expressionEditorField !== name ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
@@ -146,10 +149,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                 canChange={canChange}
                 required={element.required || element.required === 'true'}
                 isTextArea={element.inputType === 'textAreaOrExpression'}
-                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                errorMsg={errors[name] && errors[name].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(getNameForController(element.name));
+                    setExpressionEditorField(name);
                 }}
             />
         ) : (
@@ -553,10 +556,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                     );
                 }
 
-                if (getValues(name) === undefined && element.value.defaultValue) {
-                    setValue(name, element.value.defaultValue)
-                }
-
                 return (
                     renderControllerIfConditionMet(element)
                 );
@@ -582,6 +581,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 <Controller
                     name={name}
                     control={control}
+                    defaultValue={getDefaultValue(element)}
                     rules={
                         {
                             ...(element.value.required === 'true') && {
@@ -639,8 +639,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             <>
                 {formData.help && (
                     <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<') 
-                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} /> 
+                        {typeof formData.help === 'string' && formData.help.includes('<')
+                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
                     </div>
