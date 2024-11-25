@@ -245,18 +245,20 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						)}
 					</span>
 					<span className={classes.label}>
-						<FieldActionWrapper>
-							<Button
-								id={"expand-or-collapse-" + id} 
-								appearance="icon"
-								tooltip="Expand/Collapse"
-								onClick={()=>handleExpand(expanded)}
-								data-testid={`${id}-expand-icon-mapping-target-node`}
-								sx={{ marginLeft: indentation }}
-							>
-								{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-							</Button>
-						</FieldActionWrapper>
+						{hasValue && isBodyArrayLitExpr && (
+							<FieldActionWrapper>
+								<Button
+									id={"expand-or-collapse-" + id}
+									appearance="icon"
+									tooltip="Expand/Collapse"
+									onClick={() => handleExpand(expanded)}
+									data-testid={`${id}-expand-icon-mapping-target-node`}
+									sx={{ marginLeft: indentation }}
+								>
+									{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+								</Button>
+							</FieldActionWrapper>
+						)}
 						{label}
 					</span>
 					{focusedOnSubMappingRoot && (
@@ -286,7 +288,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 					))}
 				</TreeHeader>
-				{expanded && hasValue && dmTypeWithValue && isBodyArrayLitExpr && (
+				{expanded && hasValue && isBodyArrayLitExpr && (
 					<TreeBody>
 						<ArrayOutputFieldWidget
 							key={id}
