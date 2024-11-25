@@ -294,5 +294,26 @@ export const APIS = {
 
 export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
+    ERROR_LOADING_TRYOUT: "Error loading tryout data. Please try again.",
+    ERROR_TRYING_OUT_MEDIATOR: "Error trying out mediator. Please try again.",
     ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
 }
+
+export const REACT_JSON_THEME = {
+    base00: "var(--webview-background)",
+    base01: "var(--webview-background-secondary)",
+    base02: "var(--webview-background-tertiary)",
+    base03: "var(--webview-text-color)",
+    base04: "var(--webview-accent-color)",
+    base05: "var(--webview-text-color)",
+    base06: "var(--webview-text-color)",
+    base07: "var(--webview-text-color)",
+    base08: "var(--webview-text-color)",
+    base09: "var(--webview-highlight-color)",
+    base0A: "var(--webview-highlight-color)",
+    base0B: "var(--webview-highlight-color)",
+    base0C: "var(--webview-highlight-color)",
+    base0D: "var(--webview-highlight-color)",
+    base0E: "var(--webview-highlight-color)",
+    base0F: "var(--webview-highlight-color)"
+};

@@ -29,6 +29,7 @@ export interface MediatorFormProps {
 }
 
 const FormContainer = styled.div`
+    width: 100%;
 `;
 export function MediatorForm(props: MediatorFormProps) {
     const { mediatorData, mediatorType, isUpdate, documentUri, range } = props;
@@ -67,29 +68,30 @@ export function MediatorForm(props: MediatorFormProps) {
         />
     }
 
-    return (<FormContainer>
-        <FormGenerator
-            formData={mediatorData}
-            control={control}
-            errors={errors}
-            setValue={setValue}
-            reset={reset}
-            watch={watch}
-            getValues={getValues}
-            skipGeneralHeading={true} />
-        <FormActions>
-            <Button
-                appearance="secondary"
-                onClick={handleOnClose}
-            >
-                Cancel
-            </Button>
-            <Button
-                appearance="primary"
-                onClick={handleSubmit(handleOnSubmit)}
-            >
-                {isUpdate ? "Update" : "Add"}
-            </Button>
-        </FormActions>
-    </FormContainer>);
+    return (
+        <FormContainer>
+            <FormGenerator
+                formData={mediatorData}
+                control={control}
+                errors={errors}
+                setValue={setValue}
+                reset={reset}
+                watch={watch}
+                getValues={getValues}
+                skipGeneralHeading={true} />
+            <FormActions>
+                <Button
+                    appearance="secondary"
+                    onClick={handleOnClose}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleOnSubmit)}
+                >
+                    {isUpdate ? "Update" : "Add"}
+                </Button>
+            </FormActions>
+        </FormContainer>);
 }

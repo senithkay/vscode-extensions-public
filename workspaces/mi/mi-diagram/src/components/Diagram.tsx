@@ -34,7 +34,7 @@ import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import _ from "lodash";
-import TryOutView from "./sidePanel/Pages/mediators/tryout";
+import TryOutView from "./sidePanel/mediators/Tryout";
 import TryOutPanel from "./sidePanel/Pages/TryOutPanel";
 
 export interface DiagramProps {
@@ -476,24 +476,6 @@ export function Diagram(props: DiagramProps) {
                         }}
                     >
                         <SidePanelList nodePosition={sidePanelState.nodeRange} trailingSpace={sidePanelState.trailingSpace} documentUri={props.documentUri} />
-                    </SidePanel>
-                    <SidePanel
-                        isOpen={sidePanelState.isTryoutOpen}
-                        overlay={sidePanelState.isOpen}
-                        alignment={sidePanelState.isOpen ? "bottom" : "bottom"}
-                        width={SIDE_PANEL_WIDTH}
-                        isFullWidth = {!sidePanelState.isOpen}
-                        onClose={() => setSidePanelState({ ...sidePanelState, isOpen: false, isTryoutOpen: false, isEditing: false, formValues: {}, node: undefined, nodeRange: undefined })}>
-                    {/* Header */}
-                    <ButtonContainer>
-                        {/* <Icon />
-                        <Title /> */}
-                        <Codicon name="close" sx={{ textAlign: "right", width: "20px", position: "absolute", right: "0px", paddingRight: "16px" }} onClick={handleClose} />
-                    </ButtonContainer>                    
-
-                    {/* Content */}
-                        {/* <TryOutView isColumnView={sidePanelState.isOpen} /> */}
-                        <TryOutView isColumnView={true} />                 
                     </SidePanel>
                 </SidePanelProvider>
             </S.Container >

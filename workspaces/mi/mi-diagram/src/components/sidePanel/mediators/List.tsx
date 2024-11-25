@@ -18,6 +18,7 @@ import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
 import { MediatorForm } from './Form';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
+import { MediatorPage } from './Mediator';
 
 interface MediatorProps {
     nodePosition: any;
@@ -55,7 +56,7 @@ export function Mediators(props: MediatorProps) {
 
         const form =
             <div style={{ padding: '20px' }}>
-                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+                <MediatorPage mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} nodeRange={props.nodePosition} />
             </div>;
         sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
     }

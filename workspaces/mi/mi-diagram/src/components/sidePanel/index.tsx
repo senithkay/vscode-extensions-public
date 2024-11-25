@@ -11,9 +11,9 @@ import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
 import InputPayloadForm from './Pages/InputPayload';
-import { MediatorForm } from './mediators/Form';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getMediatorIconsFromFont } from '../../resources/icons/mediatorIcons/icons';
+import { MediatorPage } from './mediators/Mediator';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -146,8 +146,14 @@ const SidePanelList = (props: SidePanelListProps) => {
                         documentUri: props?.documentUri
                     });
 
-                    const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.tag} isUpdate={true} documentUri={props.documentUri} range={props.nodePosition} />;
-                    sidepanelAddPage(sidePanelContext, form, `Edit ${mediatorDetails?.title || sidePanelContext.tag}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
+                    const page = <MediatorPage
+                        mediatorData={mediatorDetails}
+                        mediatorType={sidePanelContext.tag}
+                        isUpdate={true}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                    />;
+                    sidepanelAddPage(sidePanelContext, page, `Edit ${mediatorDetails?.title || sidePanelContext.tag}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
                 }
             } else if (sidePanelContext.isEditing && sidePanelContext.operationName == "input") {
 

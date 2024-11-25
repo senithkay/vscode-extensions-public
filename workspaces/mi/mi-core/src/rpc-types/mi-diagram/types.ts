@@ -1769,6 +1769,7 @@ export interface MediatorTryOutRequest {
 export interface MediatorTryOutResponse {
     input: MediatorTryOutInfo;
     output: MediatorTryOutInfo;
+    error?: string;
 }
 
 export interface MediatorTryOutInfo {
