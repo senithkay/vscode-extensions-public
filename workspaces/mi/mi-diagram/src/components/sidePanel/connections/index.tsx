@@ -16,7 +16,6 @@ import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import AddConnector from "../Pages/AddConnector";
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
-import CallForm from "../Pages/mediators/core/call";
 
 const VersionTag = styled.div`
     color: #808080;
