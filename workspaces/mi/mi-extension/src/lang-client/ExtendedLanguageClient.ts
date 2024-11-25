@@ -48,7 +48,9 @@ import {
     GetMediatorRequest,
     GetMediatorResponse,
     UpdateMediatorRequest,
-    UpdateMediatorResponse
+    UpdateMediatorResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -329,5 +331,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
         return this.sendRequest("synapse/generateSynapseConfig", request);
+    }
+
+    async getExpressionCompletions(req: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this.sendRequest("synapse/expressionCompletion", req);
     }
 }

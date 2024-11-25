@@ -209,7 +209,9 @@ import {
     GetMediatorsResponse,
     GetMediatorRequest,
     GetMediatorResponse,
-    UpdateMediatorRequest
+    UpdateMediatorRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -352,3 +354,4 @@ export const getInputPayload: RequestType<GetPayloadRequest,GetPayloadResponse> 
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
 export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
+export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };

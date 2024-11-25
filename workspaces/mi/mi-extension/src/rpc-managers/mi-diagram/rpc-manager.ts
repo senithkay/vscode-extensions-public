@@ -79,6 +79,8 @@ import {
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
     ExtendedDSSQueryGenRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
     FileDirResponse,
     FileRenameRequest,
     FileStructure,
@@ -4976,10 +4978,9 @@ ${keyValuesXML}`;
                 let edits = response.textEdits;
 
                 for (const edit of edits) {
-                    let range = new Range(edit.range.start.line, edit.range.start.character, edit.range.end.line, edit.range.end.character);
                     await this.applyEdit({
                         documentUri: param.documentUri,
-                        range,
+                        range: edit.range,
                         text: edit.newText,
                         disableUndoRedo: true
                     });
@@ -4993,7 +4994,25 @@ ${keyValuesXML}`;
             }
         });
     }
+
+    async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const langClient = StateMachine.context().langClient!;
+                const res = await langClient.getExpressionCompletions(params);
+                if (!res.isIncomplete) {
+                    resolve(res);
+                } else {
+                    reject(new Error('Incomplete completions'));
+                }
+            } catch (error) {
+                console.error(`Error getting expression completions: ${error}`);
+                reject(error);
+            }
+        });
+    }
 }
+
 
 export async function askProjectPath() {
     return await window.showOpenDialog({

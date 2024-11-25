@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, ComponentCard, FormCheckBox, FormGroup, Icon, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -44,6 +44,8 @@ export interface FormGeneratorProps {
     getValues: any;
     skipGeneralHeading?: boolean;
     ignoreFields?: string[];
+    connections?: string[];
+    addNewConnection?: any;
 }
 
 interface Element {
@@ -73,7 +75,7 @@ interface ExpressionValueWithSetter {
 export function FormGenerator(props: FormGeneratorProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields } = props;
+    const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields, connections, addNewConnection } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [autoGenerate, setAutoGenerate] = useState(!onEdit);
@@ -143,6 +145,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={placeholder}
                 canChange={canChange}
                 required={element.required || element.required === 'true'}
+                isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -370,6 +373,30 @@ export function FormGenerator(props: FormGeneratorProps) {
                     growRange={{ start: 5, offset: 10 }}
                     errorMsg={errorMsg}
                 />);
+            case 'connection':
+                return (
+                    <>
+                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: '100%', gap: '10px' }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                                <label>{element.displayName}</label>
+                                {element.required === 'true' && <RequiredFormInput />}
+                            </div>
+                            <LinkButton onClick={() => addNewConnection()}>
+                                <Codicon name="plus" />Add new connection
+                            </LinkButton>
+                        </div>
+                        <AutoComplete
+                            name="configKey"
+                            errorMsg={errors[getNameForController("configKey")] && errors[getNameForController("configKey")].message.toString()}
+                            items={connections}
+                            value={field.value}
+                            onValueChange={(e: any) => {
+                                field.onChange(e);
+                            }}
+                            required={element.required === 'true'}
+                            allowItemCreate={false}
+                        />
+                    </>);
             default:
                 return null;
         }
@@ -538,7 +565,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const renderControllerIfConditionMet = (element: any) => {
-        const name = getNameForController(element.value.name);
+        const name = element.value.name === 'configRef' ? 'configKey' : getNameForController(element.value.name);
         let shouldRender: boolean = true;
 
         if (Array.isArray(element.value.enableCondition)) {
