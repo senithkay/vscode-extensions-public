@@ -18,6 +18,7 @@ import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
 import { MediatorForm } from './Form';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
+import { ModuleSuggestions } from './ModuleSuggestions';
 
 interface MediatorProps {
     nodePosition: any;
@@ -117,13 +118,18 @@ export function Mediators(props: MediatorProps) {
 
     return (
         <div>
-            {isLoading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
-                    <ProgressRing />
-                </div>
-            ) : (
+    {
+        isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                <ProgressRing />
+            </div>
+        ) : (
+            <>
                 <MediatorList />
-            )}
-        </div>
+                <ModuleSuggestions nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} searchValue={props.searchValue} />
+            </>
+        )
+    }
+        </div >
     );
 }
