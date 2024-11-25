@@ -76,7 +76,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 
 	const body = dmTypeWithValue && dmTypeWithValue.value;
 	const wasBodyForgotten = body && body.wasForgotten();
-	const hasValue = !!dmTypeWithValue;
+	const hasValue = dmTypeWithValue && dmTypeWithValue?.elements && dmTypeWithValue.elements.length > 0;
 	const isBodyArrayLitExpr = !wasBodyForgotten && Node.isArrayLiteralExpression(body);
 	const elements = !wasBodyForgotten && isBodyArrayLitExpr ? body.getElements() : [];
 	const hasDiagnostics = !wasBodyForgotten
@@ -136,35 +136,34 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 			returnStatement?.remove();
 			fnBody.addStatements('return []');
 			await context.applyModifications(fnBody.getSourceFile().getFullText());
-			handleExpand(false);
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	const handleAddArrayElement = async () => {
-        setIsAddingElement(true)
-        
-			const typeKind = dmTypeWithValue.type?.memberType.kind;
-            const defaultValue = getDefaultValue(typeKind);
-			const bodyNodeForgotten = body && body.wasForgotten();
-			const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
-			const arrayLitExpr = hasValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
+		setIsAddingElement(true)
 
-            let targetExpr = arrayLitExpr;
-            if (!body) {
-                const fnBody = context.functionST.getBody() as Block;
-                fnBody.addStatements([`return [];`]);
-                const returnStatement = fnBody.getStatements()
-                    .find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
-                targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
-            }
-            const updatedTargetExpr = targetExpr.addElement(defaultValue);
-            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
-			handleExpand(false);
-            setIsAddingElement(false);
-        
-    };
+		const typeKind = dmTypeWithValue.type?.memberType.kind;
+		const defaultValue = getDefaultValue(typeKind);
+		const bodyNodeForgotten = body && body.wasForgotten();
+		const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
+		const arrayLitExpr = dmTypeWithValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
+
+		let targetExpr = arrayLitExpr;
+		if (!body) {
+			const fnBody = context.functionST.getBody() as Block;
+			fnBody.addStatements([`return [];`]);
+			const returnStatement = fnBody.getStatements()
+				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+			targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
+		}
+		const updatedTargetExpr = targetExpr.addElement(defaultValue);
+		await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+		handleExpand(false);
+		setIsAddingElement(false);
+
+	};
 
 
 	const onRightClick = (event: React.MouseEvent) => {
@@ -287,7 +286,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 					))}
 				</TreeHeader>
-				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
+				{expanded && hasValue && dmTypeWithValue && isBodyArrayLitExpr && (
 					<TreeBody>
 						<ArrayOutputFieldWidget
 							key={id}
