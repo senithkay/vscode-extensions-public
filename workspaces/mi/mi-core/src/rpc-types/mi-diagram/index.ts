@@ -198,7 +198,9 @@ import {
     DriverPathResponse,
     AddDriverToLibRequest,
     AddDriverToLibResponse,
-    APIContextsResponse
+    APIContextsResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -333,4 +335,5 @@ export interface MiDiagramAPI {
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
+    getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
 }

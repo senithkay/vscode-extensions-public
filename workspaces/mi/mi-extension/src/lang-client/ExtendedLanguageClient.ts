@@ -40,7 +40,9 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSQueryGenResponse
+    DSSQueryGenResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -298,5 +300,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
             resolve(undefined);
         });
+    }
+
+    async getExpressionCompletions(req: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this.sendRequest("synapse/expressionCompletion", req);
     }
 }
