@@ -130,19 +130,6 @@ export class BaseNodeModel extends NodeModel {
         }
     }
 
-    async onOpenSchema(e: any, node: BaseNodeModel, rpcClient: RpcClient, sidePanelContext: SidePanelContext, stNode: STNode = this.stNode) {
-        e.stopPropagation();
-        const nodeRange = { start: stNode.range.startTagRange.start, end: stNode.range?.endTagRange?.end ?? stNode.range.startTagRange.end };
-        const inputOutput= await rpcClient.getMiDiagramRpcClient().tryOutMediator({file:node.documentUri,line:stNode.range.startTagRange.start.line,column:stNode.range.startTagRange.start.character});
-        sidePanelContext.setSidePanelState({
-            isTryoutOpen: true,
-            nodeRange: nodeRange,
-            inputOutput: inputOutput,
-            parentNode: node.mediatorName,
-            node: node,
-        });
-    }
-
     async delete(rpcClient: RpcClient, setDiagramLoading: (loading: boolean) => void) {
         setDiagramLoading(true);
         rpcClient.getMiDiagramRpcClient().applyEdit({
