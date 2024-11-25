@@ -25,7 +25,6 @@ interface CodeTextAreaProps {
     placeholder?: string;
     cols?: number;
     rows?: number;
-    resize?: string;
     growRange?: RowRange;
     validationMessage?: string;
     sx?: any;

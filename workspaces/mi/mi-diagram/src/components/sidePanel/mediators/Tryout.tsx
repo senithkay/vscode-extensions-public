@@ -8,19 +8,16 @@
 */
 // AUTO-GENERATED FILE. DO NOT MODIFY.
 
-import React, { useEffect, useRef } from 'react';
-import { AutoComplete, Button, ComponentCard, ProgressIndicator, TextField, TextArea, Typography, FormGroup, ErrorBanner } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
+import React, { useEffect } from 'react';
+import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox, TextArea } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import SidePanelContext from '../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Controller, useForm } from 'react-hook-form';
 // import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 import { CodeTextArea } from '../../Form/CodeTextArea';
 import ReactJson from 'react-json-view';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { MediatorTryOutInfo } from '@wso2-enterprise/mi-core';
-import { ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
+import { Colors, ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
 
 const TryoutContainer = styled.div`
     width: 100%;
@@ -47,8 +44,8 @@ export function TryOutView(props: TryoutProps) {
     const [tryOutError, setTryOutError] = React.useState<string | null>(null);
     const [mediatorInput, setMediatorInput] = React.useState<any>({});
     const [mediatorOutput, setMediatorOutput] = React.useState<any>({});
-    const [isJsonInputPayload, setIsJsonInputPayload] = React.useState(false);
-    const [isJsonOutputPayload, setIsJsonOutputPayload] = React.useState(false);
+    const [isDefaultInput, setIsDefaultInput] = React.useState(true);
+    const [inputPayload, setInputPayload] = React.useState('');
 
     useEffect(() => {
         getSchema();
@@ -79,13 +76,13 @@ export function TryOutView(props: TryoutProps) {
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 file: documentUri,
                 line: nodeRange.start.line,
-                column: nodeRange.start.character + 1
+                column: nodeRange.start.character + 1,
+                ...(!isDefaultInput && { inputPayload })
             });
             if (res.error) {
                 setTryOutError(typeof res.error === 'string' ? res.error : ERROR_MESSAGES.ERROR_TRYING_OUT_MEDIATOR);
                 console.error("Error trying out mediator:", res.error);
             } else {
-                // setMediatorInput(res.input);
                 setMediatorOutput(res.output);
             }
         } catch (error) {
@@ -95,9 +92,9 @@ export function TryOutView(props: TryoutProps) {
         }
     }
 
-    const Properties = ({ properties }: { properties: MediatorTryOutInfo }) => {
+    const Properties = ({ properties, isExpanded }: { properties: MediatorTryOutInfo, isExpanded?: boolean }) => {
         return (
-            <FormGroup title='Properties'>
+            <FormGroup title='Properties' isCollapsed={!isExpanded}>
                 <PropertiesContainer>
                     <ReactJson sortKeys name="Synapse Properties" src={properties.synapse} theme={REACT_JSON_THEME} />
                     <ReactJson sortKeys name="Axis2 Properties" src={properties.axis2} theme={REACT_JSON_THEME} />
@@ -125,21 +122,24 @@ export function TryOutView(props: TryoutProps) {
 
     return (
         <TryoutContainer>
-            <Typography sx={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{`Try the request flow up to this mediator`}</Typography>
+            <Typography sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{`Try the request flow up to this mediator`}</Typography>
 
             <Section>
-                <div>
-                    <Typography variant="body3">Payload</Typography>
-                    {isJsonInputPayload &&
-                        <div><ReactJson sortKeys name="Payload" src={mediatorInput.payload} theme="monokai" style={{ fontSize: "0.8em" }} /></div>
-                    }
-                    {!isJsonInputPayload && <CodeTextArea name="Payload" growRange={{ start: 5, offset: 5 }} value={mediatorInput.payload} />}
+                <Properties properties={mediatorInput} isExpanded />
 
+                <div style={{ marginTop: "10px" }}>
+                    <CheckBox
+                        label="Use default payload"
+                        checked={isDefaultInput}
+                        onChange={() => setIsDefaultInput(!isDefaultInput)}
+                    />
+                    {!isDefaultInput &&
+                        <div>
+                            <Typography variant="body3">Payload</Typography>
+                            <CodeTextArea name="Payload" rows={5} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
+                        </div>}
                 </div>
-                <br />
-                <Properties properties={mediatorInput} />
-
-                <Button onClick={onTryOut} sx={{ marginTop: "20px", marginLeft: "auto" }} disabled={isTryOutLoading}>
+                <Button onClick={onTryOut} sx={{ marginTop: "10px", marginLeft: "auto" }} disabled={isTryOutLoading}>
                     {isTryOutLoading ? 'Running...' : 'Run'}
                 </Button>
             </Section>
@@ -150,10 +150,19 @@ export function TryOutView(props: TryoutProps) {
                 <Typography variant="h3" sx={{ fontSize: "1.2em" }}>Output</Typography>
                 <div>
                     <Typography variant="body3">Payload</Typography>
-                    {isJsonInputPayload &&
-                        <div><ReactJson sortKeys name="Payload" src={mediatorOutput.payload} theme="monokai" style={{ fontSize: "0.8em" }} /></div>
+                    {isDefaultInput &&
+                        <div style={{
+                            border: "1px solid",
+                            borderRadius: "4px",
+                            padding: "10px",
+                            whiteSpace: "pre-wrap",
+                            backgroundColor: Colors.SURFACE_CONTAINER,
+                            borderColor: Colors.OUTLINE
+                        }}>
+                            {mediatorOutput.payload}
+                        </div>
                     }
-                    {!isJsonInputPayload && <CodeTextArea name="Payload" growRange={{ start: 5, offset: 5 }} value={mediatorOutput.payload} />}
+                    {!isDefaultInput && <CodeTextArea name="Payload" growRange={{ start: 5, offset: 5 }} value={mediatorOutput.payload} />}
                 </div>
                 <br />
                 <Properties properties={mediatorOutput} />
