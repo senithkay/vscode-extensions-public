@@ -36,6 +36,7 @@ export function DownloadPage(props: DownloadPageProps) {
             setIsDownloading(true);
             await new Promise(resolve => setTimeout(resolve, 5000));
             setIsDownloading(false);
+            sidepanelGoBack(sidePanelContext);
         } else {
             sidepanelGoBack(sidePanelContext);
         }

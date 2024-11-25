@@ -11,7 +11,7 @@ import { Codicon, ComponentCard, Icon, IconLabel, Tooltip } from '@wso2-enterpri
 import React, { ReactNode, useState } from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
-import { getAllMediators } from './Values';
+// import { getAllMediators } from './Values';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
@@ -123,14 +123,14 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
     };
 
 
-    const allMediators = getAllMediators({
-        nodePosition: props.nodePosition,
-        trailingSpace: props.trailingSpace,
-        documentUri: props.documentUri,
-        previousNode: sidePanelContext.previousNode,
-        nextNode: sidePanelContext.nextNode,
-        parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
-    });
+    // const allMediators = getAllMediators({
+    //     nodePosition: props.nodePosition,
+    //     trailingSpace: props.trailingSpace,
+    //     documentUri: props.documentUri,
+    //     previousNode: sidePanelContext.previousNode,
+    //     nextNode: sidePanelContext.nextNode,
+    //     parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
+    // });
 
     const selectModule = (module: any) => {
         const downloadPage = <DownloadPage module={module} />;
