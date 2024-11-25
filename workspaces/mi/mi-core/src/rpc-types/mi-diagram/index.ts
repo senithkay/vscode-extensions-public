@@ -203,7 +203,9 @@ import {
     GetMediatorsResponse,
     GetMediatorRequest,
     GetMediatorResponse,
-    UpdateMediatorRequest
+    UpdateMediatorRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -341,4 +343,5 @@ export interface MiDiagramAPI {
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
 }
