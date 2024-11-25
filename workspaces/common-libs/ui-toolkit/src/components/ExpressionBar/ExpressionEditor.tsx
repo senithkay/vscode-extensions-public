@@ -413,6 +413,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         onClose,
         onCompletionSelect,
         onDefaultCompletionSelect,
+        onManualCompletionRequest,
         extractArgsFromFunction,
         useTransaction,
         onFocus,
@@ -671,6 +672,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                         return;
                 }
             }
+        }
+
+        if (onManualCompletionRequest && e.ctrlKey && e.key === ' ') {
+            e.preventDefault();
+            await onManualCompletionRequest();
+            return;
         }
 
         if (e.key === 'Enter') {
