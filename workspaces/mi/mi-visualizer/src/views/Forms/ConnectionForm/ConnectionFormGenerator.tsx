@@ -42,11 +42,10 @@ export function AddConnection(props: AddConnectionProps) {
     const [connections, setConnections] = useState([]);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
-            name: props.connectionName ?? "",
-            connectionType: allowedConnectionTypes ? allowedConnectionTypes[0] : "",
+            name: props.connectionName ?? ""
         }
     });
-    const [connectionType, setConnectionType] = useState(undefined);
+    const [connectionType, setConnectionType] = useState(allowedConnectionTypes ? allowedConnectionTypes[0] : "");
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -66,20 +65,15 @@ export function AddConnection(props: AddConnectionProps) {
 
         const fetchFormData = async () => {
             // Fetch form on creation
-            const currentConnectionType = getValues('connectionType');
-            if (currentConnectionType && currentConnectionType !== connectionType) {
+            const connectionUiSchema = props.connector.connectionUiSchema[connectionType];
 
-                const connectionUiSchema = props.connector.connectionUiSchema[currentConnectionType];
+            const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
 
-                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
-
-                setFormData(connectionFormJSON.formJSON);
-                reset({
-                    name: watch('name'),
-                    connectionType: watch('connectionType')
-                });
-                setConnectionType(currentConnectionType);
-            }
+            setFormData(connectionFormJSON.formJSON);
+            reset({
+                name: watch('name'),
+                connectionType: connectionType
+            });
         };
 
         (async () => {
@@ -89,7 +83,7 @@ export function AddConnection(props: AddConnectionProps) {
                 await fetchFormData();
             }
         })();
-    }, [watch('connectionType')]);
+    }, [connectionType]);
 
     useEffect(() => {
         const fetchFormData = async () => {
@@ -117,7 +111,7 @@ export function AddConnection(props: AddConnectionProps) {
                 setFormData(connectionFormJSON.formJSON);
                 reset({
                     name: props.connectionName,
-                    connectionType: connectionFound.connectionType,
+                    connectionType: connectionType
                 });
 
                 const parameters = connectionFound.parameters
@@ -215,7 +209,7 @@ export function AddConnection(props: AddConnectionProps) {
         const template = create();
         const localEntryTag = template.ele('localEntry', { key: getValues("name"), xmlns: 'http://ws.apache.org/ns/synapse' });
         const connectorTag = localEntryTag.ele(`${formData.connectorName ?? props.connector.name}.init`);
-        connectorTag.ele('connectionType').txt(getValues("connectionType"));
+        connectorTag.ele('connectionType').txt(connectionType);
 
         if (errors && Object.keys(errors).length > 0) {
             console.error("Errors in saving connection form", errors);
@@ -400,8 +394,9 @@ export function AddConnection(props: AddConnectionProps) {
                                             ))
                                         }
                                         required={true}
-                                        value={field.value}
+                                        value={connectionType}
                                         onValueChange={(e: any) => {
+                                            setConnectionType(e);
                                             field.onChange(e);
                                         }}
                                         errorMsg={errors.connectionType && errors.connectionType.message.toString()}
