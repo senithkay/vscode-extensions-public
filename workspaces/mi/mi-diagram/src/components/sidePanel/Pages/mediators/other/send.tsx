@@ -21,7 +21,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../../Form';
 import { ExpressionField, ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
-import { CodeTextArea } from '../../../../Form/CodeTextArea';
+import { CodeTextArea } from '../../../../Form';
 
 const cardStyle = { 
     display: "block",

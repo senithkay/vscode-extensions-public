@@ -20,7 +20,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../../../../Form/ExpressionField/ExpressionInput';
 import { ParamManager, ParamValue } from '../../../../Form/ParamManager/ParamManager';
 import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
-import { CodeTextArea } from '../../../../Form/CodeTextArea';
+import { CodeTextArea } from '../../../../Form';
 
 const cardStyle = { 
     display: "block",
