@@ -38,7 +38,7 @@ interface IfFormProps {
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
 }
 
 export function IfForm(props: IfFormProps) {
@@ -50,7 +50,7 @@ export function IfForm(props: IfFormProps) {
         openSubPanel,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        isActiveSubPanel,
+        subPanelView,
     } = props;
     const { 
         watch,
@@ -381,6 +381,7 @@ export function IfForm(props: IfFormProps) {
     };
 
     const handleEditorFocus = (currentActive: number) => {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
         if (isActiveSubPanel && activeEditor !== currentActive) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }

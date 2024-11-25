@@ -101,7 +101,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
         return () => {
             KeyboardNavigationManager.getClient().resetMouseTrapInstance();
         };
-    }, [views]);
+    }, [model, views]);
 
     const generateNodes = () => {
         const context = new DataMapperContext(model, views, addView, applyModifications);

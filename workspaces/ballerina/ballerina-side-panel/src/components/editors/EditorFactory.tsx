@@ -9,7 +9,7 @@
 
 import React from "react";
 
-import { NodeKind, SubPanel } from "@wso2-enterprise/ballerina-core";
+import { NodeKind, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 import { FormField } from "../Form/types";
 import { MultiSelectEditor } from "./MultiSelectEditor";
@@ -28,13 +28,13 @@ interface FormFieldEditorProps {
     selectedNode?: NodeKind;
     openRecordEditor?: (open: boolean) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
+    const { field, selectedNode, openRecordEditor, openSubPanel, subPanelView, handleOnFieldFocus, autoFocus } =
         props;
 
     if (field.type === "MULTIPLE_SELECT") {
@@ -80,7 +80,7 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 ref={ref}
                 field={field}
                 openSubPanel={openSubPanel}
-                isActiveSubPanel={isActiveSubPanel}
+                subPanelView={subPanelView}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
             />

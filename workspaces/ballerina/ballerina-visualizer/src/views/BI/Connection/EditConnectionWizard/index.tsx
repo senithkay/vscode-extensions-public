@@ -143,10 +143,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
         switch (subPanel.view) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
-                    <InlineDataMapper
-                        filePath={subPanel.props?.inlineDataMapper?.filePath}
-                        range={subPanel.props?.inlineDataMapper?.range}
-                    />
+                    <InlineDataMapper onClosePanel={handleSubPanel} {...subPanel.props?.inlineDataMapper}/>
                 );
             case SubPanelView.HELPER_PANEL:
                 return (

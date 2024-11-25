@@ -22,7 +22,7 @@ import { sanitizeType } from './utils';
 type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
 }
@@ -164,7 +164,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         onCancel,
         onRemove,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         targetLineRange,
         fileName,
         handleOnFieldFocus,
@@ -280,7 +280,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     };
 
     const updateSubPanelData = (value: string) => {
-        if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
+
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+            handleInlineDataMapperOpen();
+        } else if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
             const subPanelProps: SubPanelViewProps = {
                 sidePanelData: {
                     filePath: effectiveFileName,

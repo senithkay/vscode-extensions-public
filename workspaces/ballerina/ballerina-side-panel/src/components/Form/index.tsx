@@ -166,7 +166,7 @@ export interface FormProps {
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
     expressionEditor?: {
@@ -213,7 +213,7 @@ export function Form(props: FormProps) {
         openRecordEditor,
         openView,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         expressionEditor,
         targetLineRange,
         fileName,
@@ -301,7 +301,10 @@ export function Form(props: FormProps) {
     };
 
     const handleOnFieldFocus = (key: string) => {
-        if (isActiveSubPanel && activeFormField !== key) {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
+        const isDataMapperInSubPanel = subPanelView === SubPanelView.INLINE_DATA_MAPPER;
+
+        if (isActiveSubPanel && activeFormField !== key && !isDataMapperInSubPanel) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
         setActiveFormField(key);
@@ -459,7 +462,7 @@ export function Form(props: FormProps) {
                                         selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
                                         openSubPanel={handleOpenSubPanel}
-                                        isActiveSubPanel={isActiveSubPanel}
+                                        subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
                                     />
@@ -515,7 +518,7 @@ export function Form(props: FormProps) {
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
                                             openSubPanel={handleOpenSubPanel}
-                                            isActiveSubPanel={isActiveSubPanel}
+                                            subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
                                         />
                                     </S.Row>

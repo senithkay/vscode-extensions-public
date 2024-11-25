@@ -9,12 +9,20 @@
 
 import React, { useEffect, useState } from "react";
 
-import { FlowNode, IDMModel, InlineDataMapperSourceRequest, LinePosition, Mapping, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import {
+    FlowNode,
+    IDMModel,
+    InlineDataMapperSourceRequest,
+    LinePosition,
+    Mapping,
+    SubPanel,
+    SubPanelView
+} from "@wso2-enterprise/ballerina-core";
 import { DataMapperView } from "@wso2-enterprise/ballerina-inline-data-mapper";
-
-import { useInlineDataMapperModel } from "../../Hooks";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+
+import { useInlineDataMapperModel } from "../../Hooks";
 
 interface InlineDataMapperProps {
     filePath: string;
@@ -36,6 +44,12 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
         isFetching,
         isError
     } = useInlineDataMapperModel(filePath, flowNode, propertyKey, position);
+
+    useEffect(() => {
+        if (initialModel) {
+            setModel(initialModel);
+        }
+    }, [initialModel]);
 
     const onClose = () => {
         onClosePanel({ view: SubPanelView.UNDEFINED });
@@ -71,9 +85,10 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
 
     return (
         <>
-            {isFetching ? (
-                <ProgressIndicator /> 
-            ) : (
+            {isFetching && (
+                 <ProgressIndicator /> 
+            )}
+            {model && (
                 <DataMapperView 
                     model={model || initialModel} 
                     onClose={onClose}

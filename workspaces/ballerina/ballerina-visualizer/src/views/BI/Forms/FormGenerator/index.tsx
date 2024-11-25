@@ -15,7 +15,8 @@ import {
     NodePosition,
     SubPanel,
     VisualizerLocation,
-    FormDiagnostics
+    FormDiagnostics,
+    SubPanelView
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -44,7 +45,7 @@ interface FormProps {
     projectPath?: string;
     editForm?: boolean;
     onSubmit: (node?: FlowNode, isDataMapper?: boolean) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
         completions: CompletionItem[];
@@ -89,7 +90,7 @@ export function FormGenerator(props: FormProps) {
         editForm,
         onSubmit,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         expressionEditor,
         updatedExpressionField,
         resetUpdatedExpressionField,
@@ -198,7 +199,7 @@ export function FormGenerator(props: FormProps) {
             onSubmit={onSubmit}
             openSubPanel={openSubPanel}
             updatedExpressionField={updatedExpressionField}
-            isActiveSubPanel={isActiveSubPanel}
+            subPanelView={subPanelView}
             resetUpdatedExpressionField={resetUpdatedExpressionField}
         />;
     }
@@ -215,7 +216,7 @@ export function FormGenerator(props: FormProps) {
                     onSubmit={handleOnSubmit}
                     openView={handleOpenView}
                     openSubPanel={openSubPanel}
-                    isActiveSubPanel={isActiveSubPanel}
+                    subPanelView={subPanelView}
                     expressionEditor={expressionEditor}
                     targetLineRange={targetLineRange}
                     fileName={fileName}
