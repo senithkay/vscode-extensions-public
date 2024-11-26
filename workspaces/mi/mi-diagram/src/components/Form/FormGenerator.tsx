@@ -126,6 +126,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     }
 
     function getNameForController(name: string | number) {
+        if (name === 'configRef') {
+            return 'configKey';
+        }
         return String(name).replace(/\./g, '__dot__');
     }
 
@@ -506,6 +509,16 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
+            const name = getNameForController(element.value.name);
+            if (element?.value?.enableCondition !== undefined) {
+                const shouldRender = getConditions(element.value.enableCondition);
+                if (!shouldRender) {
+                    if (getValues(name)) {
+                        setValue(name, undefined)
+                    }
+                    return;
+                }
+            }
 
             if (element.type === 'attributeGroup') {
                 return (
@@ -557,81 +570,67 @@ export function FormGenerator(props: FormGeneratorProps) {
                 }
 
                 return (
-                    renderControllerIfConditionMet(element)
+                    renderController(element)
                 );
             }
         });
     };
 
-    const renderControllerIfConditionMet = (element: any) => {
-        const name = element.value.name === 'configRef' ? 'configKey' : getNameForController(element.value.name);
-        let shouldRender: boolean = true;
-
-        if (Array.isArray(element.value.enableCondition)) {
-            shouldRender = getConditions(element.value.enableCondition);
-        }
+    const renderController = (element: any) => {
+        const name = getNameForController(element.value.name);
 
         if (element.type === 'table') {
             element.value.inputType = 'ParamManager';
         }
 
-        if (shouldRender) {
-
-            return (
-                <Controller
-                    name={name}
-                    control={control}
-                    defaultValue={getDefaultValue(element)}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
+        return (
+            <Controller
+                name={name}
+                control={control}
+                defaultValue={getDefaultValue(element)}
+                rules={
+                    {
+                        ...(element.value.required === 'true') && {
+                            validate: (value) => {
+                                if (!value || (typeof value === 'object' && !value.value)) {
+                                    return "This field is required";
+                                }
+                                return true;
+                            },
                         }
                     }
-                    render={({ field }) => (
-                        <Field>
-                            {renderFormElement(element.value, field)}
-                        </Field>
-                    )}
-                />
-            );
-        } else {
-            if (getValues(name)) {
-                setValue(name, undefined)
-            }
-        }
-
-        return null; // Return null if conditions are not met
-
-        function getConditions(conditions: any): boolean {
-            const evaluateCondition = (condition: any) => {
-                const key = Object.keys(condition)[0];
-                return watch(getNameForController(key)) === condition[key];
-            };
-
-            if (Array.isArray(conditions)) {
-                const firstElement = conditions[0];
-                const restConditions = conditions.slice(1);
-
-                if (firstElement === "AND") {
-                    return restConditions.every(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
-                } else if (firstElement === "OR") {
-                    return restConditions.some(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
-                } else if (firstElement === "NOT") {
-                    const condition = conditions[1];
-                    return Array.isArray(condition) ? !getConditions(condition) : !evaluateCondition(condition);
-                } else {
-                    return evaluateCondition(conditions[0]);
                 }
+                render={({ field }) => (
+                    <Field>
+                        {renderFormElement(element.value, field)}
+                    </Field>
+                )}
+            />
+        );
+    }
+
+    function getConditions(conditions: any): boolean {
+        const evaluateCondition = (condition: any) => {
+            const key = Object.keys(condition)[0];
+            return watch(getNameForController(key)) === condition[key];
+        };
+
+        if (Array.isArray(conditions)) {
+            const firstElement = conditions[0];
+            const restConditions = conditions.slice(1);
+
+            if (firstElement === "AND") {
+                return restConditions.every(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+            } else if (firstElement === "OR") {
+                return restConditions.some(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+            } else if (firstElement === "NOT") {
+                const condition = conditions[1];
+                return Array.isArray(condition) ? !getConditions(condition) : !evaluateCondition(condition);
+            } else {
+                return evaluateCondition(conditions[0]);
             }
-            return false; // Default case if conditions are not met
         }
+        return conditions; // Default case if conditions are not met
     }
 
     return (
