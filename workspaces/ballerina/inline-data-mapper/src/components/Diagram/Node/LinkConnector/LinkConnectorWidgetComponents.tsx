@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 
 import { DataMapperPortWidget, IntermediatePortModel } from '../../Port';
 
@@ -20,33 +20,6 @@ export const renderPortWidget = (engine: DiagramEngine, port: IntermediatePortMo
         dataTestId={`link-connector-node-${label}`}
     />
 );
-
-export const renderExpressionTooltip = () => (
-    <Tooltip
-        content={"Expression"}
-        position="bottom-end"
-    >
-        <Icon
-            name={"explicit-outlined"}
-            sx={{ height: "20px", width: "20px", cursor: "default" }}
-            iconSx={{ fontSize: "20px", color: "var(--vscode-input-placeholderForeground)" }}
-        />
-    </Tooltip>
-);
-
-export const renderFunctionCallTooltip = () => (
-    <Tooltip
-        content={"Function Call Expression"}
-        position="bottom-end"
-    >
-        <Icon
-            name={"function-icon"}
-            sx={{ cursor: "default" }}
-            iconSx={{ fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
-        />
-    </Tooltip>
-);
-
 
 export const renderEditButton = (onClick: () => void, nodeValue: string) => (
     <Button
