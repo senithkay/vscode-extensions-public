@@ -18,10 +18,10 @@ import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValue
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
-import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../utils/constants';
 import { SubMappingInfo, View } from '../../../components/DataMapper/Views/DataMapperView';
 import { getSourceNodeType } from '../utils/node-utils';
+import { ExpressionLabelModel } from './ExpressionLabelModel';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -47,14 +47,12 @@ const codiconStyles = {
 }
 
 export interface ArrayMappingOptionsWidgetProps {
-    link: DataMapperLinkModel;
-    mappingType: MappingType;
-    context: IDataMapperContext;
+    model: ExpressionLabelModel;
 }
 
 export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps) {
     const classes = useStyles();
-    const { link, mappingType, context } = props;
+    const { link, pendingMappingType, context } = props.model;
     const { addView, views } = context;
 
     const sourcePort = link.getSourcePort() as InputOutputPortModel;
@@ -199,7 +197,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     ];
 
-    const menuItems = mappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
+    const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
 
     return (
         <div className={classes.arrayMappingMenu}>
