@@ -240,8 +240,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         });
     };
 
-    const handleInlineDataMapperOpen = () => {
-        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+    const handleInlineDataMapperOpen = (isUpdate: boolean = false) => {
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER && !isUpdate) {
             openSubPanel({view: SubPanelView.UNDEFINED});
         } else {
             handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
@@ -251,7 +251,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     line: effectiveTargetLineRange.startLine.line,
                     offset: effectiveTargetLineRange.startLine.offset,
                 },
-                propertyKey: field.type
+                propertyKey: field.type,
+                editorKey: field.key
             }});
             handleOnFieldFocus?.(field.key);
         }
@@ -292,7 +293,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
 
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
-            handleInlineDataMapperOpen();
+            handleInlineDataMapperOpen(true);
         } else if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
             const subPanelProps: SubPanelViewProps = {
                 sidePanelData: {

@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { LinePosition } from "../../interfaces/common";
 import { TypeKind } from "../../interfaces/inline-data-mapper";
 
 export interface IDMType {
@@ -19,14 +18,4 @@ export interface IDMType {
     defaultValue?: unknown;
     optional?: boolean;
     fields?: IDMType[];
-}
-
-export interface IOTypeRequest {
-    filePath: string;
-    position: LinePosition;
-}
-
-export interface IOTypeResponse {
-    inputTypes: IDMType[];
-    outputType: IDMType | undefined;
 }

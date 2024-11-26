@@ -143,7 +143,11 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
         switch (subPanel.view) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
-                    <InlineDataMapper onClosePanel={handleSubPanel} {...subPanel.props?.inlineDataMapper}/>
+                    <InlineDataMapper
+                        onClosePanel={handleSubPanel}
+                        updateFormField={updateExpressionField}
+                        {...subPanel.props?.inlineDataMapper}
+                    />
                 );
             case SubPanelView.HELPER_PANEL:
                 return (

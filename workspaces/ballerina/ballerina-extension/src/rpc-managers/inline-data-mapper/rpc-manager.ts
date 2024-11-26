@@ -10,81 +10,15 @@
  */
 import {
     IDMModel,
-    IOTypeRequest,
-    IOTypeResponse,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
-    TypeFromSymbolParams,
-    TypesFromSymbol,
-    VisibleVariableTypes,
-    VisibleVariableTypesParams
+    InlineDataMapperSourceResponse
 } from "@wso2-enterprise/ballerina-core";
-import { URI } from "vscode-uri";
 
 import { StateMachine } from "../../stateMachine";
-import { transformTypeFieldToIDMType } from "../../utils/inline-data-mapper";
 
 export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
-    async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
-        return new Promise(async (resolve) => {
-            const visibleTypesRequest: VisibleVariableTypesParams = {
-                filePath: params.filePath,
-                position: params.position
-            };
-            const visibleTypes = await StateMachine
-                .langClient()
-                .getVisibleVariableTypes(visibleTypesRequest) as VisibleVariableTypes;
-
-            const inputTypes = [];
-            
-            visibleTypes?.categories?.map((visibleType) => {
-                visibleType.types.map((type) => {
-                    const transformedType = transformTypeFieldToIDMType(type, visibleType.name);
-                    transformedType && inputTypes.push(transformedType);
-                });
-            });
-
-            console.log("VisibleVariableTypes: ", visibleTypes);
-            console.log("Transformed VisibleVariableTypes: ", inputTypes);
-
-            const outptutTypeRequest: TypeFromSymbolParams = {
-                documentIdentifier: {
-                    uri: URI.file(params.filePath).toString()
-                },
-                positions: [{ line: params.position.line, offset: params.position.offset }]
-            };
-
-            const outputType = await StateMachine.langClient().getTypeFromSymbol(outptutTypeRequest);
-
-            // check whether the output type is a TypesFromSymbol or NOT_SUPPORTED_TYPE
-            const isTypesFromSymbol = (outputType as TypesFromSymbol).types ? true : false;
-
-            if (!isTypesFromSymbol) {
-                const response: IOTypeResponse = {
-                    inputTypes,
-                    outputType: undefined
-                };
-                resolve(response);
-                return;
-            }
-
-            const outputTypeTransformed = transformTypeFieldToIDMType({
-                name: '',
-                type: (outputType as TypesFromSymbol).types[0].type
-            });
-
-            console.log("outputType: ", outputType);
-            console.log("Transformed outputType: ", outputTypeTransformed);
-            
-            const response: IOTypeResponse = {
-                inputTypes,
-                outputType: outputTypeTransformed
-            };
-            resolve(response);
-        });
-    }
-
     async getDataMapperModel(params: InlineDataMapperModelRequest): Promise<IDMModel> {
         return new Promise(async (resolve) => {
             const dataMapperModel = await StateMachine
@@ -95,13 +29,13 @@ export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
         });
     }
 
-    async getDataMapperSource(params: InlineDataMapperSourceRequest): Promise<IDMModel> {
+    async getDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse> {
         return new Promise(async (resolve) => {
-            const dataMapperModel = await StateMachine
+            const dataMapperSource = await StateMachine
                 .langClient()
-                .getInlineDataMapperSource(params) as IDMModel;
+                .getInlineDataMapperSource(params) as InlineDataMapperSourceResponse;
 
-            resolve(dataMapperModel);
+            resolve(dataMapperSource);
         });
     }
 }

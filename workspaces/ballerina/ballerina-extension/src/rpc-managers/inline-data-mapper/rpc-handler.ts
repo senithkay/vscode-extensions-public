@@ -9,19 +9,16 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
     getDataMapperModel,
-    getDataMapperSource,
-    getIOTypes
+    getDataMapperSource
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { InlineDataMapperRpcManager } from "./rpc-manager";
 
 export function registerInlineDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new InlineDataMapperRpcManager();
-    messenger.onRequest(getIOTypes, (args: IOTypeRequest) => rpcManger.getIOTypes(args));
     messenger.onRequest(getDataMapperModel, (args: InlineDataMapperModelRequest) => rpcManger.getDataMapperModel(args));
     messenger.onRequest(getDataMapperSource, (args: InlineDataMapperSourceRequest) => rpcManger.getDataMapperSource(args));
 }

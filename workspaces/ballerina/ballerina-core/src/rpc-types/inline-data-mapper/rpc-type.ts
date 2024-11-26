@@ -8,12 +8,10 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { InlineDataMapperModelRequest, InlineDataMapperSourceRequest } from "../../interfaces/extended-lang-client";
+import { InlineDataMapperModelRequest, InlineDataMapperSourceRequest, InlineDataMapperSourceResponse } from "../../interfaces/extended-lang-client";
 import { IDMModel } from "../../interfaces/inline-data-mapper";
-import { IOTypeRequest, IOTypeResponse } from "./interfaces";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "inline-data-mapper";
-export const getIOTypes: RequestType<IOTypeRequest, IOTypeResponse> = { method: `${_preFix}/getIOTypes` };
 export const getDataMapperModel: RequestType<InlineDataMapperModelRequest, IDMModel> = { method: `${_preFix}/getDataMapperModel` };
-export const getDataMapperSource: RequestType<InlineDataMapperSourceRequest, IDMModel> = { method: `${_preFix}/getDataMapperSource` };
+export const getDataMapperSource: RequestType<InlineDataMapperSourceRequest, InlineDataMapperSourceResponse> = { method: `${_preFix}/getDataMapperSource` };

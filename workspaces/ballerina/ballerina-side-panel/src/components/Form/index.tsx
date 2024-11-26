@@ -262,22 +262,47 @@ export function Form(props: FormProps) {
 
     useEffect(() => {
         if (updatedExpressionField) {
-            const currentValue = getValues(updatedExpressionField.key);
 
-            if (currentValue !== undefined) {
-                let newValue;
-                if (updatedExpressionField?.isConfigured) {
-                    newValue = updatedExpressionField.value;
-                } else {
-                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                    newValue = currentValue.slice(0, cursorPosition) +
-                        updatedExpressionField.value +
-                        currentValue.slice(cursorPosition);
+            if (subPanelView === SubPanelView.HELPER_PANEL) {
+                const currentValue = getValues(updatedExpressionField.key);
+
+                if (currentValue !== undefined) {
+                    let newValue;
+                    if (updatedExpressionField?.isConfigured) {
+                        newValue = updatedExpressionField.value;
+                    } else {
+                        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
+                        newValue = currentValue.slice(0, cursorPosition) +
+                            updatedExpressionField.value +
+                            currentValue.slice(cursorPosition);
+                    }
+    
+                    setValue(updatedExpressionField.key, newValue);
+                    resetUpdatedExpressionField && resetUpdatedExpressionField();
                 }
-
-                setValue(updatedExpressionField.key, newValue);
+            } else if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+                const { key, value } = updatedExpressionField;
+                // Update the form field value
+                setValue(key, value);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
+                // Update the inline data mapper view
+                handleOpenSubPanel({
+                    view: SubPanelView.INLINE_DATA_MAPPER,
+                    props: {
+                        inlineDataMapper: {
+                            filePath: fileName,
+                            flowNode: undefined,
+                            position: {
+                                line: updatedExpressionField.cursorPosition.line,
+                                offset: updatedExpressionField.cursorPosition.offset,
+                            },
+                            propertyKey: updatedExpressionField.key,
+                            editorKey: updatedExpressionField.key
+                        }
+                    }
+                });
             }
+            
         }
     }, [updatedExpressionField]);
 

@@ -275,6 +275,10 @@ export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequ
     mappings: Mapping[];
 }
 
+export interface InlineDataMapperSourceResponse {
+    source: string;
+}
+
 export interface GraphqlDesignServiceParams {
     filePath: string;
     startLine: LinePosition;

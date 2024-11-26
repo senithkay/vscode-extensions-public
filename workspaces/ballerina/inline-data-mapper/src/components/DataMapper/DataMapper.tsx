@@ -10,7 +10,6 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
-import { IDMModel, Mapping } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
@@ -22,6 +21,7 @@ import { traverseNode } from "../../utils/model-utils";
 import { View } from "./Views/DataMapperView";
 import { useDMSearchStore } from "../../store/store";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
+import { DataMapperViewProps } from "../../index";
 
 const classes = {
     root: css({
@@ -29,12 +29,6 @@ const classes = {
         height: "100vh",
         overflow: "hidden",
     })
-}
-
-export interface InlineDataMapperProps {
-    model: IDMModel;
-    applyModifications: (mappings: Mapping[]) => Promise<void>;
-    onClose: () => void;
 }
 
 enum ActionType {
@@ -64,7 +58,7 @@ function viewsReducer(state: View[], action: ViewAction) {
     }
 }
 
-export function InlineDataMapper(props: InlineDataMapperProps) {
+export function InlineDataMapper(props: DataMapperViewProps) {
     const { model, applyModifications, onClose } = props;
 
     const initialView = [{

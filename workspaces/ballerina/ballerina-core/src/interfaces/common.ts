@@ -86,5 +86,6 @@ interface InlineDataMapperProps {
     filePath: string;
     flowNode: FlowNode;
     propertyKey: string;
+    editorKey: string;
     position: LinePosition;
 }

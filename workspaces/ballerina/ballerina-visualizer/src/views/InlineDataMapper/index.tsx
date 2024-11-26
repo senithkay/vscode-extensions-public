@@ -21,6 +21,7 @@ import {
 import { DataMapperView } from "@wso2-enterprise/ballerina-inline-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 
 import { useInlineDataMapperModel } from "../../Hooks";
 
@@ -28,12 +29,14 @@ interface InlineDataMapperProps {
     filePath: string;
     flowNode: FlowNode;
     propertyKey: string;
+    editorKey: string;
     position: LinePosition;
     onClosePanel: (subPanel: SubPanel) => void;
+    updateFormField: (data: ExpressionFormField) => void;
 }
 
 export function InlineDataMapper(props: InlineDataMapperProps) {
-    const { filePath, flowNode, propertyKey, position, onClosePanel } = props;
+    const { filePath, flowNode, propertyKey, editorKey, position, onClosePanel, updateFormField } = props;
 
     const [isFileUpdateError, setIsFileUpdateError] = useState(false);
     const [model, setModel] = useState<IDMModel>(null);
@@ -67,7 +70,13 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             const resp = await rpcClient
                 .getInlineDataMapperRpcClient()
                 .getDataMapperSource(updateSrcRequest);
-            setModel(resp);
+            // setModel(resp);
+            const updateData: ExpressionFormField = {
+                value: resp.source,
+                key: editorKey,
+                cursorPosition: position
+            }
+            updateFormField(updateData);
         } catch (error) {
             console.error(error);
             setIsFileUpdateError(true);
