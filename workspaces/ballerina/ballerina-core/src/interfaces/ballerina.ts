@@ -269,6 +269,7 @@ export interface Parameter {
 
 export interface DisplayAnnotation {
     label?: string;
+    iconPath?: string;
 }
 
 export interface MemberField {

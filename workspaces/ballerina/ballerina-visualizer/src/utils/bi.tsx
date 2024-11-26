@@ -27,7 +27,8 @@ import {
     ExpressionCompletionItem,
     Trigger,
     FunctionField,
-    SignatureHelpResponse
+    SignatureHelpResponse,
+    TriggerNode
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -304,7 +305,7 @@ export function convertTriggerServiceTypes(trigger: Trigger): Record<string, Fun
     return response;
 }
 
-export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
+export function convertTriggerListenerConfig(trigger: TriggerNode): FormField[] {
     const formFields: FormField[] = [];
     for (const key in trigger.listener.properties) {
         const expression = trigger.listener.properties[key];
@@ -312,6 +313,7 @@ export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
             key: key,
             label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
             type: expression.valueType,
+            documentation: "",
             ...expression
         }
         formFields.push(formField);
@@ -319,21 +321,38 @@ export function convertTriggerListenerConfig(trigger: Trigger): FormField[] {
     return formFields;
 }
 
-export function convertTriggerServiceConfig(trigger: Trigger): FormField[] {
+export function updateTriggerListenerConfig(formFields: FormField[], trigger: TriggerNode): TriggerNode {
+    formFields.forEach(field => {
+        const value = field.value as string;
+        trigger.listener.properties[field.key].value = value;
+        if (value && value.length > 0) {
+            trigger.listener.properties[field.key].enabled = true;
+        }
+    })
+    return trigger;
+}
+
+export function convertTriggerServiceConfig(trigger: TriggerNode): FormField[] {
     const formFields: FormField[] = [];
-    if (trigger.serviceTypes[0].basePath) {
+    for (const key in trigger.services[0].properties) {
+        const expression = trigger.services[0].properties[key];
         const formField: FormField = {
-            key: "basePath",
-            label: "Base Path",
-            documentation: trigger.serviceTypes[0].basePath.documentation,
-            optional: false,
-            type: trigger.serviceTypes[0].basePath.typeName,
-            editable: true,
-            value: ""
+            key: key,
+            label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+            type: expression.valueType,
+            documentation: "",
+            ...expression
         }
         formFields.push(formField);
     }
     return formFields;
+}
+
+export function updateTriggerServiceConfig(formFields: FormField[], trigger: TriggerNode): TriggerNode {
+    formFields.forEach(field => {
+        trigger.services[0].properties[field.key].value = field.value as string;
+    })
+    return trigger;
 }
 
 export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, FunctionField> {

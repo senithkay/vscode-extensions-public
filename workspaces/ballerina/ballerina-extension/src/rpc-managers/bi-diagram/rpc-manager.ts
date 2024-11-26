@@ -193,36 +193,36 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         try {
             for (const [fileUriString, request] of Object.entries(modificationRequests)) {
                 const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUriString },
-                astModifications: request.modifications,
-            })) as SyntaxTree;
+                    documentIdentifier: { uri: fileUriString },
+                    astModifications: request.modifications,
+                })) as SyntaxTree;
 
-            if (parseSuccess) {
-                writeFileSync(request.filePath, source);
-                await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUriString, version: 1 },
-                    contentChanges: [
-                        {
-                            text: source,
-                        },
-                    ],
-                });
+                if (parseSuccess) {
+                    writeFileSync(request.filePath, source);
+                    await StateMachine.langClient().didChange({
+                        textDocument: { uri: fileUriString, version: 1 },
+                        contentChanges: [
+                            {
+                                text: source,
+                            },
+                        ],
+                    });
 
-                if (isConnector) {
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
-                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    await StateMachine.langClient().didOpen({
-                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    });
-                } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
-                    const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
-                    openView(EVENT_TYPE.OPEN_VIEW, {
-                        documentUri: request.filePath,
-                        position: functionPosition,
-                    });
-                }
+                    if (isConnector) {
+                        await StateMachine.langClient().resolveMissingDependencies({
+                            documentIdentifier: { uri: fileUriString },
+                        });
+                        // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                        await StateMachine.langClient().didOpen({
+                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                        });
+                    } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
+                        const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                        openView(EVENT_TYPE.OPEN_VIEW, {
+                            documentUri: request.filePath,
+                            position: functionPosition,
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -599,6 +599,9 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise((resolve, reject) => {
+            if (!params.filePath) {
+                params.filePath = StateMachine.context().documentUri;
+            }
             StateMachine.langClient()
                 .getExpressionCompletions(params)
                 .then((completions) => {

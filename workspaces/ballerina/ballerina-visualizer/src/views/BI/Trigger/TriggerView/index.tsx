@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, BallerinaTrigger, Category, Item, Triggers } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, BallerinaTrigger, Category, Item, TriggerModelsResponse, TriggerNode, Triggers } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
@@ -50,14 +50,14 @@ const StyledSearchInput = styled(SearchBox)`
 `;
 
 interface TriggerViewProps {
-    onTriggerSelect: (trigger: BallerinaTrigger) => void;
+    onTriggerSelect: (trigger: TriggerNode) => void;
 }
 
 export function TriggerView(props: TriggerViewProps) {
     const { onTriggerSelect } = props;
     const { rpcClient } = useRpcContext();
 
-    const [triggers, setTriggers] = useState<Triggers>({ central: [] });
+    const [triggers, setTriggers] = useState<TriggerModelsResponse>({ local: [] });
     const [searchText, setSearchText] = useState<string>("");
     const [isSearching, setIsSearching] = useState(true);
 
@@ -68,13 +68,13 @@ export function TriggerView(props: TriggerViewProps) {
     }, []);
 
     const getTriggers = () => {
-        if (cacheTriggers.central.length > 0) {
+        if (cacheTriggers.local.length > 0) {
             setTriggers(cacheTriggers);
             setIsSearching(false);
         } else {
             rpcClient
                 .getTriggerWizardRpcClient()
-                .getTriggers({ query: "" })
+                .getTriggerModels({ query: "" })
                 .then((model) => {
                     console.log(">>> bi triggers", model);
                     setTriggers(model);
@@ -86,7 +86,7 @@ export function TriggerView(props: TriggerViewProps) {
 
     useEffect(() => {
         setIsSearching(true);
-        if (!searchText && cacheTriggers.central.length > 0) {
+        if (!searchText && cacheTriggers.local.length > 0) {
             setTriggers(cacheTriggers);
             setIsSearching(false);
             return;
@@ -98,7 +98,7 @@ export function TriggerView(props: TriggerViewProps) {
     const handleSearch = (text: string) => {
         rpcClient
             .getTriggerWizardRpcClient()
-            .getTriggers({ query: text })
+            .getTriggerModels({ query: text })
             .then((model) => {
                 console.log(">>> bi searched triggers", model);
                 setTriggers(model);
@@ -137,18 +137,18 @@ export function TriggerView(props: TriggerViewProps) {
             {!isSearching && (
                 <ListContainer>
                     <GridContainer>
-                        {triggers.central.map((item, index) => {
+                        {triggers.local.map((item, index) => {
                             return (
                                 <ButtonCard
-                                    key={item.moduleName}
-                                    caption={`v${item.package.version}`}
-                                    title={item.displayAnnotation.label}
-                                    description={`${item.package.organization}/${item.package.name}`}
+                                    key={item.id}
+                                    caption={`v${item.version}`}
+                                    title={item.name}
+                                    description={`${item.orgName}/${item.packageName}`}
                                     icon={
-                                        item.package.icon ? (
+                                        item.icon ? (
                                             <img
-                                                src={item.package.icon}
-                                                alt={item.displayAnnotation.label}
+                                                src={item.icon}
+                                                alt={item.name}
                                                 style={{ width: "40px" }}
                                             />
                                         ) : (
@@ -164,7 +164,7 @@ export function TriggerView(props: TriggerViewProps) {
                     </GridContainer>
                 </ListContainer>
             )}
-            {(!isSearching && triggers.central.length === 0 && <p>No triggers found</p>)}
+            {(!isSearching && triggers.local.length === 0 && <p>No triggers found</p>)}
         </Container>
     );
 }

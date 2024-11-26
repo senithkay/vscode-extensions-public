@@ -513,7 +513,7 @@ export async function getReturnConfig(resource: ResourceAccessorDefinition, rpcC
     let index = 0;
     const response: ResponseConfig[] = [];
     const members = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members.find((res: any) => res.typeKind !== "nil");
-    if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && members) {
+    if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && Array.isArray(members)) {
         for (const member of members) {
             const res = await findFunctionType(member, resource, index, rpcClient, members);
             res && response.push(res) && index++;

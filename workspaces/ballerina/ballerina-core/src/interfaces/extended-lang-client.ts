@@ -17,6 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
+import { TriggerNode } from "./triggers";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -740,29 +741,40 @@ export interface ExpressionDiagnosticsResponse {
 
 // <-------- Trigger Related ------->
 export interface TriggerModelsRequest {
-
+    organization?: string;
+    packageName?: string;
+    query?: string;
+    keyWord?: string;
 }
 
 export interface TriggerModelsResponse {
-
+    local: TriggerNode[];
 }
 
-
 export interface TriggerModelRequest {
-
+    id?: string;
+    organization?: string;
+    packageName?: string;
+    moduleName?: string;
+    serviceName?: string;
+    query?: string;
+    keyWords?: string;
 }
 
 export interface TriggerModelResponse {
-
+    trigger: TriggerNode;
 }
 
 
 export interface TriggerSourceCodeRequest {
-
+    filePath: string;
+    trigger: TriggerNode;
 }
 
 export interface TriggerSourceCodeResponse {
-
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
 }
 // <-------- Trigger Related ------->
 

@@ -9,9 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    EVENT_TYPE,
     ListenerService,
+    MACHINE_VIEW,
     NodePosition,
     ReferenceLSRequest,
+    STModification,
     ServicesByListenerRequest,
     ServicesByListenerResponse,
     SyntaxTree,
@@ -29,7 +32,10 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { ListenerDeclaration, ModulePart, STKindChecker, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
-import { StateMachine } from "../../stateMachine";
+import { openView, StateMachine } from "../../stateMachine";
+import { commands, Uri } from "vscode";
+import { existsSync, writeFileSync } from "fs";
+import path from "path";
 
 export class TriggerWizardRpcManager implements TriggerWizardAPI {
     async getTriggers(params: TriggersParams): Promise<Triggers> {
@@ -113,18 +119,115 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
     }
 
     async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: TriggerModelsResponse = await context.langClient.getTriggerModels(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 
     async getTriggerModel(params: TriggerModelRequest): Promise<TriggerModelResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: TriggerModelResponse = await context.langClient.getTriggerModel(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 
     async getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectDir = path.join(StateMachine.context().projectUri);
+                const targetFile = path.join(projectDir, `triggers.bal`);
+                params.filePath = targetFile;
+                if (!existsSync(targetFile)) {
+                    writeFileSync(targetFile, '');
+                }
+                const res: TriggerSourceCodeResponse = await context.langClient.getTriggerSourceCode(params);
+                await this.updateSource(res);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    private async updateSource(params: TriggerSourceCodeResponse): Promise<void> {
+        const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
+
+        for (const [key, value] of Object.entries(params.textEdits)) {
+            const fileUri = Uri.file(key);
+            const fileUriString = fileUri.toString();
+            const edits = value;
+
+            if (edits && edits.length > 0) {
+                const modificationList: STModification[] = [];
+
+                for (const edit of edits) {
+                    const stModification: STModification = {
+                        startLine: edit.range.start.line,
+                        startColumn: edit.range.start.character,
+                        endLine: edit.range.end.line,
+                        endColumn: edit.range.end.character,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            STATEMENT: edit.newText,
+                        },
+                    };
+                    modificationList.push(stModification);
+                }
+
+                if (modificationRequests[fileUriString]) {
+                    modificationRequests[fileUriString].modifications.push(...modificationList);
+                } else {
+                    modificationRequests[fileUriString] = { filePath: fileUri.fsPath, modifications: modificationList };
+                }
+            }
+        }
+
+        // Iterate through modificationRequests and apply modifications
+        try {
+            for (const [fileUriString, request] of Object.entries(modificationRequests)) {
+                const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
+                    documentIdentifier: { uri: fileUriString },
+                    astModifications: request.modifications,
+                })) as SyntaxTree;
+
+                if (parseSuccess) {
+                    writeFileSync(request.filePath, source);
+                    await StateMachine.langClient().didChange({
+                        textDocument: { uri: fileUriString, version: 1 },
+                        contentChanges: [
+                            {
+                                text: source,
+                            },
+                        ],
+                    });
+
+                    await StateMachine.langClient().resolveMissingDependencies({
+                        documentIdentifier: { uri: fileUriString },
+                    });
+                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                    await StateMachine.langClient().didOpen({
+                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                    });
+                    commands.executeCommand("BI.project-explorer.refresh");
+                    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+                }
+            }
+        } catch (error) {
+            console.log(">>> error updating source", error);
+        }
     }
 }
 

@@ -17,7 +17,7 @@ import { Colors } from "../../../../resources/constants";
 import { debounce } from "lodash";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { convertBalCompletion, convertToVisibleTypes, convertTriggerListenerConfig, updateTriggerListenerConfig } from "../../../../utils/bi";
+import { convertBalCompletion, convertToVisibleTypes, convertTriggerServiceConfig, updateTriggerServiceConfig } from "../../../../utils/bi";
 
 const Container = styled.div`
     padding: 0 20px 20px;
@@ -53,16 +53,16 @@ const Row = styled.div`
     color: ${Colors.ON_SURFACE};
 `;
 
-interface ListenerConfigViewProps {
+interface ServiceConfigViewProps {
     triggerNode: TriggerNode;
     onSubmit: (data: TriggerNode) => void;
     onBack: () => void;
 }
 
-export function ListenerConfigView(props: ListenerConfigViewProps) {
+export function ServiceConfigView(props: ServiceConfigViewProps) {
     const { rpcClient } = useRpcContext();
 
-    const [listenerFields, setListenerFields] = useState<FormField[]>([]);
+    const [serviceFields, setListenerFields] = useState<FormField[]>([]);
     const { triggerNode, onSubmit, onBack } = props;
 
 
@@ -75,16 +75,16 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
     // Expression Editor related end------->
 
     useEffect(() => {
-        triggerNode && setListenerFields(convertTriggerListenerConfig(triggerNode));
+        triggerNode && setListenerFields(convertTriggerServiceConfig(triggerNode));
     }, [triggerNode]);
 
     const handleListenerSubmit = async (data: FormValues) => {
-        listenerFields.forEach(val => {
+        serviceFields.forEach(val => {
             if (data[val.key]) {
                 val.value = data[val.key]
             }
         })
-        const response = updateTriggerListenerConfig(listenerFields, triggerNode);
+        const response = updateTriggerServiceConfig(serviceFields, triggerNode);
         onSubmit(response);
     };
 
@@ -95,7 +95,7 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
             const context = await rpcClient.getVisualizerLocation();
-            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'triggers.bal');
+            const functionFilePath = Utils.joinPath(URI.file(context.projectUri!), 'triggers.bal');
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: functionFilePath.fsPath,
                 position: { line: 0, offset: 0 },
@@ -239,11 +239,12 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
 
             {triggerNode &&
                 <>
-                    {listenerFields.length > 0 &&
+                    {serviceFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Listener Configuration`}</Typography>
+                            <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Service Configuration`}</Typography>
                             <Form
-                                formFields={listenerFields}
+                                onCancelForm={onBack}
+                                formFields={serviceFields}
                                 onSubmit={handleListenerSubmit}
                                 expressionEditor={
                                     {
@@ -264,4 +265,4 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
     );
 }
 
-export default ListenerConfigView;
+export default ServiceConfigView;
