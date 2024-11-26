@@ -241,7 +241,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     };
 
     const handleInlineDataMapperOpen = () => {
-        handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+            openSubPanel({view: SubPanelView.UNDEFINED});
+        } else {
+            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
                 filePath: contextFileName,
                 flowNode: undefined, // This will be updated in the Form component
                 position: {
@@ -250,33 +253,38 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 },
                 propertyKey: field.type
             }});
-        handleOnFieldFocus?.(field.key);
+            handleOnFieldFocus?.(field.key);
+        }
     };
 
     const handleHelperPaneOpen = () => {
-        if (effectiveTargetLineRange && effectiveFileName) {
-            const subPanelProps: SubPanelViewProps = {
-                sidePanelData: {
-                    filePath: effectiveFileName,
-                    range: {
-                        startLine: effectiveTargetLineRange.startLine,
-                        endLine: effectiveTargetLineRange.endLine,
-                    },
-                    editorKey: field.key
-                }
-            };
-            if (field.type === 'RECORD_EXPRESSION') { // TODO: update the type based on the LS API
-                const configurePanelData: ConfigurePanelData = {
-                    isEnable: true,
-                    name: field.label,
-                    documentation: field.documentation,
-                    value: field.value as string
+        if (subPanelView === SubPanelView.HELPER_PANEL) {
+            openSubPanel({view: SubPanelView.UNDEFINED});
+        } else {
+            if (effectiveTargetLineRange && effectiveFileName) {
+                const subPanelProps: SubPanelViewProps = {
+                    sidePanelData: {
+                        filePath: effectiveFileName,
+                        range: {
+                            startLine: effectiveTargetLineRange.startLine,
+                            endLine: effectiveTargetLineRange.endLine,
+                        },
+                        editorKey: field.key
+                    }
                 };
-                subPanelProps.sidePanelData.configurePanelData = configurePanelData;
+                if (field.type === 'RECORD_EXPRESSION') { // TODO: update the type based on the LS API
+                    const configurePanelData: ConfigurePanelData = {
+                        isEnable: true,
+                        name: field.label,
+                        documentation: field.documentation,
+                        value: field.value as string
+                    };
+                    subPanelProps.sidePanelData.configurePanelData = configurePanelData;
+                }
+    
+                handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
+                handleOnFieldFocus?.(field.key);
             }
-
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
-            handleOnFieldFocus?.(field.key);
         }
     };
 
