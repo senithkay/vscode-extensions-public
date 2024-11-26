@@ -2,6 +2,13 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [1.1.6] - 2024-11-26
+
+### Improvements
+
+Improved: Improve "Add Element" option position for Array Outputs in Data Mapper ([#527](https://github.com/wso2/mi-vscode/issues/527))  
+
+
 ## [1.1.4] - 2024-11-06
 
 ### Fixed
