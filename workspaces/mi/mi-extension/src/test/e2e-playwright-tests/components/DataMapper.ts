@@ -75,7 +75,9 @@ export class DataMapper {
     }
 
     public async importSchema(ioType: IOType, schemaType: SchemaTypeLabel, schemaFile: string) {
-        const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
+        // const importNode = this.webView.getByTestId(`${ioType}-data-import-node`);
+        const importNode = this.webView.getByText(`Import ${ioType} schema`);
+
         await importNode.waitFor();
         await importNode.click();
 
