@@ -161,7 +161,7 @@ namespace ExBtn {
 `;
 }
 
-const getItemComponent = (item: string, type?: "reg:") => {
+const getItemComponent = (item: string, type?: string) => {
     return (
         <ItemContainer>
             {type && <StyledTag>{type}</StyledTag>}
@@ -288,7 +288,8 @@ export const Keylookup = (props: IKeylookup) => {
         }
         if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:"), path: resource.registryPath };
+                const [type, pathKey] = resource.registryKey.split(":");
+                const item = { key: resource.registryKey, item: getItemComponent(pathKey, `${type}:`), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;
