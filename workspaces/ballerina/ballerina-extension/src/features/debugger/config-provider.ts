@@ -45,7 +45,7 @@ import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/b
 import { StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
 
-const BALLERINA_COMMAND = "kolab.command";
+const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
 const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
@@ -144,7 +144,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
     }
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
-    config[BALLERINA_HOME] = ballerinaHome;
+    config['ballerina.home'] = ballerinaHome;
     config[BALLERINA_COMMAND] = ballerinaExtInstance.getBallerinaCmd();
     config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true };
 
