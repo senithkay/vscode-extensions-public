@@ -66,7 +66,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const isValueModifiable = valueType === ValueType.Default
         || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
     
-    const onClickOnExpand = () => {
+    const expandArrayFn = () => {
         let label = getMapFnViewLabel(targetPort, views);
         let targetFieldFQN = targetPort.fieldFQN;
         const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
@@ -147,8 +147,8 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
                 const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
 
-               onClickOnExpand();
-               
+               expandArrayFn();
+
                 if (isValueModifiable) {
                     await updateExistingValue(sourcePort, targetPort, mapFnSrc);
                 } else {

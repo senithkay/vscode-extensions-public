@@ -170,7 +170,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         ),
     ];
 
-    const onClickOnExpand = () => {
+    const expandArrayFn = () => {
         let label = getMapFnViewLabel(target, views);
         let targetFieldFQN = target.fieldFQN;
         const isSourcePortSubMapping = source.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
@@ -267,8 +267,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
 
-            onClickOnExpand();
-            
+            expandArrayFn();
+
             const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
             await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
