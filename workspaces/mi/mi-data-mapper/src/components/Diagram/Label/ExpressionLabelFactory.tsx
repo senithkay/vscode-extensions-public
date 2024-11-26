@@ -27,13 +27,14 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
-		const { link, pendingMappingType, isSubLinkLabel } = event.model;
+		const { link, pendingMappingType, isSubLinkLabel, context } = event.model;
 
 		if (pendingMappingType == MappingType.ArrayToArray) {
 			return (
 				<ArrayMappingOptionsWidget
 					link={link}
-					mappingType={pendingMappingType} />
+					mappingType={pendingMappingType}
+					context={context} />
 			);
 		}
 

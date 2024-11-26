@@ -770,10 +770,10 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
     if (typeWithValue?.value) {
         let expr = typeWithValue.value;
 
-        if (Node.isPropertyAssignment(expr)) {
+        if (!expr?.wasForgotten() && Node.isPropertyAssignment(expr)) {
             expr = expr.getInitializer();
         }
-        const value = expr?.getText();
+        const value = expr?.wasForgotten() ? undefined : expr?.getText();
         if (value !== undefined) {
             return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
         }
