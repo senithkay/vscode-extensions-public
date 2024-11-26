@@ -9,7 +9,6 @@
 
 import { FormActions, Button, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext } from "react";
-import { useForm } from "react-hook-form";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
@@ -21,6 +20,14 @@ import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ERROR_MESSAGES } from "../../../resources/constants";
 
 export interface MediatorFormProps {
+    control: any;
+    errors: any;
+    setValue: any;
+    reset: any;
+    watch: any;
+    getValues: any;
+    dirtyFields: any;
+    handleSubmit: any;
     mediatorData: GetMediatorResponse
     mediatorType: string;
     isUpdate: boolean;
@@ -32,13 +39,9 @@ const FormContainer = styled.div`
     width: 100%;
 `;
 export function MediatorForm(props: MediatorFormProps) {
-    const { mediatorData, mediatorType, isUpdate, documentUri, range } = props;
+    const { control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, mediatorData, mediatorType, isUpdate, documentUri, range } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = useContext(SidePanelContext);
-    const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
-        defaultValues: {
-        }
-    });
 
     const handleOnSubmit = async (values: any) => {
         setDiagramLoading(true);

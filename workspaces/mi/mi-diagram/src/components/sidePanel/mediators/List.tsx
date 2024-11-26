@@ -15,7 +15,6 @@ import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
-import { MediatorForm } from './Form';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
@@ -56,7 +55,14 @@ export function Mediators(props: MediatorProps) {
 
         const form =
             <div style={{ padding: '20px' }}>
-                <MediatorPage mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} nodeRange={props.nodePosition} />
+                <MediatorPage
+                    mediatorData={mediatorDetails}
+                    mediatorType={mediator.tag}
+                    isUpdate={false}
+                    documentUri={props.documentUri}
+                    nodeRange={props.nodePosition}
+                    showMediaotrPanel={true}
+                />
             </div>;
         sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
     }

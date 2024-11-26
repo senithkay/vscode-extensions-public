@@ -34,7 +34,6 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     const nodeType = node.getNodeType();
     const [hovered, setHovered] = React.useState(false);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
 
     const getNamedStartNode = () => (
         <svg
@@ -72,22 +71,16 @@ export function StartNodeWidget(props: CallNodeWidgetProps) {
     };
 
     const onClick = () =>{
-
-        const inputPayload="";
-        rpcClient.getMiDiagramRpcClient().getInputPayload({documentUri:""});
-
         sidePanelContext.setSidePanelState({
             isOpen: true,
-            operationName:"input",
+            operationName:"startNode",
             isEditing: true,
-            formValues: inputPayload,
             node: node,
         });
-        console.log("Clicked");
     }
 
     return (
-        <S.Node onClick={onClick} data-testid={`startNode-${node.getID()}`}>
+        <S.Node onClick={onClick} data-testid={`startNode-${node.getID()}`} style={{ cursor: 'pointer' }}>
             <PortWidget port={node.getPort("in")!} engine={engine} />
             {getSVGNode()}
             <PortWidget port={node.getPort("out")!} engine={engine} />

@@ -289,54 +289,52 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             }
         });
     }
-    
-    async saveInputPayload(params:SavePayloadRequest):Promise<boolean>{
-        return new Promise((resolve)=>{
+
+    async saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
+        return new Promise((resolve) => {
 
             const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri,".tryout");
-            if(!fs.existsSync(tryout)){
+            const tryout = path.join(projectUri, ".tryout");
+            if (!fs.existsSync(tryout)) {
                 fs.mkdirSync(tryout);
             }
-            fs.writeFileSync(path.join(tryout,"input.json"),params.payload);
+            fs.writeFileSync(path.join(tryout, "input.json"), params.payload);
             resolve(true);
         });
     }
 
-    async getInputPayload(params:GetPayloadRequest):Promise<GetPayloadResponse>{
-        return new Promise((resolve)=>{
+    async getInputPayload(params: GetPayloadRequest): Promise<GetPayloadResponse> {
+        return new Promise((resolve) => {
             const projectUri = StateMachine.context().projectUri!;
-            const tryout = path.join(projectUri,".tryout","input.json");
-            if(fs.existsSync(tryout)){
-                const payload =  fs.readFileSync(tryout,"utf8");
-                const payloadJson = JSON.parse(payload);
-                resolve({hasPayload:true, payload:payloadJson});
-            }else{
-                resolve({hasPayload:false})
+            const tryout = path.join(projectUri, ".tryout", "input.json");
+            if (fs.existsSync(tryout)) {
+                const payload = fs.readFileSync(tryout, "utf8");
+                resolve({ hasPayload: true, payload });
+            } else {
+                resolve({ hasPayload: false })
             }
         });
     }
 
-    async tryOutMediator(params:MediatorTryOutRequest):Promise<MediatorTryOutResponse>{
+    async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return new Promise(async (resolve) => {
             const projectUri = StateMachine.context().projectUri!;
-            const payloadPath = path.join(projectUri,".tryout","input.json");
-            const payload = fs.readFileSync(payloadPath,"utf8");
+            const payloadPath = path.join(projectUri, ".tryout", "input.json");
+            const payload = fs.readFileSync(payloadPath, "utf8");
             // const payloadJson = JSON.parse(payload);
-            params.inputPayload =payload
+            params.inputPayload = payload
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.tryOutMediator(params);
             resolve(res);
         });
     }
 
-    async getMediatorInputOutputSchema(params:MediatorTryOutRequest):Promise<MediatorTryOutResponse>{
+    async getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return new Promise(async (resolve) => {
             const projectUri = StateMachine.context().projectUri!;
-            const payloadPath = path.join(projectUri,".tryout","input.json");
-            const payload = fs.readFileSync(payloadPath,"utf8");
-            // const payloadJson = JSON.parse(payload);
-            params.inputPayload =payload
+            const payloadPath = path.join(projectUri, ".tryout", "input.json");
+            const payload = fs.readFileSync(payloadPath, "utf8");
+            params.inputPayload = payload
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getMediatorInputOutputSchema(params);
             resolve(res);

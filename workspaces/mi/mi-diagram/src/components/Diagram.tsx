@@ -34,8 +34,6 @@ import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 import { GetBreakpointsResponse } from "@wso2-enterprise/mi-core";
 import { OverlayLayerWidget } from "./OverlayLoader/OverlayLayerWidget";
 import _ from "lodash";
-import TryOutView from "./sidePanel/mediators/Tryout";
-import TryOutPanel from "./sidePanel/Pages/TryOutPanel";
 
 export interface DiagramProps {
     model: DiagramService;

@@ -6,18 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
-// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox, TextArea } from '@wso2-enterprise/ui-toolkit';
+import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-// import { handleOpenExprEditor, sidepanelGoBack } from '../../..';
 import { CodeTextArea } from '../../Form/CodeTextArea';
 import ReactJson from 'react-json-view';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { MediatorTryOutInfo } from '@wso2-enterprise/mi-core';
 import { Colors, ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
+import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
 
 const TryoutContainer = styled.div`
     width: 100%;
@@ -33,7 +32,7 @@ const PropertiesContainer = styled.div`
 
 interface TryoutProps {
     documentUri: string;
-    nodeRange: Range;
+    nodeRange?: Range;
 }
 
 export function TryOutView(props: TryoutProps) {
@@ -42,10 +41,11 @@ export function TryOutView(props: TryoutProps) {
     const [isLoading, setIsLoading] = React.useState(true);
     const [isTryOutLoading, setIsTryOutLoading] = React.useState(false);
     const [tryOutError, setTryOutError] = React.useState<string | null>(null);
-    const [mediatorInput, setMediatorInput] = React.useState<any>({});
+    const [mediatorInput, setMediatorInput] = React.useState<any>(undefined);
     const [mediatorOutput, setMediatorOutput] = React.useState<any>({});
     const [isDefaultInput, setIsDefaultInput] = React.useState(true);
     const [inputPayload, setInputPayload] = React.useState('');
+    const sidePanelContext = React.useContext(SidePanelContext);
 
     useEffect(() => {
         getSchema();
@@ -53,19 +53,31 @@ export function TryOutView(props: TryoutProps) {
 
     const getSchema = async () => {
         try {
-            const schema = await rpcClient.getMiDiagramRpcClient().getMediatorInputOutputSchema({
-                file: documentUri,
-                line: nodeRange.start.line,
-                column: nodeRange.start.character + 1,
-                edits: []
-            });
+            if (nodeRange) {
+                const schema = await rpcClient.getMiDiagramRpcClient().getMediatorInputOutputSchema({
+                    file: documentUri,
+                    line: nodeRange.start.line,
+                    column: nodeRange.start.character + 1,
+                    edits: []
+                });
 
-            setMediatorInput(schema.input);
-            // setMediatorOutput(schema.output);
+                setMediatorInput(schema.input);
+            }
+            await getInputPayload();
+
         } catch (error) {
             console.error("Error fetching mediator input/output schema:", error);
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    const getInputPayload = async () => {
+        try {
+            const payload = await rpcClient.getMiDiagramRpcClient().getInputPayload({ documentUri });
+            setInputPayload(payload.payload || '');
+        } catch (error) {
+            console.error("Error fetching input payload:", error);
         }
     }
 
@@ -92,6 +104,11 @@ export function TryOutView(props: TryoutProps) {
         }
     }
 
+    const onSavePayload = async () => {
+        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: inputPayload });
+        clearSidePanelState(sidePanelContext);
+    }
+
     const Properties = ({ properties, isExpanded }: { properties: MediatorTryOutInfo, isExpanded?: boolean }) => {
         return (
             <FormGroup title='Properties' isCollapsed={!isExpanded}>
@@ -112,17 +129,42 @@ export function TryOutView(props: TryoutProps) {
                 <ProgressIndicator />
             </TryoutContainer>
         );
-    } else if (!mediatorInput || !mediatorInput.synapse) {
+    } else if ((!mediatorInput || !mediatorInput.synapse) && (inputPayload === undefined)) {
         return (
             <TryoutContainer>
                 <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_TRYOUT} />
             </TryoutContainer>
         )
+    } else if (!nodeRange && (inputPayload || inputPayload === '')) {
+        return (
+            <TryoutContainer>
+                <Typography
+                    sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
+                    variant="body3">
+                    {`Save the payload to try out the mediators`}
+                </Typography>
+
+                <Typography variant="body3">Payload</Typography>
+                <CodeTextArea name="Payload" rows={30} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
+                <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px' }}>
+                    <Button onClick={() => clearSidePanelState(sidePanelContext)} appearance="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={onSavePayload} sx={{ marginRight: "10px" }}>
+                        Save
+                    </Button>
+                </div>
+            </TryoutContainer>
+        );
     }
 
     return (
         <TryoutContainer>
-            <Typography sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }} variant="body3">{`Try the request flow up to this mediator`}</Typography>
+            <Typography
+                sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
+                variant="body3">
+                {`Try the request flow up to this mediator`}
+            </Typography>
 
             <Section>
                 <Properties properties={mediatorInput} isExpanded />

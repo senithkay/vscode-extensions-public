@@ -139,21 +139,25 @@ const SidePanelList = (props: SidePanelListProps) => {
                         sidepanelAddPage(sidePanelContext, form, `Edit ${form.title}`);
                     }
                 } else {
+                    const isStartNode = sidePanelContext.operationName === "startNode";
 
-                    const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+                    const mediatorDetails = isStartNode ? undefined : await rpcClient.getMiDiagramRpcClient().getMediator({
                         mediatorType: sidePanelContext.tag,
                         range: sidePanelContext?.nodeRange,
                         documentUri: props?.documentUri
                     });
 
+                    const title = isStartNode ? undefined : `Edit ${mediatorDetails?.title || sidePanelContext.tag}`;
+                    const icon = isStartNode ? undefined : getMediatorIconsFromFont(sidePanelContext.tag, false);
                     const page = <MediatorPage
                         mediatorData={mediatorDetails}
                         mediatorType={sidePanelContext.tag}
                         isUpdate={true}
                         documentUri={props.documentUri}
                         nodeRange={props.nodePosition}
+                        showMediaotrPanel={!isStartNode}
                     />;
-                    sidepanelAddPage(sidePanelContext, page, `Edit ${mediatorDetails?.title || sidePanelContext.tag}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
+                    sidepanelAddPage(sidePanelContext, page, title, icon);
                 }
             } else if (sidePanelContext.isEditing && sidePanelContext.operationName == "input") {
 

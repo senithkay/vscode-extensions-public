@@ -13,6 +13,7 @@ import { PanelContent } from "@wso2-enterprise/ui-toolkit";
 import { MediatorForm } from "./Form";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import TryOutView from "./Tryout";
+import { useForm } from "react-hook-form";
 
 interface MediatorPageProps {
     mediatorData: any;
@@ -20,10 +21,15 @@ interface MediatorPageProps {
     nodeRange: Range;
     documentUri: string;
     isUpdate: boolean;
+    showMediaotrPanel: boolean;
 }
 export function MediatorPage(props: MediatorPageProps) {
-    const { mediatorData, mediatorType, documentUri, nodeRange, isUpdate } = props;
+    const { mediatorData, mediatorType, documentUri, nodeRange, isUpdate, showMediaotrPanel } = props;
     const [activeTab, setActiveTab] = React.useState("form");
+    const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
+        defaultValues: {
+        }
+    });
 
     const onChangeTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -34,17 +40,25 @@ export function MediatorPage(props: MediatorPageProps) {
     return (
         <div>
             <VSCodePanels activeId={activeTab}>
-                <VSCodePanelTab id="form" onClick={() => onChangeTab("form")}>Edit</VSCodePanelTab>
+                {showMediaotrPanel && <VSCodePanelTab id="form" onClick={() => onChangeTab("form")}>Edit</VSCodePanelTab>}
                 <VSCodePanelTab id="tryout" onClick={() => onChangeTab("tryout")}>Tryout</VSCodePanelTab>
 
-                <PanelContent id={"form"} >
+                {showMediaotrPanel && <PanelContent id={"form"} >
                     <MediatorForm
+                        control={control}
+                        errors={errors}
+                        setValue={setValue}
+                        reset={reset}
+                        watch={watch}
+                        getValues={getValues}
+                        dirtyFields={dirtyFields}
+                        handleSubmit={handleSubmit}
                         mediatorData={mediatorData}
                         mediatorType={mediatorType}
                         isUpdate={isUpdate}
                         documentUri={documentUri}
                         range={nodeRange} />
-                </PanelContent>
+                </PanelContent>}
                 <PanelContent id={"tryout"}>
                     <TryOutView
                         documentUri={documentUri}
