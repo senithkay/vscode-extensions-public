@@ -17,12 +17,15 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
-import { getMappingType, isInputAccessExpr } from '../utils/common-utils';
+import { getMapFnIndex, getMapFnViewLabel, getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
+import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../utils/constants';
+import { SubMappingInfo, View } from '../../../components/DataMapper/Views/DataMapperView';
+import { getSourceNodeType } from '../utils/node-utils';
 
 export const useStyles = () => ({
     container: css({
@@ -95,8 +98,10 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
-    const source = link?.getSourcePort();
-    const target = link?.getTargetPort();
+    const { addView, views } = context;
+
+    const source = link?.getSourcePort() as InputOutputPortModel;
+    const target = link?.getTargetPort() as InputOutputPortModel;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -165,6 +170,70 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         ),
     ];
 
+    const onClickOnExpand = () => {
+        let label = getMapFnViewLabel(target, views);
+        let targetFieldFQN = target.fieldFQN;
+        const isSourcePortSubMapping = source.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
+
+        let sourceFieldFQN = isSourcePortSubMapping
+            ? source.fieldFQN
+            : source.fieldFQN.split('.').slice(1).join('.');
+        let mapFnIndex: number | undefined = undefined;
+        let prevViewSubMappingInfo: SubMappingInfo = undefined;
+
+        if (views.length > 1) {
+            const prevView = views[views.length - 1];
+
+            if (prevView.subMappingInfo) {
+                // Navigating into map function within focused sub-mapping view
+                prevViewSubMappingInfo = prevView.subMappingInfo;
+                const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
+                targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
+            } else {
+                // Navigating into another map function within the current map function
+                if (!prevView.targetFieldFQN) {
+                    // The visiting map function is declaired at the return statement of the current map function
+                    if (!targetFieldFQN && target.field.kind === TypeKind.Array) {
+                        // The root of the current map function is the return statement of the transformation function
+                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                    }
+                } else {
+                    if (!targetFieldFQN && target.field.kind === TypeKind.Array) {
+                        // The visiting map function is declaired at the return statement of the current map function
+                        targetFieldFQN = prevView.targetFieldFQN;
+                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                    } else {
+                        targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+                    }
+                }
+            }
+            if (!!prevView.sourceFieldFQN) {
+                sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
+            }
+        } else {
+            // Navigating into the root map function
+            if (!targetFieldFQN && target.field.kind === TypeKind.Array) {
+                // The visiting map function is the return statement of the transformation function
+                mapFnIndex = 0;
+            }
+        }
+
+        const sourceNodeType = getSourceNodeType(source);
+
+        const newView: View = { targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex };
+
+        if (prevViewSubMappingInfo) {
+            const newViewSubMappingInfo = {
+                ...prevViewSubMappingInfo,
+                focusedOnSubMappingRoot: false,
+                mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
+            };
+            newView.subMappingInfo = newViewSubMappingInfo;
+        }
+
+        addView(newView);
+    }
+
     const onClickMapViaArrayFn = async () => {
         if (target instanceof InputOutputPortModel) {
             const targetPortField = target.field;
@@ -198,6 +267,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
 
+            onClickOnExpand();
+            
             const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
             await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
