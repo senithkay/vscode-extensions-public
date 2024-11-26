@@ -249,7 +249,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     offset: effectiveTargetLineRange.startLine.offset,
                 },
                 propertyKey: field.type
-            }})
+            }});
+        handleOnFieldFocus?.(field.key);
     };
 
     const handleHelperPaneOpen = () => {

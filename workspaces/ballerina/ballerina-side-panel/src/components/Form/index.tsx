@@ -302,9 +302,8 @@ export function Form(props: FormProps) {
 
     const handleOnFieldFocus = (key: string) => {
         const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
-        const isDataMapperInSubPanel = subPanelView === SubPanelView.INLINE_DATA_MAPPER;
 
-        if (isActiveSubPanel && activeFormField !== key && !isDataMapperInSubPanel) {
+        if (isActiveSubPanel && activeFormField !== key) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
         setActiveFormField(key);
