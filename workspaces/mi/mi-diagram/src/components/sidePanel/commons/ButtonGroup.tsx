@@ -73,13 +73,6 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
             flexDirection: 'column',
             marginBottom: '15px'
         }}>
-            {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={toggleCollapse}>
-                <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
-                <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-panel-border)' }} />
-                <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
-                    <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
-                </Button>
-            </div> */}
             <ComponentCard
                 id={title}
                 key={title}
@@ -116,9 +109,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                             flexDirection: 'column',
                             justifyContent: 'center'
                         }}>
-                            <IconLabel>
-                                {title}
-                            </IconLabel>
+                            <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
                             <VersionTag>
                                 {versionTag}
                             </VersionTag>
