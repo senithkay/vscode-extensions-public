@@ -24,7 +24,6 @@ const Container = styled.div`
     max-width: 600px;
     height: 100%;
     > div:last-child {
-        padding: 20px 0;
         > div:last-child {
             justify-content: flex-start;
         }
@@ -32,7 +31,6 @@ const Container = styled.div`
 `;
 
 const FormContainer = styled.div`
-    padding-top: 15px;
     padding-bottom: 15px;
 `;
 
@@ -62,8 +60,8 @@ interface ServiceConfigViewProps {
 export function ServiceConfigView(props: ServiceConfigViewProps) {
     const { rpcClient } = useRpcContext();
 
-    const [serviceFields, setListenerFields] = useState<FormField[]>([]);
     const { triggerNode, onSubmit, onBack } = props;
+    const [serviceFields, setListenerFields] = useState<FormField[]>([]);
 
 
     // Expression Editor related start------->
@@ -81,7 +79,7 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
     const handleListenerSubmit = async (data: FormValues) => {
         serviceFields.forEach(val => {
             if (data[val.key]) {
-                val.value = data[val.key]
+                val.value = Array.isArray(data[val.key]) ? JSON.stringify(data[val.key]) : data[val.key];
             }
         })
         const response = updateTriggerServiceConfig(serviceFields, triggerNode);
@@ -241,7 +239,6 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
                 <>
                     {serviceFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Service Configuration`}</Typography>
                             <Form
                                 onCancelForm={onBack}
                                 formFields={serviceFields}

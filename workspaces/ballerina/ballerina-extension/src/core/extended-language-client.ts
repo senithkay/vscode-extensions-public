@@ -125,7 +125,11 @@ import {
     TriggerModelRequest,
     TriggerModelResponse,
     TriggerSourceCodeRequest,
-    TriggerSourceCodeResponse
+    TriggerSourceCodeResponse,
+    TriggerModelFromCodeRequest,
+    TriggerModelFromCodeResponse,
+    TriggerFunctionRequest,
+    TriggerFunctionResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -209,7 +213,11 @@ enum EXTENDED_APIS {
     BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
     BI_TRIGGER_MODELS = 'triggerDesignService/getTriggerModels',
     BI_TRIGGER_MODEL = 'triggerDesignService/getTriggerModel',
-    BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode'
+    BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode',
+    BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',
+    BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
+    BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
+    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -714,6 +722,22 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
         return this.sendRequest<TriggerSourceCodeResponse>(EXTENDED_APIS.BI_TRIGGER_SOURCE_CODE, params);
+    }
+
+    async updateTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this.sendRequest<TriggerSourceCodeResponse>(EXTENDED_APIS.BI_TRIGGER_UPDATE_FROM_CODE, params);
+    }
+
+    async getTriggerModelFromCode(params: TriggerModelFromCodeRequest): Promise<TriggerModelFromCodeResponse> {
+        return this.sendRequest<TriggerModelFromCodeResponse>(EXTENDED_APIS.BI_TRIGGER_MODEL_FROM_CODE, params);
+    }
+
+    async addTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return this.sendRequest<TriggerFunctionResponse>(EXTENDED_APIS.BI_TRIGGER_ADD_FUNCTION, params);
+    }
+
+    async updateTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return this.sendRequest<TriggerFunctionResponse>(EXTENDED_APIS.BI_TRIGGER_UPDATE_FUNCTION, params);
     }
 
     // <------------ BI APIS END --------------->

@@ -29,6 +29,8 @@ export type FormField = {
     items?: string[];
     paramManagerProps?: ParamConfig;
     valueTypeConstraint: string;
+    groupNo?: number;
+    groupName?: string;
 };
 
 export type ExpressionFormField = {

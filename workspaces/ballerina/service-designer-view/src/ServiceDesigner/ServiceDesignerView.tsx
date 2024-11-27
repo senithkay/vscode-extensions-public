@@ -15,7 +15,7 @@ import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, RPCClients, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceType, STModification } from "@wso2-enterprise/ballerina-core";
+import { ServiceType, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { ContextProvider } from "./ContextProvider";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon, View, ViewHeader, ViewContent, Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
@@ -36,6 +36,8 @@ const LoadingContainer = styled.div`
 interface ServiceDesignerProps {
     // Model of the service. This is the ST of the service
     model?: ServiceDeclaration;
+    // File path of the service
+    serviceFilePath?: string;
     // RPC client to communicate with the backend for ballerina
     rpcClients?: RPCClients;
     // Callback to send modifications to update source
@@ -46,10 +48,12 @@ interface ServiceDesignerProps {
     isBI?: boolean;
     // If editing needs to be disabled
     isEditingDisabled?: boolean;
+    // Callback to open trigger form
+    handleServiceConfig?: (triggerNode: TriggerNode) => void;
 }
 
 export function ServiceDesignerView(props: ServiceDesignerProps) {
-    const { model, rpcClients, applyModifications, goToSource, isEditingDisabled } = props;
+    const { model, serviceFilePath, rpcClients, applyModifications, goToSource, isEditingDisabled, handleServiceConfig } = props;
 
     const [serviceConfig, setServiceConfig] = useState<Service>();
 
@@ -94,7 +98,12 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
 
     // Callbacks for service form
     const handleServiceEdit = () => {
-        setServiceFormOpen(true);
+        if (serviceConfig?.triggerModel) {
+            handleServiceConfig(serviceConfig?.triggerModel);
+        } else {
+            setServiceFormOpen(true);
+
+        }
     };
     const handleServiceFormClose = () => {
         setServiceFormOpen(false);
@@ -121,7 +130,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const fetchService = async () => {
-            setServiceConfig(await getService(model, rpcClients, props.isBI, handleResourceEdit, handleResourceDelete));
+            setServiceConfig(await getService(model, rpcClients, props.isBI, handleResourceEdit, handleResourceDelete, serviceFilePath));
         };
         fetchService();
     }, [model]);
@@ -143,8 +152,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         serviceDesignerRpcClient.exportOASFile({});
     };
 
-    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel.name} Service` : `Service ${serviceConfig?.path}`;
-    const showAddNew = serviceConfig?.triggerModel ? (serviceConfig.triggerModel as ServiceType).functions.some((res) => res.isImplemented !== true) : !isEditingDisabled;
+    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayName} Service` : `Service ${serviceConfig?.path}`;
+    const showAddNew = serviceConfig?.triggerModel ? (serviceConfig.triggerModel?.service as ServiceType).functions.some((res) => !res.enabled) : !isEditingDisabled;
 
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
@@ -157,7 +166,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
             {serviceConfig &&
                 <div data-testid="service-design-view">
                     <View>
-                        <ViewHeader title={title} codicon="globe" onEdit={!isEditingDisabled && !serviceConfig?.triggerModel && handleServiceEdit}>
+                        <ViewHeader title={title} codicon="globe" onEdit={!isEditingDisabled && handleServiceEdit}>
                             {showAddNew &&
                                 <VSCodeButton appearance="primary" title="Add Resource" onClick={handleResourceFormOpen}>
                                     <Codicon name="add" sx={{ marginRight: 5 }} /> {serviceConfig?.triggerModel ? `Function` : 'Resource'}
@@ -207,7 +216,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                             applyModifications={applyModifications}
                         />
                     }
-                    {isServiceFormOpen &&
+                    {isServiceFormOpen && !serviceConfig?.triggerModel &&
                         <ServiceForm
                             isOpen={isServiceFormOpen}
                             serviceConfig={serviceConfig}

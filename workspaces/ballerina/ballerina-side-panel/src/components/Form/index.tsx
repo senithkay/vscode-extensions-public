@@ -333,7 +333,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
-        setDiagnosticsInfo([ ...diagnosticsInfo, diagnostics ])
+        setDiagnosticsInfo([...diagnosticsInfo, diagnostics])
     }
 
     const handleGetExpressionDiagnostics = async (
@@ -407,7 +407,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
             } else {
                 const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
                 setError(key, { type: "validate", message: diagnosticsMessage });
-    
+
                 // If the severity is not ERROR, don't invalidate
                 const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
                 if (hasErrorDiagnostics) {
@@ -447,7 +447,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
-                    {formFields
+                    {formFields.sort((a, b) => b.groupNo - a.groupNo)
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (

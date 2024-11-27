@@ -19,6 +19,10 @@ import {
     ServicesByListenerResponse,
     SyntaxTree,
     Trigger,
+    TriggerFunctionRequest,
+    TriggerFunctionResponse,
+    TriggerModelFromCodeRequest,
+    TriggerModelFromCodeResponse,
     TriggerModelRequest,
     TriggerModelResponse,
     TriggerModelsRequest,
@@ -31,11 +35,11 @@ import {
     TriggersParams
 } from "@wso2-enterprise/ballerina-core";
 import { ListenerDeclaration, ModulePart, STKindChecker, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { URI } from "vscode-uri";
-import { openView, StateMachine } from "../../stateMachine";
-import { commands, Uri } from "vscode";
 import { existsSync, writeFileSync } from "fs";
 import path from "path";
+import { Uri, commands } from "vscode";
+import { URI } from "vscode-uri";
+import { StateMachine, openView, updateView } from "../../stateMachine";
 
 export class TriggerWizardRpcManager implements TriggerWizardAPI {
     async getTriggers(params: TriggersParams): Promise<Triggers> {
@@ -154,6 +158,8 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                 }
                 const res: TriggerSourceCodeResponse = await context.langClient.getTriggerSourceCode(params);
                 await this.updateSource(res);
+                commands.executeCommand("BI.project-explorer.refresh");
+                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -221,13 +227,67 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                     await StateMachine.langClient().didOpen({
                         textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
                     });
-                    commands.executeCommand("BI.project-explorer.refresh");
-                    openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
                 }
             }
         } catch (error) {
             console.log(">>> error updating source", error);
         }
+    }
+
+    async getTriggerModelFromCode(params: TriggerModelFromCodeRequest): Promise<TriggerModelFromCodeResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: TriggerModelFromCodeResponse = await context.langClient.getTriggerModelFromCode(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async addTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: TriggerFunctionResponse = await context.langClient.addTriggerFunction(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: TriggerFunctionResponse = await context.langClient.updateTriggerFunction(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async updateTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectDir = path.join(StateMachine.context().projectUri);
+                const targetFile = path.join(projectDir, `triggers.bal`);
+                params.filePath = targetFile;
+                if (!existsSync(targetFile)) {
+                    writeFileSync(targetFile, '');
+                }
+                const res: TriggerSourceCodeResponse = await context.langClient.updateTriggerSourceCode(params);
+                await this.updateSource(res);
+                updateView();
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 }
 

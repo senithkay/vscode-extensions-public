@@ -17,7 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { TriggerNode } from "./triggers";
+import { TriggerFunction, TriggerNode } from "./triggers";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -768,10 +768,36 @@ export interface TriggerModelResponse {
 
 export interface TriggerSourceCodeRequest {
     filePath: string;
+    codedata?: {
+        lineRange: LineRange; // For the entire service declaration
+    };
     trigger: TriggerNode;
 }
 
 export interface TriggerSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface TriggerModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+}
+
+export interface TriggerModelFromCodeResponse {
+    trigger: TriggerNode
+}
+export interface TriggerFunctionRequest {
+    filePath: string;
+    codedata?: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+    function: TriggerFunction;
+}
+
+export interface TriggerFunctionResponse {
     textEdits: {
         [key: string]: TextEdit[];
     };
@@ -808,6 +834,10 @@ export interface BIInterface extends BaseLangClientInterface {
     getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
     getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
     getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    updateTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
+    addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+    updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

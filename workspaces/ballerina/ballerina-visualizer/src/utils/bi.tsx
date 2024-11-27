@@ -334,23 +334,43 @@ export function updateTriggerListenerConfig(formFields: FormField[], trigger: Tr
 
 export function convertTriggerServiceConfig(trigger: TriggerNode): FormField[] {
     const formFields: FormField[] = [];
-    for (const key in trigger.services[0].properties) {
-        const expression = trigger.services[0].properties[key];
+    for (const key in trigger.properties) {
+        const expression = trigger.properties[key];
         const formField: FormField = {
+            ...expression,
             key: key,
             label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
             type: expression.valueType,
+            groupNo: expression.metadata.groupNo,
+            groupName: expression.metadata.groupName,
+            value: checkArrayValue(expression.value),
             documentation: "",
-            ...expression
         }
         formFields.push(formField);
     }
     return formFields;
 }
 
+function checkArrayValue(fieldValue: string): string[] | string {
+    try {
+        const parsedValue = JSON.parse(fieldValue);
+        // Check if parsedValue is an array
+        if (Array.isArray(parsedValue)) {
+            return parsedValue; // Return the array if it's valid
+        }
+    } catch (error) {
+        // Do nothing.
+    }
+    return fieldValue;
+}
+
 export function updateTriggerServiceConfig(formFields: FormField[], trigger: TriggerNode): TriggerNode {
     formFields.forEach(field => {
-        trigger.services[0].properties[field.key].value = field.value as string;
+        const value = field.value as string;
+        trigger.properties[field.key].value = value;
+        if (value) {
+            trigger.properties[field.key].enabled = true;
+        }
     })
     return trigger;
 }

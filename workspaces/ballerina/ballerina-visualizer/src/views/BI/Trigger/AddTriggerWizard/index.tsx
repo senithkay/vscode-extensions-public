@@ -107,25 +107,15 @@ export function TriggerWizard(props: TriggerWizardProps) {
                     }
                     {!isPullingConnector && currentView === TriggerWizardPage.TRIGGER_CONFIG && (
                         <>
-                            <Typography variant="h3" sx={{ marginTop: '16px' }}>{`Configure ${trigger?.displayName || ''} `}</Typography>
-                            <BodyText style={{ padding: '20px 20px 0 20px' }}>
+                            <Typography variant="h2">{`Configure ${trigger?.displayName || ''} `}</Typography>
+                            <BodyText>
                                 Provide the necessary configuration details for the selected trigger to complete the setup.
                             </BodyText>
-                            <Stepper currentStep={triggerConfigStep} steps={["Listener Configuration", "Service Configuration"]} />
-                            {triggerConfigStep === 0 &&
-                                <ListenerConfigView
-                                    triggerNode={trigger}
-                                    onSubmit={handleListenerFormSubmit}
-                                    onBack={handleOnClose}
-                                />
-                            }
-                            {triggerConfigStep === 1 &&
-                                <ServiceConfigView
-                                    triggerNode={trigger}
-                                    onSubmit={handleServiceFormSubmit}
-                                    onBack={handleOnBack}
-                                />
-                            }
+                            <ServiceConfigView
+                                triggerNode={trigger}
+                                onSubmit={handleServiceFormSubmit}
+                                onBack={handleOnBack}
+                            />
                         </>
                     )}
                 </Container>

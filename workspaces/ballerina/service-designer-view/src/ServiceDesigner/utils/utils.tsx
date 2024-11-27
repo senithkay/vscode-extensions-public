@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonRPCAPI, DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, ServiceDesignerAPI, ServiceType, STModification, TriggerWizardAPI } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, DIAGNOSTIC_SEVERITY, DiagramDiagnostic, LineRange, Range, responseCodes, ServiceDesignerAPI, ServiceType, STModification, TriggerWizardAPI } from '@wso2-enterprise/ballerina-core';
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
@@ -207,7 +207,7 @@ export const getNameRecordType = async (recordName: string, rpcClient: RPCClient
     return namedRecordType;
 };
 
-export const getServiceData = async (service: ServiceDeclaration, rpcClient: RPCClients): Promise<Service> => {
+export const getServiceData = async (service: ServiceDeclaration, rpcClient: RPCClients, serviceFilePath: string): Promise<Service> => {
     let serviceData: ServiceData | Service;
     // Get the listener expression information
     if (service && service?.expressions.length > 0) {
@@ -233,24 +233,21 @@ export const getServiceData = async (service: ServiceDeclaration, rpcClient: RPC
                 path: "",
                 listener: expression.name.value
             };
-
-            // Check for trigger type
-            const typeSymbol = expression.typeData.typeSymbol;
-            if (typeSymbol.moduleID) {
-                const orgName = typeSymbol.moduleID.orgName;
-                const packageName = typeSymbol.moduleID.moduleName;
-                if (packageName !== "http") {
-                    const triggerResponse = await rpcClient.triggerWizardRpcClient.getTrigger({ orgName, packageName });
-                    const serviceType = triggerResponse?.serviceTypes.length > 0 && triggerResponse?.serviceTypes[0];
-                    serviceData = {
-                        ...serviceData,
-                        serviceType: triggerResponse.displayName,
-                        triggerModel: serviceType,
-                    };
-                }
-            }
         }
     }
+
+    // Get trigger model if available
+    const position: NodePosition = service.position;
+    const range: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
+    const triggerResponse = await rpcClient.triggerWizardRpcClient.getTriggerModelFromCode({ filePath: serviceFilePath, codedata: { lineRange: range } });
+    if (triggerResponse?.trigger) {
+        serviceData = {
+            ...serviceData,
+            serviceType: triggerResponse.trigger.displayName,
+            triggerModel: triggerResponse.trigger,
+        };
+    }
+
 
     // Get the service path information
     // If the path is inline
@@ -272,21 +269,21 @@ export const getServiceData = async (service: ServiceDeclaration, rpcClient: RPC
             path: absolutePath
         };
 
-        // Check for trigger type
-        const typeData = service.typeDescriptor.typeData;
-        if (typeData.symbol) {
-            const orgName = typeData.symbol.moduleID.orgName;
-            const packageName = typeData.symbol.moduleID.moduleName;
-            const triggerResponse = await rpcClient.triggerWizardRpcClient.getTrigger({ orgName, packageName });
-            const serviceType = triggerResponse.serviceTypes.find(res =>
-                absolutePath.toLowerCase().includes(res.name.toLowerCase())
-            )
-            serviceData = {
-                ...serviceData,
-                serviceType: triggerResponse.displayName,
-                triggerModel: serviceType,
-            };
-        }
+        // // Check for trigger type
+        // const typeData = service.typeDescriptor.typeData;
+        // if (typeData.symbol) {
+        //     const orgName = typeData.symbol.moduleID.orgName;
+        //     const packageName = typeData.symbol.moduleID.moduleName;
+        //     const triggerResponse = await rpcClient.triggerWizardRpcClient.getTrigger({ orgName, packageName });
+        //     const serviceType = triggerResponse.serviceTypes.find(res =>
+        //         absolutePath.toLowerCase().includes(res.name.toLowerCase())
+        //     )
+        //     serviceData = {
+        //         ...serviceData,
+        //         serviceType: triggerResponse.displayName,
+        //         triggerModel: serviceType,
+        //     };
+        // }
 
     }
     console.log("XXX serviceData", serviceData);
@@ -357,8 +354,8 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
     };
 }
 
-export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPCClients, isBI?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
-    const serviceData: Service = await getServiceData(serviceDecl, rpcClient);
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPCClients, isBI: boolean, handleResourceEdit: (resource: Resource) => Promise<void>, handleResourceDelete: (resource: Resource) => Promise<void>, serviceFilePath: string): Promise<Service> {
+    const serviceData: Service = await getServiceData(serviceDecl, rpcClient, serviceFilePath);
     let canEdit = true;
     if (serviceDecl?.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
         canEdit = false;
@@ -386,11 +383,6 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPC
         }
         if (STKindChecker.isObjectMethodDefinition(member)) {
             const resource = await getFunction(member, rpcClient, isBI);
-            (serviceData?.triggerModel as ServiceType)?.functions.forEach(res => {
-                if (res.name === resource.path) {
-                    res.isImplemented = true;
-                }
-            })
             const editAction: Item = {
                 id: "edit",
                 label: "Edit",

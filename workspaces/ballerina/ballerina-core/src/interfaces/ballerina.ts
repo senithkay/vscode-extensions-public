@@ -247,6 +247,7 @@ export interface RemoteFunction {
     returnType?: ReturnType;
     // Editor Related
     isImplemented?: boolean;
+    enabled?: boolean;
     group?: any;
 }
 

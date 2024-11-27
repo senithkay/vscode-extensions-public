@@ -162,6 +162,7 @@ const MainPanel = () => {
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
                             <ServiceDesigner
+                                filePath={value.documentUri}
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
                                 isBI={value.isBI}
@@ -265,9 +266,9 @@ const MainPanel = () => {
                                     );
 
                                     setViewComponent(
-                                        <ViewConfigurableVariables 
-                                            variableIndex={variableIndex} 
-                                            isExternallauncher={true}/>
+                                        <ViewConfigurableVariables
+                                            variableIndex={variableIndex}
+                                            isExternallauncher={true} />
                                     );
                                 }
                             });

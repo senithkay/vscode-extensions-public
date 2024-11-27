@@ -34,13 +34,17 @@ export interface TriggerNode {
     packageName: string;
     listenerProtocol: string;
     icon: string;
+    properties?: ConfigProperties;
     displayAnnotation?: DisplayAnnotation;
     listener?: XProperty;
     services?: Service[];
+    service?: Service;
 }
 export interface XMetaData {
     label: string;
     description: string;
+    groupNo: number;
+    groupName: string;
 }
 
 export interface XProperty {
