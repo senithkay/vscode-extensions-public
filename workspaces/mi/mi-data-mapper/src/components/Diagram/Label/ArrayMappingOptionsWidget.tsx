@@ -14,10 +14,12 @@ import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 import { InputOutputPortModel, MappingType, ValueType } from '../Port';
-import { genArrayElementAccessSuffix, getValueType } from '../utils/common-utils';
+import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValueType } from '../utils/common-utils';
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
+import { ExpressionLabelModel } from './ExpressionLabelModel';
+import { expandArrayFn } from '../utils/common-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -43,13 +45,12 @@ const codiconStyles = {
 }
 
 export interface ArrayMappingOptionsWidgetProps {
-    link: DataMapperLinkModel;
-    mappingType: MappingType;
+    model: ExpressionLabelModel;
 }
 
 export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps) {
     const classes = useStyles();
-    const { link, mappingType } = props;
+    const { link, pendingMappingType, context } = props.model;
 
     const sourcePort = link.getSourcePort();
     const targetPort = link?.getTargetPort();
@@ -59,7 +60,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     const isValueModifiable = valueType === ValueType.Default
         || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
-
+    
     const onClickMapArrays = async () => {
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort);
@@ -76,6 +77,8 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 const inputAccessExpr = buildInputAccessExpr((link.getSourcePort() as InputOutputPortModel).fieldFQN);
                 let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
                 const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
+
+               expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
 
                 if (isValueModifiable) {
                     await updateExistingValue(sourcePort, targetPort, mapFnSrc);
@@ -127,7 +130,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     ];
 
-    const menuItems = mappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
+    const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
 
     return (
         <div className={classes.arrayMappingMenu}>

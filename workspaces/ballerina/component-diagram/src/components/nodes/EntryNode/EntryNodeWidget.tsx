@@ -68,7 +68,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText) <NodeStyleProp>`
-        max-width: ${ENTRY_NODE_WIDTH - 60}px;
+        max-width: ${ENTRY_NODE_WIDTH - 100}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

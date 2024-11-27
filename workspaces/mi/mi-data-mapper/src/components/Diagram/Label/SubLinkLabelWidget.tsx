@@ -17,9 +17,9 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
-import { expandArrayFn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
+import { getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayMapFunction } from '../utils/link-utils';
+import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -64,11 +64,6 @@ export const useStyles = () => ({
             filter: 'brightness(0.95)',
         },
     }),
-    separator: css({
-        height: 'fit-content',
-        width: '1px',
-        backgroundColor: 'var(--vscode-editor-lineHighlightBorder)',
-    }),
     loadingContainer: css({
         padding: '10px',
     })
@@ -80,27 +75,22 @@ export enum LinkState {
     LinkNotSelected
 }
 
-export interface ExpressionLabelWidgetProps {
+export interface SubLinkLabelWidgetProps {
     model: ExpressionLabelModel;
 }
 
 // now we can render all what we want in the label
-export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
+export function SubLinkLabelWidget(props: SubLinkLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
-    const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Default);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
-
+    
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
-    const { addView, views } = context;
-
-    const source = link?.getSourcePort() as InputOutputPortModel;
-    const target = link?.getTargetPort() as InputOutputPortModel;
-    const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
-
+    const source = link?.getSourcePort();
+    const target = link?.getTargetPort();
+    
     useEffect(() => {
         if (link && link.isActualLink) {
             link.registerListener({
@@ -108,9 +98,6 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            
-            const mappingType = getMappingType(source, target);
-            setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -127,10 +114,6 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         }
     };
 
-    const onClickEdit = (evt?: MouseEvent<HTMLDivElement>) => {
-        const targetPort = props.model.link.getTargetPort();
-        setExprBarFocusedPort(targetPort as InputOutputPortModel);
-    };
 
     const loadingScreen = (
         <ProgressRing sx={{ height: '16px', width: '16px' }} />
@@ -139,18 +122,9 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const elements: ReactNode[] = [
         (
             <div
-                key={`expression-label-edit-${value}`}
+                key={`sub-link-label-edit-${value}`}
                 className={classes.btnContainer}
             >
-                <Button
-                    appearance="icon"
-                    onClick={onClickEdit}
-                    data-testid={`expression-label-edit`}
-                    sx={{ userSelect: "none", pointerEvents: "auto" }}
-                >
-                    <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                </Button>
-                <div className={classes.separator} />
                 {deleteInProgress ? (
                     loadingScreen
                 ) : (
@@ -164,84 +138,10 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                     </Button>
                 )}
             </div>
-        ),
+        )
     ];
 
-    const onClickMapViaArrayFn = async () => {
-        if (target instanceof InputOutputPortModel) {
-            const targetPortField = target.field;
-
-            if (targetPortField.kind === TypeKind.Array && targetPortField?.memberType) {
-                await applyArrayFunction(link, targetPortField.memberType);
-            }
-        }
-    };
-
-    const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: DMType) => {
-        if (linkModel.value && (isInputAccessExpr(linkModel.value) || Node.isIdentifier(linkModel.value))) {
-
-            let isSourceOptional = false;
-            const linkModelValue = linkModel.value;
-            const sourcePort = linkModel.getSourcePort();
-            const targetPort = linkModel.getTargetPort();
-
-            let targetExpr: Node = linkModelValue;
-            if (sourcePort instanceof InputOutputPortModel && sourcePort.field.optional) {
-                isSourceOptional = true;
-            }
-            if (targetPort instanceof InputOutputPortModel) {
-                const expr = targetPort.typeWithValue?.value;
-                if (Node.isPropertyAssignment(expr)) {
-                    targetExpr = expr.getInitializer();
-                } else {
-                    targetExpr = expr;
-                }
-            }
-
-            const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
-
-            expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
-
-            const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
-            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
-        }
-    };
-
-    const codeActions = [];
-    if (mappingType === MappingType.ArrayToArray) {
-        codeActions.push({
-            title: "Map array elements individually",
-            onClick: onClickMapViaArrayFn
-        });
-    } else if (mappingType === MappingType.ArrayToSingleton) {
-        // TODO: Add impl
-    }
-
-    if (codeActions.length > 0) {
-        elements.push(<div className={classes.separator} />);
-        elements.push(
-            <CodeActionWidget
-                key={`expression-label-code-action-${value}`}
-                codeActions={codeActions}
-                btnSx={{ margin: "0 2px" }}
-            />
-        );
-    }
-
-    if (diagnostic) {
-        elements.push(<div className={classes.separator} />);
-        elements.push(
-            <DiagnosticWidget
-                key={`expression-label-diagnostic-${value}`}
-                diagnostic={diagnostic}
-                value={value}
-                onClick={onClickEdit}
-                isLabelElement={true}
-                btnSx={{ margin: "0 2px" }}
-            />
-        );
-    }
-
+   
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
     const collapsedFields = collapsedFieldsStore.collapsedFields;
@@ -264,14 +164,13 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         }
     }
 
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
-        // for direct links, disable link widgets if both sides are collapsed
-        return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
-        // for links with intermediary nodes,
-        // disable link widget if either source or target port is collapsed
-        return null;
-    }
+const bothCollapsed = isSourceCollapsed && isTargetCollapsed;
+const eitherCollapsed = isSourceCollapsed || isTargetCollapsed;
+
+if ((valueNode && bothCollapsed) || (!valueNode && eitherCollapsed)) {
+    // Disable link widgets based on collapse states
+    return null;
+}
 
 
     if (linkStatus === LinkState.TemporaryLink) {
@@ -284,7 +183,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     return (
         <div
-            data-testid={`expression-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
+            data-testid={`sub-link-label-for-${link?.getSourcePort()?.getName()}-to-${link?.getTargetPort()?.getName()}`}
             className={classNames(
                 classes.container,
                 linkStatus === LinkState.LinkNotSelected && !deleteInProgress && classes.containerHidden
