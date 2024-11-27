@@ -18,10 +18,8 @@ import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValue
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
-import { SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX } from '../utils/constants';
-import { SubMappingInfo, View } from '../../../components/DataMapper/Views/DataMapperView';
-import { getSourceNodeType } from '../utils/node-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
+import { expandArrayFn } from '../utils/common-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -53,10 +51,9 @@ export interface ArrayMappingOptionsWidgetProps {
 export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps) {
     const classes = useStyles();
     const { link, pendingMappingType, context } = props.model;
-    const { addView, views } = context;
 
-    const sourcePort = link.getSourcePort() as InputOutputPortModel;
-    const targetPort = link?.getTargetPort() as InputOutputPortModel;
+    const sourcePort = link.getSourcePort();
+    const targetPort = link?.getTargetPort();
     const valueType = getValueType(link);
     const targetPortHasLinks = Object.values(targetPort.links)
         ?.some(link => (link as DataMapperLinkModel)?.isActualLink);
@@ -64,70 +61,6 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
     const isValueModifiable = valueType === ValueType.Default
         || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
     
-    const expandArrayFn = () => {
-        let label = getMapFnViewLabel(targetPort, views);
-        let targetFieldFQN = targetPort.fieldFQN;
-        const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
-
-        let sourceFieldFQN = isSourcePortSubMapping
-            ? sourcePort.fieldFQN
-            : sourcePort.fieldFQN.split('.').slice(1).join('.');
-        let mapFnIndex: number | undefined = undefined;
-        let prevViewSubMappingInfo: SubMappingInfo = undefined;
-
-        if (views.length > 1) {
-            const prevView = views[views.length - 1];
-
-            if (prevView.subMappingInfo) {
-                // Navigating into map function within focused sub-mapping view
-                prevViewSubMappingInfo = prevView.subMappingInfo;
-                const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
-                targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
-            } else {
-                // Navigating into another map function within the current map function
-                if (!prevView.targetFieldFQN) {
-                    // The visiting map function is declaired at the return statement of the current map function
-                    if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                        // The root of the current map function is the return statement of the transformation function
-                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
-                    }
-                } else {
-                    if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                        // The visiting map function is declaired at the return statement of the current map function
-                        targetFieldFQN = prevView.targetFieldFQN;
-                        mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
-                    } else {
-                        targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
-                    }
-                }
-            }
-            if (!!prevView.sourceFieldFQN) {
-                sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
-            }
-        } else {
-            // Navigating into the root map function
-            if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
-                // The visiting map function is the return statement of the transformation function
-                mapFnIndex = 0;
-            }
-        }
-
-        const sourceNodeType = getSourceNodeType(sourcePort);
-
-        const newView: View = { targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex };
-
-        if (prevViewSubMappingInfo) {
-            const newViewSubMappingInfo = {
-                ...prevViewSubMappingInfo,
-                focusedOnSubMappingRoot: false,
-                mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
-            };
-            newView.subMappingInfo = newViewSubMappingInfo;
-        }
-
-        addView(newView);
-    }
-
     const onClickMapArrays = async () => {
         if (isValueModifiable) {
             await updateExistingValue(sourcePort, targetPort);
@@ -145,7 +78,7 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
                 const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
 
-               expandArrayFn();
+               expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
 
                 if (isValueModifiable) {
                     await updateExistingValue(sourcePort, targetPort, mapFnSrc);
