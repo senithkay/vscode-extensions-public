@@ -108,7 +108,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
-		const mapping = findMappingByOutput(mappings, field.name);
+		const mapping = findMappingByOutput(mappings, fieldFQN);
 
 		const fieldPort = new InputOutputPortModel(
 			field, portName, type, mapping, field.name, field.name,
