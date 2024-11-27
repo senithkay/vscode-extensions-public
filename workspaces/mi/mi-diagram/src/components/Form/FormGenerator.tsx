@@ -58,6 +58,7 @@ interface Element {
     placeholder: any;
     comboValues?: any[];
     defaultValue?: any;
+    currentValue?: any;
     allowedConnectionTypes?: string[];
     keyType?: any;
     canAddNew?: boolean;
@@ -83,6 +84,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     useEffect(() => {
+        setIsLoading(true);
         handleOnCancelExprEditorRef.current = () => {
             sidepanelGoBack(sidePanelContext);
         };
@@ -124,6 +126,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     }
 
     function getNameForController(name: string | number) {
+        if (name === 'configRef') {
+            return 'configKey';
+        }
         return String(name).replace(/\./g, '__dot__');
     }
 
@@ -136,8 +141,9 @@ export function FormGenerator(props: FormGeneratorProps) {
     };
 
     const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
+        const name = getNameForController(element.name);
 
-        return expressionEditorField !== getNameForController(element.name) ? (
+        return expressionEditorField !== name ? (
             <ExpressionField
                 {...field}
                 label={element.displayName}
@@ -146,10 +152,10 @@ export function FormGenerator(props: FormGeneratorProps) {
                 canChange={canChange}
                 required={element.required || element.required === 'true'}
                 isTextArea={element.inputType === 'textAreaOrExpression'}
-                errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                errorMsg={errors[name] && errors[name].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
                     setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(getNameForController(element.name));
+                    setExpressionEditorField(name);
                 }}
             />
         ) : (
@@ -503,6 +509,16 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
+            const name = getNameForController(element.value.name);
+            if (element?.value?.enableCondition !== undefined) {
+                const shouldRender = getConditions(element.value.enableCondition);
+                if (!shouldRender) {
+                    if (getValues(name)) {
+                        setValue(name, undefined)
+                    }
+                    return;
+                }
+            }
 
             if (element.type === 'attributeGroup') {
                 return (
@@ -553,85 +569,68 @@ export function FormGenerator(props: FormGeneratorProps) {
                     );
                 }
 
-                if (getValues(name) === undefined && element.value.defaultValue) {
-                    setValue(name, element.value.defaultValue)
-                }
-
                 return (
-                    renderControllerIfConditionMet(element)
+                    renderController(element)
                 );
             }
         });
     };
 
-    const renderControllerIfConditionMet = (element: any) => {
-        const name = element.value.name === 'configRef' ? 'configKey' : getNameForController(element.value.name);
-        let shouldRender: boolean = true;
-
-        if (Array.isArray(element.value.enableCondition)) {
-            shouldRender = getConditions(element.value.enableCondition);
-        }
+    const renderController = (element: any) => {
+        const name = getNameForController(element.value.name);
 
         if (element.type === 'table') {
             element.value.inputType = 'ParamManager';
         }
 
-        if (shouldRender) {
-
-            return (
-                <Controller
-                    name={name}
-                    control={control}
-                    rules={
-                        {
-                            ...(element.value.required === 'true') && {
-                                validate: (value) => {
-                                    if (!value || (typeof value === 'object' && !value.value)) {
-                                        return "This field is required";
-                                    }
-                                    return true;
-                                },
-                            }
+        return (
+            <Controller
+                name={name}
+                control={control}
+                defaultValue={getDefaultValue(element)}
+                rules={
+                    {
+                        ...(element.value.required === 'true') && {
+                            validate: (value) => {
+                                if (!value || (typeof value === 'object' && !value.value)) {
+                                    return "This field is required";
+                                }
+                                return true;
+                            },
                         }
                     }
-                    render={({ field }) => (
-                        <Field>
-                            {renderFormElement(element.value, field)}
-                        </Field>
-                    )}
-                />
-            );
-        } else {
-            if (getValues(name)) {
-                setValue(name, undefined)
-            }
-        }
-
-        return null; // Return null if conditions are not met
-
-        function getConditions(conditions: any): boolean {
-            const evaluateCondition = (condition: any) => {
-                const key = Object.keys(condition)[0];
-                return watch(getNameForController(key)) === condition[key];
-            };
-
-            if (Array.isArray(conditions)) {
-                const firstElement = conditions[0];
-                const restConditions = conditions.slice(1);
-
-                if (firstElement === "AND") {
-                    return restConditions.every(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
-                } else if (firstElement === "OR") {
-                    return restConditions.some(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
-                } else if (firstElement === "NOT") {
-                    const condition = conditions[1];
-                    return Array.isArray(condition) ? !getConditions(condition) : !evaluateCondition(condition);
-                } else {
-                    return evaluateCondition(conditions[0]);
                 }
+                render={({ field }) => (
+                    <Field>
+                        {renderFormElement(element.value, field)}
+                    </Field>
+                )}
+            />
+        );
+    }
+
+    function getConditions(conditions: any): boolean {
+        const evaluateCondition = (condition: any) => {
+            const key = Object.keys(condition)[0];
+            return watch(getNameForController(key)) === condition[key];
+        };
+
+        if (Array.isArray(conditions)) {
+            const firstElement = conditions[0];
+            const restConditions = conditions.slice(1);
+
+            if (firstElement === "AND") {
+                return restConditions.every(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+            } else if (firstElement === "OR") {
+                return restConditions.some(condition => Array.isArray(condition) ? getConditions(condition) : evaluateCondition(condition));
+            } else if (firstElement === "NOT") {
+                const condition = conditions[1];
+                return Array.isArray(condition) ? !getConditions(condition) : !evaluateCondition(condition);
+            } else {
+                return evaluateCondition(conditions[0]);
             }
-            return false; // Default case if conditions are not met
         }
+        return conditions; // Default case if conditions are not met
     }
 
     return (
@@ -639,8 +638,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             <>
                 {formData.help && (
                     <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<') 
-                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} /> 
+                        {typeof formData.help === 'string' && formData.help.includes('<')
+                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
                     </div>
