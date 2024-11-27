@@ -112,3 +112,15 @@ export interface AIChatRequest {
     scafold: boolean;
     readme: boolean;
 }
+export interface ImportStatement {
+    moduleName: string;
+    alias?: string; 
+}
+export interface ImportStatements {
+    filePath: string; 
+    statements: ImportStatement[];
+}
+export interface ProjectImports {
+    projectPath: string;
+    imports: ImportStatements[];
+}

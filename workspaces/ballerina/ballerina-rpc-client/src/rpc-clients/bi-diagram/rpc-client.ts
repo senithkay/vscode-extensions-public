@@ -39,6 +39,7 @@ import {
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     ProjectComponentsResponse,
+    ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
@@ -58,6 +59,7 @@ import {
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
+    getAllImports,
     getAvailableNodes,
     getBIConnectors,
     getConfigVariables,
@@ -209,5 +211,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return this._messenger.sendRequest(getExpressionDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getAllImports(): Promise<ProjectImports> {
+        return this._messenger.sendRequest(getAllImports, HOST_EXTENSION);
     }
 }

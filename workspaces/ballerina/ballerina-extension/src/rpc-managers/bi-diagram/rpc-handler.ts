@@ -25,8 +25,9 @@ import {
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
-    buildProject,
+    UpdateConfigVariableRequest,
     VisibleTypesRequest,
+    buildProject,
     createComponent,
     createComponents,
     createProject,
@@ -34,6 +35,7 @@ import {
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
+    getAllImports,
     getAvailableNodes,
     getBIConnectors,
     getConfigVariables,
@@ -48,15 +50,14 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
-    getVisibleVariableTypes,
     getVisibleTypes,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent,
-    UpdateConfigVariableRequest,
-    updateConfigVariables,
     openAIChat,
     openReadme,
     runProject,
+    updateConfigVariables,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -93,4 +94,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(runProject, () => rpcManger.runProject());
     messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
+    messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
 }
