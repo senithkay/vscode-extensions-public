@@ -13,7 +13,8 @@ import {
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
-    GetFromFileRequest,
+    BIModuleNodesRequest,
+    BISourceCodeResponse,
     DeleteFromProjectRequest,
     DiagnosticEntry,
     Diagnostics,
@@ -24,6 +25,7 @@ import {
     GenerateTestRequest,
     GeneratedTestSource,
     GenerteMappingsFromRecordRequest,
+    GetFromFileRequest,
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
@@ -31,20 +33,18 @@ import {
     PostProcessResponse,
     ProjectDiagnostics,
     ProjectSource,
-    SyntaxTree,
-    BIModuleNodesRequest,
-    BISourceCodeResponse,
-    UpdateFileContentRequest,
     STModification,
-    SourceFile
+    SourceFile,
+    SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
-import { Uri, window, workspace, Position, Range, WorkspaceEdit } from 'vscode';
+import { Uri, window, workspace } from 'vscode';
 
+import { writeFileSync } from "fs";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
@@ -55,7 +55,6 @@ import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modifi
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
-import { writeFileSync } from "fs";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -591,6 +590,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
+    async getActiveFile(): Promise<string> {    
+        const activeTabGroup = window.tabGroups.all.find(group => {
+            return group.activeTab.isActive && group.activeTab?.input;
+        });
+
+        if (activeTabGroup && activeTabGroup.activeTab && activeTabGroup.activeTab.input) {
+            const activeTabInput = activeTabGroup.activeTab.input as { uri: { fsPath: string } };
+    
+            if (activeTabInput.uri) {
+                const fileUri = activeTabInput.uri;
+                const fileName = fileUri.fsPath.split('/').pop(); 
+                return fileName || '';  
+            }
+        }
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {
