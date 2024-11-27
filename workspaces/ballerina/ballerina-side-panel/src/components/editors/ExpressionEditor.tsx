@@ -240,7 +240,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         });
     };
 
-    const handleInlineDataMapperOpen = (isUpdate: boolean = false) => {
+    const handleInlineDataMapperOpen = (isUpdate: boolean) => {
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER && !isUpdate) {
             openSubPanel({view: SubPanelView.UNDEFINED});
         } else {
@@ -323,7 +323,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
             <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
         </Button>,
         // TODO: Render the Data Mapper button whenever the `visualizable` flag is set to true
-        <Button appearance="icon" onClick={handleInlineDataMapperOpen} tooltip="Create using Data Mapper" disabled={false}>
+        <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)} tooltip="Create using Data Mapper">
             <S.DataMapperBtnTxt>DM</S.DataMapperBtnTxt>
         </Button>,
         onRemove && (
