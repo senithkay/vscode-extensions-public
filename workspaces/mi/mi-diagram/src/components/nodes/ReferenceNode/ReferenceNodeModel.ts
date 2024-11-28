@@ -10,9 +10,9 @@
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
-import { getDataFromST } from "../../../utils/template-engine/mustach-templates/templateUtils";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client";
 import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { Datamapper } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export class ReferenceNodeModel extends BaseNodeModel {
     readonly referenceName: string;
@@ -53,17 +53,13 @@ export class ReferenceNodeModel extends BaseNodeModel {
     }
 
     async openDataMapperView(rpcClient: RpcClient) {
-        const formData = await getDataFromST(
-            this.mediatorName,
-            this.stNode
-        );
-
+        const config = (this.stNode as Datamapper)?.config;
         const request = {
             sourcePath: this.documentUri,
-            regPath: formData.configurationLocalPath
+            regPath: config
         }
 
-        const dmName = formData.configurationLocalPath.split("/")[formData.configurationLocalPath.split("/").length - 1].split(".")[0];
+        const dmName = config.split("/")[config.split("/").length - 1].split(".")[0];
         if (dmName === "") {
             return;
         }

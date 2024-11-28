@@ -14,9 +14,10 @@ import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/w
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { ENDPOINTS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../../../Form/common';
+import { getTemplateEndpointMustacheTemplate } from "../../../../../utils/template-engine/mustach-templates/endpoints/template";
+import Mustache from 'mustache';
 
 const cardStyle = { 
    display: "block",
@@ -64,7 +65,8 @@ const TemplateEndpointForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(ENDPOINTS.TEMPLATE, formValues);
+           const template = getTemplateEndpointMustacheTemplate();
+           const xml = Mustache.render(template, formValues).trim();
            rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });

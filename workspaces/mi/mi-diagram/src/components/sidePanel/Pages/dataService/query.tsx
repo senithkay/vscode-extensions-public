@@ -14,12 +14,12 @@ import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
 import { AddMediatorProps, openPopup } from '../../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
 import { Keylookup } from '../../../Form';
 import { sidepanelGoBack } from '../..';
 import { DATA_SERVICE } from "../../../../resources/constants";
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { getDssQueryXml, getDssResourceSelfClosingXml, getDssResourceXml } from '../../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
 const cardStyle = {
     display: "block",
@@ -98,8 +98,8 @@ const QueryForm = (props: AddMediatorProps) => {
         const existingDataService = await rpcClient.getMiDiagramRpcClient().getDataService({ path: props.documentUri });
         existingDataService.datasources.forEach((ds) => {
             if (ds.dataSourceName === values.datasource) {
-                const propertyKeys: string[]  = [];
-                ds.datasourceProperties.forEach((attr:any) => {
+                const propertyKeys: string[] = [];
+                ds.datasourceProperties.forEach((attr: any) => {
                     propertyKeys.push(attr.key);
                 });
                 if (propertyKeys.includes("mongoDB_servers")) {
@@ -110,7 +110,7 @@ const QueryForm = (props: AddMediatorProps) => {
             }
         });
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
+        let xml = getDssQueryXml({ ...updatedQuery, queryType }).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,
@@ -140,9 +140,9 @@ const QueryForm = (props: AddMediatorProps) => {
 
         if (Object.keys(resourceData).length !== 0) {
             if (resourceData.selfClosed) {
-                xml = getXML(DATA_SERVICE.EDIT_SELF_CLOSE_RESOURCE, { query: values.queryId });
+                xml = getDssResourceSelfClosingXml({ query: values.queryId });
             } else {
-                xml = getXML(DATA_SERVICE.EDIT_RESOURCE, { query: values.queryId });
+                xml = getDssResourceXml({ query: values.queryId });
             }
             await rpcClient.getMiDiagramRpcClient().applyEdit({
                 text: xml, documentUri: props.documentUri,

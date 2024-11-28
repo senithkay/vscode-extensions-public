@@ -14,10 +14,9 @@ import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { ENDPOINTS, MEDIATORS } from '../../../../../resources/constants';
 import { AddMediatorProps } from '../../../../Form/common';
 import { ParamConfig, ParamManager } from '../../../../Form/ParamManager/ParamManager';
+import { getHTTPEndpointXml } from "../../../../../utils/template-engine/mustach-templates/endpoints/http";
 
 const cardStyle = {
     display: "block",
@@ -335,7 +334,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
-            const xml = getXML(ENDPOINTS.HTTP, formValues);
+            const xml = getHTTPEndpointXml(formValues);
             rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });

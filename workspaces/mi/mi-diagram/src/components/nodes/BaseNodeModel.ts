@@ -14,7 +14,6 @@ import { NodePortModel } from "../NodePort/NodePortModel";
 import { Colors, NodeTypes } from "../../resources/constants";
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
-import { getDataFromST } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
 import { Button } from "@wso2-enterprise/ui-toolkit";
@@ -98,13 +97,6 @@ export class BaseNodeModel extends NodeModel {
                 range: nodeRange,
             });
 
-            const formData = await getDataFromST(
-                operationName,
-                stNode,
-                this.documentUri,
-                rpcClient
-            );
-
             await new Promise(resolve => setTimeout(resolve, 1));
 
             sidePanelContext.setSidePanelState({
@@ -114,7 +106,6 @@ export class BaseNodeModel extends NodeModel {
                 tag: stNode.tag,
                 nodeRange: nodeRange,
                 isEditing: true,
-                formValues: formData,
                 parentNode: node.mediatorName,
                 node: node,
             });
