@@ -272,6 +272,8 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
             const context = StateMachine.context();
             try {
                 const res: TriggerFunctionResponse = await context.langClient.updateTriggerFunction(params);
+                await this.updateSource(res);
+                updateView();
                 resolve(res);
             } catch (error) {
                 console.log(error);

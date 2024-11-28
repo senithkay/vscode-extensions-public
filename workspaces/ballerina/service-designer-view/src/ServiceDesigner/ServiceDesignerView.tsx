@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -123,6 +124,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     // Callbacks for resource form
     const handleResourceFormClose = () => {
         setResourceFormOpen(false);
+        setIsLoading(false);
         setEditingResource(undefined);
     };
     const handleResourceFormOpen = () => {
@@ -212,14 +214,19 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         const position: NodePosition = model.position;
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
         triggerFunction.enabled = true;
-        await rpcClients.triggerWizardRpcClient.addTriggerFunction({ filePath: serviceFilePath, function: triggerFunction, codedata: { lineRange } });
+        if (editingResource) {
+            await rpcClients.triggerWizardRpcClient.updateTriggerFunction({ filePath: serviceFilePath, function: triggerFunction, codedata: { lineRange } });
+        } else {
+            await rpcClients.triggerWizardRpcClient.addTriggerFunction({ filePath: serviceFilePath, function: triggerFunction, codedata: { lineRange } });
+        }
         setIsLoading(false);
+        setResourceFormOpen(false);
     };
 
+    const triggerModel: TriggerNode = serviceConfig?.triggerModel;
     const name = serviceConfig?.triggerModel?.properties['name'].value;
     const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayName} - ${name} Service` : `Service ${serviceConfig?.path}`;
-    const showAddNew = serviceConfig?.triggerModel ? false : !isEditingDisabled;
-    const triggerModel: TriggerNode = serviceConfig?.triggerModel;
+    const showAddNew = serviceConfig?.triggerModel ? triggerModel?.service?.functions?.some((func) => !func.enabled) : !isEditingDisabled;
 
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
@@ -259,7 +266,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                                 onResourceEdit={handleResourceEdit}
                                 onResourceDelete={handleResourceDelete}
                             />
-                            {triggerModel?.service?.functions?.some((func) => !func.enabled) && <Divider />}
+                            {/* {triggerModel?.service?.functions?.some((func) => !func.enabled) && <Divider />}
                             {(
                                 triggerModel?.service.functions.filter((func) => !func.enabled).map((func, index) => (
                                     <AccordionContainer key={index}>
@@ -276,13 +283,13 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                                         </AccordionHeader>
                                     </AccordionContainer>
                                 ))
-                            )}
-                            {isLoading &&
+                            )} */}
+                            {/* {isLoading &&
                                 <LoadingContainer>
                                     <ProgressRing />
                                     <Typography variant="h3" sx={{ marginTop: '16px' }}>Adding function..</Typography>
                                 </LoadingContainer>
-                            }
+                            } */}
                         </ViewContent>
                     </View>
                     {isResourceFormOpen && !serviceConfig?.triggerModel &&
@@ -300,13 +307,15 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     {isResourceFormOpen && serviceConfig?.triggerModel &&
                         <FunctionForm
                             isOpen={isResourceFormOpen}
+                            triggerNode={triggerModel}
                             isBallerniaExt={isParentBallerinaExt}
                             resourceConfig={serviceConfig.resources.length > 0 ? editingResource : undefined}
-                            onSave={handleResourceFormSave}
+                            onSave={handleEnableFunction}
                             onClose={handleResourceFormClose}
                             addNameRecord={addNameRecord}
                             commonRpcClient={commonRpcClient}
                             applyModifications={applyModifications}
+                            isSaving={isLoading}
                         />
                     }
                     {isServiceFormOpen && !serviceConfig?.triggerModel &&

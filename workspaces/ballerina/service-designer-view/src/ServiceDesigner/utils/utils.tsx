@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonRPCAPI, DIAGNOSTIC_SEVERITY, DiagramDiagnostic, LineRange, Range, responseCodes, ServiceDesignerAPI, ServiceType, STModification, TriggerWizardAPI } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, DIAGNOSTIC_SEVERITY, DiagramDiagnostic, LineRange, responseCodes, ServiceDesignerAPI, STModification, TriggerFunction, TriggerNode, TriggerWizardAPI } from '@wso2-enterprise/ballerina-core';
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
 import { Annotation, NodePosition, ObjectMethodDefinition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
 import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig, Service, ServiceData } from '@wso2-enterprise/service-designer';
-import { Item } from '@wso2-enterprise/ui-toolkit';
+import { OptionProps } from '@wso2-enterprise/ui-toolkit';
 
 export interface RPCClients {
     serviceDesignerRpcClient: ServiceDesignerAPI;
@@ -609,4 +609,38 @@ export function removeStatement(targetPosition: NodePosition): STModification {
     };
 
     return removeLine;
+}
+
+
+export interface TriggerFunctionProps {
+    functionName: OptionProps;
+    params: ParameterConfig[];
+    return: ResponseConfig;
+    functionNode: TriggerFunction;
+}
+
+export function getTriggerAvailableFunctions(triggerNode: TriggerNode, fetchAll?: boolean) {
+    const funcProps: TriggerFunctionProps[] = [];
+    triggerNode?.service.functions.forEach(func => {
+        if (fetchAll || !func.enabled) {
+            const params: ParameterConfig[] = [];
+            func.parameters.forEach((param, index) => {
+                if (!param.optional) {
+                    params.push({
+                        id: index,
+                        type: param.type.value || param.type.placeholder,
+                        name: param.name.placeholder,
+                        isRequired: !param.optional
+                    });
+                }
+            })
+            funcProps.push({
+                functionName: { value: func.name.value },
+                params: params,
+                return: { id: 0, type: func.returnType.valueTypeConstraint },
+                functionNode: func
+            })
+        }
+    })
+    return funcProps;
 }

@@ -20,6 +20,7 @@ export interface FunctionParamProps {
     parameters: ParameterConfig[];
     onChange?: (parameters: ParameterConfig[]) => void,
     readonly?: boolean;
+    isFixed?: boolean;
 }
 
 const AddButtonWrapper = styled.div`
@@ -27,7 +28,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function FunctionParam(props: FunctionParamProps) {
-    const { parameters, readonly, onChange } = props;
+    const { parameters, readonly, onChange, isFixed } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -131,7 +132,7 @@ export function FunctionParam(props: FunctionParamProps) {
     return (
         <div>
             {paramComponents}
-            {(editingSegmentId === -1) && (
+            {(editingSegmentId === -1) && !isFixed && (
                 <AddButtonWrapper>
                     <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
                         <Codicon name="add" />

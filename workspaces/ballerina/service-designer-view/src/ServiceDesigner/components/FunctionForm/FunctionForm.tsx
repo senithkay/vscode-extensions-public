@@ -10,17 +10,17 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator, TextField } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography, ProgressIndicator, TextField, Dropdown, OptionProps } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { FunctionResponse } from '../FunctionResponse/FunctionResponse';
 import { FunctionParam } from '../FunctionParam/FunctionParam';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
-import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
+import { HTTP_METHOD, TriggerFunctionProps, generateNewResourceFunction, getTriggerAvailableFunctions, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
-import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, STModification, TriggerFunction, TriggerNode } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { debounce } from "lodash";
 import { useServiceDesignerContext } from '../../Context';
@@ -33,20 +33,25 @@ const AdvancedParamTitleWrapper = styled.div`
 export interface ResourceFormProps {
 	isOpen: boolean;
 	isBallerniaExt?: boolean;
+	triggerNode?: TriggerNode;
 	resourceConfig?: Resource;
-	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
+	onSave?: (functionNode: TriggerFunction) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
 	commonRpcClient?: CommonRPCAPI;
 	onClose: () => void;
 	applyModifications?: (modifications: STModification[]) => Promise<void>;
+	isSaving?: boolean;
 }
 
 export function FunctionForm(props: ResourceFormProps) {
-	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, commonRpcClient, applyModifications } = props;
+	const { isOpen, isBallerniaExt, resourceConfig, onClose, onSave, addNameRecord, commonRpcClient, applyModifications, triggerNode, isSaving } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.methods[0].toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
+
+	const [functions, setFunctions] = useState<OptionProps[]>([]);
+	const [selectedFunction, setSelectedFunction] = useState<string>(path);
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(resourceConfig?.advancedParams || new Map<string, ParameterConfig>());
@@ -61,8 +66,26 @@ export function FunctionForm(props: ResourceFormProps) {
 	const { rpcClient } = useRpcContext();
 
 	useEffect(() => {
+		if (!resourceConfig && triggerNode) {
+			handleFunctionLoad();
+		}
 		setDPosition(resourceConfig?.updatePosition || serviceEndPosition); // Setting the position of the resource into the context so that we can use it in filtering diagnostic msgs.
 	}, []);
+
+	const handleFunctionLoad = () => {
+		const res: TriggerFunctionProps[] = getTriggerAvailableFunctions(triggerNode);
+		const functionsNames: OptionProps[] = []
+		res.forEach(r => {
+			functionsNames.push(r.functionName);
+		})
+		// On Default select the first function details
+		if (res.length > 0) {
+			setSelectedFunction(res[0].functionName.value);
+			setParameters(res[0].params);
+			setResponse([res[0].return]);
+		}
+		setFunctions(functionsNames);
+	}
 
 	useEffect(() => {
 		debouncedHandleDiagnostics();
@@ -157,25 +180,35 @@ export function FunctionForm(props: ResourceFormProps) {
 		}
 	}
 
-	const handleSave = () => {
-		const genSource = generateSource();
-		const config = {
-			methods: [method],
-			path: path,
-			params: parameters,
-			advancedParams: advancedParams,
-			payloadConfig: payload,
-			responses: response
-		};
-		// Insert scenario
-		if (!resourceConfig?.updatePosition) {
-			// Insert scenario
-			onSave && onSave(genSource, config);
-		} else {
-			// Edit scenario
-			onSave && onSave(genSource, config, resourceConfig?.updatePosition);
-		}
-		onClose();
+	const handleSelectFunction = (selectedFunc: string) => {
+		const res: TriggerFunctionProps[] = getTriggerAvailableFunctions(triggerNode);
+		res.forEach(r => {
+			if (r.functionName.value === selectedFunc) {
+				setSelectedFunction(selectedFunc);
+				setParameters(r.params);
+				setResponse([r.return]);
+			}
+		})
+	}
+
+	const handleSaveFunction = () => {
+		const res: TriggerFunctionProps[] = getTriggerAvailableFunctions(triggerNode, true);
+		let functionNode;
+		res.forEach(r => {
+			if (r.functionName.value === selectedFunction) {
+				functionNode = r.functionNode;
+				functionNode.parameters.forEach((param, index) => {
+					if (parameters.length > index) {
+						param.name.value = parameters[index].name;
+						param.type.value = parameters[index].type;
+						param.enabled = true;
+					}
+				})
+				functionNode.returnType.value = response[0].type;
+				functionNode.returnType.enabled = true;
+			}
+		})
+		onSave(functionNode);
 	};
 
 	return (
@@ -192,16 +225,26 @@ export function FunctionForm(props: ResourceFormProps) {
 				</SidePanelTitleContainer>
 
 				<SidePanelBody>
-					<TextField
-						sx={{ marginLeft: 15, flexGrow: 1 }}
-						autoFocus
-						label="Method Name"
-						disabled={true}
-						size={70}
-						onTextChange={() => { }}
-						placeholder=""
-						value={path}
-					/>
+					{resourceConfig &&
+						<TextField
+							sx={{ marginLeft: 15, flexGrow: 1 }}
+							autoFocus
+							label="Function Name"
+							disabled={true}
+							size={70}
+							onTextChange={() => { }}
+							placeholder=""
+							value={path}
+						/>
+					}
+					{triggerNode && !resourceConfig &&
+						<Dropdown
+							id='triggerFunctionList'
+							items={functions}
+							value={selectedFunction}
+							onValueChange={handleSelectFunction}
+						/>
+					}
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
@@ -209,10 +252,10 @@ export function FunctionForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Returns</Typography>
-					<FunctionResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
+					<FunctionResponse isFixed={!!triggerNode} method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} serviceEndPosition={serviceEndPosition} commonRpcClient={commonRpcClient} isBallerniaExt={isBallerniaExt} applyModifications={applyModifications} />
 
 					<ActionButtons
-						primaryButton={{ text: "Save", onClick: () => { }, tooltip: "Save" }}
+						primaryButton={{ text: "Save", onClick: handleSaveFunction, tooltip: "Save", disabled: isSaving }}
 						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 						sx={{ justifyContent: "flex-end" }}
 					/>

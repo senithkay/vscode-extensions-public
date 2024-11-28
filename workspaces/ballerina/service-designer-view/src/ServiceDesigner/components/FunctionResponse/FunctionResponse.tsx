@@ -14,7 +14,7 @@ import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { FunctionItem } from './FunctionItem';
 import { FunctionEditor } from './FunctionEditor';
-import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../../utils/utils';
+import { HTTP_METHOD } from '../../utils/utils';
 import { ResponseConfig } from '@wso2-enterprise/service-designer';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { CommonRPCAPI, STModification } from '@wso2-enterprise/ballerina-core';
@@ -29,6 +29,7 @@ export interface FunctionParamProps {
     commonRpcClient?: CommonRPCAPI;
     readonly?: boolean;
     applyModifications?: (modifications: STModification[]) => Promise<void>;
+    isFixed?: boolean;
 }
 
 const AddButtonWrapper = styled.div`
@@ -36,7 +37,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function FunctionResponse(props: FunctionParamProps) {
-    const { method, response, isBallerniaExt, readonly, onChange, addNameRecord, serviceEndPosition, commonRpcClient, applyModifications } = props;
+    const { response, isBallerniaExt, readonly, onChange, serviceEndPosition, commonRpcClient, applyModifications, isFixed } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -147,10 +148,12 @@ export function FunctionResponse(props: FunctionParamProps) {
             {paramComponents}
             {(editingSegmentId === -1) && (
                 <AddButtonWrapper>
-                    <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
-                        <Codicon name="add" />
-                        <>Add Return</>
-                    </LinkButton>
+                    {!isFixed &&
+                        <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
+                            <Codicon name="add" />
+                            <>Add Return</>
+                        </LinkButton>
+                    }
                 </AddButtonWrapper>
             )}
         </div>
