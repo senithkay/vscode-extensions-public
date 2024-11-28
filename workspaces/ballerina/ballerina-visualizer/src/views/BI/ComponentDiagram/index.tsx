@@ -91,7 +91,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     response.packages.forEach((pkg) => {
                         pkg.modules.forEach((module: any) => {
                             module[componentType].forEach((balComp: any) => {
-                                if (balComp.name === component.label) {
+                                if (balComp.name === component.name) {
                                     rpcClient
                                         .getBIDiagramRpcClient()
                                         .deleteByComponentInfo({
@@ -169,7 +169,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         if (service?.triggerNode) {
             project.entryPoints.push({
                 id: service.name,
-                name: service.name,
+                name: service.context,
                 type: "service",
                 label: service.triggerNode.properties?.name?.value,
                 description: service.triggerNode.name,
@@ -185,9 +185,9 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         // handle generic service
         project.entryPoints.push({
             id: service.name,
-            name: service.name,
+            name: service.context,
             type: "service",
-            label: service.context,
+            label: service.name,
             location: {
                 filePath: service.path,
                 position: service.position,
@@ -205,10 +205,12 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             taskName = taskName.replace(/['"]/g, "");
         }
 
+        console.log(">>> task", { taskName, task });
+
         project.entryPoints.push({
             id: task.name,
-            name: taskName || task.name,
-            label: task.context,
+            name: task.context,
+            label: taskName || task.name,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,
