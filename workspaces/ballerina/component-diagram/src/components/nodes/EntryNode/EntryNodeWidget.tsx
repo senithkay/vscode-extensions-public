@@ -62,6 +62,7 @@ export namespace NodeStyles {
 
     export const Icon = styled.div`
         padding: 4px;
+        max-width: 32px;
         svg {
             fill: ${Colors.ON_SURFACE};
         }
@@ -133,6 +134,10 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     };
 
     const getNodeIcon = () => {
+        if (model.node.icon) {
+            return model.node.icon;
+        }
+
         switch (model.node.type) {
             case "trigger":
                 return <WebhookIcon />;
@@ -140,12 +145,17 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "schedule-task":
                 return <TaskIcon />;
             case "service":
+                return <HttpIcon />;
             default:
                 return <HttpIcon />;
         }
     };
 
     const getNodeDescription = () => {
+        if (model.node.description) {
+            return model.node.description;
+        }
+        // show type if no description
         switch (model.node.type) {
             case "trigger":
                 return "Webhook";
@@ -153,8 +163,9 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "schedule-task":
                 return "Automation";
             case "service":
-            default:
                 return "Service";
+            default:
+                return model.node.type;
         }
     }
 
@@ -183,7 +194,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             <NodeStyles.Box hovered={isHovered}>
                 <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
                 <NodeStyles.Header hovered={isHovered}>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
+                    <NodeStyles.Title hovered={isHovered}>{model.node.label || model.node.name}</NodeStyles.Title>
                     <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
