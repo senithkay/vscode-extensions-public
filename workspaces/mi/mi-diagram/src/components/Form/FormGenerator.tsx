@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -120,6 +120,8 @@ export function FormGenerator(props: FormGeneratorProps) {
         } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
+        } else if (inputType === 'checkbox') {
+            return currentValue ?? false;
         } else {
             return currentValue ?? "";
         }
@@ -278,6 +280,17 @@ export function FormGenerator(props: FormGeneratorProps) {
                         errorMsg={errorMsg}
                     />
                 );
+            case 'textArea':
+                return (
+                    <TextArea {...field}
+                        label={element.displayName}
+                        labelAdornment={helpTipElement}
+                        rows={5}
+                        placeholder={placeholder}
+                        required={isRequired}
+                        errorMsg={errorMsg}
+                    />
+                );    
             case 'boolean':
                 return (
                     <FormCheckBox
@@ -509,7 +522,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
-            const name = getNameForController(element.value.name);
+            const name = getNameForController(element.value.groupName ?? element.value.name);
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
@@ -612,7 +625,8 @@ export function FormGenerator(props: FormGeneratorProps) {
     function getConditions(conditions: any): boolean {
         const evaluateCondition = (condition: any) => {
             const key = Object.keys(condition)[0];
-            return watch(getNameForController(key)) === condition[key];
+            const currentVal = watch(getNameForController(key));
+            return currentVal === condition[key] || (typeof condition[key] === 'string' && String(currentVal) === condition[key]);
         };
 
         if (Array.isArray(conditions)) {
