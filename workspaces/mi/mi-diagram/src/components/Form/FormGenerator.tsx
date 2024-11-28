@@ -382,6 +382,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                 const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
                     openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: fileType });
                 }
+                const onCreateConfigurableClick = async (fetchItems: any, handleValueChange: any) => {
+                    await rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
+                        projectUri: '',
+                        configurableName: field.value.value
+                    });
+                    handleValueChange(field.value.value);
+                }
                 return (
                     <div>
                         <RadioButtonGroup 
@@ -405,9 +412,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                                     allowItemCreate={true}
                                     onCreateButtonClick={onCreateButtonClick}
                                 />
-                                {/* <Button appearance="secondary" onClick={() => { openFile(element.name); }}>
-                                    <div style={{ color: colors.editorForeground }}>Add file</div>
-                                </Button> */}
                             </div>
                         )}
                         {field.value.type === 'configurable' && (
@@ -423,7 +427,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                                         field.onChange({ isCertificate: true, value: e, type: field.value.type });
                                     }}
                                     required={false}
-                                    allowItemCreate={false}
+                                    allowItemCreate={true}
+                                    onCreateButtonClick={onCreateConfigurableClick}
                                 />
                             </div>
                         )}

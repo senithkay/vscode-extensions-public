@@ -173,8 +173,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     async handleCertificateConfigurable(params: HandleCertificateConfigurableRequest): Promise<void> {
-        const configPropertiesFilePath = [params.projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
-        const envFilePath = [params.projectUri, '.env'].join(path.sep);
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [projectUri, '.env'].join(path.sep);
         await appendContent(configPropertiesFilePath, `${params.configurableName}:cert\n`);
         await appendContent(envFilePath, `${params.configurableName}\n`);
     }
