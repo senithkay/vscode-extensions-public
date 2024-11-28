@@ -137,7 +137,7 @@ export function TriggerView(props: TriggerViewProps) {
             {!isSearching && (
                 <ListContainer>
                     <GridContainer>
-                        {triggers.local.map((item, index) => {
+                        {triggers.local.filter(t => t.type === 'event').map((item, index) => {
                             return (
                                 <ButtonCard
                                     key={item.id}

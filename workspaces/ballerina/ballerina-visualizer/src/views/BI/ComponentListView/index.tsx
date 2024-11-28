@@ -250,12 +250,12 @@ export function ComponentListView() {
                                     Configure event-driven integrations for your project. Explore the available options below.
                                 </BodyText>
                                 <CardGrid>
-                                    {triggers.local.map((item, index) => {
+                                    {triggers.local.filter(t => t.type === 'event').map((item, index) => {
                                         return (
                                             <ButtonCard
                                                 key={item.id}
                                                 title={item.name}
-                                                description={`${item.orgName}/${item.packageName}`}
+                                                description={`${item.orgName}/${item.moduleName}`}
                                                 icon={
                                                     item.icon ? (
                                                         <img
@@ -285,7 +285,29 @@ export function ComponentListView() {
                                     Select the file integration type that best suits your project's needs.
                                 </BodyText>
                                 <CardGrid>
-                                    Coming soon...
+                                    {triggers.local.filter(t => t.type === 'file').map((item, index) => {
+                                        return (
+                                            <ButtonCard
+                                                key={item.id}
+                                                title={item.name}
+                                                description={`${item.orgName}/${item.moduleName}`}
+                                                icon={
+                                                    item.icon ? (
+                                                        <img
+                                                            src={item.icon}
+                                                            alt={item.name}
+                                                            style={{ width: "40px" }}
+                                                        />
+                                                    ) : (
+                                                        <Codicon name="mail" />
+                                                    )
+                                                }
+                                                onClick={() => {
+                                                    handleOnSelect(item);
+                                                }}
+                                            />
+                                        );
+                                    })}
                                 </CardGrid>
                             </PanelViewMore>
                             <PanelViewMore>
