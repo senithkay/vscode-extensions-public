@@ -323,14 +323,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             console.log(firstPomNodeDetail);
 
             const res2 = await this.removeContentFromPomXml(firstPomNodeDetail);
+            console.log(res2);
 
-            // const addDependency = res1.lastDependencyEndTagRange; // Type: { [key: string]: PomNodeDetails }
+            const addDependency = res1.lastDependencyEndTagRange; // Type: { [key: string]: PomNodeDetails }
 
-            // // To access a specific `PomNodeDetails`, you need to use the key
-            // const firstPomNodeDetail1 = addDependency["fullRange"].range; 
+            // To access a specific `PomNodeDetails`, you need to use the key
+            const pomXml = {value: "<dependency><groupId>org.seleniumhq.selenium</groupId><artifactId>selenium-java</artifactId><version>4.27.0</version><type>zip</type></dependency>", range: res1.lastDependencyEndTagRange};
+            const res3 = await this.addContentToPomXml(pomXml);
+            console.log(res3);
 
-            // const res3 = await this.addContentToPomXml({value: "<dependency><groupId>org.seleniumhq.selenium</groupId><artifactId>selenium-java</artifactId><version>4.27.0</version><type>zip</type></dependency>", range: firstPomNodeDetail1});
-            // console.log(res3);
+            const pom_xml = {value: "4.5.0", range: res1.runtimeVersion.range};
+            const res4 = await this.updatePomValue(pom_xml);
+            console.log(res4);
+
             resolve(res);
         });
     }
