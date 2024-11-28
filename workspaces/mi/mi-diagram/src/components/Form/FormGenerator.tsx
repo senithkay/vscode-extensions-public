@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -280,6 +280,17 @@ export function FormGenerator(props: FormGeneratorProps) {
                         errorMsg={errorMsg}
                     />
                 );
+            case 'textArea':
+                return (
+                    <TextArea {...field}
+                        label={element.displayName}
+                        labelAdornment={helpTipElement}
+                        rows={5}
+                        placeholder={placeholder}
+                        required={isRequired}
+                        errorMsg={errorMsg}
+                    />
+                );    
             case 'boolean':
                 return (
                     <FormCheckBox
