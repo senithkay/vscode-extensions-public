@@ -28,6 +28,7 @@ const Container = styled.div`
     height: 100%;
     justify-content: center;
     width: 100%;
+    background-color: ${Colors.SURFACE_BRIGHT};
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
@@ -35,7 +36,7 @@ export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
         return (
             <DiagramStyles.Container background={Colors.SURFACE_BRIGHT} color={Colors.ON_SURFACE}>
                 <Container>
-                    <ProgressRing />
+                    <ProgressRing color={Colors.PRIMARY}/>
                 </Container>
             </DiagramStyles.Container>
         );
