@@ -15,10 +15,10 @@ import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { getService, RPCClients, updateServiceDecl } from "./utils/utils";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
-import { ServiceType, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import { LineRange, STModification, TriggerFunction, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { ContextProvider } from "./ContextProvider";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon, View, ViewHeader, ViewContent, Typography, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, View, ViewHeader, ViewContent, Typography, ProgressRing, Divider, LinkButton, colors } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
 const ServiceHeader = styled.div`
@@ -31,6 +31,60 @@ const LoadingContainer = styled.div`
     align-items: center;
     height: 80vh;
     flex-direction: column;
+`;
+
+const AccordionContainer = styled.div`
+    margin-top: 10px;
+    overflow: hidden;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+        cursor: pointer;
+    }
+`;
+
+const AccordionHeader = styled.div`
+    padding: 10px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+`;
+
+const MethodSection = styled.div`
+    display: flex;
+    gap: 4px;
+`;
+
+const ButtonSection = styled.div`
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 6px;
+`;
+
+type MethodProp = {
+    color: string;
+    hasLeftMargin?: boolean;
+};
+
+const MethodBox = styled.div<MethodProp>`
+    display: flex;
+    justify-content: center;
+    height: 25px;
+    min-width: 70px;
+    width: auto;
+    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
+    text-align: center;
+    padding: 3px 5px 3px 5px;
+    background-color: ${(p: MethodProp) => p.color};
+    color: #FFF;
+    align-items: center;
+    font-weight: bold;
+`;
+
+const MethodPath = styled.span`
+    align-self: center;
+    margin-left: 10px;
 `;
 
 interface ServiceDesignerProps {
@@ -60,6 +114,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
     const [isResourceFormOpen, setResourceFormOpen] = useState<boolean>(false);
     const [isServiceFormOpen, setServiceFormOpen] = useState<boolean>(false);
     const [editingResource, setEditingResource] = useState<Resource>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const isParentBallerinaExt = !goToSource;
     const serviceDesignerRpcClient = rpcClients?.serviceDesignerRpcClient;
@@ -152,9 +207,19 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         serviceDesignerRpcClient.exportOASFile({});
     };
 
+    const handleEnableFunction = async (triggerFunction: TriggerFunction) => {
+        setIsLoading(true);
+        const position: NodePosition = model.position;
+        const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
+        triggerFunction.enabled = true;
+        await rpcClients.triggerWizardRpcClient.addTriggerFunction({ filePath: serviceFilePath, function: triggerFunction, codedata: { lineRange } });
+        setIsLoading(false);
+    };
+
     const name = serviceConfig?.triggerModel?.properties['name'].value;
     const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayName} - ${name} Service` : `Service ${serviceConfig?.path}`;
-    const showAddNew = serviceConfig?.triggerModel ? (serviceConfig.triggerModel?.service as ServiceType).functions.some((res) => !res.enabled) : !isEditingDisabled;
+    const showAddNew = serviceConfig?.triggerModel ? false : !isEditingDisabled;
+    const triggerModel: TriggerNode = serviceConfig?.triggerModel;
 
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
@@ -187,12 +252,37 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                         <ViewContent padding>
                             <ServiceDesigner
                                 customTitle={serviceConfig?.triggerModel ? `Available functions` : 'Available resources'}
+                                customEmptyResourceMessage={serviceConfig?.triggerModel && "No functions found. Add a function."}
                                 model={serviceConfig}
                                 onResourceClick={handleGoToSource}
                                 disableServiceHeader={props.isBI}
                                 onResourceEdit={handleResourceEdit}
                                 onResourceDelete={handleResourceDelete}
                             />
+                            {triggerModel?.service?.functions?.some((func) => !func.enabled) && <Divider />}
+                            {(
+                                triggerModel.service.functions.filter((func) => !func.enabled).map((func, index) => (
+                                    <AccordionContainer key={index}>
+                                        <AccordionHeader>
+                                            <MethodSection>
+                                                <MethodBox color={colors.vscodeButtonSecondaryBackground}>
+                                                    {func.kind.toLowerCase()}
+                                                </MethodBox>
+                                                <MethodPath>{func.name.value}</MethodPath>
+                                            </MethodSection>
+                                            <ButtonSection>
+                                                <LinkButton sx={{ justifyContent: "center" }} onClick={() => handleEnableFunction(func)}>Add</LinkButton>
+                                            </ButtonSection>
+                                        </AccordionHeader>
+                                    </AccordionContainer>
+                                ))
+                            )}
+                            {isLoading &&
+                                <LoadingContainer>
+                                    <ProgressRing />
+                                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Adding function..</Typography>
+                                </LoadingContainer>
+                            }
                         </ViewContent>
                     </View>
                     {isResourceFormOpen && !serviceConfig?.triggerModel &&
@@ -229,6 +319,6 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                     }
                 </div>
             }
-        </ContextProvider>
+        </ContextProvider >
     )
 }
