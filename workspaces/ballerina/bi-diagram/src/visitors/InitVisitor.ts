@@ -21,7 +21,16 @@ export class InitVisitor implements BaseVisitor {
     }
 
     private getDefaultViewState(): ViewState {
-        return { x: 0, y: 0, w: 0, h: 0, cw: 0, ch: 0 };
+        return { 
+            x: 0, 
+            y: 0, 
+            lw: 0, 
+            rw: 0,
+            h: 0, 
+            clw: 0,
+            crw: 0,
+            ch: 0 
+        };
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
