@@ -261,7 +261,7 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                             />
                             {triggerModel?.service?.functions?.some((func) => !func.enabled) && <Divider />}
                             {(
-                                triggerModel.service.functions.filter((func) => !func.enabled).map((func, index) => (
+                                triggerModel?.service.functions.filter((func) => !func.enabled).map((func, index) => (
                                     <AccordionContainer key={index}>
                                         <AccordionHeader>
                                             <MethodSection>
