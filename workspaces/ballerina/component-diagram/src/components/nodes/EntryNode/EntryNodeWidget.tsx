@@ -66,6 +66,11 @@ export namespace NodeStyles {
         svg {
             fill: ${Colors.ON_SURFACE};
         }
+        > div:first-child {
+            width: 32px;
+            height: 32px;
+            font-size: 28px;
+        }
     `;
 
     export const Title = styled(StyledText) <NodeStyleProp>`

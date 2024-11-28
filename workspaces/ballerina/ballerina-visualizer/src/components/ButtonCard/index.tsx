@@ -62,6 +62,12 @@ const IconContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    max-width: 32px;
+    > div:first-child {
+        width: 32px;
+        height: 32px;
+        font-size: 28px;
+    }
 `;
 
 const ActionButton = styled(LinkButton)`

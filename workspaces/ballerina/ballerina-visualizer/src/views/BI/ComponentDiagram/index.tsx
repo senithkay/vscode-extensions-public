@@ -15,6 +15,7 @@ import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
 import { URI } from "vscode-uri";
+import { getEntryNodeIcon } from "../ComponentListView";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -173,7 +174,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 type: "service",
                 label: service.triggerNode.properties?.name?.value,
                 description: service.triggerNode.name,
-                icon: <img src={service.triggerNode.icon} alt={service.name} />,
+                icon: getEntryNodeIcon(service.triggerNode),
                 location: {
                     filePath: service.path,
                     position: service.position,

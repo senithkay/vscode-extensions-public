@@ -7,15 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, BallerinaTrigger, Category, Item, TriggerModelsResponse, TriggerNode, Triggers } from "@wso2-enterprise/ballerina-core";
+import { TriggerModelsResponse, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
-import { cloneDeep, debounce } from "lodash";
+import { ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
+import { debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
 import { useVisualizerContext } from "../../../../Context";
+import { getEntryNodeIcon } from "../../ComponentListView";
 
 const Container = styled.div`
     padding: 0 20px;
@@ -144,17 +145,7 @@ export function TriggerView(props: TriggerViewProps) {
                                     caption={`v${item.version}`}
                                     title={item.name}
                                     description={`${item.orgName}/${item.packageName}`}
-                                    icon={
-                                        item.icon ? (
-                                            <img
-                                                src={item.icon}
-                                                alt={item.name}
-                                                style={{ width: "40px" }}
-                                            />
-                                        ) : (
-                                            <Codicon name="mail" />
-                                        )
-                                    }
+                                    icon={getEntryNodeIcon(item)}
                                     onClick={() => {
                                         onTriggerSelect(item);
                                     }}

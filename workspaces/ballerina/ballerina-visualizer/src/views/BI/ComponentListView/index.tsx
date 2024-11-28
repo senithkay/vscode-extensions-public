@@ -16,8 +16,6 @@ import { BIHeader } from "../BIHeader";
 import ButtonCard from "../../../components/ButtonCard";
 import { BodyText } from "../../styles";
 import { useVisualizerContext } from "../../../Context";
-import { SERVICE_VIEW } from "../ServiceForm/constants";
-import TriggerWizard from "../Trigger/AddTriggerWizard";
 import ServiceConfigView from "../Trigger/ServiceConfigView";
 import PullingModuleLoader from "../../Connectors/PackageLoader/Loader";
 import { Colors } from "../../../resources/constants";
@@ -224,19 +222,19 @@ export function ComponentListView() {
                                 </BodyText>
                                 <CardGrid>
                                     <ButtonCard
-                                        icon={<Icon name="bi-http-service" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-http-service"  />}
                                         title="HTTP Service"
                                         description="Handle web requests and responses."
                                         onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                                     />
                                     <ButtonCard
-                                        icon={<Codicon name="graph-scatter" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-graphql"  />}
                                         title="GraphQL Service"
                                         description="Flexible and efficient data queries."
                                         onClick={() => setPopupMessage(true)}
                                     />
                                     <ButtonCard
-                                        icon={<Codicon name="symbol-interface" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-grpc"  />}
                                         title="gRPC Service"
                                         description="High-performance, cross-platform communication."
                                         onClick={() => setPopupMessage(true)}
@@ -256,17 +254,7 @@ export function ComponentListView() {
                                                 key={item.id}
                                                 title={item.name}
                                                 description={`${item.orgName}/${item.moduleName}`}
-                                                icon={
-                                                    item.icon ? (
-                                                        <img
-                                                            src={item.icon}
-                                                            alt={item.name}
-                                                            style={{ width: "40px" }}
-                                                        />
-                                                    ) : (
-                                                        <Codicon name="mail" />
-                                                    )
-                                                }
+                                                icon={getEntryNodeIcon(item)}
                                                 onClick={() => {
                                                     handleOnSelect(item);
                                                 }}
@@ -318,7 +306,7 @@ export function ComponentListView() {
                                 </BodyText>
                                 <CardGrid>
                                     <ButtonCard
-                                        icon={<Icon name="bi-task" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-task" />}
                                         title="Automation"
                                         description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
                                         onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
@@ -333,25 +321,25 @@ export function ComponentListView() {
                                 </BodyText>
                                 <CardGrid>
                                     <ButtonCard
-                                        icon={<Icon name="bi-connection" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-connection"  />}
                                         title="Connections"
                                         description="Set up external service connections, like databases and APIs."
                                         onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-type" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-type"  />}
                                         title="Types"
                                         description="Define and manage data types with JSON schema."
                                         onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-config" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-config"  />}
                                         title="Configurations"
                                         description="Handle environment variables and secrets for your project."
                                         onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-function" sx={{ width: "40px" }} iconSx={{ fontSize: "40px" }} />}
+                                        icon={<Icon name="bi-function"  />}
                                         title="Functions"
                                         description="Create reusable functions to streamline your integration logic."
                                         onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
@@ -363,5 +351,35 @@ export function ComponentListView() {
                 }
             </ViewContent>
         </View>
+    );
+}
+
+
+// INFO: This is a temporary function to get the custom icon for the entry points.
+// TODO: This should be removed once the new icons are added to the BE API.
+export function getCustomEntryNodeIcon(type: string) {
+    switch (type) {
+        case "kafka":
+            return <Icon name="bi-kafka" />;
+        case "rabbitmq":
+            return <Icon name="bi-rabbitmq" />;
+        case "nats":
+            return <Icon name="bi-nats" />;
+        case "mqtt":
+            return <Icon name="bi-mqtt" />;
+        case "grpc":
+            return <Icon name="bi-grpc" />;
+        case "graphql":
+            return <Icon name="bi-graphql" />;
+        case "java.jms":
+            return <Icon name="bi-java" />;
+        default:
+            return null;
+    }
+}
+// TODO: This should be removed once the new icons are added to the BE API.
+export function getEntryNodeIcon(item: TriggerNode) {
+    return (
+        getCustomEntryNodeIcon(item.moduleName) || <img src={item.icon} alt={item.name} style={{ width: "40px" }} />
     );
 }
