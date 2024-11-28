@@ -30,12 +30,13 @@ import { ServiceDesigner } from "./views/ServiceDesigner";
 import {
     WelcomeView,
     ProjectForm,
-    AddComponentView,
+    ComponentListView,
     ServiceForm,
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView
+    SetupView,
+    ServiceHttpForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -212,10 +213,10 @@ const MainPanel = () => {
                         setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.BIComponentView:
-                        setViewComponent(<AddComponentView />);
+                        setViewComponent(<ComponentListView />);
                         break;
                     case MACHINE_VIEW.BIServiceForm:
-                        setViewComponent(<ServiceForm />);
+                        setViewComponent(<ServiceHttpForm />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         rpcClient.getVisualizerLocation().then((location) => {

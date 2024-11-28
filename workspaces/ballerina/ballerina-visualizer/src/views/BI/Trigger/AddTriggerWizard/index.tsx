@@ -55,7 +55,6 @@ export function TriggerWizard(props: TriggerWizardProps) {
     const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
 
     const [trigger, setTrigger] = useState<TriggerNode>(undefined);
-    const [triggerConfigStep, setTriggerConfigStep] = useState<number>(0);
 
     const handleOnSelect = async (trigger: TriggerNode) => {
         if (!trigger) {
@@ -68,11 +67,6 @@ export function TriggerWizard(props: TriggerWizardProps) {
         setTrigger(response.trigger);
     };
 
-    const handleListenerFormSubmit = async (trigger: TriggerNode) => {
-        setTrigger(trigger);
-        setTriggerConfigStep(1);
-    };
-
     const handleServiceFormSubmit = async (trigger: TriggerNode) => {
         setIsPullingConnector(true);
         await rpcClient.getTriggerWizardRpcClient().getTriggerSourceCode({ filePath: "", trigger });
@@ -81,11 +75,6 @@ export function TriggerWizard(props: TriggerWizardProps) {
 
     const handleOnClose = () => {
         setCurrentView(TriggerWizardPage.TRIGGER_LIST);
-        setTriggerConfigStep(0);
-    };
-
-    const handleOnBack = () => {
-        setTriggerConfigStep(0);
     };
 
     return (
@@ -114,7 +103,7 @@ export function TriggerWizard(props: TriggerWizardProps) {
                             <ServiceConfigView
                                 triggerNode={trigger}
                                 onSubmit={handleServiceFormSubmit}
-                                onBack={handleOnBack}
+                                onBack={handleOnClose}
                             />
                         </>
                     )}

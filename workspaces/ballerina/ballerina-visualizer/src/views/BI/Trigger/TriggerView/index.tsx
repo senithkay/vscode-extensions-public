@@ -113,7 +113,7 @@ export function TriggerView(props: TriggerViewProps) {
 
     return (
         <Container>
-            <Typography variant="h2">Select a Trigger</Typography>
+            <Typography variant="h2">Event Integrations</Typography>
             <BodyText>
                 Select a trigger to integrate. Use search to quickly find the right one.
             </BodyText>

@@ -356,10 +356,10 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
 
 export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPCClients, isBI: boolean, handleResourceEdit: (resource: Resource) => Promise<void>, handleResourceDelete: (resource: Resource) => Promise<void>, serviceFilePath: string): Promise<Service> {
     const serviceData: Service = await getServiceData(serviceDecl, rpcClient, serviceFilePath);
-    let canEdit = true;
-    if (serviceDecl?.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
-        canEdit = false;
-    }
+    // let canEdit = true;
+    // if (serviceDecl?.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
+    //     canEdit = false;
+    // }
     const resources: Resource[] = [];
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
@@ -383,20 +383,20 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPC
         }
         if (STKindChecker.isObjectMethodDefinition(member)) {
             const resource = await getFunction(member, rpcClient, isBI);
-            const editAction: Item = {
-                id: "edit",
-                label: "Edit",
-                onClick: () => handleResourceEdit(resource),
-            };
-            const deleteAction: Item = {
-                id: "delete",
-                label: "Delete",
-                onClick: () => handleResourceDelete(resource),
-            };
-            const moreActions: Item[] = [editAction, deleteAction];
-            if (canEdit) {
-                resource.additionalActions = moreActions;
-            }
+            // const editAction: Item = {
+            //     id: "edit",
+            //     label: "Edit",
+            //     onClick: () => handleResourceEdit(resource),
+            // };
+            // const deleteAction: Item = {
+            //     id: "delete",
+            //     label: "Delete",
+            //     onClick: () => handleResourceDelete(resource),
+            // };
+            // const moreActions: Item[] = [editAction, deleteAction];
+            // if (canEdit) {
+            //     resource.additionalActions = moreActions;
+            // }
             resources.push(resource);
         }
     }

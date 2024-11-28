@@ -152,7 +152,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
         serviceDesignerRpcClient.exportOASFile({});
     };
 
-    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayName} Service` : `Service ${serviceConfig?.path}`;
+    const name = serviceConfig?.triggerModel?.properties['name'].value;
+    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayName} - ${name} Service` : `Service ${serviceConfig?.path}`;
     const showAddNew = serviceConfig?.triggerModel ? (serviceConfig.triggerModel?.service as ServiceType).functions.some((res) => !res.enabled) : !isEditingDisabled;
 
     return (
@@ -178,10 +179,10 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                             }
                         </ViewHeader>
                         <ServiceHeader>
-                            {serviceConfig?.serviceType && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">{serviceConfig?.serviceType}</Typography>}
+                            {/* {serviceConfig?.serviceType && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">{serviceConfig?.serviceType}</Typography>} */}
                             {isEditingDisabled && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">This is generated from {serviceConfig?.path} contract</Typography>}
                             {serviceConfig?.port && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Listening on: {serviceConfig.port}</Typography>}
-                            {serviceConfig?.listener && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Remote Endpoint: {serviceConfig.listener}</Typography>}
+                            {/* {serviceConfig?.listener && <Typography sx={{ marginBlockEnd: 10 }} variant="caption">Remote Endpoint: {serviceConfig.listener}</Typography>} */}
                         </ServiceHeader>
                         <ViewContent padding>
                             <ServiceDesigner
@@ -189,6 +190,8 @@ export function ServiceDesignerView(props: ServiceDesignerProps) {
                                 model={serviceConfig}
                                 onResourceClick={handleGoToSource}
                                 disableServiceHeader={props.isBI}
+                                onResourceEdit={handleResourceEdit}
+                                onResourceDelete={handleResourceDelete}
                             />
                         </ViewContent>
                     </View>
