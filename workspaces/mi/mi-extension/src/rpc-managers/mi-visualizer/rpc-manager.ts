@@ -40,7 +40,10 @@ import {
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    PomDetailsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -58,6 +61,7 @@ import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
 import { COMMANDS } from '../../constants';
+import { Range } from "../../../../syntax-tree/lib/src";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -85,6 +89,48 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
+
+            // const res1 = await this.getPomDetails();
+            resolve(res);
+        });
+    }
+
+    async getOverviewPageDetails(): Promise<PomDetailsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getOverviewPageDetails();
+            resolve(res);
+        });
+    }
+
+    async removeContentFromPomXml(params: Range): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.removeContentFromPomXml(params);
+            resolve(res);
+        });
+    }
+
+    async addContentToPomXml(params: PomXmlEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.addContentToPomXml(params);
+            resolve(res);
+        });
+    }
+
+    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updatePomValue(params);
+            resolve(res);
+        });
+    }
+
+    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConfigFileValue(params);
             resolve(res);
         });
     }

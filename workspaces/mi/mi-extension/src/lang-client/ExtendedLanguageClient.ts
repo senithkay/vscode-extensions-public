@@ -40,7 +40,9 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSQueryGenResponse
+    DSSQueryGenResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -281,6 +283,26 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getProjectExplorerModel(path: string): Promise<any> {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
+    }
+
+    async removeContentFromPomXml(range: Range): Promise<string> {
+        return this.sendRequest('synapse/removeContentFromPomXml', range);
+    }
+
+    async addContentToPomXml(req: PomXmlEditRequest): Promise<string> {
+        return this.sendRequest('synapse/addContentToPomXml', req);
+    }
+
+    async updatePomValue(req: PomXmlEditRequest): Promise<string> {
+        return this.sendRequest('synapse/updatePomValue', req);
+    }
+
+    async updateConfigFileValue(req: ConfigFileEditRequest): Promise<string> {
+        return this.sendRequest('synapse/updateConfigFileValue', req);
+    }
+
+    async getOverviewPageDetails(): Promise<any> {
+        return this.sendRequest('synapse/getOverviewPageDetails');
     }
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {

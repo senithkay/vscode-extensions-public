@@ -14,6 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import styled from "@emotion/styled";
+import { Range } from '../../../../syntax-tree/lib/src';
 
 
 type InputsFields = {
@@ -108,6 +109,28 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     const handleCancel = () => {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
+
+    const getOverviewPageDetails = () => {
+        rpcClient.getMiVisualizerRpcClient().getOverviewPageDetails();
+    };
+
+    const removeContentFromPomXml = (params: Range) => {
+        rpcClient.getMiVisualizerRpcClient().removeContentFromPomXml(params);
+    };
+
+    const addContentToPomXml = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().addContentToPomXml(params);
+    };
+
+    const updatePomValue = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().updatePomValue(params);
+    };
+
+    const updateConfigFileValue = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().updateConfigFileValue(params);
+    };
+
+
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();

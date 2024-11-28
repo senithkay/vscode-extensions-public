@@ -8,6 +8,7 @@
  */
 import { HistoryEntry } from "../../history";
 import { AIVisualizerLocation, EVENT_TYPE, POPUP_EVENT_TYPE, PopupVisualizerLocation, VisualizerLocation } from "../../state-machine-types";
+import { Range as STRange } from "../../../../syntax-tree/lib/src"
 
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
@@ -78,6 +79,51 @@ export interface ProjectStructureArtifactResponse {
     name: string;
     path: string;
     type: string;
+}
+
+export interface PomDetailsResponse {
+    runtimeVersion: PomNodeDetails;
+    projectGroupId: PomNodeDetails;
+    projectArtifactId: PomNodeDetails;
+    projectVersion: PomNodeDetails;
+    projectDescription: PomNodeDetails;
+    projectName: PomNodeDetails;
+    projectBuildPluginVersion: PomNodeDetails;
+    keyStoreType: PomNodeDetails;
+    miContainerPluginVersion: PomNodeDetails;
+    unitTestPluginVersion: PomNodeDetails;
+    keyStoreName: PomNodeDetails;
+    keyStorePassword: PomNodeDetails;
+    keyStoreAlias: PomNodeDetails;
+    cipherToolEnable: PomNodeDetails;
+    dockerFileBaseImage: PomNodeDetails;
+    dockerName: PomNodeDetails;
+    serverPath: PomNodeDetails;
+    serverPort: PomNodeDetails;
+    serverVersion: PomNodeDetails;
+    serverHost: PomNodeDetails;
+    serverType: PomNodeDetails;
+    skipTest: PomNodeDetails;
+    connectorDependencies: {[key:string]:PomNodeDetails}[];
+    otherDependencies: {[key:string]:PomNodeDetails}[];
+    lastDependencyEndTagRange: STRange;
+}
+
+export interface PomNodeDetails {
+    value: string;
+    range: STRange;
+    ranges: STRange[];
+}
+
+export interface PomXmlEditRequest {
+    value: string;
+    range: STRange|STRange[];
+}
+
+export interface ConfigFileEditRequest {
+    key: string;
+    value: string;
+    range: STRange;
 }
 
 export interface DataIntegrationResponse {

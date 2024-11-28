@@ -217,7 +217,10 @@ import {
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
-    RegistryArtifact
+    RegistryArtifact,
+    PomDetailsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -231,6 +234,7 @@ import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import { remove } from 'fs-extra';
 import * as vscode from 'vscode';
+import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
@@ -308,7 +312,56 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
+            const res1 = await this.getOverviewPageDetails();
+            // Access the first element of `connectorDependencies`
+            const firstElement = res1.connectorDependencies[0]; // Type: { [key: string]: PomNodeDetails }
 
+            // To access a specific `PomNodeDetails`, you need to use the key
+            const firstPomNodeDetail = firstElement["fullRange"].range; // Replace "key1" with the actual key
+            console.log(firstPomNodeDetail);
+
+            const res2 = await this.removeContentFromPomXml(firstPomNodeDetail);
+            console.log(res2);
+            resolve(res);
+        });
+    }
+
+    async getOverviewPageDetails(): Promise<PomDetailsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getOverviewPageDetails();
+            resolve(res);
+        });
+    }
+
+    async removeContentFromPomXml(params: syntaxTree.Range): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.removeContentFromPomXml(params);
+            resolve(res);
+        });
+    }
+
+    async addContentToPomXml(params: PomXmlEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.addContentToPomXml(params);
+            resolve(res);
+        });
+    }
+
+    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updatePomValue(params);
+            resolve(res);
+        });
+    }
+
+    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConfigFileValue(params);
             resolve(res);
         });
     }

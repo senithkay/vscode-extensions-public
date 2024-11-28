@@ -29,8 +29,13 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     ProjectOverviewResponse,
+    PomDetailsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
+import { Range } from "../../../../syntax-tree/lib/src";
+
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
@@ -63,4 +68,9 @@ export interface MIVisualizerAPI {
     setMIHomeForMIVersion: (params: string) => Promise<boolean>;
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
+    getOverviewPageDetails: () => Promise<PomDetailsResponse>;
+    removeContentFromPomXml: (params: Range) => Promise<string>;
+    addContentToPomXml: (params: PomXmlEditRequest) => Promise<string>;
+    updatePomValue: (params: PomXmlEditRequest) => Promise<string>;
+    updateConfigFileValue: (params: ConfigFileEditRequest) => Promise<string>;
 }

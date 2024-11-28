@@ -63,10 +63,19 @@ import {
     isJavaHomeSet,
     isMISet,
     toggleDisplayOverview,
-    updateContext
+    updateContext,
+    getOverviewPageDetails,
+    removeContentFromPomXml,
+    PomDetailsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
+    addContentToPomXml,
+    updatePomValue,
+    updateConfigFileValue
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
+import { Range } from '../../../../syntax-tree/lib/src';
 
 export class MiVisualizerRpcClient implements MIVisualizerAPI {
     private _messenger: Messenger;
@@ -194,5 +203,20 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     isMISet(): Promise<boolean> {
         return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
+    }
+    getOverviewPageDetails(): Promise<PomDetailsResponse> {
+        return this._messenger.sendRequest(getOverviewPageDetails, HOST_EXTENSION);
+    }
+    removeContentFromPomXml(params: Range): Promise<string> {
+        return this._messenger.sendRequest(removeContentFromPomXml, HOST_EXTENSION, params);
+    }
+    addContentToPomXml(params: PomXmlEditRequest): Promise<string> {
+        return this._messenger.sendRequest(addContentToPomXml, HOST_EXTENSION, params);
+    }
+    updatePomValue(params: PomXmlEditRequest): Promise<string> {
+        return this._messenger.sendRequest(updatePomValue, HOST_EXTENSION, params);
+    }
+    updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+        return this._messenger.sendRequest(updateConfigFileValue, HOST_EXTENSION, params);
     }
 }
