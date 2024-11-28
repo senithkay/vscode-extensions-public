@@ -215,7 +215,7 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                         if (STKindChecker.isServiceDeclaration(member) && member.metadata.source.includes(identifier)) {
                             position = member.position;
                         }
-                    })
+                    });
                     writeFileSync(request.filePath, source);
                     await StateMachine.langClient().didChange({
                         textDocument: { uri: fileUriString, version: 1 },
@@ -258,6 +258,8 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
             const context = StateMachine.context();
             try {
                 const res: TriggerFunctionResponse = await context.langClient.addTriggerFunction(params);
+                await this.updateSource(res);
+                updateView();
                 resolve(res);
             } catch (error) {
                 console.log(error);
