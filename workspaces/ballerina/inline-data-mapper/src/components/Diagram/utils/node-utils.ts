@@ -9,15 +9,13 @@
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { InputNode } from "../Node";
 
-export function findInputNode(inputs: string[], outputNode: DataMapperNodeModel): InputNode {
+export function findInputNode(field: string, outputNode: DataMapperNodeModel): InputNode {
     const nodes = outputNode.getModel().getNodes();
 
     const inputNode = nodes.find(node => {
         if (node instanceof InputNode) {
-            return inputs.some(input => {
-                const mappingStartsWith = input.split('.')[0];
-                return node.inputType.id === mappingStartsWith;
-            });
+            const mappingStartsWith = field.split('.')[0];
+            return node.inputType.id === mappingStartsWith;
 
         }
     });

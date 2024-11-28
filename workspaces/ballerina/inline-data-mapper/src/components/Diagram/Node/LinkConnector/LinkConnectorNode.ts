@@ -59,7 +59,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.addPort(this.outPort);
 
         this.mapping.inputs.forEach((field) => {
-            const inputNode = findInputNode(this.mapping.inputs, this);
+            const inputNode = findInputNode(field, this);
             if (inputNode) {
                 const inputPort = getInputPort(inputNode, field);
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {

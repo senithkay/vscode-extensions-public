@@ -66,7 +66,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 if (this.filteredOutputType.fields.length) {
                     this.filteredOutputType.fields.forEach(field => {
                         this.addPortsForOutputField(
-                            field, "IN", this.rootName, this.context.model.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                            field, "IN", this.context.model.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
                             parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                         );
                     });
@@ -88,7 +88,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 return;
             }
 
-            const inputNode = findInputNode(mapping.inputs, this);
+            const inputNode = findInputNode(mapping.inputs[0], this);
             let inPort: InputOutputPortModel;
             if (inputNode) {
                 inPort = getInputPort(inputNode, mapping.inputs[0]);

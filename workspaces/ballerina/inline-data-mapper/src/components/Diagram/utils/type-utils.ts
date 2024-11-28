@@ -13,7 +13,7 @@ export function getTypeName(fieldType: IOType): string {
 		return '';
 	}
 
-    let typeName = fieldType?.variableName || fieldType.kind;
+    let typeName = fieldType?.typeName || fieldType.kind;
 
     if (fieldType.kind === TypeKind.Array && fieldType.memberType) {
 		typeName = `${getTypeName(fieldType.memberType)}[]`;
