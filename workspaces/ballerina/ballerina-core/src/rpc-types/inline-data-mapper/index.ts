@@ -8,12 +8,13 @@
  */
 import {
     InlineDataMapperModelRequest,
+    InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse
 } from "../../interfaces/extended-lang-client";
 import { IDMModel } from "../../interfaces/inline-data-mapper";
 
 export interface InlineDataMapperAPI {
-    getDataMapperModel: (params: InlineDataMapperModelRequest) => Promise<IDMModel>;
+    getDataMapperModel: (params: InlineDataMapperModelRequest) => Promise<InlineDataMapperModelResponse>;
     getDataMapperSource: (params: InlineDataMapperSourceRequest) => Promise<InlineDataMapperSourceResponse>;
 }

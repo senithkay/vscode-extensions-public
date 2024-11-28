@@ -12,6 +12,7 @@ import {
     IDMModel,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
+    InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse
 } from "@wso2-enterprise/ballerina-core";
@@ -19,13 +20,13 @@ import {
 import { StateMachine } from "../../stateMachine";
 
 export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
-    async getDataMapperModel(params: InlineDataMapperModelRequest): Promise<IDMModel> {
+    async getDataMapperModel(params: InlineDataMapperModelRequest): Promise<InlineDataMapperModelResponse> {
         return new Promise(async (resolve) => {
             const dataMapperModel = await StateMachine
                 .langClient()
                 .getInlineDataMapperMappings(params);
 
-            resolve(dataMapperModel as IDMModel);
+            resolve(dataMapperModel as InlineDataMapperModelResponse);
         });
     }
 

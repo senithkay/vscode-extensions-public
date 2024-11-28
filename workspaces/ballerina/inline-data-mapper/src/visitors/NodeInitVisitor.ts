@@ -31,7 +31,7 @@ export class NodeInitVisitor implements BaseVisitor {
 
     beginVisitOutputType(node: IOType, parent?: IDMModel): void {
         // Create output node
-        if (node.type.typeName === TypeKind.Record) {
+        if (node.kind === TypeKind.Record) {
             this.outputNode = new ObjectOutputNode(this.context, node);
         }
         // TODO: Handle other types

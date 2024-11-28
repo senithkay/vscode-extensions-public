@@ -41,7 +41,7 @@ export const useInlineDataMapperModel = (
             const res = await rpcClient
                 .getInlineDataMapperRpcClient()
                 .getDataMapperModel({ filePath, flowNode, propertyKey, position });
-            return res;
+            return res.mappingsModel;
         } catch (error) {
             console.error(error);
             throw error;
@@ -56,29 +56,4 @@ export const useInlineDataMapperModel = (
     } = useQuery(['getIDMModel', { filePath, flowNode, position }], () => getIDMModel(), { networkMode: 'always' });
 
     return {model, isFetching, isError, refetch};
-};
-
-
-export const useIOTypes = (filePath: string, position: LinePosition) => {
-    const { rpcClient } = useRpcContext();
-    const getIOTypes = async () => {
-        try {
-            const res = await rpcClient
-                .getInlineDataMapperRpcClient()
-                .getIOTypes({ filePath, position });
-            return res;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    }
-
-    const {
-        data: dmIOTypes,
-        isFetching: isFetchingIOTypes,
-        isError: isIOTypeError,
-        refetch
-    } = useQuery(['getIOTypes', { filePath }], () => getIOTypes(), { networkMode: 'always' });
-
-    return {dmIOTypes, isFetchingIOTypes, isIOTypeError, refetch};
 };

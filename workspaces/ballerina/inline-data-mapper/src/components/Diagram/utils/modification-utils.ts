@@ -18,7 +18,7 @@ export async function createNewMapping(link: DataMapperLinkModel) {
 
 	const outputPortModel = targetPort as InputOutputPortModel;
 	const targetNode = outputPortModel.getNode() as DataMapperNodeModel;
-	const mappings = targetNode.context.model.mappings;
+	const { mappings } = targetNode.context.model;
 	const input = (link.getSourcePort() as InputOutputPortModel).optionalOmittedFieldFQN;
 
 	const newMapping = {
@@ -27,9 +27,9 @@ export async function createNewMapping(link: DataMapperLinkModel) {
 		expression: input
 	};
 
-	mappings.mappings.push(newMapping);
+	mappings.push(newMapping);
 
-	return await targetNode.context.applyModifications(mappings.mappings);
+	return await targetNode.context.applyModifications(mappings);
 }
 
 export async function updateExistingMapping(link: DataMapperLinkModel) {
@@ -40,10 +40,10 @@ export async function updateExistingMapping(link: DataMapperLinkModel) {
 
 	const outputPortModel = targetPort as InputOutputPortModel;
 	const targetNode = outputPortModel.getNode() as DataMapperNodeModel;
-	const mappings = targetNode.context.model.mappings;
+	const { mappings } = targetNode.context.model;
 	const input = (link.getSourcePort() as InputOutputPortModel).optionalOmittedFieldFQN;
 
-	const updatedMappings = mappings.mappings.map(mapping => {
+	const updatedMappings = mappings.map(mapping => {
 		const portNameParts = outputPortModel.portName.split('.');
 		const portId = portNameParts.slice(1).join('.');
 		if (mapping.output === portId) {

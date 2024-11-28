@@ -121,7 +121,8 @@ import {
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
     IDMModel,
-    InlineDataMapperSourceResponse
+    InlineDataMapperSourceResponse,
+    InlineDataMapperModelResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -465,8 +466,8 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<VisibleVariableTypes>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
     }
 
-    async getInlineDataMapperMappings(params: InlineDataMapperModelRequest): Promise<IDMModel | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<IDMModel>(EXTENDED_APIS.DATA_MAPPER_MAPPINGS, params);
+    async getInlineDataMapperMappings(params: InlineDataMapperModelRequest): Promise<InlineDataMapperModelResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperModelResponse>(EXTENDED_APIS.DATA_MAPPER_MAPPINGS, params);
     }
 
     async getInlineDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {

@@ -17,7 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
-import { Mapping } from "./inline-data-mapper";
+import { IDMModel, Mapping } from "./inline-data-mapper";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -273,6 +273,10 @@ export interface InlineDataMapperModelRequest {
 
 export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequest {
     mappings: Mapping[];
+}
+
+export interface InlineDataMapperModelResponse {
+    mappingsModel: IDMModel;
 }
 
 export interface InlineDataMapperSourceResponse {

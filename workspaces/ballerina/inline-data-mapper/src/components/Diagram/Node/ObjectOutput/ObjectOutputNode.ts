@@ -59,14 +59,14 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     
             const parentPort = this.addPortsForHeader(
                 this.filteredOutputType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                this.context.model.mappings.mappings, collapsedFields, this.isMapFn
+                this.context.model.mappings, collapsedFields, this.isMapFn
             );
     
-            if (this.filteredOutputType.type.typeName === TypeKind.Record) {
-                if (this.filteredOutputType.type.fields.length) {
-                    this.filteredOutputType.type.fields.forEach(field => {
+            if (this.filteredOutputType.kind === TypeKind.Record) {
+                if (this.filteredOutputType.fields.length) {
+                    this.filteredOutputType.fields.forEach(field => {
                         this.addPortsForOutputField(
-                            field, "IN", this.rootName, this.context.model.mappings.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                            field, "IN", this.rootName, this.context.model.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
                             parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
                         );
                     });
@@ -77,7 +77,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     initLinks(): void {
         const searchValue = useDMSearchStore.getState().outputSearch;
-        this.filterdMappings = getFilteredMappings(this.context.model.mappings.mappings, searchValue);
+        this.filterdMappings = getFilteredMappings(this.context.model.mappings, searchValue);
         this.createLinks(this.filterdMappings);
     }
 

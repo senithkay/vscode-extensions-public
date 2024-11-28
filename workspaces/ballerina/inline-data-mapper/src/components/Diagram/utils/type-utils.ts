@@ -6,27 +6,26 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IOType, Type, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 
-export function getTypeName(fieldType: IOType | Type): string {
+export function getTypeName(fieldType: IOType): string {
 	if (!fieldType) {
 		return '';
 	}
 
-    const type = 'type' in fieldType ? fieldType.type : fieldType;
-    let typeName = type?.name || type.typeName;
+    let typeName = fieldType?.variableName || fieldType.kind;
 
-    if (type.typeName === TypeKind.Array && type.memberType) {
-		typeName = `${getTypeName(type.memberType)}[]`;
+    if (fieldType.kind === TypeKind.Array && fieldType.memberType) {
+		typeName = `${getTypeName(fieldType.memberType)}[]`;
 	}
 
 	return typeName;
 }
 
-export function getDMTypeDim(fieldType: IOType | Type) {
+export function getDMTypeDim(fieldType: IOType) {
     let dim = 0;
-    let currentType = 'type' in fieldType ? fieldType.type : fieldType;
-    while (currentType.typeName === TypeKind.Array) {
+    let currentType = fieldType;
+    while (currentType.kind === TypeKind.Array) {
         dim++;
         currentType = currentType.memberType;
     }

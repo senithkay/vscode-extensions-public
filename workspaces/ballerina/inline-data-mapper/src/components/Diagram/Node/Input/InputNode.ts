@@ -43,8 +43,8 @@ export class InputNode extends DataMapperNodeModel {
                 this.inputType, this.identifier, "OUT", undefined, undefined, collapsedFields
             );
 
-            if (this.inputType.type.typeName === TypeKind.Record) {
-                const fields = this.inputType.type.fields;
+            if (this.inputType.kind === TypeKind.Record) {
+                const fields = this.inputType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
                         subField, "OUT", this.identifier, this.identifier, '',
@@ -54,7 +54,7 @@ export class InputNode extends DataMapperNodeModel {
             } else {
                 this.addPortsForInputField(
                     this.inputType, "OUT", this.identifier, this.identifier,  '',
-                    parentPort, collapsedFields, parentPort.collapsed, this.inputType.type.optional
+                    parentPort, collapsedFields, parentPort.collapsed, this.inputType.optional
                 );
             }
         }

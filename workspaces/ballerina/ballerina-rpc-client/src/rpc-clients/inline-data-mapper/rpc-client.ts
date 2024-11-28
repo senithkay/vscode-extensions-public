@@ -12,6 +12,7 @@ import {
     IDMModel,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
+    InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse,
     getDataMapperModel,
@@ -27,7 +28,7 @@ export class InlineDataMapperRpcClient implements InlineDataMapperAPI {
         this._messenger = messenger;
     }
 
-    getDataMapperModel(params: InlineDataMapperModelRequest): Promise<IDMModel> {
+    getDataMapperModel(params: InlineDataMapperModelRequest): Promise<InlineDataMapperModelResponse> {
         return this._messenger.sendRequest(getDataMapperModel, HOST_EXTENSION, params);
     }
 

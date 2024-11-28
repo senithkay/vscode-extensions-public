@@ -8,7 +8,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { IOType, Mapping, Type, TypeKind } from '@wso2-enterprise/ballerina-core';
+import { IOType, Mapping, TypeKind } from '@wso2-enterprise/ballerina-core';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
@@ -46,7 +46,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 
 	protected addPortsForInputField(
-		field: Type | IOType,
+		field: IOType,
 		portType: "IN" | "OUT",
 		parentId: string,
 		unsafeParentId: string,
@@ -57,8 +57,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		isOptional?: boolean
 	): number {
 
-		const type = 'type' in field ? field.type : field;
-		const fieldName = type.name;
+		const fieldName = field.variableName;
 
 		const fieldFQN = parentId
 			? `${parentId}${fieldName && isOptional
@@ -78,8 +77,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		this.addPort(fieldPort);
 
 		let numberOfFields = 1;
-		if (type.typeName === TypeKind.Record) {
-			const fields = type?.fields;
+		if (field.kind === TypeKind.Record) {
+			const fields = field?.fields;
 
 			if (fields && !!fields.length) {
 				fields.forEach(subField => {
@@ -94,7 +93,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputField(
-		field: Type,
+		field: IOType,
 		type: "IN" | "OUT",
 		parentId: string,
 		mappings: Mapping[],
@@ -104,19 +103,19 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		hidden?: boolean,
 		isWithinMapFunction?: boolean
 	) {
-		const fieldName = field?.name || '';
+		const fieldName = field?.variableName || '';
 		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const mapping = findMappingByOutput(mappings, fieldFQN);
 
 		const fieldPort = new InputOutputPortModel(
-			field, portName, type, mapping, field.name, field.name,
+			field, portName, type, mapping, field.variableName, field.variableName,
 			parent, isCollapsed, hidden, false, false, isWithinMapFunction
 		);
 		this.addPort(fieldPort);
 
-		if (field.typeName === TypeKind.Record) {
+		if (field.kind === TypeKind.Record) {
 			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
@@ -125,7 +124,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					);
 				});
 			}
-		} else if (field.typeName === TypeKind.Array) {
+		} else if (field.kind === TypeKind.Array) {
 			// const elements: ArrayElement[] = field?.memberType?.elements;
 			// if (elements && !!elements.length) {
 			// 	elements.forEach((element, index) => {

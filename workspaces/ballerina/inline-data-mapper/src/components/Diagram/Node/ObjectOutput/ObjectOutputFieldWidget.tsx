@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import { Type, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -23,7 +23,7 @@ import { getTypeName } from "../../utils/type-utils";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
-    field: Type;
+    field: IOType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
     parentObjectLiteralExpr: Node;
@@ -53,12 +53,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
-    let fieldName = field.name || '';
+    let fieldName = field.variableName || '';
     let indentation = treeDepth * 16;
     let expanded = true;
 
     const typeName = getTypeName(field);
-    const typeKind = field.typeName;
+    const typeKind = field.kind;
     const isArray = typeKind === TypeKind.Array;
     const isRecord = typeKind === TypeKind.Record;
 
@@ -112,7 +112,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     }
 
     if (isWithinArray) {
-        const elementName = fieldName || field?.name;
+        const elementName = fieldName || field?.variableName;
         fieldName = elementName ? `${elementName}Item` : 'item';
     }
 

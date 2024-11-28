@@ -14,8 +14,7 @@ import { InputOutputPortModel } from "../Port";
 export function isSourcePortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
         const field = port.field;
-        const type = 'type' in field ? field.type : field;
-        return type.typeName === TypeKind.Array;
+        return field.kind === TypeKind.Array;
     }
     return false;
 }
@@ -23,8 +22,7 @@ export function isSourcePortArray(port: PortModel): boolean {
 export function isTargetPortArray(port: PortModel): boolean {
     if (port instanceof InputOutputPortModel) {
         const field = port.field;
-        const type = 'type' in field ? field.type : field;
-        return type.typeName === TypeKind.Array;
+        return field.kind === TypeKind.Array;
     }
     return false;
 }
