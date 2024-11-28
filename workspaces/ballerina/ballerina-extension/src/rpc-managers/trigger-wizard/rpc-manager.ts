@@ -157,9 +157,10 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                     writeFileSync(targetFile, '');
                 }
                 const res: TriggerSourceCodeResponse = await context.langClient.getTriggerSourceCode(params);
-                await this.updateSource(res);
+                const identifier = params.trigger.properties['name'].value;
+                const position = await this.updateSource(res, identifier);
                 commands.executeCommand("BI.project-explorer.refresh");
-                openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Overview });
+                openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position });
                 resolve(res);
             } catch (error) {
                 console.log(error);
@@ -167,9 +168,9 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
         });
     }
 
-    private async updateSource(params: TriggerSourceCodeResponse): Promise<void> {
+    private async updateSource(params: TriggerSourceCodeResponse, identifier?: string,): Promise<NodePosition> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
-
+        let position: NodePosition;
         for (const [key, value] of Object.entries(params.textEdits)) {
             const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
@@ -210,6 +211,11 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
+                    identifier && (syntaxTree as ModulePart).members.forEach(member => {
+                        if (STKindChecker.isServiceDeclaration(member) && member.metadata.source.includes(identifier)) {
+                            position = member.position;
+                        }
+                    })
                     writeFileSync(request.filePath, source);
                     await StateMachine.langClient().didChange({
                         textDocument: { uri: fileUriString, version: 1 },
@@ -232,6 +238,7 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
         } catch (error) {
             console.log(">>> error updating source", error);
         }
+        return position;
     }
 
     async getTriggerModelFromCode(params: TriggerModelFromCodeRequest): Promise<TriggerModelFromCodeResponse> {
