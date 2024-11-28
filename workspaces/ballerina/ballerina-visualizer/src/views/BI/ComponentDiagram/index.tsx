@@ -165,6 +165,24 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         });
     });
     projectStructure.directoryMap[DIRECTORY_MAP.SERVICES].forEach((service) => {
+        // handle trigger service
+        if (service?.triggerNode) {
+            project.entryPoints.push({
+                id: service.name,
+                name: service.name,
+                type: "service",
+                label: service.triggerNode.properties?.name?.value,
+                description: service.triggerNode.name,
+                icon: <img src={service.triggerNode.icon} alt={service.name} />,
+                location: {
+                    filePath: service.path,
+                    position: service.position,
+                },
+                connections: service.st?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
+            });
+            return;
+        }
+        // handle generic service
         project.entryPoints.push({
             id: service.name,
             name: service.name,
