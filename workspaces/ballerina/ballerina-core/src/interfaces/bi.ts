@@ -10,6 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
+import { TriggerNode } from "./triggers";
 
 export type { NodePosition };
 
@@ -168,6 +169,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    triggerNode?: TriggerNode;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;
