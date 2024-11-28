@@ -240,7 +240,15 @@ const SidePanelList = (props: SidePanelListProps) => {
                                     id={`drawer${index}`}
                                     width={300}
                                     isSelected={page.isOpen}
-                                    sx={{ width: "100%", top: "45px", border: "none", boxShadow: "none", height: "calc(100vh - 50px)", overflowY: "auto" }}
+                                    sx={{
+                                        width: "100%",
+                                        top: "45px",
+                                        border: "none",
+                                        boxShadow: "none",
+                                        height: "calc(100vh - 50px)",
+                                        overflowY: "scroll",
+                                        scrollbarWidth: "thin",
+                                    }}
                                 >
                                     {page.content}
                                 </Drawer>
