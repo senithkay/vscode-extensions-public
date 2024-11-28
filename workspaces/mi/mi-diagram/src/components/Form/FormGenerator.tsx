@@ -120,6 +120,8 @@ export function FormGenerator(props: FormGeneratorProps) {
         } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
+        } else if (inputType === 'checkbox') {
+            return currentValue ?? false;
         } else {
             return currentValue ?? "";
         }
@@ -509,7 +511,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
-            const name = getNameForController(element.value.name);
+            const name = getNameForController(element.value.groupName ?? element.value.name);
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
@@ -612,7 +614,8 @@ export function FormGenerator(props: FormGeneratorProps) {
     function getConditions(conditions: any): boolean {
         const evaluateCondition = (condition: any) => {
             const key = Object.keys(condition)[0];
-            return watch(getNameForController(key)) === condition[key];
+            const currentVal = watch(getNameForController(key));
+            return currentVal === condition[key] || (typeof condition[key] === 'string' && String(currentVal) === condition[key]);
         };
 
         if (Array.isArray(conditions)) {
