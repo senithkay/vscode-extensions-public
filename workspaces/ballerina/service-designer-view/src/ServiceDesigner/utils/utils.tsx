@@ -7,14 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DIAGNOSTIC_SEVERITY, DiagramDiagnostic, responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
+import { CommonRPCAPI, DIAGNOSTIC_SEVERITY, DiagramDiagnostic, LineRange, Range, responseCodes, ServiceDesignerAPI, ServiceType, STModification, TriggerWizardAPI } from '@wso2-enterprise/ballerina-core';
 import { DocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
-import { Annotation, NodePosition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Annotation, NodePosition, ObjectMethodDefinition, OptionalTypeDesc, RecordTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, SimpleNameReference, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
 import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig, Service, ServiceData } from '@wso2-enterprise/service-designer';
 import { Item } from '@wso2-enterprise/ui-toolkit';
+
+export interface RPCClients {
+    serviceDesignerRpcClient: ServiceDesignerAPI;
+    triggerWizardRpcClient: TriggerWizardAPI;
+    commonRpcClient: CommonRPCAPI;
+}
 
 export interface ResourceDefinition {
     METHOD: string;
@@ -182,14 +188,14 @@ export function isHeaderParam(annotations: Annotation[]): boolean {
     return annotations?.some((annotation) => annotation?.source.trim() === "@http:Header");
 }
 
-export const getRecordSource = async (recordName: string, rpcClient: any): Promise<string> => {
-    const response = await rpcClient?.getRecordST({ recordName: recordName });
+export const getRecordSource = async (recordName: string, rpcClient: RPCClients): Promise<string> => {
+    const response = await rpcClient?.serviceDesignerRpcClient.getRecordST({ recordName: recordName });
     return response?.recordST.source;
 };
 
-export const getNameRecordType = async (recordName: string, rpcClient: any): Promise<string> => {
+export const getNameRecordType = async (recordName: string, rpcClient: RPCClients): Promise<string> => {
     let namedRecordType = "";
-    const response = await rpcClient?.getRecordST({ recordName: recordName });
+    const response = await rpcClient?.serviceDesignerRpcClient.getRecordST({ recordName: recordName });
     if (response && STKindChecker.isRecordTypeDesc(response.recordST?.typeDescriptor)) {
         const record = response.recordST.typeDescriptor as RecordTypeDesc;
         record.fields.forEach(field => {
@@ -201,33 +207,90 @@ export const getNameRecordType = async (recordName: string, rpcClient: any): Pro
     return namedRecordType;
 };
 
-export const getServiceData = async (service: ServiceDeclaration): Promise<ServiceData> => {
-    let serviceData: ServiceData;
-    if (service && STKindChecker.isExplicitNewExpression(service?.expressions[0])) {
-        if (
-            STKindChecker.isQualifiedNameReference(
-                service.expressions[0].typeDescriptor
-            )
-        ) {
-            const expression = service.expressions[0];
-            const port = expression.parenthesizedArgList?.arguments[0]?.source.trim();
-            let absolutePath = "";
-            service.absoluteResourcePath?.forEach((path) => {
-                absolutePath += path.value;
-            });
-            if (service.typeDescriptor && STKindChecker.isSimpleNameReference(service.typeDescriptor)) {
-                absolutePath = service.typeDescriptor.name.value;
+export const getServiceData = async (service: ServiceDeclaration, rpcClient: RPCClients, serviceFilePath: string): Promise<Service> => {
+    let serviceData: ServiceData | Service;
+    // Get the listener expression information
+    if (service && service?.expressions.length > 0) {
+        const expression = service?.expressions[0];
+
+        // If the listener is in-line
+        if (STKindChecker.isExplicitNewExpression(expression)) {// If the listener is in-line
+            if (
+                STKindChecker.isQualifiedNameReference(
+                    expression.typeDescriptor
+                )
+            ) {
+                const port = expression.parenthesizedArgList?.arguments[0]?.source.trim();
+                serviceData = {
+                    port: isNaN(Number(port)) ? null : Number(port),
+                    path: "",
+                    listener: port
+                };
             }
+        } else if (STKindChecker.isSimpleNameReference(expression)) {// If the listener a reference
             serviceData = {
-                port: parseInt(port, 10),
-                path: absolutePath
+                port: null,
+                path: "",
+                listener: expression.name.value
             };
         }
     }
-    return serviceData;
+
+    // Get trigger model if available
+    const position: NodePosition = service.position;
+    const range: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
+    const triggerResponse = await rpcClient.triggerWizardRpcClient.getTriggerModelFromCode({ filePath: serviceFilePath, codedata: { lineRange: range } });
+    if (triggerResponse?.trigger) {
+        serviceData = {
+            ...serviceData,
+            serviceType: triggerResponse.trigger.displayName,
+            triggerModel: triggerResponse.trigger,
+        };
+    }
+
+
+    // Get the service path information
+    // If the path is inline
+    if (service && service.absoluteResourcePath.length > 0) {
+        let absolutePath = "";
+        service.absoluteResourcePath?.forEach((path) => {
+            absolutePath += path.value;
+        });
+        serviceData = {
+            ...serviceData,
+            path: absolutePath
+        };
+    }
+    // If the path is type reference
+    if (service?.typeDescriptor && STKindChecker.isQualifiedNameReference(service.typeDescriptor)) {
+        const absolutePath = service?.typeDescriptor.source.trim();
+        serviceData = {
+            ...serviceData,
+            path: absolutePath
+        };
+
+        // // Check for trigger type
+        // const typeData = service.typeDescriptor.typeData;
+        // if (typeData.symbol) {
+        //     const orgName = typeData.symbol.moduleID.orgName;
+        //     const packageName = typeData.symbol.moduleID.moduleName;
+        //     const triggerResponse = await rpcClient.triggerWizardRpcClient.getTrigger({ orgName, packageName });
+        //     const serviceType = triggerResponse.serviceTypes.find(res =>
+        //         absolutePath.toLowerCase().includes(res.name.toLowerCase())
+        //     )
+        //     serviceData = {
+        //         ...serviceData,
+        //         serviceType: triggerResponse.displayName,
+        //         triggerModel: serviceType,
+        //     };
+        // }
+
+    }
+    console.log("XXX serviceData", serviceData);
+    return serviceData as Service;
 }
 
-export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any, isBI?: boolean): Promise<Resource> {
+export async function getResource(resource: ResourceAccessorDefinition, rpcClient: RPCClients, isBI?: boolean): Promise<Resource> {
     const pathConfig = getResourcePath(resource);
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);
@@ -255,6 +318,31 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
     };
 }
 
+export async function getFunction(resource: ObjectMethodDefinition, rpcClient: RPCClients, isBI?: boolean): Promise<Resource> {
+    const pathConfig = resource.functionName.value;
+    const queryParams: ParameterConfig[] = getQueryParams(resource);
+    const payloadConfig: ParameterConfig = null;
+    const advanceParams: Map<string, ParameterConfig> = null;
+    const response: ResponseConfig[] = await getReturnConfig(resource, rpcClient);
+    const position = {
+        ...resource.position
+    };
+    const errors = resource.typeData?.diagnostics.filter((diag: DiagramDiagnostic) => diag.diagnosticInfo.severity === DIAGNOSTIC_SEVERITY.ERROR);
+    return {
+        methods: ["remote"],
+        path: pathConfig,
+        pathSegments: [],
+        params: queryParams,
+        advancedParams: advanceParams,
+        payloadConfig: payloadConfig,
+        responses: response,
+        updatePosition: position,
+        position: resource.position,
+        errors: errors,
+        expandable: isBI ? false : true
+    };
+}
+
 export function getServicePosition(service: ServiceDeclaration): NodePosition {
     const serviceKeywordPosition = service.serviceKeyword?.position;
     const serviceExpressionPosition = service.expressions[0]?.position;
@@ -266,12 +354,12 @@ export function getServicePosition(service: ServiceDeclaration): NodePosition {
     };
 }
 
-export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any, isBI?: boolean, handleResourceEdit?: (resource: Resource) => Promise<void>, handleResourceDelete?: (resource: Resource) => Promise<void>): Promise<Service> {
-    const serviceData: ServiceData = await getServiceData(serviceDecl);
-    let canEdit = true;
-    if (serviceDecl.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
-        canEdit = false;
-    }
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPCClients, isBI: boolean, handleResourceEdit: (resource: Resource) => Promise<void>, handleResourceDelete: (resource: Resource) => Promise<void>, serviceFilePath: string): Promise<Service> {
+    const serviceData: Service = await getServiceData(serviceDecl, rpcClient, serviceFilePath);
+    // let canEdit = true;
+    // if (serviceDecl?.typeDescriptor && STKindChecker.isSimpleNameReference(serviceDecl.typeDescriptor)) {
+    //     canEdit = false;
+    // }
     const resources: Resource[] = [];
     for (const member of serviceDecl.members) {
         if (STKindChecker.isResourceAccessorDefinition(member)) {
@@ -293,7 +381,26 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
             // }
             resources.push(resource);
         }
+        if (STKindChecker.isObjectMethodDefinition(member)) {
+            const resource = await getFunction(member, rpcClient, isBI);
+            // const editAction: Item = {
+            //     id: "edit",
+            //     label: "Edit",
+            //     onClick: () => handleResourceEdit(resource),
+            // };
+            // const deleteAction: Item = {
+            //     id: "delete",
+            //     label: "Delete",
+            //     onClick: () => handleResourceDelete(resource),
+            // };
+            // const moreActions: Item[] = [editAction, deleteAction];
+            // if (canEdit) {
+            //     resource.additionalActions = moreActions;
+            // }
+            resources.push(resource);
+        }
     }
+    console.log("XXX", serviceData);
     return {
         ...serviceData,
         resources: resources,
@@ -301,7 +408,7 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any
     }
 }
 
-async function findResponseType(typeSymbol: any, resource: any, index: any, rpcClient: any, members: any) {
+async function findResponseType(typeSymbol: any, resource: any, index: any, rpcClient: RPCClients, members: any) {
     let type = "";
     const isArray = typeSymbol.typeKind === "array";
     typeSymbol = isArray && typeSymbol.memberTypeDescriptor ? typeSymbol.memberTypeDescriptor : typeSymbol;
@@ -340,7 +447,44 @@ async function findResponseType(typeSymbol: any, resource: any, index: any, rpcC
     }
 }
 
-export async function getResponseConfig(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResponseConfig[]> {
+async function findFunctionType(typeSymbol: any, resource: any, index: any, rpcClient: RPCClients, members: any) {
+    let type = "";
+    const isArray = typeSymbol.typeKind === "array";
+    typeSymbol = isArray && typeSymbol.memberTypeDescriptor ? typeSymbol.memberTypeDescriptor : typeSymbol;
+    if (typeSymbol.typeKind === "record") {
+        return getInlineRecordConfig(resource, index, typeSymbol);
+    } else if (typeSymbol.typeKind === "typeReference" && !typeSymbol.signature?.includes("ballerina")) {
+        const bodyType: string = await getNameRecordType(typeSymbol.name, rpcClient);
+        type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.name + "?" : typeSymbol.name;
+        return {
+            id: index,
+            type: bodyType || type,
+            isTypeArray: isArray,
+            source: isArray ? `${type}[]` : type
+        };
+    } else if (typeSymbol.typeKind === "typeReference" && typeSymbol.signature?.includes("ballerina")) {
+        const name = typeSymbol.moduleID?.moduleName === "http" ? `http:${typeSymbol.name}` : typeSymbol.name;
+        return {
+            id: index,
+            type: "",
+            source: isArray ? `${name}[]` : name,
+            isTypeArray: isArray,
+        };
+    } else if (typeSymbol.typeKind !== "nil") {
+        type = (members && members[index + 1]?.typeKind === "nil") ? typeSymbol.typeKind + "?" : typeSymbol.typeKind;
+        if (typeSymbol.signature.includes("error")) {
+            type = typeSymbol.signature
+        }
+        return {
+            id: index,
+            type: type,
+            source: isArray ? `${type}[]` : type,
+            isTypeArray: isArray
+        };
+    }
+}
+
+export async function getResponseConfig(resource: ResourceAccessorDefinition, rpcClient: RPCClients): Promise<ResponseConfig[]> {
     let index = 0;
     const response: ResponseConfig[] = [];
     const members = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members;
@@ -352,6 +496,23 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
     } else if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol) {
         const typeSymbol = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol;
         const res = await findResponseType(typeSymbol, resource, index, rpcClient, members);
+        response.push(res);
+    }
+    return response;
+}
+
+export async function getReturnConfig(resource: ResourceAccessorDefinition, rpcClient: RPCClients): Promise<ResponseConfig[]> {
+    let index = 0;
+    const response: ResponseConfig[] = [];
+    const members = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members.find((res: any) => res.typeKind !== "nil");
+    if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && Array.isArray(members)) {
+        for (const member of members) {
+            const res = await findFunctionType(member, resource, index, rpcClient, members);
+            res && response.push(res) && index++;
+        }
+    } else if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol) {
+        const typeSymbol = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol;
+        const res = await findFunctionType(typeSymbol, resource, index, rpcClient, members);
         response.push(res);
     }
     return response;
@@ -389,7 +550,7 @@ export function getResourcePath(resource: ResourceAccessorDefinition): PathConfi
     return { path: resourcePath, resources: pathParams };
 }
 
-export function getQueryParams(resource: ResourceAccessorDefinition): ParameterConfig[] {
+export function getQueryParams(resource: ResourceAccessorDefinition | ObjectMethodDefinition): ParameterConfig[] {
     const queryParams: ParameterConfig[] = [];
     let index = 0;
     resource.functionSignature?.parameters?.forEach((queryParam) => {

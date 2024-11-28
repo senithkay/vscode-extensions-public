@@ -180,6 +180,18 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     }
     entries.push(entryPoints);
 
+    // Listeners
+    const listeners = new ProjectExplorerEntry(
+        "Listeners",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'connection',
+        true
+    );
+    listeners.contextValue = "listeners";
+    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);
+    entries.push(listeners);
+
     // Connections
     const connections = new ProjectExplorerEntry(
         "Connections",
@@ -259,6 +271,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
             [DIRECTORY_MAP.FUNCTIONS]: DIRECTORY_SUB_TYPE.FUNCTION,
             [DIRECTORY_MAP.CONFIGURATIONS]: DIRECTORY_SUB_TYPE.CONFIGURATION,
             [DIRECTORY_MAP.TRIGGERS]: DIRECTORY_SUB_TYPE.TRIGGER,
+            [DIRECTORY_MAP.LISTENERS]: DIRECTORY_SUB_TYPE.TRIGGER,
             [DIRECTORY_MAP.RECORDS]: DIRECTORY_SUB_TYPE.TYPE
         };
 

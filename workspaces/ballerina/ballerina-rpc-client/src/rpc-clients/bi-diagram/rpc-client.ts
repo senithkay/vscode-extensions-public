@@ -86,7 +86,7 @@ import {
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class BIDiagramRpcClient implements BIDiagramAPI {
+export class BiDiagramRpcClient implements BIDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
