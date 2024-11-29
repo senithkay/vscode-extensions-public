@@ -314,68 +314,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
-            const res1 = await this.getOverviewPageDetails();
-            // Access the first element of `connectorDependencies`
-            const firstElement = res1.connectorDependencies[0]; // Type: { [key: string]: PomNodeDetails }
-
-            // To access a specific `PomNodeDetails`, you need to use the key
-            const firstPomNodeDetail = firstElement["fullRange"].range; // Replace "key1" with the actual key
-            console.log(firstPomNodeDetail);
-
-            const res2 = await this.removeContentFromPomXml(firstPomNodeDetail);
-            console.log(res2);
-
-            const addDependency = res1.lastDependencyEndTagRange; // Type: { [key: string]: PomNodeDetails }
-
-            // To access a specific `PomNodeDetails`, you need to use the key
-            const pomXml = {value: "<dependency><groupId>org.seleniumhq.selenium</groupId><artifactId>selenium-java</artifactId><version>4.27.0</version><type>zip</type></dependency>", range: res1.lastDependencyEndTagRange};
-            const res3 = await this.addContentToPomXml(pomXml);
-            console.log(res3);
-
-            const pom_xml = {value: "4.5.0", range: res1.runtimeVersion.range};
-            const res4 = await this.updatePomValue(pom_xml);
-            console.log(res4);
-
-            resolve(res);
-        });
-    }
-
-    async getOverviewPageDetails(): Promise<PomDetailsResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getOverviewPageDetails();
-            resolve(res);
-        });
-    }
-
-    async removeContentFromPomXml(params: syntaxTree.Range): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.removeContentFromPomXml(params);
-            resolve(res);
-        });
-    }
-
-    async addContentToPomXml(params: PomXmlEditRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.addContentToPomXml(params);
-            resolve(res);
-        });
-    }
-
-    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updatePomValue(params);
-            resolve(res);
-        });
-    }
-
-    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateConfigFileValue(params);
             resolve(res);
         });
     }

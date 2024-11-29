@@ -69,8 +69,8 @@ export interface MIVisualizerAPI {
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
     getOverviewPageDetails: () => Promise<PomDetailsResponse>;
-    removeContentFromPomXml: (params: Range) => Promise<string>;
-    addContentToPomXml: (params: PomXmlEditRequest) => Promise<string>;
+    removeDependency: (params: Range) => Promise<string>;
+    addDependency: (params: PomXmlEditRequest) => Promise<string>;
     updatePomValue: (params: PomXmlEditRequest) => Promise<string>;
     updateConfigFileValue: (params: ConfigFileEditRequest) => Promise<string>;
 }

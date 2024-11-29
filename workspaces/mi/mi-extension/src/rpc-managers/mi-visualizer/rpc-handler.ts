@@ -54,8 +54,8 @@ import {
     updateContext,
     getOverviewPageDetails,
     PomXmlEditRequest,
-    removeContentFromPomXml,
-    addContentToPomXml,
+    removeDependency,
+    addDependency,
     updatePomValue,
     updateConfigFileValue,
     ConfigFileEditRequest
@@ -98,8 +98,8 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
     messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
     messenger.onRequest(getOverviewPageDetails, () => rpcManger.getOverviewPageDetails());
-    messenger.onRequest(removeContentFromPomXml, (args: Range) => rpcManger.removeContentFromPomXml(args));
-    messenger.onRequest(addContentToPomXml, (args: PomXmlEditRequest) => rpcManger.addContentToPomXml(args));
+    messenger.onRequest(removeDependency, (args: Range) => rpcManger.removeDependency(args));
+    messenger.onRequest(addDependency, (args: PomXmlEditRequest) => rpcManger.addDependency(args));
     messenger.onRequest(updatePomValue, (args: PomXmlEditRequest) => rpcManger.updatePomValue(args));
     messenger.onRequest(updateConfigFileValue, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValue(args));
 }

@@ -114,12 +114,12 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         rpcClient.getMiVisualizerRpcClient().getOverviewPageDetails();
     };
 
-    const removeContentFromPomXml = (params: Range) => {
-        rpcClient.getMiVisualizerRpcClient().removeContentFromPomXml(params);
+    const removeDependency = (params: Range) => {
+        rpcClient.getMiVisualizerRpcClient().removeDependency(params);
     };
 
-    const addContentToPomXml = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().addContentToPomXml(params);
+    const addDependencyl = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().addDependency(params);
     };
 
     const updatePomValue = (params: any) => {

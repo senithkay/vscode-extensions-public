@@ -89,8 +89,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
-
-            // const res1 = await this.getPomDetails();
             resolve(res);
         });
     }
@@ -103,18 +101,18 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async removeContentFromPomXml(params: Range): Promise<string> {
+    async removeDependency(params: Range): Promise<string> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.removeContentFromPomXml(params);
+            const res = await langClient.removeDependency(params);
             resolve(res);
         });
     }
 
-    async addContentToPomXml(params: PomXmlEditRequest): Promise<string> {
+    async addDependency(params: PomXmlEditRequest): Promise<string> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.addContentToPomXml(params);
+            const res = await langClient.addDependency(params);
             resolve(res);
         });
     }

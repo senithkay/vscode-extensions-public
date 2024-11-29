@@ -107,6 +107,7 @@ export interface PomDetailsResponse {
     connectorDependencies: {[key:string]:PomNodeDetails}[];
     otherDependencies: {[key:string]:PomNodeDetails}[];
     lastDependencyEndTagRange: STRange;
+    configs: PomNodeDetails[];
 }
 
 export interface PomNodeDetails {

@@ -65,11 +65,11 @@ import {
     toggleDisplayOverview,
     updateContext,
     getOverviewPageDetails,
-    removeContentFromPomXml,
     PomDetailsResponse,
     PomXmlEditRequest,
     ConfigFileEditRequest,
-    addContentToPomXml,
+    addDependency,
+    removeDependency,
     updatePomValue,
     updateConfigFileValue
 } from "@wso2-enterprise/mi-core";
@@ -207,11 +207,11 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     getOverviewPageDetails(): Promise<PomDetailsResponse> {
         return this._messenger.sendRequest(getOverviewPageDetails, HOST_EXTENSION);
     }
-    removeContentFromPomXml(params: Range): Promise<string> {
-        return this._messenger.sendRequest(removeContentFromPomXml, HOST_EXTENSION, params);
+    removeDependency(params: Range): Promise<string> {
+        return this._messenger.sendRequest(removeDependency, HOST_EXTENSION, params);
     }
-    addContentToPomXml(params: PomXmlEditRequest): Promise<string> {
-        return this._messenger.sendRequest(addContentToPomXml, HOST_EXTENSION, params);
+    addDependency(params: PomXmlEditRequest): Promise<string> {
+        return this._messenger.sendRequest(addDependency, HOST_EXTENSION, params);
     }
     updatePomValue(params: PomXmlEditRequest): Promise<string> {
         return this._messenger.sendRequest(updatePomValue, HOST_EXTENSION, params);

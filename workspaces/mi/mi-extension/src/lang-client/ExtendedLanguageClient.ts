@@ -287,12 +287,12 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
-    async removeContentFromPomXml(range: Range): Promise<string> {
-        return this.sendRequest('synapse/removeContentFromPomXml', range);
+    async removeDependency(range: Range): Promise<string> {
+        return this.sendRequest('synapse/removeDependency', range);
     }
 
-    async addContentToPomXml(req: PomXmlEditRequest): Promise<string> {
-        return this.sendRequest('synapse/addContentToPomXml', req);
+    async addDependency(req: PomXmlEditRequest): Promise<string> {
+        return this.sendRequest('synapse/addDependency', req);
     }
 
     async updatePomValue(req: PomXmlEditRequest): Promise<string> {
