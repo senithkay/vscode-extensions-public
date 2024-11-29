@@ -136,7 +136,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
                     const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
                     if (form) {
-                        sidepanelAddPage(sidePanelContext, form, `Edit ${form.title}`);
+                        sidepanelAddPage(sidePanelContext, form.form, `Edit ${form.title}`);
                     }
                 } else {
                     const isStartNode = sidePanelContext.operationName === "startNode";
@@ -162,7 +162,7 @@ const SidePanelList = (props: SidePanelListProps) => {
             } else if (sidePanelContext.isEditing && sidePanelContext.operationName == "input") {
 
                 const payloadForm = { content: <InputPayloadForm />, title: `Edit Input Payload` };
-                sidepanelAddPage(sidePanelContext, payloadForm);
+                sidepanelAddPage(sidePanelContext, payloadForm.content, payloadForm.title);
             } else {
                 const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
                 sidepanelAddPage(sidePanelContext, home);
