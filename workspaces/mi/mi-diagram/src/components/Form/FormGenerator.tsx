@@ -290,7 +290,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         required={isRequired}
                         errorMsg={errorMsg}
                     />
-                );    
+                );
             case 'boolean':
                 return (
                     <FormCheckBox
@@ -591,6 +591,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
+        const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
 
         if (element.type === 'table') {
             element.value.inputType = 'ParamManager';
@@ -603,7 +604,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 defaultValue={getDefaultValue(element)}
                 rules={
                     {
-                        ...(element.value.required === 'true') && {
+                        ...(isRequired) && {
                             validate: (value) => {
                                 if (!value || (typeof value === 'object' && !value.value)) {
                                     return "This field is required";
