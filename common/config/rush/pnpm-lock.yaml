@@ -584,7 +584,6 @@ importers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
       '@storybook/react': ^6.3.7
-      '@tanstack/react-query': 4.0.10
       '@types/lodash': ~4.14.202
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
@@ -599,7 +598,6 @@ importers:
     dependencies:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
       '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
-      '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       lodash: 4.17.21
@@ -8411,6 +8409,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -25700,7 +25709,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0
