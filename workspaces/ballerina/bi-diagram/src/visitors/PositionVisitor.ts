@@ -31,7 +31,6 @@ export class PositionVisitor implements BaseVisitor {
         // consider this as a start node
         node.viewState.y = this.lastNodeY;
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
-        console.log(">>> start node", { node, parent, lastNodeY: this.lastNodeY });
 
         node.viewState.x = this.diagramCenterX - node.viewState.rw;
     }
@@ -41,31 +40,12 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += node.viewState.h + (NODE_GAP_Y * 3) / 2;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
-        console.log(">>> if node", { node, parent, lastNodeY: this.lastNodeY, centerX });
         node.viewState.x = centerX - node.viewState.lw;
 
         if (node.branches.length < 2) {
             console.error("If node should have 2 branches");
             return;
         }
-
-        // const firstBranchWidth = node.branches.at(0).viewState.clw + node.branches.at(0).viewState.crw;
-        // const lastBranchWidth = node.branches.at(-1).viewState.clw + node.branches.at(-1).viewState.crw;
-        // branches from index 1 to n-1
-        // let middleBranchesTotalWidth = 0;
-        // for (let i = 1; i < node.branches.length - 1; i++) {
-        //     const branch = node.branches.at(i);
-        //     middleBranchesTotalWidth += branch.viewState.clw + branch.viewState.crw;
-        // }
-        // const numberOfBranches = node.branches.length;
-        // left side width to center point
-        // const leftWidth =
-        //     (3 * firstBranchWidth +
-        //         2 * middleBranchesTotalWidth +
-        //         lastBranchWidth +
-        //         (numberOfBranches - 1) * NODE_GAP_X) /
-        //     4;
-        // const startX = centerX - leftWidth;
 
         node.branches.forEach((branch, index) => {
             if (index === 0) {
@@ -84,7 +64,6 @@ export class PositionVisitor implements BaseVisitor {
 
     endVisitIf(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
-        console.log(">>> end if node", { node, parent, lastNodeY: this.lastNodeY });
     }
 
     beginVisitConditional(node: Branch, parent?: FlowNode): void {
@@ -109,7 +88,6 @@ export class PositionVisitor implements BaseVisitor {
         if (!node.viewState.x) {
             const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
             node.viewState.x = centerX - node.viewState.lw;
-            console.log(">>> node", { node, parent, lastNodeY: this.lastNodeY, centerX });
         }
     }
 
@@ -118,7 +96,6 @@ export class PositionVisitor implements BaseVisitor {
         if (node.id.endsWith("-last")) {
             node.viewState.y = this.lastNodeY;
             const centerX = parent ? parent.viewState.x + parent.viewState.lw : this.diagramCenterX;
-            console.log(">>> end node", { node, parent, lastNodeY: this.lastNodeY, centerX });
             node.viewState.x = centerX - node.viewState.rw;
             // if top node is comment, align with comment
             if (parent.codedata.node === "COMMENT") {
@@ -147,16 +124,17 @@ export class PositionVisitor implements BaseVisitor {
         this.lastNodeY += node.viewState.h + NODE_GAP_Y;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
-        node.viewState.x = centerX - node.viewState.rw;
+        node.viewState.x = centerX - node.viewState.lw;
 
         const bodyBranch = node.branches.find((branch) => branch.label === "Body");
         bodyBranch.viewState.y = this.lastNodeY;
-
-        bodyBranch.viewState.x = centerX - bodyBranch.viewState.crw;
+        console.log(">>> while body branch", { node, parent, lastNodeY: this.lastNodeY, centerX, bodyBranch });
+        bodyBranch.viewState.x = centerX - bodyBranch.viewState.clw;
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
+        console.log(">>> end while node", { node, parent, lastNodeY: this.lastNodeY });
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {

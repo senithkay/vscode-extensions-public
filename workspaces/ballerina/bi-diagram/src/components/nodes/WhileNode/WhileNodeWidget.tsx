@@ -11,7 +11,14 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
-import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_WIDTH } from "../../../resources/constants";
+import {
+    Colors,
+    WHILE_NODE_WIDTH,
+    NODE_BORDER_WIDTH,
+    NODE_WIDTH,
+    NODE_GAP_X,
+    NODE_GAP_Y,
+} from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
@@ -217,6 +224,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const disabled = model.node.suggested;
     const viewState = model.node.viewState;
     const hasError = nodeHasError(model.node);
+    const bodyViewState = model.node.branches.find((branch) => branch.label === "Body")?.viewState;
 
     return (
         <NodeStyles.Node>
@@ -275,10 +283,10 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 </Popover>
             </NodeStyles.Row>
             <NodeStyles.Container
-                width={viewState.cw}
-                height={viewState.ch - viewState.h}
-                top={viewState.h}
-                left={viewState.x + viewState.w / 2 + WHILE_NODE_WIDTH / 2 - viewState.cw / 2}
+                width={bodyViewState?.clw + bodyViewState?.crw + NODE_GAP_X}
+                height={viewState.ch - viewState.h - NODE_GAP_Y / 2}
+                top={viewState.h + NODE_GAP_Y / 2}
+                left={bodyViewState?.x + viewState.lw - NODE_GAP_X / 2}
             ></NodeStyles.Container>
         </NodeStyles.Node>
     );
