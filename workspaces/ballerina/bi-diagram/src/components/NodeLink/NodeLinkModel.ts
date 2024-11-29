@@ -196,9 +196,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         const diffY = Math.abs(source.y - target.y);
         return {
             x: this.alignBottom ? source.x : target.x,
-            y: this.alignBottom
-                ? source.y + Math.min(diffY, NODE_GAP_Y) / 2
-                : target.y - (NODE_GAP_Y + VSCODE_MARGIN) / 2,
+            y: this.alignBottom ? source.y + Math.min(diffY, NODE_GAP_Y) / 2 : target.y - NODE_GAP_Y / 2,
         };
     }
 

@@ -95,7 +95,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
             this.hasSuggestedNode = true;
             const buttonNodeModel = new ButtonNodeModel();
             buttonNodeModel.setPosition(
-                node.viewState.x + node.viewState.w / 2 + NODE_GAP_X / 2,
+                node.viewState.x + node.viewState.lw + NODE_GAP_X / 2,
                 node.viewState.y - BUTTON_NODE_HEIGHT + 10
             );
             this.nodes.push(buttonNodeModel);
@@ -164,7 +164,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
         // create branches OUT links
         const endIfEmptyNode = this.createEmptyNode(
             `${node.id}-endif`,
-            node.viewState.x + (node.viewState.w - VSCODE_MARGIN) / 2 - EMPTY_NODE_WIDTH / 2,
+            node.viewState.x + node.viewState.lw - EMPTY_NODE_WIDTH / 2,
             node.viewState.y + node.viewState.ch - EMPTY_NODE_WIDTH / 2
         ); // TODO: move position logic to position visitor
         endIfEmptyNode.setParentFlowNode(node);
