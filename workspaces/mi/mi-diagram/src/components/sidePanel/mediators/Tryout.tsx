@@ -33,6 +33,7 @@ const PropertiesContainer = styled.div`
 interface TryoutProps {
     documentUri: string;
     nodeRange?: Range;
+    isActive: boolean;
 }
 
 export function TryOutView(props: TryoutProps) {
@@ -48,6 +49,9 @@ export function TryOutView(props: TryoutProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
 
     useEffect(() => {
+        if (!props.isActive) {
+            return;
+        }
         getSchema();
     }, [props]);
 
@@ -113,11 +117,11 @@ export function TryOutView(props: TryoutProps) {
         return (
             <FormGroup title='Properties' isCollapsed={!isExpanded}>
                 <PropertiesContainer>
-                    <ReactJson sortKeys name="Synapse Properties" src={properties.synapse} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Axis2 Properties" src={properties.axis2} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Axis2 Client Propeties" src={properties.axis2Client} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Transport Properties" src={properties.axis2Transport} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Axis2 Operation Properties" src={properties.axis2Operation} theme={REACT_JSON_THEME} />
+                    <ReactJson sortKeys name="Synapse Properties" src={properties?.synapse} theme={REACT_JSON_THEME} />
+                    <ReactJson sortKeys name="Axis2 Properties" src={properties?.axis2} theme={REACT_JSON_THEME} />
+                    <ReactJson sortKeys name="Axis2 Client Propeties" src={properties?.axis2Client} theme={REACT_JSON_THEME} />
+                    <ReactJson sortKeys name="Transport Properties" src={properties?.axis2Transport} theme={REACT_JSON_THEME} />
+                    <ReactJson sortKeys name="Axis2 Operation Properties" src={properties?.axis2Operation} theme={REACT_JSON_THEME} />
                 </PropertiesContainer>
             </FormGroup>
         );
