@@ -82,20 +82,19 @@ export function OpenAPIDefinition() {
     } = useContext(APIDesignerContext);
 
     const handlePathClick = (pathID: string) => {
-        onSelectedComponentChange(pathID);
         if (pathID?.includes("Schemas-Components")) {
             const firstSchemaName = openAPI.components?.schemas && Object.keys(openAPI.components?.schemas)[0];
             if (firstSchemaName) {
                 onSelectedComponentChange(firstSchemaName + "-schema");
             } else {
-                onSelectedComponentChange(undefined);
+                onSelectedComponentChange(pathID);
             }
         } else if (pathID?.includes("Paths-Resources")) {
             const firstPath = openAPI.paths && Object.keys(openAPI.paths)[0];
             if (firstPath) {
                 onSelectedComponentChange(firstPath);
             } else {
-                onSelectedComponentChange(undefined);
+                onSelectedComponentChange(pathID);
             }
         }
     };

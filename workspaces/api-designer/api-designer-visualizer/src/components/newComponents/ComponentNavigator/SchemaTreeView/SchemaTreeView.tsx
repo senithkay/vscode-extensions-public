@@ -63,7 +63,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             properties: {}
         };
         onSchemaTreeViewChange(openAPI);
-        onSelectedComponentIDChange(`schemas-component-${newSchemaName}`);
+        onSelectedComponentIDChange(`schemas#-component#-${newSchemaName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
@@ -73,7 +73,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
         <TreeView
             sx={{ paddingBottom: 2 }}
             rootTreeView
-            id="Schemas-Components"
+            id="Schemas#-Components"
             content={
                 <PathContainer>
                     <LeftPathContainer>
@@ -90,7 +90,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             {schemaArray.map((schema: string) => {
                 return (
                     <SchemaTreeViewItem
-                        id={`schemas-component-${schema}`}
+                        id={`schemas#-component#-${schema}`}
                         schema={schema}
                         onDeleteSchema={handleDeleteSchema}
                     />

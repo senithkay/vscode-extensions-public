@@ -43,6 +43,11 @@ export function PathTreeView(props: PathTreeViewProps) {
                 const updatedPaths = { ...paths };
                 delete updatedPaths[path];
                 handlePathTreeViewChange({ ...openAPI, paths: updatedPaths });
+                if (Object.keys(updatedPaths).length > 0) {
+                    onSelectedComponentIDChange(`paths#-component#-${Object.keys(updatedPaths)[0]}`);
+                } else {
+                    onSelectedComponentIDChange("overview");
+                }
             }
         });
     };
@@ -122,7 +127,7 @@ export function PathTreeView(props: PathTreeViewProps) {
             {operations?.map((operation) => {
                 return (
                     <PathTreeViewItem
-                        id={`paths-component-${path}-${operation}`}
+                        id={`paths#-component#-${path}#-${operation}`}
                         openAPI={openAPI}
                         path={path}
                         operation={operation}

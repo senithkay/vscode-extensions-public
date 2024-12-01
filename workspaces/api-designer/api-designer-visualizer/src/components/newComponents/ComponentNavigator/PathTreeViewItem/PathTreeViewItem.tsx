@@ -48,7 +48,7 @@ export function PathTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`paths-component-${path}-${operation}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`paths#-component#-${path}#-${operation}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <PathItemWrapper>
                     <Tooltip>

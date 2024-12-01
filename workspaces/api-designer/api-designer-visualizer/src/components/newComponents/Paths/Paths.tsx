@@ -24,7 +24,7 @@ export function Paths(props: PathsProps) {
         api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
     const handlePathsChange = (pathItem: PI, path: string) => {
-        const previousPath = selectedComponentID.split("-")[2];
+        const previousPath = selectedComponentID.split("#-")[2];
         if (previousPath !== path) {
             const newPaths = Object.keys(paths).reduce((acc, key) => {
                 if (key === previousPath) {
@@ -36,7 +36,7 @@ export function Paths(props: PathsProps) {
                 return acc;
             }, {} as P);
             onPathsChange(newPaths, path); // Call onPathsChange with the updated paths
-            onSelectedComponentIDChange(`paths-component-${path}`);
+            onSelectedComponentIDChange(`paths#-component#-${path}`);
         } else {
             onPathsChange({ ...paths, [path]: pathItem });
         }
@@ -50,9 +50,9 @@ export function Paths(props: PathsProps) {
             }
         });
     };
-    const selectedPath = selectedComponentID.split("-")[2];
-    const selectedMethod = selectedComponentID.split("-")[3];
-    const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath][selectedMethod] as O;
+    const selectedPath = selectedComponentID.split("#-")[2];
+    const selectedMethod = selectedComponentID.split("#-")[3];
+    const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath] && paths[selectedPath][selectedMethod] as O;
     return (
         <>
             {Object.keys(paths).map((key) => {

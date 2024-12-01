@@ -17,15 +17,15 @@ interface OverviewProps {
     openAPI: O;
 }
 
-// Path parent component is represented with paths-component-path-method, 
-// Overview is represented with overview-component,
-// Schema is represented with schema-component-schema
+// Path parent component is represented with paths#-component#-path-method, 
+// Overview is represented with overview#-component,
+// Schema is represented with schema#-component#-schema
 export function ReadOnlyOpenAPI(props: OverviewProps) {
     const { openAPI } = props;
     const { 
         props: { selectedComponentID },
     } = useContext(APIDesignerContext);
-    const componetName = selectedComponentID.split("-")[0];
+    const componetName = selectedComponentID.split("#-")[0];
 
     return (
         <>
@@ -39,8 +39,8 @@ export function ReadOnlyOpenAPI(props: OverviewProps) {
             )}
             {componetName === "schemas" && (
                 <ReadOnlySchemaEditor
-                    schema={openAPI.components.schemas[selectedComponentID.split("-")[2]]}
-                    schemaName={selectedComponentID.split("-")[2]}
+                    schema={openAPI.components.schemas[selectedComponentID.split("#-")[2]]}
+                    schemaName={selectedComponentID.split("#-")[2]}
                 />
             )}
         </>

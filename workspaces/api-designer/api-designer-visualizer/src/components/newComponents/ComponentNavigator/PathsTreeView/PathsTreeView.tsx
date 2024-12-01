@@ -8,7 +8,7 @@
  */
 import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../ComponentNavigator';
-import { OpenAPI, Paths } from '../../../../Definitions/ServiceDefinitions';
+import { OpenAPI, PathItem, Paths } from '../../../../Definitions/ServiceDefinitions';
 import { TreeView } from '../../../Treeview/TreeView';
 import { PathTreeView } from '../PathTreeView/PathTreeView';
 import { useContext } from 'react';
@@ -30,8 +30,8 @@ export function PathsTreeView(props: PathsTreeViewProps) {
 
     const handleAddPathMethod = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        const newPathVal = Object.keys(openAPI.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPI.paths).length + 1}` : "/path";
-        openAPI.paths[newPathVal] = {
+        const newPathVal = openAPI.paths && Object.keys(openAPI.paths).find((key) => key === "/path") ? `/path${Object.keys(openAPI.paths).length + 1}` : "/path";
+        const method: PathItem = {
             get: {
                 parameters: [],
                 responses: {
@@ -48,10 +48,14 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                 }
             }
         };
+        if (!openAPI.paths) {
+            openAPI.paths = {};
+        }
+        openAPI.paths[newPathVal] = method;
         onPathTreeViewChange(openAPI);
         onPathInitiatedChange(true);
         onCurrentViewChange(Views.EDIT);
-        onSelectedComponentIDChange(`paths-component-${newPathVal}`);
+        onSelectedComponentIDChange(`paths#-component#-${newPathVal}`);
     };
 
     let pathsArray: string[] = [];
@@ -82,7 +86,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                 </PathContainer>
             }
             selectedId={selectedComponentID}
-            onSelect={() => onSelectedComponentIDChange("Paths-Resources")}
+            onSelect={() => onSelectedComponentIDChange("Paths#-Resources")}
         >
             {
                 pathsArray.map((path, index) => {
@@ -91,7 +95,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                     const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary" && operation !== "parameters" && operation !== "servers");
                     return (
                         <PathTreeView
-                            id={`paths-component-${path}`}
+                            id={`paths#-component#-${path}`}
                             openAPI={openAPI}
                             path={path}
                             operations={sanitizedOperations}

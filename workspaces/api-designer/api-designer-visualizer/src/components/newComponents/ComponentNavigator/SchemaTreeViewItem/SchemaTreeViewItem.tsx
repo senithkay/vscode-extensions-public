@@ -47,7 +47,7 @@ export function SchemaTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`schemas-component-${schema}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`schemas#-component#-${schema}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <SchemaItemWrapper>
                     <Typography

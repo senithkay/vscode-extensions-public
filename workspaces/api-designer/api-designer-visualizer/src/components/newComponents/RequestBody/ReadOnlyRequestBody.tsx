@@ -51,7 +51,7 @@ export function ReadOnlyRequestBody(props: RequestBodyProps) {
                             />
                         }
                     />
-                    {selectedMediaType && (
+                    {selectedMediaType && requestBody.content[selectedMediaType] && (
                         <ReadOnlyMediaType
                             mediaType={requestBody.content[selectedMediaType]}
                             key={selectedMediaType}

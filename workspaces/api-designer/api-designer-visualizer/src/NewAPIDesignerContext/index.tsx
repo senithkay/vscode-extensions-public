@@ -19,7 +19,8 @@ const defaultContext: APIDesignerContextDef = {
                 version: ""
             },
             paths: {}
-        }
+        },
+        selectedComponentID: "overview",
     },
     api: {
         onCurrentViewChange: () => {},

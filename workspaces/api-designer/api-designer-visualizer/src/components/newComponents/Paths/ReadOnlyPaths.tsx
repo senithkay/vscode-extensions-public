@@ -21,13 +21,13 @@ export function ReadOnlyPaths(props: PathsProps) {
     const { 
         props: { selectedComponentID },
     } = useContext(APIDesignerContext);
-    const selectedPath = selectedComponentID.split("-")[2];
-    const selectedMethod = selectedComponentID.split("-")[3];
-    const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath][selectedMethod] as O;
+    const selectedPath = selectedComponentID.split("#-")[2];
+    const selectedMethod = selectedComponentID.split("#-")[3];
+    const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath] && paths[selectedPath][selectedMethod] as O;
     return (
         <>
             {Object.keys(paths).map((key) => {
-                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key && selectedMethod) {
+                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key && selectedMethod && selectedOperation) {
                     return (
                         <ReadOnlyOperation
                             operation={selectedOperation}
