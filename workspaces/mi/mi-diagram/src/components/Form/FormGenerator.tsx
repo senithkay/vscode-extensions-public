@@ -377,12 +377,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                     growRange={{ start: 5, offset: 10 }}
                     errorMsg={errorMsg}
                 />);
-            case 'certificateFileOrConfigurable':
-                const fileType = 'crt'
-                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                    openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: fileType });
-                }
-                const onCreateConfigurableClick = async (fetchItems: any, handleValueChange: any) => {
+            case 'configurable': {
+                const onCreateButtonClick = async (fetchItems: any, handleValueChange: any) => {
                     await rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
                         projectUri: '',
                         configurableName: field.value.value
@@ -391,49 +387,23 @@ export function FormGenerator(props: FormGeneratorProps) {
                 }
                 return (
                     <div>
-                        <RadioButtonGroup 
-                            value={field.value.type}
-                            orientation="horizontal"
-                            options={[{ content: "File", value: "file" }, { content: "Configurable", value: "configurable" }]}
-                            onChange={(e: any) => field.onChange({ isCertificate: true, value: field.value.value, type: e.target.value })}
+                        <Keylookup 
+                            name={getNameForController(element.name)}
+                            label={element.displayName}
+                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            filter={(configurableType) => configurableType === "cert"}
+                            filterType='configurable'
+                            value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
+                            onValueChange={(e: any) => {
+                                field.onChange({ isCertificate: true, value: e, type: field.value.type });
+                            }}
+                            required={false}
+                            allowItemCreate={true}
+                            onCreateButtonClick={onCreateButtonClick}
                         />
-                        {field.value.type === 'file' && (
-                            <div>
-                                <Keylookup 
-                                    name={getNameForController(element.name)}
-                                    label={element.displayName}
-                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                    filterType={fileType}                                    
-                                    value={field.value.value && isCertificateFileName(field.value.value) ? field.value.value : ""}
-                                    onValueChange={(e: any) => {
-                                        field.onChange({ isCertificate: true, value: e, type: field.value.type })
-                                    }}
-                                    required={false}
-                                    allowItemCreate={true}
-                                    onCreateButtonClick={onCreateButtonClick}
-                                />
-                            </div>
-                        )}
-                        {field.value.type === 'configurable' && (
-                            <div>
-                                <Keylookup 
-                                    name={getNameForController(element.name)}
-                                    label={element.displayName}
-                                    errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                                    filter={(configurableType) => configurableType === "cert"}
-                                    filterType='configurable'
-                                    value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
-                                    onValueChange={(e: any) => {
-                                        field.onChange({ isCertificate: true, value: e, type: field.value.type });
-                                    }}
-                                    required={false}
-                                    allowItemCreate={true}
-                                    onCreateButtonClick={onCreateConfigurableClick}
-                                />
-                            </div>
-                        )}
                     </div>
                 );
+            }
             case 'connection':
                 return (
                     <>
