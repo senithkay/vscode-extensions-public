@@ -466,7 +466,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				}
 				if (filePath !== "") {
 					const fileName = path.basename(filePath);
-					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+					const langClient = StateMachine.context().langClient;
+					const fileUsageIdentifiers = await langClient?.getResourceUsages(filePath);
+					const fileUsageMessage = fileUsageIdentifiers?.length && fileUsageIdentifiers?.length > 0 ? "It is used in:\n" + fileUsageIdentifiers.join(", ") : "No usage found";
+					window.showInformationMessage("Do you want to delete : " + fileName + "\n\n" + fileUsageMessage, { modal: true }, "Yes")
 						.then(async answer => {
 							if (answer === "Yes") {
 								const res = await deleteRegistryResource(filePath);

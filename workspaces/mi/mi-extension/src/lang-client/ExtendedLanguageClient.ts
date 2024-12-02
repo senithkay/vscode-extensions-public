@@ -38,7 +38,6 @@ import {
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
     GetInboundEPUischemaResponse,
-    GetResourceUsagesResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
     DSSQueryGenResponse,
@@ -169,8 +168,8 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/getConfigurableEntries");
     }
 
-    async getResourceUsages(): Promise<GetResourceUsagesResponse> {
-        return this.sendRequest("synapse/getResourceUsages");
+    async getResourceUsages(resourceKey: string): Promise<string[]> {
+        return this.sendRequest("synapse/getResourceUsages", { resourceKey: resourceKey });
     }
 
     async getArifactFiles(req: string): Promise<string[]> {
