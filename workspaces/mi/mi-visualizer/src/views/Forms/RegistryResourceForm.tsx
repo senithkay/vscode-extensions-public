@@ -286,6 +286,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     label="Template Type"
                     id="templateType"
                     items={templates}
+                    value={getValues("templateType")}
                     onChange={(e) => {
                         setValue("templateType", e.target.value, { shouldDirty: true });
                         setValue("registryPath", '/' + getFileExtension().split('.').pop(), { shouldDirty: true });
