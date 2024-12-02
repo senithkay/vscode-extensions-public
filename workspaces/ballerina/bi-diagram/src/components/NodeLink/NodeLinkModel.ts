@@ -8,7 +8,7 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_GAP_Y, NODE_LINK, NodeTypes, VSCODE_MARGIN } from "../../resources/constants";
+import { Colors, NODE_GAP_Y, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { Branch, FlowNode, LinePosition, NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;

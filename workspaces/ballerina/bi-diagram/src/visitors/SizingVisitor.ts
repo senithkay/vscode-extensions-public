@@ -20,7 +20,6 @@ import {
     NODE_HEIGHT,
     NODE_PADDING,
     NODE_WIDTH,
-    VSCODE_MARGIN,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { Branch, FlowNode, ViewState } from "../utils/types";

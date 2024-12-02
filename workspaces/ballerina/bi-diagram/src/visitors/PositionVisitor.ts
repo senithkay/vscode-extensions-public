@@ -13,7 +13,6 @@ import {
     NODE_GAP_X,
     NODE_GAP_Y,
     NODE_PADDING,
-    VSCODE_MARGIN,
 } from "../resources/constants";
 import { Branch, FlowNode } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
@@ -115,7 +114,7 @@ export class PositionVisitor implements BaseVisitor {
 
         if (!node.viewState.x) {
             const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
-            node.viewState.x = centerX - (NODE_PADDING + VSCODE_MARGIN) / 2;
+            node.viewState.x = centerX - NODE_PADDING / 2;
         }
     }
 

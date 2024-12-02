@@ -22,7 +22,6 @@ import {
     BUTTON_NODE_HEIGHT,
     EMPTY_NODE_WIDTH,
     NODE_GAP_X,
-    VSCODE_MARGIN,
     WHILE_NODE_WIDTH,
 } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
