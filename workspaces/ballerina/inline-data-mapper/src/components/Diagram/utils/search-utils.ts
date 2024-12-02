@@ -37,14 +37,14 @@ export const getSearchFilteredOutput = (outputType: IOType) => {
 	let searchType: IOType = outputType;
 
 	if (searchType.kind === TypeKind.Array) {
-		const subFields = searchType.memberType?.fields
+		const subFields = searchType.member?.fields
 			?.map(item => getFilteredSubFields(item, searchValue))
 			.filter(item => item);
 
 		return {
 			...searchType,
 			memberType: {
-				...searchType.memberType,
+				...searchType.member,
 				fields: subFields || []
 			}
 		}
@@ -83,7 +83,7 @@ export const getFilteredSubFields = (field: IOType, searchValue: string) => {
 			}
 		}
 	} else if (field.kind === TypeKind.Array) {
-		const matchedSubFields: IOType[] = field.memberType?.fields
+		const matchedSubFields: IOType[] = field.member?.fields
 			?.map((fieldItem) => getFilteredSubFields(fieldItem, searchValue))
 			.filter((fieldItem): fieldItem is IOType => fieldItem !== null);
 
@@ -92,8 +92,8 @@ export const getFilteredSubFields = (field: IOType, searchValue: string) => {
 			return {
 				...field,
 				memberType: {
-					...field.memberType,
-					fields: matchingName ? field.memberType?.fields : matchedSubFields
+					...field.member,
+					fields: matchingName ? field.member?.fields : matchedSubFields
 				}
 			}
 		}

@@ -15,8 +15,8 @@ export function getTypeName(fieldType: IOType): string {
 
     let typeName = fieldType?.typeName || fieldType.kind;
 
-    if (fieldType.kind === TypeKind.Array && fieldType.memberType) {
-		typeName = `${getTypeName(fieldType.memberType)}[]`;
+    if (fieldType.kind === TypeKind.Array && fieldType.member) {
+		typeName = `${getTypeName(fieldType.member)}[]`;
 	}
 
 	return typeName;
@@ -27,7 +27,7 @@ export function getDMTypeDim(fieldType: IOType) {
     let currentType = fieldType;
     while (currentType.kind === TypeKind.Array) {
         dim++;
-        currentType = currentType.memberType;
+        currentType = currentType.member;
     }
     return dim;
 }

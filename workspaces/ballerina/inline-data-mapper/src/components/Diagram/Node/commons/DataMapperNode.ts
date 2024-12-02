@@ -122,7 +122,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				});
 			}
 		} else if (field.kind === TypeKind.Array) {
-			// const elements: ArrayElement[] = field?.memberType?.elements;
+			// const elements: ArrayElement[] = field?.member?.elements;
 			// if (elements && !!elements.length) {
 			// 	elements.forEach((element, index) => {
 			// 		this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,

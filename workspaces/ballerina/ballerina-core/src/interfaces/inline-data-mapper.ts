@@ -46,7 +46,7 @@ export interface IOType {
     typeName?: string;
     variableName?: string;
     fields?: IOType[];
-    memberType?: IOType;
+    member?: IOType;
     defaultValue?: unknown;
     optional?: boolean;
 }
