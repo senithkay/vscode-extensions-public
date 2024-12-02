@@ -118,7 +118,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
+        } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
         } else {
@@ -359,6 +359,29 @@ export function FormGenerator(props: FormGeneratorProps) {
                     required={isRequired}
                     errorMsg={errorMsg}
                     additionalItems={element.comboValues}
+                    onCreateButtonClick={onCreateButtonClick}
+                />)
+            }
+            case 'resourceOrExpression': {
+                let onCreateButtonClick;
+                if (!Array.isArray(element.keyType)) {
+                    onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                        openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: element.keyType });
+                    }
+                }
+
+                return (<FormKeylookup
+                    control={control}
+                    name={name}
+                    label={element.displayName}
+                    filterType={element.keyType}
+                    labelAdornment={helpTipElement}
+                    allowItemCreate={true}
+                    required={isRequired}
+                    errorMsg={errorMsg}
+                    canChangeEx={true}
+                    exprToggleEnabled={true}
+                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     onCreateButtonClick={onCreateButtonClick}
                 />)
             }
