@@ -14,7 +14,7 @@ import { Param, TypeResolver } from './TypeResolver';
 import { ParamField, Parameters, isFieldEnabled, getParamFieldLabelFromParamId } from './ParamManager';
 import { ActionButtons, Drawer } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { SIDE_PANEL_WIDTH } from '../../Diagram';
+import { SIDE_PANEL_WIDTH } from '../../../resources/constants';
 
 export interface ParamProps {
     parameters: Parameters;
