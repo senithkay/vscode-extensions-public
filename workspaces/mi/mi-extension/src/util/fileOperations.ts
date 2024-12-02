@@ -576,7 +576,7 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
                 removeEntryFromArtifactXML(workspaceFolder, regPath, fileName);
                 fs.unlinkSync(filePath);
             }
-            resolve({ status: true, info: "Registry resource removed" });
+            resolve({ status: true, info: "Resource removed" });
         } else {
             resolve({ status: false, info: "Workspace not found" });
         }

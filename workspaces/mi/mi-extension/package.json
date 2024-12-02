@@ -238,7 +238,7 @@
       },
       {
         "command": "MI.registry-explorer.add",
-        "title": "Add to Registry",
+        "title": "Add to Resource",
         "icon": "$(add)",
         "category": "MI"
       },
