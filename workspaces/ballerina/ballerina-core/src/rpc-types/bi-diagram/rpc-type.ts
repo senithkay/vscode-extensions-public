@@ -38,7 +38,7 @@ import {
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
+import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "bi-diagram";
@@ -72,3 +72,4 @@ export const buildProject: NotificationType<void> = { method: `${_preFix}/buildP
 export const runProject: NotificationType<void> = { method: `${_preFix}/runProject` };
 export const getVisibleTypes: RequestType<VisibleTypesRequest, VisibleTypesResponse> = { method: `${_preFix}/getVisibleTypes` };
 export const getExpressionDiagnostics: RequestType<ExpressionDiagnosticsRequest, ExpressionDiagnosticsResponse> = { method: `${_preFix}/getExpressionDiagnostics` };
+export const getAllImports: RequestType<void, ProjectImports> = { method: `${_preFix}/getAllImports` };

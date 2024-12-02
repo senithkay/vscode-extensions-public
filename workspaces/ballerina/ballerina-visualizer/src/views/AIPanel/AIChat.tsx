@@ -417,10 +417,10 @@ export function AIChat() {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w\\[\\]]+(?:[\\s,]+[\\w\\[\\]]+)*)")
-                .replace(/<recordname>/g, "([\\w\\[\\]]+)")
-                .replace(/<use-case>/g, "(.+?)")
+                .replace(/<servicename>/g, "(\\S+?)") 
+                .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
+                .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
+                .replace(/<use-case>/g, "(.+?)") 
                 .replace(/<functionname>/g, "(\\S+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
@@ -677,6 +677,7 @@ export function AIChat() {
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
+        //TODO:Modify the function signature or comment this for datamapper working correctly
         await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
@@ -776,6 +777,8 @@ export function AIChat() {
 
     async function processDataMappings(message: string, token: string, parameters: MappingParameters) {
         let assistant_response = "";
+        const recordMap = new Map();
+        const importsMap = new Map();
         setIsLoading(true);
 
         const inputParams = parameters.inputRecord;
@@ -785,11 +788,19 @@ export function AIChat() {
         const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
 
         if (invalidPattern.test(functionName)) {
-            throw new Error("Error: Please provide a valid function name without special characters.");
+            throw new Error("Please provide a valid function name without special characters.");
         }
 
+        const projectImports = await rpcClient.getBIDiagramRpcClient().getAllImports();    
+        const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
+        const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: activeFile });
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
-        const recordMap: Map<string, DataMappingRecord> = new Map();
+
+        const activeFileImports = projectImports.imports.find(file => {
+            const fileName = file.filePath.split("/").pop(); 
+            return fileName === activeFile;
+        })?.statements || [];
+
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -804,37 +815,46 @@ export function AIChat() {
         });
 
         try {
-            const inputs: DataMappingRecord[] = inputParams.map((param) => {
+            const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
                 const isArray = param.endsWith("[]");
                 const recordName = param.replace(/\[\]$/, "");
                 const rec = recordMap.get(recordName);
 
                 if (!rec) {
-                    throw new Error(`Input parameter "${recordName}" does not match any record name.`);
+                    const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${recordName}".`);
+                    }
+                    importsMap.set(recordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
+                    return { type: `${recordName}`, isArray, filePath: null };
                 }
-
                 return { ...rec, isArray };
             });
 
             const outputRecordName = outputParam.replace(/\[\]$/, "");
             const outputIsArray = outputParam.endsWith("[]");
-            const output = recordMap.get(outputRecordName);
+            let output = recordMap.get(outputRecordName);
 
             if (!output) {
-                throw new Error(`Output parameter "${outputRecordName}" does not match any record name.`);
+                const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
+                if (!matchedImport) {
+                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                }
+                importsMap.set(outputRecordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
+                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+            } else {
+                output = { ...output, isArray: outputIsArray };
             }
-
-            const outputRecord: DataMappingRecord = { ...output, isArray: outputIsArray };
 
             const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord({
                 backendUri: "",
                 token: "",
                 inputRecordTypes: inputs,
-                outputRecordType: outputRecord,
+                outputRecordType: output,
                 functionName,
+                imports: Array.from(importsMap.values()),
             });
             setIsLoading(false);
-            setIsCodeLoading(false);
 
             assistant_response = `Mappings consist of the following:\n`;
             if (inputParams.length === 1) {
@@ -844,7 +864,16 @@ export function AIChat() {
             }
             assistant_response += `- **Output Record**: ${outputParam}\n`;
             assistant_response += `- **Function Name**: ${functionName}\n`;
-            assistant_response += `<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+            
+            let filePath = "mappings.bal"; 
+            let finalContent = response.mappingCode;
+            const needsImports = Array.from(importsMap.values()).length > 0;
+
+            if (needsImports) {
+                filePath = activeFile;
+                finalContent = `${fileContent}\n${response.mappingCode}`; 
+            }
+            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
@@ -855,8 +884,7 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                let errorMessage = `Mappings generation failed: ${error}`;
-                newMessages[newMessages.length - 1].content += errorMessage;
+                newMessages[newMessages.length - 1].content += `Mappings generation failed: ${error}`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });

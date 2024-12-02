@@ -25,20 +25,28 @@ export async function generateDataMapping(
     request: GenerteMappingsFromRecordRequest
 ): Promise<GenerateMappingFromRecordResponse> {
     const source = createDataMappingFunctionSource(request.inputRecordTypes, request.outputRecordType, request.functionName);
-    const updatedSource = await getUpdatedFunctionSource(projectRoot, source);
+    const updatedSource = await getUpdatedFunctionSource(projectRoot, source, request.imports);
     return Promise.resolve({mappingCode: updatedSource});
 }
 
 async function getUpdatedFunctionSource(
     projectRoot: string,
-    funcSource: string
+    funcSource: string,
+    imports: { moduleName: string; alias?: string }[]
 ): Promise<string> {
+    const importsString = imports
+      .map(({ moduleName, alias }) =>
+        alias ? `import ${moduleName} as ${alias};` : `import ${moduleName};`
+      )
+      .join("\n");
+    const fullSource = `${importsString}\n\n${funcSource}`;
+    
     const tempDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), "ballerina-data-mapping-temp-")
+        path.join(os.tmpdir(), "ballerina-data-mapping-temp-")
     );
     fs.cpSync(projectRoot, tempDir, { recursive: true });
     const tempTestFilePath = path.join(tempDir, "temp.bal");
-    writeBallerinaFileDidOpen(tempTestFilePath, funcSource);
+    writeBallerinaFileDidOpen(tempTestFilePath, fullSource);
 
     const fileUri = Uri.file(tempTestFilePath).toString();
     const st = (await langClient.getSyntaxTree({

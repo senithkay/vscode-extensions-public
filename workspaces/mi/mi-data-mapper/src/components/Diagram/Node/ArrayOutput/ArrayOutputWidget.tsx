@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
+import { ArrayLiteralExpression, Block, Node, ReturnStatement, SyntaxKind } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -117,7 +117,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const value: string = hasValue && propertyAssignment && propertyAssignment.getInitializer().getText();
 	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
 
-	const handleExpand = () => {
+	const handleExpand = (expanded: boolean) => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
 			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
@@ -141,19 +141,30 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		}
 	};
 
-	const handleArrayDeletion = async () => {
-		setLoading(true);
-		try {
-			await deleteField(dmTypeWithValue.value);
-		} finally {
-			setLoading(false);
+	const handleAddArrayElement = async () => {
+		setIsAddingElement(true)
+
+		const typeKind = dmTypeWithValue.type?.memberType.kind;
+		const defaultValue = getDefaultValue(typeKind);
+		const bodyNodeForgotten = body && body.wasForgotten();
+		const valExpr = body && !bodyNodeForgotten && Node.isPropertyAssignment(body) ? body.getInitializer() : body;
+		const arrayLitExpr = dmTypeWithValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
+
+		let targetExpr = arrayLitExpr;
+		if (!body) {
+			const fnBody = context.functionST.getBody() as Block;
+			fnBody.addStatements([`return [];`]);
+			const returnStatement = fnBody.getStatements()
+				.find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+			targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
 		}
+		const updatedTargetExpr = targetExpr.addElement(defaultValue);
+		await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+		handleExpand(false);
+		setIsAddingElement(false);
+
 	};
 
-	const handleEditValue = () => {
-		if (portIn)
-			setExprBarFocusedPort(portIn);
-	};
 
 	const onRightClick = (event: React.MouseEvent) => {
 		event.preventDefault();
@@ -203,8 +214,8 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 				onClick: handleArrayInitialization
 			}
 			: {
-				title: ValueConfigOption.EditValue,
-				onClick: handleEditValue
+				title: ValueConfigOption.AddElement,
+				onClick: handleAddArrayElement
 			},
 		{
 			title: ValueConfigOption.MakeChildFieldsOptional,
@@ -234,18 +245,20 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						)}
 					</span>
 					<span className={classes.label}>
-						<FieldActionWrapper>
-							<Button
-								id={"expand-or-collapse-" + id} 
-								appearance="icon"
-								tooltip="Expand/Collapse"
-								onClick={handleExpand}
-								data-testid={`${id}-expand-icon-mapping-target-node`}
-								sx={{ marginLeft: indentation }}
-							>
-								{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-							</Button>
-						</FieldActionWrapper>
+						{hasValue && isBodyArrayLitExpr && (
+							<FieldActionWrapper>
+								<Button
+									id={"expand-or-collapse-" + id}
+									appearance="icon"
+									tooltip="Expand/Collapse"
+									onClick={() => handleExpand(expanded)}
+									data-testid={`${id}-expand-icon-mapping-target-node`}
+									sx={{ marginLeft: indentation }}
+								>
+									{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+								</Button>
+							</FieldActionWrapper>
+						)}
 						{label}
 					</span>
 					{focusedOnSubMappingRoot && (
@@ -275,7 +288,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						</FieldActionWrapper>
 					))}
 				</TreeHeader>
-				{expanded && dmTypeWithValue && isBodyArrayLitExpr && (
+				{expanded && hasValue && isBodyArrayLitExpr && (
 					<TreeBody>
 						<ArrayOutputFieldWidget
 							key={id}
