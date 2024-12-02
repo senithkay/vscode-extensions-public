@@ -261,6 +261,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             placeholder = conditionalPlaceholder?.[conditionFieldValue];
         }
 
+        let keyType = element.keyType;
+        if (keyType?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(keyType.conditionField));
+            const conditionalKeyType = keyType.values.find((value: any) => value[conditionFieldValue]);
+            keyType = conditionalKeyType?.[conditionFieldValue];
+        }
+
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -327,7 +334,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         control={control}
                         name={name}
                         label={element.displayName}
-                        filterType={element.keyType}
+                        filterType={keyType}
                         allowItemCreate={element.canAddNew}
                         required={true}
                         errorMsg={errorMsg}
@@ -335,7 +342,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         {...element.inputType === 'keyOrExpression' && { exprToggleEnabled: true }}
                         openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                         onCreateButtonClick={element.canAddNew ? (fetchItems: any, handleValueChange: any) => {
-                            openPopup(rpcClient, element.keyType, fetchItems, handleValueChange);
+                            openPopup(rpcClient, keyType, fetchItems, handleValueChange);
                         } : undefined}
                     />
                 );
@@ -343,15 +350,15 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'registry':
             case 'resource': {
                 let onCreateButtonClick;
-                if (!Array.isArray(element.keyType)) {
+                if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: element.keyType });
+                        openPopup(rpcClient, element.inputType === 'comboOrKey' ? keyType : "addResource", fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(element.keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
                     allowItemCreate={true}
@@ -364,9 +371,9 @@ export function FormGenerator(props: FormGeneratorProps) {
             }
             case 'resourceOrExpression': {
                 let onCreateButtonClick;
-                if (!Array.isArray(element.keyType)) {
+                if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: element.keyType });
+                        openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
@@ -374,7 +381,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     control={control}
                     name={name}
                     label={element.displayName}
-                    filterType={element.keyType}
+                    filterType={keyType}
                     labelAdornment={helpTipElement}
                     allowItemCreate={true}
                     required={isRequired}
