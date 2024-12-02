@@ -291,6 +291,11 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 
 
     context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory()));
+
+    // Listener to support reflect breakpoint changes in diagram when debugger is inactive
+    context.subscriptions.push(debug.onDidChangeBreakpoints((session) => {
+        notifyBreakpointChange();
+    }));
 }
 
 class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
