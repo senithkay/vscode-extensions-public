@@ -461,6 +461,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = 'application/yaml';
             fileExtension = 'yaml';
             break;
+        case "TEXT File":
+            mediaType = 'text/plain';
+            fileExtension = 'txt';
+            break;
+        case "XML File":
+            mediaType = 'application/xml';
+            fileExtension = 'xml';
+            break;
         case "Local Entry":
             mediaType = 'application/vnd.wso2.esb.localentry';
             break;
