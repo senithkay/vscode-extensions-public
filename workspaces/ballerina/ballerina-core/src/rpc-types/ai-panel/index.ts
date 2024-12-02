@@ -37,4 +37,5 @@ export interface AIPanelAPI {
     getMappingsFromRecord: (params: GenerteMappingsFromRecordRequest) => Promise<GenerateMappingFromRecordResponse>;
     applyDoOnFailBlocks: () => void;
     postProcess: (req: PostProcessRequest) => Promise<PostProcessResponse>;
+    getActiveFile:() => Promise<string>;
 }

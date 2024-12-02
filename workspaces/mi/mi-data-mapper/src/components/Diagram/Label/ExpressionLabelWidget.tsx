@@ -17,9 +17,9 @@ import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
 import { InputOutputPortModel, MappingType } from '../Port';
-import { getMappingType, isInputAccessExpr } from '../utils/common-utils';
+import { expandArrayFn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
+import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -95,8 +95,10 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
-    const source = link?.getSourcePort();
-    const target = link?.getTargetPort();
+    const { addView, views } = context;
+
+    const source = link?.getSourcePort() as InputOutputPortModel;
+    const target = link?.getTargetPort() as InputOutputPortModel;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -197,6 +199,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             }
 
             const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
+
+            expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
 
             const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
             await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
