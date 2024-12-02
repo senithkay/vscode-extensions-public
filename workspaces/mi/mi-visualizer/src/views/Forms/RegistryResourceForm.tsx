@@ -36,13 +36,21 @@ type InputsFields = {
     registryType?: "gov" | "conf";
 };
 
+const canCreateTemplateForType = (type: string) => {
+    if (!type) {
+        return true;
+    }
+    const allowedTypes = ["xslt", "xsl", "xsd", "wsdl", "yaml", "json", "js", "dmc"];
+    return allowedTypes.includes(type);
+}
+
 const getInitialRegistryResource = (type: string): InputsFields => ({
     templateType: getTemplateType(type),
     filePath: "Please select a file or folder",
     resourceName: "",
     artifactName: "",
     registryPath: type ? '/' + type : '/',
-    createOption: "new",
+    createOption: canCreateTemplateForType(type) ? "new" : "import",
     registryType: "gov"
 });
 
@@ -68,6 +76,8 @@ const getTemplateType = (type: string) => {
             return "TEXT File";
         case "xml":
             return "XML File";
+        case "crt":
+            return "CRT File";
         default:
             return "XSLT File";
     }
@@ -176,6 +186,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 return ".txt";
             case "XML File":
                 return ".xml";
+            case "CRT File":
+                return ".crt";
             default:
                 return ".xml";
         }
@@ -275,12 +287,12 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     return (
         <FormView title="Create New Resource" onClose={handleBackButtonClick}>
-            <RadioButtonGroup
+            {canCreateTemplateForType(props.type) && <RadioButtonGroup
                 label="Create Options"
                 id="createOption"
                 options={[{ content: "From existing template", value: "new" }, { content: "Import from file system", value: "import" }]}
                 {...register("createOption")}
-            />
+            />}
             {createOptionValue && (<>
                 <Dropdown
                     label="Template Type"
