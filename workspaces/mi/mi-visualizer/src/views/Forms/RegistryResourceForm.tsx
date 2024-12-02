@@ -24,7 +24,7 @@ export interface RegistryWizardProps {
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
-{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }];
+{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }, { value: "TEXT File" }, { value: "XML File" }];
 
 type InputsFields = {
     templateType?: string;
@@ -64,6 +64,10 @@ const getTemplateType = (type: string) => {
             return "Javascript File";
         case "dmc":
             return "Data Mapper";
+        case "txt":
+            return "TEXT File";
+        case "xml":
+            return "XML File";
         default:
             return "XSLT File";
     }
@@ -168,6 +172,10 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 return ".xsl";
             case "XSLT File":
                 return ".xslt";
+            case "TEXT File":
+                return ".txt";
+            case "XML File":
+                return ".xml";
             default:
                 return ".xml";
         }
@@ -278,7 +286,10 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     label="Template Type"
                     id="templateType"
                     items={templates}
-                    {...register("templateType")}
+                    onChange={(e) => {
+                        setValue("templateType", e.target.value, { shouldDirty: true });
+                        setValue("registryPath", '/' + getFileExtension().split('.').pop(), { shouldDirty: true });
+                    }}
                 ></Dropdown>
                 <TextField
                     label="Resource Name"
@@ -304,6 +315,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             <TextField
                 id='registryPath'
                 label="Resource Path"
+                value={'/' + getFileExtension().split('.').pop()}
                 errorMsg={errors.registryPath?.message.toString()}
                 {...register("registryPath")}
             />
