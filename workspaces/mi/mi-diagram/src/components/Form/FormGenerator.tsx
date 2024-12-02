@@ -592,6 +592,11 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
+        const defaultValue = getDefaultValue(element);
+
+        if (getValues(name) === undefined) {
+            setValue(name, defaultValue);
+        }
 
         if (element.type === 'table') {
             element.value.inputType = 'ParamManager';
@@ -601,7 +606,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             <Controller
                 name={name}
                 control={control}
-                defaultValue={getDefaultValue(element)}
+                defaultValue={defaultValue}
                 rules={
                     {
                         ...(isRequired) && {
