@@ -8,8 +8,10 @@
  */
 
 import {
+    COMMENT_NODE_CIRCLE_WIDTH,
     COMMENT_NODE_GAP,
     DIAGRAM_CENTER_X,
+    DRAFT_NODE_BORDER_WIDTH,
     NODE_GAP_X,
     NODE_GAP_Y,
     NODE_PADDING,
@@ -98,7 +100,7 @@ export class PositionVisitor implements BaseVisitor {
             node.viewState.x = centerX - node.viewState.rw;
             // if top node is comment, align with comment
             if (parent.codedata.node === "COMMENT") {
-                node.viewState.x = parent.viewState.x - NODE_PADDING / 2;
+                node.viewState.x = parent.viewState.x - (COMMENT_NODE_CIRCLE_WIDTH / 2 + DRAFT_NODE_BORDER_WIDTH);
             }
             return;
         }

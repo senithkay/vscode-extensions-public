@@ -213,7 +213,7 @@ export class SizingVisitor implements BaseVisitor {
         const width = COMMENT_NODE_WIDTH;
         const height = NODE_HEIGHT;
         const containerWidth = width + NODE_WIDTH / 2;
-        this.setNodeSize(node, width, height, containerWidth);
+        this.setNodeSize(node, 0, width, height, 0, containerWidth);
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {

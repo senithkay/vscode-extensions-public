@@ -13,6 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CommentNodeModel } from "./CommentNodeModel";
 import {
     Colors,
+    COMMENT_NODE_CIRCLE_WIDTH,
     COMMENT_NODE_GAP,
     COMMENT_NODE_WIDTH,
     DRAFT_NODE_BORDER_WIDTH,
@@ -59,8 +60,8 @@ export namespace NodeStyles {
     `;
 
     export const Circle = styled.div`
-        width: ${NODE_PADDING}px;
-        height: ${NODE_PADDING}px;
+        width: ${COMMENT_NODE_CIRCLE_WIDTH}px;
+        height: ${COMMENT_NODE_CIRCLE_WIDTH}px;
         border-radius: 50%;
         border: ${DRAFT_NODE_BORDER_WIDTH}px solid ${Colors.PRIMARY};
         background-color: ${Colors.PRIMARY_CONTAINER};
