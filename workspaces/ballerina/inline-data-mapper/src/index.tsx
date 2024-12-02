@@ -11,6 +11,8 @@ import React from "react";
 
 /** @jsx jsx */
 import type {} from "@emotion/styled";
+import type {} from "@projectstorm/react-diagrams-core";
+import type {} from "@projectstorm/react-diagrams";
 import { css, Global } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { IDMModel, Mapping } from "@wso2-enterprise/ballerina-core";

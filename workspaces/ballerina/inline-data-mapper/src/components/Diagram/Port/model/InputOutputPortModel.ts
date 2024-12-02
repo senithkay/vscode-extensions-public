@@ -76,9 +76,9 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
 				}
 
-				const targetPortHasLinks = Object.values(targetPort.links)
-					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-				const valueType = getValueType(lm);
+                const targetPortHasLinks = Object.values(targetPort.links)
+                    ?.some(link => link instanceof DataMapperLinkModel && link.isActualLink);
+                const valueType = getValueType(lm);
 
 				if (targetPortHasLinks || valueType === ValueType.NonEmpty) {
 					await updateExistingMapping(lm);
