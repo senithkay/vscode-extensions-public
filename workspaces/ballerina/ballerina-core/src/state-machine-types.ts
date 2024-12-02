@@ -118,6 +118,8 @@ export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { metho
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
 export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
 
+export const breakpointChanged: NotificationType<void> = { method: 'breakpointChanged' };
+
 // ------------------> AI Related state types <----------------------- 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';
 

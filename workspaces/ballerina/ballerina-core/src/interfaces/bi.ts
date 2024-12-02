@@ -44,6 +44,8 @@ export type FlowNode = {
     returning: boolean;
     suggested?: boolean;
     viewState?: ViewState;
+    hasBreakpoint?: boolean;
+    isActiveBreakpoint?: boolean;
 };
 
 export type Metadata = {

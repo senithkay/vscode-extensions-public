@@ -87,6 +87,32 @@ export interface ComponentsResponse {
     response: boolean;
 }
 
+export interface BreakpointPosition {
+    line: number;
+    column?: number;
+}
+export interface BreakpointRequest {
+    filePath: string;
+    breakpoint: BreakpointPosition;
+}
+
+export interface Source {
+    name?: string;
+    path?: string;
+}
+
+export interface BreakpointData {
+    verified: boolean;
+    source: Source;
+    line: number;
+    column?: number;
+}
+
+export interface CurrentBreakpointsResponse {
+    breakpoints: BreakpointData[];
+    activeBreakpoint?: BreakpointData;
+}
+
 export interface AIChatRequest {
     scafold: boolean;
     readme: boolean;

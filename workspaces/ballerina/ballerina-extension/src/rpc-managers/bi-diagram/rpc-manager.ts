@@ -34,11 +34,13 @@ import {
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
+    BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
+    CurrentBreakpointsResponse,
     DIRECTORY_MAP,
     EVENT_TYPE,
     ExpressionCompletionsRequest,
@@ -62,11 +64,13 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
+import * as vscode from "vscode";
+
 import {
     ShellExecution,
     Task,
@@ -77,11 +81,14 @@ import {
 } from "vscode";
 import { extension } from "../../BalExtensionContext";
 import { ballerinaExtInstance } from "../../core";
+import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import { writeBallerinaFileDidOpen } from "../../utils/modification";
+import { DebugProtocol } from "vscode-debugprotocol";
+import { notifyBreakpointChange } from "../../RPCLayer";
 
 export class BIDiagramRpcManager implements BIDiagramAPI {
 
@@ -897,6 +904,71 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 .catch((error) => {
                     reject("Error fetching expression diagnostics from ls");
                 });
+        });
+    }
+
+    async addBreakpointToSource(params: BreakpointRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            console.log("!===== adding breakpoint to source", params);
+            const breakpoint = new vscode.SourceBreakpoint(
+                new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, params.breakpoint?.column)));
+            vscode.debug.addBreakpoints([breakpoint]);
+
+            notifyBreakpointChange();
+        });
+    }
+
+    async removeBreakpointFromSource(params: BreakpointRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            console.log("!===== removing breakpoint from source", params);
+            const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
+                const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
+                return sourceBreakpoint.location.uri.fsPath === params.filePath;
+            }) as vscode.SourceBreakpoint[];
+
+            console.log("!===== breakpoints for file", breakpointsForFile);
+
+            const breakpoints = breakpointsForFile.filter((breakpoint) => {
+                return breakpoint.location.range.start.line === params.breakpoint.line && breakpoint.location.range.start?.character === params.breakpoint?.column;
+            });
+
+            // If there are no breakpoints found, then it could be due the breakpoint has been added from the sourceCode, where the column is not provided
+            // so we need to check for breakpoint with the same line and remove
+            if (breakpoints.length === 0) {
+                const breakpointsToRemove = breakpointsForFile.filter((breakpoint) => {
+                    return breakpoint.location.range.start.line === params.breakpoint.line;
+                });
+                vscode.debug.removeBreakpoints(breakpointsToRemove);
+            } else {
+                vscode.debug.removeBreakpoints(breakpoints);
+            }
+
+            notifyBreakpointChange();
+        });
+    }
+
+    async getBreakpointInfo(): Promise<CurrentBreakpointsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+
+            const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
+                const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
+                return sourceBreakpoint.location.uri.fsPath === context?.documentUri;
+            }) as vscode.SourceBreakpoint[];
+
+            const breakpoints: DebugProtocol.Breakpoint[] = breakpointsForFile.map((breakpoint) => {
+                return {
+                    verified: true,
+                    line: breakpoint.location.range.start.line,
+                    column: breakpoint.location.range.start?.character
+                };
+            });
+            // TODO: Check the need of using breakpoints with verified status
+            // const breakppoints = BreakpointManager.getInstance().getBreakpoints();
+            // if there is an instance then call get ActiveBreakpoint
+
+            const activeBreakpoint = BreakpointManager.getInstance()?.getActiveBreakpoint();
+            resolve({ breakpoints: breakpoints, activeBreakpoint: activeBreakpoint });
         });
     }
 }

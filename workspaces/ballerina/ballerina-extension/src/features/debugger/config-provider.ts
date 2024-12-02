@@ -14,7 +14,10 @@ import {
     tasks,
     TaskDefinition,
     ShellExecution,
-    TaskExecution
+    TaskExecution,
+    DebugAdapterTrackerFactory,
+    DebugAdapterTracker,
+    ViewColumn
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -41,9 +44,12 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
-import { StateMachine } from '../../stateMachine';
+import { BallerinaProject, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
+import { openView, StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
+import { BreakpointManager } from './breakpoint-manager';
+import { notifyBreakpointChange } from '../../RPCLayer';
+import { VisualizerWebview } from '../../views/visualizer/webview';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -282,7 +288,110 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 
     const factory = new BallerinaDebugAdapterDescriptorFactory(ballerinaExtInstance);
     context.subscriptions.push(debug.registerDebugAdapterDescriptorFactory('ballerina', factory));
+
+
+    context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory()));
 }
+
+class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
+    createDebugAdapterTracker(session: DebugSession): DebugAdapterTracker {
+        return {
+
+            onWillStartSession() {
+                console.log("=====onWillStartSession");
+                new BreakpointManager();
+            },
+
+            onWillStopSession() {
+                console.log("=====onWillStopSession");
+                // clear the active breakpoint
+                BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                notifyBreakpointChange();
+            },
+
+
+            // VS Code -> Debug Adapter
+            onWillReceiveMessage: (message: DebugProtocol.ProtocolMessage) => {
+                console.log("=====onWillReceiveMessage", message);
+
+            },
+
+            // Debug Adapter -> VS Code
+            onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
+                console.log("=====onDidSendMessage", message);
+                if (message.type === "response") {
+                    const msg = <DebugProtocol.Response>message;
+
+                    if (msg.command === "setBreakpoints") {
+                        const breakpoints = msg.body.breakpoints;
+                        // convert debug points to client breakpoints
+                        if (breakpoints) {
+                            console.log("!=====breakpoints in setBreakpoints tracker", breakpoints);
+                            const clientBreakpoints = breakpoints.map(bp => ({
+                                ...bp,
+                                line: bp.line - 1
+                            }));
+                            // set the breakpoints in the diagram
+                            BreakpointManager.getInstance().addBreakpoints(clientBreakpoints);
+                            notifyBreakpointChange();
+                        }
+                    } else if (msg.command === "stackTrace") {
+                        // get the current stack trace
+                        const hitBreakpoint = msg.body.stackFrames[0];
+                        console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
+
+                        const clientBreakpoint = {
+                            ...hitBreakpoint,
+                            line: Math.max(0, hitBreakpoint.line - 1),
+                            column: Math.max(0, hitBreakpoint.column - 1)
+                        };
+
+                        BreakpointManager.getInstance().setActiveBreakpoint(clientBreakpoint);
+
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+
+                        // Check the diagram visibility
+                        if (isWebviewPresent) {
+                            setTimeout(() => {
+                                const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+                                if (VisualizerWebview.currentPanel) {
+                                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
+                                    setTimeout(() => {
+
+                                        // check if currentFilePath is different from the one in the context, if so we need to open the currentFile
+                                        if (StateMachine.context().documentUri !== uri.fsPath) {
+                                            const newContext = StateMachine.context();
+                                            newContext.documentUri = uri.fsPath;
+                                            openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                                            notifyBreakpointChange();
+
+                                        } else {
+                                            const context = StateMachine.context();
+                                            notifyBreakpointChange();
+                                        }
+                                    }, 200);
+                                } else {
+                                    //  extension.webviewReveal = true;
+                                    const newContext = StateMachine.context();
+                                    newContext.documentUri = uri.fsPath;
+                                    openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                                    notifyBreakpointChange();
+                                }
+                            }, 200);
+                        }
+
+                    } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
+                    }
+                }
+            },
+        };
+    }
+}
+
+
 
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;

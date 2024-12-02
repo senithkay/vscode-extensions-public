@@ -31,6 +31,7 @@ export enum DefaultColors {
     BLUE = "#1a85ff",
     GREEN = "#388a34",
     PURPLE = "#652d90",
+    DEBUGGER_BREAKPOINT_BACKGROUND = "#ffcc004d",
 }
 
 export enum VSCodeColors {
@@ -77,6 +78,7 @@ export const Colors = {
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT: VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
+    DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 

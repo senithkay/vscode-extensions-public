@@ -29,11 +29,13 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
+    CurrentBreakpointsResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -50,6 +52,7 @@ import {
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
+    addBreakpointToSource,
     buildProject,
     createComponent,
     createComponents,
@@ -60,6 +63,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getBreakpointInfo,
     getConfigVariables,
     getExpressionCompletions,
     getExpressionDiagnostics,
@@ -78,6 +82,7 @@ import {
     handleReadmeContent,
     openAIChat,
     openReadme,
+    removeBreakpointFromSource,
     runProject,
     updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
@@ -205,6 +210,18 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
+    }
+
+    addBreakpointToSource(params: BreakpointRequest): void {
+        return this._messenger.sendNotification(addBreakpointToSource, HOST_EXTENSION, params);
+    }
+
+    removeBreakpointFromSource(params: BreakpointRequest): void {
+        return this._messenger.sendNotification(removeBreakpointFromSource, HOST_EXTENSION, params);
+    }
+
+    getBreakpointInfo(): Promise<CurrentBreakpointsResponse> {
+        return this._messenger.sendRequest(getBreakpointInfo, HOST_EXTENSION);
     }
 
     getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {

@@ -18,6 +18,7 @@ import {
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
     BISourceCodeRequest,
+    BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
     ExpressionCompletionsRequest,
@@ -25,8 +26,10 @@ import {
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
-    buildProject,
+    UpdateConfigVariableRequest,
     VisibleTypesRequest,
+    addBreakpointToSource,
+    buildProject,
     createComponent,
     createComponents,
     createProject,
@@ -36,6 +39,7 @@ import {
     getAiSuggestions,
     getAvailableNodes,
     getBIConnectors,
+    getBreakpointInfo,
     getConfigVariables,
     getExpressionCompletions,
     getExpressionDiagnostics,
@@ -48,15 +52,15 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
-    getVisibleVariableTypes,
     getVisibleTypes,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent,
-    UpdateConfigVariableRequest,
-    updateConfigVariables,
     openAIChat,
     openReadme,
+    removeBreakpointFromSource,
     runProject,
+    updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BIDiagramRpcManager } from "./rpc-manager";
@@ -92,5 +96,8 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(runProject, () => rpcManger.runProject());
     messenger.onRequest(getVisibleTypes, (args: VisibleTypesRequest) => rpcManger.getVisibleTypes(args));
+    messenger.onNotification(addBreakpointToSource, (args: BreakpointRequest) => rpcManger.addBreakpointToSource(args));
+    messenger.onNotification(removeBreakpointFromSource, (args: BreakpointRequest) => rpcManger.removeBreakpointFromSource(args));
+    messenger.onRequest(getBreakpointInfo, () => rpcManger.getBreakpointInfo());
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
 }
