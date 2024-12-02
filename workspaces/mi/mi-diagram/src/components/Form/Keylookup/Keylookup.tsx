@@ -191,7 +191,7 @@ export const Keylookup = (props: IKeylookup) => {
 
     useEffect(() => {
         fetchItems();
-    }, []);
+    }, [filterType]);
 
     const fetchItems = async () => {
         if (filterType === "mockService") {
