@@ -141,7 +141,7 @@ export namespace NodeStyles {
         left: number;
     };
     export const Container = styled.div<ContainerStyleProp>`
-        position: absolute;
+        position: fixed;
         width: ${(props) => props.width}px;
         height: ${(props) => props.height}px;
         top: ${(props) => props.top}px;
@@ -222,9 +222,18 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const viewState = model.node.viewState;
     const hasError = nodeHasError(model.node);
-    const bodyViewState = model.node.branches.find((branch) => branch.label === "Body")?.viewState;
+    const nodeViewState = model.node.viewState;
+    const branchViewState = model.node.branches.find((branch) => branch.label === "Body")?.viewState;
+
+    console.log(">>> while node", {
+        nodeViewState,
+        branchViewState,
+        width: nodeViewState?.clw + nodeViewState?.crw + NODE_GAP_X,
+        height: nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2,
+        top: nodeViewState.h + NODE_GAP_Y / 2,
+        left: nodeViewState?.x + nodeViewState.lw - branchViewState.clw - NODE_GAP_X / 2,
+    });
 
     return (
         <NodeStyles.Node>
@@ -283,10 +292,10 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 </Popover>
             </NodeStyles.Row>
             <NodeStyles.Container
-                width={bodyViewState?.clw + bodyViewState?.crw + NODE_GAP_X}
-                height={viewState.ch - viewState.h - NODE_GAP_Y / 2}
-                top={viewState.h + NODE_GAP_Y / 2}
-                left={bodyViewState?.x + viewState.lw - NODE_GAP_X / 2}
+                width={nodeViewState?.clw + nodeViewState?.crw + NODE_GAP_X}
+                height={nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2}
+                top={nodeViewState.y + nodeViewState.h + NODE_GAP_Y / 2}
+                left={nodeViewState.x + nodeViewState.lw - branchViewState.clw - NODE_GAP_X / 2}
             ></NodeStyles.Container>
         </NodeStyles.Node>
     );
