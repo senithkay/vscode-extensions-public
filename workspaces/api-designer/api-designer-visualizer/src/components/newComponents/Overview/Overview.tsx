@@ -52,7 +52,6 @@ const moreOptions = ["Summary", "Description", "Contact", "License"];
 // Title, Version are mandatory fields
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition, isNewFile, onOpenApiDefinitionChange } = props;
-    const [description, setDescription] = useState<string>(openAPIDefinition?.info?.description); // Due to the nature of the code component, this is not a controlled component
     const { rpcClient } = useVisualizerContext();
 
     const selectedOptions: string[] = getSelectedOverviewComponent(openAPIDefinition);

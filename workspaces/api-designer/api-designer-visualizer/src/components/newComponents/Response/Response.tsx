@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Content, MediaType as M, Response as R, Schema } from '../../../Definitions/ServiceDefinitions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
@@ -93,6 +93,10 @@ export function Response(props: ResponseProps) {
         handleResponsesChange({ ...response, description: evt.target.value });
     };
     const allMediaTypes = response?.content && Object.keys(response?.content);
+
+    useEffect(() => {
+        setDescription(response?.description);
+    }, [response?.description]);
 
     return (
         <SubSectionWrapper>

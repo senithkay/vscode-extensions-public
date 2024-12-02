@@ -47,7 +47,6 @@ const getAllOperationsFromPathItem = (pathItem: P) => {
 // Title, Vesrion are mandatory fields
 export function PathItem(props: PathItemProps) {
     const { pathItem, path, onPathItemChange } = props;
-    const [description, setDescription] = useState<string>(pathItem?.description || "");
     const { rpcClient } = useVisualizerContext();
     const { 
         props: { pathInitiated },
@@ -120,7 +119,6 @@ export function PathItem(props: PathItemProps) {
         })
     };
     const handleDescriptionChange = (e: any) => {
-        setDescription(e.target.value);
         handlePathItemChange({ ...pathItem, description: e.target.value }, path);
     };
     const handleOperationChange = (isChecked: boolean, method: string) => {
@@ -192,7 +190,7 @@ export function PathItem(props: PathItemProps) {
                     label="Description"
                     id="description"
                     sx={{ width: "100%" }}
-                    value={description}
+                    value={pathItem?.description || ""}
                     onChange={handleDescriptionChange}
                 />
             )}

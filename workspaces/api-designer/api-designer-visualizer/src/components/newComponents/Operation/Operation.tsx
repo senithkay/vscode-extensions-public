@@ -11,9 +11,8 @@ import styled from "@emotion/styled";
 import { Operation as O } from '../../../Definitions/ServiceDefinitions';
 import ResourceHeader from '../ResourceHeader/ResourceHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
-import { Parameter } from '../Parameter/Parameter';
 import { Parameters } from '../Parameters/Parameters';
 import { RequestBody } from '../RequestBody/RequestBody';
 import { Responses } from '../Responses/Responses';
@@ -109,6 +108,10 @@ export function Operation(props: OperationProps) {
         setDescription(evt.target.value);
         handleOperationChange({ ...operation, description: evt.target.value });
     };
+
+    useEffect(() => {
+        setDescription(operation?.description);
+    }, [operation?.description]);
 
     return (
         <PanelBody>

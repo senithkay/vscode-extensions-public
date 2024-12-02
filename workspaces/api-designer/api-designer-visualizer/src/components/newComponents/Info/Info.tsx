@@ -9,7 +9,7 @@
 import { TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Contact as C, Info as I } from '../../../Definitions/ServiceDefinitions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CodeTextArea } from '../../CodeTextArea/CodeTextArea';
 import { Contact } from '../Contact/Contact';
 import { License } from '../License/Lisense';
@@ -41,6 +41,10 @@ export function Info(props: InfoProps) {
     const handleInfoChange = (info: I) => {
         onInfoChange(info);
     };
+
+    useEffect(() => {
+        setDescription(info?.description);
+    }, [info?.description]);
 
     return (
         <>
