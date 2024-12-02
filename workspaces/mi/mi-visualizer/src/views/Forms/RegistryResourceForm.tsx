@@ -40,7 +40,7 @@ const canCreateTemplateForType = (type: string) => {
     if (!type) {
         return true;
     }
-    const allowedTypes = ["xslt", "xsl", "xsd", "wsdl", "yaml", "json", "js", "dmc"];
+    const allowedTypes = ["xslt", "xsl", "xsd", "wsdl", "yaml", "json", "js", "dmc", "xml", "txt"];
     return allowedTypes.includes(type);
 }
 
