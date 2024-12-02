@@ -18,12 +18,7 @@ import { EmptyNodeModel } from "../components/nodes/EmptyNode";
 import { IfNodeModel } from "../components/nodes/IfNode/IfNodeModel";
 import { StartNodeModel } from "../components/nodes/StartNode/StartNodeModel";
 import { WhileNodeModel } from "../components/nodes/WhileNode";
-import {
-    BUTTON_NODE_HEIGHT,
-    EMPTY_NODE_WIDTH,
-    NODE_GAP_X,
-    WHILE_NODE_WIDTH,
-} from "../resources/constants";
+import { BUTTON_NODE_HEIGHT, EMPTY_NODE_WIDTH, NODE_GAP_X, WHILE_NODE_WIDTH } from "../resources/constants";
 import { createNodesLink } from "../utils/diagram";
 import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
@@ -99,6 +94,22 @@ export class NodeFactoryVisitor implements BaseVisitor {
             );
             this.nodes.push(buttonNodeModel);
         }
+    }
+
+    private getBranchEndNode(branch: Branch): NodeModel | undefined {
+        // get last child node model
+        const lastNode = branch.children.at(-1);
+        let lastChildNodeModel: NodeModel | undefined;
+        if (branch.children.at(-1).codedata.node === "IF") {
+            // if last child is IF, find endIf node
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
+        } else if (branch.children.at(-1).codedata.node === "WHILE" || branch.children.at(-1).codedata.node === "FOREACH") {
+            // if last child is WHILE or FOREACH, find endwhile node
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endwhile`);
+        } else {
+            lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
+        }
+        return lastChildNodeModel;
     }
 
     getNodes(): NodeModel[] {
@@ -217,16 +228,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
                 return;
             }
 
-            let lastChildNodeModel;
-            if (branch.children.at(-1).codedata.node === "IF") {
-                // if last child is IF, find endIf node
-                lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
-            } else {
-                // if last child is not IF, find last child node
-                lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
-            }
+            const lastChildNodeModel = this.getBranchEndNode(branch);
             if (!lastChildNodeModel) {
-                console.error("Branch node model not found", branch);
+                console.error("Cannot find last child node model in branch", branch);
                 return;
             }
 
@@ -333,16 +337,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
         }
 
         const lastNode = branch.children.at(-1);
-        let lastChildNodeModel;
-        if (branch.children.at(-1).codedata.node === "IF") {
-            // if last child is IF, find endIf node
-            lastChildNodeModel = this.nodes.find((n) => n.getID() === `${lastNode.id}-endif`);
-        } else {
-            // if last child is not IF, find last child node
-            lastChildNodeModel = this.nodes.find((n) => n.getID() === lastNode.id);
-        }
+        const lastChildNodeModel = this.getBranchEndNode(branch);
         if (!lastChildNodeModel) {
-            console.error("Last child node model not found", lastNode.id);
+            console.error("Cannot find last child node model in branch", branch);
             return;
         }
 

@@ -133,13 +133,17 @@ export class SizingVisitor implements BaseVisitor {
             return acc + branch.viewState?.clw + branch.viewState?.crw;
         }, 0);
         // if bar width
-        const ifBarWidth = firstBranchWidthViewState?.crw + middleBranchesWidth + lastBranchWidthViewState?.clw + NODE_GAP_X * (node.branches.length - 1);
+        const ifBarWidth =
+            firstBranchWidthViewState?.crw +
+            middleBranchesWidth +
+            lastBranchWidthViewState?.clw +
+            NODE_GAP_X * (node.branches.length - 1);
         // if node container left width
         const ifNodeContainerLeftWidth = firstBranchWidthViewState?.clw + ifBarWidth / 2;
         // if node container right width
         const ifNodeContainerRightWidth = ifBarWidth / 2 + lastBranchWidthViewState?.crw;
 
-        // if node container height 
+        // if node container height
         let containerHeight = 0;
         if (node.branches) {
             node.branches.forEach((child: Branch) => {
@@ -154,7 +158,15 @@ export class SizingVisitor implements BaseVisitor {
         const halfNodeWidth = IF_NODE_WIDTH / 2;
         const nodeHeight = IF_NODE_WIDTH;
 
-        this.setNodeSize(node, halfNodeWidth, halfNodeWidth, nodeHeight, ifNodeContainerLeftWidth, ifNodeContainerRightWidth, containerHeight);
+        this.setNodeSize(
+            node,
+            halfNodeWidth,
+            halfNodeWidth,
+            nodeHeight,
+            ifNodeContainerLeftWidth,
+            ifNodeContainerRightWidth,
+            containerHeight
+        );
     }
 
     // endVisitBlock(node: Branch, parent?: FlowNode): void {
@@ -229,11 +241,19 @@ export class SizingVisitor implements BaseVisitor {
             }
         }
         // add while node width and height
-        height += WHILE_NODE_WIDTH + (NODE_GAP_Y * 5) / 2;
+        height += WHILE_NODE_WIDTH + NODE_GAP_Y * 3;
 
-        const halfNodeWidth = WHILE_NODE_WIDTH/2;
+        const halfNodeWidth = WHILE_NODE_WIDTH / 2;
         const nodeHeight = WHILE_NODE_WIDTH;
-        this.setNodeSize(node, halfNodeWidth, halfNodeWidth, nodeHeight, containerLeftWidth, containerRightWidth, height);
+        this.setNodeSize(
+            node,
+            halfNodeWidth,
+            halfNodeWidth,
+            nodeHeight,
+            containerLeftWidth,
+            containerRightWidth,
+            height
+        );
     }
 
     endVisitForeach(node: FlowNode, parent?: FlowNode): void {

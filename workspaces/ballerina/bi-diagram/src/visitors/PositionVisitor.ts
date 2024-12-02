@@ -122,7 +122,7 @@ export class PositionVisitor implements BaseVisitor {
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
         node.viewState.y = this.lastNodeY;
-        this.lastNodeY += node.viewState.h + NODE_GAP_Y;
+        this.lastNodeY += node.viewState.h + NODE_GAP_Y * 2;
 
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.lw;
@@ -135,7 +135,6 @@ export class PositionVisitor implements BaseVisitor {
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
         this.lastNodeY = node.viewState.y + node.viewState.ch + NODE_GAP_Y;
-        console.log(">>> end while node", { node, parent, lastNodeY: this.lastNodeY });
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
