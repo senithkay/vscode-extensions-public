@@ -475,7 +475,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 								const res = await deleteRegistryResource(filePath);
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
-									projectExplorerDataProvider.refresh(lsClient);
+									registryExplorerDataProvider.refresh(lsClient);
 								} else {
 									window.showErrorMessage(res.info);
 								}
@@ -485,7 +485,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				break;
 			}
 		}
-		projectExplorerDataProvider.refresh(lsClient);
+		registryExplorerDataProvider.refresh(lsClient);
 	});
 }
 
