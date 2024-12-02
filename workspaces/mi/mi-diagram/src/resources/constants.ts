@@ -93,6 +93,8 @@ export const Colors = {
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };
 
+export const SIDE_PANEL_WIDTH = 450;
+
 export const NODE_GAP = {
     START_X: 0,
     START_Y: 40,
