@@ -113,12 +113,6 @@ export class InitVisitor implements BaseVisitor {
                 children: [emptyElseBranch],
             });
         }
-
-        // HACK: replace Then branch label with condition
-        // const thenBranch = node.branches.find((branch) => branch.label === "Then");
-        // if (thenBranch) {
-        //     thenBranch.label = thenBranch.properties.condition.value;
-        // }
     }
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {

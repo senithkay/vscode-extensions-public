@@ -231,17 +231,17 @@ export class SizingVisitor implements BaseVisitor {
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {
         let containerLeftWidth = 0;
         let containerRightWidth = 0;
-        let height = 0;
+        let containerHeight = 0;
         if (node.branches && node.branches.length == 1) {
-            const mainBranch: Branch = node.branches.at(0);
-            if (mainBranch.viewState) {
-                containerLeftWidth = Math.max(containerLeftWidth, Math.max(mainBranch.viewState.clw, NODE_GAP_X));
-                containerRightWidth = Math.max(containerRightWidth, Math.max(mainBranch.viewState.crw, NODE_GAP_X));
-                height = mainBranch.viewState.ch;
+            const branch: Branch = node.branches.at(0);
+            if (branch.viewState) {
+                containerLeftWidth = Math.max(containerLeftWidth, Math.max(branch.viewState.clw, NODE_GAP_X));
+                containerRightWidth = Math.max(containerRightWidth, Math.max(branch.viewState.crw, NODE_GAP_X));
+                containerHeight = branch.viewState.ch;
             }
         }
         // add while node width and height
-        height += WHILE_NODE_WIDTH + NODE_GAP_Y * 3;
+        containerHeight += WHILE_NODE_WIDTH + NODE_GAP_Y * 3;
 
         const halfNodeWidth = WHILE_NODE_WIDTH / 2;
         const nodeHeight = WHILE_NODE_WIDTH;
@@ -252,7 +252,7 @@ export class SizingVisitor implements BaseVisitor {
             nodeHeight,
             containerLeftWidth,
             containerRightWidth,
-            height
+            containerHeight
         );
     }
 

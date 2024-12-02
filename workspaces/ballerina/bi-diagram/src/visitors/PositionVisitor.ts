@@ -127,10 +127,9 @@ export class PositionVisitor implements BaseVisitor {
         const centerX = getTopNodeCenter(node, parent, this.diagramCenterX);
         node.viewState.x = centerX - node.viewState.lw;
 
-        const bodyBranch = node.branches.find((branch) => branch.label === "Body");
-        bodyBranch.viewState.y = this.lastNodeY;
-        console.log(">>> while body branch", { node, parent, lastNodeY: this.lastNodeY, centerX, bodyBranch });
-        bodyBranch.viewState.x = centerX - bodyBranch.viewState.clw;
+        const branch = node.branches.find((branch) => branch.label === "Body");
+        branch.viewState.y = this.lastNodeY;
+        branch.viewState.x = centerX - branch.viewState.clw;
     }
 
     endVisitWhile(node: FlowNode, parent?: FlowNode): void {

@@ -226,15 +226,6 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const nodeViewState = model.node.viewState;
     const branchViewState = model.node.branches.find((branch) => branch.label === "Body")?.viewState;
 
-    console.log(">>> while node", {
-        nodeViewState,
-        branchViewState,
-        width: nodeViewState?.clw + nodeViewState?.crw + NODE_GAP_X,
-        height: nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2,
-        top: nodeViewState.h + NODE_GAP_Y / 2,
-        left: nodeViewState?.x + nodeViewState.lw - branchViewState.clw - NODE_GAP_X / 2,
-    });
-
     return (
         <NodeStyles.Node>
             <NodeStyles.Row>
