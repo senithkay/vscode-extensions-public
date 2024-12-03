@@ -142,7 +142,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
         const name = getNameForController(element.name);
 
         return expressionEditorField !== name ? (
@@ -152,7 +152,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 labelAdornment={helpTipElement}
                 placeholder={placeholder}
                 canChange={canChange}
-                required={element.required || element.required === 'true'}
+                required={isRequired}
                 isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[name] && errors[name].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
@@ -307,7 +307,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder, isRequired });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
