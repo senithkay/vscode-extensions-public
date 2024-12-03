@@ -224,7 +224,6 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const disabled = model.node.suggested;
     const hasError = nodeHasError(model.node);
     const nodeViewState = model.node.viewState;
-    const branchViewState = model.node.branches.find((branch) => branch.label === "Body")?.viewState;
 
     return (
         <NodeStyles.Node>
@@ -283,10 +282,10 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                 </Popover>
             </NodeStyles.Row>
             <NodeStyles.Container
-                width={nodeViewState?.clw + nodeViewState?.crw + NODE_GAP_X}
+                width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
                 height={nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2}
                 top={nodeViewState.y + nodeViewState.h + NODE_GAP_Y / 2}
-                left={nodeViewState.x + nodeViewState.lw - branchViewState.clw - NODE_GAP_X / 2}
+                left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
             ></NodeStyles.Container>
         </NodeStyles.Node>
     );

@@ -78,12 +78,12 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     private createApiCallNode(node: FlowNode): void {
-        const nodeWidth = NODE_WIDTH + NODE_BORDER_WIDTH * 2;
+        const nodeWidth = NODE_WIDTH;
         const halfNodeWidth = nodeWidth / 2;
         const containerLeftWidth = halfNodeWidth;
         const containerRightWidth = halfNodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
 
-        const nodeHeight = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        const nodeHeight = NODE_HEIGHT;
         let containerHeight = nodeHeight;
         if (node.properties?.variable?.value || node.properties?.type?.value) {
             containerHeight += LABEL_HEIGHT;
@@ -243,6 +243,8 @@ export class SizingVisitor implements BaseVisitor {
         }
         // add while node width and height
         containerHeight += WHILE_NODE_WIDTH + NODE_GAP_Y * 3;
+        containerLeftWidth += NODE_GAP_X / 2;
+        containerRightWidth += NODE_GAP_X / 2;
 
         const halfNodeWidth = WHILE_NODE_WIDTH / 2;
         const nodeHeight = WHILE_NODE_WIDTH;
