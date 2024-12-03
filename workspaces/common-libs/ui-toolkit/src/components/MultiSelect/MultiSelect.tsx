@@ -97,12 +97,15 @@ export interface MultiSelectProps {
     dropdownSx?: any;
     addHoverEffect?: boolean;
     closeOnSelect?: boolean;
+    dropdownWidth?: number;
+    dropdownHeight?: number;
     onChange?: (values: string[], currentOption?: string) => void;
     onClosed?: (values: string[]) => void;
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps) => {
-    const { id, className, values: v , placeholder, displayValue, options, sx, dropdownSx, closeOnSelect, addHoverEffect = false, onClosed } = props;
+    const { id, className, values: v , placeholder, displayValue, options, sx, dropdownSx, closeOnSelect,
+        dropdownHeight = 0, dropdownWidth = 0, addHoverEffect = false, onClosed } = props;
     const [isComponentOpen, setIsComponentOpen] = React.useState(false);
     const [values, setValues] = React.useState<string[]>( v || []);
     const [valueContainerPosition, setValueContainerPosition] = React.useState<DOMRect | null>(null);
@@ -143,6 +146,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
         setValues(v || []);
     }, [v]);
 
+
+    console.log("MultiSelect Rendered");
+    console.log("ValueContainerPosition: ", valueContainerPosition);
+    console.log("InnerWidth: ", window.innerWidth);
+    console.log("InnerHeight: ", window.innerHeight);
+    console.log("ScrollY: ", window.scrollY);
+
     return (
         <MultiSelectContainer ref={containerRef} id={id} className={className} sx={sx}>
             {displayValue ? <div ref={valueContainerRef} onClick={handleComponentClick}>{displayValue}</div> : (
@@ -166,9 +176,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
                             addHoverEffect={addHoverEffect}
                             onClick={handleDropdownClick}
                             style={{
-                                top: (window.innerHeight - valueContainerPosition?.bottom < 200) ? 
-                                    valueContainerPosition?.top - 200 : valueContainerPosition?.bottom,
-                                left: valueContainerPosition?.left,
+                                top: (valueContainerPosition?.bottom + window.scrollY + 4 + 200) > window.innerHeight 
+                                    ? valueContainerPosition?.top + window.scrollY - dropdownHeight - 5 // Adjust if it goes beyond the bottom of the window
+                                    : valueContainerPosition?.bottom, // Position below the value container
+                                left: ((valueContainerPosition?.right + 200) > window.innerWidth) 
+                                    ? valueContainerPosition?.right - dropdownWidth // Adjust if it goes beyond the right of the window
+                                    : valueContainerPosition?.left, // Align with the left of the value container
                             }}
                         >
                             {options.map((option, key) => (

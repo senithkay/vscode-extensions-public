@@ -9,7 +9,7 @@
 
 import styled from "@emotion/styled";
 import { MultiSelect } from "@wso2-enterprise/ui-toolkit";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 
 interface ContainerProps {
     sx?: any;
@@ -26,12 +26,14 @@ interface PullUpProps {
     children: ReactNode;
     selectedOptions?: string[];
     selectSingleOption?: boolean;
+    dropdownWidth?: number;
+    dripdownHeight?: number;
     onOptionChange?: (options: string[]) => void;
     sx?: any;
 }
 
 export function PullUpButton(props: PullUpProps) {
-    const { options, sx, children, selectedOptions, selectSingleOption, onOptionChange } = props;
+    const { options, sx, children, selectedOptions, selectSingleOption, dripdownHeight, dropdownWidth, onOptionChange } = props;
 
     const onChangeValues = (values: string[], currentOption: string) => {
         if (onOptionChange) {
@@ -52,6 +54,8 @@ export function PullUpButton(props: PullUpProps) {
                 options={options}
                 displayValue={children}
                 values={selectedOptions}
+                dropdownWidth={dropdownWidth}
+                dropdownHeight={dripdownHeight}
                 onChange={onChangeValues}
             />
         </Container>
