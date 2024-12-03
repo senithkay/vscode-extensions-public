@@ -29,7 +29,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 
 	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
 	await registryExplorerDataProvider.refresh(lsClient);
-	window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
 
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });

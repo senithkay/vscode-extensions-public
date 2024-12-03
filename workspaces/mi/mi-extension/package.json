@@ -151,11 +151,6 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
-        },
-        {
-          "id": "MI.registry-explorer",
-          "name": "Resource Explorer",
-          "visibility": "collapsed"
         }
       ],
       "test": [
