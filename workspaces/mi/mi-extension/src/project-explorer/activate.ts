@@ -61,6 +61,11 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		console.log('Add API');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Resource');
+	});
+
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.EndPointForm, documentUri: entry.info?.path });
 		console.log('Add Endpoint');

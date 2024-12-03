@@ -262,6 +262,13 @@
         "category": "MI"
       },
       {
+        "command": "MI.project-explorer.add-resource",
+        "title": "Add Resource",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
         "command": "MI.project-explorer.create-project",
         "title": "Create New Project",
         "icon": "$(add)",
@@ -493,6 +500,10 @@
           "when": "false"
         },
         {
+          "command": "MI.project-explorer.add-resource",
+          "when": "false"
+        },
+        {
           "command": "MI.project-explorer.add-endpoint",
           "when": "false"
         },
@@ -699,6 +710,11 @@
         {
           "command": "MI.project-explorer.add-api",
           "when": "view == MI.project-explorer && viewItem == apis",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-resource",
+          "when": "view == MI.project-explorer && viewItem == resources",
           "group": "inline"
         },
         {

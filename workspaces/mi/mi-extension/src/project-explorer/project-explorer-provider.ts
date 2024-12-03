@@ -239,6 +239,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 					icon = 'folder';
 					label = 'Resources';
 					folderName = 'resources';
+					contextValue = 'resources';
 					break;
 				default:
 			}
@@ -247,7 +248,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			// 	continue;
 			// }
 
-			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...folderName.split(","));
+			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...folderName.split("/"));
 
 			const parentEntry = new ProjectExplorerEntry(
 				label,
