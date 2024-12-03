@@ -82,7 +82,7 @@ async function getComponents(langClient: ExtendedLangClientInterface, components
                 const labelName = triggerNode.properties['name'].value;
                 compType = triggerType;
                 comp.name = `${triggerType} - ${labelName}`
-                icon = "start";
+                icon = `bi-${triggerNode.moduleName}`;
             }
         } catch (error) {
             console.log(error);
