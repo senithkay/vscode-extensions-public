@@ -49,7 +49,7 @@ const getInitialRegistryResource = (type: string): InputsFields => ({
     filePath: "Please select a file",
     resourceName: "",
     artifactName: "",
-    registryPath: type ? '/' + type : '/',
+    registryPath: type ? type : '',
     createOption: canCreateTemplateForType(type) ? "new" : "import",
     registryType: "gov"
 });
@@ -301,7 +301,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     value={getValues("templateType")}
                     onChange={(e) => {
                         setValue("templateType", e.target.value, { shouldDirty: true });
-                        setValue("registryPath", '/' + getFileExtension().split('.').pop(), { shouldDirty: true });
+                        setValue("registryPath", getFileExtension().split('.').pop(), { shouldDirty: true });
                     }}
                 ></Dropdown>
                 <TextField
@@ -325,8 +325,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             <TextField
                 id='registryPath'
                 label="Resource Path"
-                value={'/' + getFileExtension().split('.').pop()}
+                value={getFileExtension().split('.').pop()}
                 errorMsg={errors.registryPath?.message.toString()}
+                inputProps={{ startAdornment: "resources:" }}
                 {...register("registryPath")}
             />
             <br />
