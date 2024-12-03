@@ -78,17 +78,18 @@ export class SizingVisitor implements BaseVisitor {
     }
 
     private createApiCallNode(node: FlowNode): void {
-        const nodeWidth = NODE_WIDTH + NODE_BORDER_WIDTH * 2 + NODE_PADDING * 2;
-        const halfWidth = nodeWidth / 2;
-        const containerWidth = nodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
-        const containerHalfWidth = containerWidth / 2;
+        const nodeWidth = NODE_WIDTH + NODE_BORDER_WIDTH * 2;
+        const halfNodeWidth = nodeWidth / 2;
+        const containerLeftWidth = halfNodeWidth;
+        const containerRightWidth = halfNodeWidth + NODE_GAP_X + NODE_HEIGHT + LABEL_HEIGHT;
 
-        let height = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        const nodeHeight = NODE_HEIGHT + NODE_BORDER_WIDTH * 2;
+        let containerHeight = nodeHeight;
         if (node.properties?.variable?.value || node.properties?.type?.value) {
-            height += LABEL_HEIGHT;
+            containerHeight += LABEL_HEIGHT;
         }
 
-        this.setNodeSize(node, halfWidth, halfWidth, height, containerHalfWidth, containerHalfWidth);
+        this.setNodeSize(node, containerLeftWidth, containerRightWidth, containerHeight);
     }
 
     private createBlockNode(node: Branch): void {
