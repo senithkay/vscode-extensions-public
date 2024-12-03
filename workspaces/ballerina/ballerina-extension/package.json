@@ -183,7 +183,7 @@
                 "properties": {
                     "kolab.enableSequenceDiagramView": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable the experimental Sequence Diagram View."
                     },
                     "kolab.enableAiSuggestions": {
@@ -799,21 +799,21 @@
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f139"
+                    "fontCharacter": "\\f13b"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1a8"
+                    "fontCharacter": "\\f1ac"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f134"
+                    "fontCharacter": "\\f136"
                 }
             },
             "distro-source-view": {
@@ -827,7 +827,7 @@
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f185"
+                    "fontCharacter": "\\f188"
                 }
             },
             "distro-cached-rounded": {
