@@ -292,19 +292,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                     />
                 );
             case 'boolean':
-                return (
-                    <FormCheckBox
-                        name={name}
-                        label={element.displayName}
-                        control={control}
-                    />
-                );
             case 'checkbox':
                 return (
-                    <FormCheckBox
-                        name={name}
+                    <CheckBox
+                        {...field}
                         label={element.displayName}
-                        control={control}
+                        labelAdornment={helpTipElement}
+                        checked={field.value}
                     />
                 );
             case 'stringOrExpression':
