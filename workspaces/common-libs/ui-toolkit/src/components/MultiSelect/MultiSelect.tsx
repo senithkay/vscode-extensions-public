@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useRef } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
 import { CheckBox } from "../CheckBoxGroup/CheckBoxGroup";
@@ -97,7 +97,7 @@ export interface MultiSelectProps {
     dropdownSx?: any;
     addHoverEffect?: boolean;
     closeOnSelect?: boolean;
-    onChange?: (values: string[]) => void;
+    onChange?: (values: string[], currentOption?: string) => void;
     onClosed?: (values: string[]) => void;
 }
 
@@ -125,7 +125,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
         } else {
             newValues = newValues.filter(value => value !== option);
         }
-        props.onChange && props.onChange(newValues);
+        props.onChange && props.onChange(newValues, option);
         if (closeOnSelect) {
             setIsComponentOpen(false);
         }
@@ -138,6 +138,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
             onClosed && onClosed(values || []);
         }
     };
+
+    useEffect(() => {
+        setValues(v || []);
+    }, [v]);
 
     return (
         <MultiSelectContainer ref={containerRef} id={id} className={className} sx={sx}>
