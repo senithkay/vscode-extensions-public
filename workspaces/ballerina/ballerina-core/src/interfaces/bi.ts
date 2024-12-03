@@ -109,11 +109,13 @@ export type ViewState = {
     // element view state
     x: number;
     y: number;
-    w: number;
-    h: number;
+    lw: number; // left width from center
+    rw: number; // right width from center
+    h: number;  // height
     // container view state
-    cw?: number;
-    ch?: number;
+    clw: number; // container left width from center 
+    crw: number; // container right width from center
+    ch: number;  // container height
     // flow start node
     startNodeId?: string;
 };

@@ -82,7 +82,6 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         return () => {
-            console.log(">>> clear diagram position and zoom");
             clearDiagramZoomAndPosition();
         };
     }, []);
