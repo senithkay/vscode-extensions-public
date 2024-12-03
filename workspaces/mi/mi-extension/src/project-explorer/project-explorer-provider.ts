@@ -15,6 +15,7 @@ import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
+// import { RegistryExplorerEntry, genResourceProjectStructureEntry } from './registry-explorer-provider';
 
 let registryDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
@@ -207,19 +208,19 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'APIs':
 					icon = 'APIResource';
 					label = 'APIs';
-					folderName = 'apis';
+					folderName = 'artifacts/apis';
 					contextValue = 'apis';
 					break;
 				case 'Triggers':
 					icon = 'inbound-endpoint';
 					label = 'Triggers';
-					folderName = 'inbound-endpoints';
+					folderName = 'artifacts/inbound-endpoints';
 					contextValue = 'inboundEndpoints'
 					break;
 				case 'Scheduled Tasks':
 					icon = 'task';
 					label = 'Scheduled Tasks';
-					folderName = 'tasks';
+					folderName = 'artifacts/tasks';
 					contextValue = 'tasks';
 					break;
 				case 'Common Artifacts':
@@ -234,6 +235,11 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 					icon = 'endpoint';
 					label = 'Advanced Artifacts';
 					break;
+				case 'Resources':
+					icon = 'folder';
+					label = 'Resources';
+					folderName = 'resources';
+					break;
 				default:
 			}
 			// TODO: Will introduce back when both data services and data sources are supported
@@ -241,18 +247,22 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			// 	continue;
 			// }
 
-			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', folderName);
+			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...folderName.split(","));
 
 			const parentEntry = new ProjectExplorerEntry(
 				label,
-				isCollapsibleState(topLevelEntries[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts'].includes(key)),
+				isCollapsibleState(topLevelEntries[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts', 'Resources'].includes(key)),
 				topLevelEntries[key]
 			);
 
-			const children =
-				(key === "APIs" || key === "Triggers" || key === "Scheduled Tasks")
-					? genProjectStructureEntry(topLevelEntries[key])
-					: generateArtifacts(topLevelEntries[key], data, project);
+			let children;
+			if (key === "APIs" || key === "Triggers" || key === "Scheduled Tasks") {
+				children = genProjectStructureEntry(topLevelEntries[key]);
+			} else if (key === "Resources") {
+				children = genResourceProjectStructureEntry(topLevelEntries[key]);
+			} else {
+				children = generateArtifacts(topLevelEntries[key], data, project);
+			}
 
 			parentEntry.children = children;
 			parentEntry.contextValue = contextValue;
@@ -264,6 +274,90 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 	}
 }
 
+function genResourceProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
+	const result: ProjectExplorerEntry[] = [];
+	const resPathPrefix = path.join("wso2mi", "resources");
+	if (data) {
+		if (data.files) {
+			for (const entry of data.files) {
+				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
+					name: entry.name,
+					type: 'resource',
+					path: `${entry.path}`
+				}, 'code', true);
+				explorerEntry.id = entry.path;
+				explorerEntry.command = {
+					"title": "Edit Resource",
+					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
+					"arguments": [vscode.Uri.file(entry.path)]
+				};
+				result.push(explorerEntry);
+				const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+				const resourcePath = entry.path.substring(lastIndex);
+				if (checkExistenceOfResource(resourcePath)) {
+					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+					explorerEntry.contextValue = "registry-without-metadata";
+				}
+			}
+		}
+		if (data.folders) {
+			for (const entry of data.folders) {
+				if (entry.name !== ".meta") {
+					const explorerEntry = new ProjectExplorerEntry(entry.name,
+						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+						{
+							name: entry.name,
+							type: 'resource',
+							path: `${entry.path}`
+						}, 'folder', true);
+					explorerEntry.children = genResourceProjectStructureEntry(entry);
+					result.push(explorerEntry);
+					const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+					const resourcePath = entry.path.substring(lastIndex);
+					if (checkExistenceOfRegistryResource(resourcePath)) {
+						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+						explorerEntry.contextValue = "registry-without-metadata";
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+function checkExistenceOfResource(resourcePath: string): boolean {
+	if (registryDetails.artifacts) {
+		for (const artifact of registryDetails.artifacts) {
+			let transformedPath = artifact.path.replace("/_system/governance/mi-resources", '/resources');
+			if (!artifact.isCollection) {
+				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
+			}
+			if (transformedPath === resourcePath) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
+}
+
+function checkExistenceOfRegistryResource(registryPath: string): boolean {
+	if (registryDetails.artifacts) {
+		for (const artifact of registryDetails.artifacts) {
+			let transformedPath = artifact.path.replace("/_system/governance", '/gov').replace("/_system/config", '/conf');
+			if (!artifact.isCollection) {
+				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
+			}
+			if (transformedPath === registryPath) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
+}
 
 function generateArtifacts(
 	data: DataIntegrationResponse | CommonArtifactsResponse | AdvancedArtifactsResponse,
