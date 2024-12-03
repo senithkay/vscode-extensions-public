@@ -157,7 +157,6 @@ import {
     GetAllRegistryPathsResponse,
     GetAllResourcePathsResponse,
     GetConfigurableEntriesResponse,
-    GetResourceUsagesResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
@@ -316,7 +315,6 @@ export interface MiDiagramAPI {
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
     getAllResourcePaths: () => Promise<GetAllResourcePathsResponse>;
     getConfigurableEntries: () => Promise<GetConfigurableEntriesResponse>;
-    getResourceUsages: () => Promise<GetResourceUsagesResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;

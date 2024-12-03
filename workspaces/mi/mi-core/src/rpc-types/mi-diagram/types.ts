@@ -1565,10 +1565,6 @@ export interface GetConfigurableEntriesResponse {
     configurableEntries: { name: string; type: string }[];
 }
 
-export interface GetResourceUsagesResponse {
-    usages?: string[];
-}
-
 export interface GetAllArtifactsRequest {
     path: string;
 }

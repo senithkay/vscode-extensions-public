@@ -158,7 +158,6 @@ import {
     GetAllRegistryPathsResponse,
     GetAllResourcePathsResponse,
     GetConfigurableEntriesResponse,
-    GetResourceUsagesResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
@@ -318,7 +317,6 @@ export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
 export const getAllResourcePaths: RequestType<void, GetAllResourcePathsResponse> = { method: `${_preFix}/getAllResourcePaths` }; 
 export const getConfigurableEntries: RequestType<void, GetConfigurableEntriesResponse> = { method: `${_preFix}/getConfigurableEntries` };
-export const getResourceUsages: RequestType<void, GetResourceUsagesResponse> = { method: `${_preFix}/getResourceUsages` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
 export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };

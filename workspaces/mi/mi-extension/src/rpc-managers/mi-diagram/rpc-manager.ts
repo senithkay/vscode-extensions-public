@@ -93,7 +93,6 @@ import {
     GetAllRegistryPathsResponse,
     GetAllResourcePathsResponse,
     GetConfigurableEntriesResponse,
-    GetResourceUsagesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -3887,14 +3886,6 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getConfigurableEntries();
             resolve({ configurableEntries: res });
-        });
-    }
- 
-    async getResourceUsages(): Promise<GetResourceUsagesResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getResourceUsages();
-            resolve(res);
         });
     }
 
