@@ -46,7 +46,7 @@ const canCreateTemplateForType = (type: string) => {
 
 const getInitialRegistryResource = (type: string): InputsFields => ({
     templateType: getTemplateType(type),
-    filePath: "Please select a file or folder",
+    filePath: "Please select a file",
     resourceName: "",
     artifactName: "",
     registryPath: type ? '/' + type : '/',
@@ -316,9 +316,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     <Button appearance="secondary" onClick={openFile}>
                         <div style={{ color: colors.editorForeground }}>Browse file</div>
                     </Button>
-                    <Button appearance="secondary" onClick={openFolder}>
-                        <div style={{ color: colors.editorForeground }}>Browse folder</div>
-                    </Button>
                     <Typography variant="body3" {...register("filePath")}>
                         {(errors && errors.filePath && errors.filePath.message)
                             ? errors.filePath.message.toString() : watch("filePath")}
@@ -340,7 +337,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                         handleCreateRegResource(values);
                     })}
                     disabled={!isDirty || (!createOptionValue
-                        && getValues("filePath") === "Please select a file or folder")}
+                        && getValues("filePath") === "Please select a file")}
                 >
                     Create
                 </Button>
