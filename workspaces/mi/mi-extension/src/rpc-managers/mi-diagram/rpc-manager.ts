@@ -220,9 +220,6 @@ import {
     AddDriverToLibRequest,
     APIContextsResponse,
     RegistryArtifact,
-    PomDetailsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
