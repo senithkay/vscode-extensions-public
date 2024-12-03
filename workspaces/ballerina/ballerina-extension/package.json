@@ -183,7 +183,7 @@
                 "properties": {
                     "kolab.enableSequenceDiagramView": {
                         "type": "boolean",
-                        "default": false,
+                        "default": true,
                         "description": "Enable the experimental Sequence Diagram View."
                     },
                     "kolab.enableAiSuggestions": {
