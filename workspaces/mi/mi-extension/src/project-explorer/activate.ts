@@ -18,7 +18,6 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
-import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 import { deleteSwagger } from '../util/swagger';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
@@ -27,11 +26,6 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
-	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
-	await registryExplorerDataProvider.refresh(lsClient);
-
-	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' }
@@ -479,7 +473,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 								const res = await deleteRegistryResource(filePath);
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
-									registryExplorerDataProvider.refresh(lsClient);
+									projectExplorerDataProvider.refresh(lsClient);
 								} else {
 									window.showErrorMessage(res.info);
 								}
@@ -489,7 +483,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				break;
 			}
 		}
-		registryExplorerDataProvider.refresh(lsClient);
+		projectExplorerDataProvider.refresh(lsClient);
 	});
 }
 

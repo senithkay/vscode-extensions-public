@@ -15,7 +15,6 @@ import { window } from 'vscode';
 import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
-// import { RegistryExplorerEntry, genResourceProjectStructureEntry } from './registry-explorer-provider';
 
 let registryDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
