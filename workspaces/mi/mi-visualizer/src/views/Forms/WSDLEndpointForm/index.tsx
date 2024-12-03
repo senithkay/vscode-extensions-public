@@ -24,6 +24,7 @@ export interface WsdlEndpointWizardProps {
     type: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    handleChangeType?: () => void;
 }
 
 export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
@@ -243,6 +244,10 @@ export function WsdlEndpointWizard(props: WsdlEndpointWizardProps) {
     };
 
     const changeType = () => {
+        if (props.handleChangeType) {
+            props.handleChangeType();
+            return;
+        }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {

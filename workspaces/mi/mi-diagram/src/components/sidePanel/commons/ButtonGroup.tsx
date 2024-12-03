@@ -12,6 +12,7 @@ import { Button, Codicon, ComponentCard, IconLabel, Tooltip, Typography } from '
 import React, { useEffect, useState } from 'react';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import styled from '@emotion/styled';
+import { DEFAULT_ICON } from '../../../resources/constants';
 
 
 const ButtonGrid = styled.div`
@@ -94,7 +95,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                                     alt="Icon"
                                     onError={(e) => {
                                         const target = e.target as HTMLImageElement;
-                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
+                                        target.src = DEFAULT_ICON
                                     }}
                                 />
                             </IconContainer>
@@ -115,9 +116,6 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                             </VersionTag>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            {/* {expandedConnections.includes(connection) ?
-                                <Codicon name={"chevron-up"} /> : <Codicon name={"chevron-down"} />
-                            } */}
                             <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
                                 <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
                             </Button>

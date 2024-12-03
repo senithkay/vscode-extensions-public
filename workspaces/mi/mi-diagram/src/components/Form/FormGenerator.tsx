@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
@@ -120,6 +120,8 @@ export function FormGenerator(props: FormGeneratorProps) {
         } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
+        } else if (inputType === 'checkbox') {
+            return currentValue ?? false;
         } else {
             return currentValue ?? "";
         }
@@ -140,7 +142,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         }
     };
 
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
         const name = getNameForController(element.name);
 
         return expressionEditorField !== name ? (
@@ -150,7 +152,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 labelAdornment={helpTipElement}
                 placeholder={placeholder}
                 canChange={canChange}
-                required={element.required || element.required === 'true'}
+                required={isRequired}
                 isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[name] && errors[name].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
@@ -278,20 +280,25 @@ export function FormGenerator(props: FormGeneratorProps) {
                         errorMsg={errorMsg}
                     />
                 );
-            case 'boolean':
+            case 'textArea':
                 return (
-                    <FormCheckBox
-                        name={name}
+                    <TextArea {...field}
                         label={element.displayName}
-                        control={control}
+                        labelAdornment={helpTipElement}
+                        rows={5}
+                        placeholder={placeholder}
+                        required={isRequired}
+                        errorMsg={errorMsg}
                     />
                 );
+            case 'boolean':
             case 'checkbox':
                 return (
-                    <FormCheckBox
-                        name={name}
+                    <CheckBox
+                        {...field}
                         label={element.displayName}
-                        control={control}
+                        labelAdornment={helpTipElement}
+                        checked={field.value}
                     />
                 );
             case 'stringOrExpression':
@@ -300,7 +307,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder, isRequired });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
@@ -509,7 +516,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
-            const name = getNameForController(element.value.name);
+            const name = getNameForController(element.value.groupName ?? element.value.name);
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
@@ -578,6 +585,12 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
+        const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
+        const defaultValue = getDefaultValue(element);
+
+        if (getValues(name) === undefined) {
+            setValue(name, defaultValue);
+        }
 
         if (element.type === 'table') {
             element.value.inputType = 'ParamManager';
@@ -587,10 +600,10 @@ export function FormGenerator(props: FormGeneratorProps) {
             <Controller
                 name={name}
                 control={control}
-                defaultValue={getDefaultValue(element)}
+                defaultValue={defaultValue}
                 rules={
                     {
-                        ...(element.value.required === 'true') && {
+                        ...(isRequired) && {
                             validate: (value) => {
                                 if (!value || (typeof value === 'object' && !value.value)) {
                                     return "This field is required";
@@ -612,7 +625,8 @@ export function FormGenerator(props: FormGeneratorProps) {
     function getConditions(conditions: any): boolean {
         const evaluateCondition = (condition: any) => {
             const key = Object.keys(condition)[0];
-            return watch(getNameForController(key)) === condition[key];
+            const currentVal = watch(getNameForController(key));
+            return currentVal === condition[key] || (typeof condition[key] === 'string' && String(currentVal) === condition[key]);
         };
 
         if (Array.isArray(conditions)) {

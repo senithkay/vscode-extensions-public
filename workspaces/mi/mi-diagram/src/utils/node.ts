@@ -8,16 +8,7 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { MEDIATORS, NODE_GAP } from "../resources/constants";
-import { getLogDescription } from "./template-engine/mustach-templates/core/log";
-import { getFilterDescription } from "./template-engine/mustach-templates/filter/filter";
-import { getPropertyDescription } from "./template-engine/mustach-templates/core/property";
-import { getSwitchDescription } from "./template-engine/mustach-templates/filter/switch";
-import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
-import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
-import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
-import { getAggregateDescription } from "./template-engine/mustach-templates/eip/aggregate";
-import { getTargetDescription } from "./template-engine/mustach-templates/advanced/clone";
+import { NODE_GAP } from "../resources/constants";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -38,6 +29,7 @@ export function getNodeDescription(name: string, stNode: any): string {
         return stNode.description;
     }
 
+    // TODO: Add descriptions for other nodes
     switch (name) {
         case "endpoint": {
             if (stNode.key) {
@@ -47,34 +39,6 @@ export function getNodeDescription(name: string, stNode: any): string {
                 return stNode.type;
             }
             return;
-        }
-        case (MEDIATORS.FILTER): {
-            return getFilterDescription(stNode);
-        }
-        case (MEDIATORS.LOG): {
-            return getLogDescription(stNode);
-        }
-        case (MEDIATORS.PROPERTY): {
-            return getPropertyDescription(stNode);
-        }
-        case (MEDIATORS.SEQUENCE): {
-            if (stNode.tag === "target") {
-                return getTargetDescription(stNode);
-            }
-
-            return getSequenceDescription(stNode);
-        }
-        case (MEDIATORS.SWITCH): {
-            return getSwitchDescription(stNode);
-        }
-        case (MEDIATORS.DATAMAPPER): {
-            return getDataMapperDescription(stNode);
-        }
-        case (MEDIATORS.DATASERVICECALL): {
-            return getDSCallDescription(stNode);
-        }
-        case (MEDIATORS.AGGREGATE): {
-            return getAggregateDescription(stNode);
         }
         default:
             return;

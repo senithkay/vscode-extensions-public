@@ -93,6 +93,8 @@ export const Colors = {
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };
 
+export const SIDE_PANEL_WIDTH = 450;
+
 export const NODE_GAP = {
     START_X: 0,
     START_Y: 40,
@@ -296,3 +298,5 @@ export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
     ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
 }
+
+export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";

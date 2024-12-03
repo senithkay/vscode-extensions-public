@@ -11,16 +11,14 @@ import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, Typography, TextArea } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerValues } from '../../../Form/common';
+import { AddMediatorProps, getParamManagerFromValues, getParamManagerValues } from '../../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
 import { ParamConfig, ParamManager, ParamValue } from '../../../Form/ParamManager/ParamManager';
 import { sidepanelGoBack } from '../..';
-import { DATA_SERVICE } from "../../../../resources/constants";
-import { getParamManagerFromValues } from "../../../../utils/template-engine/mustach-templates/dataservice/ds"
+import { getDssQueryXml } from '../../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -40,7 +38,7 @@ const Field = styled.div`
 const OutputMappingsForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [ isLoading, setIsLoading ] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors }, handleSubmit, reset } = useForm();
@@ -48,7 +46,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
     useEffect(() => {
         reset({
             outputMappings: {
-                paramValues: sidePanelContext?.formValues?.outputMappings ? getParamManagerFromValues(sidePanelContext?.formValues?.outputMappings, 0 ) : [],
+                paramValues: sidePanelContext?.formValues?.outputMappings ? getParamManagerFromValues(sidePanelContext?.formValues?.outputMappings, 0) : [],
                 paramFields: [
                     {
                         "type": "Dropdown",
@@ -371,7 +369,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
     }
 
     const onClick = async (values: any) => {
-        
+
         values["outputMappings"] = getParamManagerValues(values.outputMappings);
         const updatedResult = sidePanelContext?.formValues?.queryObject.result;
         if (!sidePanelContext?.formValues?.outputJson) {
@@ -389,7 +387,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                     requiredRoles.push("Internal/everyone");
                 }
                 if (param[0] === "Element") {
-                    const newElement  = {
+                    const newElement = {
                         elementName: param[4],
                         elementNamespace: param[6],
                         datasourceColumn: param[7],
@@ -453,11 +451,11 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
         updatedQuery.result = updatedResult;
         const queryType = sidePanelContext?.formValues.queryObject.expression ? "expression" : "sql";
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
+        let xml = getDssQueryXml({ ...updatedQuery, queryType }).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,
-            range: {start: range.startTagRange.start, end: range.endTagRange.end}
+            range: { start: range.startTagRange.start, end: range.endTagRange.end }
         });
 
         sidePanelContext.setSidePanelState({
@@ -471,7 +469,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
     };
 
     if (isLoading) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
     return (
         <>
@@ -482,8 +480,8 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                         <Controller
                             name="jsonPayload"
                             control={control}
-                            render={({field}) => (
-                                <TextArea {...field} label="JSON Payload" placeholder="" rows={15} resize="vertical"/>
+                            render={({ field }) => (
+                                <TextArea {...field} label="JSON Payload" placeholder="" rows={15} resize="vertical" />
                             )}
                         />
                         {errors.jsonPayload && <Error>{errors.jsonPayload.message.toString()}</Error>}
@@ -494,7 +492,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                         <Controller
                             name="outputMappings"
                             control={control}
-                            render={({field: {onChange, value}}) => (
+                            render={({ field: { onChange, value } }) => (
                                 <ParamManager
                                     paramConfigs={value}
                                     readonly={false}
@@ -526,7 +524,7 @@ const OutputMappingsForm = (props: AddMediatorProps) => {
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 

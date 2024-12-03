@@ -55,6 +55,9 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         case "addResource":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.RegistryResourceForm, documentUri: documentUri, customProps }, isPopup: true });
             break;
+        case "sequenceTemplate":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: documentUri, customProps }, isPopup: true });
+            break;
         default:
             return;
     }
@@ -130,7 +133,7 @@ export const getParamManagerOnChange = (element: any, values: ParamConfig) => {
         param.icon = 'query';;
 
         paramValues.forEach((value: any, index: number) => {
-            if (paramFields[index].type === 'ParamManager') {
+            if (value?.value?.paramValues) {
                 const elements = element?.elements[index]?.value;
                 value.value.paramValues = getParamManagerOnChange(elements, value.value);
             }
@@ -142,7 +145,7 @@ export const getParamManagerOnChange = (element: any, values: ParamConfig) => {
 
 const getParamManagerKeyOrValue = (elements: any, key: string, fields: ParamField[], values: ParamValue[]) => {
     const keyIndex = elements?.findIndex((field: any) => field?.value?.name === key);
-    if (keyIndex === undefined || keyIndex === -1 || keyIndex >= fields.length) {
+    if (keyIndex === undefined || !fields || keyIndex === -1 || keyIndex >= fields.length) {
         return 0;
     }
     if (fields[keyIndex].type === 'ParamManager') {

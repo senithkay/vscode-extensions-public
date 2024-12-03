@@ -3519,7 +3519,7 @@ ${endpointAttributes}
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return new Promise(async (resolve) => {
-            const response = await getAvailableRegistryResources(params.path);
+            const response = getAvailableRegistryResources(params.path);
             const artifacts = response.artifacts;
             var tempArtifactNames: string[] = [];
             for (let i = 0; i < artifacts.length; i++) {
@@ -3527,7 +3527,7 @@ ${endpointAttributes}
             }
             let artifactsWithAdditionalData: RegistryArtifact[] = [];
             if (params.withAdditionalData) {
-                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+                artifactsWithAdditionalData = response.artifacts;
             }
             resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });

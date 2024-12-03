@@ -11,6 +11,7 @@ import * as fs from 'fs';
 import path from "path";
 import { readFileSync } from "fs";
 import { GetSyntaxTreeParams, GetSyntaxTreeResponse, IMILangClient } from ".";
+import { UpdateMediatorRequest, UpdateMediatorResponse } from '@wso2-enterprise/mi-core';
 const { spawn } = require('child_process');
 const { StreamMessageReader, StreamMessageWriter, createMessageConnection } = require('vscode-jsonrpc');
 
@@ -133,6 +134,10 @@ export class LanguageClient implements IMILangClient {
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
         await this.didOpen(req.documentIdentifier.uri);
         return this.sendRequest('synapse/syntaxTree', { uri: `file://${req.documentIdentifier.uri}` });
+    }
+
+    async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
+        return this.sendRequest("synapse/generateSynapseConfig", request);
     }
 
     async didOpen(fileUri: string): Promise<void> {
