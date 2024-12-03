@@ -302,7 +302,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(element.keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={true}
+                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
