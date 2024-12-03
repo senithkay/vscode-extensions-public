@@ -220,10 +220,9 @@ import {
     AddDriverToLibRequest,
     APIContextsResponse,
     RegistryArtifact,
-    OverviewPageDetailsResponse,
+    PomDetailsResponse,
     PomXmlEditRequest,
     ConfigFileEditRequest,
-    UpdateDependencyRequest,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -315,41 +314,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
-            const res1 = await this.getOverviewPageDetails();
-            // Access the first element of `connectorDependencies`
-            const firstElement = res1.dependencies.connectorDependencies[0]; // Type: { [key: string]: PomNodeDetails }
-            resolve(res);
-        });
-    }
-
-    async getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getOverviewPageDetails();
-            resolve(res);
-        });
-    }
-
-    async updateDependency(params: UpdateDependencyRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateDependency(params);
-            resolve(res);
-        });
-    }
-
-    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updatePomValue(params);
-            resolve(res);
-        });
-    }
-
-    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateConfigFileValue(params);
             resolve(res);
         });
     }
