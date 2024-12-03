@@ -40,7 +40,11 @@ import {
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    OverviewPageDetailsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -58,6 +62,7 @@ import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
 import { COMMANDS } from '../../constants';
+import { Range } from "../../../../syntax-tree/lib/src";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -85,6 +90,38 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
+            resolve(res);
+        });
+    }
+
+    async getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getOverviewPageDetails();
+            resolve(res);
+        });
+    }
+
+    async updateDependency(params: UpdateDependencyRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateDependency(params);
+            resolve(res);
+        });
+    }
+
+    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updatePomValue(params);
+            resolve(res);
+        });
+    }
+
+    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConfigFileValue(params);
             resolve(res);
         });
     }
