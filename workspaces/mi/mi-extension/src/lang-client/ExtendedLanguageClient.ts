@@ -44,7 +44,8 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     PomXmlEditRequest,
-    ConfigFileEditRequest
+    ConfigFileEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -287,12 +288,8 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
-    async removeDependency(range: Range): Promise<string> {
-        return this.sendRequest('synapse/removeDependency', range);
-    }
-
-    async addDependency(req: PomXmlEditRequest): Promise<string> {
-        return this.sendRequest('synapse/addDependency', req);
+    async updateDependency(req: UpdateDependencyRequest): Promise<string> {
+        return this.sendRequest('synapse/updateDependency', req);
     }
 
     async updatePomValue(req: PomXmlEditRequest): Promise<string> {

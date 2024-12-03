@@ -114,12 +114,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         rpcClient.getMiVisualizerRpcClient().getOverviewPageDetails();
     };
 
-    const removeDependency = (params: Range) => {
-        rpcClient.getMiVisualizerRpcClient().removeDependency(params);
-    };
-
-    const addDependencyl = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().addDependency(params);
+    const updateDependencyl = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().updateDependency(params);
     };
 
     const updatePomValue = (params: any) => {

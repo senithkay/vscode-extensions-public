@@ -30,13 +30,13 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     ProjectOverviewResponse,
-    PomDetailsResponse,
+    OverviewPageDetailsResponse,
     PomXmlEditRequest,
+    UpdateDependencyRequest,
     ConfigFileEditRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
-import { Range } from '../../../../syntax-tree/lib/src';
 
 const _preFix = "mi-visualizer";
 export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `${_preFix}/getWorkspaces` };
@@ -72,8 +72,7 @@ export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${
 
 export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
 export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
-export const getOverviewPageDetails: RequestType<void, PomDetailsResponse> = { method: `${_preFix}/getOverviewPageDetails` };
-export const removeDependency: RequestType<Range, string> = { method: `${_preFix}/removeDependency` };
-export const addDependency: RequestType<PomXmlEditRequest, string> = { method: `${_preFix}/addDependency` };
+export const getOverviewPageDetails: RequestType<void, OverviewPageDetailsResponse> = { method: `${_preFix}/getOverviewPageDetails` };
+export const updateDependency: RequestType<UpdateDependencyRequest, string> = { method: `${_preFix}/updateDependency` };
 export const updatePomValue: RequestType<PomXmlEditRequest, string> = { method: `${_preFix}/updatePomValue` };
 export const updateConfigFileValue: RequestType<ConfigFileEditRequest, string> = { method: `${_preFix}/updateConfigFileValue` };

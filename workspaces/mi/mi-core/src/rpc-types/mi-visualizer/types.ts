@@ -81,50 +81,94 @@ export interface ProjectStructureArtifactResponse {
     type: string;
 }
 
-export interface PomDetailsResponse {
-    runtimeVersion: PomNodeDetails;
-    projectGroupId: PomNodeDetails;
-    projectArtifactId: PomNodeDetails;
+export interface OverviewPageDetailsResponse {
+    primaryDetails: PrimaryDetails;
+    buildDetails: BuildDetails;
+    dependencies: DependenciesDetails;
+    unitTests: UnitTestDetails;
+    configurables: PomNodeDetails[];
+ }
+
+export interface PomNodeDetails {
+    value: string;
+    key?: string;
+    range?: STRange|STRange[];
+}
+
+export interface PrimaryDetails {
+    projectName: PomNodeDetails;
     projectVersion: PomNodeDetails;
     projectDescription: PomNodeDetails;
-    projectName: PomNodeDetails;
-    projectBuildPluginVersion: PomNodeDetails;
-    keyStoreType: PomNodeDetails;
-    miContainerPluginVersion: PomNodeDetails;
-    unitTestPluginVersion: PomNodeDetails;
+    runtimeVersion: PomNodeDetails;
+}
+
+export interface BuildDetails {
+    dockerDetails: DockerDetails;
+    advanceDetatils: AdvanceDetails;
+}
+
+export interface DockerDetails {
+    dockerFileBaseImage: PomNodeDetails;
+    dockerName: PomNodeDetails;
+    cipherToolEnable: PomNodeDetails;
     keyStoreName: PomNodeDetails;
     keyStorePassword: PomNodeDetails;
     keyStoreAlias: PomNodeDetails;
-    cipherToolEnable: PomNodeDetails;
-    dockerFileBaseImage: PomNodeDetails;
-    dockerName: PomNodeDetails;
+    keyStoreType: PomNodeDetails;
+ }
+ 
+export interface AdvanceDetails {
+    projectGroupId: PomNodeDetails;
+    projectArtifactId: PomNodeDetails;
+    pluginDetatils: PluginDetatils;
+}
+ 
+export interface PluginDetatils {
+    projectBuildPluginVersion: PomNodeDetails;
+    miContainerPluginVersion: PomNodeDetails;
+    unitTestPluginVersion: PomNodeDetails;
+}
+ 
+export interface DependenciesDetails {
+    connectorDependencies: DependencyDetails[];
+    otherDependencies: DependencyDetails[];
+}
+ 
+export interface DependencyDetails {
+    groupId: string;
+    artifact: string;
+    version: string;
+    type?: string;
+    range?: STRange;
+}
+ 
+export interface UnitTestDetails {
+    skipTest: PomNodeDetails;
     serverPath: PomNodeDetails;
     serverPort: PomNodeDetails;
     serverVersion: PomNodeDetails;
     serverHost: PomNodeDetails;
     serverType: PomNodeDetails;
-    skipTest: PomNodeDetails;
-    connectorDependencies: {[key:string]:PomNodeDetails}[];
-    otherDependencies: {[key:string]:PomNodeDetails}[];
-    lastDependencyEndTagRange: STRange;
-    configs: PomNodeDetails[];
+    serverDownloadLink: PomNodeDetails;
 }
-
-export interface PomNodeDetails {
-    value: string;
-    range: STRange;
-    ranges: STRange[];
-}
-
+ 
 export interface PomXmlEditRequest {
     value: string;
-    range: STRange|STRange[];
+    range?: STRange|STRange[];
 }
-
+ 
 export interface ConfigFileEditRequest {
     key: string;
     value: string;
     range: STRange;
+}
+ 
+export interface UpdateDependencyRequest {
+    groupId: string;
+    artifact: string;
+    version: string;
+    type?: string;
+    range?: STRange
 }
 
 export interface DataIntegrationResponse {

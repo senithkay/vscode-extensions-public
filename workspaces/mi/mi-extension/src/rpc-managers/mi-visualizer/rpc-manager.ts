@@ -41,9 +41,10 @@ import {
     VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse,
-    PomDetailsResponse,
+    OverviewPageDetailsResponse,
     PomXmlEditRequest,
-    ConfigFileEditRequest
+    ConfigFileEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -93,7 +94,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async getOverviewPageDetails(): Promise<PomDetailsResponse> {
+    async getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getOverviewPageDetails();
@@ -101,18 +102,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async removeDependency(params: Range): Promise<string> {
+    async updateDependency(params: UpdateDependencyRequest): Promise<string> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.removeDependency(params);
-            resolve(res);
-        });
-    }
-
-    async addDependency(params: PomXmlEditRequest): Promise<string> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.addDependency(params);
+            const res = await langClient.updateDependency(params);
             resolve(res);
         });
     }
