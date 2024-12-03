@@ -222,22 +222,37 @@ export function ComponentListView() {
                                 </BodyText>
                                 <CardGrid>
                                     <ButtonCard
-                                        icon={<Icon name="bi-http-service"  />}
+                                        icon={<Icon name="bi-http-service" />}
                                         title="HTTP Service"
                                         description="Handle web requests and responses."
                                         onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-graphql"  />}
+                                        icon={<Icon name="bi-graphql" />}
                                         title="GraphQL Service"
                                         description="Flexible and efficient data queries."
                                         onClick={() => setPopupMessage(true)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-grpc"  />}
+                                        icon={<Icon name="bi-grpc" />}
                                         title="gRPC Service"
                                         description="High-performance, cross-platform communication."
                                         onClick={() => setPopupMessage(true)}
+                                    />
+                                </CardGrid>
+                            </PanelViewMore>
+                            <PanelViewMore>
+                                <Divider />
+                                <Title variant="h2">Automation</Title>
+                                <BodyText>
+                                    Explore automation options to streamline your integration processes.
+                                </BodyText>
+                                <CardGrid>
+                                    <ButtonCard
+                                        icon={<Icon name="bi-task" />}
+                                        title="Automation"
+                                        description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
+                                        onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
                                     />
                                 </CardGrid>
                             </PanelViewMore>
@@ -300,46 +315,31 @@ export function ComponentListView() {
                             </PanelViewMore>
                             <PanelViewMore>
                                 <Divider />
-                                <Title variant="h2">Automation</Title>
-                                <BodyText>
-                                    Explore automation options to streamline your integration processes.
-                                </BodyText>
-                                <CardGrid>
-                                    <ButtonCard
-                                        icon={<Icon name="bi-task" />}
-                                        title="Automation"
-                                        description="Trigger your integration with a task. Perfect for scheduled or one-time jobs."
-                                        onClick={() => handleClick(DIRECTORY_MAP.AUTOMATION)}
-                                    />
-                                </CardGrid>
-                            </PanelViewMore>
-                            <PanelViewMore>
-                                <Divider />
                                 <Title variant="h2">Other Artifacts</Title>
                                 <BodyText>
                                     Manage additional components for your integration. Select from the options below.
                                 </BodyText>
                                 <CardGrid>
                                     <ButtonCard
-                                        icon={<Icon name="bi-connection"  />}
+                                        icon={<Icon name="bi-connection" />}
                                         title="Connections"
                                         description="Set up external service connections, like databases and APIs."
                                         onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-type"  />}
+                                        icon={<Icon name="bi-type" />}
                                         title="Types"
                                         description="Define and manage data types with JSON schema."
                                         onClick={() => handleClick(DIRECTORY_MAP.TYPES)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-config"  />}
+                                        icon={<Icon name="bi-config" />}
                                         title="Configurations"
                                         description="Handle environment variables and secrets for your project."
                                         onClick={() => handleClick(DIRECTORY_MAP.CONFIGURATIONS)}
                                     />
                                     <ButtonCard
-                                        icon={<Icon name="bi-function"  />}
+                                        icon={<Icon name="bi-function" />}
                                         title="Functions"
                                         description="Create reusable functions to streamline your integration logic."
                                         onClick={() => handleClick(DIRECTORY_MAP.FUNCTIONS)}
