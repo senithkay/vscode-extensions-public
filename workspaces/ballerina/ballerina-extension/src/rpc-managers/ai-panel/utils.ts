@@ -515,8 +515,8 @@ function navigateTypeInfo(
                     typeInstance: field.name,
                     nullable: isNill,
                     optional: field.optional
-                }
-            };
+                };
+            }
         } else {
             recordFields[field.name] = { type: typeName, comment: "" };
             recordFieldsMetadata[field.name] = {
