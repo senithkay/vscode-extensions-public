@@ -548,9 +548,16 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     function getConditions(conditions: any): boolean {
         const evaluateCondition = (condition: any) => {
-            const key = Object.keys(condition)[0];
-            const currentVal = watch(getNameForController(key));
-            return currentVal === condition[key] || (typeof condition[key] === 'string' && String(currentVal) === condition[key]);
+            const [conditionKey] = Object.keys(condition);
+            const expectedValue = condition[conditionKey];
+            const currentVal = watch(getNameForController(conditionKey));
+
+            if (conditionKey.includes('.')) {
+                const [key, subKey] = conditionKey.split('.');
+                const parentValue = watch(getNameForController(key));
+                return parentValue?.[subKey] === expectedValue;
+            }
+            return currentVal === condition[conditionKey] || (typeof condition[conditionKey] === 'string' && String(currentVal) === condition[conditionKey]);
         };
 
         if (Array.isArray(conditions)) {
