@@ -11,7 +11,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
-import { Switch } from "@wso2-enterprise/ui-toolkit";
+import { Icon, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import {
     clearDiagramZoomAndPosition,
@@ -82,7 +82,6 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         return () => {
-            console.log(">>> clear diagram position and zoom");
             clearDiagramZoomAndPosition();
         };
     }, []);
@@ -200,8 +199,16 @@ export function Diagram(props: DiagramProps) {
         <>
             {hasErrorFlow.current && (
                 <Switch
-                    leftLabel="Flow"
-                    rightLabel="On Error"
+                    leftLabel={
+                        <Tooltip content="Main Flow" position="top">
+                            <Icon name="bi-flowchart" sx={{ fontSize: "16px" }} />
+                        </Tooltip>
+                    }
+                    rightLabel={
+                        <Tooltip content="Error Flow" position="top">
+                            <Icon name="bi-shield-error" sx={{ fontSize: "16px" }} />
+                        </Tooltip>
+                    }
                     checked={showErrorFlow}
                     checkedColor="var(--vscode-button-background)"
                     enableTransition={true}
@@ -213,6 +220,8 @@ export function Diagram(props: DiagramProps) {
                         right: "20px",
                         zIndex: "2",
                         border: "unset",
+                        height: "40px",
+                        width: "100px",
                     }}
                     disabled={false}
                 />
