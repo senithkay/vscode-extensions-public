@@ -16,7 +16,7 @@ import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 
-let registryDetails: ListRegistryArtifactsResponse;
+let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -123,7 +123,7 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const rootPath = workspace.uri.fsPath;
 
 				const resp = await langClient.getProjectExplorerModel(rootPath);
-				registryDetails = getAvailableRegistryResources(rootPath);
+				resourceDetails = getAvailableRegistryResources(rootPath);
 				const projectTree = generateTreeData(workspace, resp);
 				if (projectTree) {
 					data.push(projectTree);
@@ -297,8 +297,8 @@ function genResourceProjectStructureEntry(data: RegistryResourcesFolder): Projec
 				if (checkExistenceOfResource(resourcePath)) {
 					explorerEntry.contextValue = "registry-with-metadata";
 				} else {
-					explorerEntry.contextValue = "registry-without-metadata";
-				}
+				explorerEntry.contextValue = "registry-without-metadata";
+                }
 			}
 		}
 		if (data.folders) {
@@ -315,11 +315,11 @@ function genResourceProjectStructureEntry(data: RegistryResourcesFolder): Projec
 					result.push(explorerEntry);
 					const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
 					const resourcePath = entry.path.substring(lastIndex);
-					if (checkExistenceOfRegistryResource(resourcePath)) {
+					if (checkExistenceOfResource(resourcePath)) {
 						explorerEntry.contextValue = "registry-with-metadata";
 					} else {
-						explorerEntry.contextValue = "registry-without-metadata";
-					}
+					explorerEntry.contextValue = "registry-without-metadata";
+                    }
 				}
 			}
 		}
@@ -328,29 +328,13 @@ function genResourceProjectStructureEntry(data: RegistryResourcesFolder): Projec
 }
 
 function checkExistenceOfResource(resourcePath: string): boolean {
-	if (registryDetails.artifacts) {
-		for (const artifact of registryDetails.artifacts) {
+	if (resourceDetails.artifacts) {
+		for (const artifact of resourceDetails.artifacts) {
 			let transformedPath = artifact.path.replace("/_system/governance/mi-resources", '/resources');
 			if (!artifact.isCollection) {
 				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
 			}
 			if (transformedPath === resourcePath) {
-				return true;
-			}
-		}
-		return false;
-	}
-	return false;
-}
-
-function checkExistenceOfRegistryResource(registryPath: string): boolean {
-	if (registryDetails.artifacts) {
-		for (const artifact of registryDetails.artifacts) {
-			let transformedPath = artifact.path.replace("/_system/governance", '/gov').replace("/_system/config", '/conf');
-			if (!artifact.isCollection) {
-				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
-			}
-			if (transformedPath === registryPath) {
 				return true;
 			}
 		}
@@ -459,11 +443,11 @@ function generateArtifacts(
 				break;
 			case 'Data Mappers':
 				const directoryMap = projectStructure.directoryMap;
-				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
-				const govResources = resources['gov'];
-				const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.newResources;
 
-				const datamapperResourcePath = path.join(govResources.path, 'datamapper');
+				const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
+
+				const datamapperResourcePath = path.join(resources.path, 'datamappers');
 				parentEntry = new ProjectExplorerEntry(
 					'Data Mappers',
 					isCollapsibleState(dataMapperResources?.folders?.length > 0),
@@ -473,8 +457,8 @@ function generateArtifacts(
 				parentEntry.id = 'data-mapper';
 				parentEntry.contextValue = contextValue;
 				
-				if (govResources && govResources.folders.length > 0) {
-					const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+				if (resources && resources.folders.length > 0) {
+					const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
 					if (dataMapperResources) {
 						const children = generateTreeDataOfDataMappings(projectStructure);
 						parentEntry.children = children;
