@@ -177,7 +177,7 @@ export interface HandleCertificateFileRequest {
     certificateFilePath: string;
 }
 
-export interface HandleCertificateConfigurableRequest {
+export interface AddConfigurableRequest {
     projectUri: string;
     configurableName: string;
     configurableType: string;

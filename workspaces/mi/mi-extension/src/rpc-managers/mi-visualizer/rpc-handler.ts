@@ -23,7 +23,7 @@ import {
     UpdateContextRequest,
     FileAppendRequest,
     HandleCertificateFileRequest,
-    HandleCertificateConfigurableRequest,
+    AddConfigurableRequest,
     addToHistory,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
@@ -31,7 +31,7 @@ import {
     getAvailableRuntimeServices,
     getCurrentThemeKind,
     handleCertificateFile,
-    handleCertificateConfigurable,
+    addConfigurable,
     appendContentToFile,
     getHistory,
     getProjectOverview,
@@ -76,7 +76,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
     messenger.onRequest(handleCertificateFile, (args: HandleCertificateFileRequest) => rpcManger.handleCertificateFile(args));
-    messenger.onRequest(handleCertificateConfigurable, (args: HandleCertificateConfigurableRequest) => rpcManger.handleCertificateConfigurable(args));
+    messenger.onRequest(addConfigurable, (args: AddConfigurableRequest) => rpcManger.addConfigurable(args));
     messenger.onRequest(appendContentToFile, (args: FileAppendRequest) => rpcManger.appendContentToFile(args));
     messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));

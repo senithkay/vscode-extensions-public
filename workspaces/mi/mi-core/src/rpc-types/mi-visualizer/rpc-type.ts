@@ -33,7 +33,7 @@ import {
     ReadmeContentResponse,
     FileAppendRequest,
     HandleCertificateFileRequest,
-    HandleCertificateConfigurableRequest
+    AddConfigurableRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -49,7 +49,7 @@ export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const fetchSamplesFromGithub: RequestType<void, GettingStartedData> = { method: `${_preFix}/fetchSamplesFromGithub` };
 export const downloadSelectedSampleFromGithub: NotificationType<SampleDownloadRequest> = { method: `${_preFix}/downloadSelectedSampleFromGithub` };
 export const handleCertificateFile: RequestType<HandleCertificateFileRequest, void> = { method: `${_preFix}/handleCertificateFile` };
-export const handleCertificateConfigurable: RequestType<HandleCertificateConfigurableRequest, void> = { method: `${_preFix}/handleCertificateConfigurable` };
+export const addConfigurable: RequestType<AddConfigurableRequest, void> = { method: `${_preFix}/addConfigurable` };
 export const appendContentToFile: RequestType<FileAppendRequest, boolean> = { method: `${_preFix}/appendContentToFile` };
 export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
