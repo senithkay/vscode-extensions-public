@@ -296,11 +296,12 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'keyOrExpression':
             case 'comboOrKey':
             case 'registry':
-            case 'resource': {
+            case 'resource': 
+            case 'resourceOrExpression': {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' ? "addResource" : element.keyType;
+                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
                         openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
@@ -315,31 +316,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                     required={isRequired}
                     errorMsg={errorMsg}
                     additionalItems={element.comboValues}
-                    {...element.inputType === 'keyOrExpression' && { canChangeEx: true }}
-                    {...element.inputType === 'keyOrExpression' && { exprToggleEnabled: true }}
-                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                    onCreateButtonClick={onCreateButtonClick}
-                />)
-            }
-            case 'resourceOrExpression': {
-                let onCreateButtonClick;
-                if (!Array.isArray(keyType)) {
-                    onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: keyType });
-                    }
-                }
-
-                return (<FormKeylookup
-                    control={control}
-                    name={name}
-                    label={element.displayName}
-                    filterType={keyType}
-                    labelAdornment={helpTipElement}
-                    allowItemCreate={true}
-                    required={isRequired}
-                    errorMsg={errorMsg}
-                    canChangeEx={true}
-                    exprToggleEnabled={true}
+                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
+                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     onCreateButtonClick={onCreateButtonClick}
                 />)
