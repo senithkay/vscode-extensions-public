@@ -26,7 +26,7 @@ import { clearSidePanelState, DefaultSidePanelState, SidePanelProvider } from ".
 import { SidePanel, NavigationWrapperCanvasWidget, Button, Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './sidePanel';
 import styled from "@emotion/styled";
-import { Colors, NODE_GAP } from "../resources/constants";
+import { Colors, NODE_GAP, SIDE_PANEL_WIDTH } from "../resources/constants";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { KeyboardNavigationManager } from "../utils/keyboard-navigation-manager";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -76,8 +76,6 @@ namespace S {
         z-index: 1;
     `;
 }
-
-export const SIDE_PANEL_WIDTH = 450;
 
 export function Diagram(props: DiagramProps) {
     const { model, diagnostics, isFaultFlow, isFormOpen } = props;

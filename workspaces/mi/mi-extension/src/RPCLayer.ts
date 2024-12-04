@@ -102,10 +102,13 @@ async function getFormContext(): Promise<PopupVisualizerLocation> {
     const context = StateMachinePopup.context();
     return new Promise((resolve) => {
         resolve({
+            projectUri: StateMachine.context().projectUri,
             documentUri: context.documentUri,
             view: context.view,
             recentIdentifier: context.recentIdentifier,
             customProps: context.customProps,
+            platform,
+            pathSeparator: path.sep
         });
     });
 }

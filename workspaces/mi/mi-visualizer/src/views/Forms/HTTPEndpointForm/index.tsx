@@ -24,6 +24,7 @@ export interface HttpEndpointWizardProps {
     type: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    handleChangeType?: () => void;
 }
 
 export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
@@ -345,6 +346,10 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     }
 
     const changeType = () => {
+        if (props.handleChangeType) {
+            props.handleChangeType();
+            return;
+        }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {

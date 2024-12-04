@@ -11,7 +11,6 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import { FormField } from '../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
-import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
 import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
@@ -202,14 +201,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
-    // Use to disable the expression editor on save and completion selection
-    const useTransaction = (fn: (...args: any[]) => Promise<any>) => {
-        return useMutation({
-            mutationFn: fn,
-            networkMode: 'always',
-        });
-    };
-
     const handleFocus = async (value?: string) => {
         // Retrieve the cursor position from the expression editor
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -368,8 +359,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                             onSave={onSave}
                             onCancel={onCancel}
                             onRemove={onRemove}
-                            useTransaction={useTransaction}
-                            shouldDisableOnSave={false}
                             inputProps={endAdornment}
                             handleHelperPaneOpen={handleHelperPaneOpen}
                             placeholder={field.placeholder}
