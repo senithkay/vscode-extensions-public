@@ -9,7 +9,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, CompletionItem, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, FormExpressionEditorRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -71,7 +71,7 @@ export function IfForm(props: IfFormProps) {
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     const hasElseBranch = branches.find(
         (branch) =>
