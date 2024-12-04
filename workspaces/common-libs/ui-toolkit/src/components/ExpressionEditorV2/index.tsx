@@ -10,6 +10,7 @@
 /* Components */
 export { FormExpressionEditorWrapper as FormExpressionEditor } from './components/Form';
 export { HeaderExpressionEditorWrapper as HeaderExpressionEditor } from './components/Header';
+export { default as HelperPane } from './components/Common/HelperPane';
 
 /* Types */
 export * from './types';
