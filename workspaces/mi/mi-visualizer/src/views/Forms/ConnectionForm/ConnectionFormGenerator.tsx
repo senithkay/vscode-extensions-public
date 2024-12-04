@@ -34,8 +34,7 @@ export interface AddConnectionProps {
     handlePopupClose?: () => void;
 }
 
-const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion', 'file'];
-const certificateDirPath = 'src/main/wso2mi/resources/certificates/'
+const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
     const { allowedConnectionTypes, handlePopupClose } = props;
@@ -43,7 +42,6 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
-    const [connectionFoundParameters, setConnectionFoundParameters] = useState(new Map<any, any>());
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? ""
@@ -119,7 +117,6 @@ export function AddConnection(props: AddConnectionProps) {
                 });
 
                 const parameters = connectionFound.parameters
-                const initialConnectionFoundParameters = new Map<any, any>();   
 
                 // Populate form with existing values
                 if (connectionFormJSON.formJSON !== "") {
@@ -132,20 +129,14 @@ export function AddConnection(props: AddConnectionProps) {
                                 const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
                                     prefix: prefix.split(':')[1], uri: uri
                                 })) : [];
-                                if (inputType === 'certificateFileOrConfigurable') {
-                                    if (isCertificateFilePath(value)) {
-                                        setValue(param.name, { isCertificate: true, type: 'file', value });
-                                    } else {
-                                        setValue(param.name, { isCertificate: true, type: 'configurable', value: removeConfigurableFormat(value) });
-                                    }
+                                if (inputType === 'configurable' ) {
+                                    setValue(param.name, { isConfigurable: true, value: removeConfigurableFormat(value) });
                                 } else {
                                     setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
                                 }
-                                initialConnectionFoundParameters.set(param.name, value);
                             }
                         });
                     }
-                    setConnectionFoundParameters(initialConnectionFoundParameters);
                 } else {
                     // Handle connections without uischema
                     // Remove connection name from param manager fields
@@ -219,54 +210,6 @@ export function AddConnection(props: AddConnectionProps) {
         return inputType;
     }
 
-    function getFileName(filePath: string): string {
-        const fileNameWithExt = filePath.split('/').pop();
-        return fileNameWithExt.split('.')[0];
-    }
-
-    function isValidConfigFormat(input: string): boolean {
-        const trimmedInput = input.trim();
-        const regex = /^\$config:[a-zA-Z]*/;
-        return regex.test(trimmedInput);
-    }
-
-    function isCertificateFilePath(path: string): boolean {
-        const extensionPattern = /\.crt$/;
-        return extensionPattern.test(path);
-    }
-
-    function handleCertificateFile(projectUri: string, tagElementName: string, newCertificatePath: string, newCertificateConfigurableName: string, connectorTag: XMLBuilder) {
-        const storedTagElementValue = connectionFoundParameters.get(tagElementName);
-        const currentCertificatePath = isCertificateFilePath(storedTagElementValue) ? storedTagElementValue : '';
-        const currentCertificateConfigurableName = isConfigurable(storedTagElementValue) ? storedTagElementValue : '';
-        
-        if (newCertificatePath) {
-            if (isCertificateFilePath(newCertificatePath)) {
-                const newCertificateFileName = newCertificatePath.split('/').pop();
-                connectorTag.ele(tagElementName).txt('resources:certificates/' + newCertificateFileName);
-                if (currentCertificatePath !== newCertificatePath) {
-                    rpcClient.getMiVisualizerRpcClient().handleCertificateFile({
-                        projectUri: projectUri,
-                        certificateFilePath: newCertificatePath
-                    });
-                }
-            } else {
-                connectorTag.ele(tagElementName).txt(currentCertificatePath);
-            }
-        } else if (newCertificateConfigurableName) {
-            const formattedConfigurableName = formatForConfigurable(newCertificateConfigurableName);
-            connectorTag.ele(tagElementName).txt(formattedConfigurableName);
-            if (currentCertificateConfigurableName !== formattedConfigurableName) {
-                rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
-                    projectUri: projectUri,
-                    configurableName: newCertificateConfigurableName
-                });
-            }
-        } else {
-            connectorTag.ele(tagElementName).txt(currentCertificatePath);
-        }
-    }
-
     const onAddConnection = async (values: any) => {
 
         const template = create();
@@ -289,8 +232,7 @@ export function AddConnection(props: AddConnectionProps) {
                     const namespaces = values[key].namespaces;
                     const value = values[key].value;
                     const isExpression = values[key].isExpression;
-                    const isCertificate = values[key].isCertificate;
-                    const type = values[key].type;
+                    const isConfigurable = values[key].isConfigurable;
 
                     if (value) {
                         if (isExpression) {
@@ -304,13 +246,10 @@ export function AddConnection(props: AddConnectionProps) {
                             } else {
                                 connectorTag.ele(key).txt(`{${value}}`);
                             }
-                        } else if (isCertificate) {
-                            if (type === 'file') {
-                                handleCertificateFile(projectUri, key, value, '', connectorTag);
-                            } else if (type === 'configurable') {
-                                handleCertificateFile(projectUri, key, '', value, connectorTag);    
-                            }
                         } 
+                        else if (isConfigurable) {
+                            connectorTag.ele(key).txt(formatForConfigurable(value));
+                        }
                         else {
                             connectorTag.ele(key).txt(value);
                         }

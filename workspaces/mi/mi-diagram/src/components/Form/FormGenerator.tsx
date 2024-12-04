@@ -355,9 +355,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                             errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
                             filter={(configurableType) => configurableType === element.configurableType}
                             filterType='configurable'
-                            value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
+                            value={field.value.value ? field.value.value : ""}
                             onValueChange={(e: any) => {
-                                field.onChange({ isCertificate: true, value: e, type: field.value.type });
+                                field.onChange({ isConfigurable: true, value: e });
                             }}
                             required={false}
                             allowItemCreate={true}
