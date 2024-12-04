@@ -42,7 +42,7 @@ import {
     VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse,
-    OverviewPageDetailsResponse,
+    ProjectDetailsResponse,
     PomXmlEditRequest,
     ConfigFileEditRequest,
     UpdateDependencyRequest
@@ -97,10 +97,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
+    async getProjectDetails(): Promise<ProjectDetailsResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getOverviewPageDetails();
+            const res = await langClient.getProjectDetails();
             resolve(res);
         });
     }

@@ -30,7 +30,7 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
-    OverviewPageDetailsResponse,
+    ProjectDetailsResponse,
     PomXmlEditRequest,
     UpdateDependencyRequest,
     ConfigFileEditRequest,
@@ -71,7 +71,7 @@ export interface MIVisualizerAPI {
     setMIHomeForMIVersion: (params: string) => Promise<boolean>;
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
-    getOverviewPageDetails: () => Promise<OverviewPageDetailsResponse>;
+    getProjectDetails: () => Promise<ProjectDetailsResponse>;
     updateDependency: (params: UpdateDependencyRequest) => Promise<string>;
     updatePomValue: (params: PomXmlEditRequest) => Promise<string>;
     updateConfigFileValue: (params: ConfigFileEditRequest) => Promise<string>;

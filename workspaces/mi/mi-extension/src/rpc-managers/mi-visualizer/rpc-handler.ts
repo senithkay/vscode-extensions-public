@@ -54,7 +54,7 @@ import {
     isMISet,
     toggleDisplayOverview,
     updateContext,
-    getOverviewPageDetails,
+    getProjectDetails,
     PomXmlEditRequest,
     updateDependency,
     updatePomValue,
@@ -100,7 +100,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(setMIHomeForMIVersion, (args: string) => rpcManger.setMIHomeForMIVersion(args));
     messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
     messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
-    messenger.onRequest(getOverviewPageDetails, () => rpcManger.getOverviewPageDetails());
+    messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
     messenger.onRequest(updateDependency, (args: UpdateDependencyRequest) => rpcManger.updateDependency(args));
     messenger.onRequest(updatePomValue, (args: PomXmlEditRequest) => rpcManger.updatePomValue(args));
     messenger.onRequest(updateConfigFileValue, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValue(args));

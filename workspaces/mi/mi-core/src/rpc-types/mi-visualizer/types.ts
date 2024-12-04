@@ -81,7 +81,7 @@ export interface ProjectStructureArtifactResponse {
     type: string;
 }
 
-export interface OverviewPageDetailsResponse {
+export interface ProjectDetailsResponse {
     primaryDetails: PrimaryDetails;
     buildDetails: BuildDetails;
     dependencies: DependenciesDetails;
@@ -365,6 +365,7 @@ export interface ProjectOverviewResponse {
     name: string;
     connections: Connection[];
     entrypoints: Entrypoint[];
+    projectDetails: ProjectDetailsResponse;
 }
 
 export interface Connection {

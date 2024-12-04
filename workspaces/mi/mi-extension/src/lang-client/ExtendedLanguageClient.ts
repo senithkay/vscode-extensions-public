@@ -300,8 +300,8 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/updateConfigFileValue', req);
     }
 
-    async getOverviewPageDetails(): Promise<any> {
-        return this.sendRequest('synapse/getOverviewPageDetails');
+    async getProjectDetails(): Promise<any> {
+        return this.sendRequest('synapse/getProjectDetails');
     }
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {

@@ -110,8 +110,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
 
-    const getOverviewPageDetails = () => {
-        rpcClient.getMiVisualizerRpcClient().getOverviewPageDetails();
+    const getProjectDetails = () => {
+        rpcClient.getMiVisualizerRpcClient().getProjectDetails();
     };
 
     const updateDependencyl = (params: any) => {

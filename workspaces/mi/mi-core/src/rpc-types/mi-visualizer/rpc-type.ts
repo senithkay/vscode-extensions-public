@@ -31,7 +31,7 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
-    OverviewPageDetailsResponse,
+    ProjectDetailsResponse,
     PomXmlEditRequest,
     UpdateDependencyRequest,
     ConfigFileEditRequest
@@ -75,7 +75,7 @@ export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${
 
 export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
 export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
-export const getOverviewPageDetails: RequestType<void, OverviewPageDetailsResponse> = { method: `${_preFix}/getOverviewPageDetails` };
+export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
 export const updateDependency: RequestType<UpdateDependencyRequest, string> = { method: `${_preFix}/updateDependency` };
 export const updatePomValue: RequestType<PomXmlEditRequest, string> = { method: `${_preFix}/updatePomValue` };
 export const updateConfigFileValue: RequestType<ConfigFileEditRequest, string> = { method: `${_preFix}/updateConfigFileValue` };

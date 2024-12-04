@@ -67,14 +67,14 @@ import {
     isMISet,
     toggleDisplayOverview,
     updateContext,
-    getOverviewPageDetails,
-    OverviewPageDetailsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
+    getProjectDetails,
     updateDependency,
-    UpdateDependencyRequest,
     updatePomValue,
-    updateConfigFileValue
+    updateConfigFileValue,
+    ProjectDetailsResponse,
+    ConfigFileEditRequest,
+    PomXmlEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -214,8 +214,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     isMISet(): Promise<boolean> {
         return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
     }
-    getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
-        return this._messenger.sendRequest(getOverviewPageDetails, HOST_EXTENSION);
+    getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return this._messenger.sendRequest(getProjectDetails, HOST_EXTENSION);
     }
     updateDependency(params: UpdateDependencyRequest): Promise<string> {
         return this._messenger.sendRequest(updateDependency, HOST_EXTENSION, params);
