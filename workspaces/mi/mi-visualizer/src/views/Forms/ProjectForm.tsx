@@ -146,6 +146,14 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 {...register("name")}
                 onKeyDown={onKeyDown}
             />
+            <Dropdown
+                id='miVersion'
+                label="Micro Integrator runtime version"
+                isRequired={true}
+                errorMsg={errors.miVersion?.message.toString()}
+                items={supportedMIVersions}
+                {...register("miVersion")}
+            />
             <LocationSelector
                 label="Project Directory"
                 selectedFile={watch("directory")}
@@ -155,14 +163,6 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
             />
             <FormGroup title="Advanced Options">
                 <React.Fragment>
-                    <Dropdown
-                        id='miVersion'
-                        label="Micro Integrator runtime version"
-                        isRequired={true}
-                        errorMsg={errors.miVersion?.message.toString()}
-                        items={supportedMIVersions}
-                        {...register("miVersion")}
-                    />
                     <TextField
                         id='groupID'
                         label="Group Id"

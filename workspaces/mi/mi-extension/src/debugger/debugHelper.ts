@@ -15,7 +15,7 @@ import { extension } from '../MIExtensionContext';
 import { loadEnvVariables, getBuildCommand, getRunCommand, getStopCommand } from './tasks';
 import * as fs from 'fs';
 import * as path from 'path';
-import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH, INCORRECT_SERVER_PATH_MSG } from './constants';
+import { SELECTED_SERVER_PATH, INCORRECT_SERVER_PATH_MSG } from './constants';
 import { reject } from 'lodash';
 import axios from 'axios';
 import * as net from 'net';
@@ -28,7 +28,6 @@ import { ChildProcess } from 'child_process';
 import treeKill = require('tree-kill');
 import { serverLog, showServerOutputChannel } from '../util/serverLogger';
 import { getJavaHomeFromConfig, getServerPathFromConfig } from '../util/onboardingUtils';
-import { env } from 'process';
 const child_process = require('child_process');
 
 export async function isPortActivelyListening(port: number, timeout: number): Promise<boolean> {
@@ -391,7 +390,7 @@ export async function getServerPath(): Promise<string | undefined> {
     const currentPath = getServerPathFromConfig();
     if (!currentPath) {
         await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-        const updatedPath = config.get(CONFIG_SERVER_PATH) as string;
+        const updatedPath = config.get(SELECTED_SERVER_PATH) as string;
         if (updatedPath) {
             return path.normalize(updatedPath);
         }

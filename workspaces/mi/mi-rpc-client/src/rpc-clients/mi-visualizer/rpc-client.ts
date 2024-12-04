@@ -61,12 +61,14 @@ import {
     showNotification,
     downloadJava,
     downloadMI,
+    selectFolder,
+    MIDetails,
+    JavaAndMIPathResponse,
+    JavaAndMIPathRequest,
+    getJavaAndMIPaths,
+    setJavaAndMIPaths,
     getSupportedMIVersions,
-    getMIVersionFromPom,
-    setJavaHomeForMIVersion,
-    setMIHomeForMIVersion,
-    isJavaHomeSet,
-    isMISet,
+    getMIDetailsFromPom,
     toggleDisplayOverview,
     updateContext,
     getProjectDetails,
@@ -79,7 +81,8 @@ import {
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
     updateConnectorDependencies,
-    ImportOpenAPISpecRequest
+    ImportOpenAPISpecRequest,
+    updateRuntimeVersionsInPom
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -207,21 +210,23 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(getSupportedMIVersions, HOST_EXTENSION);
     }
 
-    getMIVersionFromPom(): Promise<string> {
-        return this._messenger.sendRequest(getMIVersionFromPom, HOST_EXTENSION);
+    getMIDetailsFromPom(): Promise<MIDetails> {
+        return this._messenger.sendRequest(getMIDetailsFromPom, HOST_EXTENSION);
     }
-    setJavaHomeForMIVersion(params: string): Promise<boolean> {
-        return this._messenger.sendRequest(setJavaHomeForMIVersion, HOST_EXTENSION, params);
-    }
-    setMIHomeForMIVersion(params: string): Promise<boolean> {
-        return this._messenger.sendRequest(setMIHomeForMIVersion, HOST_EXTENSION, params);
+    updateRuntimeVersionsInPom(params:string): Promise<boolean> {
+        return this._messenger.sendRequest(updateRuntimeVersionsInPom, HOST_EXTENSION, params);
     }
 
-    isJavaHomeSet(): Promise<boolean> {
-        return this._messenger.sendRequest(isJavaHomeSet, HOST_EXTENSION);
+    getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
+        return this._messenger.sendRequest(getJavaAndMIPaths, HOST_EXTENSION);
     }
-    isMISet(): Promise<boolean> {
-        return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
+
+    setJavaAndMIPaths(params: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
+        return this._messenger.sendRequest(setJavaAndMIPaths, HOST_EXTENSION, params);
+    }
+    
+    selectFolder(params:string): Promise<string|undefined> {
+        return this._messenger.sendRequest(selectFolder, HOST_EXTENSION, params);
     }
     getProjectDetails(): Promise<ProjectDetailsResponse> {
         return this._messenger.sendRequest(getProjectDetails, HOST_EXTENSION);
