@@ -8,7 +8,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { IOType, Mapping, TypeKind } from '@wso2-enterprise/ballerina-core';
+import { IOType, Mapping, MappingElement, TypeKind } from '@wso2-enterprise/ballerina-core';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
@@ -128,19 +128,19 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				});
 			}
 		} else if (field.kind === TypeKind.Array) {
-			const elements: Mapping[] = mapping?.elements || [];
+			const elements: MappingElement[] = mapping?.elements || [];
 
-			Array.from({ length: elements.length }, (_, index) => {
-				this.addPortsForOutputField(
-					field.member, type, fieldFQN, elements, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
-				);
-			});
-
-			// elements.forEach((element, index) => {
+			// Array.from({ length: elements.length }, (_, index) => {
 			// 	this.addPortsForOutputField(
-			// 		field.member, type, elements, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
+			// 		field.member, type, fieldFQN, elements, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
 			// 	);
 			// });
+
+			elements.forEach((element, index) => {
+				this.addPortsForOutputField(
+					field.member, type, fieldFQN, element.mappings, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
+				);
+			});
 		}
 	}
 

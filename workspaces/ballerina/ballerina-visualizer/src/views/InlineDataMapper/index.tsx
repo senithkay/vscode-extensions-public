@@ -105,7 +105,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                             "kind": TypeKind.String
                         },
                         "id": "u1.phoneNumber",
-                        "variableName": "u1.phoneNumber",
+                        "variableName": "phoneNumber",
                         "typeName": "phoneNumber",
                         "kind": TypeKind.Array
                     }
@@ -125,7 +125,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                             "kind": TypeKind.String
                         },
                         "id": "user.phoneNumber",
-                        "variableName": "user.phoneNumber",
+                        "variableName": "phoneNumber",
                         "typeName": "phoneNumber",
                         "kind": TypeKind.Array
                     }
@@ -159,23 +159,31 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             {
                 "inputs": [],
                 "output": "var1.contacts",
-                "expression": "[\"123\", \"456\"]",
+                "expression": "[\"u1.phoneNumber\", \"456\"]",
                 "elements": [
                     {
-                        "inputs": [],
-                        "output": "var1.contacts.0",
-                        "expression": "123"
+                        "mappings": [
+                            {
+                                "inputs": ["u1.phoneNumber"],
+                                "output": "var1.contacts.0",
+                                "expression": "u1.phoneNumber"
+                            }
+                        ]
                     },
                     {
-                        "inputs": [],
-                        "output": "var1.contacts.1",
-                        "expression": "456"
+                        "mappings": [
+                            {
+                                "inputs": [],
+                                "output": "var1.contacts.1",
+                                "expression": "456"
+                            }
+                        ]
                     }
                 ]
             }
         ],
         "source": "Person var1 = {\n    contacts: [\"123\", \"456\"]\n};",
-        view: "source"
+        "view": "source"
     };
 
     const model2: IDMModel = {
@@ -233,7 +241,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                         "kind": TypeKind.Array
                     },
                     "id": "var2.contacts",
-                    "variableName": "var2.contacts",
+                    "variableName": "contacts",
                     "typeName": "contacts",
                     "kind": TypeKind.Array
                 }
@@ -250,31 +258,51 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                 "expression": "[[\"123\", \"456\"], [\"789\"]]",
                 "elements": [
                     {
-                        "inputs": [],
-                        "output": "var2.contacts.0",
-                        "expression": "[\"123\", \"456\"]",
-                        "elements": [
+                        "mappings": [
                             {
                                 "inputs": [],
-                                "output": "var2.contacts.0.0",
-                                "expression": "123"
-                            },
-                            {
-                                "inputs": [],
-                                "output": "var2.contacts.0.1",
-                                "expression": "456"
+                                "output": "var2.contacts.0",
+                                "expression": "[\"123\", \"456\"]",
+                                "elements": [
+                                    {
+                                        "mappings": [
+                                            {
+                                                "inputs": [],
+                                                "output": "var2.contacts.0.0",
+                                                "expression": "123"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "mappings": [
+                                            {
+                                                "inputs": [],
+                                                "output": "var2.contacts.0.1",
+                                                "expression": "456"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     },
                     {
-                        "inputs": [],
-                        "output": "var2.contacts.1",
-                        "expression": "[\"789\"]",
-                        "elements": [
+                        "mappings": [
                             {
                                 "inputs": [],
-                                "output": "var2.contacts.1.0",
-                                "expression": "789"
+                                "output": "var2.contacts.1",
+                                "expression": "[\"789\"]",
+                                "elements": [
+                                    {
+                                        "mappings": [
+                                            {
+                                                "inputs": [],
+                                                "output": "var2.contacts.1.0",
+                                                "expression": "789"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -282,8 +310,9 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             }
         ],
         "source": "Person2 var2 = {\n    contacts: [[\"123\", \"456\"], [\"789\"]]\n};",
-        view: "source"
-    };
+        "view": "source"
+    }
+    ;
 
     const model3: IDMModel = {
         "inputs": [
@@ -369,11 +398,40 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                 "diagnostics": [],
                 "elements": [
                     {
-                        "output": "var3.contacts.0.primaryPhome",
-                        "inputs": [],
-                        "expression": "\"\"",
-                        "diagnostics": [],
-                        "elements": []
+                        "mappings": [
+                            {
+                                "output": "var3.contacts.0.primaryPhome",
+                                "inputs": ["u1.phoneNumber"],
+                                "expression": "u1.phoneNumber",
+                                "diagnostics": [],
+                                "elements": []
+                            },
+                            {
+                                "output": "var3.contacts.0.secondaryPhone",
+                                "inputs": [],
+                                "expression": "\"\"",
+                                "diagnostics": [],
+                                "elements": []
+                            }
+                        ]
+                    },
+                    {
+                        "mappings": [
+                            {
+                                "output": "var3.contacts.1.primaryPhome",
+                                "inputs": [],
+                                "expression": "\"\"",
+                                "diagnostics": [],
+                                "elements": []
+                            },
+                            {
+                                "output": "var3.contacts.1.secondaryPhone",
+                                "inputs": ["user.phoneNumber"],
+                                "expression": "\"\"",
+                                "diagnostics": [],
+                                "elements": []
+                            }
+                        ]
                     }
                 ]
             }
@@ -390,7 +448,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             {model && (
                 <DataMapperView 
                     // model={model || initialModel} 
-                    model={model3} 
+                    model={model2} 
                     onClose={onClose}
                     applyModifications={updateExpression}
                 />

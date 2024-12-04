@@ -117,9 +117,25 @@ export function hasNoOutputMatchFound(outputType: IOType, filteredOutputType: IO
 	return false;
 }
 
-export function getFilteredMappings(mappings: Mapping[], searchValue: string) {
-	return mappings.filter(mapping => {
-		const outputField = mapping.output.split(".").pop();
-		return searchValue === "" || outputField.toLowerCase().includes(searchValue.toLowerCase());
-	});
+// export function getFilteredMappings(mappings: Mapping[], searchValue: string) {
+// 	return mappings.filter(mapping => {
+// 		const outputField = mapping.output.split(".").pop();
+// 		return searchValue === "" || outputField.toLowerCase().includes(searchValue.toLowerCase());
+// 	});
+// }
+
+export function getFilteredMappings(mappings: Mapping[], searchValue: string): Mapping[] {
+    return mappings.flatMap(mapping => {
+        const outputField = mapping.output.split(".").pop();
+        const isCurrentMappingMatched = searchValue === "" || 
+            outputField.toLowerCase().includes(searchValue.toLowerCase());
+        
+        // Get nested mappings from elements
+        const nestedMappings = mapping.elements?.flatMap(element => 
+            getFilteredMappings(element.mappings, searchValue)
+        ) || [];
+        
+        // Return current mapping if matched, along with any nested matches
+        return isCurrentMappingMatched ? [mapping, ...nestedMappings] : nestedMappings;
+    });
 }

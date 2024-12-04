@@ -185,7 +185,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const arrayElements = useMemo(() => {
         return elements && (
             elements.map((element, index) => {
-                const { expression } = element;
+                // const { expression } = element;
                 if (arrayField?.kind === TypeKind.Record) {
                     return (
                         <>
