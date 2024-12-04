@@ -10,7 +10,7 @@
 import { ReactNode } from 'react';
 import { ExpressionEditorProps, ExpressionEditorRef } from './common';
 
-export type HelperPaneConditionalProps = {
+type HelperPaneConditionalProps = {
     // - Get a custom icon for the expression bar
     getExpressionBarIcon?: () => ReactNode;    
     // - Callback function to open the helper pane
