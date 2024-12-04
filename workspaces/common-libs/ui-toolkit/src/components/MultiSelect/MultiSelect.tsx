@@ -128,7 +128,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
         } else {
             newValues = newValues.filter(value => value !== option);
         }
-        props.onChange && props.onChange(newValues, option);
+        props.onChange && props.onChange(newValues, checked ? option : undefined);
         if (closeOnSelect) {
             setIsComponentOpen(false);
         }
@@ -145,13 +145,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
     useEffect(() => {
         setValues(v || []);
     }, [v]);
-
-
-    console.log("MultiSelect Rendered");
-    console.log("ValueContainerPosition: ", valueContainerPosition);
-    console.log("InnerWidth: ", window.innerWidth);
-    console.log("InnerHeight: ", window.innerHeight);
-    console.log("ScrollY: ", window.scrollY);
 
     return (
         <MultiSelectContainer ref={containerRef} id={id} className={className} sx={sx}>

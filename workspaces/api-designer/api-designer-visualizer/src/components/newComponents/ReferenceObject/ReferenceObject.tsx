@@ -8,7 +8,7 @@
  */
 import { Button, Codicon, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
+import { ReferenceObject as R, Parameter } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
@@ -22,6 +22,7 @@ interface ReferenceObjectsProps {
     id: number;
     referenceObject: R;
     referenceObjects?: string[];
+    type?: string;
     onRemoveReferenceObject?: (id: number) => void;
     onRefernceObjectChange: (parameter: R) => void;
 }
@@ -35,17 +36,37 @@ const ButtonWrapperParams = styled.div`
     justify-content: flex-end;
 `;
 export function ReferenceObject(props: ReferenceObjectsProps) {
-    const { id, referenceObject, referenceObjects, onRemoveReferenceObject, onRefernceObjectChange } = props;
+    const { id, referenceObject, referenceObjects, type, onRemoveReferenceObject, onRefernceObjectChange } = props;
     const { 
-        props: { components },
-    } = useContext(APIDesignerContext); 
+        props: { openAPI },
+    } = useContext(APIDesignerContext);
+
+    const existingComponents: string[] = [];
+    if (type === "query") {
+        Object.keys(openAPI.components.parameters).forEach((key) => {
+            if (openAPI.components.parameters[key].in === "query") {
+                existingComponents.push(key as string);
+            }
+        });
+    } else if (type === "header") {
+        Object.keys(openAPI.components.parameters).forEach((key) => {
+            if (openAPI.components.parameters[key].in === "header") {
+                existingComponents.push(key as string);
+            }
+        });
+    } else if (type === "path") {
+        Object.keys(openAPI.components.parameters).forEach((key) => {
+            if (openAPI.components.parameters[key].in === "path") {
+                existingComponents.push(key as string);
+            }
+        });
+    }
 
     const handleParameterChange = (parameter: R) => {
         onRefernceObjectChange(parameter);
     };
 
-    const referenceObjectsList = referenceObjects ? referenceObjects?.map((item) => ({ value: item, label: item })) : 
-        components?.map((item) => ({ value: item, label: item }));
+    const referenceObjectsList = existingComponents ? existingComponents?.map((item) => ({ value: `#/components/parameters/${item}`, content: item })) : [];
 
     return (
         <HorizontalFieldWrapper>

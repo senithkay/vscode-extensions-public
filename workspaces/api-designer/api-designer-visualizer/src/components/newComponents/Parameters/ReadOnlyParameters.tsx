@@ -31,10 +31,9 @@ function isReferenceObject(obj: (P | R)): obj is R {
 export function ReadOnlyParameters(props: ReadOnlyParameterProps) {
     const { parameters, title, type } = props;
 
-    console.log("parameters", parameters);
-
     return (
         <>
+            <Typography sx={{ margin: 0 }} variant='h4'> {title} </Typography>
             {parameters?.map((parameter) => {
                 if (type === parameter.in || isReferenceObject(parameter)) {
                     if (isReferenceObject(parameter)) {
@@ -46,12 +45,7 @@ export function ReadOnlyParameters(props: ReadOnlyParameterProps) {
                     } else {
                         return (
                             <>
-                                <Typography sx={{ margin: 0 }} variant='h4'> {title} </Typography>
-                                <ContentTypeWrapper>
-                                    {parameters.map((parameter) => (
-                                        <ReadOnlyParameter parameter={parameter as P} />
-                                    ))}
-                                </ContentTypeWrapper>
+                                {parameter.in === type && <ReadOnlyParameter parameter={parameter as P} />}
                             </>
                         );
                     }
