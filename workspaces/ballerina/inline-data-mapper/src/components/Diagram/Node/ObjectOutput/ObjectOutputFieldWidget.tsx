@@ -52,7 +52,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-    let fieldName = field.variableName || '';
+    // let fieldName = field.variableName || '';
     let indentation = treeDepth * 16;
     let expanded = true;
 
@@ -61,10 +61,16 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const isArray = typeKind === TypeKind.Array;
     const isRecord = typeKind === TypeKind.Record;
 
-    const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-        : `${parentId}${fieldName && `.${fieldName}`}`;
-    const portIn = getPort(fieldId + ".IN");
+    // const fieldId = fieldIndex !== undefined
+    //     ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
+    //     : `${parentId}${fieldName && `.${fieldName}`}`;
+    let updatedParentId = parentId;
+    if (fieldIndex !== undefined) {
+        updatedParentId = `${parentId}.${fieldIndex}`
+    }
+    let fieldName = field?.variableName || '';
+    let fieldFQN = updatedParentId !== '' ? fieldName !== '' ? `${updatedParentId}.${fieldName}` : updatedParentId : fieldName;
+    const portIn = getPort(fieldFQN + ".IN");
 
     const fields = isRecord && field.fields;
     const isWithinArray = fieldIndex !== undefined;
@@ -72,9 +78,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const handleExpand = () => {
 		const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldFQN));
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldFQN]);
         }
     };
 
@@ -110,8 +116,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     }
 
     if (isWithinArray) {
-        const elementName = fieldName || field?.variableName;
-        fieldName = elementName ? `${elementName}Item` : 'item';
+        fieldName = field?.typeName ? `${field?.typeName}Item` : 'item';
     }
 
     const label = !isArray && (
@@ -143,7 +148,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         <>
             {!isArray && (
                 <div
-                    id={"recordfield-" + fieldId}
+                    id={"recordfield-" + fieldFQN}
                     className={classnames(classes.treeLabel,
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
@@ -182,11 +187,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             )}
             {isArray && (
                 <ArrayOutputFieldWidget
-                    key={fieldId}
+                    key={fieldFQN}
                     engine={engine}
                     field={field}
                     getPort={getPort}
-                    parentId={parentId}
+                    parentId={fieldFQN}
                     context={context}
                     fieldIndex={fieldIndex}
                     treeDepth={treeDepth}
@@ -202,7 +207,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             engine={engine}
                             field={subField}
                             getPort={getPort}
-                            parentId={fieldId}
+                            parentId={fieldFQN}
                             context={context}
                             treeDepth={treeDepth + 1}
                             deleteField={deleteField}

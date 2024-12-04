@@ -66,15 +66,24 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
+    const arrayField = field.member;
     const typeName = getTypeName(field);
-    const fieldName = field.variableName || '';
-    const fieldId = fieldIndex !== undefined
-        ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-        : `${parentId}${fieldName && `.${fieldName}`}`;
+    // const fieldName = field.variableName || '';
+    // const fieldId = fieldIndex !== undefined
+    //     ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
+    //     : `${parentId}${fieldName && `.${fieldName}`}`;
     // const fieldId = fieldIndex !== undefined
     //     ? fieldName ? `${fieldName}.${fieldIndex}` : ''
     //     : fieldName || '';
-    const portIn = getPort(`${fieldId}.IN`);
+
+    let fieldFQN = parentId;
+    if (fieldIndex !== undefined) {
+        fieldFQN = `${parentId}.${fieldIndex}`
+    }
+    const fieldName = field?.variableName || '';
+    // const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
+
+    const portIn = getPort(`${fieldFQN}.IN`);
 
     // const mapping = findMappingByOutput(context.model.mappings, fieldName);
     const mapping = portIn && portIn.value;
@@ -93,7 +102,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         indentation += 24;
     }
 
-    const hasDefaultValue = expression && getDefaultValue(field.kind) === expression.trim();
+    const hasDefaultValue = expression && getDefaultValue(arrayField.kind) === expression.trim();
     let isDisabled = portIn.descendantHasValue;
 
     if (!isDisabled && !hasDefaultValue) {
@@ -119,7 +128,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const onAddElementClick = async () => {
-        await handleAddArrayElement(field?.member?.kind);
+        await handleAddArrayElement(arrayField?.kind);
     };
 
     const label = (
@@ -177,16 +186,16 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         return elements && (
             elements.map((element, index) => {
                 const { expression } = element;
-                if (field.member?.kind === TypeKind.Record) {
+                if (arrayField?.kind === TypeKind.Record) {
                     return (
                         <>
                             <TreeBody>
                                 <ObjectOutputFieldWidget
-                                    key={`arr-output-field-${fieldId}-${index}`}
+                                    key={`arr-output-field-${fieldFQN}-${index}`}
                                     engine={engine}
-                                    field={field.member}
+                                    field={arrayField}
                                     getPort={getPort}
-                                    parentId={fieldId}
+                                    parentId={fieldFQN}
                                     context={context}
                                     fieldIndex={index}
                                     treeDepth={treeDepth + 1}
@@ -197,14 +206,14 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                             <br />
                         </>
                     );
-                } else if (field.member?.kind === TypeKind.Array) {
+                } else if (arrayField?.kind === TypeKind.Array) {
                     return (
                         <ArrayOutputFieldWidget
-                            key={`arr-output-field-${fieldId}-${index}`}
+                            key={`arr-output-field-${fieldFQN}-${index}`}
                             engine={engine}
-                            field={field.member}
+                            field={arrayField}
                             getPort={getPort}
-                            parentId={fieldId}
+                            parentId={fieldFQN}
                             context={context}
                             fieldIndex={index}
                             treeDepth={treeDepth + 1}
@@ -219,9 +228,9 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 }
                 return (
                     <PrimitiveOutputElementWidget
-                        key={`arr-output-field-${fieldId}-${index}`}
-                        parentId={fieldId}
-                        field={field.member}
+                        key={`arr-output-field-${fieldFQN}-${index}`}
+                        parentId={fieldFQN}
+                        field={arrayField}
                         engine={engine}
                         getPort={getPort}
                         context={context}
@@ -258,16 +267,16 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleExpand = () => {
         const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldFQN));
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldFQN]);
         }
     };
 
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await addValue(fieldId, '[]', context);
+            await addValue(fieldFQN, '[]', context);
         } finally {
             setLoading(false);
         }
@@ -293,7 +302,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 // TODO: handle array element addition for alredy initialized array
             } else {
                 const newMapping: Mapping = {
-                    output: fieldId,
+                    output: fieldFQN,
                     inputs: [],
                     expression: defaultValue
                 };
@@ -329,7 +338,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         >
             {!asOutput && (
                 <div
-                    id={"recordfield-" + fieldId}
+                    id={"recordfield-" + fieldFQN}
                     className={classnames(classes.ArrayFieldRow,
                         isDisabled ? classes.ArrayFieldRowDisabled : "",
                         (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",

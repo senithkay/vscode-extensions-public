@@ -145,7 +145,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                         "kind": TypeKind.String
                     },
                     "id": "var1.contacts",
-                    "variableName": "var1.contacts",
+                    "variableName": "contacts",
                     "typeName": "contacts",
                     "kind": TypeKind.Array
                 }
@@ -374,13 +374,6 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                         "expression": "\"\"",
                         "diagnostics": [],
                         "elements": []
-                    },
-                    {
-                        "output": "var3.contacts.0.secondaryPhone",
-                        "inputs": [],
-                        "expression": "\"\"\n",
-                        "diagnostics": [],
-                        "elements": []
                     }
                 ]
             }
@@ -396,8 +389,8 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             )}
             {model && (
                 <DataMapperView 
-                    model={model || initialModel} 
-                    // model={model3} 
+                    // model={model || initialModel} 
+                    model={model3} 
                     onClose={onClose}
                     applyModifications={updateExpression}
                 />
