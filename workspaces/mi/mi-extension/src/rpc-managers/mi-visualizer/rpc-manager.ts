@@ -35,7 +35,6 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
-    HandleCertificateFileRequest,
     AddConfigurableRequest,
     FileAppendRequest,
     SwaggerProxyRequest,
@@ -178,12 +177,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const envFilePath = [projectUri, '.env'].join(path.sep);
         await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
         await appendContent(envFilePath, `${params.configurableName}\n`);
-    }
-
-    async handleCertificateFile(params: HandleCertificateFileRequest): Promise<void> {
-        const certificateDirPath = [params.projectUri, 'src', 'main', 'wso2mi', 'resources', 'certificates'].join(path.sep);
-        const fileName = getFileName(params.certificateFilePath);
-        await copyFile(params.certificateFilePath, certificateDirPath + path.sep + fileName + '.crt');
     }
 
     async appendContentToFile(params: FileAppendRequest): Promise<boolean> {

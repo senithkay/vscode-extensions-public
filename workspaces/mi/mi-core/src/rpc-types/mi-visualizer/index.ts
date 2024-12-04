@@ -31,7 +31,6 @@ import {
     ProjectOverviewResponse,
     ReadmeContentResponse,
     FileAppendRequest,
-    HandleCertificateFileRequest,
     AddConfigurableRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
@@ -45,7 +44,6 @@ export interface MIVisualizerAPI {
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
-    handleCertificateFile: (params: HandleCertificateFileRequest) => Promise<void>;
     addConfigurable: (params: AddConfigurableRequest) => Promise<void>;
     appendContentToFile: (params: FileAppendRequest) => Promise<boolean>;
     getHistory: () => Promise<HistoryEntryResponse>;

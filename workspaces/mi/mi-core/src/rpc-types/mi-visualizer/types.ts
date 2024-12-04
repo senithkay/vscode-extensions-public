@@ -172,11 +172,6 @@ export interface SampleDownloadRequest {
     zipFileName: string;
 }
 
-export interface HandleCertificateFileRequest {
-    projectUri: string;
-    certificateFilePath: string;
-}
-
 export interface AddConfigurableRequest {
     projectUri: string;
     configurableName: string;
