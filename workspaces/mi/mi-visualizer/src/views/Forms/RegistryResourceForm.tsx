@@ -49,7 +49,7 @@ const getInitialRegistryResource = (type: string): InputsFields => ({
     filePath: "Please select a file",
     resourceName: "",
     artifactName: "",
-    registryPath: getFileExtension(type),
+    registryPath: type ? type : "xslt",
     createOption: canCreateTemplateForType(type) ? "new" : "import",
     registryType: "gov"
 });
