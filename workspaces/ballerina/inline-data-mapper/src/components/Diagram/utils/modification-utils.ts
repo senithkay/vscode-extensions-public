@@ -6,9 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { Mapping } from "@wso2-enterprise/ballerina-core";
 import { DataMapperLinkModel } from "../Link";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { InputOutputPortModel } from "../Port";
+import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
 
 export async function createNewMapping(link: DataMapperLinkModel) {
 	const targetPort = link.getTargetPort();
@@ -57,6 +59,20 @@ export async function updateExistingMapping(link: DataMapperLinkModel) {
 	});
 
 	return await targetNode.context.applyModifications(updatedMappings);
+}
+
+export async function addValue(fieldId: string, value: string, context: IDataMapperContext) {
+	const { mappings } = context.model;
+
+	const newMapping = {
+		output: fieldId,
+		inputs: [value],
+		expression: value
+	};
+
+	mappings.push(newMapping);
+
+	return await context.applyModifications(mappings);
 }
 
 export function buildInputAccessExpr(fieldFqn: string): string {

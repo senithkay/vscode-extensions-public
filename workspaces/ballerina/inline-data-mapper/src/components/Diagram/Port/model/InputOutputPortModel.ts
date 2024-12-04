@@ -42,6 +42,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public portName: string,
 		public portType: "IN" | "OUT",
 		public value?: Mapping,
+		public index?: number,
 		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
 		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: InputOutputPortModel,

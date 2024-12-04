@@ -163,7 +163,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 									field={item}
 									getPort={getPort}
 									parentId={id}
-									parentObjectLiteralExpr={value}
 									context={context}
 									treeDepth={0}
 									deleteField={deleteField}

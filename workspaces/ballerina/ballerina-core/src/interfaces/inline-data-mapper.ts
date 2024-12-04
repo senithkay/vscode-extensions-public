@@ -55,6 +55,7 @@ export interface Mapping {
     output: string,
     inputs: string[];
     expression: string;
+    elements?: Mapping[];
     diagnostics?: IDMDiagnostic[];
     isComplex?: boolean;
     isFunctionCall?: boolean;

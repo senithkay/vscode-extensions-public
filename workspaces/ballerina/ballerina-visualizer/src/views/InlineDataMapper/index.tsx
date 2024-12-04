@@ -13,10 +13,12 @@ import {
     FlowNode,
     IDMModel,
     InlineDataMapperSourceRequest,
+    InputCategory,
     LinePosition,
     Mapping,
     SubPanel,
-    SubPanelView
+    SubPanelView,
+    TypeKind
 } from "@wso2-enterprise/ballerina-core";
 import { DataMapperView } from "@wso2-enterprise/ballerina-inline-data-mapper";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
@@ -92,6 +94,301 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
         } 
     }, [isError]);
 
+    const model1: IDMModel = {
+        "inputs": [
+            {
+                "fields": [
+                    {
+                        "member": {
+                            "id": "u1.phoneNumber",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "u1.phoneNumber",
+                        "variableName": "u1.phoneNumber",
+                        "typeName": "phoneNumber",
+                        "kind": TypeKind.Array
+                    }
+                ],
+                "id": "u1",
+                "variableName": "u1",
+                "typeName": "User",
+                "kind": TypeKind.Record,
+                "category": InputCategory.ModuleVariable
+            },
+            {
+                "fields": [
+                    {
+                        "member": {
+                            "id": "user.phoneNumber",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "user.phoneNumber",
+                        "variableName": "user.phoneNumber",
+                        "typeName": "phoneNumber",
+                        "kind": TypeKind.Array
+                    }
+                ],
+                "id": "user",
+                "variableName": "user",
+                "typeName": "User",
+                "kind": TypeKind.Record
+            }
+        ],
+        "output": {
+            "fields": [
+                {
+                    "member": {
+                        "id": "var1.contacts",
+                        "typeName": "string",
+                        "kind": TypeKind.String
+                    },
+                    "id": "var1.contacts",
+                    "variableName": "var1.contacts",
+                    "typeName": "contacts",
+                    "kind": TypeKind.Array
+                }
+            ],
+            "id": "var1",
+            "variableName": "var1",
+            "typeName": "Person",
+            "kind": TypeKind.Record
+        },
+        "mappings": [
+            {
+                "inputs": [],
+                "output": "var1.contacts",
+                "expression": "[\"123\", \"456\"]",
+                "elements": [
+                    {
+                        "inputs": [],
+                        "output": "var1.contacts.0",
+                        "expression": "123"
+                    },
+                    {
+                        "inputs": [],
+                        "output": "var1.contacts.1",
+                        "expression": "456"
+                    }
+                ]
+            }
+        ],
+        "source": "Person var1 = {\n    contacts: [\"123\", \"456\"]\n};",
+        view: "source"
+    };
+
+    const model2: IDMModel = {
+        "inputs": [
+            {
+                "fields": [
+                    {
+                        "member": {
+                            "id": "u1.phoneNumber",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "u1.phoneNumber",
+                        "variableName": "u1.phoneNumber",
+                        "typeName": "phoneNumber",
+                        "kind": TypeKind.Array
+                    }
+                ],
+                "id": "u1",
+                "variableName": "u1",
+                "typeName": "User",
+                "kind": TypeKind.Record,
+                "category": InputCategory.ModuleVariable
+            },
+            {
+                "fields": [
+                    {
+                        "member": {
+                            "id": "user.phoneNumber",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "user.phoneNumber",
+                        "variableName": "user.phoneNumber",
+                        "typeName": "phoneNumber",
+                        "kind": TypeKind.Array
+                    }
+                ],
+                "id": "user",
+                "variableName": "user",
+                "typeName": "User",
+                "kind": TypeKind.Record
+            }
+        ],
+        "output": {
+            "fields": [
+                {
+                    "member": {
+                        "member": {
+                            "id": "var2.contacts",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "var2.contacts",
+                        "kind": TypeKind.Array
+                    },
+                    "id": "var2.contacts",
+                    "variableName": "var2.contacts",
+                    "typeName": "contacts",
+                    "kind": TypeKind.Array
+                }
+            ],
+            "id": "var2",
+            "variableName": "var2",
+            "typeName": "Person2",
+            "kind": TypeKind.Record
+        },
+        "mappings": [
+            {
+                "inputs": [],
+                "output": "var2.contacts",
+                "expression": "[[\"123\", \"456\"], [\"789\"]]",
+                "elements": [
+                    {
+                        "inputs": [],
+                        "output": "var2.contacts.0",
+                        "expression": "[\"123\", \"456\"]",
+                        "elements": [
+                            {
+                                "inputs": [],
+                                "output": "var2.contacts.0.0",
+                                "expression": "123"
+                            },
+                            {
+                                "inputs": [],
+                                "output": "var2.contacts.0.1",
+                                "expression": "456"
+                            }
+                        ]
+                    },
+                    {
+                        "inputs": [],
+                        "output": "var2.contacts.1",
+                        "expression": "[\"789\"]",
+                        "elements": [
+                            {
+                                "inputs": [],
+                                "output": "var2.contacts.1.0",
+                                "expression": "789"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "source": "Person2 var2 = {\n    contacts: [[\"123\", \"456\"], [\"789\"]]\n};",
+        view: "source"
+    };
+
+    const model3: IDMModel = {
+        "inputs": [
+            {
+                "fields": [
+                    {
+                        "member": {
+                            "id": "u1.phoneNumber",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "u1.phoneNumber",
+                        "variableName": "phoneNumber",
+                        "typeName": "string[]",
+                        "kind": TypeKind.Array
+                    }
+                ],
+                "id": "u1",
+                "variableName": "u1",
+                "typeName": "User",
+                "kind": TypeKind.Record,
+                "category": InputCategory.ModuleVariable
+            },
+            {
+                "fields": [
+                    {
+                        "member": {
+                            "id": "user.phoneNumber",
+                            "typeName": "string",
+                            "kind": TypeKind.String
+                        },
+                        "id": "user.phoneNumber",
+                        "variableName": "phoneNumber",
+                        "typeName": "string[]",
+                        "kind": TypeKind.Array
+                    }
+                ],
+                "id": "user",
+                "variableName": "user",
+                "typeName": "User",
+                "kind": TypeKind.Record,
+                "category": InputCategory.ModuleVariable
+            }
+        ],
+        "output": {
+            "fields": [
+                {
+                    "member": {
+                        "fields": [
+                            {
+                                "id": "var3.contacts.primaryPhome",
+                                "variableName": "primaryPhome",
+                                "typeName": "string",
+                                "kind": TypeKind.String
+                            },
+                            {
+                                "id": "var3.contacts.secondaryPhone",
+                                "variableName": "secondaryPhone",
+                                "typeName": "string",
+                                "kind": TypeKind.String
+                            }
+                        ],
+                        "id": "var3.contacts",
+                        "typeName": "Contact",
+                        "kind": TypeKind.Record
+                    },
+                    "id": "var3.contacts",
+                    "variableName": "contacts",
+                    "typeName": "Contact[]",
+                    "kind": TypeKind.Array
+                }
+            ],
+            "id": "var3",
+            "variableName": "var3",
+            "typeName": "Person3",
+            "kind": TypeKind.Record
+        },
+        "mappings": [
+            {
+                "output": "var3.contacts",
+                "inputs": [],
+                "expression": "[\n        {\n            primaryPhome: \"\",\n            secondaryPhone: \"\"\n        }\n    ]\n",
+                "diagnostics": [],
+                "elements": [
+                    {
+                        "output": "var3.contacts.0.primaryPhome",
+                        "inputs": [],
+                        "expression": "\"\"",
+                        "diagnostics": [],
+                        "elements": []
+                    },
+                    {
+                        "output": "var3.contacts.0.secondaryPhone",
+                        "inputs": [],
+                        "expression": "\"\"\n",
+                        "diagnostics": [],
+                        "elements": []
+                    }
+                ]
+            }
+        ],
+        "source": "Person3 var3 = {\n    contacts: [\n        {\n            primaryPhome: \"\",\n            secondaryPhone: \"\"\n        }\n    ]\n};",
+        "view": "source"
+    };
+
     return (
         <>
             {isFetching && (
@@ -100,6 +397,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             {model && (
                 <DataMapperView 
                     model={model || initialModel} 
+                    // model={model3} 
                     onClose={onClose}
                     applyModifications={updateExpression}
                 />
@@ -107,3 +405,4 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
         </>
     );
 };
+

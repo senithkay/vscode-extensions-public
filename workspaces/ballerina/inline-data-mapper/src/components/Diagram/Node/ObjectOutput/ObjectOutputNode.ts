@@ -66,8 +66,8 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 if (this.filteredOutputType.fields.length) {
                     this.filteredOutputType.fields.forEach(field => {
                         this.addPortsForOutputField(
-                            field, "IN", this.context.model.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                            field, "IN", '', this.context.model.mappings, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
+                            parentPort, collapsedFields, parentPort.collapsed
                         );
                     });
                 }
@@ -83,7 +83,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
 
     private createLinks(mappings: Mapping[]) {
         mappings.forEach((mapping) => {    
-            if (mapping.isComplex || mapping.inputs.length > 1) {
+            if (mapping.isComplex || mapping.inputs.length !== 1) {
                 // Complex mappings are handled in the LinkConnectorNode
                 return;
             }
@@ -94,7 +94,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 inPort = getInputPort(inputNode, mapping.inputs[0]);
             }
 
-            const [outPort, mappedOutPort] = getOutputPort(this, mapping.output);
+            const [_, mappedOutPort] = getOutputPort(this, mapping.output);
 
             if (inPort && mappedOutPort) {
                 const lm = new DataMapperLinkModel(mapping.expression, mapping.diagnostics, true, undefined);

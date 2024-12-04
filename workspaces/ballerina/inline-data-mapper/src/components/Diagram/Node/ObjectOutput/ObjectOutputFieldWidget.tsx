@@ -18,15 +18,15 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
 import { OutputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/type-utils";
+import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
     field: IOType;
     engine: DiagramEngine;
     getPort: (portId: string) => InputOutputPortModel;
-    parentObjectLiteralExpr: Node;
     context: IDataMapperContext;
     fieldIndex?: number;
     treeDepth?: number;
@@ -51,7 +51,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
 
     let fieldName = field.variableName || '';
     let indentation = treeDepth * 16;
@@ -66,7 +65,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
         : `${parentId}${fieldName && `.${fieldName}`}`;
     const portIn = getPort(fieldId + ".IN");
-    const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
 
     const fields = isRecord && field.fields;
     const isWithinArray = fieldIndex !== undefined;
@@ -182,6 +180,20 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     </span>
                 </div>
             )}
+            {isArray && (
+                <ArrayOutputFieldWidget
+                    key={fieldId}
+                    engine={engine}
+                    field={field}
+                    getPort={getPort}
+                    parentId={parentId}
+                    context={context}
+                    fieldIndex={fieldIndex}
+                    treeDepth={treeDepth}
+                    deleteField={deleteField}
+                    hasHoveredParent={isHovered || hasHoveredParent}
+                />
+            )}
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
@@ -191,7 +203,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             field={subField}
                             getPort={getPort}
                             parentId={fieldId}
-                            parentObjectLiteralExpr={undefined}
                             context={context}
                             treeDepth={treeDepth + 1}
                             deleteField={deleteField}

@@ -33,7 +33,7 @@ export class ObjectOutputNodeFactory extends AbstractReactFactory<ObjectOutputNo
 				) : (
 					<ObjectOutputWidget
 						engine={this.engine}
-						id={`${OBJECT_OUTPUT_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+						id={OBJECT_OUTPUT_TARGET_PORT_PREFIX}
 						outputType={event.model.outputType}
 						typeName={event.model.typeName}
 						value={undefined}
