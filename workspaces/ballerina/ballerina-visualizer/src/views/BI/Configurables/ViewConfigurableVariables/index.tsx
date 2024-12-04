@@ -11,10 +11,10 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { ConfigVariable, EVENT_TYPE, FlowNode, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
 import { BIHeader } from "../../BIHeader";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeTag } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
@@ -22,6 +22,84 @@ import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
 const Container = styled.div`
     width: 100%;
 `;
+
+type MethodProp = {
+    hasLeftMargin?: boolean;
+};
+
+type ContainerProps = {
+    borderColor?: string;
+    haveErrors?: boolean;
+};
+
+type ButtonSectionProps = {
+    isExpanded?: boolean;
+};
+
+type HeaderProps = {
+    expandable?: boolean;
+}
+
+const AccordionContainer = styled.div<ContainerProps>`
+    margin-top: 10px;
+    overflow: hidden;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+        cursor: pointer;
+    }
+    border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
+`;
+
+const AccordionHeader = styled.div<HeaderProps>`
+    padding: 10px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+`;
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 10px;
+    width: 40px;
+`;
+
+const MethodBox = styled.div<MethodProp>`
+    display: flex;
+    justify-content: center;
+    height: 25px;
+    min-width: 70px;
+    width: auto;
+    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
+    text-align: center;
+    padding: 3px 5px 3px 5px;
+    background-color: #616161;
+    color: #FFF;
+    align-items: center;
+    font-weight: bold;
+`;
+
+const MethodSection = styled.div`
+    display: flex;
+    gap: 4px;
+`;
+
+const ButtonSection = styled.div<ButtonSectionProps>`
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: ${(p: ButtonSectionProps) => p.isExpanded ? "8px" : "6px"};
+`;
+
+const MethodPath = styled.div`
+    align-self: center;
+    margin-left: 10px;
+    display: flex;
+`;
+
 
 namespace S {
 
@@ -132,7 +210,7 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
         getConfigVariables();
     }, []);
 
-     // Effect to handle prop changes
+    // Effect to handle prop changes
     useEffect(() => {
         if (props.variableIndex !== undefined && configVariables.length > 0) {
             // Open child component if props are provided
@@ -167,70 +245,63 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
                     </S.Row>
 
                     {
-                        configVariables.length > 0 ?
+                        configVariables.length > 0 && configVariables.map((variable, index) => {
+                            return (
 
-                            <VSCodeDataGrid>
-                                {
-                                    configVariables.map((variable, index) => {
-                                        return (
-                                            <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1`} style={{ padding: "10px" }}>
-                                                    <S.ConfigWrapper>
-                                                        <S.ConfigData>
-                                                            <div style={{ display: "flex", marginRight: "20px"}}>
-                                                                <VSCodeTag style={{
-                                                                    width: "100px",
-                                                                    textAlign: "center",
-                                                                    textTransform: "lowercase !important",
-                                                                    fontWeight: "bold"
-                                                                }}>
-                                                                    {String(variable.properties.type.value)}
-                                                                </VSCodeTag>
-                                                            </div>
-                                                            <div style={{ display: "flex", marginRight: "20px"}}>
-                                                                {
-                                                                    typeof variable.properties.variable.value === 'string' ?
-                                                                        variable.properties.variable.value : ''
-                                                                }
-                                                                {variable?.diagnostics?.hasDiagnostics &&
-                                                                    <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
-                                                                }
-                                                            </div>
-                                                            {
-                                                                variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
-                                                                    variable.properties.defaultable.value === "?" ?
-                                                                        null
-                                                                        :  <div style={{ display: "flex", marginRight: "20px"}}>=</div>
-                                                                    : null
-                                                            }
-                                                            <div style={{ display: "flex"}}>
-                                                                {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
-                                                                    variable.properties.defaultable.value === "?" ?
-                                                                        null
-                                                                        : String(variable.properties.defaultable.value)
-                                                                    : null}
-                                                            </div>
-                                                        </S.ConfigData>
+                                <AccordionContainer data-testid="config-resources" key={index}>
+                                    <AccordionHeader>
+                                        <MethodSection>
+                                            <MethodBox hasLeftMargin={false}>
+                                                {String(variable.properties.type.value)}
+                                            </MethodBox>
+                                            <MethodPath>
+                                                <div style={{ display: "flex", marginRight: "20px" }}>
+                                                    {
+                                                        typeof variable.properties.variable.value === 'string' ?
+                                                            variable.properties.variable.value : ''
+                                                    }
+                                                    {variable?.diagnostics?.hasDiagnostics &&
+                                                        <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
+                                                    }
+                                                </div>
+                                                {
+                                                    variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
+                                                        variable.properties.defaultable.value === "?" ?
+                                                            null
+                                                            : <div style={{ display: "flex", marginRight: "20px" }}>=</div>
+                                                        : null
+                                                }
+                                                <div style={{ display: "flex" }}>
+                                                    {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
+                                                        variable.properties.defaultable.value === "?" ?
+                                                            null
+                                                            : String(variable.properties.defaultable.value)
+                                                        : null}
+                                                </div>
+                                            </MethodPath>
+                                        </MethodSection>
+                                        <ButtonSection>
 
-                                                        <S.ConfigDataControls>
-                                                            <Button appearance="secondary" onClick={(event) => handleEditConfigVariableFormOpen(index)} aria-label="Edit">
-                                                                <Codicon name="edit" />
-                                                            </Button>
-                                                            <Button appearance="secondary" onClick={(event) => handleOnDeleteConfigVariable(index)} aria-label="Dlete">
-                                                                <Codicon name="trash" />
-                                                            </Button>
-                                                        </S.ConfigDataControls>
-                                                    </S.ConfigWrapper>
-                                                </VSCodeDataGridCell>
-                                            </VSCodeDataGridRow>
+                                            <ButtonWrapper>
+                                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={() => handleEditConfigVariableFormOpen(index)}>
+                                                    <Icon name="editIcon" />
+                                                </VSCodeButton>
+                                            </ButtonWrapper>
 
-                                        );
-                                    })
-                                }
-                            </VSCodeDataGrid>
-                            : null
+
+                                            <ButtonWrapper>
+                                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={() => handleOnDeleteConfigVariable(index)}>
+                                                    <Codicon name="trash" />
+                                                </VSCodeButton>
+                                            </ButtonWrapper>
+
+                                        </ButtonSection>
+                                    </AccordionHeader>
+                                </AccordionContainer>
+
+                            );
+                        })
                     }
-
 
                     {isEditConfigVariableFormOpen &&
                         <EditForm
