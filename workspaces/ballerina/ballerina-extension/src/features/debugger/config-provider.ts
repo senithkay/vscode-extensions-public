@@ -359,28 +359,40 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         if (isWebviewPresent) {
                             setTimeout(() => {
                                 const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+                                console.log("VisualizerWebview.currentPanel", VisualizerWebview.currentPanel);
+                                console.log("State Machine context", StateMachine.context());
                                 if (VisualizerWebview.currentPanel) {
                                     VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                                     setTimeout(() => {
-
-                                        // check if currentFilePath is different from the one in the context, if so we need to open the currentFile
-                                        if (StateMachine.context().documentUri !== uri.fsPath) {
+                                        // diagram: In Overview
+                                        // Need to get the exact position of the breakpoint's parent flowdiagram we need to open
+                                        if (StateMachine.context().documentUri === undefined) {
                                             const newContext = StateMachine.context();
                                             newContext.documentUri = uri.fsPath;
                                             openView(EVENT_TYPE.OPEN_VIEW, newContext);
                                             notifyBreakpointChange();
-
+                                        } else if (StateMachine.context().documentUri !== uri.fsPath) { // Step into another file or possibly in another flow diagram view
+                                            const newContext = StateMachine.context();
+                                            newContext.documentUri = uri.fsPath;
+                                            openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                                            notifyBreakpointChange();
                                         } else {
-                                            const context = StateMachine.context();
+                                            // const context = StateMachine.context();
                                             notifyBreakpointChange();
                                         }
                                     }, 200);
                                 } else {
+                                    // Webview disposes at times when breakpoint hit
                                     //  extension.webviewReveal = true;
                                     const newContext = StateMachine.context();
-                                    newContext.documentUri = uri.fsPath;
-                                    openView(EVENT_TYPE.OPEN_VIEW, newContext);
-                                    notifyBreakpointChange();
+                                    if (!uri.fsPath.startsWith(newContext.projectUri)) {
+                                        console.log("Breakpoint is in a different project");
+                                        window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
+                                    } else {
+                                        newContext.documentUri = uri.fsPath;
+                                        openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                                        notifyBreakpointChange();
+                                    }
                                 }
                             }, 200);
                         }
