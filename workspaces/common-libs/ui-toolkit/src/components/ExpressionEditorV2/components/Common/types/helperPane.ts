@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -21,6 +22,11 @@ export type HelperPaneCompletionItemProps = {
     getIcon?: () => ReactNode;
 };
 
+export type HelperPaneCategoryItemProps = {
+    label: string;
+    onClick: () => void;
+};
+
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
 }>;
@@ -39,4 +45,4 @@ export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     onClose?: () => void;
 };
 
-export type HelperPaneProps = PropsWithChildren<Record<string, never>>;
+export type HelperPaneProps = PropsWithChildren<{}>;

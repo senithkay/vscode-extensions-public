@@ -10,6 +10,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import {
+    HelperPaneCategoryItemProps,
     HelperPaneCompletionItemProps,
     HelperPaneHeaderProps,
     HelperPaneIconButtonProps,
@@ -37,6 +38,13 @@ const CompletionItemContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
+`;
+
+const CategoryItemContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px;
 `;
 
 const SectionContainer = styled.div`
@@ -100,6 +108,15 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, labe
     );
 };
 
+const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, onClick }) => {
+    return (
+        <CategoryItemContainer onClick={onClick}>
+            <Typography variant="body3">{label}</Typography>
+            <Codicon name="chevron-right" />
+        </CategoryItemContainer>
+    );
+};
+
 const Section: React.FC<HelperPaneSectionProps> = ({ title, children }) => {
     return (
         <SectionContainer>
@@ -132,6 +149,7 @@ const HelperPane: React.FC<HelperPaneProps> & {
     Header: typeof Header;
     Body: typeof Body;
     Section: typeof Section;
+    CategoryItem: typeof CategoryItem;
     CompletionItem: typeof CompletionItem;
     Footer: typeof Footer;
     IconButton: typeof IconButton;
@@ -142,6 +160,7 @@ const HelperPane: React.FC<HelperPaneProps> & {
 HelperPane.Header = Header;
 HelperPane.Body = Body;
 HelperPane.Section = Section;
+HelperPane.CategoryItem = CategoryItem;
 HelperPane.CompletionItem = CompletionItem;
 HelperPane.Footer = Footer;
 HelperPane.IconButton = IconButton;
