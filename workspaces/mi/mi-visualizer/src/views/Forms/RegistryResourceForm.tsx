@@ -94,17 +94,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
-            // artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
-            //     'Artifact name already exists', value => {
-            //         return !regArtifactNames.includes(value);
-            //     }).test('validateArtifactNameInWorkspace',
-            //         'A file already exists in the workspace with this artifact name', value => {
-            //             return !artifactNames.includes(value);
-            //         }),
             registryPath: yup.string().test('validateRegistryPath', 'Resource already exists', value => {
-                // const formattedPath = formatRegistryPath(value);
                 const formattedPath = formatResourcePath(value);
-                // return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                 return !resourcePaths.includes(formattedPath);
             }),
             // registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
