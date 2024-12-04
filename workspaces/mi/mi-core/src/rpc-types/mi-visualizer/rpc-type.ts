@@ -31,7 +31,6 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
-    FileAppendRequest,
     AddConfigurableRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
@@ -48,7 +47,6 @@ export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const fetchSamplesFromGithub: RequestType<void, GettingStartedData> = { method: `${_preFix}/fetchSamplesFromGithub` };
 export const downloadSelectedSampleFromGithub: NotificationType<SampleDownloadRequest> = { method: `${_preFix}/downloadSelectedSampleFromGithub` };
 export const addConfigurable: RequestType<AddConfigurableRequest, void> = { method: `${_preFix}/addConfigurable` };
-export const appendContentToFile: RequestType<FileAppendRequest, boolean> = { method: `${_preFix}/appendContentToFile` };
 export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };

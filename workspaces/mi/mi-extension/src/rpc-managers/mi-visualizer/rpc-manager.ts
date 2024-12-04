@@ -36,7 +36,6 @@ import {
     RuntimeServicesResponse,
     SampleDownloadRequest,
     AddConfigurableRequest,
-    FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -177,10 +176,6 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const envFilePath = [projectUri, '.env'].join(path.sep);
         await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
         await appendContent(envFilePath, `${params.configurableName}\n`);
-    }
-
-    async appendContentToFile(params: FileAppendRequest): Promise<boolean> {
-        return appendContent(params.filePath, params.content);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {

@@ -30,7 +30,6 @@ import {
     RuntimeServicesResponse,
     SampleDownloadRequest,
     AddConfigurableRequest,
-    FileAppendRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -43,7 +42,6 @@ import {
     getAvailableRuntimeServices,
     getCurrentThemeKind,
     addConfigurable,
-    appendContentToFile,
     getHistory,
     getProjectOverview,
     getProjectStructure,
@@ -120,10 +118,6 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     addConfigurable(params: AddConfigurableRequest): Promise<void> {
         return this._messenger.sendRequest(addConfigurable, HOST_EXTENSION, params);
-    }
-
-    appendContentToFile(params: FileAppendRequest): Promise<boolean> {
-        return this._messenger.sendRequest(appendContentToFile, HOST_EXTENSION, params);
     }
 
     getHistory(): Promise<HistoryEntryResponse> {
