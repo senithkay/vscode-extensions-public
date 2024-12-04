@@ -8,7 +8,7 @@
  */
 
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { FormField } from '../Form/types';
+import { FormField } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import {
     Button,
@@ -20,17 +20,15 @@ import {
     RequiredFormInput
 } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { useFormContext } from '../../context';
+import { useFormContext } from '../../../context';
 import {
-    ConfigurePanelData,
     LineRange,
     SubPanel,
     SubPanelView,
     SubPanelViewProps
 } from '@wso2-enterprise/ballerina-core';
-import { debounce } from 'lodash';
-import { Colors } from '../../resources/constants';
-import { sanitizeType } from './utils';
+import { Colors } from '../../../resources/constants';
+import { sanitizeType } from '../utils';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -168,6 +166,7 @@ export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, 
 
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
     const {
+        autoFocus,
         control,
         field,
         watch,
@@ -183,18 +182,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         onCancel,
         onRemove,
         openSubPanel,
-        isActiveSubPanel,
-        targetLineRange,
-        fileName,
-        handleOnFieldFocus,
-        autoFocus
+        handleOnFieldFocus
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState(false);
     
     // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
     const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
-    const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
-    const effectiveFileName = fileName ?? contextFileName;
 
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
@@ -271,58 +264,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     };
 
-    const handleHelperPaneOpen = () => {
-        if (effectiveTargetLineRange && effectiveFileName) {
-            const subPanelProps: SubPanelViewProps = {
-                sidePanelData: {
-                    filePath: effectiveFileName,
-                    range: {
-                        startLine: effectiveTargetLineRange.startLine,
-                        endLine: effectiveTargetLineRange.endLine,
-                    },
-                    editorKey: field.key
-                }
-            };
-            if (field.type === 'RECORD_EXPRESSION') { // TODO: update the type based on the LS API
-                const configurePanelData: ConfigurePanelData = {
-                    isEnable: true,
-                    name: field.label,
-                    documentation: field.documentation,
-                    value: field.value as string
-                };
-                subPanelProps.sidePanelData.configurePanelData = configurePanelData;
-            }
-
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
-            handleOnFieldFocus?.(field.key);
-        }
-    };
-
-    const updateSubPanelData = (value: string) => {
-        if (isActiveSubPanel && effectiveTargetLineRange && effectiveFileName && field.type === 'RECORD_EXPRESSION') {
-            const subPanelProps: SubPanelViewProps = {
-                sidePanelData: {
-                    filePath: effectiveFileName,
-                    range: {
-                        startLine: effectiveTargetLineRange.startLine,
-                        endLine: effectiveTargetLineRange.endLine,
-                    },
-                    editorKey: field.key,
-                    configurePanelData: {
-                        isEnable: true,
-                        name: field.label,
-                        documentation: field.documentation,
-                        value: value
-                    }
-                }
-            };
-
-            handleOpenSubPanel(SubPanelView.HELPER_PANEL, subPanelProps);
-        };
-    };
-
-    const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
-
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -347,10 +288,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             name={name}
                             completions={completions}
                             value={value}
-                            autoFocus={props.autoFocus}
+                            autoFocus={autoFocus}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
-                                debouncedUpdateSubPanelData(value);
 
                                 getExpressionDiagnostics(!field.optional || value !== "", value, field.key);
 
@@ -374,7 +314,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onCancel={onCancel}
                             onRemove={onRemove}
                             inputProps={endAdornment}
-                            handleHelperPaneOpen={handleHelperPaneOpen}
+                            isHelperPaneOpen={}
+                            toggleHelperPane={}
+                            getHelperPane={}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                         />
