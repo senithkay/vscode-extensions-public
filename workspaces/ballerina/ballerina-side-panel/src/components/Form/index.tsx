@@ -13,7 +13,7 @@ import {
     Button,
     Codicon,
     CompletionItem,
-    ExpressionBarRef,
+    FormExpressionEditorRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
@@ -242,7 +242,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager

@@ -11,8 +11,8 @@ import React, { useRef, useState } from "react";
 import {
     Codicon,
     ErrorBanner,
-    ExpressionBar,
-    ExpressionBarRef,
+    FormExpressionEditor,
+    FormExpressionEditorRef,
     RequiredFormInput,
     Typography
 } from "@wso2-enterprise/ui-toolkit";
@@ -52,7 +52,7 @@ export function TypeEditor(props: TypeEditorProps) {
         onCancel,
     } = expressionEditor;
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
     const cursorPositionRef = useRef<number | undefined>(undefined);
     const [showDefaultCompletion, setShowDefaultCompletion] = useState<boolean>(false);
     const [focused, setFocused] = useState<boolean>(false);
@@ -114,7 +114,7 @@ export function TypeEditor(props: TypeEditorProps) {
                 rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
-                        <ExpressionBar
+                        <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
                             name={name}

@@ -10,10 +10,24 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { FormField } from '../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
-import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
+import {
+    Button,
+    CompletionItem,
+    ErrorBanner,
+    FormExpressionEditor,
+    FormExpressionEditorRef,
+    InputProps,
+    RequiredFormInput
+} from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../context';
-import { ConfigurePanelData, LineRange, SubPanel, SubPanelView, SubPanelViewProps } from '@wso2-enterprise/ballerina-core';
+import {
+    ConfigurePanelData,
+    LineRange,
+    SubPanel,
+    SubPanelView,
+    SubPanelViewProps
+} from '@wso2-enterprise/ballerina-core';
 import { debounce } from 'lodash';
 import { Colors } from '../../resources/constants';
 import { sanitizeType } from './utils';
@@ -137,7 +151,7 @@ export namespace S {
     `;
 }
 
-export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, ContextAwareExpressionEditorProps>((props, ref) => {
+export const ContextAwareExpressionEditor = forwardRef<FormExpressionEditorRef, ContextAwareExpressionEditorProps>((props, ref) => {
     const { form, expressionEditor, targetLineRange, fileName } = useFormContext();
 
     return (
@@ -152,7 +166,7 @@ export const ContextAwareExpressionEditor = forwardRef<ExpressionBarRef, Context
     );
 });
 
-export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorProps>((props, ref) => {
+export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEditorProps>((props, ref) => {
     const {
         control,
         field,
@@ -182,7 +196,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
     const effectiveFileName = fileName ?? contextFileName;
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     // Use to fetch initial diagnostics
     const fetchInitialDiagnostics = useRef<boolean>(true);
@@ -327,7 +341,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                 rules={{ required: !field.optional && !field.placeholder }}
                 render={({ field: { name, value, onChange }, fieldState: { error } }) => (
                     <div>
-                        <ExpressionBar
+                        <FormExpressionEditor
                             key={field.key}
                             ref={exprRef}
                             name={name}
