@@ -16,16 +16,17 @@ import React, {
     useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { css } from '@emotion/css';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { CompletionItem, FnSignatureProps, StyleBase } from '../../types/common';
+import { ANIMATION } from '../constants';
+import { CompletionItem } from '../../types/common';
 import { HeaderExpressionEditorProps, HeaderExpressionEditorRef } from '../../types/header';
 import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
 import { TextField } from '../../../TextField/TextField';
 import { Dropdown, FnSignatureEl } from '../Common';
+import { StyleBase, FnSignatureProps } from '../Common/types';
 
 /* Styled components */
 const Container = styled.div`
@@ -46,27 +47,6 @@ const DropdownContainer = styled.div<StyleBase>`
     z-index: 10000;
     ${(props: StyleBase) => props.sx}
 `;
-
-const ANIMATION = {
-    enter: css({
-        transition: 'all 0.3s ease-in',
-    }),
-    enterFrom: css({
-        opacity: 0,
-    }),
-    enterTo: css({
-        opacity: 1,
-    }),
-    leave: css({
-        transition: 'all 0.15s ease-out',
-    }),
-    leaveFrom: css({
-        opacity: 1,
-    }),
-    leaveTo: css({
-        opacity: 0,
-    }),
-};
 
 export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpressionEditorProps>((props, ref) => {
     const {

@@ -10,7 +10,12 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import styled from '@emotion/styled';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
-import { DefaultCompletionDropdownItemProps, CompletionDropdownItemProps, CompletionDropdownProps, StyleBase } from '../../types/common';
+import {
+    CompletionDropdownItemProps,
+    CompletionDropdownProps,
+    DefaultCompletionDropdownItemProps,
+    StyleBase
+} from './types';
 import { getIcon } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import Typography from '../../../Typography/Typography';

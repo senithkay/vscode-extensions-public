@@ -9,7 +9,7 @@
 
 import React, { Fragment, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { FnSignatureElProps, StyleBase } from '../../types/common';
+import { StyleBase, FnSignatureElProps } from './types';
 import Typography from '../../../Typography/Typography';
 
 /* Styled components */

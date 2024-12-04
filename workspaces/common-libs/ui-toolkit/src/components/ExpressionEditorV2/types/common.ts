@@ -150,38 +150,3 @@ export type ExpressionEditorRef = {
     // Saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>;
 };
-
-/* <------ Types related to the common components ------> */
-
-export type StyleBase = {
-    sx?: React.CSSProperties;
-};
-
-export type CompletionDropdownProps = StyleBase & {
-    items: CompletionItem[];
-    showDefaultCompletion?: boolean;
-    autoSelectFirstItem?: boolean;
-    getDefaultCompletion?: () => ReactNode;
-    isSavable: boolean;
-    onCompletionSelect: (item: CompletionItem) => void | Promise<void>;
-    onDefaultCompletionSelect: () => void | Promise<void>;
-};
-
-export type DefaultCompletionDropdownItemProps = {
-    getDefaultCompletion: () => ReactNode;
-    onClick: () => void |Promise<void>;
-}
-
-export type CompletionDropdownItemProps = {
-    item: CompletionItem;
-    isSelected?: boolean;
-    onClick: () => void | Promise<void>;
-};
-
-export type FnSignatureProps = {
-    label: string;
-    args: string[];
-    currentArgIndex: number;
-};
-
-export type FnSignatureElProps = StyleBase & FnSignatureProps;
