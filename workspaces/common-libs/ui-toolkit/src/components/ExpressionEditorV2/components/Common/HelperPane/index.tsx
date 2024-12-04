@@ -9,9 +9,13 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Transition } from '@headlessui/react';
-import { ANIMATION } from '../../constants';
-import { HelperPaneCompletionItemProps, HelperPaneHeaderProps, HelperPaneIconButtonProps, HelperPaneProps, HelperPaneSectionProps, StyleBase } from '../types';
+import {
+    HelperPaneCompletionItemProps,
+    HelperPaneHeaderProps,
+    HelperPaneIconButtonProps,
+    HelperPaneProps,
+    HelperPaneSectionProps
+} from '../types';
 import { Codicon } from '../../../../Codicon/Codicon';
 import Typography from '../../../../Typography/Typography';
 import { Divider } from '../../../../Divider/Divider';
@@ -68,12 +72,6 @@ const DropdownBody = styled.div`
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
 `;
 
-const DropdownContainer = styled.div<StyleBase>`
-    position: absolute;
-    z-index: 10000;
-    ${(props: StyleBase) => props.sx}
-`;
-
 const IconButton: React.FC<HelperPaneIconButtonProps> = ({ title, getIcon, onClick }) => {
     return (
         <IconButtonContainer onClick={onClick}>
@@ -81,7 +79,7 @@ const IconButton: React.FC<HelperPaneIconButtonProps> = ({ title, getIcon, onCli
             <Typography variant="body3">{title}</Typography>
         </IconButtonContainer>
     );
-}
+};
 
 const Footer: React.FC = ({ children }) => {
     return (
@@ -137,14 +135,8 @@ const HelperPane: React.FC<HelperPaneProps> & {
     CompletionItem: typeof CompletionItem;
     Footer: typeof Footer;
     IconButton: typeof IconButton;
-} = ({ children, show }: HelperPaneProps) => {
-    return (
-        <DropdownContainer>
-            <Transition show={show} {...ANIMATION}>
-                <DropdownBody>{children}</DropdownBody>
-            </Transition>
-        </DropdownContainer>
-    );
+} = ({ children }: HelperPaneProps) => {
+    return <DropdownBody>{children}</DropdownBody>;
 };
 
 HelperPane.Header = Header;

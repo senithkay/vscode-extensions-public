@@ -39,17 +39,21 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, handleHelperPaneOpen, getExpressionBarIcon, onRemove, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, ...rest } = props;
+
+    const handleHelperPaneToggle = () => {
+        props.toggleHelperPane?.();
+    };
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            {(handleHelperPaneOpen || getExpressionBarIcon) && (
-                <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
-                    {getExpressionBarIcon ? (
-                        getExpressionBarIcon()
+            {(props.toggleHelperPane || getExpressionEditorIcon) && (
+                <Button appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
+                    {getExpressionEditorIcon ? (
+                        getExpressionEditorIcon()
                     ) : (
                         <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
                     )}

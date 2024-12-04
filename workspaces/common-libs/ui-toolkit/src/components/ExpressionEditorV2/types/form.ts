@@ -11,13 +11,19 @@ import { ReactNode } from 'react';
 import { ExpressionEditorProps, ExpressionEditorRef } from './common';
 
 type HelperPaneConditionalProps = {
-    // - Get a custom icon for the expression bar
-    getExpressionBarIcon?: () => ReactNode;    
-    // - Callback function to open the helper pane
-    handleHelperPaneOpen: () => void;
+    // - Whether the helper pane is open
+    isHelperPaneOpen: boolean;
+    // - Callback function to toggle the helper pane
+    toggleHelperPane: () => void;
+    // - Get the helper panel component
+    getHelperPane: () => ReactNode;
+    // - Get a custom icon for the expression editor
+    getExpressionEditorIcon?: () => ReactNode;  
 } | {
-    getExpressionBarIcon?: never;
-    handleHelperPaneOpen?: never;
+    isHelperPaneOpen?: never;
+    toggleHelperPane?: never;
+    getHelperPane?: never;
+    getExpressionEditorIcon?: never;
 }
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps;

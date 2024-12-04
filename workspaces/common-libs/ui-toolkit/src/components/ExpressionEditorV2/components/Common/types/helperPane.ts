@@ -39,6 +39,4 @@ export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     onClose?: () => void;
 };
 
-export type HelperPaneProps = PropsWithChildren<{
-    show: boolean;
-}>;
+export type HelperPaneProps = PropsWithChildren<Record<string, never>>;

@@ -20,7 +20,7 @@ export const ANIMATION = {
         opacity: 1
     }),
     leave: css({
-        transition: 'all 0.15s ease-out'
+        transition: 'all 0s'
     }),
     leaveFrom: css({
         opacity: 1

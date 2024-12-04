@@ -60,6 +60,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         showDefaultCompletion,
         autoSelectFirstItem,
         getDefaultCompletion,
+        isHelperPaneOpen,
+        getHelperPane,
         onChange,
         onSave,
         onCancel,
@@ -86,7 +88,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         suffix: /^((?:\w|')*)/,
     };
 
-    const showCompletions = showDefaultCompletion || completions?.length > 0;
+    const showCompletions = !isHelperPaneOpen && (showDefaultCompletion || completions?.length > 0);
     const isFocused = document.activeElement === textBoxRef.current;
 
     const handleResize = throttle(() => {
@@ -410,6 +412,16 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                                 onCompletionSelect={handleCompletionSelect}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
                             />
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )
+            }
+            {getHelperPane && isFocused &&
+                createPortal(
+                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={isHelperPaneOpen} {...ANIMATION}>
+                            {getHelperPane()}
                         </Transition>
                     </DropdownContainer>,
                     document.body
