@@ -183,11 +183,8 @@ export const MultiSelect: React.FC<MultiSelectProps> = (props: MultiSelectProps)
                                     sx={addHoverEffect && {
                                         margin: 0,
                                         padding: 2,
-                                        "--checkbox-border": "var(--vscode-dropdown-background)",
                                         "&:hover" : {
-                                            "--vscode-editor-background": "var(--vscode-editorHoverWidget-background)",
                                             "--checkbox-background": "var(--vscode-editorHoverWidget-background)",
-                                            "--border-width": "0",
                                             backgroundColor: "var(--vscode-editorHoverWidget-background)" 
                                         } 
                                     }}
