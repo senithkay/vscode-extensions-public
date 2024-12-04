@@ -652,7 +652,7 @@ export function getAvailableRegistryResources(projectDir: string): ListRegistryA
         const fileUri = Uri.file(projectDir);
         const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
         if (workspaceFolder) {
-            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
             artifactXMLPath = path.join(projectDir, 'artifact.xml');
         }
     }
