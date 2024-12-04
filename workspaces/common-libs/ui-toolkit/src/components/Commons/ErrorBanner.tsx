@@ -19,6 +19,10 @@ const Container = styled.div`
     padding: 6px;
 `;
 
+const ErrorMsg = styled.div`
+    white-space: break-spaces;
+`;
+
 const codiconStyles = css`
     color: var(--vscode-errorForeground);
     margin-right: 6px;
@@ -35,7 +39,7 @@ export function ErrorBanner(props: { id?: string, className?: string, errorMsg: 
     return (
         <Container id={id} className={className}>
             <i className={`codicon codicon-warning ${cx(codiconStyles)}`} />
-            {errorMsg}
+            <ErrorMsg>{errorMsg}</ErrorMsg>
         </Container>
     );
 }

@@ -43,6 +43,8 @@ import {
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
     FlowNode,
     OverviewFlow,
     ProjectComponentsResponse,
@@ -615,6 +617,7 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
 
             if (!fs.existsSync(params.configFilePath)) {
+
                 // Create config.bal if it doesn't exist
                 writeBallerinaFileDidOpen(params.configFilePath, "\n");
             }
@@ -787,7 +790,16 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             task: 'run'
         };
 
-        const buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+        let buildCommand = docker ? 'bal build --cloud="docker"' : 'bal build';
+
+        // Get Ballerina home path from settings
+        const config = workspace.getConfiguration('kolab');
+        const ballerinaHome = config.get<string>('home');
+        if (ballerinaHome) {
+            // Add ballerina home to build path only if it's configured
+            buildCommand = path.join(ballerinaHome, 'bin', buildCommand);
+        }
+
         const execution = new ShellExecution(buildCommand);
 
         const task = new Task(
@@ -871,6 +883,19 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getExpressionDiagnostics(params)
+                .then((diagnostics) => {
+                    resolve(diagnostics);
+                })
+                .catch((error) => {
+                    reject("Error fetching expression diagnostics from ls");
                 });
         });
     }

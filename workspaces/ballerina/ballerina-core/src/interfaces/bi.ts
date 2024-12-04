@@ -9,6 +9,7 @@
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
+import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
 
 export type { NodePosition };
 
@@ -286,3 +287,8 @@ export type ConfigVariable = {
     returning: boolean;
     diagnostics?: Diagnostic;
 };
+
+export type FormDiagnostics = {
+    key: string;
+    diagnostics: VSCodeDiagnostic[];
+}

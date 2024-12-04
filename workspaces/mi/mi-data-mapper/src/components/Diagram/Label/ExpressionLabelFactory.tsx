@@ -15,6 +15,7 @@ import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { ExpressionLabelWidget } from './ExpressionLabelWidget';
 import { ArrayMappingOptionsWidget } from './ArrayMappingOptionsWidget';
 import { MappingType } from '../Port';
+import { SubLinkLabelWidget } from './SubLinkLabelWidget';
 
 export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabelModel, DiagramEngine> {
 	constructor() {
@@ -26,7 +27,7 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
-		const { link, pendingMappingType } = event.model;
+		const { link, pendingMappingType, isSubLinkLabel } = event.model;
 
 		if (pendingMappingType == MappingType.ArrayToArray) {
 			return (
@@ -35,6 +36,11 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 					mappingType={pendingMappingType} />
 			);
 		}
+
+		if (isSubLinkLabel) {
+			return <SubLinkLabelWidget model={event.model}  />;
+		}
+
 		return <ExpressionLabelWidget model={event.model} />;
 	}
 }

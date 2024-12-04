@@ -29,7 +29,7 @@ import NodeIcon from "../../NodeIcon";
 import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { nodeHasError } from "../../../utils/node";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -249,16 +249,7 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-
-    // show module name in the title if org is ballerina or ballerinax
-    const nodeCodeData = cloneDeep(model.node.codedata);
-    const nodeTitle =
-        nodeCodeData?.org === "ballerina" || nodeCodeData?.org === "ballerinax"
-            ? `${nodeCodeData.module.includes(".") ? nodeCodeData.module.split(".").pop() : nodeCodeData.module} : ${
-                  model.node.metadata.label
-              }`
-            : model.node.metadata.label;
-
+    const nodeTitle = getNodeTitle(model.node);
     const hasError = nodeHasError(model.node);
 
     return (

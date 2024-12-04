@@ -31,6 +31,10 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
+    OverviewPageDetailsResponse,
+    PomXmlEditRequest,
+    UpdateDependencyRequest,
+    ConfigFileEditRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -61,3 +65,17 @@ export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerPr
 export const openExternal: RequestType<OpenExternalRequest, OpenExternalResponse> = { method: `${_preFix}/openExternal` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
+
+export const downloadJava: RequestType<string, string> = { method: `${_preFix}/downloadJava` };
+export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
+export const getSupportedMIVersions: RequestType<void, string[]> = { method: `${_preFix}/getSupportedMIVersions` };
+export const getMIVersionFromPom: RequestType<void, string> = { method: `${_preFix}/getMIVersionFromPom` };
+export const setJavaHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setJavaHomeForMIVersion` };
+export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setMIHomeForMIVersion` };
+
+export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
+export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
+export const getOverviewPageDetails: RequestType<void, OverviewPageDetailsResponse> = { method: `${_preFix}/getOverviewPageDetails` };
+export const updateDependency: RequestType<UpdateDependencyRequest, string> = { method: `${_preFix}/updateDependency` };
+export const updatePomValue: RequestType<PomXmlEditRequest, string> = { method: `${_preFix}/updatePomValue` };
+export const updateConfigFileValue: RequestType<ConfigFileEditRequest, string> = { method: `${_preFix}/updateConfigFileValue` };

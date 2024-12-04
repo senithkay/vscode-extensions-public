@@ -44,8 +44,23 @@ import {
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
+    downloadJava,
+    downloadMI,
+    getSupportedMIVersions,
+    getMIVersionFromPom,
+    setJavaHomeForMIVersion,
+    setMIHomeForMIVersion,
+    isJavaHomeSet,
+    isMISet,
     toggleDisplayOverview,
-    updateContext
+    updateContext,
+    getOverviewPageDetails,
+    PomXmlEditRequest,
+    updateDependency,
+    updatePomValue,
+    updateConfigFileValue,
+    ConfigFileEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -77,4 +92,16 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(openExternal, (args: OpenExternalRequest) => rpcManger.openExternal(args));
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
+    messenger.onRequest(downloadJava, (args: string) => rpcManger.downloadJava(args));
+    messenger.onRequest(downloadMI, (args: string) => rpcManger.downloadMI(args));
+    messenger.onRequest(getSupportedMIVersions, () => rpcManger.getSupportedMIVersions());
+    messenger.onRequest(getMIVersionFromPom, () => rpcManger.getMIVersionFromPom());
+    messenger.onRequest(setJavaHomeForMIVersion, (args: string) => rpcManger.setJavaHomeForMIVersion(args));
+    messenger.onRequest(setMIHomeForMIVersion, (args: string) => rpcManger.setMIHomeForMIVersion(args));
+    messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
+    messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
+    messenger.onRequest(getOverviewPageDetails, () => rpcManger.getOverviewPageDetails());
+    messenger.onRequest(updateDependency, (args: UpdateDependencyRequest) => rpcManger.updateDependency(args));
+    messenger.onRequest(updatePomValue, (args: PomXmlEditRequest) => rpcManger.updatePomValue(args));
+    messenger.onRequest(updateConfigFileValue, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValue(args));
 }

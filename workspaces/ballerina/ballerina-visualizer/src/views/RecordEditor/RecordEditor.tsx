@@ -104,7 +104,7 @@ export function RecordEditor(props: RecordEditorProps) {
             sx={{
                 backgroundColor: Colors.SURFACE_DIM,
                 boxShadow: "none",
-                width: width ? width : "inherit",
+                width: width ? width : "400px",
             }}
         >
             <DrawerContainer>

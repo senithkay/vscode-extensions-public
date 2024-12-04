@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, LinkButton, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement } from "ts-morph";
 import classnames from "classnames";
@@ -67,6 +67,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
+    
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
     const viewsStore = useDMViewsStore();
@@ -262,21 +263,19 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const addElementButton = useMemo(() => {
         return (
-            <Button
+            <LinkButton
                 key={`array-widget-${portIn?.getName()}-add-element`}
                 className={classes.addArrayElementButton}
-                appearance="icon"
                 aria-label="add"
-                onClick={onAddElementClick}
-                disabled={isAddingElement}
+                onClick={isAddingElement ? () => { } : onAddElementClick}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
                 {isAddingElement
                     ? <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                    : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)" }} />
+                    : <Codicon name="add" iconSx={{ color: "var(--vscode-textLink-foreground)", height: "12px" }} />
                 }
                 Add Element
-            </Button>
+            </LinkButton>
         );
     }, [isAddingElement]);
 

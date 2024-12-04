@@ -35,9 +35,9 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 		let controlPointOffset = calculateControlPointOffset(screenWidth);
 		if (this.points.length === 2) {
 			const curve = new BezierCurve();
-			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 8,
+			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 5,
 				this.getFirstPoint().getPosition().y);
-			const targetPoint: Point = new Point(this.getLastPoint().getPosition().x - 8,
+			const targetPoint: Point = new Point(this.getLastPoint().getPosition().x - 5,
 				this.getLastPoint().getPosition().y);
 			curve.setSource(sourcePoint);
 			curve.setTarget(targetPoint);

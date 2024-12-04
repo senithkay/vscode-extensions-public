@@ -34,6 +34,8 @@ import {
     TriggerCharacter,
     SubPanel,
     SubPanelView,
+    Diagnostic,
+    FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -58,7 +60,7 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
 
@@ -657,6 +659,38 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         250
     );
 
+    const handleExpressionDiagnostics = debounce(async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+        setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
+        shouldUpdateNode?: boolean,
+        variableType?: string
+    ) => {
+        if (!showDiagnostics) {
+            setDiagnosticsInfo({ key, diagnostics: [] });
+            return;
+        }
+
+        // HACK: For variable nodes, update the type value in the node
+        if (shouldUpdateNode) {
+            selectedNodeRef.current.properties["type"].value = variableType;
+        }
+        
+        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
+            filePath: model.fileName,
+            context: {
+                expression: expression,
+                startLine: targetRef.current.startLine,
+                offset: 0,
+                node: selectedNodeRef.current,
+                property: key
+            },
+        });
+        
+        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+    }, 250);
+
     const handleSubPanel = (subPanel: SubPanel) => {
         setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
@@ -723,7 +757,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
             return lowerCaseLabel.includes(lowerCaseText);
         });
-
         // Remove description from each type as its duplicate information
         filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
 
@@ -870,6 +903,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 retrieveCompletions: handleGetCompletions,
                                 retrieveVisibleTypes: handleGetVisibleTypes,
                                 extractArgsFromFunction: extractArgsFromFunction,
+                                getExpressionDiagnostics: handleExpressionDiagnostics,
                                 onCompletionSelect: handleCompletionSelect,
                                 onCancel: handleExpressionEditorCancel,
                                 onBlur: handleExpressionEditorBlur,

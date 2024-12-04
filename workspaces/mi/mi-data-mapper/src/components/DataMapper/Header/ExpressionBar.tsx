@@ -90,7 +90,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
 
     const portChanged = !!(focusedPort && lastFocusedPort && lastFocusedPort.fieldFQN !== focusedPort.fieldFQN);
 
-    const getCompletions = async (): Promise<CompletionItem[]> => {
+    const getCompletions = async (skipSurroundCheck?: boolean): Promise<CompletionItem[]> => {
 
         if (!focusedPort && !focusedFilter) {
             return [];
@@ -108,12 +108,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
             
             const relativeCursorPosition = textFieldRef.current.inputElement.selectionStart;
 
-            if (!shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition)){
-                return [];
-            }
-
             const partialTextMatcher = textFieldValueRef.current.substring(0, relativeCursorPosition).trimStart().match('([a-zA-Z0-9_$]+)$');
             const partialText = (partialTextMatcher && partialTextMatcher.length) ? partialTextMatcher[partialTextMatcher.length-1] : undefined;
+
+            if (!skipSurroundCheck && !shouldCompletionsAppear(textFieldValueRef.current, relativeCursorPosition, partialText)) {
+                return [];
+            }
 
             let fileContent = nodeForSuggestions.getSourceFile().getFullText();
 
@@ -267,30 +267,6 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         });
     }, [disabled, action, lastFocusedPort, lastFocusedFilter]);
 
-    const initializeValue = async () => {
-        const focusedNode = focusedPort.getNode() as DataMapperNodeModel;
-        const fnBody = focusedNode.context.functionST.getBody() as Block;
-
-        let objLitExpr: ObjectLiteralExpression;
-        let parentPort = focusedPort?.parentModel;
-
-        while (parentPort) {
-            const parentValue = parentPort.typeWithValue?.value;
-            if (parentValue && Node.isObjectLiteralExpression(parentValue)) {
-                objLitExpr = parentValue;
-                break;
-            }
-            parentPort = parentPort?.parentModel;
-        }
-
-        const propertyAssignment = await createSourceForUserInput(
-            focusedPort?.typeWithValue, objLitExpr, "", fnBody
-        );
-
-        const portValue = getInnermostPropAsmtNode(propertyAssignment) || propertyAssignment;
-        focusedPort.typeWithValue.setValue(portValue);
-    }
-
     const initPortWithValue = async (port: InputOutputPortModel, value: string) => {
         const focusedNode = port.getNode() as DataMapperNodeModel;
         const fnBody = focusedNode.context.functionST.getBody() as Block;
@@ -422,8 +398,12 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
     };
 
     const handleBlur = async (e: any) => {
-        if(e.target.closest('[id^="recordfield-input"]') || e.target.closest('[id^="recordfield-subMappingInput"]'))
+        if (e.target.closest('[id^="recordfield-input"]') ||
+            e.target.closest('[id^="recordfield-subMappingInput"]') ||
+            e.target.closest('[id^="recordfield-focusedInput"]')) {
             return;
+        }
+            
         await textFieldRef.current.saveExpression(textFieldValue, textFieldValueRef);
         
         // Reset the last focused port and filter
@@ -435,6 +415,10 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
         // Reset text field value
         setTextFieldValue("");
         triggerRerender((prev)=>!prev);
+    };
+
+    const handleManualCompletionRequest = async () => {
+        setCompletions(await getCompletions(true));
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -477,6 +461,7 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 completions={completions}
                 inputProps={inputProps}
                 textBoxType='TextField'
+                autoSelectFirstItem={true}
                 onChange={handleChange}
                 extractArgsFromFunction={extractArgsFromFunction}
                 onCompletionSelect={handleCompletionSelect}
@@ -486,9 +471,9 @@ export default function ExpressionBarWrapper(props: ExpressionBarProps) {
                 useTransaction={useDisableOnChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                onManualCompletionRequest={handleManualCompletionRequest}
                 sx={{ display: 'flex', alignItems: 'center' }}
             />
         </div>
     );
 }
-

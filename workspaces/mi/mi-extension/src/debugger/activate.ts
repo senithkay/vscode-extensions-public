@@ -15,9 +15,10 @@ import { extension } from '../MIExtensionContext';
 import { executeBuildTask, getServerPath } from './debugHelper';
 import { getDockerTask } from './tasks';
 import { navigate } from '../stateMachine';
-import { SELECTED_SERVER_PATH } from './constants';
 import * as fs from 'fs';
 import * as path from 'path';
+import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH } from './constants';
+import { validateJavaHomeInFolder, getMIVersionFromPom, isMIInstalledAtPath } from '../util/onboardingUtils';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -30,7 +31,7 @@ class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
             config.request = 'launch';
         }
 
-        config.internalConsoleOptions =  config.noDebug ? 'neverOpen' : 'openOnSessionStart';
+        config.internalConsoleOptions = config.noDebug ? 'neverOpen' : 'openOnSessionStart';
 
         return config;
     }
@@ -53,44 +54,130 @@ export function activateDebugger(context: vscode.ExtensionContext) {
         await vscode.tasks.executeTask(dockerTask);
     });
 
+    // Register command to change the Micro Integrator server path
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => {
-        const addServer: string = "Add MI Server";
-        const currentServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
-        const quickPicks: vscode.QuickPickItem[] = [];
-        if (!currentServerPath) {
-            quickPicks.push({ label: addServer });
-        } else {
-            quickPicks.push({ kind: vscode.QuickPickItemKind.Separator, label: "current server path" });
-            quickPicks.push({ label: currentServerPath, },
-                { label: addServer });
-        }
-        const options: vscode.QuickPickOptions = { canPickMany: false, title: "Select Server Path" };
+        const addServerOptionLabel = "Add Micro Integrator Server";
+        const config = vscode.workspace.getConfiguration('MI');
+        const currentServerPath = config.get<string>(CONFIG_SERVER_PATH);
+        const quickPickItems: vscode.QuickPickItem[] = [];
+
         if (currentServerPath) {
-            options.placeHolder = "Selected server: " + currentServerPath;
+            quickPickItems.push(
+                { kind: vscode.QuickPickItemKind.Separator, label: "Current Server Path" },
+                { label: currentServerPath },
+                { label: addServerOptionLabel }
+            );
         } else {
-            options.placeHolder = "Add MI server";
+            quickPickItems.push({ label: addServerOptionLabel });
         }
-        const selected = await vscode.window.showQuickPick(quickPicks, options);
+
+        const quickPickOptions: vscode.QuickPickOptions = {
+            canPickMany: false,
+            title: "Select Micro Integrator Server Path",
+            placeHolder: currentServerPath ? `Selected Server: ${currentServerPath}` : "Add Micro Integrator Server",
+        };
+
+        const selected = await vscode.window.showQuickPick(quickPickItems, quickPickOptions);
         if (selected) {
-            if (selected.label === addServer) {
-                // Perform a folder search
+            let selectedServerPath = '';
+            if (selected.label === addServerOptionLabel) {
+                // Open folder selection dialog
                 const folders = await vscode.window.showOpenDialog({
                     canSelectFiles: false,
                     canSelectFolders: true,
                     canSelectMany: false,
-                    openLabel: 'Select Folder'
+                    openLabel: 'Select Folder',
                 });
 
                 if (!folders || folders.length === 0) {
-                    return undefined;
+                    vscode.window.showErrorMessage('No folder was selected.');
+                    return false;
                 }
 
-                await extension.context.globalState.update(SELECTED_SERVER_PATH, folders[0].fsPath);
+                selectedServerPath = folders[0].fsPath;
             } else {
-                await extension.context.globalState.update(SELECTED_SERVER_PATH, selected.label);
+                selectedServerPath = selected.label;
             }
+            if (isMIInstalledAtPath(selectedServerPath)) {
+                await config.update(CONFIG_SERVER_PATH, selectedServerPath, vscode.ConfigurationTarget.Workspace);
+                return true;
+            } else if (isMIInstalledAtPath(path.normalize(path.join(selectedServerPath, '..')))) { // If the user selects the bin directory
+                await config.update(CONFIG_SERVER_PATH, path.normalize(path.join(selectedServerPath, '..')), vscode.ConfigurationTarget.Workspace);
+                return false;
+            } else {
+                vscode.window.showErrorMessage('Invalid Micro Integrator Server path.');
+                return false;
+            }
+
+        }
+        return false;
+    });
+
+    // Register command to change the Java Home path
+    vscode.commands.registerCommand(COMMANDS.CHANGE_JAVA_HOME, async () => {
+        try {
+            const miVersion = await getMIVersionFromPom();
+            const setJavaOptionLabel = "Set Java Home Path";
+            const config = vscode.workspace.getConfiguration('MI');
+            const currentJavaHomePath = config.get<string>(CONFIG_JAVA_HOME);
+            const quickPickItems: vscode.QuickPickItem[] = [];
+
+            if (currentJavaHomePath) {
+                quickPickItems.push(
+                    { kind: vscode.QuickPickItemKind.Separator, label: "Current Java Home Path" },
+                    { label: currentJavaHomePath },
+                    { label: setJavaOptionLabel }
+                );
+            } else {
+                quickPickItems.push({ label: setJavaOptionLabel });
+            }
+
+            const quickPickOptions: vscode.QuickPickOptions = {
+                canPickMany: false,
+                title: "Select Java Home Path",
+                placeHolder: currentJavaHomePath ? `Selected Java Home: ${currentJavaHomePath}` : "Set Java Home Path",
+            };
+
+            const selected = await vscode.window.showQuickPick(quickPickItems, quickPickOptions);
+            if (selected) {
+                let selectedJavaHomePath = '';
+                if (selected.label === setJavaOptionLabel) {
+                    // Open folder selection dialog
+                    const folders = await vscode.window.showOpenDialog({
+                        canSelectFiles: false,
+                        canSelectFolders: true,
+                        canSelectMany: false,
+                        openLabel: 'Select Folder',
+                    });
+
+                    if (!folders || folders.length === 0) {
+                        vscode.window.showErrorMessage('No folder was selected.');
+                        return false;
+                    }
+
+                    selectedJavaHomePath = folders[0].fsPath;
+                } else {
+                    selectedJavaHomePath = selected.label;
+                }
+
+                const validatedJavaHomePath = validateJavaHomeInFolder(selectedJavaHomePath, miVersion);
+                if (validatedJavaHomePath) {
+                    await config.update(CONFIG_JAVA_HOME, validatedJavaHomePath, vscode.ConfigurationTarget.Workspace);
+                    return true;
+                } else {
+                    vscode.window.showErrorMessage('Invalid Java Home path.');
+                    return false;
+                }
+            }
+            return false;
+        } catch (error) {
+            vscode.window.showErrorMessage(
+                `Error occurred while setting Java Home path: ${error instanceof Error ? error.message : error}`
+            );
+            return false;
         }
     });
+
 
     context.subscriptions.push(vscode.commands.registerCommand(COMMANDS.BUILD_AND_RUN_PROJECT, async () => {
 
@@ -117,7 +204,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                     name: 'MI: Run',
                     request: 'launch',
                     noDebug: true,
-                    internalConsoleOptions:'neverOpen'
+                    internalConsoleOptions: 'neverOpen'
                 };
             } else {
                 config.name = 'MI: Run';

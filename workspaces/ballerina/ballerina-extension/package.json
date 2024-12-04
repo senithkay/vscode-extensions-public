@@ -2,7 +2,7 @@
     "name": "kolab",
     "displayName": "KolaB",
     "description": "KolaB Extension for Kola.",
-    "version": "0.3.2",
+    "version": "0.3.5",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -28,6 +28,9 @@
         "workspaceContains:**/Ballerina.toml",
         "onNotebook:kolab-notebook",
         "onUri"
+    ],
+    "extensionDependencies": [
+        "anweber.httpbook"
     ],
     "contributes": {
         "languages": [
@@ -498,6 +501,11 @@
                 "command": "kolab.view.entityDiagram",
                 "title": "Entity Relationship Diagram",
                 "icon": "$(distro-persist-diagram)",
+                "category": "Ballerina"
+            },
+            {
+                "command": "kolab.tryit",
+                "title": "Open Try It",
                 "category": "Ballerina"
             },
             {

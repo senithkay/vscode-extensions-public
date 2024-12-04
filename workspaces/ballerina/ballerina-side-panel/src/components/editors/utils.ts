@@ -21,6 +21,13 @@ export function getValueForDropdown(field: FormField, multiSelectIndex: number =
     return field.value !== "" ? field.value : field.items[0];
 }
 
+export function getValueFromArrayField(field: FormField, valueIndex: number = 0) {
+    if (field.type !== "EXPRESSION_SET") {
+        return undefined;
+    }
+    return Array.isArray(field.value) && field.value.length > 0 ? field.value[valueIndex] : field.items?.[0];
+}
+
 export function capitalize(str: string) {
     if (!str) {
         return '';

@@ -553,13 +553,14 @@ export function AIChat() {
                         assistant_response: assistant_response
                     })
                 assistant_response = postProcessResp.assistant_response;
-                if (postProcessResp.diagnostics.diagnostics.length > 0) {
+                const diagnostics = postProcessResp.diagnostics.diagnostics;
+                if (diagnostics.length > 0) {
                     console.log("Diagnostics : ");
-                    console.log(postProcessResp.diagnostics);
+                    console.log(diagnostics);
                     //TODO: fill
                     const diagReq = {
                         response: assistant_response,
-                        diagnostics: postProcessResp.diagnostics,
+                        diagnostics: diagnostics,
                     };
                     const startTime = performance.now();
                     const response = await fetchWithToken(
@@ -582,6 +583,7 @@ export function AIChat() {
                         rpcClient
                     );
                     if (!response.ok) {
+                        setIsCodeLoading(false);
                         console.log("errr");
                     } else {
                         const jsonBody = await response.json();

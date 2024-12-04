@@ -40,7 +40,12 @@ import {
     GetInboundEPUischemaResponse,
     AddDriverRequest,
     DSSQueryGenRequest,
-    DSSQueryGenResponse
+    DSSQueryGenResponse,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -283,6 +288,22 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
+    async updateDependency(req: UpdateDependencyRequest): Promise<string> {
+        return this.sendRequest('synapse/updateDependency', req);
+    }
+
+    async updatePomValue(req: PomXmlEditRequest): Promise<string> {
+        return this.sendRequest('synapse/updatePomValue', req);
+    }
+
+    async updateConfigFileValue(req: ConfigFileEditRequest): Promise<string> {
+        return this.sendRequest('synapse/updateConfigFileValue', req);
+    }
+
+    async getOverviewPageDetails(): Promise<any> {
+        return this.sendRequest('synapse/getOverviewPageDetails');
+    }
+
     async getSequencePath(sequenceName: string): Promise<string | undefined> {
         return new Promise(async (resolve) => {
             const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
@@ -298,5 +319,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
             resolve(undefined);
         });
+    }
+
+    async getExpressionCompletions(req: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
+        return this.sendRequest("synapse/expressionCompletion", req);
     }
 }
