@@ -67,6 +67,7 @@ interface Element {
     elements?: any[];
     tableKey?: string;
     tableValue?: string;
+    configurableType?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -342,6 +343,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     await rpcClient.getMiVisualizerRpcClient().handleCertificateConfigurable({
                         projectUri: '',
                         configurableName: field.value.value
+                        configurableType: element.configurableType
                     });
                     handleValueChange(field.value.value);
                 }
@@ -351,7 +353,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                             name={getNameForController(element.name)}
                             label={element.displayName}
                             errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                            filter={(configurableType) => configurableType === "cert"}
+                            filter={(configurableType) => configurableType === element.configurableType}
                             filterType='configurable'
                             value={field.value.value && !isCertificateFileName(field.value.value) ? field.value.value : ""}
                             onValueChange={(e: any) => {

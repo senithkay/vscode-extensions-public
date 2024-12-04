@@ -176,7 +176,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
         const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
         const envFilePath = [projectUri, '.env'].join(path.sep);
-        await appendContent(configPropertiesFilePath, `${params.configurableName}:cert\n`);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
         await appendContent(envFilePath, `${params.configurableName}\n`);
     }
 

@@ -180,6 +180,7 @@ export interface HandleCertificateFileRequest {
 export interface HandleCertificateConfigurableRequest {
     projectUri: string;
     configurableName: string;
+    configurableType: string;
 }
 
 export interface FileAppendRequest {
