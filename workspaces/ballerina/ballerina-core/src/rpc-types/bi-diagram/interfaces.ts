@@ -103,8 +103,8 @@ export interface Source {
 
 export interface BreakpointData {
     verified: boolean;
-    source: Source;
-    line: number;
+    source?: Source;
+    line?: number;
     column?: number;
 }
 
