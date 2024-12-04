@@ -19,7 +19,6 @@ import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
-import { removeConfigurableFormat, isCertificateFileName, isConfigurable } from './utils';
 
 const Field = styled.div`
     margin-bottom: 12px;
