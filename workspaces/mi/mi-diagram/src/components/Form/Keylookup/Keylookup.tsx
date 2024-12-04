@@ -42,10 +42,12 @@ export type FilterType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry"
     | "mockService"
     | "dssQuery"
     | "dssDataSource"
+    | "configurable"
 
 // Interfaces
 interface IKeylookupBase {
@@ -159,7 +161,7 @@ namespace ExBtn {
 `;
 }
 
-const getItemComponent = (item: string, type?: "reg:") => {
+const getItemComponent = (item: string, type?: string) => {
     return (
         <ItemContainer>
             {type && <StyledTag>{type}</StyledTag>}
@@ -189,7 +191,7 @@ export const Keylookup = (props: IKeylookup) => {
 
     useEffect(() => {
         fetchItems();
-    }, []);
+    }, [filterType]);
 
     const fetchItems = async () => {
         if (filterType === "mockService") {
@@ -245,6 +247,17 @@ export const Keylookup = (props: IKeylookup) => {
             return;
         }
 
+        if (filterType === "configurable") {
+            const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
+            const items = fetchedConfigurableEntries.configurableEntries;
+            let result = items.map(item => item.name);
+            if (filter) {
+                result = items.filter((item) => filter(item.type)).map(item => item.name) || [];
+            }
+            setItems(result);
+            return;
+        }
+
         let resourceType: ResourceType | MultipleResourceType[];
         if (Array.isArray(filterType)) {
             resourceType = filterType.map((type) => {
@@ -275,7 +288,8 @@ export const Keylookup = (props: IKeylookup) => {
         }
         if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:"), path: resource.registryPath };
+                const [type, pathKey] = resource.registryKey.split(":");
+                const item = { key: resource.registryKey, item: getItemComponent(pathKey, `${type}:`), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;

@@ -27,6 +27,11 @@ interface ProgressMessage {
     increment?: number;
 }
 
+export function getFileName(filePath: string): string {
+    const fileNameWithExt = filePath.split('/').pop();
+    return fileNameWithExt?.split('.')[0] || '';
+}
+
 async function selectFileDownloadPath(): Promise<string> {
     const folderPath = await window.showOpenDialog({ title: 'Sample download directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' });
     if (folderPath && folderPath.length > 0) {
@@ -95,6 +100,56 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
         window.showErrorMessage(`Failed to download file: ${error}`);
     }
     progress.report({ message: "Download finished" });
+}
+
+export function deleteFile(filePath: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.unlinkSync(filePath);
+            resolve(true);
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            resolve(false);
+        }
+    });
+}
+
+export function deleteLineFromFile(filePath: string, lineContent: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            const fileData = fs.readFileSync(filePath, 'utf8').split('\n');
+            const updatedData = fileData.filter(line => line.trim() !== lineContent.trim()).join('\n');
+            fs.writeFileSync(filePath, updatedData, 'utf8');
+            resolve(true);
+        } catch (error) {
+            console.error("Error deleting line:", error);
+            resolve(false);
+        }
+    });
+}
+
+export function copyFile(sourcePath: string, destinationPath: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.copyFileSync(sourcePath, destinationPath, fs.constants.COPYFILE_EXCL);
+            resolve(true);
+        } catch (error) {
+            console.error("Error copying file:", error);
+            resolve(false);
+        }
+    })
+}
+
+export function appendContent(path: string, content: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.writeFileSync(path, content, { flag: 'a' }); 
+            resolve(true);
+        } catch (error) {
+            console.error('Error appending content:', error);
+            resolve(false);
+        }
+    });
 }
 
 export async function handleOpenFile(sampleName: string, repoUrl: string) {
@@ -406,6 +461,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = 'application/yaml';
             fileExtension = 'yaml';
             break;
+        case "TEXT File":
+            mediaType = 'text/plain';
+            fileExtension = 'txt';
+            break;
+        case "XML File":
+            mediaType = 'application/xml';
+            fileExtension = 'xml';
+            break;
         case "Local Entry":
             mediaType = 'application/vnd.wso2.esb.localentry';
             break;
@@ -513,7 +576,7 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
                 removeEntryFromArtifactXML(workspaceFolder, regPath, fileName);
                 fs.unlinkSync(filePath);
             }
-            resolve({ status: true, info: "Registry resource removed" });
+            resolve({ status: true, info: "Resource removed" });
         } else {
             resolve({ status: false, info: "Workspace not found" });
         }

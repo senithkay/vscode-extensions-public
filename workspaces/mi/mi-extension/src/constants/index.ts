@@ -55,6 +55,7 @@ export const COMMANDS = {
     ADD_COMMAND: 'MI.project-explorer.add',
     ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
+    ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',

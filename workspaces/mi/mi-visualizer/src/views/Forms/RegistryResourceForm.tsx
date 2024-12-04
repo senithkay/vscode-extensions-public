@@ -24,7 +24,7 @@ export interface RegistryWizardProps {
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
-{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }];
+{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }, { value: "TEXT File" }, { value: "XML File" }];
 
 type InputsFields = {
     templateType?: string;
@@ -36,13 +36,21 @@ type InputsFields = {
     registryType?: "gov" | "conf";
 };
 
+const canCreateTemplateForType = (type: string) => {
+    if (!type) {
+        return true;
+    }
+    const allowedTypes = ["xslt", "xsl", "xsd", "wsdl", "yaml", "json", "js", "dmc", "xml", "txt"];
+    return allowedTypes.includes(type);
+}
+
 const getInitialRegistryResource = (type: string): InputsFields => ({
     templateType: getTemplateType(type),
-    filePath: "Please select a file or folder",
+    filePath: "Please select a file",
     resourceName: "",
     artifactName: "",
-    registryPath: type ? '/' + type : '/',
-    createOption: "new",
+    registryPath: getFileExtension(type),
+    createOption: canCreateTemplateForType(type) ? "new" : "import",
     registryType: "gov"
 });
 
@@ -64,10 +72,45 @@ const getTemplateType = (type: string) => {
             return "Javascript File";
         case "dmc":
             return "Data Mapper";
+        case "txt":
+            return "TEXT File";
+        case "xml":
+            return "XML File";
+        case "crt":
+            return "CRT File";
         default:
             return "XSLT File";
     }
 };
+
+const getFileExtension = (type: string) => {
+    switch (type) {
+        case "Data Mapper":
+            return ".dmc";
+        case "Javascript File":
+            return ".js";
+        case "JSON File":
+            return ".json";
+        case "YAML File":
+            return ".yaml";
+        case "WSDL File":
+            return ".wsdl";
+        case "XSD File":
+            return ".xsd";
+        case "XSL File":
+            return ".xsl";
+        case "XSLT File":
+            return ".xslt";
+        case "TEXT File":
+            return ".txt";
+        case "XML File":
+            return ".xml";
+        case "CRT File":
+            return ".crt";
+        default:
+            return ".xml";
+    }
+}
 
 export function RegistryResourceForm(props: RegistryWizardProps) {
 
@@ -80,17 +123,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
-            // artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
-            //     'Artifact name already exists', value => {
-            //         return !regArtifactNames.includes(value);
-            //     }).test('validateArtifactNameInWorkspace',
-            //         'A file already exists in the workspace with this artifact name', value => {
-            //             return !artifactNames.includes(value);
-            //         }),
             registryPath: yup.string().test('validateRegistryPath', 'Resource already exists', value => {
-                // const formattedPath = formatRegistryPath(value);
                 const formattedPath = formatResourcePath(value);
-                // return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
                 return !resourcePaths.includes(formattedPath);
             }),
             // registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
@@ -150,35 +184,12 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         })();
     }, []);
 
-    const getFileExtension = () => {
-        switch (getValues("templateType")) {
-            case "Data Mapper":
-                return ".dmc";
-            case "Javascript File":
-                return ".js";
-            case "JSON File":
-                return ".json";
-            case "YAML File":
-                return ".yaml";
-            case "WSDL File":
-                return ".wsdl";
-            case "XSD File":
-                return ".xsd";
-            case "XSL File":
-                return ".xsl";
-            case "XSLT File":
-                return ".xslt";
-            default:
-                return ".xml";
-        }
-    }
-
     const formatResourcePath = (resourceDirPath: string) => {
         let resPath = 'resources:';
         resPath = resourceDirPath.startsWith('/') ? resPath + resourceDirPath.substring(1) : resPath + resourceDirPath;
         if (createOptionValue) {
-            resPath.endsWith('/') ? resPath = resPath + getValues("resourceName") + getFileExtension()
-                : resPath = resPath + '/' + getValues("resourceName") + getFileExtension();
+            resPath.endsWith('/') ? resPath = resPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
+                : resPath = resPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
         } else {
             const filename = getValues("filePath").split('/').pop();
             resPath.endsWith('/') ? resPath = resPath + filename : resPath = resPath + '/' + filename;
@@ -195,8 +206,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         }
         path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
         if (createOptionValue) {
-            regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension()
-                : regPath = regPath + '/' + getValues("resourceName") + getFileExtension();
+            regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
+                : regPath = regPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
         } else {
             const filename = getValues("filePath").split('/').pop();
             regPath.endsWith('/') ? regPath = regPath + filename : regPath = regPath + '/' + filename;
@@ -267,18 +278,22 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     return (
         <FormView title="Create New Resource" onClose={handleBackButtonClick}>
-            <RadioButtonGroup
+            {canCreateTemplateForType(props.type) && <RadioButtonGroup
                 label="Create Options"
                 id="createOption"
                 options={[{ content: "From existing template", value: "new" }, { content: "Import from file system", value: "import" }]}
                 {...register("createOption")}
-            />
+            />}
             {createOptionValue && (<>
                 <Dropdown
                     label="Template Type"
                     id="templateType"
                     items={templates}
-                    {...register("templateType")}
+                    value={getValues("templateType")}
+                    onChange={(e) => {
+                        setValue("templateType", e.target.value, { shouldDirty: true });
+                        setValue("registryPath", getFileExtension(getValues('templateType')).split('.').pop(), { shouldDirty: true });
+                    }}
                 ></Dropdown>
                 <TextField
                     label="Resource Name"
@@ -292,9 +307,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                     <Button appearance="secondary" onClick={openFile}>
                         <div style={{ color: colors.editorForeground }}>Browse file</div>
                     </Button>
-                    <Button appearance="secondary" onClick={openFolder}>
-                        <div style={{ color: colors.editorForeground }}>Browse folder</div>
-                    </Button>
                     <Typography variant="body3" {...register("filePath")}>
                         {(errors && errors.filePath && errors.filePath.message)
                             ? errors.filePath.message.toString() : watch("filePath")}
@@ -304,7 +316,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             <TextField
                 id='registryPath'
                 label="Resource Path"
+                value={getFileExtension(getValues('templateType')).split('.').pop()}
                 errorMsg={errors.registryPath?.message.toString()}
+                inputProps={{ startAdornment: "resources:" }}
                 {...register("registryPath")}
             />
             <br />
@@ -315,7 +329,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                         handleCreateRegResource(values);
                     })}
                     disabled={!isDirty || (!createOptionValue
-                        && getValues("filePath") === "Please select a file or folder")}
+                        && getValues("filePath") === "Please select a file")}
                 >
                     Create
                 </Button>

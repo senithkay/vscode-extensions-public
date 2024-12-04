@@ -163,6 +163,14 @@ export class ExtendedLanguageClient extends LanguageClient {
     async getResourceFiles(): Promise<string[]> {
         return this.sendRequest("synapse/getResourceFiles");
     }
+    
+    async getConfigurableEntries(): Promise<{ name: string, type: string }[]> {
+        return this.sendRequest("synapse/getConfigurableEntries");
+    }
+
+    async getResourceUsages(resourceKey: string): Promise<string[]> {
+        return this.sendRequest("synapse/getResourceUsages", { resourceKey: resourceKey });
+    }
 
     async getArifactFiles(req: string): Promise<string[]> {
         return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.file(req).toString() });

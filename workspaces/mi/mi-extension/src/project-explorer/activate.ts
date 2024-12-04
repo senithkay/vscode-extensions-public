@@ -18,7 +18,6 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
-import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
 import { deleteSwagger } from '../util/swagger';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
@@ -27,12 +26,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
-	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
-	await registryExplorerDataProvider.refresh(lsClient);
-	window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
-
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' }
@@ -59,6 +53,11 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Resource');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -466,7 +465,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				}
 				if (filePath !== "") {
 					const fileName = path.basename(filePath);
-					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+					const langClient = StateMachine.context().langClient;
+					const fileUsageIdentifiers = await langClient?.getResourceUsages(filePath);
+					const fileUsageMessage = fileUsageIdentifiers?.length && fileUsageIdentifiers?.length > 0 ? "It is used in:\n" + fileUsageIdentifiers.join(", ") : "No usage found";
+					window.showInformationMessage("Do you want to delete : " + fileName + "\n\n" + fileUsageMessage, { modal: true }, "Yes")
 						.then(async answer => {
 							if (answer === "Yes") {
 								const res = await deleteRegistryResource(filePath);
