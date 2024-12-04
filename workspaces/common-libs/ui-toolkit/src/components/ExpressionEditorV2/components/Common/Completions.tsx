@@ -10,7 +10,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import styled from '@emotion/styled';
 import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
-import { DefaultCompletionItemProps, DropdownItemProps, DropdownProps, StyleBase } from '../../types/common';
+import { DefaultCompletionDropdownItemProps, CompletionDropdownItemProps, CompletionDropdownProps, StyleBase } from '../../types/common';
 import { getIcon } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import Typography from '../../../Typography/Typography';
@@ -101,7 +101,7 @@ const KeyContainer = styled.div`
     border: 1px solid var(--vscode-editorWidget-border);
 `;
 
-const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
+const DefaultCompletionItem = (props: DefaultCompletionDropdownItemProps) => {
     const { getDefaultCompletion, onClick } = props;
     const itemRef = useRef<HTMLDivElement>(null);
 
@@ -131,7 +131,7 @@ const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
     );
 }
 
-const DropdownItem = (props: DropdownItemProps) => {
+const DropdownItem = (props: CompletionDropdownItemProps) => {
     const { item, isSelected, onClick } = props;
     const itemRef = useRef<HTMLDivElement>(null);
 
@@ -167,7 +167,7 @@ const DropdownItem = (props: DropdownItemProps) => {
     );
 };
 
-export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
+export const Dropdown = forwardRef<HTMLDivElement, CompletionDropdownProps>((props, ref) => {
     const { items, showDefaultCompletion, autoSelectFirstItem, getDefaultCompletion, onCompletionSelect, onDefaultCompletionSelect, isSavable, sx } = props;
     const listBoxRef = useRef<HTMLDivElement>(null);
 

@@ -157,7 +157,7 @@ export type StyleBase = {
     sx?: React.CSSProperties;
 };
 
-export type DropdownProps = StyleBase & {
+export type CompletionDropdownProps = StyleBase & {
     items: CompletionItem[];
     showDefaultCompletion?: boolean;
     autoSelectFirstItem?: boolean;
@@ -167,12 +167,12 @@ export type DropdownProps = StyleBase & {
     onDefaultCompletionSelect: () => void | Promise<void>;
 };
 
-export type DefaultCompletionItemProps = {
+export type DefaultCompletionDropdownItemProps = {
     getDefaultCompletion: () => ReactNode;
     onClick: () => void |Promise<void>;
 }
 
-export type DropdownItemProps = {
+export type CompletionDropdownItemProps = {
     item: CompletionItem;
     isSelected?: boolean;
     onClick: () => void | Promise<void>;
