@@ -72,7 +72,6 @@ export function Headers(props: HeadersProps) {
                         <ReferenceObject
                             id={index}
                             referenceObject={header as R}
-                            referenceObjects={null} // TODO: Use context to find the reference objects
                             onRefernceObjectChange={(referenceObject) => handleHeaderChange({ ...headers, [headerName]: referenceObject })}
                             onRemoveReferenceObject={(id) => {
                                 const headersCopy = { ...headers };

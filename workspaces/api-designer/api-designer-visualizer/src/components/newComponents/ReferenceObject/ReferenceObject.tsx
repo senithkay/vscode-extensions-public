@@ -8,7 +8,7 @@
  */
 import { Button, Codicon, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
-import { ReferenceObject as R, Parameter } from '../../../Definitions/ServiceDefinitions';
+import { ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
@@ -21,7 +21,6 @@ const HorizontalFieldWrapper = styled.div`
 interface ReferenceObjectsProps {
     id: number;
     referenceObject: R;
-    referenceObjects?: string[];
     type?: string;
     onRemoveReferenceObject?: (id: number) => void;
     onRefernceObjectChange: (parameter: R) => void;
@@ -36,7 +35,7 @@ const ButtonWrapperParams = styled.div`
     justify-content: flex-end;
 `;
 export function ReferenceObject(props: ReferenceObjectsProps) {
-    const { id, referenceObject, referenceObjects, type, onRemoveReferenceObject, onRefernceObjectChange } = props;
+    const { id, referenceObject, type, onRemoveReferenceObject, onRefernceObjectChange } = props;
     const { 
         props: { openAPI },
     } = useContext(APIDesignerContext);

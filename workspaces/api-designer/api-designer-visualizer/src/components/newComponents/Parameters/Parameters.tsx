@@ -130,7 +130,6 @@ export function Parameters(props: ParameterProps) {
                                 id={index}
                                 type={type}
                                 referenceObject={parameter}
-                                referenceObjects={currentReferences?.map((item) => item.$ref)}
                                 onRemoveReferenceObject={(id) => {
                                     const parametersCopy = [...parameters];
                                     parametersCopy.splice(id, 1);

@@ -10,6 +10,9 @@ import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Parameter as P, ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { ReadOnlyParameter } from '../Parameter/ReadOnlyParameter';
+import { ReadOnlyReferenceObject } from '../ReferenceObject/ReadOnlyReferenceObject';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface ReadOnlyParameterProps {
     parameters: (P | R)[];
@@ -30,6 +33,9 @@ function isReferenceObject(obj: (P | R)): obj is R {
 
 export function ReadOnlyParameters(props: ReadOnlyParameterProps) {
     const { parameters, title, type } = props;
+    const { 
+        props: { openAPI },
+    } = useContext(APIDesignerContext);
 
     return (
         <>
@@ -37,11 +43,13 @@ export function ReadOnlyParameters(props: ReadOnlyParameterProps) {
             {parameters?.map((parameter) => {
                 if (type === parameter.in || isReferenceObject(parameter)) {
                     if (isReferenceObject(parameter)) {
+                        const paramName = parameter.$ref.replace("#/components/parameters/", "");
+                        const parameterType = openAPI?.components?.parameters[paramName].in;                        
                         return (
                             <>
-                                {/* TODO: Fix me */}
+                                {parameterType === type && <ReadOnlyReferenceObject referenceObject={parameter as R} type={type} />}
                             </>
-                        );
+                            );
                     } else {
                         return (
                             <>

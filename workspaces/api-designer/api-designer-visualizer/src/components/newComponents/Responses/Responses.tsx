@@ -34,7 +34,6 @@ export function Responses(props: ResponsesProps) {
 
     const statusCodes = responses && Object.keys(responses);
     const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ id: statusCode, name: statusCode }));
-    const referenceObjects: string[] = null; // TODO: Use context to find the reference objects
     const statusCode: string[] = statusCodes && statusCodes?.map((status) => {
         const statusValue = StatusCodes[status as keyof typeof StatusCodes]; // Type assertion added here
         return `${status}: ${statusValue}`;
@@ -107,7 +106,6 @@ export function Responses(props: ResponsesProps) {
                                     <ReferenceObject
                                         id={0}
                                         referenceObject={responses[status] as Ro}
-                                        referenceObjects={referenceObjects}
                                         onRefernceObjectChange={(referenceObject) => handleReferenceObjectChange(referenceObject)}
                                     />
                             ) : (

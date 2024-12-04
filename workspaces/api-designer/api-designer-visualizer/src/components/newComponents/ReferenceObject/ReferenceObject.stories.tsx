@@ -24,6 +24,6 @@ const referenceObj: R = {
 
 export const ParameterStory = () => {
     return (
-        <ReferenceObject id={1} referenceObject={referenceObj} referenceObjects={["http://example.com"]} onRemoveReferenceObject={null} onRefernceObjectChange={() => {}} />
+        <ReferenceObject id={1} referenceObject={referenceObj} onRemoveReferenceObject={null} onRefernceObjectChange={() => {}} />
     );
 };
