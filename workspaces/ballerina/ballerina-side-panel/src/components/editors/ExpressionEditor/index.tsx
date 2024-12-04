@@ -29,6 +29,7 @@ import {
 } from '@wso2-enterprise/ballerina-core';
 import { Colors } from '../../../resources/constants';
 import { sanitizeType } from '../utils';
+import { getHelperPane } from './HelperPane';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -184,11 +185,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         openSubPanel,
         handleOnFieldFocus
     } = props as ExpressionEditorProps;
-    const [focused, setFocused] = useState(false);
+    const [focused, setFocused] = useState<boolean>(false);
+    const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
     
-    // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
-    const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
-
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     // Use to fetch initial diagnostics
@@ -314,9 +313,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onCancel={onCancel}
                             onRemove={onRemove}
                             inputProps={endAdornment}
-                            isHelperPaneOpen={}
-                            toggleHelperPane={}
-                            getHelperPane={}
+                            isHelperPaneOpen={isHelperPaneOpen}
+                            toggleHelperPane={() => setIsHelperPaneOpen(!isHelperPaneOpen)}
+                            getHelperPane={() => getHelperPane(() => setIsHelperPaneOpen(false))}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                         />
