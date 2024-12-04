@@ -44,7 +44,7 @@ const canCreateTemplateForType = (type: string) => {
     return allowedTypes.includes(type);
 }
 
-const getInitialRegistryResource = (type: string): InputsFields => ({
+const getInitialResource = (type: string): InputsFields => ({
     templateType: getTemplateType(type),
     filePath: "Please select a file",
     resourceName: "",
@@ -127,7 +127,6 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 const formattedPath = formatResourcePath(value);
                 return !resourcePaths.includes(formattedPath);
             }),
-            // registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
             filePath: yup.string().when('createOption', {
                 is: "new",
                 then: () =>
@@ -159,7 +158,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         setValue,
         watch
     } = useForm<InputsFields>({
-        defaultValues: getInitialRegistryResource(props.type),
+        defaultValues: getInitialResource(props.type),
         resolver: yupResolver(schema),
         mode: "onChange",
     });

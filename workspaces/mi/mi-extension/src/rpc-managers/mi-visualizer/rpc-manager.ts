@@ -53,7 +53,7 @@ import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile, appendContent, getFileName, copyFile } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";

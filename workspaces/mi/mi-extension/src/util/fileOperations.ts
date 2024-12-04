@@ -102,44 +102,6 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
     progress.report({ message: "Download finished" });
 }
 
-export function deleteFile(filePath: string): Promise<boolean> {
-    return new Promise((resolve) => {
-        try {
-            fs.unlinkSync(filePath);
-            resolve(true);
-        } catch (error) {
-            console.error("Error deleting file:", error);
-            resolve(false);
-        }
-    });
-}
-
-export function deleteLineFromFile(filePath: string, lineContent: string): Promise<boolean> {
-    return new Promise((resolve) => {
-        try {
-            const fileData = fs.readFileSync(filePath, 'utf8').split('\n');
-            const updatedData = fileData.filter(line => line.trim() !== lineContent.trim()).join('\n');
-            fs.writeFileSync(filePath, updatedData, 'utf8');
-            resolve(true);
-        } catch (error) {
-            console.error("Error deleting line:", error);
-            resolve(false);
-        }
-    });
-}
-
-export function copyFile(sourcePath: string, destinationPath: string): Promise<boolean> {
-    return new Promise((resolve) => {
-        try {
-            fs.copyFileSync(sourcePath, destinationPath, fs.constants.COPYFILE_EXCL);
-            resolve(true);
-        } catch (error) {
-            console.error("Error copying file:", error);
-            resolve(false);
-        }
-    })
-}
-
 export function appendContent(path: string, content: string): Promise<boolean> {
     return new Promise((resolve) => {
         try {
@@ -560,13 +522,6 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             }
             tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
             var regPath = "/_system/governance/mi-resources/" + tempPath;
-            // if (tempPath.startsWith('gov')) {
-            //     regPath = '/_system/governance/';
-            //     regPath = regPath + tempPath.replace('gov/', '');
-            // } else {
-            //     regPath = '/_system/config/';
-            //     regPath = regPath + tempPath.replace('conf/', '');
-            // }
             if (fs.lstatSync(filePath).isDirectory()) {
                 removeEntryFromArtifactXML(workspaceFolder, regPath, "");
                 await rm(filePath, { recursive: true, force: true });
