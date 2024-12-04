@@ -10,6 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
+import { TriggerNode } from "./triggers";
 
 export type { NodePosition };
 
@@ -128,6 +129,7 @@ export type TargetMetadata = {
 
 export enum DIRECTORY_MAP {
     SERVICES = "services",
+    LISTENERS = "listeners",
     AUTOMATION = "automation",
     FUNCTIONS = "functions",
     TRIGGERS = "triggers",
@@ -151,6 +153,7 @@ export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LISTENERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
@@ -168,6 +171,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    triggerNode?: TriggerNode;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;

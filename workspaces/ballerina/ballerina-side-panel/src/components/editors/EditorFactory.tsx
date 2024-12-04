@@ -62,7 +62,7 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         return <DropdownEditor field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
-        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <DropdownEditor field={field} />;
     } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
         return (

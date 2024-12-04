@@ -78,15 +78,15 @@ import {
     tasks,
     window, workspace
 } from "vscode";
-import { extension } from "../../BalExtensionContext";
 import { ballerinaExtInstance } from "../../core";
-import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { openView, StateMachine, updateView } from "../../stateMachine";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { extension } from "../../BalExtensionContext";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
 
-export class BIDiagramRpcManager implements BIDiagramAPI {
+export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
@@ -196,36 +196,36 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         try {
             for (const [fileUriString, request] of Object.entries(modificationRequests)) {
                 const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUriString },
-                astModifications: request.modifications,
-            })) as SyntaxTree;
+                    documentIdentifier: { uri: fileUriString },
+                    astModifications: request.modifications,
+                })) as SyntaxTree;
 
-            if (parseSuccess) {
-                writeFileSync(request.filePath, source);
-                await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUriString, version: 1 },
-                    contentChanges: [
-                        {
-                            text: source,
-                        },
-                    ],
-                });
+                if (parseSuccess) {
+                    writeFileSync(request.filePath, source);
+                    await StateMachine.langClient().didChange({
+                        textDocument: { uri: fileUriString, version: 1 },
+                        contentChanges: [
+                            {
+                                text: source,
+                            },
+                        ],
+                    });
 
-                if (isConnector) {
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
-                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    await StateMachine.langClient().didOpen({
-                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    });
-                } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
-                    const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
-                    openView(EVENT_TYPE.OPEN_VIEW, {
-                        documentUri: request.filePath,
-                        position: functionPosition,
-                    });
-                }
+                    if (isConnector) {
+                        await StateMachine.langClient().resolveMissingDependencies({
+                            documentIdentifier: { uri: fileUriString },
+                        });
+                        // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                        await StateMachine.langClient().didOpen({
+                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                        });
+                    } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
+                        const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                        openView(EVENT_TYPE.OPEN_VIEW, {
+                            documentUri: request.filePath,
+                            position: functionPosition,
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -302,6 +302,13 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS:
                     res = await createBIFunction(params);
+                    break;
+                case DIRECTORY_MAP.TRIGGERS:
+                    if (params.triggerType.listenerOnly) {
+                        res = await createBITriggerListener(params);
+                    } else {
+                        res = await createBITrigger(params);
+                    }
                     break;
                 default:
                     break;
@@ -595,6 +602,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise((resolve, reject) => {
+            if (!params.filePath) {
+                params.filePath = StateMachine.context().documentUri;
+            }
             StateMachine.langClient()
                 .getExpressionCompletions(params)
                 .then((completions) => {

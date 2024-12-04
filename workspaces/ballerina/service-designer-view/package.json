@@ -28,6 +28,7 @@
     "@vscode/codicons": "0.0.33",
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2-enterprise/ballerina-side-panel": "workspace:*",
     "@headlessui/react": "^1.7.15",
     "handlebars": "^4.7.8",
     "lodash": "^4.17.21",

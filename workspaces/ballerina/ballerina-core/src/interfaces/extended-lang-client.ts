@@ -17,6 +17,7 @@ import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteComman
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
+import { TriggerFunction, TriggerNode } from "./triggers";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -164,7 +165,9 @@ export interface Connector extends BallerinaConnectorInfo {
 }
 
 export interface TriggerParams {
-    id: string
+    id?: string;
+    orgName?: string;
+    packageName?: string;
 }
 
 export interface Trigger extends BallerinaTriggerInfo {
@@ -595,7 +598,7 @@ export interface UpdateConfigVariableRequest {
 }
 
 export interface UpdateConfigVariableResponse {
-    
+
 }
 
 export interface BICopilotContextRequest {
@@ -701,6 +704,22 @@ export interface VisibleTypesResponse {
     types: string[];
 }
 
+export interface ReferenceLSRequest {
+    textDocument: {
+        uri: string;
+    };
+    position: {
+        character: number;
+        line: number;
+    };
+    context: {
+        includeDeclaration: boolean;
+    };
+}
+export interface Reference {
+    uri: string;
+    range: Range;
+}
 export interface Info {
     expression: string;
     startLine: LinePosition;
@@ -718,6 +737,72 @@ export interface ExpressionDiagnosticsRequest {
 export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
 }
+
+
+// <-------- Trigger Related ------->
+export interface TriggerModelsRequest {
+    organization?: string;
+    packageName?: string;
+    query?: string;
+    keyWord?: string;
+}
+
+export interface TriggerModelsResponse {
+    local: TriggerNode[];
+}
+
+export interface TriggerModelRequest {
+    id?: string;
+    organization?: string;
+    packageName?: string;
+    moduleName?: string;
+    serviceName?: string;
+    query?: string;
+    keyWords?: string;
+}
+
+export interface TriggerModelResponse {
+    trigger: TriggerNode;
+}
+
+
+export interface TriggerSourceCodeRequest {
+    filePath: string;
+    codedata?: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+    trigger: TriggerNode;
+}
+
+export interface TriggerSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface TriggerModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+}
+
+export interface TriggerModelFromCodeResponse {
+    trigger: TriggerNode
+}
+export interface TriggerFunctionRequest {
+    filePath: string;
+    codedata?: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+    function: TriggerFunction;
+}
+
+export interface TriggerFunctionResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+// <-------- Trigger Related ------->
 
 // <------------ BI INTERFACES --------->
 
@@ -746,6 +831,13 @@ export interface BIInterface extends BaseLangClientInterface {
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
+    getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
+    getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    updateTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
+    addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+    updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
