@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { Codicon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 
 type FunctionsPageProps = {
     setCurrentPage: (page: number) => void;
@@ -28,13 +28,85 @@ export const FunctionsPage = ({ setCurrentPage, onClose }: FunctionsPageProps) =
                 onSearch={setSearchValue}
             />
             <HelperPane.Body>
-                <HelperPane.CategoryItem label="Functions" onClick={() => setCurrentPage(1)} />
+                <HelperPane.Section
+                    title="Current Integration"
+                    collapsible
+                    defaultCollapsed
+                    columns={2}
+                    collapsedItemsCount={6}
+                >
+                    <HelperPane.CompletionItem
+                        label="add"
+                        onClick={() => setCurrentPage(1)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                    />
+                    <HelperPane.CompletionItem
+                        label="subtract"
+                        onClick={() => setCurrentPage(1)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                    />
+                </HelperPane.Section>
+                <HelperPane.Section title="Imported">
+                    <HelperPane.SubSection
+                        title="lang.table"
+                        collapsible
+                        defaultCollapsed
+                        columns={2}
+                        collapsedItemsCount={6}
+                    >
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                        <HelperPane.CompletionItem
+                            label="map"
+                            onClick={() => setCurrentPage(1)}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                        />
+                    </HelperPane.SubSection>
+                </HelperPane.Section>
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
                     title="Open library browser"
                     getIcon={() => <Codicon name="library" />}
-                    onClick={() => {}}
+                    onClick={() => setCurrentPage(4)}
                 />
             </HelperPane.Footer>
         </>

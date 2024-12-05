@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { Codicon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 
 type ConfigurablePageProps = {
     setCurrentPage: (page: number) => void;
@@ -28,7 +28,18 @@ export const ConfigurablePage = ({ setCurrentPage, onClose }: ConfigurablePagePr
                 onSearch={setSearchValue}
             />
             <HelperPane.Body>
-                <HelperPane.CategoryItem label="Configurables" onClick={() => setCurrentPage(1)} />
+                <HelperPane.CompletionItem
+                    label="key1"
+                    type="string"
+                    onClick={() => setCurrentPage(1)}
+                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                />
+                <HelperPane.CompletionItem
+                    label="key2"
+                    type="int"
+                    onClick={() => setCurrentPage(1)}
+                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                />
             </HelperPane.Body>
         </>
     );

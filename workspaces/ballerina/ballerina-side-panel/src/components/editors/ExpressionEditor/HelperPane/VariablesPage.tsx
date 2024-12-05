@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 
 type VariablesPageProps = {
     setCurrentPage: (page: number) => void;
@@ -28,7 +28,20 @@ export const VariablesPage = ({ setCurrentPage, onClose }: VariablesPageProps) =
                 onSearch={setSearchValue}
             />
             <HelperPane.Body>
-                <HelperPane.CategoryItem label="Variables" onClick={() => setCurrentPage(1)} />
+                <HelperPane.Section title="Scope Variables">
+                    <HelperPane.CompletionItem
+                        label="sample"
+                        type="string"
+                        onClick={() => setCurrentPage(1)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                    />
+                    <HelperPane.CompletionItem
+                        label="sample1"
+                        type="string"
+                        onClick={() => setCurrentPage(1)}
+                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                    />
+                </HelperPane.Section>
             </HelperPane.Body>
         </>
     );
