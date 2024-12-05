@@ -33,6 +33,7 @@ const LibraryBrowserBody = styled.div`
     flex-direction: column;
     flex: 1 1 0;
     padding-inline: 16px;
+    overflow-y: auto;
 `;
 
 const LibraryBrowserHeader = styled.header`
@@ -43,7 +44,7 @@ const LibraryBrowserHeader = styled.header`
 `;
 
 const LibraryBrowserContainer = styled.div`
-    width: 80%;
+    width: 55%;
     height: 70%;
     position: fixed;
     top: 50%;
@@ -210,7 +211,9 @@ const LibraryBrowserSubSection: React.FC<HelperPaneSectionProps> = ({
     return (
         <SectionContainer>
             <Typography variant="body3">{title}</Typography>
-            <SectionBody columns={columns}>{visibleItems}</SectionBody>
+            <SectionBody columns={columns}>
+                {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
+            </SectionBody>
             {collapsible && isItemsOverflowing && (
                 <CollapseButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <Typography variant="caption">{isCollapsed ? 'Show more' : 'Show less'}</Typography>
@@ -238,7 +241,9 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
             <Typography variant="h3" sx={{ margin: 0 }}>
                 {title}
             </Typography>
-            <SectionBody columns={columns}>{visibleItems}</SectionBody>
+            <SectionBody columns={columns}>
+                {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
+            </SectionBody>
             {collapsible && isItemsOverflowing && (
                 <CollapseButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <Typography variant="body2">{isCollapsed ? 'Show more' : 'Show less'}</Typography>
@@ -263,10 +268,10 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, searchValue, 
                     <Codicon name="close" onClick={onClose} />
                 </LibraryBrowserHeader>
                 <Divider />
+                <LibraryBrowserSearchBoxContainer>
+                    <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
+                </LibraryBrowserSearchBoxContainer>
                 <LibraryBrowserBody>
-                    <LibraryBrowserSearchBoxContainer>
-                        <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
-                    </LibraryBrowserSearchBoxContainer>
                     {children}
                 </LibraryBrowserBody>
             </LibraryBrowserContainer>
@@ -333,7 +338,9 @@ const SubSection: React.FC<HelperPaneSectionProps> = ({
     return (
         <SectionContainer>
             <Typography variant="body3">{title}</Typography>
-            <SectionBody columns={columns}>{visibleItems}</SectionBody>
+            <SectionBody columns={columns}>
+                {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
+            </SectionBody>
             {collapsible && isItemsOverflowing && (
                 <CollapseButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <Typography variant="caption">{isCollapsed ? 'Show more' : 'Show less'}</Typography>
@@ -361,7 +368,9 @@ const Section: React.FC<HelperPaneSectionProps> = ({
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {title}
             </Typography>
-            <SectionBody columns={columns}>{visibleItems}</SectionBody>
+            <SectionBody columns={columns}>
+                {visibleItems.length > 0 ? visibleItems : <Typography variant="body3">No items found.</Typography>}
+            </SectionBody>
             {collapsible && isItemsOverflowing && (
                 <CollapseButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <Typography variant="caption">{isCollapsed ? 'Show more' : 'Show less'}</Typography>

@@ -61,6 +61,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         autoSelectFirstItem,
         getDefaultCompletion,
         isHelperPaneOpen,
+        changeHelperPaneState,
         getHelperPane,
         onChange,
         onSave,
@@ -80,6 +81,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const textBoxRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
+    const helperPaneContainerRef = useRef<HTMLDivElement>(null);
     const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
@@ -330,6 +332,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const handleTextFieldFocus = async () => {
+        changeHelperPaneState?.(true);
         await onFocus?.();
     }
 
@@ -354,8 +357,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             if (
                 document.activeElement === textBoxRef.current &&
                 !textBoxRef.current?.contains(e.target) &&
-                !dropdownContainerRef.current?.contains(e.target)
+                !dropdownContainerRef.current?.contains(e.target) &&
+                !helperPaneContainerRef.current?.contains(e.target)
             ) {
+                changeHelperPaneState?.(false);
                 await onBlur?.(e);
             }
         }
@@ -364,7 +369,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         }
-    }, [onBlur]);
+    }, [onBlur, changeHelperPaneState]);
 
     return (
         <Container ref={elementRef}>
@@ -417,11 +422,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                     document.body
                 )
             }
-            {getHelperPane && isFocused &&
+            {getHelperPane &&
                 createPortal(
-                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                    <DropdownContainer ref={helperPaneContainerRef} sx={{ ...dropdownElPosition }}>
                         <Transition show={isHelperPaneOpen} {...ANIMATION}>
-                            {getHelperPane()}
+                            {getHelperPane(handleChange)}
                         </Transition>
                     </DropdownContainer>,
                     document.body
