@@ -7,15 +7,25 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-core';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useRef, useState } from 'react';
 
 type LibraryBrowserProps = {
+    libraryBrowserInfo: HelperPaneFunctionInfo;
     setFilterText: (filterText: string) => void;
+    onBack: () => void;
     onClose: () => void;
+    onChange: (value: string) => void;
 };
 
-export const LibraryBrowser = ({ setFilterText, onClose }: LibraryBrowserProps) => {
+export const LibraryBrowser = ({
+    libraryBrowserInfo,
+    setFilterText,
+    onBack,
+    onClose,
+    onChange
+}: LibraryBrowserProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -32,35 +42,41 @@ export const LibraryBrowser = ({ setFilterText, onClose }: LibraryBrowserProps) 
     };
 
     return (
-        <HelperPane.LibraryBrowser searchValue={searchValue} onSearch={handleSearch} onClose={onClose}>
-            <HelperPane.LibraryBrowserSection title="Variables">
-                <HelperPane.LibraryBrowserSubSection title="Scope Variables" columns={4}>
-                    <HelperPane.CompletionItem
-                        label="sample"
-                        type="string"
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                        onClick={() => {}}
-                    />
-                    <HelperPane.CompletionItem
-                        label="sample1"
-                        type="string"
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                        onClick={() => {}}
-                    />
-                    <HelperPane.CompletionItem
-                        label="sample"
-                        type="string"
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                        onClick={() => {}}
-                    />
-                    <HelperPane.CompletionItem
-                        label="sample1"
-                        type="string"
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                        onClick={() => {}}
-                    />
-                </HelperPane.LibraryBrowserSubSection>
-            </HelperPane.LibraryBrowserSection>
+        <HelperPane.LibraryBrowser searchValue={searchValue} onSearch={handleSearch} onClose={onBack}>
+            {libraryBrowserInfo?.category.map((category) => (
+                <HelperPane.LibraryBrowserSection
+                    title={category.label}
+                    {...(category.label === 'Current Integration' && {
+                        columns: 4
+                    })}
+                >
+                    {category.items?.map((item) => (
+                        <HelperPane.CompletionItem
+                            label={item.label}
+                            type={item.type}
+                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                            onClick={() => {
+                                onChange(`${item.label}(`);
+                                onClose();
+                            }}
+                        />
+                    ))}
+                    {category.subCategory?.map((subCategory) => (
+                        <HelperPane.LibraryBrowserSubSection title={subCategory.label} columns={4}>
+                            {subCategory.items?.map((item) => (
+                                <HelperPane.CompletionItem
+                                    label={item.label}
+                                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                                    onClick={() => {
+                                        onChange(`${item.label}(`);
+                                        onClose();
+                                    }}
+                                />
+                            ))}
+                        </HelperPane.LibraryBrowserSubSection>
+                    ))}
+                </HelperPane.LibraryBrowserSection>
+            ))}
         </HelperPane.LibraryBrowser>
     );
 };

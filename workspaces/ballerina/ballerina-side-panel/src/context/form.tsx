@@ -34,7 +34,9 @@ export interface FormContext {
         formState: { isValidating: boolean; errors: FieldErrors<FieldValues> };
     };
     expressionEditor?: {
-        helperPaneData: HelperPaneData;
+        variableInfo: HelperPaneData;
+        functionInfo: HelperPaneData;
+        libraryBrowserInfo: HelperPaneData;
         completions: CompletionItem[];
         triggerCharacters?: readonly string[];
         retrieveCompletions?: (

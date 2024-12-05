@@ -16,9 +16,16 @@ type FunctionsPageProps = {
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
+    onChange: (value: string) => void;
 };
 
-export const FunctionsPage = ({ functionInfo, setCurrentPage, setFilterText, onClose }: FunctionsPageProps) => {
+export const FunctionsPage = ({
+    functionInfo,
+    setCurrentPage,
+    setFilterText,
+    onClose,
+    onChange
+}: FunctionsPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -58,7 +65,7 @@ export const FunctionsPage = ({ functionInfo, setCurrentPage, setFilterText, onC
                             <HelperPane.CompletionItem
                                 label={item.label}
                                 type={item.type}
-                                onClick={() => setCurrentPage(1)}
+                                onClick={() => onChange(`${item.label}(`)}
                                 getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                             />
                         ))}
@@ -73,7 +80,7 @@ export const FunctionsPage = ({ functionInfo, setCurrentPage, setFilterText, onC
                                 {subCategory.items?.map((item) => (
                                     <HelperPane.CompletionItem
                                         label={item.label}
-                                        onClick={() => setCurrentPage(1)}
+                                        onClick={() => onChange(`${item.label}(`)}
                                         getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                                     />
                                 ))}

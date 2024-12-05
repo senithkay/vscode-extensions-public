@@ -25,7 +25,17 @@ export interface ParamProps {
 
 export function ParamEditor(props: ParamProps) {
     const { parameter, paramFields, onSave, onCancelEdit } = props;
-    const { expressionEditor: { helperPaneData, completions, retrieveCompletions, retrieveVisibleTypes, getExpressionDiagnostics, getHelperPaneData, onCancel } } = useFormContext();
+    const { expressionEditor: {
+        variableInfo,
+        functionInfo,
+        libraryBrowserInfo,
+        completions,
+        retrieveCompletions,
+        retrieveVisibleTypes,
+        getExpressionDiagnostics,
+        getHelperPaneData,
+        onCancel
+    } } = useFormContext();
 
     const [fields, setFields] = useState<FormField[]>(paramFields);
 
@@ -42,7 +52,9 @@ export function ParamEditor(props: ParamProps) {
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
                 expressionEditor={{
-                    helperPaneData,
+                    variableInfo,
+                    functionInfo,
+                    libraryBrowserInfo,
                     completions,
                     onCancel,
                     retrieveCompletions,

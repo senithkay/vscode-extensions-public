@@ -43,7 +43,9 @@ type ContextAwareExpressionEditorProps = {
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     watch: UseFormWatch<any>;
-    helperPaneData: HelperPaneData;
+    variableInfo: HelperPaneData;
+    functionInfo: HelperPaneData;
+    libraryBrowserInfo: HelperPaneData;
     completions: CompletionItem[];
     triggerCharacters?: readonly string[];
     autoFocus?: boolean;
@@ -174,7 +176,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         control,
         field,
         watch,
-        helperPaneData,
+        variableInfo,
+        functionInfo,
+        libraryBrowserInfo,
         completions,
         triggerCharacters,
         retrieveCompletions,
@@ -269,8 +273,15 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     };
 
-    const handleGetHelperPane = () => {
-        return getHelperPane(helperPaneData, () => setIsHelperPaneOpen(false), getHelperPaneData);
+    const handleGetHelperPane = (onChange: (value: string) => void) => {
+        return getHelperPane(
+            variableInfo,
+            functionInfo,
+            libraryBrowserInfo,
+            () => setIsHelperPaneOpen(false),
+            getHelperPaneData,
+            onChange
+        );
     }
 
     return (
@@ -300,6 +311,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             autoFocus={autoFocus}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+
+                                // Open the helper pane based on the value
+                                if (value === "") {
+                                    setIsHelperPaneOpen(true);
+                                } else {
+                                    setIsHelperPaneOpen(false);
+                                }
 
                                 getExpressionDiagnostics(!field.optional || value !== "", value, field.key);
 

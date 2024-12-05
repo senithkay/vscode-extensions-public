@@ -17,12 +17,22 @@ import { LibraryBrowser } from './LibraryBrowser';
 import { VariablesPage } from './VariablesPage';
 
 export type HelperPaneProps = {
-    helperPaneData: HelperPaneData;
+    variableInfo: HelperPaneData;
+    functionInfo: HelperPaneData;
+    libraryBrowserInfo: HelperPaneData;
     onClose: () => void;
     setFilterText: (type: string, filterText: string) => void;
+    onChange: (value: string) => void;
 };
 
-const HelperPaneEl = ({ helperPaneData, onClose, setFilterText }: HelperPaneProps) => {
+const HelperPaneEl = ({
+    variableInfo,
+    functionInfo,
+    libraryBrowserInfo,
+    onClose,
+    setFilterText,
+    onChange
+}: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
     return (
@@ -30,31 +40,36 @@ const HelperPaneEl = ({ helperPaneData, onClose, setFilterText }: HelperPaneProp
             {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
             {currentPage === 1 && (
                 <VariablesPage
-                    variableInfo={helperPaneData as HelperPaneVariableInfo}
+                    variableInfo={variableInfo as HelperPaneVariableInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('variables', filterText)}
                     onClose={onClose}
+                    onChange={onChange}
                 />
             )}
             {currentPage === 2 && (
                 <FunctionsPage
-                    functionInfo={helperPaneData as HelperPaneFunctionInfo}
+                    functionInfo={functionInfo as HelperPaneFunctionInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('functions', filterText)}
                     onClose={onClose}
+                    onChange={onChange}
                 />
             )}
-            {currentPage === 3 && (
+            {/* {currentPage === 3 && (
                 <ConfigurablePage
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('configurable', filterText)}
                     onClose={onClose}
                 />
-            )}
+            )} */}
             {currentPage === 4 && (
                 <LibraryBrowser
+                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
                     setFilterText={(filterText) => setFilterText('library', filterText)}
-                    onClose={() => setCurrentPage(2)}
+                    onBack={() => setCurrentPage(2)}
+                    onClose={onClose}
+                    onChange={onChange}
                 />
             )}
         </HelperPane>
@@ -62,9 +77,21 @@ const HelperPaneEl = ({ helperPaneData, onClose, setFilterText }: HelperPaneProp
 };
 
 export const getHelperPane = (
-    helperPaneData: HelperPaneData,
+    variableInfo: HelperPaneData,
+    functionInfo: HelperPaneData,
+    libraryBrowserInfo: HelperPaneData,
     onClose: () => void,
-    setFilterText: (type: string, filterText: string) => void
+    setFilterText: (type: string, filterText: string) => void,
+    onChange: (value: string) => void
 ) => {
-    return <HelperPaneEl helperPaneData={helperPaneData} onClose={onClose} setFilterText={setFilterText} />;
+    return (
+        <HelperPaneEl
+            variableInfo={variableInfo}
+            libraryBrowserInfo={libraryBrowserInfo}
+            functionInfo={functionInfo}
+            onClose={onClose}
+            setFilterText={setFilterText}
+            onChange={onChange}
+        />
+    );
 };

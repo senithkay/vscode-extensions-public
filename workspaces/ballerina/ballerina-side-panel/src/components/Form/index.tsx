@@ -172,7 +172,9 @@ export interface FormProps {
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
     expressionEditor?: {
-        helperPaneData: HelperPaneData;
+        variableInfo: HelperPaneData;
+        functionInfo: HelperPaneData;
+        libraryBrowserInfo: HelperPaneData;
         completions: CompletionItem[];
         triggerCharacters?: readonly string[];
         retrieveCompletions?: (

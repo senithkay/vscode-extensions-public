@@ -16,9 +16,16 @@ type VariablesPageProps = {
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
+    onChange: (value: string) => void;
 };
 
-export const VariablesPage = ({ variableInfo, setCurrentPage, setFilterText, onClose }: VariablesPageProps) => {
+export const VariablesPage = ({
+    variableInfo,
+    setCurrentPage,
+    setFilterText,
+    onClose,
+    onChange
+}: VariablesPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -50,7 +57,7 @@ export const VariablesPage = ({ variableInfo, setCurrentPage, setFilterText, onC
                             <HelperPane.CompletionItem
                                 label={item.label}
                                 type={item.type}
-                                onClick={() => setCurrentPage(1)}
+                                onClick={() => onChange(item.label)}
                                 getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
                             />
                         ))}
