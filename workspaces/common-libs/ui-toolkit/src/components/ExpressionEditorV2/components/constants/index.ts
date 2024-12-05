@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { css } from '@emotion/react';
+import { css } from '@emotion/css';
 
 export const ANIMATION = {
     enter: css({
