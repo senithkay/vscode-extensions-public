@@ -35,7 +35,9 @@ interface FormProps {
     isActiveSubPanel?: boolean;
     openSubPanel?: (subPanel: SubPanel) => void;
     expressionEditor?: {
-        helperPaneData: HelperPaneData;
+        variableInfo: HelperPaneData;
+        functionInfo: HelperPaneData;
+        libraryBrowserInfo: HelperPaneData;
         completions: CompletionItem[];
         triggerCharacters: readonly string[];
         retrieveCompletions: (

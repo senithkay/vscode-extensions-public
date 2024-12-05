@@ -117,7 +117,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [helperPaneData, setHelperPaneData] = useState<HelperPaneData>();
+    const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
+    const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
+    const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
@@ -708,7 +710,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         }
                     });
                     if (variablesResponse?.categories?.length) {
-                        result = convertToHelperPaneVariable(variablesResponse.categories);
+                        setVariableInfo(convertToHelperPaneVariable(variablesResponse.categories));
                     }
                     break;
                 }
@@ -728,13 +730,32 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             : undefined
                     });
                     if (functionsResponse?.categories?.length) {
-                        result = convertToHelperPaneFunction(functionsResponse.categories);
+                        setFunctionInfo(convertToHelperPaneFunction(functionsResponse.categories));
+                    }
+                    break;
+                }
+                case 'library': {
+                    const functionsResponse = await rpcClient.getBIDiagramRpcClient().getFunctions({
+                        /* TODO: Add the flag */
+                        position: {
+                            startLine: targetRef.current.startLine,
+                            endLine: targetRef.current.endLine
+                        },
+                        filePath: model.fileName,
+                        queryMap: searchText.trim()
+                            ? {
+                                  q: searchText,
+                                  limit: 12,
+                                  offset: 0
+                              }
+                            : undefined
+                    });
+                    if (functionsResponse?.categories?.length) {
+                        setLibraryBrowserInfo(convertToHelperPaneFunction(functionsResponse.categories));
                     }
                     break;
                 }
             }
-            console.log('>>> Helper pane data', result);
-            setHelperPaneData(result);
         },
         [rpcClient, targetRef.current, model?.fileName]
     );
@@ -948,7 +969,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             isActiveSubPanel={showSubPanel}
                             openSubPanel={handleSubPanel}
                             expressionEditor={{
-                                helperPaneData: helperPaneData,
+                                variableInfo: variableInfo,
+                                functionInfo: functionInfo,
+                                libraryBrowserInfo: libraryBrowserInfo,
                                 completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
                                 triggerCharacters: TRIGGER_CHARACTERS,
                                 retrieveCompletions: handleGetCompletions,
