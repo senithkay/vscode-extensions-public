@@ -2884,6 +2884,7 @@ importers:
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
       fast-xml-parser: ~4.3.6
+      lodash: ~4.17.21
       mustache: ~4.2.0
       path: ~0.12.7
       process: ~0.11.10
@@ -2938,6 +2939,7 @@ importers:
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       fast-xml-parser: 4.3.6
+      lodash: 4.17.21
       mustache: 4.2.0
       path: 0.12.7
       process: 0.11.10
