@@ -10,6 +10,12 @@
 
 import { PropsWithChildren, ReactNode } from "react";
 
+export type LibraryBrowserProps = PropsWithChildren<{
+    searchValue: string;
+    onSearch: (searchTerm: string) => void;
+    onClose: () => void;
+}>;
+
 export type HelperPaneIconButtonProps = {
     title: string;
     getIcon: () => ReactNode;
@@ -20,6 +26,7 @@ export type HelperPaneCompletionItemProps = {
     label: string;
     type?: string;
     getIcon?: () => ReactNode;
+    onClick: () => void;
 };
 
 export type HelperPaneCategoryItemProps = {
@@ -27,9 +34,20 @@ export type HelperPaneCategoryItemProps = {
     onClick: () => void;
 };
 
+type CollapsibleConditionalProps = {
+    collapsible: boolean;
+    defaultCollapsed?: boolean;
+    collapsedItemsCount?: number;
+} | {
+    collapsible?: never;
+    defaultCollapsed?: never;
+    collapsedItemsCount?: never;
+}
+
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
-}>;
+    columns?: number;
+} & CollapsibleConditionalProps>;
 
 type SearchBoxConditionalProps = {
     searchValue: string;
@@ -40,7 +58,7 @@ type SearchBoxConditionalProps = {
 }
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
-    title?: string;
+    title: string;
     onBack?: () => void;
     onClose?: () => void;
 };
