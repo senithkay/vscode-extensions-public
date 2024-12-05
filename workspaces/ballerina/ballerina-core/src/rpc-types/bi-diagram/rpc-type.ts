@@ -40,7 +40,25 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports, BreakpointRequest, CurrentBreakpointsResponse } from "./interfaces";
+import {
+    ProjectRequest,
+    WorkspacesResponse,
+    ProjectComponentsResponse,
+    ComponentRequest,
+    CreateComponentResponse,
+    ReadmeContentRequest,
+    ReadmeContentResponse,
+    BIAiSuggestionsRequest,
+    BIAiSuggestionsResponse,
+    ComponentsRequest,
+    ComponentsResponse,
+    AIChatRequest,
+    ProjectImports,
+    BreakpointRequest,
+    CurrentBreakpointsResponse,
+    FormDidOpenParams,
+    FormDidCloseParams
+} from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "bi-diagram";
@@ -79,3 +97,5 @@ export const removeBreakpointFromSource: NotificationType<BreakpointRequest> = {
 export const getBreakpointInfo: RequestType<void, CurrentBreakpointsResponse> = { method: `${_preFix}/getBreakpointInfo` };
 export const getExpressionDiagnostics: RequestType<ExpressionDiagnosticsRequest, ExpressionDiagnosticsResponse> = { method: `${_preFix}/getExpressionDiagnostics` };
 export const getAllImports: RequestType<void, ProjectImports> = { method: `${_preFix}/getAllImports` };
+export const didOpen: NotificationType<FormDidOpenParams> = { method: `${_preFix}/didOpen` };
+export const didClose: NotificationType<FormDidCloseParams> = { method: `${_preFix}/didClose` };

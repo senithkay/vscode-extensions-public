@@ -44,6 +44,8 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    FormDidCloseParams,
+    FormDidOpenParams,
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
@@ -1024,6 +1026,49 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 });
         });
     }
+
+    async didOpen(params: FormDidOpenParams): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const { filePath } = params;
+                const fileUri = Uri.file(filePath);
+                const textDocument = await workspace.openTextDocument(fileUri);
+                const exprFileSchema = fileUri.with({ scheme: 'expr' });
+
+                StateMachine.langClient().didOpen({
+                    textDocument: {
+                        uri: exprFileSchema.toString(),
+                        languageId: textDocument.languageId,
+                        version: textDocument.version,
+                        text: textDocument.getText()
+                    }
+                });
+                resolve();
+            } catch (error) {
+                console.error("Error opening file in didOpen", error);
+                reject(error);
+            }
+        });
+    }
+
+    async didClose(params: FormDidCloseParams): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const { filePath } = params;
+                const fileUri = Uri.file(filePath);
+                const exprFileSchema = fileUri.with({ scheme: 'expr' });
+                StateMachine.langClient().didClose({
+                    textDocument: {
+                        uri: exprFileSchema.toString()
+                    }
+                });
+                resolve();
+            } catch (error) {
+                console.error("Error closing file in didClose", error);
+                reject(error);
+            }
+        });
+    }
 }
 
 export async function fetchWithToken(url: string, options: RequestInit) {
@@ -1077,4 +1122,3 @@ export async function extractImports(content: string, filePath: string): Promise
 
     return { filePath, statements: imports };
 }
-

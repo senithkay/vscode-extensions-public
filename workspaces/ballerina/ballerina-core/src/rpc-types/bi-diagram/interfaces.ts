@@ -150,3 +150,11 @@ export interface ProjectImports {
     projectPath: string;
     imports: ImportStatements[];
 }
+
+export interface FormDidOpenParams {
+    filePath: string;
+}
+
+export interface FormDidCloseParams {
+    filePath: string;
+}

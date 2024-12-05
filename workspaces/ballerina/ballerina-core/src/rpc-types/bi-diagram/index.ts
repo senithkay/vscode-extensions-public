@@ -43,7 +43,25 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports, BreakpointRequest, CurrentBreakpointsResponse } from "./interfaces";
+import {
+    ProjectRequest,
+    WorkspacesResponse,
+    ProjectComponentsResponse,
+    ComponentRequest,
+    CreateComponentResponse,
+    ReadmeContentRequest,
+    ReadmeContentResponse,
+    BIAiSuggestionsRequest,
+    BIAiSuggestionsResponse,
+    ComponentsRequest,
+    ComponentsResponse,
+    AIChatRequest,
+    ProjectImports,
+    BreakpointRequest,
+    CurrentBreakpointsResponse,
+    FormDidOpenParams,
+    FormDidCloseParams
+} from "./interfaces";
 
 export interface BIDiagramAPI {
     getFlowModel: () => Promise<BIFlowModelResponse>;
@@ -81,4 +99,6 @@ export interface BIDiagramAPI {
     getBreakpointInfo: () => Promise<CurrentBreakpointsResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
     getAllImports:()=> Promise<ProjectImports>;
+    didOpen: (params: FormDidOpenParams) => void;
+    didClose: (params: FormDidCloseParams) => void;
 }

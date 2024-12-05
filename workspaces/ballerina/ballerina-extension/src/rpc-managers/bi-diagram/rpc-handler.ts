@@ -22,6 +22,8 @@ import {
     BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
     ProjectRequest,
@@ -37,6 +39,8 @@ import {
     deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
+    didClose,
+    didOpen,
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
@@ -105,4 +109,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBreakpointInfo, () => rpcManger.getBreakpointInfo());
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
     messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
+    messenger.onNotification(didOpen, (args: FormDidOpenParams) => rpcManger.didOpen(args));
+    messenger.onNotification(didClose, (args: FormDidCloseParams) => rpcManger.didClose(args));
 }
