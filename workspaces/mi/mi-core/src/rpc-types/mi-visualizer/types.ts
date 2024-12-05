@@ -84,9 +84,9 @@ export interface ProjectStructureArtifactResponse {
 export interface ProjectDetailsResponse {
     primaryDetails: PrimaryDetails;
     buildDetails: BuildDetails;
-    dependencies: DependenciesDetails;
-    unitTests: UnitTestDetails;
-    configurables: PomNodeDetails[];
+    dependenciesDetails: DependenciesDetails;
+    unitTestDetails: UnitTestDetails;
+    configs: PomNodeDetails[];
  }
 
 export interface PomNodeDetails {
@@ -169,6 +169,11 @@ export interface UpdateDependencyRequest {
     version: string;
     type?: string;
     range?: STRange
+}
+
+export interface UpdateDependencyResponse {
+    value: string;
+    range: STRange;
 }
 
 export interface DataIntegrationResponse {

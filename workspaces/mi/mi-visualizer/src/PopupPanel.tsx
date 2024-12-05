@@ -25,6 +25,8 @@ import path from 'path';
 import { ConnectorStore } from './views/Forms/ConnectionForm';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { AddDriver } from './views/Popup/AddDriver';
+import { ManageDependencies } from './views/Overview/ProjectInformation/ManageDependencies';
+import { ProjectInformationForm } from './views/Overview/ProjectInformation/ProjectInformationForm';
 
 const ViewContainer = styled.div`
     
@@ -80,11 +82,11 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<ConnectorStore handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
-                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose}/>);
+                    setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose} />);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(
-                        <AddConnection 
+                        <AddConnection
                             connectionName={machineSate.customProps.connectionName}
                             allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
                             connector={machineSate.customProps.connector}
@@ -98,6 +100,12 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                 case MACHINE_VIEW.AddDriverPopup:
                     setViewComponent(<AddDriver handlePopupClose={props.handleClose} path={machineSate.documentUri} identifier={machineSate.customProps.identifier} />);
                     break;
+                case MACHINE_VIEW.ManageDependencies:
+                    setViewComponent(<ManageDependencies onClose={props.handleClose} dependencies={machineSate.customProps.dependencies} title={machineSate.customProps.title} />);
+                    break;
+                case MACHINE_VIEW.ProjectInformationForm:
+                    setViewComponent(<ProjectInformationForm onClose={props.handleClose} />);
+                    break;    
                 default:
                     setViewComponent(null);
             }

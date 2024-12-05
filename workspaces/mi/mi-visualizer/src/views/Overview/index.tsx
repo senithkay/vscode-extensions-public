@@ -8,16 +8,16 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { ViewHeader } from "../../components/View";
-import { Button, Codicon, colors, Icon, PanelContent, ProgressIndicator, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, colors, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
 import ComponentDiagram from "./ComponentDiagram";
 import styled from "@emotion/styled";
 import ReactMarkdown from "react-markdown";
 import { VSCodeLink, VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
-import { Panels } from "@vscode/webview-ui-toolkit";
+import { ProjectInformation } from "./ProjectInformation";
 
 const Body = styled.div`
     padding: 0 32px;
@@ -46,6 +46,9 @@ const Column = styled.div<{ width?: string }>`
 
 const ProjectInfoColumn = styled(Column)`
     width: 300px;
+    max-height: 460px;
+    overflow: hidden;
+    padding-right: 2px;
     @media (max-width: 600px) {
         width: auto;
     }
@@ -149,6 +152,16 @@ function Overview(props: OverviewProps) {
         rpcClient.getMiVisualizerRpcClient().openReadme();
     }
 
+    const handleEditProjectInformation = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ProjectInformationForm
+            },
+            isPopup: true
+        });
+    }
+
     if (isLoading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -228,7 +241,13 @@ function Overview(props: OverviewProps) {
                         </VSCodePanels>
                     </Column>
                     <ProjectInfoColumn>
-                        <Typography variant="h3" sx={{ margin: '0 0 16px 0' }}>Project Information</Typography>
+                        <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
+                            Project Information
+                            <Icon name="edit" isCodicon onClick={handleEditProjectInformation} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />
+                        </Typography>
+                        <div style={{ height: '100%', overflow: "scroll", scrollbarWidth: "thin", paddingRight: '5px' }}>
+                            <ProjectInformation />
+                        </div>
                     </ProjectInfoColumn>
                 </Columns>
                 <Column style={{ marginTop: '16px' }}>
