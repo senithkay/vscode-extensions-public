@@ -343,7 +343,10 @@ import {
     UpdateMediatorRequest,
     getMediator,
     getMediators,
-    updateMediator
+    updateMediator,
+    GetConnectionSchemaRequest,
+    getConnectionSchema,
+    GetConnectionSchemaResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -889,6 +892,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     updateMediator(params: UpdateMediatorRequest): Promise<void> {
         return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
+    }
+
+    getConnectionSchema(params: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        return this._messenger.sendRequest(getConnectionSchema, HOST_EXTENSION, params);
     }
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
