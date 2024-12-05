@@ -32,6 +32,7 @@ interface FormFieldEditorProps {
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
     handleOnTypeChange?: () => void;
+    visualizableFields?: string[];
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
@@ -43,7 +44,8 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         subPanelView,
         handleOnFieldFocus,
         autoFocus,
-        handleOnTypeChange
+        handleOnTypeChange,
+        visualizableFields
     } = props;
 
     if (field.type === "MULTIPLE_SELECT") {
@@ -100,6 +102,7 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 subPanelView={subPanelView}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
+                visualizable={visualizableFields?.includes(field.key)}
             />
         );
     } else if (field.type === "VIEW") {

@@ -25,6 +25,7 @@ type ContextAwareExpressionEditorProps = {
     subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
+    visualizable?: boolean;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
@@ -168,7 +169,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         targetLineRange,
         fileName,
         handleOnFieldFocus,
-        autoFocus
+        autoFocus,
+        visualizable
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState(false);
 
@@ -322,10 +324,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         <Button appearance="icon" onClick={handleHelperPaneOpen} tooltip="Open Helper View">
             <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
         </Button>,
-        // TODO: Render the Data Mapper button whenever the `visualizable` flag is set to true
-        <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)} tooltip="Create using Data Mapper">
-            <S.DataMapperBtnTxt>DM</S.DataMapperBtnTxt>
-        </Button>,
+        visualizable && (
+            <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)} tooltip="Edit using Data Mapper">
+                <S.DataMapperBtnTxt>DM</S.DataMapperBtnTxt>
+            </Button>
+        ),
         onRemove && (
             <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
                 <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />

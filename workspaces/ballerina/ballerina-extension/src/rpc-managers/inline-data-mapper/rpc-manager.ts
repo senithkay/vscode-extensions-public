@@ -14,7 +14,8 @@ import {
     InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse,
-    VisualizableFieldsRequest
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse
 } from "@wso2-enterprise/ballerina-core";
 
 import { StateMachine } from "../../stateMachine";
@@ -40,8 +41,13 @@ export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
         });
     }
 
-    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<string[]> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse> {
+        return new Promise(async (resolve) => {
+            const fieldIds = await StateMachine
+                .langClient()
+                .getVisualizableFields(params) as VisualizableFieldsResponse;
+
+            resolve(fieldIds);
+        });
     }
 }

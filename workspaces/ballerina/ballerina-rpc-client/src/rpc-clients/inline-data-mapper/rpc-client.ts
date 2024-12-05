@@ -15,6 +15,7 @@ import {
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse,
     VisualizableFieldsRequest,
+    VisualizableFieldsResponse,
     getDataMapperModel,
     getDataMapperSource,
     getVisualizableFields
@@ -37,7 +38,7 @@ export class InlineDataMapperRpcClient implements InlineDataMapperAPI {
         return this._messenger.sendRequest(getDataMapperSource, HOST_EXTENSION, params);
     }
 
-    getVisualizableFields(params: VisualizableFieldsRequest): Promise<string[]> {
+    getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse> {
         return this._messenger.sendRequest(getVisualizableFields, HOST_EXTENSION, params);
     }
 }

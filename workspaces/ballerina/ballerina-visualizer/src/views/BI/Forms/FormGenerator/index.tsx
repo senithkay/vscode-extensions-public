@@ -16,7 +16,8 @@ import {
     SubPanel,
     VisualizerLocation,
     FormDiagnostics,
-    SubPanelView
+    SubPanelView,
+    LinePosition
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -100,6 +101,7 @@ export function FormGenerator(props: FormProps) {
 
     const [fields, setFields] = useState<FormField[]>([]);
     const [showRecordEditor, setShowRecordEditor] = useState(false);
+    const [visualizableFields, setVisualizableFields] = useState<string[]>([]);
 
     useEffect(() => {
         if (node.codedata.node === "IF") {
@@ -135,6 +137,13 @@ export function FormGenerator(props: FormProps) {
                 formProperties.connection.optional = true;
             }
         }
+
+        rpcClient
+            .getInlineDataMapperRpcClient()
+            .getVisualizableFields({filePath: fileName, flowNode: node, position: targetLineRange.startLine})
+            .then((res) => {
+                setVisualizableFields(res.visualizableProperties);
+            });
 
         // get node properties
         setFields(convertNodePropertiesToFormFields(enrichedNodeProperties || formProperties, connections, clientName));
@@ -190,6 +199,11 @@ export function FormGenerator(props: FormProps) {
         setShowRecordEditor(isOpen);
     };
 
+    const fetchVisualizableFields = async (filePath: string, flowNode: FlowNode, position: LinePosition) => {
+        const res = await rpcClient.getInlineDataMapperRpcClient().getVisualizableFields({filePath, flowNode, position});
+        setVisualizableFields(res.visualizableProperties);
+    }
+
     // handle if node form
     if (node.codedata.node === "IF") {
         return <IfForm
@@ -223,6 +237,8 @@ export function FormGenerator(props: FormProps) {
                     updatedExpressionField={updatedExpressionField}
                     resetUpdatedExpressionField={resetUpdatedExpressionField}
                     mergeFormDataWithFlowNode={mergeFormDataWithFlowNode}
+                    handleVisualizableFields={fetchVisualizableFields}
+                    visualizableFields={visualizableFields}
                 />
             )}
             {showRecordEditor && (

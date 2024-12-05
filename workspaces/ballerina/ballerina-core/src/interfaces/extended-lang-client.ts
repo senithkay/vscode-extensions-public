@@ -289,6 +289,10 @@ export interface InlineDataMapperSourceResponse {
     source: string;
 }
 
+export interface VisualizableFieldsResponse {
+    visualizableProperties: string[];
+}
+
 export interface GraphqlDesignServiceParams {
     filePath: string;
     startLine: LinePosition;

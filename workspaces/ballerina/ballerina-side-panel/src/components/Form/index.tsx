@@ -23,7 +23,7 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -200,6 +200,8 @@ export interface FormProps {
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
+    handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
+    visualizableFields?: string[];
 }
 
 export function Form(props: FormProps) {
@@ -219,7 +221,9 @@ export function Form(props: FormProps) {
         fileName,
         updatedExpressionField,
         resetUpdatedExpressionField,
-        mergeFormDataWithFlowNode
+        mergeFormDataWithFlowNode,
+        handleVisualizableFields,
+        visualizableFields
     } = props;
 
     const {
@@ -368,7 +372,8 @@ export function Form(props: FormProps) {
     };
 
     const getVisualiableFields = () => {
-        // TODO: Implement this
+        const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+        handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
     };
 
     const handleGetExpressionDiagnostics = async (
@@ -460,6 +465,7 @@ export function Form(props: FormProps) {
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
+                                visualizableFields={visualizableFields}
                             />
                         }
                         {typeField && (
@@ -468,6 +474,8 @@ export function Form(props: FormProps) {
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
+                                handleOnTypeChange={getVisualiableFields}
+                                visualizableFields={visualizableFields}
                             />
                         )}
                     </S.CategoryRow>
@@ -493,6 +501,7 @@ export function Form(props: FormProps) {
                                         subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
+                                        visualizableFields={visualizableFields}
                                     />
                                 </S.Row>
                             );
@@ -548,6 +557,7 @@ export function Form(props: FormProps) {
                                             openSubPanel={handleOpenSubPanel}
                                             subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
+                                            visualizableFields={visualizableFields}
                                         />
                                     </S.Row>
                                 );

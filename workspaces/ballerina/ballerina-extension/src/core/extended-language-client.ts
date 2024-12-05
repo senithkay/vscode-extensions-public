@@ -120,9 +120,10 @@ import {
     ExpressionDiagnosticsResponse,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
-    IDMModel,
     InlineDataMapperSourceResponse,
-    InlineDataMapperModelResponse
+    InlineDataMapperModelResponse,
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -195,6 +196,7 @@ enum EXTENDED_APIS {
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     DATA_MAPPER_MAPPINGS = 'dataMapper/mappings',
     DATA_MAPPER_GET_SOURCE = 'dataMapper/getSource',
+    DATA_MAPPER_VISUALIZABLE = 'dataMapper/visualizable',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
     UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
@@ -472,6 +474,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getInlineDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest<InlineDataMapperSourceResponse>(EXTENDED_APIS.DATA_MAPPER_GET_SOURCE, params);
+    }
+
+    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<VisualizableFieldsResponse>(EXTENDED_APIS.DATA_MAPPER_VISUALIZABLE, params);
     }
 
     async getGraphqlModel(params: GraphqlDesignServiceParams): Promise<GraphqlDesignService | NOT_SUPPORTED_TYPE> {

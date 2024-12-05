@@ -11,11 +11,12 @@ import {
     InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse,
-    VisualizableFieldsRequest
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse
 } from "../../interfaces/extended-lang-client";
 
 export interface InlineDataMapperAPI {
     getDataMapperModel: (params: InlineDataMapperModelRequest) => Promise<InlineDataMapperModelResponse>;
     getDataMapperSource: (params: InlineDataMapperSourceRequest) => Promise<InlineDataMapperSourceResponse>;
-    getVisualizableFields: (params: VisualizableFieldsRequest) => Promise<string[]>;
+    getVisualizableFields: (params: VisualizableFieldsRequest) => Promise<VisualizableFieldsResponse>;
 }
