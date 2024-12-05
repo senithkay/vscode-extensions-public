@@ -72,7 +72,6 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
     return (
         <TreeView
             sx={{ paddingBottom: 2 }}
-            rootTreeView
             id="Schemas#-Components"
             content={
                 <PathContainer>

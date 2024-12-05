@@ -10,9 +10,9 @@ import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI } from '../../../Definitions/ServiceDefinitions';
 import { PathsTreeView } from './PathsTreeView/PathsTreeView';
-import { SchemaTreeView } from './SchemaTreeView/SchemaTreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { ComponentTreeView } from './ComponentTreeView/ComponentTreeView';
 
 interface ContainerProps {
     selected?: boolean;
@@ -109,7 +109,7 @@ export function ComponentNavigator(props: ComponentNavigatorProps) {
                 onPathTreeViewChange={handleComponentNavigatorChange}
                 paths={openAPI.paths}
             />
-            <SchemaTreeView
+            <ComponentTreeView
                 openAPI={openAPI}
                 onSchemaTreeViewChange={handleComponentNavigatorChange}
             />
