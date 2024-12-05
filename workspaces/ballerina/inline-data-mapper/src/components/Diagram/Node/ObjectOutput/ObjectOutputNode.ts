@@ -91,7 +91,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const inputNode = findInputNode(mapping.inputs[0], this);
             let inPort: InputOutputPortModel;
             if (inputNode) {
-                inPort = getInputPort(inputNode, mapping.inputs[0]);
+                inPort = getInputPort(inputNode, mapping.inputs[0].replace(/\.\d+/g, ''));
             }
 
             const [_, mappedOutPort] = getOutputPort(this, mapping.output);

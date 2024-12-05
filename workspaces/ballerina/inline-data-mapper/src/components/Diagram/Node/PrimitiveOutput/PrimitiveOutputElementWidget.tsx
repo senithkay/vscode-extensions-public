@@ -100,7 +100,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete
-            });
+        });
         }
         return items;
     }, [expression]);
@@ -112,7 +112,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
             <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
-                {diagnostics ? (
+                {diagnostics.length > 0 ? (
                     <DiagnosticTooltip
                         diagnostic={diagnostics[0].message}
                         value={expression}

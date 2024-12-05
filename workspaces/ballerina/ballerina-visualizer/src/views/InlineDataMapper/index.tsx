@@ -447,8 +447,8 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             )}
             {model && (
                 <DataMapperView 
-                    // model={model || initialModel} 
-                    model={model2} 
+                    model={model || initialModel} 
+                    // model={model3} 
                     onClose={onClose}
                     applyModifications={updateExpression}
                 />
