@@ -67,6 +67,7 @@ interface Element {
     tableKey?: string;
     tableValue?: string;
     configurableType?: string;
+    addParamText?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -192,6 +193,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             <ParamManager
                 paramConfigs={field.value}
                 readonly={false}
+                addParamText={element.addParamText}
                 onChange={(values) => {
                     values.paramValues = getParamManagerOnChange(element, values);
                     field.onChange(values);
