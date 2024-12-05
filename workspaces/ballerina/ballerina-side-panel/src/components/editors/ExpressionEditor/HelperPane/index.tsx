@@ -10,9 +10,10 @@
 import React, { useState } from 'react';
 import { HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
-import { FunctionsPage } from './FunctionsPage';
-import { VariablesPage } from './VariablesPage';
 import { ConfigurablePage } from './ConfigurablePage';
+import { FunctionsPage } from './FunctionsPage';
+import { LibraryBrowser } from './LibraryBrowser';
+import { VariablesPage } from './VariablesPage';
 
 export type HelperPaneProps = {
     onClose: () => void;
@@ -27,6 +28,7 @@ const HelperPaneEl = ({ onClose }: HelperPaneProps) => {
             {currentPage === 1 && <VariablesPage setCurrentPage={setCurrentPage} onClose={onClose} />}
             {currentPage === 2 && <FunctionsPage setCurrentPage={setCurrentPage} onClose={onClose} />}
             {currentPage === 3 && <ConfigurablePage setCurrentPage={setCurrentPage} onClose={onClose} />}
+            {currentPage === 4 && <LibraryBrowser onClose={() => setCurrentPage(2)} />}
         </HelperPane>
     );
 };
