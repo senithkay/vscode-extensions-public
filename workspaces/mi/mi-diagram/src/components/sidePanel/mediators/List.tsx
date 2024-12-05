@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ErrorBanner, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, Icon, LinkButton, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
@@ -19,6 +19,8 @@ import { MediatorForm } from './Form';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
 import { ModuleSuggestions } from './ModuleSuggestions';
+import { Modules } from '../modules/ModulesList';
+import AddConnector from '../Pages/AddConnector';
 
 interface MediatorProps {
     nodePosition: any;
@@ -31,6 +33,7 @@ export function Mediators(props: MediatorProps) {
     const { rpcClient } = useVisualizerContext();
     const [allMediators, setAllMediators] = React.useState<GetMediatorsResponse>();
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [connectorData, setConnectorData] = React.useState<any[]>([]);
 
     useEffect(() => {
         const fetchMediators = async () => {
@@ -46,7 +49,18 @@ export function Mediators(props: MediatorProps) {
             }
             setIsLoading(false);
         };
+
+        const fetchConnectors = async () => {
+            try {
+                const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+                setConnectorData(connectorDataResponse.outboundConnectors);
+            } catch (error) {
+                console.error("Failed to fetch connector data:", error);
+            }
+        };
+
         fetchMediators();
+        fetchConnectors();
     }, [props.documentUri, props.nodePosition, rpcClient]);
 
     const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
@@ -54,11 +68,34 @@ export function Mediators(props: MediatorProps) {
             mediatorType: mediator.tag,
         });
 
-        const form =
-            <div style={{ padding: '20px' }}>
-                <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
-            </div>;
-        sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
+        // const form =
+        //     <div style={{ padding: '20px' }}>
+        //         <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+        //     </div>;
+        // sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
+
+        if (mediator.tag.includes('.')) {
+            const connecterForm = <AddConnector formData={mediatorDetails}
+                nodePosition={sidePanelContext.nodeRange}
+                documentUri={props.documentUri}
+                connectorName={mediator.tag[0]}
+                operationName={mediator.operationName} />;
+
+            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${mediator.operationName}`);
+        } else {
+            const form =
+                <div style={{ padding: '20px' }}>
+                    <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+                </div>;
+            sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
+        }
+    }
+
+    function getConnectorIconUrl(connectorName: string) {
+        const connector = connectorData.find(c => c.name === connectorName);
+        return connector?.icon_url ?
+            <img src={connector.icon_url} alt="Icon" onError={() => <Icon name="connector" sx={{ color: "#D32F2F" }} />} /> 
+            : <Icon name="connector" sx={{ color: "#D32F2F" }} />;
     }
 
     const searchForm = (value: string, search?: boolean) => {
@@ -82,6 +119,18 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
+    // const getConnectorIcon = async (iconPath: string) => {
+    //     const icon = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
+    //     return <img src={icon.uri} alt="Icon" />;
+    // }
+
+    const addModule = () => {
+        const modulesList = <Modules nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
+        const icon = <Codicon name="library" iconSx={{ fontSize: 20, color: 'var(--vscode-textLink-foreground)' }} />
+
+        sidepanelAddPage(sidePanelContext, modulesList, 'Modules', icon);
+    }
+
     const MediatorList = () => {
         let mediators: GetMediatorsResponse;
         if (props.searchValue) {
@@ -104,7 +153,7 @@ export function Mediators(props: MediatorProps) {
                                     title={mediator.title}
                                     description={mediator.description}
                                     icon={
-                                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                        mediator.iconPath ? getConnectorIconUrl(key) : getMediatorIconsFromFont(mediator.tag, key === "most popular")
                                     }
                                     onClick={() => getMediator(mediator, key === "most popular")}
                                 />
@@ -118,18 +167,24 @@ export function Mediators(props: MediatorProps) {
 
     return (
         <div>
-    {
-        isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
-                <ProgressRing />
-            </div>
-        ) : (
-            <>
-                <MediatorList />
-                <ModuleSuggestions nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} searchValue={props.searchValue} />
-            </>
-        )
-    }
+            {
+                isLoading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                        <ProgressRing />
+                    </div>
+                ) : (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', alignItems: 'center' }}>
+                            <Typography variant="h3" sx={{ margin: '0px' }}>Available Modules</Typography>
+                            <LinkButton onClick={() => addModule()}>
+                                <Codicon name="plus" />Add Module
+                            </LinkButton>
+                        </div>
+                        <MediatorList />
+                        <ModuleSuggestions nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} searchValue={props.searchValue} />
+                    </>
+                )
+            }
         </div >
     );
 }

@@ -7,59 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ComponentCard, Icon, IconLabel, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import React, { ReactNode, useState } from 'react';
+import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 // import { getAllMediators } from './Values';
-import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { DownloadPage } from './DownloadPage';
-
-const IconContainer = styled.div`
-    width: 30px;
-    & img {
-        width: 25px;
-    }
-`;
-
-const DownloadIconContainer = styled.div`
-    width: 35px;
-    height: 25px;
-    cursor: pointer;
-    border-radius: 2px;
-    align-content: center;
-    padding: 5px 5px 15px 12px;
-    &:hover, &.active {
-        background-color: var(--vscode-pickerGroup-border);
-    }
-    & img {
-        width: 25px;
-    }
-`;
-
-const VersionTag = styled.div`
-    color: #808080;
-    font-size: 10px;
-    padding-left: 2px;
-`;
-
-const CardContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 90%;
-`;
-
-const CardLabel = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-self: flex-start;
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
-`;
+import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
+import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 
 interface ModuleSuggestionProps {
     nodePosition: any;
@@ -67,10 +24,16 @@ interface ModuleSuggestionProps {
     documentUri: string;
     searchValue?: string;
 }
+
+export const OperationsWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    color: #808080;
+    gap: 5px;
+`;
+
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
-    const [modules, setModules] = useState<any[]>(undefined);
 
     const searchModules = () => {
         try {
@@ -89,12 +52,28 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                             {
                                 "name": "init",
                                 "description": "configure Redis connector",
-                                "isHidden": false
+                                "isHidden": true
                             },
                             {
                                 "name": "echo",
                                 "description": "echo the given string",
                                 "isHidden": false
+                            },
+                            {
+                                "name": "echo2",
+                                "description": "echo the given string",
+                                "isHidden": false
+                            },
+                            {
+                                "name": "echo333",
+                                "description": "echo the given string",
+                                "isHidden": false
+                            }
+                        ],
+                        "connections": [
+                            {
+                                "name": "Redis",
+                                "description": "Connection for Redis data operations."
                             }
                         ]
                     },
@@ -122,23 +101,13 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
         }
     };
 
-
-    // const allMediators = getAllMediators({
-    //     nodePosition: props.nodePosition,
-    //     trailingSpace: props.trailingSpace,
-    //     documentUri: props.documentUri,
-    //     previousNode: sidePanelContext.previousNode,
-    //     nextNode: sidePanelContext.nextNode,
-    //     parentNode: sidePanelContext.operationName?.toLowerCase() != sidePanelContext.parentNode?.toLowerCase() ? sidePanelContext.parentNode : undefined,
-    // });
-
-    const selectModule = (module: any) => {
+    const downloadModule = (module: any) => {
         const downloadPage = <DownloadPage module={module} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
 
-    const ModuleList = () => {
+    const SuggestionList = () => {
         let modules: any;
         if (props.searchValue) {
             modules = searchModules();
@@ -151,66 +120,34 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                 <h4>In Store: </h4>
                 {Object.entries(modules).map(([key, values]: [string, any]) => (
                     <div key={key}>
-                        <ComponentCard
-                            id={values.connectorName}
-                            key={`${values.connectorName}-${values.version.tagName}`}
-                            sx={{
-                                border: '0px',
-                                borderRadius: 2,
-                                padding: '6px 0px 6px 10px',
-                                width: 'auto',
-                                height: '32px',
-                                '&:hover, &.active': {
-                                    backgroundColor: 'var(--vscode-editorWidget-background)'
-                                },
-                                backgroundColor: 'var(--vscode-editorWidget-background)',
-                                display: 'flex',
-                                justifyContent: 'left',
-                                transition: '0.3s',
-                                flexDirection: 'row',
-                                marginBottom: '10px',
-                                cursor: 'default'
-                            }}
-                        >
-                            <CardContent>
-                                <CardLabel>
-                                    <IconContainer>
-                                        <img
-                                            src={values.iconUrl}
-                                            alt="Icon"
-                                        />
-                                    </IconContainer>
-                                    <div style={{
-                                        width: '100%',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        textAlign: 'left',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <IconLabel>
-                                            {FirstCharToUpperCase(values.connectorName)}
-                                        </IconLabel>
-                                        <VersionTag>
-                                            {values.version.tagName}
-                                        </VersionTag>
-                                    </div>
-                                </CardLabel>
-                            </CardContent>
-                            <DownloadIconContainer onClick={() => selectModule(values)}>
-                                <Codicon name="desktop-download" iconSx={{ fontSize: 25 }} />
-                            </DownloadIconContainer>
-                        </ComponentCard>
-                    </div>
-                ))}
+                        <ButtonGroup
+                            key={key}
+                            title={FirstCharToUpperCase(values.connectorName)}
+                            isCollapsed={true}
+                            iconUri={values.iconUrl}
+                            versionTag={values.version.tagName}
+                            onDownload={() => downloadModule(values)}>
+                            <OperationsWrapper>
+                                Available Operations
+                                <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
+                                {values.version.operations.map((operation: ConnectorOperation) => (
+                                    !operation.isHidden && (
+                                        <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
+                                            {FirstCharToUpperCase(operation.name)}
+                                        </Tooltip>
+                                    )
+                                ))}
+                            </OperationsWrapper>
+                        </ButtonGroup >
+                    </div >
+                ))
+                }
             </>
     }
 
     return (
         <div>
-            <ModuleList />
+            <SuggestionList />
         </div>
     );
 }

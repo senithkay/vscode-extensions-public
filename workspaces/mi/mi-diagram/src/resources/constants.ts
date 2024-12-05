@@ -297,6 +297,7 @@ export const APIS = {
 export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
     ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
+    ERROR_LOADING_MODULES: "Error loading module data. Please try again."
 }
 
 export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";

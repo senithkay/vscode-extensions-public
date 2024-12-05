@@ -42,7 +42,7 @@ const SearchPanel = styled.div`
 const ComponentList = styled.div`
     height: 100%;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 15px;
 `;
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
@@ -101,19 +101,14 @@ export function HomePage(props: MediatorPageProps) {
                 />
                 {/*  Categories */}
                 <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)", justifyContent: "space-evenly" }}>
-                    <Button buttonSx={{width: '128px'}} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
+                    <Button buttonSx={{width: '195px'}} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
                         Mediators
                     </Button>
 
-                    <Button buttonSx={{width: '128px'}} onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
+                    <Button buttonSx={{width: '195px'}} onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
                         <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
-                        Externals
-                    </Button>
-
-                    <Button buttonSx={{width: '128px'}} onClick={handleConnectorsClicked} appearance={isConnectors ? 'primary' : 'secondary'}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="connector"/>
-                        Connectors
+                        Connections
                     </Button>
                 </ButtonContainer>
             </SearchPanel>
