@@ -31,7 +31,6 @@ export class BreakpointManager {
     }
 
     public getBreakpoints(): DebugProtocol.Breakpoint[] {
-        console.log(">>> getBreakpoints", this.currentBreakpoints);
         return this.currentBreakpoints;
     }
 

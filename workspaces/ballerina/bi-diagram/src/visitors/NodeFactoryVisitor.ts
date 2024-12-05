@@ -24,7 +24,6 @@ import { getBranchInLinkId, getBranchLabel } from "../utils/node";
 import { Branch, FlowNode, NodeModel } from "../utils/types";
 import { BaseVisitor } from "./BaseVisitor";
 import { EndNodeModel } from "../components/nodes/EndNode";
-import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
 
 export class NodeFactoryVisitor implements BaseVisitor {
     nodes: NodeModel[] = [];
@@ -124,6 +123,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
+            
             this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id

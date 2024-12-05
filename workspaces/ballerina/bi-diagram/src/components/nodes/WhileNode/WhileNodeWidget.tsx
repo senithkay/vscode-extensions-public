@@ -254,7 +254,7 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
 
                     >
                         {hasBreakpoint && (
-                            <div style={{ position: "absolute", left: 1, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
+                            <div style={{ position: "absolute", left: 1, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
                         )}
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -298,7 +298,11 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                             {menuItems.map((item) => (
                                 <MenuItem key={item.id} item={item} />
                             ))}
-                            <BreakpointMenu hasBreakpoint={hasBreakpoint} onAddBreakpoint={onAddBreakpoint} onRemoveBreakpoint={onRemoveBreakpoint} />
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
                         </>
                     </Menu>
                 </Popover>

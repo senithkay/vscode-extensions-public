@@ -32,7 +32,8 @@ export class BreakpointVisitor implements BaseVisitor {
 
             if (this.breakpointInfo?.activeBreakpoint &&
                 this.breakpointInfo.activeBreakpoint.line === node.codedata?.lineRange?.startLine?.line &&
-                (!this.breakpointInfo.activeBreakpoint.column || this.breakpointInfo.activeBreakpoint.column === node.codedata?.lineRange?.startLine?.offset)) {
+                (!this.breakpointInfo.activeBreakpoint.column ||
+                    this.breakpointInfo.activeBreakpoint.column === node.codedata?.lineRange?.startLine?.offset)) {
                 node.isActiveBreakpoint = true;
             }
         }

@@ -151,7 +151,7 @@ export interface BaseNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> { }
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
@@ -299,7 +299,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
         >
             {hasBreakpoint && (
-                <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }}></div>
+                <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
             )}
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
@@ -335,7 +335,11 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                             {menuItems.map((item) => (
                                 <MenuItem key={item.id} item={item} />
                             ))}
-                            <BreakpointMenu hasBreakpoint={hasBreakpoint} onAddBreakpoint={onAddBreakpoint} onRemoveBreakpoint={onRemoveBreakpoint}/>
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
                         </>
                     </Menu>
                 </Popover>

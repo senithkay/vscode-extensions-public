@@ -922,7 +922,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async addBreakpointToSource(params: BreakpointRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            console.log("!===== adding breakpoint to source", params);
+            console.log(">>> adding breakpoint to source", params);
             const breakpoint = new vscode.SourceBreakpoint(
                 new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, params.breakpoint?.column)));
             vscode.debug.addBreakpoints([breakpoint]);
@@ -933,19 +933,19 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async removeBreakpointFromSource(params: BreakpointRequest): Promise<void> {
         return new Promise(async (resolve) => {
-            console.log("!===== removing breakpoint from source", params);
+            console.log(">>> removing breakpoint from source", params);
             const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
                 const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
                 return sourceBreakpoint.location.uri.fsPath === params.filePath;
             }) as vscode.SourceBreakpoint[];
 
-            console.log("!===== breakpoints for file", breakpointsForFile);
-
             const breakpoints = breakpointsForFile.filter((breakpoint) => {
-                return breakpoint.location.range.start.line === params.breakpoint.line && breakpoint.location.range.start?.character === params.breakpoint?.column;
+                return breakpoint.location.range.start.line === params.breakpoint.line &&
+                breakpoint.location.range.start?.character === params.breakpoint?.column;
             });
 
-            // If there are no breakpoints found, then it could be due the breakpoint has been added from the sourceCode, where the column is not provided
+            // If there are no breakpoints found,
+            // then it could be due the breakpoint has been added from the sourceCode, where the column is not provided
             // so we need to check for breakpoint with the same line and remove
             if (breakpoints.length === 0) {
                 const breakpointsToRemove = breakpointsForFile.filter((breakpoint) => {

@@ -289,7 +289,6 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
     const factory = new BallerinaDebugAdapterDescriptorFactory(ballerinaExtInstance);
     context.subscriptions.push(debug.registerDebugAdapterDescriptorFactory('ballerina', factory));
 
-
     context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory()));
 
     // Listener to support reflect breakpoint changes in diagram when debugger is inactive
@@ -303,22 +302,13 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
         return {
 
             onWillStartSession() {
-                console.log("=====onWillStartSession");
                 new BreakpointManager();
             },
 
             onWillStopSession() {
-                console.log("=====onWillStopSession");
                 // clear the active breakpoint
                 BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                 notifyBreakpointChange();
-            },
-
-
-            // VS Code -> Debug Adapter
-            onWillReceiveMessage: (message: DebugProtocol.ProtocolMessage) => {
-                console.log("=====onWillReceiveMessage", message);
-
             },
 
             // Debug Adapter -> VS Code
@@ -359,8 +349,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         if (isWebviewPresent) {
                             setTimeout(() => {
                                 const uri = Uri.parse(msg.body.stackFrames[0].source.path);
-                                console.log("VisualizerWebview.currentPanel", VisualizerWebview.currentPanel);
-                                console.log("State Machine context", StateMachine.context());
                                 if (VisualizerWebview.currentPanel) {
                                     VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
                                     setTimeout(() => {
@@ -401,7 +389,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                                 }
                             }, 200);
                         }
-
                     } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
                         // clear the active breakpoint
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);

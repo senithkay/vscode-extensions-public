@@ -201,7 +201,7 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
             <NodeStyles.Row>
                 <NodeStyles.Column onClick={handleOnClick}>
                     {hasBreakpoint && (
-                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, top: 22, borderRadius: "50%", backgroundColor: "red" }}></div>
+                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, top: 22, borderRadius: "50%", backgroundColor: "red" }} />
                     )}
                     <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                     <svg width={IF_NODE_WIDTH} height={IF_NODE_WIDTH} viewBox="0 0 70 70">
@@ -217,8 +217,8 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                                 hasError
                                     ? Colors.ERROR
                                     : isHovered && !disabled
-                                    ? Colors.PRIMARY
-                                    : Colors.OUTLINE_VARIANT
+                                        ? Colors.PRIMARY
+                                        : Colors.OUTLINE_VARIANT
                             }
                             strokeWidth={NODE_BORDER_WIDTH}
                             strokeDasharray={disabled ? "5 5" : "none"}
@@ -264,7 +264,11 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             {menuItems.map((item) => (
                                 <MenuItem key={item.id} item={item} />
                             ))}
-                            <BreakpointMenu hasBreakpoint={hasBreakpoint} onAddBreakpoint={onAddBreakpoint} onRemoveBreakpoint={onRemoveBreakpoint} />
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
                         </>
                     </Menu>
                 </Popover>
