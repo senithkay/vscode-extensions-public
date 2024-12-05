@@ -65,8 +65,8 @@ import {
     deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
-    didClose,
-    didOpen,
+    formDidClose,
+    formDidOpen,
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
@@ -245,11 +245,11 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getAllImports, HOST_EXTENSION);
     }
 
-    didOpen(params: FormDidOpenParams): void {
-        return this._messenger.sendNotification(didOpen, HOST_EXTENSION, params);
+    formDidOpen(params: FormDidOpenParams): Promise<void> {
+        return this._messenger.sendRequest(formDidOpen, HOST_EXTENSION, params);
     }
 
-    didClose(params: FormDidCloseParams): void {
-        return this._messenger.sendNotification(didClose, HOST_EXTENSION, params);
+    formDidClose(params: FormDidCloseParams): Promise<void> {
+        return this._messenger.sendRequest(formDidClose, HOST_EXTENSION, params);
     }
 }

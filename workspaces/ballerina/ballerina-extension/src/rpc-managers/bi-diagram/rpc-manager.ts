@@ -1027,7 +1027,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async didOpen(params: FormDidOpenParams): Promise<void> {
+    async formDidOpen(params: FormDidOpenParams): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
                 const { filePath } = params;
@@ -1051,7 +1051,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         });
     }
 
-    async didClose(params: FormDidCloseParams): Promise<void> {
+    async formDidClose(params: FormDidCloseParams): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
                 const { filePath } = params;

@@ -39,8 +39,8 @@ import {
     deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
-    didClose,
-    didOpen,
+    formDidClose,
+    formDidOpen,
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
@@ -109,6 +109,6 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBreakpointInfo, () => rpcManger.getBreakpointInfo());
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
     messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
-    messenger.onNotification(didOpen, (args: FormDidOpenParams) => rpcManger.didOpen(args));
-    messenger.onNotification(didClose, (args: FormDidCloseParams) => rpcManger.didClose(args));
+    messenger.onRequest(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
+    messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
 }

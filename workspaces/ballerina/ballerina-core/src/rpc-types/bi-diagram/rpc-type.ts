@@ -97,5 +97,5 @@ export const removeBreakpointFromSource: NotificationType<BreakpointRequest> = {
 export const getBreakpointInfo: RequestType<void, CurrentBreakpointsResponse> = { method: `${_preFix}/getBreakpointInfo` };
 export const getExpressionDiagnostics: RequestType<ExpressionDiagnosticsRequest, ExpressionDiagnosticsResponse> = { method: `${_preFix}/getExpressionDiagnostics` };
 export const getAllImports: RequestType<void, ProjectImports> = { method: `${_preFix}/getAllImports` };
-export const didOpen: NotificationType<FormDidOpenParams> = { method: `${_preFix}/didOpen` };
-export const didClose: NotificationType<FormDidCloseParams> = { method: `${_preFix}/didClose` };
+export const formDidOpen: RequestType<FormDidOpenParams, void> = { method: `${_preFix}/formDidOpen` };
+export const formDidClose: RequestType<FormDidCloseParams, void> = { method: `${_preFix}/formDidClose` };

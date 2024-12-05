@@ -99,6 +99,6 @@ export interface BIDiagramAPI {
     getBreakpointInfo: () => Promise<CurrentBreakpointsResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
     getAllImports:()=> Promise<ProjectImports>;
-    didOpen: (params: FormDidOpenParams) => void;
-    didClose: (params: FormDidCloseParams) => void;
+    formDidOpen: (params: FormDidOpenParams) => Promise<void>;
+    formDidClose: (params: FormDidCloseParams) => Promise<void>;
 }
