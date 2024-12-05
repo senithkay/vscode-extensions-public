@@ -35,6 +35,7 @@ import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 import { NODE_WIDTH, NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
 import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
+import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
 
 export interface DiagramProps {
     model: Flow;
@@ -118,8 +119,10 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(flowModel, positionVisitor);
+        const breakpointVisitor = new BreakpointVisitor(breakpointInfo);
+        traverseFlow(flowModel, breakpointVisitor);
         // create diagram nodes and links
-        const nodeVisitor = new NodeFactoryVisitor(breakpointInfo);
+        const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(flowModel, nodeVisitor);
 
         const nodes = nodeVisitor.getNodes();

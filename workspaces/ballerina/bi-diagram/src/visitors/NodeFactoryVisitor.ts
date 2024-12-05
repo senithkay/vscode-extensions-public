@@ -38,11 +38,9 @@ export class NodeFactoryVisitor implements BaseVisitor {
     private skipChildrenVisit = false;
     private lastNodeModel: NodeModel | undefined; // last visited flow node
     private hasSuggestedNode = false;
-    private breakpointInfo: BreakpointInfo;
 
-    constructor(breakpoints: BreakpointInfo) {
+    constructor() {
         // console.log(">>> node factory visitor started");
-        this.breakpointInfo = breakpoints;
     }
 
     private updateNodeLinks(node: FlowNode, nodeModel: NodeModel, options?: NodeLinkModelOptions): void {
@@ -116,25 +114,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
-
-            // When breakpoint added via sourceCode the column will be undefined, therefore in that case we only check line number
-        if (this.breakpointInfo.breakpoints && this.breakpointInfo.breakpoints.length > 0) {
-            for (const breakpoint of this.breakpointInfo.breakpoints) {
-                if (
-                    breakpoint.line === node.codedata.lineRange.startLine.line &&
-                    (!breakpoint.column || breakpoint.column === node.codedata.lineRange.startLine.offset)) {
-                    node.hasBreakpoint = true;
-                    break;
-                }
-            }
-
-            if (this.breakpointInfo?.activeBreakpoint &&
-                this.breakpointInfo.activeBreakpoint.line === node.codedata.lineRange.startLine.line &&
-                (!this.breakpointInfo.activeBreakpoint.column || this.breakpointInfo.activeBreakpoint.column === node.codedata.lineRange.startLine.offset)) {
-                node.isActiveBreakpoint = true;
-            }
-        }
-
             this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id
