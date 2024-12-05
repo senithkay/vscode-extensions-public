@@ -333,7 +333,11 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
-        setDiagnosticsInfo([...diagnosticsInfo, diagnostics])
+        if (diagnosticsInfo) {
+            setDiagnosticsInfo([...diagnosticsInfo, diagnostics]);
+        } else {
+            setDiagnosticsInfo([diagnostics]);
+        }
     }
 
     const handleGetExpressionDiagnostics = async (
