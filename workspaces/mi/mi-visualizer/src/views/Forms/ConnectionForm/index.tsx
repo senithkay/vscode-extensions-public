@@ -16,6 +16,7 @@ import { ConnectorStatus, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterpris
 import AddConnection from "./ConnectionFormGenerator";
 import { APIS, connectorFailoverIconUrl } from "../../../constants";
 import { ImportConnectorForm } from "./ImportConnector";
+import { debounce } from "lodash";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -201,10 +202,16 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     }, []);
 
     useEffect(() => {
-        if (localConnectors && storeConnectors) {
-            setFilteredLocalConnectors(searchConnectors(localConnectors));
-            // setFilteredStoreConnectors(searchConnectors(storeConnectors));
-        }
+        const debouncedSearchModules = debounce(async () => {
+            if (searchValue) {
+                if (localConnectors && storeConnectors) {
+                    setFilteredLocalConnectors(searchConnectors(localConnectors));
+                    setFilteredStoreConnectors(searchStoreConnectors(storeConnectors));
+                }
+            }
+        }, 300);
+
+        debouncedSearchModules();
     }, [searchValue]);
 
     const waitForEvent = () => {
@@ -228,6 +235,23 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         return connectors?.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
+    const searchStoreConnectors = (storeConnectors: any[]) => {
+        if (!searchValue) return storeConnectors;
+
+        const searchTerm = searchValue.toLowerCase();
+
+        return storeConnectors.filter(connector => {
+            // First check if connector name matches
+            if (connector.connectorName.toLowerCase().includes(searchTerm)) {
+                return true;
+            }
+
+            // If connector name doesn't match, check connection names
+            return connector.version.connections.some(
+                (connection: any) => connection.name.toLowerCase().includes(searchTerm)
+            );
+        });
+    };
 
     const selectConnector = async (connector: any, connectionType: string) => {
         setSelectedConnector({ connector, connectionType });
@@ -377,7 +401,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
         if (searchValue) {
             displayedLocalConnectors = filteredLocalConnectors;
-            // displayedStoreConnectors = filteredStoreConnectors;
+            displayedStoreConnectors = filteredStoreConnectors;
         }
 
         return (
