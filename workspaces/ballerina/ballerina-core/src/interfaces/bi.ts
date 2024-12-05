@@ -298,3 +298,30 @@ export type FormDiagnostics = {
     key: string;
     diagnostics: VSCodeDiagnostic[];
 }
+
+export type HelperPaneCompletionItem = {
+    label: string;
+    type?: string;
+    insertText: string;
+}
+
+export type HelperPaneCompletionCategory = {
+    label: string;
+    items: HelperPaneCompletionItem[];
+}
+
+export type HelperPaneVariableInfo = {
+    category: HelperPaneCompletionCategory[];
+}
+
+export type HelperPaneFunctionCategory = {
+    label: string;
+    items?: HelperPaneCompletionItem[];
+    subCategory?: HelperPaneFunctionCategory[];
+}
+
+export type HelperPaneFunctionInfo = {
+    category: HelperPaneFunctionCategory[];
+}
+
+export type HelperPaneData = HelperPaneVariableInfo | HelperPaneFunctionInfo;
