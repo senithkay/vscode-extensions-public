@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
@@ -35,7 +35,8 @@ import {
     SubPanel,
     SubPanelView,
     Diagnostic,
-    FormDiagnostics
+    FormDiagnostics,
+    HelperPaneData
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -44,6 +45,8 @@ import {
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
     convertToFnSignature,
+    convertToHelperPaneFunction,
+    convertToHelperPaneVariable,
     convertToVisibleTypes,
     getContainerTitle,
 } from "../../../utils/bi";
@@ -114,6 +117,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
+    const [helperPaneData, setHelperPaneData] = useState<HelperPaneData>();
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
@@ -691,6 +695,52 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250);
 
+    const getHelperPaneData = useCallback(
+        async (type: string, searchText: string) => {
+            let result: HelperPaneData;
+            switch (type) {
+                case 'variables': {
+                    const variablesResponse = await rpcClient.getBIDiagramRpcClient().getVisibleVariableTypes({
+                        filePath: model.fileName,
+                        position: {
+                            line: targetRef.current.startLine.line,
+                            offset: targetRef.current.startLine.offset
+                        }
+                    });
+                    if (variablesResponse?.categories?.length) {
+                        result = convertToHelperPaneVariable(variablesResponse.categories);
+                    }
+                    break;
+                }
+                case 'functions': {
+                    const functionsResponse = await rpcClient.getBIDiagramRpcClient().getFunctions({
+                        position: {
+                            startLine: targetRef.current.startLine,
+                            endLine: targetRef.current.endLine
+                        },
+                        filePath: model.fileName,
+                        queryMap: searchText.trim()
+                            ? {
+                                  q: searchText,
+                                  limit: 12,
+                                  offset: 0
+                              }
+                            : undefined
+                    });
+                    if (functionsResponse?.categories?.length) {
+                        result = convertToHelperPaneFunction(functionsResponse.categories);
+                    }
+                    break;
+                }
+            }
+            console.log('>>> Helper pane data', result);
+            setHelperPaneData(result);
+        },
+        [rpcClient, targetRef.current, model?.fileName]
+    );
+
+    const handleGetHelperPaneData = useCallback(debounce(getHelperPaneData, 1100), [getHelperPaneData]);
+
     const handleSubPanel = (subPanel: SubPanel) => {
         setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
@@ -898,12 +948,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             isActiveSubPanel={showSubPanel}
                             openSubPanel={handleSubPanel}
                             expressionEditor={{
+                                helperPaneData: helperPaneData,
                                 completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
                                 triggerCharacters: TRIGGER_CHARACTERS,
                                 retrieveCompletions: handleGetCompletions,
                                 retrieveVisibleTypes: handleGetVisibleTypes,
                                 extractArgsFromFunction: extractArgsFromFunction,
                                 getExpressionDiagnostics: handleExpressionDiagnostics,
+                                getHelperPaneData: handleGetHelperPaneData,
                                 onCompletionSelect: handleCompletionSelect,
                                 onCancel: handleExpressionEditorCancel,
                                 onBlur: handleExpressionEditorBlur,

@@ -28,7 +28,13 @@ import {
     Trigger,
     FunctionField,
     SignatureHelpResponse,
-    TriggerNode
+    TriggerNode,
+    VisibleType,
+    HelperPaneVariableInfo,
+    HelperPaneFunctionInfo,
+    HelperPaneFunctionCategory,
+    Item,
+    HelperPaneCompletionItem
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -450,3 +456,54 @@ export const clearDiagramZoomAndPosition = () => {
     localStorage.removeItem("diagram-offset-x");
     localStorage.removeItem("diagram-offset-y");
 };
+
+export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPaneVariableInfo => {
+    return ({
+        category: variables.map((variable) => ({
+            label: variable.name,
+            items: variable.types.map((item) => ({
+                label: item.name,
+                type: item.type.value,
+                insertText: item.name
+            }))
+        }))
+    });
+}
+
+const isCategoryType = (item: Item): item is Category => {
+    return !!(item as Category)?.items?.length;
+}
+
+export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFunctionInfo => {
+    const response: HelperPaneFunctionInfo = {
+        category: []
+    };
+    for (const category of functions) {
+        const items: HelperPaneCompletionItem[] = [];
+        const subCategory: HelperPaneFunctionCategory[] = [];
+        for (const categoryItem of category?.items) {
+            if (isCategoryType(categoryItem)) {
+                subCategory.push({
+                    label: categoryItem.metadata.label,
+                    items: categoryItem.items.map((item) => ({
+                        label: item.metadata.label,
+                        insertText: item.metadata.label
+                    }))
+                });
+            } else {
+                items.push({
+                    label: categoryItem.metadata.label,
+                    insertText: categoryItem.metadata.label
+                })
+            }
+        }
+
+        const categoryItem: HelperPaneFunctionCategory = {
+            label: category.metadata.label,
+            items: items.length ? items : undefined,
+            subCategory: subCategory.length ? subCategory : undefined
+        }
+        response.category.push(categoryItem);
+    }
+    return response;
+}
