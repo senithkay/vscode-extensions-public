@@ -225,7 +225,16 @@ import {
     onDownloadProgress,
     onSwaggerSpecReceived,
     GetConnectionSchemaRequest,
-    GetConnectionSchemaResponse
+    GetConnectionSchemaResponse,
+    AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DSSQueryGenRequest,
+    AddDriverToLibResponse,
+    AddDriverToLibRequest,
+    APIContextsResponse,
+    RegistryArtifact,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -238,6 +247,7 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
+import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
@@ -315,7 +325,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
-
             resolve(res);
         });
     }

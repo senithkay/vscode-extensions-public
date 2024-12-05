@@ -41,13 +41,17 @@ import {
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    ProjectDetailsResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
+    UpdateDependencyRequest
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
 import fetch from 'node-fetch';
 import * as vscode from 'vscode';
-import { Uri, ViewColumn, commands, env, window, workspace } from "vscode";
+import { Position, Uri, ViewColumn, WorkspaceEdit, commands, env, window, workspace, Range } from "vscode";
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
@@ -89,6 +93,56 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
+            resolve(res);
+        });
+    }
+
+    async getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getProjectDetails();
+            resolve(res);
+        });
+    }
+
+    async updateDependency(params: UpdateDependencyRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateDependency(params);
+
+            // apply edit to pom file
+            const projectRoom = StateMachine.context().projectUri!;
+            const pomPath = path.join(projectRoom, 'pom.xml');
+
+            if (!fs.existsSync(pomPath)) {
+                throw new Error("pom.xml not found");
+            }
+
+            const content = res.value;
+
+            const edit = new WorkspaceEdit();
+
+            const range = new Range(new Position(res.range.start.line, res.range.start.character),
+                new Position(res.range.end.line, res.range.end.character));
+
+            edit.replace(Uri.file(pomPath), range, content);
+            await workspace.applyEdit(edit);
+            resolve(res.value);
+        });
+    }
+
+    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updatePomValue(params);
+            resolve(res);
+        });
+    }
+
+    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConfigFileValue(params);
             resolve(res);
         });
     }

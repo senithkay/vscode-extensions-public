@@ -8,6 +8,7 @@
  */
 import { HistoryEntry } from "../../history";
 import { AIVisualizerLocation, EVENT_TYPE, POPUP_EVENT_TYPE, PopupVisualizerLocation, VisualizerLocation } from "../../state-machine-types";
+import { Range as STRange } from "../../../../syntax-tree/lib/src"
 
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
@@ -78,6 +79,101 @@ export interface ProjectStructureArtifactResponse {
     name: string;
     path: string;
     type: string;
+}
+
+export interface ProjectDetailsResponse {
+    primaryDetails: PrimaryDetails;
+    buildDetails: BuildDetails;
+    dependenciesDetails: DependenciesDetails;
+    unitTestDetails: UnitTestDetails;
+    configs: PomNodeDetails[];
+ }
+
+export interface PomNodeDetails {
+    value: string;
+    key?: string;
+    range?: STRange|STRange[];
+}
+
+export interface PrimaryDetails {
+    projectName: PomNodeDetails;
+    projectVersion: PomNodeDetails;
+    projectDescription: PomNodeDetails;
+    runtimeVersion: PomNodeDetails;
+}
+
+export interface BuildDetails {
+    dockerDetails: DockerDetails;
+    advanceDetatils: AdvanceDetails;
+}
+
+export interface DockerDetails {
+    dockerFileBaseImage: PomNodeDetails;
+    dockerName: PomNodeDetails;
+    cipherToolEnable: PomNodeDetails;
+    keyStoreName: PomNodeDetails;
+    keyStorePassword: PomNodeDetails;
+    keyStoreAlias: PomNodeDetails;
+    keyStoreType: PomNodeDetails;
+ }
+ 
+export interface AdvanceDetails {
+    projectGroupId: PomNodeDetails;
+    projectArtifactId: PomNodeDetails;
+    pluginDetatils: PluginDetatils;
+}
+ 
+export interface PluginDetatils {
+    projectBuildPluginVersion: PomNodeDetails;
+    miContainerPluginVersion: PomNodeDetails;
+    unitTestPluginVersion: PomNodeDetails;
+}
+ 
+export interface DependenciesDetails {
+    connectorDependencies: DependencyDetails[];
+    otherDependencies: DependencyDetails[];
+}
+ 
+export interface DependencyDetails {
+    groupId: string;
+    artifact: string;
+    version: string;
+    type?: string;
+    range?: STRange;
+}
+ 
+export interface UnitTestDetails {
+    skipTest: PomNodeDetails;
+    serverPath: PomNodeDetails;
+    serverPort: PomNodeDetails;
+    serverVersion: PomNodeDetails;
+    serverHost: PomNodeDetails;
+    serverType: PomNodeDetails;
+    serverDownloadLink: PomNodeDetails;
+}
+ 
+export interface PomXmlEditRequest {
+    value: string;
+    range?: STRange|STRange[];
+}
+ 
+export interface ConfigFileEditRequest {
+    key: string;
+    value: string;
+    range: STRange;
+}
+ 
+export interface UpdateDependencyRequest {
+    groupId: string;
+    artifact: string;
+    version: string;
+    type?: string;
+    range?: STRange
+}
+
+export interface UpdateDependencyResponse {
+    value: string;
+    range: STRange;
 }
 
 export interface DataIntegrationResponse {
@@ -274,6 +370,7 @@ export interface ProjectOverviewResponse {
     name: string;
     connections: Connection[];
     entrypoints: Entrypoint[];
+    projectDetails: ProjectDetailsResponse;
 }
 
 export interface Connection {

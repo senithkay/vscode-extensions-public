@@ -28,6 +28,8 @@ import { AddDriver } from './views/Popup/AddDriver';
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { TemplateWizard } from './views/Forms/TemplateForm';
+import { ManageDependencies } from './views/Overview/ProjectInformation/ManageDependencies';
+import { ProjectInformationForm } from './views/Overview/ProjectInformation/ProjectInformationForm';
 
 const ViewContainer = styled.div`
     
@@ -111,6 +113,12 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     const rPath = [machineSate.projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'templates'].join(machineSate.pathSeparator);
                     setViewComponent(<TemplateWizard onCancel={props.handleClose} isPopup={true} path={rPath} type='Sequence Template' />);
                     break;
+                case MACHINE_VIEW.ManageDependencies:
+                    setViewComponent(<ManageDependencies onClose={props.handleClose} dependencies={machineSate.customProps.dependencies} title={machineSate.customProps.title} />);
+                    break;
+                case MACHINE_VIEW.ProjectInformationForm:
+                    setViewComponent(<ProjectInformationForm onClose={props.handleClose} />);
+                    break;    
                 default:
                     setViewComponent(null);
             }

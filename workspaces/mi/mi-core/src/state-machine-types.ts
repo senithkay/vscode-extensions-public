@@ -73,6 +73,8 @@ export enum MACHINE_VIEW {
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
     UpdateExtension = "Update Extension",
+    ManageDependencies = "Manage Dependencies",
+    ProjectInformationForm = "Project Information Form",
 }
 
 export enum AI_MACHINE_VIEW {

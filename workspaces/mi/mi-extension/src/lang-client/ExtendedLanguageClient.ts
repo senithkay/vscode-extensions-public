@@ -50,7 +50,11 @@ import {
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     GetConnectionSchemaRequest,
-    GetConnectionSchemaResponse
+    GetConnectionSchemaResponse,
+    PomXmlEditRequest,
+    ConfigFileEditRequest,
+    UpdateDependencyRequest,
+    UpdateDependencyResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -291,6 +295,22 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getProjectExplorerModel(path: string): Promise<any> {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
+    }
+
+    async updateDependency(req: UpdateDependencyRequest): Promise<UpdateDependencyResponse> {
+        return this.sendRequest('synapse/updateDependency', req);
+    }
+
+    async updatePomValue(req: PomXmlEditRequest): Promise<string> {
+        return this.sendRequest('synapse/updatePomValue', req);
+    }
+
+    async updateConfigFileValue(req: ConfigFileEditRequest): Promise<string> {
+        return this.sendRequest('synapse/updateConfigFileValue', req);
+    }
+
+    async getProjectDetails(): Promise<any> {
+        return this.sendRequest('synapse/getOverviewPageDetails');
     }
 
     async getSequencePath(sequenceName: string): Promise<string | undefined> {
