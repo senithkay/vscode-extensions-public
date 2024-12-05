@@ -9,14 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IDMModel,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
     InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse,
+    VisualizableFieldsRequest,
     getDataMapperModel,
-    getDataMapperSource
+    getDataMapperSource,
+    getVisualizableFields
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -34,5 +35,9 @@ export class InlineDataMapperRpcClient implements InlineDataMapperAPI {
 
     getDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse> {
         return this._messenger.sendRequest(getDataMapperSource, HOST_EXTENSION, params);
+    }
+
+    getVisualizableFields(params: VisualizableFieldsRequest): Promise<string[]> {
+        return this._messenger.sendRequest(getVisualizableFields, HOST_EXTENSION, params);
     }
 }

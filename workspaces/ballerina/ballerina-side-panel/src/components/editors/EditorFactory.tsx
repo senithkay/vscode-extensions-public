@@ -31,11 +31,20 @@ interface FormFieldEditorProps {
     subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
+    handleOnTypeChange?: () => void;
 }
 
 export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
-    const { field, selectedNode, openRecordEditor, openSubPanel, subPanelView, handleOnFieldFocus, autoFocus } =
-        props;
+    const {
+        field,
+        selectedNode,
+        openRecordEditor,
+        openSubPanel,
+        subPanelView,
+        handleOnFieldFocus,
+        autoFocus,
+        handleOnTypeChange
+    } = props;
 
     if (field.type === "MULTIPLE_SELECT") {
         let label: string;
@@ -62,7 +71,14 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
         return <DropdownEditor field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
-        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+        return (
+            <TypeEditor
+                field={field}
+                openRecordEditor={openRecordEditor}
+                handleOnFieldFocus={handleOnFieldFocus}
+                handleOnTypeChange={handleOnTypeChange}
+            />
+        );
     } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
         return (
@@ -71,6 +87,7 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 openRecordEditor={openRecordEditor}
                 handleOnFieldFocus={handleOnFieldFocus}
                 autoFocus={autoFocus}
+                handleOnTypeChange={handleOnTypeChange}
             />
         );
     } else if (!field.items && field.type === "EXPRESSION" && field.editable) {

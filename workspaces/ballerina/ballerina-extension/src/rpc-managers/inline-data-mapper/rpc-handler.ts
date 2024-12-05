@@ -11,8 +11,10 @@
 import {
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
+    VisualizableFieldsRequest,
     getDataMapperModel,
-    getDataMapperSource
+    getDataMapperSource,
+    getVisualizableFields
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { InlineDataMapperRpcManager } from "./rpc-manager";
@@ -21,4 +23,5 @@ export function registerInlineDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new InlineDataMapperRpcManager();
     messenger.onRequest(getDataMapperModel, (args: InlineDataMapperModelRequest) => rpcManger.getDataMapperModel(args));
     messenger.onRequest(getDataMapperSource, (args: InlineDataMapperSourceRequest) => rpcManger.getDataMapperSource(args));
+    messenger.onRequest(getVisualizableFields, (args: VisualizableFieldsRequest) => rpcManger.getVisualizableFields(args));
 }

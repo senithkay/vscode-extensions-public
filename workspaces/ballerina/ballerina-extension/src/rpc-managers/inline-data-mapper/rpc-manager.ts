@@ -9,12 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IDMModel,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
     InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
-    InlineDataMapperSourceResponse
+    InlineDataMapperSourceResponse,
+    VisualizableFieldsRequest
 } from "@wso2-enterprise/ballerina-core";
 
 import { StateMachine } from "../../stateMachine";
@@ -38,5 +38,10 @@ export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
 
             resolve(dataMapperSource);
         });
+    }
+
+    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<string[]> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

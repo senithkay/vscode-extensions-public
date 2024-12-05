@@ -367,6 +367,10 @@ export function Form(props: FormProps) {
         openSubPanel(updatedSubPanel);
     };
 
+    const getVisualiableFields = () => {
+        // TODO: Implement this
+    };
+
     const handleGetExpressionDiagnostics = async (
         showDiagnostics: boolean,
         expression: string,

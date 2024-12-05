@@ -275,6 +275,12 @@ export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequ
     mappings: Mapping[];
 }
 
+export interface VisualizableFieldsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+}
+
 export interface InlineDataMapperModelResponse {
     mappingsModel: IDMModel;
 }
