@@ -3570,16 +3570,21 @@ ${endpointAttributes}
     async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
             try {
-                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data')) {
-                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data') });
+                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data') && connectorCache.has('connectors')) {
+                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
                 const response = await fetch(APIS.CONNECTOR);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE);
                 const data = await response.json();
+                const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
                     connectorCache.set('inbound-connector-data', data['inbound-connector-data']);
                     connectorCache.set('outbound-connector-data', data['outbound-connector-data']);
-                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'] });
+                    if (connectorStoreData) {
+                        connectorCache.set('connectors', connectorStoreData);
+                    }
+                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'], connectors: connectorStoreData });
                 } else {
                     console.log("Failed to fetch connectors. Status: " + data.status + ", Reason: " + data.reason);
                     reject("Failed to fetch connectors.");

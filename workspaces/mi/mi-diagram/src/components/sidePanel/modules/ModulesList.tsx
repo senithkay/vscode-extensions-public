@@ -18,6 +18,7 @@ import { ButtonGroup } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
 import { OperationsWrapper } from '../mediators/ModuleSuggestions';
 import { DownloadPage } from '../mediators/DownloadPage';
+import { debounce } from 'lodash';
 
 const SearchStyle = {
     width: 'auto',
@@ -40,70 +41,17 @@ export function Modules(props: ModuleProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [allModules, setAllModules] = React.useState([] as any);
+    const [filteredModules, setFilteredModules] = React.useState([] as any);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [searchValue, setSearchValue] = React.useState<string>('');
 
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = [
-                    {
-                        "connectorName": "Redis",
-                        "description": "The Redis connector allows you to access the Redis commands through the WSO2 EI. Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs and geospatial indexes with radius queries.\nIn latest version we have added following:\nPreviously we were creating a single pool for each cluster operation and closing it after each operation that's why read/write lock issue occurs (jmxRegister and jmxUnRegister on the same object). This Pr rectifies that and also avoids closing JedisCluster after each operation since It's no need to close the JedisCluster instance as it is handled by the JedisClusterConnectionPool itself.\n\nAlso introduced the \"isJmxEnabled\" property to enable JMX if required.",
-                        "mavenGroupId": "org.wso2.carbon.connector",
-                        "mavenArtifactId": "org.wso2.carbon.connector.redis",
-                        "version": {
-                            "tagName": "3.1.3",
-                            "releaseId": "176616995",
-                            "isLatest": true,
-                            "isDeprecated": false,
-                            "operations": [
-                                {
-                                    "name": "init",
-                                    "description": "configure Redis connector",
-                                    "isHidden": true
-                                },
-                                {
-                                    "name": "echo",
-                                    "description": "echo the given string",
-                                    "isHidden": false
-                                },
-                                {
-                                    "name": "echo2",
-                                    "description": "echo the given string",
-                                    "isHidden": false
-                                },
-                                {
-                                    "name": "echo333",
-                                    "description": "echo the given string",
-                                    "isHidden": false
-                                }
-                            ],
-                            "connections": [
-                                {
-                                    "name": "Redis",
-                                    "description": "Connection for Redis data operations."
-                                }
-                            ]
-                        },
-                        "otherVersions": {
-                            "3.0.0": "158539115",
-                            "3.1.0": "159113274",
-                            "3.1.1": "176263727",
-                            "3.1.2": "176288410",
-                            "2.1.0": "33548116",
-                            "2.2.0": "45003675",
-                            "2.3.0": "48791514",
-                            "2.4.0": "65373888",
-                            "2.5.0": "85390009",
-                            "2.6.0": "96810611",
-                            "2.7.0": "98802216"
-                        },
-                        "connectorRank": 5,
-                        "iconUrl": "https://mi-connectors.wso2.com/icons/redis.gif"
-                    }
-                ];
-                setAllModules(response);
+                const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+                const data = response.connectors;
+
+                setAllModules(data);
             } catch (error) {
                 console.error('Error fetching mediators:', error);
                 setAllModules(undefined);
@@ -113,70 +61,28 @@ export function Modules(props: ModuleProps) {
         fetchModules();
     }, [props.documentUri, props.nodePosition, rpcClient]);
 
+    React.useEffect(() => {
+        const debouncedSearchModules = debounce(async () => {
+            if (searchValue) {
+                const modules = await searchModules();
+                setFilteredModules(modules);
+            } else {
+                setFilteredModules([]);
+            }
+        }, 300);
+
+        debouncedSearchModules();
+    }, [searchValue]);
+
     const handleSearch = (e: string) => {
         setSearchValue(e);
     }
 
-    const searchForm = (value: string, search?: boolean) => {
+    const searchModules = async () => {
         try {
-            const response = [
-                {
-                    "connectorName": "Redis",
-                    "description": "The Redis connector allows you to access the Redis commands through the WSO2 EI. Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs and geospatial indexes with radius queries.\nIn latest version we have added following:\nPreviously we were creating a single pool for each cluster operation and closing it after each operation that's why read/write lock issue occurs (jmxRegister and jmxUnRegister on the same object). This Pr rectifies that and also avoids closing JedisCluster after each operation since It's no need to close the JedisCluster instance as it is handled by the JedisClusterConnectionPool itself.\n\nAlso introduced the \"isJmxEnabled\" property to enable JMX if required.",
-                    "mavenGroupId": "org.wso2.carbon.connector",
-                    "mavenArtifactId": "org.wso2.carbon.connector.redis",
-                    "version": {
-                        "tagName": "3.1.3",
-                        "releaseId": "176616995",
-                        "isLatest": true,
-                        "isDeprecated": false,
-                        "operations": [
-                            {
-                                "name": "init",
-                                "description": "configure Redis connector",
-                                "isHidden": true
-                            },
-                            {
-                                "name": "echo",
-                                "description": "echo the given string",
-                                "isHidden": false
-                            },
-                            {
-                                "name": "echo2",
-                                "description": "echo the given string",
-                                "isHidden": false
-                            },
-                            {
-                                "name": "echo3",
-                                "description": "echo the given string",
-                                "isHidden": false
-                            }
-                        ],
-                        "connections": [
-                            {
-                                "name": "Redis",
-                                "description": "Connection for Redis data operations."
-                            }
-                        ]
-                    },
-                    "otherVersions": {
-                        "3.0.0": "158539115",
-                        "3.1.0": "159113274",
-                        "3.1.1": "176263727",
-                        "3.1.2": "176288410",
-                        "2.1.0": "33548116",
-                        "2.2.0": "45003675",
-                        "2.3.0": "48791514",
-                        "2.4.0": "65373888",
-                        "2.5.0": "85390009",
-                        "2.6.0": "96810611",
-                        "2.7.0": "98802216"
-                    },
-                    "connectorRank": 5,
-                    "iconUrl": "https://mi-connectors.wso2.com/icons/redis.gif"
-                }
-            ];
-            return (response);
+            const response = await fetch(`http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&searchQuery=${searchValue}&type=Connector`);
+            const data = await response.json();
+            return (data);
         } catch (e) {
             console.error("Error fetching modules", e);
             return (undefined);
@@ -192,7 +98,7 @@ export function Modules(props: ModuleProps) {
     const ModuleList = () => {
         let modules: any[];
         if (searchValue) {
-            modules = searchForm(searchValue, true);
+            modules = filteredModules;
         } else {
             modules = allModules;
         }
