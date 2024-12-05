@@ -48,8 +48,11 @@ import {
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     FlowNode,
+    ImportStatement,
+    ImportStatements,
     OverviewFlow,
     ProjectComponentsResponse,
+    ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
@@ -79,18 +82,18 @@ import {
     tasks,
     window, workspace
 } from "vscode";
-import { extension } from "../../BalExtensionContext";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
-import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { openView, StateMachine, updateView } from "../../stateMachine";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { extension } from "../../BalExtensionContext";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
 import { DebugProtocol } from "vscode-debugprotocol";
 import { notifyBreakpointChange } from "../../RPCLayer";
 
-export class BIDiagramRpcManager implements BIDiagramAPI {
+export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
@@ -200,36 +203,36 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         try {
             for (const [fileUriString, request] of Object.entries(modificationRequests)) {
                 const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUriString },
-                astModifications: request.modifications,
-            })) as SyntaxTree;
+                    documentIdentifier: { uri: fileUriString },
+                    astModifications: request.modifications,
+                })) as SyntaxTree;
 
-            if (parseSuccess) {
-                writeFileSync(request.filePath, source);
-                await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUriString, version: 1 },
-                    contentChanges: [
-                        {
-                            text: source,
-                        },
-                    ],
-                });
+                if (parseSuccess) {
+                    writeFileSync(request.filePath, source);
+                    await StateMachine.langClient().didChange({
+                        textDocument: { uri: fileUriString, version: 1 },
+                        contentChanges: [
+                            {
+                                text: source,
+                            },
+                        ],
+                    });
 
-                if (isConnector) {
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
-                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    await StateMachine.langClient().didOpen({
-                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    });
-                } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
-                    const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
-                    openView(EVENT_TYPE.OPEN_VIEW, {
-                        documentUri: request.filePath,
-                        position: functionPosition,
-                    });
-                }
+                    if (isConnector) {
+                        await StateMachine.langClient().resolveMissingDependencies({
+                            documentIdentifier: { uri: fileUriString },
+                        });
+                        // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                        await StateMachine.langClient().didOpen({
+                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                        });
+                    } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
+                        const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                        openView(EVENT_TYPE.OPEN_VIEW, {
+                            documentUri: request.filePath,
+                            position: functionPosition,
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -306,6 +309,13 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS:
                     res = await createBIFunction(params);
+                    break;
+                case DIRECTORY_MAP.TRIGGERS:
+                    if (params.triggerType.listenerOnly) {
+                        res = await createBITriggerListener(params);
+                    } else {
+                        res = await createBITrigger(params);
+                    }
                     break;
                 default:
                     break;
@@ -599,6 +609,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise((resolve, reject) => {
+            if (!params.filePath) {
+                params.filePath = StateMachine.context().documentUri;
+            }
             StateMachine.langClient()
                 .getExpressionCompletions(params)
                 .then((completions) => {
@@ -971,8 +984,23 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
             resolve({ breakpoints: breakpoints, activeBreakpoint: activeBreakpoint });
         });
     }
-}
 
+    async getAllImports(): Promise<ProjectImports> {
+        const projectUri = StateMachine.context().projectUri;
+        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
+        const imports: ImportStatements[] = [];
+
+        for (const file of ballerinaFiles) {
+            const fileContent = fs.readFileSync(file, "utf8");
+            const fileImports = await extractImports(fileContent, file);
+            imports.push(fileImports);
+        }
+        return {
+            projectPath: projectUri,
+            imports,
+        };
+    }
+}
 
 export async function fetchWithToken(url: string, options: RequestInit) {
     let response = await fetch(url, options);
@@ -991,3 +1019,38 @@ export async function fetchWithToken(url: string, options: RequestInit) {
     }
     return response;
 }
+
+export async function getBallerinaFiles(dir: string): Promise<string[]> {
+    let files: string[] = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            files = files.concat(await getBallerinaFiles(entryPath));
+        } else if (entry.isFile() && entry.name.endsWith(".bal")) {
+            files.push(entryPath);
+        }
+    }
+    return files;
+}
+
+export async function extractImports(content: string, filePath: string): Promise<ImportStatements> {
+    const withoutSingleLineComments = content.replace(/\/\/.*$/gm, "");
+    const withoutComments = withoutSingleLineComments.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    const importRegex = /import\s+([\w\.\/]+)(?:\s+as\s+([\w]+))?;/g;
+    const imports: ImportStatement[] = [];
+    let match;
+
+    while ((match = importRegex.exec(withoutComments)) !== null) {
+        const importStatement: ImportStatement = { moduleName: match[1] };
+        if (match[2]) {
+            importStatement.alias = match[2];
+        }
+        imports.push(importStatement);
+    }
+
+    return { filePath, statements: imports };
+}
+

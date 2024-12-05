@@ -37,6 +37,7 @@ import {
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
+    getAllImports,
     getAvailableNodes,
     getBIConnectors,
     getBreakpointInfo,
@@ -63,10 +64,10 @@ import {
     updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
-import { BIDiagramRpcManager } from "./rpc-manager";
+import { BiDiagramRpcManager } from "./rpc-manager";
 
-export function registerBIDiagramRpcHandlers(messenger: Messenger) {
-    const rpcManger = new BIDiagramRpcManager();
+export function registerBiDiagramRpcHandlers(messenger: Messenger) {
+    const rpcManger = new BiDiagramRpcManager();
     messenger.onRequest(getFlowModel, () => rpcManger.getFlowModel());
     messenger.onRequest(getSourceCode, (args: BISourceCodeRequest) => rpcManger.getSourceCode(args));
     messenger.onRequest(deleteFlowNode, (args: BISourceCodeRequest) => rpcManger.deleteFlowNode(args));
@@ -100,4 +101,5 @@ export function registerBIDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(removeBreakpointFromSource, (args: BreakpointRequest) => rpcManger.removeBreakpointFromSource(args));
     messenger.onRequest(getBreakpointInfo, () => rpcManger.getBreakpointInfo());
     messenger.onRequest(getExpressionDiagnostics, (args: ExpressionDiagnosticsRequest) => rpcManger.getExpressionDiagnostics(args));
+    messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
 }

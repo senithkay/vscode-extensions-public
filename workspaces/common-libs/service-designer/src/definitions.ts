@@ -23,6 +23,7 @@ export interface ResponseConfig {
 
 export enum PARAM_TYPES {
     DEFAULT = 'Query',
+    PARAM = 'Param',
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
     CALLER = 'Caller',
@@ -42,6 +43,7 @@ export interface ParameterConfig {
 export interface ServiceData {
     path: string;
     port: number;
+    listener?: string;
 }
 
 export interface Resource {
@@ -68,7 +70,9 @@ export interface PathConfig {
 export interface Service {
     path: string;
     port?: number;
+    listener?: string;
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;
+    triggerModel?: any;
 }

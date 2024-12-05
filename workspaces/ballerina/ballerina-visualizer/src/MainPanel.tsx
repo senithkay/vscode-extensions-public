@@ -30,12 +30,13 @@ import { ServiceDesigner } from "./views/ServiceDesigner";
 import {
     WelcomeView,
     ProjectForm,
-    AddComponentView,
+    ComponentListView,
     ServiceForm,
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView
+    SetupView,
+    ServiceHttpForm
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -51,11 +52,13 @@ import { EndpointList } from "./views/Connectors/EndpointList";
 import { getSymbolInfo } from "@wso2-enterprise/ballerina-low-code-diagram";
 import DiagramWrapper from "./views/BI/DiagramWrapper";
 import AddConnectionWizard from "./views/BI/Connection/AddConnectionWizard";
+import TriggerWizard from "./views/BI/Trigger/AddTriggerWizard";
 import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 import EditConfigurableVariables from "./views/BI/Configurables/EditConfigurableVariables";
+import ListenerView from "./views/BI/Trigger/ListenerView";
 
 const globalStyles = css`
     *,
@@ -165,6 +168,7 @@ const MainPanel = () => {
                     case MACHINE_VIEW.ServiceDesigner:
                         setViewComponent(
                             <ServiceDesigner
+                                filePath={value.documentUri}
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
                                 isBI={value.isBI}
@@ -214,10 +218,10 @@ const MainPanel = () => {
                         setViewComponent(<ProjectForm />);
                         break;
                     case MACHINE_VIEW.BIComponentView:
-                        setViewComponent(<AddComponentView />);
+                        setViewComponent(<ComponentListView />);
                         break;
                     case MACHINE_VIEW.BIServiceForm:
-                        setViewComponent(<ServiceForm />);
+                        setViewComponent(<ServiceHttpForm />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         rpcClient.getVisualizerLocation().then((location) => {
@@ -238,6 +242,12 @@ const MainPanel = () => {
                             );
                         });
                         break;
+                    case MACHINE_VIEW.AddTriggerWizard:
+                        setViewComponent(<TriggerWizard />);
+                        break;
+                    case MACHINE_VIEW.ListenerConfigView:
+                        setViewComponent(<ListenerView position={value.position} />);
+                        break;
                     case MACHINE_VIEW.BIMainFunctionForm:
                         setViewComponent(<MainForm />);
                         break;
@@ -248,7 +258,7 @@ const MainPanel = () => {
                         setViewComponent(<ViewConfigurableVariables />);
                         break;
                     case MACHINE_VIEW.EditConfigVariables:
-                        rpcClient.getVisualizerLocation().then((location) => {                
+                        rpcClient.getVisualizerLocation().then((location) => {
                             rpcClient.getBIDiagramRpcClient().getConfigVariables().then((variables) => {
                                 if (variables.configVariables.length > 0) {
                                     const variableIndex = variables.configVariables.findIndex(
@@ -262,9 +272,9 @@ const MainPanel = () => {
                                     );
 
                                     setViewComponent(
-                                        <ViewConfigurableVariables 
-                                            variableIndex={variableIndex} 
-                                            isExternallauncher={true}/>
+                                        <ViewConfigurableVariables
+                                            variableIndex={variableIndex}
+                                            isExternallauncher={true} />
                                     );
                                 }
                             });

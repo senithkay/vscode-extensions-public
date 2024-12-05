@@ -114,10 +114,22 @@ import {
     SignatureHelpRequest,
     SignatureHelpResponse,
     VisibleTypesRequest,
+    ReferenceLSRequest,
+    Reference,
     VisibleTypesResponse,
     BIDeleteByComponentInfoRequest,
     ExpressionDiagnosticsRequest,
-    ExpressionDiagnosticsResponse
+    ExpressionDiagnosticsResponse,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
+    TriggerModelRequest,
+    TriggerModelResponse,
+    TriggerSourceCodeRequest,
+    TriggerSourceCodeResponse,
+    TriggerModelFromCodeRequest,
+    TriggerModelFromCodeResponse,
+    TriggerFunctionRequest,
+    TriggerFunctionResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -141,6 +153,8 @@ enum EXTENDED_APIS {
     CONNECTOR_CONNECTORS = 'ballerinaConnector/connectors',
     TRIGGER_TRIGGERS = 'ballerinaTrigger/triggers',
     TRIGGER_TRIGGER = 'ballerinaTrigger/trigger',
+    NEW_TRIGGER_TRIGGERS = 'ballerinaTrigger/triggersNew',
+    NEW_TRIGGER_TRIGGER = 'ballerinaTrigger/triggerNew',
     CONNECTOR_CONNECTOR = 'ballerinaConnector/connector',
     CONNECTOR_RECORD = 'ballerinaConnector/record',
     PACKAGE_COMPONENTS = 'ballerinaPackage/components',
@@ -195,7 +209,15 @@ enum EXTENDED_APIS {
     BI_GET_COMPONENTS_FROM_CONTENT = 'flowDesignService/getSuggestedComponents',
     BI_SIGNATURE_HELP = 'expressionEditor/signatureHelp',
     BI_VISIBLE_TYPES = 'expressionEditor/types',
-    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics'
+    REFERENCES = 'textDocument/references',
+    BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
+    BI_TRIGGER_MODELS = 'triggerDesignService/getTriggerModels',
+    BI_TRIGGER_MODEL = 'triggerDesignService/getTriggerModel',
+    BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode',
+    BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',
+    BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
+    BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
+    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -352,7 +374,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Triggers>(EXTENDED_APIS.TRIGGER_TRIGGERS, params);
+        return this.sendRequest<Triggers>(EXTENDED_APIS.NEW_TRIGGER_TRIGGERS, params);
     }
 
     async getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE> {
@@ -364,7 +386,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getTrigger(params: TriggerParams): Promise<Trigger | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest<Trigger>(EXTENDED_APIS.TRIGGER_TRIGGER, params);
+        return this.sendRequest<Trigger>(EXTENDED_APIS.NEW_TRIGGER_TRIGGER, params);
     }
 
     async getRecord(params: RecordParams): Promise<BallerinaRecord | NOT_SUPPORTED_TYPE> {
@@ -497,6 +519,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         if (!isSupported) {
             return Promise.resolve(NOT_SUPPORTED);
         }
+        const test = await this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
         return this.sendRequest(EXTENDED_APIS.PACKAGE_COMPONENTS, params);
     }
 
@@ -664,7 +687,7 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getModuleNodes(params: BIModuleNodesRequest): Promise<BIModuleNodesResponse> {
         return this.sendRequest<BIModuleNodesResponse>(EXTENDED_APIS.BI_MODULE_NODES, params);
     }
-    
+
     async getComponentsFromContent(params: ComponentsFromContent): Promise<BallerinaProjectComponents> {
         return this.sendRequest<BallerinaProjectComponents>(EXTENDED_APIS.BI_GET_COMPONENTS_FROM_CONTENT, params);
     }
@@ -677,12 +700,44 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest(EXTENDED_APIS.BI_VISIBLE_TYPES, params);
     }
 
+    async getReferences(params: ReferenceLSRequest): Promise<Reference[]> {
+        return this.sendRequest(EXTENDED_APIS.REFERENCES, params);
+    }
+
     async addErrorHandler(params: BIModuleNodesRequest): Promise<BISourceCodeResponse> {
         return this.sendRequest(EXTENDED_APIS.BI_GEN_ERROR_HANDLER, params);
     }
 
     async getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return this.sendRequest<ExpressionDiagnosticsResponse>(EXTENDED_APIS.BI_EXPRESSION_DIAGNOSTICS, params);
+    }
+
+    async getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        return this.sendRequest<TriggerModelsResponse>(EXTENDED_APIS.BI_TRIGGER_MODELS, params);
+    }
+
+    async getTriggerModel(params: TriggerModelRequest): Promise<TriggerModelResponse> {
+        return this.sendRequest<TriggerModelResponse>(EXTENDED_APIS.BI_TRIGGER_MODEL, params);
+    }
+
+    async getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this.sendRequest<TriggerSourceCodeResponse>(EXTENDED_APIS.BI_TRIGGER_SOURCE_CODE, params);
+    }
+
+    async updateTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this.sendRequest<TriggerSourceCodeResponse>(EXTENDED_APIS.BI_TRIGGER_UPDATE_FROM_CODE, params);
+    }
+
+    async getTriggerModelFromCode(params: TriggerModelFromCodeRequest): Promise<TriggerModelFromCodeResponse> {
+        return this.sendRequest<TriggerModelFromCodeResponse>(EXTENDED_APIS.BI_TRIGGER_MODEL_FROM_CODE, params);
+    }
+
+    async addTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return this.sendRequest<TriggerFunctionResponse>(EXTENDED_APIS.BI_TRIGGER_ADD_FUNCTION, params);
+    }
+
+    async updateTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return this.sendRequest<TriggerFunctionResponse>(EXTENDED_APIS.BI_TRIGGER_UPDATE_FUNCTION, params);
     }
 
     // <------------ BI APIS END --------------->

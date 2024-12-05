@@ -38,7 +38,7 @@ import {
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, BreakpointRequest, CurrentBreakpointsResponse } from "./interfaces";
+import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports, BreakpointRequest, CurrentBreakpointsResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "bi-diagram";
@@ -75,3 +75,4 @@ export const addBreakpointToSource: NotificationType<BreakpointRequest> = { meth
 export const removeBreakpointFromSource: NotificationType<BreakpointRequest> = { method: `${_preFix}/removeBreakpointFromSource` };
 export const getBreakpointInfo: RequestType<void, CurrentBreakpointsResponse> = { method: `${_preFix}/getBreakpointInfo` };
 export const getExpressionDiagnostics: RequestType<ExpressionDiagnosticsRequest, ExpressionDiagnosticsResponse> = { method: `${_preFix}/getExpressionDiagnostics` };
+export const getAllImports: RequestType<void, ProjectImports> = { method: `${_preFix}/getAllImports` };

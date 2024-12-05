@@ -2,6 +2,18 @@
 
 All notable changes to the "micro-integrator" extension will be documented in this file.
 
+## [1.1.6] - 2024-11-26
+
+### Improvements
+
+Improved: Improve array mapping experience in Data Mapper ([#527](https://github.com/wso2/mi-vscode/issues/527), [#527](https://github.com/wso2/mi-vscode/issues/528))  
+Improved: Improve Data Mapper expression bar completion experience ([#524](https://github.com/wso2/mi-vscode/issues/524), [#513](https://github.com/wso2/mi-vscode/issues/513))
+
+### Fixed
+
+Fixed: Issue in the Data Mapper ([#511](https://github.com/wso2/mi-vscode/issues/511))  
+
+
 ## [1.1.4] - 2024-11-06
 
 ### Fixed

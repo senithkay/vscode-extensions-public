@@ -41,6 +41,7 @@ import {
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     ProjectComponentsResponse,
+    ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
@@ -61,6 +62,7 @@ import {
     deleteFlowNode,
     deployProject,
     getAiSuggestions,
+    getAllImports,
     getAvailableNodes,
     getBIConnectors,
     getBreakpointInfo,
@@ -89,7 +91,7 @@ import {
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class BIDiagramRpcClient implements BIDiagramAPI {
+export class BiDiagramRpcClient implements BIDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
@@ -226,5 +228,9 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return this._messenger.sendRequest(getExpressionDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getAllImports(): Promise<ProjectImports> {
+        return this._messenger.sendRequest(getAllImports, HOST_EXTENSION);
     }
 }

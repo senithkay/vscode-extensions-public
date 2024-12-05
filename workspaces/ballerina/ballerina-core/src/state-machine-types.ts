@@ -53,6 +53,8 @@ export enum MACHINE_VIEW {
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    AddTriggerWizard = "Add Trigger Wizard",
+    ListenerConfigView = "Listener View",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",

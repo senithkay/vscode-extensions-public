@@ -11,7 +11,7 @@ import { generateUid, getComponentIdentifier, getNodeByIndex, getNodeByName, get
 import * as fs from 'fs';
 import * as path from 'path';
 import { extension } from './BalExtensionContext';
-import { BIDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
+import { BiDiagramRpcManager } from './rpc-managers/bi-diagram/rpc-manager';
 import { StateMachineAI } from './views/ai-panel/aiMachine';
 import { StateMachinePopup } from './stateMachinePopup';
 
@@ -212,7 +212,7 @@ const stateMachine = createMachine<MachineContext>(
                 if (!context.view && context.langClient) {
                     if (!context.position || ("groupId" in context.position)) {
                         if (context.isBI) {
-                            const entryPoints = (await new BIDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
+                            const entryPoints = (await new BiDiagramRpcManager().getProjectStructure()).directoryMap[DIRECTORY_MAP.SERVICES].length;
                             if (entryPoints === 0) {
                                 history.push({ location: { view: MACHINE_VIEW.Overview, documentUri: context.documentUri } });
                                 return resolve();
