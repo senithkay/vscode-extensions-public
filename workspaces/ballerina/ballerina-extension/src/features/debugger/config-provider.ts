@@ -372,26 +372,31 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                                             openView(EVENT_TYPE.OPEN_VIEW, newContext);
                                             notifyBreakpointChange();
                                         } else if (StateMachine.context().documentUri !== uri.fsPath) { // Step into another file or possibly in another flow diagram view
-                                            const newContext = StateMachine.context();
-                                            newContext.documentUri = uri.fsPath;
-                                            openView(EVENT_TYPE.OPEN_VIEW, newContext);
+                                            // const newContext = StateMachine.context();
+                                            window.showInformationMessage("Visualizing breakpoints in different files is currently not supported.");
+                                            // TODO: Add the logic on obtaining the parent node position and updating the context
+
+                                            // newContext.documentUri = uri.fsPath;
+                                            // openView(EVENT_TYPE.OPEN_VIEW, newContext);
                                             notifyBreakpointChange();
                                         } else {
-                                            // const context = StateMachine.context();
                                             notifyBreakpointChange();
                                         }
                                     }, 200);
                                 } else {
                                     // Webview disposes at times when breakpoint hit
-                                    //  extension.webviewReveal = true;
                                     const newContext = StateMachine.context();
                                     if (!uri.fsPath.startsWith(newContext.projectUri)) {
                                         console.log("Breakpoint is in a different project");
                                         window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
                                     } else {
-                                        newContext.documentUri = uri.fsPath;
-                                        openView(EVENT_TYPE.OPEN_VIEW, newContext);
-                                        notifyBreakpointChange();
+                                        if (StateMachine.context().documentUri !== uri.fsPath) {
+                                            window.showInformationMessage("Visualizing breakpoints in different files is currently not supported.");
+                                            // TODO: Add the logic on obtaining the parent node position and updating the context
+                                            notifyBreakpointChange();
+                                        } else {
+                                            notifyBreakpointChange();
+                                        }
                                     }
                                 }
                             }, 200);
