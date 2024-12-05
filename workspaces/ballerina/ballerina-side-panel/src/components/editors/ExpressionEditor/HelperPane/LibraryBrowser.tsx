@@ -8,17 +8,31 @@
  */
 
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 type LibraryBrowserProps = {
+    setFilterText: (filterText: string) => void;
     onClose: () => void;
 };
 
-export const LibraryBrowser = ({ onClose }: LibraryBrowserProps) => {
+export const LibraryBrowser = ({ setFilterText, onClose }: LibraryBrowserProps) => {
+    const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            setFilterText('');
+        }
+    }, []);
+
+    const handleSearch = (searchText: string) => {
+        setFilterText(searchText);
+        setSearchValue(searchText);
+    };
+
     return (
-        <HelperPane.LibraryBrowser searchValue={searchValue} onSearch={setSearchValue} onClose={onClose}>
+        <HelperPane.LibraryBrowser searchValue={searchValue} onSearch={handleSearch} onClose={onClose}>
             <HelperPane.LibraryBrowserSection title="Variables">
                 <HelperPane.LibraryBrowserSubSection title="Scope Variables" columns={4}>
                     <HelperPane.CompletionItem

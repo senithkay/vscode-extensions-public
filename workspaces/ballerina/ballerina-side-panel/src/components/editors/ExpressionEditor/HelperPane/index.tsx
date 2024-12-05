@@ -8,6 +8,7 @@
  */
 
 import React, { useState } from 'react';
+import { HelperPaneData, HelperPaneFunctionInfo, HelperPaneVariableInfo } from '@wso2-enterprise/ballerina-core';
 import { HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
 import { ConfigurablePage } from './ConfigurablePage';
@@ -16,23 +17,54 @@ import { LibraryBrowser } from './LibraryBrowser';
 import { VariablesPage } from './VariablesPage';
 
 export type HelperPaneProps = {
+    helperPaneData: HelperPaneData;
     onClose: () => void;
+    setFilterText: (type: string, filterText: string) => void;
 };
 
-const HelperPaneEl = ({ onClose }: HelperPaneProps) => {
+const HelperPaneEl = ({ helperPaneData, onClose, setFilterText }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
     return (
         <HelperPane>
             {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
-            {currentPage === 1 && <VariablesPage setCurrentPage={setCurrentPage} onClose={onClose} />}
-            {currentPage === 2 && <FunctionsPage setCurrentPage={setCurrentPage} onClose={onClose} />}
-            {currentPage === 3 && <ConfigurablePage setCurrentPage={setCurrentPage} onClose={onClose} />}
-            {currentPage === 4 && <LibraryBrowser onClose={() => setCurrentPage(2)} />}
+            {currentPage === 1 && (
+                <VariablesPage
+                    variableInfo={helperPaneData as HelperPaneVariableInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('variables', filterText)}
+                    onClose={onClose}
+                />
+            )}
+            {currentPage === 2 && (
+                <FunctionsPage
+                    functionInfo={helperPaneData as HelperPaneFunctionInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('functions', filterText)}
+                    onClose={onClose}
+                />
+            )}
+            {currentPage === 3 && (
+                <ConfigurablePage
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('configurable', filterText)}
+                    onClose={onClose}
+                />
+            )}
+            {currentPage === 4 && (
+                <LibraryBrowser
+                    setFilterText={(filterText) => setFilterText('library', filterText)}
+                    onClose={() => setCurrentPage(2)}
+                />
+            )}
         </HelperPane>
     );
 };
 
-export const getHelperPane = (onClose: () => void) => {
-    return <HelperPaneEl onClose={onClose} />;
+export const getHelperPane = (
+    helperPaneData: HelperPaneData,
+    onClose: () => void,
+    setFilterText: (type: string, filterText: string) => void
+) => {
+    return <HelperPaneEl helperPaneData={helperPaneData} onClose={onClose} setFilterText={setFilterText} />;
 };

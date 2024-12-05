@@ -23,7 +23,7 @@ import { ExpressionFormField, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, HelperPaneData } from "@wso2-enterprise/ballerina-core";
 import { Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -172,6 +172,7 @@ export interface FormProps {
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
     expressionEditor?: {
+        helperPaneData: HelperPaneData;
         completions: CompletionItem[];
         triggerCharacters?: readonly string[];
         retrieveCompletions?: (
@@ -194,6 +195,7 @@ export interface FormProps {
             shouldUpdateNode?: boolean,
             variableType?: string
         ) => Promise<void>;
+        getHelperPaneData?: (type: string, filterText: string) => Promise<void>;
         onCompletionSelect?: (value: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { LineRange } from '@wso2-enterprise/ballerina-core';
+import { HelperPaneData, LineRange } from '@wso2-enterprise/ballerina-core';
 import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import React, { createContext, FC, useContext } from 'react';
 import { 
@@ -34,6 +34,7 @@ export interface FormContext {
         formState: { isValidating: boolean; errors: FieldErrors<FieldValues> };
     };
     expressionEditor?: {
+        helperPaneData: HelperPaneData;
         completions: CompletionItem[];
         triggerCharacters?: readonly string[];
         retrieveCompletions?: (
@@ -53,6 +54,7 @@ export interface FormContext {
             expression: string,
             key: string
         ) => Promise<void>;
+        getHelperPaneData?: (type: string, filterText: string) => Promise<void>;
         onFocus?: () => void | Promise<void>;
         onBlur?: () => void | Promise<void>;
         onCompletionSelect?: (value: string) => void | Promise<void>;

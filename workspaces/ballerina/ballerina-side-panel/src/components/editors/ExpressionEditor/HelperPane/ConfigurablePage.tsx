@@ -12,11 +12,17 @@ import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterp
 
 type ConfigurablePageProps = {
     setCurrentPage: (page: number) => void;
+    setFilterText: (filterText: string) => void;
     onClose: () => void;
 };
 
-export const ConfigurablePage = ({ setCurrentPage, onClose }: ConfigurablePageProps) => {
+export const ConfigurablePage = ({ setCurrentPage, setFilterText, onClose }: ConfigurablePageProps) => {
     const [searchValue, setSearchValue] = useState<string>('');
+
+    const handleSearch = (searchText: string) => {
+        setFilterText(searchText);
+        setSearchValue(searchText);
+    };
 
     return (
         <>
@@ -25,7 +31,7 @@ export const ConfigurablePage = ({ setCurrentPage, onClose }: ConfigurablePagePr
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
-                onSearch={setSearchValue}
+                onSearch={handleSearch}
             />
             <HelperPane.Body>
                 <HelperPane.CompletionItem

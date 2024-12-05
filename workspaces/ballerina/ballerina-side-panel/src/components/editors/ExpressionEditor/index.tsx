@@ -22,6 +22,7 @@ import {
 import styled from '@emotion/styled';
 import { useFormContext } from '../../../context';
 import {
+    HelperPaneData,
     LineRange,
     SubPanel,
     SubPanelView,
@@ -42,6 +43,7 @@ type ContextAwareExpressionEditorProps = {
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
     control: Control<FieldValues, any>;
     watch: UseFormWatch<any>;
+    helperPaneData: HelperPaneData;
     completions: CompletionItem[];
     triggerCharacters?: readonly string[];
     autoFocus?: boolean;
@@ -61,6 +63,7 @@ type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
         expression: string,
         key: string
     ) => Promise<void>;
+    getHelperPaneData?: (type: string, filterText: string) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCompletionSelect?: (value: string) => void | Promise<void>;
@@ -171,11 +174,13 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         control,
         field,
         watch,
+        helperPaneData,
         completions,
         triggerCharacters,
         retrieveCompletions,
         extractArgsFromFunction,
         getExpressionDiagnostics,
+        getHelperPaneData,
         onFocus,
         onBlur,
         onCompletionSelect,
@@ -187,6 +192,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
+    /* Define state to retrieve helper pane data */
     
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
@@ -263,6 +269,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     };
 
+    const handleGetHelperPane = () => {
+        return getHelperPane(helperPaneData, () => setIsHelperPaneOpen(false), getHelperPaneData);
+    }
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -314,8 +324,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onRemove={onRemove}
                             inputProps={endAdornment}
                             isHelperPaneOpen={isHelperPaneOpen}
-                            toggleHelperPane={() => setIsHelperPaneOpen(!isHelperPaneOpen)}
-                            getHelperPane={() => getHelperPane(() => setIsHelperPaneOpen(false))}
+                            changeHelperPaneState={setIsHelperPaneOpen}
+                            getHelperPane={handleGetHelperPane}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                         />

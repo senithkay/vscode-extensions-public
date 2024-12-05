@@ -7,16 +7,32 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-core';
 import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 
 type FunctionsPageProps = {
+    functionInfo: HelperPaneFunctionInfo;
     setCurrentPage: (page: number) => void;
+    setFilterText: (filterText: string) => void;
     onClose: () => void;
 };
 
-export const FunctionsPage = ({ setCurrentPage, onClose }: FunctionsPageProps) => {
+export const FunctionsPage = ({ functionInfo, setCurrentPage, setFilterText, onClose }: FunctionsPageProps) => {
+    const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
+
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            setFilterText('');
+        }
+    }, []);
+
+    const handleSearch = (searchText: string) => {
+        setFilterText(searchText);
+        setSearchValue(searchText);
+    };
 
     return (
         <>
@@ -25,82 +41,46 @@ export const FunctionsPage = ({ setCurrentPage, onClose }: FunctionsPageProps) =
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
-                onSearch={setSearchValue}
+                onSearch={handleSearch}
             />
             <HelperPane.Body>
-                <HelperPane.Section
-                    title="Current Integration"
-                    collapsible
-                    defaultCollapsed
-                    columns={2}
-                    collapsedItemsCount={6}
-                >
-                    <HelperPane.CompletionItem
-                        label="add"
-                        onClick={() => setCurrentPage(1)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                    />
-                    <HelperPane.CompletionItem
-                        label="subtract"
-                        onClick={() => setCurrentPage(1)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                    />
-                </HelperPane.Section>
-                <HelperPane.Section title="Imported">
-                    <HelperPane.SubSection
-                        title="lang.table"
-                        collapsible
-                        defaultCollapsed
-                        columns={2}
-                        collapsedItemsCount={6}
+                {functionInfo?.category.map((category) => (
+                    <HelperPane.Section
+                        title={category.label}
+                        {...(category.label === 'Current Integration' && {
+                            collapsible: true,
+                            defaultCollapsed: true,
+                            columns: 2,
+                            collapsedItemsCount: 6
+                        })}
                     >
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                        <HelperPane.CompletionItem
-                            label="map"
-                            onClick={() => setCurrentPage(1)}
-                            getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                        />
-                    </HelperPane.SubSection>
-                </HelperPane.Section>
+                        {category.items?.map((item) => (
+                            <HelperPane.CompletionItem
+                                label={item.label}
+                                type={item.type}
+                                onClick={() => setCurrentPage(1)}
+                                getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                            />
+                        ))}
+                        {category.subCategory?.map((subCategory) => (
+                            <HelperPane.SubSection
+                                title={subCategory.label}
+                                collapsible
+                                defaultCollapsed
+                                columns={2}
+                                collapsedItemsCount={6}
+                            >
+                                {subCategory.items?.map((item) => (
+                                    <HelperPane.CompletionItem
+                                        label={item.label}
+                                        onClick={() => setCurrentPage(1)}
+                                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
+                                    />
+                                ))}
+                            </HelperPane.SubSection>
+                        ))}
+                    </HelperPane.Section>
+                ))}
             </HelperPane.Body>
             <HelperPane.Footer>
                 <HelperPane.IconButton
