@@ -48,7 +48,9 @@ import {
     UpdateMediatorRequest,
     UpdateMediatorResponse,
     ExpressionCompletionsRequest,
-    ExpressionCompletionsResponse
+    ExpressionCompletionsResponse,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -317,6 +319,14 @@ export class ExtendedLanguageClient extends LanguageClient {
             return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
         }
         return this.sendRequest("synapse/getMediatorUISchema", request);
+    }
+
+    async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        if (request.documentUri) {
+            return this.sendRequest("synapse/getConnectionUISchema" , { documentUri: Uri.file(request.documentUri).toString(), });
+        }
+
+        return this.sendRequest("synapse/getConnectionUISchema", { connectorName: request.connectorName, connectionType: request.connectionType });
     }
 
     async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {

@@ -242,7 +242,9 @@ import {
     updateTestCase,
     updateTestSuite,
     updateWsdlEndpoint,
-    writeContentToFile
+    writeContentToFile,
+    GetConnectionSchemaRequest,
+    getConnectionSchema
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -382,6 +384,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
     messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
     messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
+    messenger.onRequest(getConnectionSchema, (args: GetConnectionSchemaRequest) => rpcManger.getConnectionSchema(args));
     messenger.onNotification(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }
