@@ -22,6 +22,8 @@ import {
     BIDiagramAPI,
     BIFlowModelRequest,
     BIFlowModelResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
@@ -67,7 +69,7 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure,
+    buildProjectStructure
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -82,16 +84,16 @@ import {
     tasks,
     window, workspace
 } from "vscode";
+import { DebugProtocol } from "vscode-debugprotocol";
+import { extension } from "../../BalExtensionContext";
+import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
 import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
-import { openView, StateMachine, updateView } from "../../stateMachine";
+import { StateMachine, openView, updateView } from "../../stateMachine";
 import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
-import { extension } from "../../BalExtensionContext";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import { DebugProtocol } from "vscode-debugprotocol";
-import { notifyBreakpointChange } from "../../RPCLayer";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -999,6 +1001,28 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             projectPath: projectUri,
             imports,
         };
+    }
+
+    async getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        console.log(">>> requesting parent functin definition", params);
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getEnclosedFunctionDef(params)
+                .then((response) => {
+                    if(response?.filePath && response?.startLine && response?.endLine) {
+                        console.log(">>> parent function position ", response);
+                        resolve(response);
+                    } else {
+                        console.log(">>> parent function position not found");
+                        resolve(undefined);
+                    }
+                    
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching parent function position", error);
+                    resolve(undefined);
+                });
+        });
     }
 }
 

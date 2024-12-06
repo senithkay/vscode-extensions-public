@@ -556,6 +556,17 @@ export type BIGetFunctionsRequest = {
     queryMap: SearchQueryParams;
 }
 
+export type BIGetEnclosedFunctionRequest = {
+    filePath: string;
+    position: LinePosition;
+}
+
+export type BIGetEnclosedFunctionResponse = {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+
 export type BIGetFunctionsResponse = {
     categories: Category[];
 }
