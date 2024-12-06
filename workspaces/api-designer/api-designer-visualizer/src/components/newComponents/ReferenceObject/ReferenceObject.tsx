@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
@@ -34,6 +34,13 @@ const ButtonWrapperParams = styled.div`
     gap: 5px;
     justify-content: flex-end;
 `;
+
+const LabelContainer = styled.div`
+    display: flex;
+    align-items: center;
+    width: 25%;
+`;
+
 export function ReferenceObject(props: ReferenceObjectsProps) {
     const { id, referenceObject, type, onRemoveReferenceObject, onRefernceObjectChange } = props;
     const { 
@@ -69,6 +76,9 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
 
     return (
         <HorizontalFieldWrapper>
+            <LabelContainer>
+                <Typography variant="caption" color="textSecondary">Reference Object</Typography>
+            </LabelContainer>
             <Dropdown
                 id={`paramType-${referenceObject.$ref}`}
                 value={referenceObject.$ref}
@@ -76,13 +86,13 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
                 items={referenceObjectsList}
                 onValueChange={(value) => handleParameterChange({ ...referenceObject, $ref: value })}
             />
-            <TextField
+            {/* <TextField
                 id={`paramName-${referenceObject.summary}`}
                 placeholder="Summary"
                 value={referenceObject.summary}
                 sx={{ width: "25%" }}
                 onBlur={(evt) => handleParameterChange({ ...referenceObject, summary: evt.target.value })}
-            />
+            /> */}
             <TextField
                 id={`paramName-${referenceObject.description}`}
                 placeholder="Description"

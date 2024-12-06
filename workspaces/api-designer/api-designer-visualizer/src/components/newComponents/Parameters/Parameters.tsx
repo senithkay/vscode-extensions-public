@@ -17,6 +17,7 @@ import { getUpdatedObjects } from '../Utils/OpenAPIUtils';
 import { PullUpButton } from '../../PullUpButton/PullUPButton';
 import { useContext, useState } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { RefComponent } from '../RefComponent/RefComponent';
 
 export const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -45,22 +46,8 @@ function isReferenceObject(obj: (P | R)): obj is R {
     return obj && typeof obj === 'object' && '$ref' in obj;
 }
 
-function changeParamTypeButton(options: string[], value: string, handleParamTypeChange: (options: string) => void) {
-    const handleOptionChange = (options: string[]) => {
-        handleParamTypeChange(options[0]);
-    }
-    return (
-        <PullUpButton options={options} selectSingleOption selectedOptions={[value]} dropdownWidth={157} dripdownHeight={32} onOptionChange={handleOptionChange}>
-            <Button appearance="icon">
-                <Codicon name="ellipsis" />
-            </Button>
-        </PullUpButton>
-    );
-}
-
 export function Parameters(props: ParameterProps) {
     const { parameters, paramTypes = BaseTypes, title, type, currentReferences, onParametersChange } = props;
-    const [paramType, setParamType] = useState<string>(ParameterTypes.DEFAULT_PARAM);
     const { 
         props: { openAPI },
     } = useContext(APIDesignerContext);
@@ -84,22 +71,28 @@ export function Parameters(props: ParameterProps) {
         handleParameterChange([...newParameters]);
     };
 
+    const addReferenceParamButton = () => {
+        return (
+            <RefComponent
+                onChange={addNewReferenceObject}
+                dropdownWidth={157} 
+                componnetHeight={32}
+            />
+        );
+    };
+
     const addNewParam = () => {
-        if (paramType === ParameterTypes.REFERENCE_OBJECT) {
-            addNewReferenceObject();
-        } else {
-            const newParam: P = {
-                name: parameters?.length > 0 ? `param${parameters.length}` : "param1",
-                in: type,
-                required: true,
-                description: "",
-                schema: {
-                    type: "string"
-                }
-            };
-            const newParameters = getUpdatedObjects<P | R>(parameters, newParam);
-            handleParameterChange([...newParameters]);
-        }
+        const newParam: P = {
+            name: parameters?.length > 0 ? `param${parameters.length}` : "param1",
+            in: type,
+            required: true,
+            description: "",
+            schema: {
+                type: "string"
+            }
+        };
+        const newParameters = getUpdatedObjects<P | R>(parameters, newParam);
+        handleParameterChange([...newParameters]);
     };
     const getAddParamButton = () => (
         <Button appearance="icon" onClick={() => addNewParam()}>
@@ -107,15 +100,12 @@ export function Parameters(props: ParameterProps) {
             Add
         </Button>
     );
-    const handleParamTypeChange = (paramType: string) => {
-        setParamType(paramType);
-    };
 
     const actionButtons = [
         getAddParamButton()
     ];
     if (type === "query" && componentQueryParamNames.length > 0 || (type === "header" && componentHeaderParamNames.length > 0) || (type === "path" && componentPathParamNames.length > 0)) {
-        actionButtons.push(changeParamTypeButton(["Reference Object"], paramType, handleParamTypeChange));
+        actionButtons.push(addReferenceParamButton());
     } 
 
     return (

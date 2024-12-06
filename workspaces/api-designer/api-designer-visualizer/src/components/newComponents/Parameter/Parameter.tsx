@@ -69,13 +69,13 @@ export function Parameter(props: ParameterProps) {
                 id={`paramName-${parameter.name}`}
                 placeholder="Name"
                 value={parameter.name}
-                sx={{ width: "35%" }}
+                sx={{ width: "25%" }}
                 onBlur={(evt) => handleParameterChange({ ...parameter, name: evt.target.value })}
             />
             <Dropdown
                 id={`paramType-${parameter.name}`}
                 value={parameter.schema.type}
-                containerSx={{ width: "25%" }}
+                containerSx={{ width: "35%" }}
                 items={paramTypeOptions}
                 onValueChange={(value) => handleParameterChange({ ...parameter, schema: { type: value as ParameterSchemaTypes } })}
             />

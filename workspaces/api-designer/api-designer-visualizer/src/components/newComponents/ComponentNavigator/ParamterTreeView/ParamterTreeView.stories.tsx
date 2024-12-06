@@ -10,20 +10,20 @@
 import { useState } from "react";
 import { OpenAPI } from "../../../../Definitions/ServiceDefinitions";
 import petstoreJSON from "../../../OpenAPIDefinition/Data/petstore.json";
-import { SchemaTreeView } from "./SchemaTreeView";
+import { ParameterTreeView } from "./ParamterTreeView";
 
 export default {
-    component: SchemaTreeView,
-    title: 'New Schema TreeView',
+    component: ParameterTreeView,
+    title: 'New Parameter TreeView',
 };
 
-export const SchemaTreeViewStory = () => {
+export const ParameterTreeViewStory = () => {
     const [apiDefinition, setApiDefinition] = useState<OpenAPI>(petstoreJSON as unknown as OpenAPI);
     return (
-        <SchemaTreeView
+        <ParameterTreeView
             openAPI={apiDefinition}
-            onSchemaTreeViewChange={(openAPI: OpenAPI) => {
-                console.log("Schema TreeView Change", openAPI);
+            onParameterTreeViewChange={(openAPI: OpenAPI) => {
+                console.log("Parameter TreeView Change", openAPI);
                 setApiDefinition(openAPI);
             }}
         />

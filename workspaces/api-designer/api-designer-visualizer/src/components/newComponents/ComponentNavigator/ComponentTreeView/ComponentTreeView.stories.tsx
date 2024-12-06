@@ -14,7 +14,7 @@ import { SchemaTreeView } from '../SchemaTreeView/SchemaTreeView';
 
 export default {
     component: SchemaTreeView,
-    title: 'New Schema TreeView Item',
+    title: 'New Component TreeView',
 };
 
 export const SchemaTreeViewStory = () => {
