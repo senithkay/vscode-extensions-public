@@ -75,4 +75,5 @@ export interface MIVisualizerAPI {
     updateDependency: (params: UpdateDependencyRequest) => Promise<string>;
     updatePomValue: (params: PomXmlEditRequest) => Promise<string>;
     updateConfigFileValue: (params: ConfigFileEditRequest) => Promise<string>;
+    importOpenAPISpec: () => Promise<void>;
 }

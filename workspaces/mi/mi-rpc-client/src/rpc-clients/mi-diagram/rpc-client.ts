@@ -346,7 +346,10 @@ import {
     updateMediator,
     GetConnectionSchemaRequest,
     getConnectionSchema,
-    GetConnectionSchemaResponse
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    copyConnectorZip
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -704,6 +707,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     downloadInboundConnector(params: DownloadInboundConnectorRequest): Promise<DownloadInboundConnectorResponse> {
         return this._messenger.sendRequest(downloadInboundConnector, HOST_EXTENSION, params);
+    }
+
+    copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
     }
 
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {

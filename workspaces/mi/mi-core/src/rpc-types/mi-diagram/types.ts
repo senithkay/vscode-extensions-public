@@ -1726,6 +1726,14 @@ export interface AddDriverRequest {
     driverPath: string;
 }
 
+export interface CopyConnectorZipRequest {
+    connectorPath: string;
+}
+
+export interface CopyConnectorZipResponse {
+    success: boolean;
+}
+
 export interface DSSQueryGenRequest {
     className: string;
     username: string;
@@ -1847,3 +1855,12 @@ export type ExpressionCompletionsResponse = {
     isIncomplete: boolean;
     items: ExpressionCompletionItem[];
 };
+
+export interface GenerateConnectorRequest {
+    openAPIPath: string;
+    connectorProjectPath: string;
+}
+export interface GenerateConnectorResponse {
+    buildStatus: boolean;
+    connectorPath: string;
+}

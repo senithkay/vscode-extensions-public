@@ -226,6 +226,8 @@ import {
     onSwaggerSpecReceived,
     GetConnectionSchemaRequest,
     GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3251,6 +3253,34 @@ ${endpointAttributes}
 
             return new Promise((resolve, reject) => {
                 resolve({ uischema: '' });
+            });
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
+    async copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        const { connectorPath } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+
+            if (!fs.existsSync(connectorDirectory)) {
+                fs.mkdirSync(connectorDirectory, { recursive: true });
+            }
+
+            const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
+            await fs.promises.copyFile(connectorPath, destinationPath);
+            
+
+            return new Promise((resolve, reject) => {
+                resolve({ success: true });
             });
         } catch (error) {
             console.error('Error downloading connector:', error);

@@ -74,7 +74,8 @@ import {
     ProjectDetailsResponse,
     ConfigFileEditRequest,
     PomXmlEditRequest,
-    UpdateDependencyRequest
+    UpdateDependencyRequest,
+    importOpenAPISpec
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -225,5 +226,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
         return this._messenger.sendRequest(updateConfigFileValue, HOST_EXTENSION, params);
+    }
+    importOpenAPISpec(): Promise<void> {
+        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION);
     }
 }

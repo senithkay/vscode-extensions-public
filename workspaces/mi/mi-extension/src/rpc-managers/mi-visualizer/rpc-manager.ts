@@ -62,6 +62,7 @@ import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import path from "path";
+import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
@@ -525,4 +526,37 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             });
         });
     }
+
+    async importOpenAPISpec(): Promise<void> {
+        // open file dialog to select the openapi spec file
+        const options: vscode.OpenDialogOptions = {
+            canSelectMany: false,
+            openLabel: 'Open OpenAPI Spec',
+            filters: {
+                'OpenAPI Spec': ['json', 'yaml', 'yml']
+            }
+        };
+        const langClient = StateMachine.context().langClient!;
+        const fileUri = await vscode.window.showOpenDialog(options);
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        const workspaceFolder = workspaceFolders[0].uri.fsPath;
+        if (fileUri && fileUri.length > 0) {
+            const filePath = fileUri[0].fsPath;
+            const connectorGenRequest = {
+                openAPIPath: filePath,
+                connectorProjectPath: path.join(workspaceFolder, 'target')
+            };
+            const {buildStatus, connectorPath} = await langClient.generateConnector(connectorGenRequest);
+            if (buildStatus) {
+                await copy(connectorPath, path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
+                vscode.window.showInformationMessage("Connector generated successfully");
+            } else {
+                vscode.window.showErrorMessage("Error while generating connector");
+            }
+        }
+    }
+
 }
