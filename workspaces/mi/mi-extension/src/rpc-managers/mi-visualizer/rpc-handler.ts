@@ -55,12 +55,12 @@ import {
     toggleDisplayOverview,
     updateContext,
     getProjectDetails,
-    PomXmlEditRequest,
     updateDependencies,
     updatePomValues,
     updateConfigFileValues,
-    ConfigFileEditRequest,
-    UpdateDependencyRequest
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -101,7 +101,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
     messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
     messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
-    messenger.onRequest(updateDependencies, (args: UpdateDependencyRequest) => rpcManger.updateDependencies(args));
-    messenger.onRequest(updatePomValues, (args: PomXmlEditRequest) => rpcManger.updatePomValues(args));
-    messenger.onRequest(updateConfigFileValues, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValues(args));
+    messenger.onRequest(updateDependencies, (args: UpdateDependenciesRequest) => rpcManger.updateDependencies(args));
+    messenger.onRequest(updatePomValues, (args: UpdatePomValuesRequest) => rpcManger.updatePomValues(args));
+    messenger.onRequest(updateConfigFileValues, (args: UpdateConfigValuesRequest) => rpcManger.updateConfigFileValues(args));
 }

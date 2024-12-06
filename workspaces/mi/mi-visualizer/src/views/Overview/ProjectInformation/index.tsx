@@ -88,11 +88,13 @@ export function ProjectInformation(props: ProjectInformationProps) {
     };
 
     const openManageDependencies = (title: string, dependencies: DependencyDetails[]) => {
-        rpcClient.getMiVisualizerRpcClient().openView({
-            type: POPUP_EVENT_TYPE.OPEN_VIEW,
-            location: { view: MACHINE_VIEW.ManageDependencies, customProps: { title, dependencies } },
-            isPopup: true
-        });
+        setTimeout(() => {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.OPEN_VIEW,
+                location: { view: MACHINE_VIEW.ManageDependencies, customProps: { title, dependencies } },
+                isPopup: true
+            });
+        }, 2000);
     }
 
     if (!projectDetails) {

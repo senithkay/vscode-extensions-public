@@ -32,6 +32,7 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                     { value: dep.groupId },
                     { value: dep.artifact },
                     { value: dep.version },
+                    { value: dep.range }
                 ]
             }
         )) || [],
@@ -56,18 +57,36 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                 "defaultValue": "",
                 "isRequired": true,
                 "canChange": false
+            },
+            {
+                "type": "TextField" as "TextField",
+                "label": "Range",
+                "defaultValue": "",
+                "isRequired": false,
+                "canChange": true,
+                "enableCondition": [
+                    "false"
+                ]
             }
         ]
     });
 
     const updateDependencies = async () => {
-        const dependencies = getParamManagerValues(paramConfig);
-        dependencies.forEach((dep, index) => {
-            rpcClient.getMiVisualizerRpcClient().updateDependency({
+        const values = getParamManagerValues(paramConfig);
+        const newDependencies = values.map((dep, index) => {
+            if (dependencies.find(d => d.groupId === dep[0] && d.artifact === dep[1] && d.version === dep[2] && d.type === dep[4])) {
+                return null;
+            }
+            return {
                 groupId: dep[0],
                 artifact: dep[1],
-                version: dep[2]
-            });
+                version: dep[2],
+                type: 'zip' as 'zip',
+                range: dep[3]
+            };
+        }).filter(dep => dep !== null);
+        await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+            dependencies: newDependencies
         });
         onClose();
     };
