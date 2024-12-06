@@ -531,14 +531,15 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                         <FormView title={`Add New Connection`} onClose={props.handlePopupClose ?? handleOnClose}>
                             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <span>Please select a connector to create a connection.</span>
-                                <Button appearance="secondary" onClick={() => handleImportConnector()}>
-                                    <div style={BrowseBtnStyles}>
-                                        <IconWrapper>
-                                            <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
-                                        </IconWrapper>
-                                        <TextWrapper>Import Connector</TextWrapper>
-                                    </div>
-                                </Button>
+                                {!conOnconfirmation &&
+                                    <Button appearance="secondary" onClick={() => handleImportConnector()}>
+                                        <div style={BrowseBtnStyles}>
+                                            <IconWrapper>
+                                                <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
+                                            </IconWrapper>
+                                            <TextWrapper>Import Connector</TextWrapper>
+                                        </div>
+                                    </Button>}
                             </div>
                             {isGeneratingForm ? (
                                 <LoaderWrapper>
