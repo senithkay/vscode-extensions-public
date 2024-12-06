@@ -14,6 +14,7 @@ import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 import { ParameterTreeViewItem } from '../ParameterTreeViewItem/ParameterTreeViewItem';
 import { Views } from '../../../../constants';
+import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 
 interface ParameterViewItemProps {
     openAPI: OpenAPI;
@@ -22,27 +23,28 @@ interface ParameterViewItemProps {
 
 export function ParameterTreeView(props: ParameterViewItemProps) {
     const { openAPI, onParameterTreeViewChange } = props;
+    const { rpcClient } = useVisualizerContext();
     const { 
         props: { selectedComponentID },
         api: { onSelectedComponentIDChange, onCurrentViewChange }
     } = useContext(APIDesignerContext);
 
-    const handleDeleteParameter = (schema: string) => {
-        // rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Schema '${schema}'?`, buttonText: "Delete" }).then(res => {
-        //     if (res) {
-        //         const clonedSchemas = { ...openAPI.components?.schemas };
-        //         delete clonedSchemas[schema];
-        //         const updatedOpenAPIDefinition: OpenAPI = {
-        //             ...openAPI,
-        //             components: {
-        //                 ...openAPI.components,
-        //                 schemas: clonedSchemas
-        //             }
-        //         };
-        //         onSchemaTreeViewChange(updatedOpenAPIDefinition);
-        //         onSelectedComponentIDChange("overview");
-        //     }
-        // });
+    const handleDeleteParameter = (parameter: string) => {
+        rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Parameter '${parameter}'?`, buttonText: "Delete" }).then(res => {
+            if (res) {
+                const clonedParameters = { ...openAPI.components?.parameters };
+                delete clonedParameters[parameter];
+                const updatedOpenAPIDefinition: OpenAPI = {
+                    ...openAPI,
+                    components: {
+                        ...openAPI.components,
+                        parameters: clonedParameters
+                    }
+                };
+                onParameterTreeViewChange(updatedOpenAPIDefinition);
+                onSelectedComponentIDChange("overview");
+            }
+        });
     };
 
     const handleAddParameter = (evt : React.MouseEvent) => {

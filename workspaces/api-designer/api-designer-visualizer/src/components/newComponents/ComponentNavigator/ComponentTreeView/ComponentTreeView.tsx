@@ -13,7 +13,7 @@ import { TreeView } from '../../../Treeview/TreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 import { SchemaTreeView } from '../SchemaTreeView/SchemaTreeView';
-import { ParameterTreeView } from '../ParamterTreeView/ParamterTreeView';
+import { ParameterTreeView } from '../ParameterTreeView/ParameterTreeView';
 
 interface PathTreeViewItemProps {
     openAPI: OpenAPI;
