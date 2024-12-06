@@ -44,7 +44,7 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
+import { BallerinaProject, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
 import { openView, StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
 import { BreakpointManager } from './breakpoint-manager';
@@ -347,48 +347,17 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         // Check the diagram visibility
                         if (isWebviewPresent) {
-                            setTimeout(() => {
+                            setTimeout(async () => {
                                 const uri = Uri.parse(msg.body.stackFrames[0].source.path);
                                 if (VisualizerWebview.currentPanel) {
-                                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Beside);
-                                    setTimeout(() => {
-                                        // diagram: In Overview
-                                        // Need to get the exact position of the breakpoint's parent flowdiagram we need to open
-                                        if (StateMachine.context().documentUri === undefined) {
-                                            const newContext = StateMachine.context();
-                                            newContext.documentUri = uri.fsPath;
-                                            openView(EVENT_TYPE.OPEN_VIEW, newContext);
-                                            notifyBreakpointChange();
-                                        } else if (StateMachine.context().documentUri !== uri.fsPath) { // Step into another file or possibly in another flow diagram view
-                                            // const newContext = StateMachine.context();
-                                            window.showInformationMessage("Visualizing breakpoints in different files is currently not supported.");
-                                            // TODO: Add the logic on obtaining the parent node position and updating the context
-
-                                            // newContext.documentUri = uri.fsPath;
-                                            // openView(EVENT_TYPE.OPEN_VIEW, newContext);
-                                            notifyBreakpointChange();
-                                        } else {
-                                            notifyBreakpointChange();
-                                        }
-                                    }, 200);
+                                    VisualizerWebview.currentPanel.getWebview()?.reveal(ViewColumn.Beside);
+                                    setTimeout(() => handleBreakpointVisualization(uri, clientBreakpoint, true), 200);
                                 } else {
-                                    // Webview disposes at times when breakpoint hit
-                                    const newContext = StateMachine.context();
-                                    if (!uri.fsPath.startsWith(newContext.projectUri)) {
-                                        console.log("Breakpoint is in a different project");
-                                        window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
-                                    } else {
-                                        if (StateMachine.context().documentUri !== uri.fsPath) {
-                                            window.showInformationMessage("Visualizing breakpoints in different files is currently not supported.");
-                                            // TODO: Add the logic on obtaining the parent node position and updating the context
-                                            notifyBreakpointChange();
-                                        } else {
-                                            notifyBreakpointChange();
-                                        }
-                                    }
+                                    await handleBreakpointVisualization(uri, clientBreakpoint, false);
                                 }
                             }, 200);
                         }
+
                     } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
                         // clear the active breakpoint
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
@@ -398,6 +367,52 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
             },
         };
     }
+}
+
+async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugProtocol.StackFrame, isWebviewPresent: boolean) {
+    const newContext = StateMachine.context();
+
+    // Check if breakpoint is in a different project
+    if (!uri.fsPath.startsWith(newContext.projectUri)) {
+        console.log("Breakpoint is in a different project");
+        window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
+        return;
+    }
+
+    // Only update view if we're in a different file
+    if (newContext.documentUri === uri.fsPath) {
+        notifyBreakpointChange();
+        return;
+    }
+
+    // Get enclosed function definition
+    const req: BIGetEnclosedFunctionRequest = {
+        filePath: uri.fsPath,
+        position: {
+            line: clientBreakpoint.line,
+            offset: clientBreakpoint.column
+        }
+    };
+
+    const res = await StateMachine.langClient().getEnclosedFunctionDef(req);
+
+    if (!res?.startLine || !res?.endLine) {
+        window.showInformationMessage("Failed to open the respective view for the breakpoint. Please manually navigate to the respective view.");
+        notifyBreakpointChange();
+        return;
+    }
+
+    // Update context with new position
+    newContext.documentUri = uri.fsPath;
+    newContext.view = undefined;
+    newContext.position = {
+        startLine: res.startLine.line,
+        startColumn: res.startLine.offset,
+        endLine: res.endLine.line,
+        endColumn: res.endLine.offset
+    };
+    openView(EVENT_TYPE.OPEN_VIEW, newContext);
+    notifyBreakpointChange();
 }
 
 
