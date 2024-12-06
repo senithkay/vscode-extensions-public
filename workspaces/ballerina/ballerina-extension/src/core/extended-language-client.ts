@@ -129,7 +129,9 @@ import {
     TriggerModelFromCodeRequest,
     TriggerModelFromCodeResponse,
     TriggerFunctionRequest,
-    TriggerFunctionResponse
+    TriggerFunctionResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -200,6 +202,7 @@ enum EXTENDED_APIS {
     BI_GEN_OPEN_API = 'flowDesignService/generateServiceFromOpenApiContract',
     BI_MODULE_NODES = 'flowDesignService/getModuleNodes',
     BI_GEN_ERROR_HANDLER = 'flowDesignService/addErrorHandler',
+    BI_GET_ENCLOSED_FUNCTION = 'flowDesignService/getEnclosedFunctionDef',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
@@ -637,6 +640,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
         return this.sendRequest<BIGetFunctionsResponse>(EXTENDED_APIS.BI_GET_FUNCTIONS, params);
+    }
+
+    async getEnclosedFunctionDef(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        return this.sendRequest<BIGetEnclosedFunctionResponse>(EXTENDED_APIS.BI_GET_ENCLOSED_FUNCTION, params);
     }
 
     async getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {

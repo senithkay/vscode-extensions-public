@@ -37,6 +37,8 @@ import {
     BIDeleteByComponentInfoResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
 } from "../../interfaces/extended-lang-client";
 import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports, BreakpointRequest, CurrentBreakpointsResponse } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -48,6 +50,7 @@ export const deleteFlowNode: RequestType<BISourceCodeRequest, BISourceCodeRespon
 export const deleteByComponentInfo: RequestType<BIDeleteByComponentInfoRequest, BIDeleteByComponentInfoResponse> = { method: `${_preFix}/deleteByComponentInfo` };
 export const getAvailableNodes: RequestType<BIAvailableNodesRequest, BIAvailableNodesResponse> = { method: `${_preFix}/getAvailableNodes` };
 export const getFunctions: RequestType<BIGetFunctionsRequest, BIGetFunctionsResponse> = { method: `${_preFix}/getFunctions` };
+export const getEnclosedFunction: RequestType<BIGetEnclosedFunctionRequest, BIGetEnclosedFunctionResponse> = { method: `${_preFix}/getEnclosedFunction` };
 export const getNodeTemplate: RequestType<BINodeTemplateRequest, BINodeTemplateResponse> = { method: `${_preFix}/getNodeTemplate` };
 export const getAiSuggestions: RequestType<BIAiSuggestionsRequest, BIAiSuggestionsResponse> = { method: `${_preFix}/getAiSuggestions` };
 export const createProject: NotificationType<ProjectRequest> = { method: `${_preFix}/createProject` };

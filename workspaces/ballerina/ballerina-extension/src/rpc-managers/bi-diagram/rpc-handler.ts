@@ -14,6 +14,7 @@ import {
     BIAvailableNodesRequest,
     BIConnectorsRequest,
     BIDeleteByComponentInfoRequest,
+    BIGetEnclosedFunctionRequest,
     BIGetFunctionsRequest,
     BIGetVisibleVariableTypesRequest,
     BINodeTemplateRequest,
@@ -42,6 +43,7 @@ import {
     getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
+    getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
@@ -61,7 +63,7 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
-    updateConfigVariables
+    updateConfigVariables,
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -74,6 +76,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(deleteByComponentInfo, (args: BIDeleteByComponentInfoRequest) => rpcManger.deleteByComponentInfo(args));
     messenger.onRequest(getAvailableNodes, (args: BIAvailableNodesRequest) => rpcManger.getAvailableNodes(args));
     messenger.onRequest(getFunctions, (args: BIGetFunctionsRequest) => rpcManger.getFunctions(args));
+    messenger.onRequest(getEnclosedFunction, (args: BIGetEnclosedFunctionRequest) => rpcManger.getEnclosedFunction(args));
     messenger.onRequest(getNodeTemplate, (args: BINodeTemplateRequest) => rpcManger.getNodeTemplate(args));
     messenger.onRequest(getAiSuggestions, (args: BIAiSuggestionsRequest) => rpcManger.getAiSuggestions(args));
     messenger.onNotification(createProject, (args: ProjectRequest) => rpcManger.createProject(args));

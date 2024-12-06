@@ -20,6 +20,8 @@ import {
     BIDeleteByComponentInfoResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
@@ -67,6 +69,7 @@ import {
     getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
+    getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
@@ -120,6 +123,10 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
         return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
+    }
+
+    getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        return this._messenger.sendRequest(getEnclosedFunction, HOST_EXTENSION, params);
     }
 
     getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
