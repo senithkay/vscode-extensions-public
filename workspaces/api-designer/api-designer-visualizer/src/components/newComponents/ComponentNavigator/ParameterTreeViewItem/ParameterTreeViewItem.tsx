@@ -31,23 +31,23 @@ const ParameterItemWrapper = styled.div`
 interface PathTreeViewItemProps {
     id: string;
     parameter: string;
-    onDeleteSchema: (schema: string) => void;
+    onDeleteParameter: (schema: string) => void;
 }
 
 export function ParameterTreeViewItem(props: PathTreeViewItemProps) {
-    const { id, parameter, onDeleteSchema } = props;
+    const { id, parameter, onDeleteParameter } = props;
     const { 
         props: { selectedComponentID },
         api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
 
-    const handleDeleteSchema = (e: React.MouseEvent, schema: string) => {
+    const handleDeleteParameter = (e: React.MouseEvent, schema: string) => {
         e.stopPropagation();
-        onDeleteSchema(schema);
+        onDeleteParameter(schema);
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`schemas#-component#-${parameter}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`parameters#-component#-${parameter}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <ParameterItemWrapper>
                     <Typography
@@ -62,7 +62,7 @@ export function ParameterTreeViewItem(props: PathTreeViewItemProps) {
                         {parameter}
                     </Typography>
                     <RightPathContainerButtons className="buttons-container">
-                        <Button tooltip="Delete Schema" appearance="icon" onClick={(e) => handleDeleteSchema(e, parameter)}><Codicon name="trash" /></Button>
+                        <Button tooltip="Delete Schema" appearance="icon" onClick={(e) => handleDeleteParameter(e, parameter)}><Codicon name="trash" /></Button>
                     </RightPathContainerButtons>
                 </ParameterItemWrapper>
             </TreeViewItem>

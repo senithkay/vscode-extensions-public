@@ -57,10 +57,14 @@ export function ApiDesigner(props: ApiDesignerProps) {
                     const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
                         && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
                     setSelectedComponentID(openApi?.paths && `paths#-component#-${sanitizedPaths[0]}`);
-                } else if (component === "Components#-Components") {
+                } else if (component === "Components#-Components" || component === "Schemas#-Components") {
                     // Get the first schema item and set it as the selected item
                     const schemas = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
                     setSelectedComponentID(schemas && `schemas#-component#-${schemas[0]}`);
+                } else if (component === "Paramters#-Components") {
+                    // Get the first parameter item and set it as the selected item
+                    const parameters = openApi?.components?.parameters ? Object.keys(openApi.components.parameters) : [];
+                    setSelectedComponentID(parameters && `parameters#-component#-${parameters[0]}`);
                 } else {
                     setSelectedComponentID(component);
                 }

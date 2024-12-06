@@ -12,6 +12,7 @@ import { Paths } from '../Paths/Paths';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { RefParameter } from '../RefParameter/RefParameter';
 
 interface OverviewProps {
     openAPI: O;
@@ -54,6 +55,22 @@ export function OpenAPI(props: OverviewProps) {
                             ...openAPI, components: { 
                                 ...openAPI.components, schemas: { 
                                     ...openAPI.components.schemas, [selectedComponentID.split("#-")[2]]: schema 
+                                } 
+                            } 
+                        }
+                    )
+                }
+                />
+            )}
+            {componetName === "parameters" && (
+                <RefParameter
+                    paramerName={selectedComponentID.split("#-")[2]}
+                    parameter={openAPI.components.parameters[selectedComponentID.split("#-")[2]]}
+                    onParameterChange={
+                        (parameter) => handleOpenAPIChange({ 
+                            ...openAPI, components: { 
+                                ...openAPI.components, parameters: { 
+                                    ...openAPI.components.parameters, [selectedComponentID.split("#-")[2]]: parameter 
                                 } 
                             } 
                         }

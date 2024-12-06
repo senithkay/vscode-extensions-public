@@ -13,6 +13,7 @@ import { TreeView } from '../../../Treeview/TreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 import { ParameterTreeViewItem } from '../ParameterTreeViewItem/ParameterTreeViewItem';
+import { Views } from '../../../../constants';
 
 interface ParameterViewItemProps {
     openAPI: OpenAPI;
@@ -45,23 +46,27 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
     };
 
     const handleAddParameter = (evt : React.MouseEvent) => {
-        // evt.stopPropagation();
-        // if (openAPI.components === undefined) {
-        //     openAPI.components = {};
-        // }
-        // if (openAPI.components.schemas === undefined) {
-        //     openAPI.components.schemas = {};
-        // }
-        // const newSchemaName = Object.keys(openAPI.components.schemas).find((key) =>
-        //     key.toLocaleLowerCase() === "schema") ? `Schema${Object.keys(openAPI.components.schemas).length + 1}` :
-        //     "Schema";
-        // openAPI.components.schemas[newSchemaName] = {
-        //     type: "object",
-        //     properties: {}
-        // };
-        // onSchemaTreeViewChange(openAPI);
-        // onSelectedComponentIDChange(`schemas#-component#-${newSchemaName}`);
-        // onCurrentViewChange(Views.EDIT);
+        evt.stopPropagation();
+        if (openAPI.components === undefined) {
+            openAPI.components = {};
+        }
+        if (openAPI.components.parameters === undefined) {
+            openAPI.components.parameters = {};
+        }
+        const newParameterName = Object.keys(openAPI.components.parameters).find((key) =>
+            key.toLocaleLowerCase() === "parameter") ? `Parameter${Object.keys(openAPI.components.parameters).length + 1}` :
+            "Parameter";
+        openAPI.components.parameters[newParameterName] = {
+            in: "query",
+            name: "",
+            required: false,
+            schema: {
+                type: "string"
+            }
+        };
+        onParameterTreeViewChange(openAPI);
+        onSelectedComponentIDChange(`parameters#-component#-${newParameterName}`);
+        onCurrentViewChange(Views.EDIT);
     };
 
     const parameterArray = openAPI?.components?.parameters ? Object.keys(openAPI?.components?.parameters) : [];
@@ -73,7 +78,7 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Paramters</Typography>
+                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Parameters</Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
                         <Button tooltip="Add Parameter" appearance="icon" onClick={handleAddParameter}><Codicon name="plus" /></Button>
@@ -83,12 +88,12 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
             selectedId={selectedComponentID}
             onSelect={onSelectedComponentIDChange}
         >
-            {parameterArray.map((schema: string) => {
+            {parameterArray.map((parameterName: string) => {
                 return (
                     <ParameterTreeViewItem
-                        id={`paramters#-component#-${schema}`}
-                        parameter={schema}
-                        onDeleteSchema={handleDeleteParameter}
+                        id={`parameters#-component#-${parameterName}`}
+                        parameter={parameterName}
+                        onDeleteParameter={handleDeleteParameter}
                     />
                 );
             })}

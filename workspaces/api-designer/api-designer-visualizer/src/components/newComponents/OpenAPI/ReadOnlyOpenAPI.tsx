@@ -12,6 +12,7 @@ import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { ReadOnlyPaths } from '../Paths/ReadOnlyPaths';
 import { ReadOnlyOverview } from '../Overview/ReadOnlyOverview';
 import { ReadOnlySchemaEditor } from '../../SchemaEditor/ReadOnlySchemaEditor';
+import { ReadOnlyRefParameters } from '../RefParameter/ReadOnlyRefParameter';
 
 interface OverviewProps {
     openAPI: O;
@@ -41,6 +42,12 @@ export function ReadOnlyOpenAPI(props: OverviewProps) {
                 <ReadOnlySchemaEditor
                     schema={openAPI.components.schemas[selectedComponentID.split("#-")[2]]}
                     schemaName={selectedComponentID.split("#-")[2]}
+                />
+            )}
+            {componetName === "parameters" && (
+                <ReadOnlyRefParameters
+                    parameter={openAPI.components.parameters[selectedComponentID.split("#-")[2]]}
+                    name={selectedComponentID.split("#-")[2]}
                 />
             )}
         </>

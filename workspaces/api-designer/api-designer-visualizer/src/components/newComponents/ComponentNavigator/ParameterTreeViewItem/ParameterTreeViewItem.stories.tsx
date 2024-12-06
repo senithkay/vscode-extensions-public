@@ -20,7 +20,7 @@ export const ParameterTreeViewItemStory = () => {
         <ParameterTreeViewItem
             id="parameter-tree-view-item"
             parameter="parameter"
-            onDeleteSchema={(schema: string) => {
+            onDeleteParameter={(schema: string) => {
                 console.log("Delete Parameter", schema);
             }}
         />

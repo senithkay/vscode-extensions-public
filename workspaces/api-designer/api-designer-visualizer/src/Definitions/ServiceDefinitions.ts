@@ -128,7 +128,13 @@ export interface Headers {
     [headerName: string]: Header | ReferenceObject | HeaderDefinition;
 }
 
-export interface Header extends Parameter { }
+export interface Header {
+    description?: string;
+    required?: boolean;
+    deprecated?: boolean;
+    schema?: Schema;
+    [key: string]: any;
+}
 
 export interface Links {
     [linkName: string]: Link;
