@@ -13,6 +13,7 @@ import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
 import { sidepanelGoBack } from '..';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const ProgressRing = styled(VSCodeProgressRing)`
     height: 50px;
@@ -26,14 +27,31 @@ interface DownloadPageProps {
 }
 
 export function DownloadPage(props: DownloadPageProps) {
+    const { module } = props;
     const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
     const [isDownloading, setIsDownloading] = React.useState(false);
 
     const handleDependencyResponse = async (response: boolean) => {
         if (response) {
-            // Logic to add dependencies for Redis module
+            
             setIsDownloading(true);
-            await new Promise(resolve => setTimeout(resolve, 5000));
+        
+            const updateDependencies = async () => {
+                const dependencies = [];
+                dependencies.push({
+                    groupId: module.mavenGroupId,
+                    artifact: module.mavenArtifactId,
+                    version: module.version.tagName,
+                    range: ""
+                });
+                await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+                    dependencies
+                });
+            }
+
+            await updateDependencies();
+
             setIsDownloading(false);
             sidepanelGoBack(sidePanelContext);
         } else {
