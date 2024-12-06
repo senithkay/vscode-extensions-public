@@ -160,7 +160,8 @@ export * from "./swagger";
 
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
-    CONNECTORS_STORE: "http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&type=Connector"
+    CONNECTORS_STORE: "http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&searchQuery=${searchValue}&type=Connector"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";

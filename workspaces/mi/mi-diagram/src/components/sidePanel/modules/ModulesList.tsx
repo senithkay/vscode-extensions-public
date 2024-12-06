@@ -15,7 +15,7 @@ import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { ButtonGroup } from '../commons/ButtonGroup';
-import { ERROR_MESSAGES } from '../../../resources/constants';
+import { APIS, ERROR_MESSAGES } from '../../../resources/constants';
 import { OperationsWrapper } from '../mediators/ModuleSuggestions';
 import { DownloadPage } from '../mediators/DownloadPage';
 import { debounce } from 'lodash';
@@ -80,7 +80,7 @@ export function Modules(props: ModuleProps) {
 
     const searchModules = async () => {
         try {
-            const response = await fetch(`http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&searchQuery=${searchValue}&type=Connector`);
+            const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', searchValue)}`);
             const data = await response.json();
             return (data);
         } catch (e) {

@@ -15,10 +15,10 @@ import SidePanelContext from '../SidePanelContexProvider';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { DownloadPage } from './DownloadPage';
-import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
+import { ButtonGroup } from '../commons/ButtonGroup';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
-import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { debounce } from 'lodash';
+import { APIS } from '../../../resources/constants';
 
 interface ModuleSuggestionProps {
     nodePosition: any;
@@ -53,7 +53,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
 
     const searchModules = async () => {
         try {
-            const response = await fetch(`http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&searchQuery=${props.searchValue}&type=Connector`);
+            const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', props.searchValue)}`);
             const data = await response.json();
             
             return (data);

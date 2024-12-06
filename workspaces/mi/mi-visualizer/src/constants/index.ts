@@ -117,7 +117,9 @@ export enum InboundEndpointTypes {
     RABBITMQ = "rabbit-mq"
 };
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "http://localhost:9091/connectors/details?limit=10&offset=0&product=MI&searchQuery=${searchValue}&type=Connector"
 }
 
 export const connectorFailoverIconUrl = "https://mi-connectors.wso2.com/icons/wordpress.gif";
