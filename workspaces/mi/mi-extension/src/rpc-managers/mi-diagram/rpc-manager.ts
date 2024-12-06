@@ -11,6 +11,7 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
+    AddDriverRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -57,6 +58,8 @@ import {
     CreateTaskResponse,
     CreateTemplateRequest,
     CreateTemplateResponse,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
     DataSourceTemplate,
     Datasource,
     DeleteArtifactRequest,
@@ -72,9 +75,11 @@ import {
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
     ExportProjectRequest,
+    ExtendedDSSQueryGenRequest,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     FileDirResponse,
+    FileRenameRequest,
     FileStructure,
     GenerateAPIResponse,
     GetAllArtifactsRequest,
@@ -104,12 +109,18 @@ import {
     GetFailoverEPResponse,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
+    GetInboundEPUischemaRequest,
+    GetInboundEPUischemaResponse,
     GetInboundEndpointRequest,
     GetInboundEndpointResponse,
     GetLoadBalanceEPRequest,
     GetLoadBalanceEPResponse,
     GetLocalEntryRequest,
     GetLocalEntryResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
     GetMessageStoreRequest,
     GetMessageStoreResponse,
     GetProjectRootRequest,
@@ -118,6 +129,7 @@ import {
     GetRecipientEPResponse,
     GetRegistryMetadataRequest,
     GetRegistryMetadataResponse,
+    GetSTFromUriRequest,
     GetSelectiveArtifactsRequest,
     GetSelectiveArtifactsResponse,
     GetSelectiveWorkspaceContextResponse,
@@ -147,6 +159,7 @@ import {
     ProjectRootResponse,
     Property,
     RangeFormatRequest,
+    RegistryArtifact,
     RegistryArtifactNamesResponse,
     RetrieveAddressEndpointRequest,
     RetrieveAddressEndpointResponse,
@@ -162,6 +175,7 @@ import {
     RetrieveTemplateResponse,
     RetrieveWsdlEndpointRequest,
     RetrieveWsdlEndpointResponse,
+    SaveInboundEPUischemaRequest,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     StoreConnectorJsonResponse,
@@ -185,6 +199,7 @@ import {
     UpdateHttpEndpointResponse,
     UpdateLoadBalanceEPRequest,
     UpdateLoadBalanceEPResponse,
+    UpdateMediatorRequest,
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     UpdateRecipientEPRequest,
@@ -203,35 +218,23 @@ import {
     WriteContentToFileResponse,
     getAllDependenciesRequest,
     getSTRequest,
-    GetSTFromUriRequest,
     getSTResponse,
-    onSwaggerSpecReceived,
-    FileRenameRequest,
-    SaveInboundEPUischemaRequest,
-    GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse,
     onDownloadProgress,
-    AddDriverRequest,
-    ExtendedDSSQueryGenRequest,
-    DSSFetchTablesRequest,
-    DSSFetchTablesResponse,
-    DSSQueryGenRequest,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
-    RegistryArtifact,
+    onSwaggerSpecReceived
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
 import * as fs from "fs";
-import { copy } from 'fs-extra';
+import { copy, remove } from 'fs-extra';
 import { isEqual, reject } from "lodash";
 import * as os from 'os';
 import { getPortPromise } from "portfinder";
 import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
-import { remove } from 'fs-extra';
 import * as vscode from 'vscode';
 import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
@@ -2403,8 +2406,10 @@ ${endpointAttributes}
                 const formatRange = this.getFormatRange(range, text);
                 await this.rangeFormat({ uri: uri, range: formatRange });
             }
-            const content = document.getText();
-            undoRedo.addModification(content);
+            if (!params.disableUndoRedo) {
+                const content = document.getText();
+                undoRedo.addModification(content);
+            }
 
             resolve({ status: true });
         });
@@ -3514,7 +3519,7 @@ ${endpointAttributes}
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return new Promise(async (resolve) => {
-            const response = await getAvailableRegistryResources(params.path);
+            const response = getAvailableRegistryResources(params.path);
             const artifacts = response.artifacts;
             var tempArtifactNames: string[] = [];
             for (let i = 0; i < artifacts.length; i++) {
@@ -3522,7 +3527,7 @@ ${endpointAttributes}
             }
             let artifactsWithAdditionalData: RegistryArtifact[] = [];
             if (params.withAdditionalData) {
-                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+                artifactsWithAdditionalData = response.artifacts;
             }
             resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });
@@ -4890,6 +4895,47 @@ ${keyValuesXML}`;
         });
     }
 
+    async getMediators(param: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getMediators(param);
+            resolve(response);
+        });
+    }
+
+    async getMediator(param: GetMediatorRequest): Promise<GetMediatorResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getMediator(param);
+            resolve(response);
+        });
+    }
+
+    async updateMediator(param: UpdateMediatorRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.generateSynapseConfig(param);
+            if (response && response.textEdits) {
+                let edits = response.textEdits;
+
+                for (const edit of edits) {
+                    await this.applyEdit({
+                        documentUri: param.documentUri,
+                        range: edit.range,
+                        text: edit.newText,
+                        disableUndoRedo: true
+                    });
+                }
+                let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
+                if (!document) {
+                    return;
+                }
+                const content = document.getText();
+                undoRedo.addModification(content);
+            }
+        });
+    }
+
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise(async (resolve, reject) => {
             try {
@@ -4907,6 +4953,7 @@ ${keyValuesXML}`;
         });
     }
 }
+
 
 export async function askProjectPath() {
     return await window.showOpenDialog({

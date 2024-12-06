@@ -93,6 +93,8 @@ export const Colors = {
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };
 
+export const SIDE_PANEL_WIDTH = 450;
+
 export const NODE_GAP = {
     START_X: 0,
     START_Y: 40,
@@ -174,32 +176,32 @@ export const NODE_DIMENSIONS = {
 export const MEDIATORS = {
     AGGREGATE: "Aggregate",
     CACHE: "Cache",
-    CALL: "Call Endpoint",
+    CALL: "Call",
     CALLOUT: "Callout",
-    CALLTEMPLATE: "Call Template",
+    CALLTEMPLATE: "Call-Template",
     CLONE: "Clone",
-    DATAMAPPER: "Data Mapper",
-    DATASERVICECALL: "Call Data Service",
+    DATAMAPPER: "DataMapper",
+    DATASERVICECALL: "DataServiceCall",
     DROP: "Drop",
     ENRICH: "Enrich",
-    ENTITLEMENT: "Entitlement Service",
+    ENTITLEMENT: "EntitlementService",
     FASTXSLT: "FastXSLT",
-    FAULT: "Fault",
+    FAULT: "MakeFault",
     FILTER: "Filter",
     FOREACHMEDIATOR: "ForEach",
     HEADER: "Header",
     ITERATE: "Iterate",
-    JSONTRANSFORM: "JSON Transform",
+    JSONTRANSFORM: "JSONTransform",
     LOG: "Log",
     LOOPBACK: "Loopback",
-    PAYLOAD: "Payload Factory",
+    PAYLOAD: "PayloadFactory",
     PROPERTY: "Property",
-    PROPERTYGROUP: "Property Group",
+    PROPERTYGROUP: "PropertyGroup",
     RESPOND: "Respond",
     REWRITE: "Rewrite",
     RULE: "Rule",
     SEND: "Send",
-    SEQUENCE: "Call Sequence",
+    SEQUENCE: "Sequence",
     SMOOKS: "Smooks",
     STORE: "Store",
     SWITCH: "Switch",
@@ -213,16 +215,16 @@ export const MEDIATORS = {
     EJB: "Ejb",
     SCRIPT: "Script",
     SPRING: "Spring",
-    DBLOOKUP: "DB Lookup",
-    DBREPORT: "DB Report",
+    DBLOOKUP: "DBLookup",
+    DBREPORT: "DBReport",
     ENQUEUE: "Enqueue",
     EVENT: "Event",
     TRANSACTION: "Transaction",
-    CONDITIONALROUTER: "Conditional Router",
+    CONDITIONALROUTER: "ConditionalRouter",
     BAM: "Bam",
     OAUTH: "OAuth",
     BUILDER: "Builder",
-    PUBLISHEVENT: "Publish Event",
+    PUBLISHEVENT: "PublishEvent",
     NTLM: "NTLM",
 }
 
@@ -291,3 +293,10 @@ export const DATA_SERVICE = {
 export const APIS = {
     CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
 }
+
+export const ERROR_MESSAGES = {
+    ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
+    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
+}
+
+export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";

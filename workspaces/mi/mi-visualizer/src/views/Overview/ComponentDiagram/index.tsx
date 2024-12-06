@@ -52,7 +52,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const handleAddConnection = () => {
     };
 
-    const onDeleteComponent = () => {
+    const handleOnDeleteComponent = () => {
     };
 
     const handleGoToConnection = async (connection: Connection) => {

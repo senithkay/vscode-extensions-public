@@ -12,12 +12,13 @@ import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE, ProjectOverviewResponse, Pr
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { ViewHeader } from "../../components/View";
-import { Button, Codicon, colors, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, colors, ErrorBanner, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
 import ComponentDiagram from "./ComponentDiagram";
 import styled from "@emotion/styled";
 import ReactMarkdown from "react-markdown";
 import { VSCodeLink, VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
 import { ProjectInformation } from "./ProjectInformation";
+import { ERROR_MESSAGES } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 
 const Body = styled.div`
     padding: 0 32px;
@@ -95,19 +96,24 @@ function Overview(props: OverviewProps) {
 
     useEffect(() => {
         const fetchWorkspaces = async () => {
-            const response = await rpcClient.getMiVisualizerRpcClient().getWorkspaces();
-            setWorkspaces(response.workspaces);
-            setActiveWorkspaces(response.workspaces[0]);
-            changeWorkspace(response.workspaces[0].fsPath);
+            try {
+                const response = await rpcClient.getMiVisualizerRpcClient().getWorkspaces();
+                setWorkspaces(response.workspaces);
+                setActiveWorkspaces(response.workspaces[0]);
+                changeWorkspace(response.workspaces[0].fsPath);
+
+            } catch (error) {
+                console.error('Error fetching workspaces:', error);
+            }
 
             rpcClient.onDocumentSave(async (data: any) => {
                 if (data.uri.endsWith("README.md")) {
-                    const readme = await rpcClient.getMiVisualizerRpcClient().getReadmeContent();
-                    setReadmeContent(readme.content);
+                    await getReadmeContent();
                 }
             });
-            const readme = await rpcClient.getMiVisualizerRpcClient().getReadmeContent();
-            setReadmeContent(readme.content);
+
+            await getReadmeContent();
+
             setIsLoading(false);
         };
         fetchWorkspaces();
@@ -117,13 +123,28 @@ function Overview(props: OverviewProps) {
         if (workspaces && selected) {
             rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
                 setProjectStructure(response);
+            }).catch((error) => {
+                console.error('Error getting project structure:', error);
+                setProjectStructure(undefined);
             });
 
             rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
                 setProjectOverview(response);
+            }).catch((error) => {
+                console.error('Error getting project overview:', error);
+                setProjectOverview(undefined);
             });
         }
     }, [selected, props]);
+
+    async function getReadmeContent() {
+        try {
+            const readme = await rpcClient.getMiVisualizerRpcClient().getReadmeContent();
+            setReadmeContent(readme.content);
+        } catch (error) {
+            console.error('Error fetching README content on document save:', error);
+        }
+    }
 
     const changeWorkspace = (fsPath: string) => {
         setSelected(fsPath);
@@ -218,13 +239,17 @@ function Overview(props: OverviewProps) {
                             <VSCodePanelTab id="component-diagram">Component Diagram</VSCodePanelTab>
                             <VSCodePanelTab id="project-structure">Project Structure</VSCodePanelTab>
 
-
                             <PanelContent id={"component-diagram"} >
                                 <TabContent style={{ height: '400px', overflow: 'hidden', borderRadius: '8px' }}>
-                                    <ComponentDiagram
+                                    {projectOverview ? (<ComponentDiagram
                                         projectStructure={projectOverview}
                                         projectName={activeWorkspaces?.name}
-                                    />
+                                    />) : (
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                            <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW} />
+                                        </div>
+                                    )
+                                    }
                                 </TabContent>
                             </PanelContent>
 

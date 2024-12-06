@@ -10,16 +10,14 @@
 import React, { useEffect, useRef } from 'react';
 import { Button, ComponentCard, ProgressIndicator, Typography } from '@wso2-enterprise/ui-toolkit';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps, getParamManagerValues } from '../mediators/common';
+import { AddMediatorProps, getParamManagerFromValues, getParamManagerValues } from '../../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
 import { ParamConfig, ParamManager, ParamValue } from '../../../Form/ParamManager/ParamManager';
 import { sidepanelGoBack } from '../..';
-import { DATA_SERVICE } from "../../../../resources/constants";
-import { getParamManagerFromValues } from "../../../../utils/template-engine/mustach-templates/dataservice/ds"
+import { getDssQueryXml, getDssResourceQueryParamsXml } from '../../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
-const cardStyle = { 
+const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -30,7 +28,7 @@ const cardStyle = {
 const InputMappingsForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [ isLoading, setIsLoading ] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, handleSubmit, reset } = useForm();
@@ -39,13 +37,13 @@ const InputMappingsForm = (props: AddMediatorProps) => {
         (async () => {
             const queryParams: any[] = [];
             let isInResource = false;
-            const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
+            const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
             if (st.syntaxTree.data.resources !== undefined && st.syntaxTree.data.resources !== null && st.syntaxTree.data.resources.length > 0) {
                 st.syntaxTree.data.resources.forEach((resource: any) => {
                     if (resource.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
                         if (resource.callQuery.withParam !== undefined) {
                             resource.callQuery.withParam.forEach((param: any) => {
-                                queryParams.push({name: param.name, queryParam: param.queryParam});
+                                queryParams.push({ name: param.name, queryParam: param.queryParam });
                             });
                         }
                         isInResource = true;
@@ -58,7 +56,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
                         if (operation.callQuery.href === sidePanelContext?.formValues?.queryObject.queryName) {
                             if (operation.callQuery.withParam !== undefined) {
                                 operation.callQuery.withParam.forEach((param: any) => {
-                                    queryParams.push({name: param.name, queryParam: param.queryParam});
+                                    queryParams.push({ name: param.name, queryParam: param.queryParam });
                                 });
                             }
                             isInResource = true;
@@ -232,7 +230,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
     }
 
     const onClick = async (values: any) => {
-        
+
         values["inputMappings"] = getParamManagerValues(values.inputMappings);
 
         const queryParams: any[] = [];
@@ -275,14 +273,14 @@ const InputMappingsForm = (props: AddMediatorProps) => {
             hasQueryParams: queryParams.length > 0
         };
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
+        let xml = getDssQueryXml({ ...updatedQuery, queryType }).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
-              text: xml, documentUri: props.documentUri,
-            range: {start: range.startTagRange.start, end: range.endTagRange.end}
+            text: xml, documentUri: props.documentUri,
+            range: { start: range.startTagRange.start, end: range.endTagRange.end }
         });
 
-        const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({documentUri: props.documentUri});
+        const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
         let isInResource = false;
         let resourceData: any = {};
         if (st.syntaxTree.data.resources !== undefined && st.syntaxTree.data.resources !== null && st.syntaxTree.data.resources.length > 0) {
@@ -306,11 +304,11 @@ const InputMappingsForm = (props: AddMediatorProps) => {
         }
 
         if (Object.keys(resourceData).length !== 0) {
-            xml = getXML(DATA_SERVICE.EDIT_RESOURCE_PARAMS, resourceQuery);
+            xml = getDssResourceQueryParamsXml(resourceQuery);
             const end = resourceData.selfClosed ? resourceData.resourceRange.startTagRange.end : resourceData.resourceRange.endTagRange.end;
             await rpcClient.getMiDiagramRpcClient().applyEdit({
                 text: xml, documentUri: props.documentUri,
-                range: {start: resourceData.resourceRange.startTagRange.start, end: end}
+                range: { start: resourceData.resourceRange.startTagRange.start, end: end }
             });
         }
 
@@ -325,7 +323,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
     };
 
     if (isLoading) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
     return (
         <>
@@ -334,7 +332,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <Typography variant="h3">Input Mappings</Typography>
-                
+
 
                     <Controller
                         name="inputMappings"
@@ -343,7 +341,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
                             <ParamManager
                                 paramConfigs={value}
                                 readonly={false}
-                                onChange= {(values) => {
+                                onChange={(values) => {
                                     values.paramValues = values.paramValues.map((param: any) => {
                                         const property: ParamValue[] = param.paramValues;
                                         param.key = property[0].value;
@@ -371,7 +369,7 @@ const InputMappingsForm = (props: AddMediatorProps) => {
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 
