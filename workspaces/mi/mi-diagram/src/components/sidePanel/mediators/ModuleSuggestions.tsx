@@ -11,7 +11,6 @@ import { Tooltip } from '@wso2-enterprise/ui-toolkit';
 import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
-// import { getAllMediators } from './Values';
 import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { DownloadPage } from './DownloadPage';
