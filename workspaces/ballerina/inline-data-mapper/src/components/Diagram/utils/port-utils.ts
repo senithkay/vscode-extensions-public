@@ -9,7 +9,8 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
-import { OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "./constants";
+import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "./constants";
+import { ArrayOutputNode } from "../Node/ArrayOutput/ArrayOutputNode";
 
 export function getInputPort(node: InputNode, inputField: string): InputOutputPortModel {
     const port = node.getPort(`${inputField}.OUT`);
@@ -17,7 +18,7 @@ export function getInputPort(node: InputNode, inputField: string): InputOutputPo
 }
 
 export function getOutputPort(
-    node: ObjectOutputNode,
+    node: ObjectOutputNode | ArrayOutputNode,
     outputField: string
 ): [InputOutputPortModel, InputOutputPortModel] {
     const portId = `${getTargetPortPrefix(node)}.${outputField}.IN`;
@@ -41,6 +42,8 @@ export function getTargetPortPrefix(node: NodeModel): string {
 	switch (true) {
 		case node instanceof ObjectOutputNode:
 			return OBJECT_OUTPUT_TARGET_PORT_PREFIX;
+        case node instanceof ArrayOutputNode:
+            return ARRAY_OUTPUT_TARGET_PORT_PREFIX;
         // TODO: Update cases for other node types
 		default:
 			return "";

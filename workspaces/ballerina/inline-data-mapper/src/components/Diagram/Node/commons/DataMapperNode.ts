@@ -130,12 +130,6 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		} else if (field.kind === TypeKind.Array) {
 			const elements: MappingElement[] = mapping?.elements || [];
 
-			// Array.from({ length: elements.length }, (_, index) => {
-			// 	this.addPortsForOutputField(
-			// 		field.member, type, fieldFQN, elements, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
-			// 	);
-			// });
-
 			elements.forEach((element, index) => {
 				this.addPortsForOutputField(
 					field.member, type, fieldFQN, element.mappings, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
@@ -159,7 +153,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		if (portPrefix) {
 			portName = name ? `${portPrefix}.${name}` : portPrefix;
 		}
-		const mapping = mappings && findMappingByOutput(mappings, portName);
+		const mapping = mappings && findMappingByOutput(mappings, name);
 	
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const headerPort = new InputOutputPortModel(
