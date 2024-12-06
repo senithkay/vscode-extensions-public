@@ -42,8 +42,7 @@ export function DownloadPage(props: DownloadPageProps) {
                 dependencies.push({
                     groupId: module.mavenGroupId,
                     artifact: module.mavenArtifactId,
-                    version: module.version.tagName,
-                    range: ""
+                    version: module.version.tagName
                 });
                 await rpcClient.getMiVisualizerRpcClient().updateDependencies({
                     dependencies

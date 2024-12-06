@@ -349,8 +349,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                 dependencies.push({
                     groupId: conOnconfirmation.connector.mavenGroupId,
                     artifact: conOnconfirmation.connector.mavenArtifactId,
-                    version: conOnconfirmation.connector.version.tagName,
-                    type: ""
+                    version: conOnconfirmation.connector.version.tagName
                 });
                 await rpcClient.getMiVisualizerRpcClient().updateDependencies({
                     dependencies
