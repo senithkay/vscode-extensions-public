@@ -112,7 +112,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
     const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
-    const [clearMemory, setClearMemory] = useState<boolean>(false);
 
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
@@ -156,7 +155,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setSidePanelView(SidePanelView.NODE_LIST);
         setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
-        setClearMemory(true);
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -483,7 +481,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
-        setClearMemory(true);
         selectedNodeRef.current = undefined;
     };
 
@@ -647,10 +644,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         </>
     );
 
-    const resetClearMemory = () => {
-        setClearMemory(false);
-    };
-
     return (
         <>
             <View>
@@ -739,8 +732,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             openSubPanel={handleSubPanel}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                            clearMemory={clearMemory}
-                            resetClearMemory={resetClearMemory}
                         />
                     )}
                 </div>

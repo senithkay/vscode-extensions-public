@@ -50,8 +50,6 @@ interface FormProps {
     openSubPanel?: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
-    clearMemory: boolean;
-    resetClearMemory: () => void;
 }
 
 export function FormGenerator(props: FormProps) {
@@ -68,9 +66,7 @@ export function FormGenerator(props: FormProps) {
         openSubPanel,
         isActiveSubPanel,
         updatedExpressionField,
-        resetUpdatedExpressionField,
-        clearMemory,
-        resetClearMemory
+        resetUpdatedExpressionField
     } = props;
 
     const { rpcClient } = useRpcContext();
@@ -90,14 +86,30 @@ export function FormGenerator(props: FormProps) {
             return;
         }
         initForm();
+        handleFormOpen();
+
+        return () => {
+            handleFormClose();
+        };
     }, [node]);
 
-    useEffect(() => {
-        if (clearMemory) {
-            handleExpressionEditorCancel();
-            resetClearMemory();
-        }
-    }, [clearMemory]);
+    const handleFormOpen = () => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .formDidOpen({ filePath: fileName })
+            .then(() => {
+                console.log('>>> Form opened');
+            });
+    };
+
+    const handleFormClose = () => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .formDidClose({ filePath: fileName })
+            .then(() => {
+                console.log('>>> Form closed');
+            });
+    };
 
     const initForm = () => {
         const formProperties = getFormProperties(node);
