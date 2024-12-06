@@ -32,9 +32,9 @@ import {
     ProjectOverviewResponse,
     ReadmeContentResponse,
     ProjectDetailsResponse,
-    PomXmlEditRequest,
-    UpdateDependencyRequest,
-    ConfigFileEditRequest
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -77,6 +77,6 @@ export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${
 export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
 export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
 export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
-export const updateDependency: RequestType<UpdateDependencyRequest, string> = { method: `${_preFix}/updateDependency` };
-export const updatePomValue: RequestType<PomXmlEditRequest, string> = { method: `${_preFix}/updatePomValue` };
-export const updateConfigFileValue: RequestType<ConfigFileEditRequest, string> = { method: `${_preFix}/updateConfigFileValue` };
+export const updateDependencies: RequestType<UpdateDependenciesRequest, boolean> = { method: `${_preFix}/updateDependencies` };
+export const updatePomValues: RequestType<UpdatePomValuesRequest, boolean> = { method: `${_preFix}/updatePomValues` };
+export const updateConfigFileValues: RequestType<UpdateConfigValuesRequest, boolean> = { method: `${_preFix}/updateConfigFileValues` };

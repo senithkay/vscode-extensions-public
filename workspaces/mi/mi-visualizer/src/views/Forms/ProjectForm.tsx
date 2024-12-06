@@ -115,15 +115,15 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
     };
 
     const updateDependencyl = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().updateDependency(params);
+        rpcClient.getMiVisualizerRpcClient().updateDependencies(params);
     };
 
-    const updatePomValue = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().updatePomValue(params);
+    const updatePomValues = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().updatePomValues(params);
     };
 
-    const updateConfigFileValue = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().updateConfigFileValue(params);
+    const updateConfigFileValues = (params: any) => {
+        rpcClient.getMiVisualizerRpcClient().updateConfigFileValues(params);
     };
 
 

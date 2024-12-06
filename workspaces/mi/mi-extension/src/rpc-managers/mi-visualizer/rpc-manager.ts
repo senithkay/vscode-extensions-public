@@ -43,9 +43,9 @@ import {
     WorkspaceFolder,
     WorkspacesResponse,
     ProjectDetailsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
-    UpdateDependencyRequest
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -67,6 +67,7 @@ import { copy } from 'fs-extra';
 const fs = require('fs');
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
 import { COMMANDS } from '../../constants';
+import { TextEdit } from "vscode-languageclient";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -106,45 +107,46 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async updateDependency(params: UpdateDependencyRequest): Promise<string> {
+    async updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateDependency(params);
+            const res = await langClient.updateDependencies(params);
 
-            // apply edit to pom file
-            const projectRoom = StateMachine.context().projectUri!;
-            const pomPath = path.join(projectRoom, 'pom.xml');
-
-            if (!fs.existsSync(pomPath)) {
-                throw new Error("pom.xml not found");
-            }
-
-            const content = res.value;
-
-            const edit = new WorkspaceEdit();
-
-            const range = new Range(new Position(res.range.start.line, res.range.start.character),
-                new Position(res.range.end.line, res.range.end.character));
-
-            edit.replace(Uri.file(pomPath), range, content);
-            await workspace.applyEdit(edit);
-            resolve(res.value);
+            await this.updatePom(res.textEdits);
+            resolve(true);
         });
     }
 
-    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
+    async updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updatePomValue(params);
-            resolve(res);
+            const textEdits = params.pomValues.map((pomValue) => {
+                const range = pomValue.range! as Range;
+                return {
+                    range: {
+                        start: {
+                            line: range.start.line - 1,
+                            character: range.start.character - 1
+                        },
+                        end: {
+                            line: range.end.line - 1,
+                            character: range.end.character - 1
+                        }
+                    },
+                    newText: pomValue.value
+                };
+            });
+            this.updatePom(textEdits);
+            resolve(true);
         });
     }
 
-    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+    async updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateConfigFileValue(params);
-            resolve(res);
+            const res = await langClient.updateConfigFileValues(params.configValues);
+
+            await this.updatePom(res.textEdits);
+            resolve(true);
         });
     }
 
@@ -527,6 +529,27 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
+    private async updatePom(textEdits: TextEdit[]) {
+        const projectRoom = StateMachine.context().projectUri!;
+        const pomPath = path.join(projectRoom, 'pom.xml');
+
+        if (!fs.existsSync(pomPath)) {
+            throw new Error("pom.xml not found");
+        }
+
+        for (const textEdit of textEdits) {
+            const content = textEdit.newText;
+
+            const edit = new WorkspaceEdit();
+
+            const range = new Range(new Position(textEdit.range.start.line - 1, textEdit.range.start.character - 1),
+                new Position(textEdit.range.end.line - 1, textEdit.range.end.character - 1));
+
+            edit.replace(Uri.file(pomPath), range, content);
+            await workspace.applyEdit(edit);
+        }
+    }
+
     async importOpenAPISpec(): Promise<void> {
         // open file dialog to select the openapi spec file
         const options: vscode.OpenDialogOptions = {
@@ -549,7 +572,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
                 openAPIPath: filePath,
                 connectorProjectPath: path.join(workspaceFolder, 'target')
             };
-            const {buildStatus, connectorPath} = await langClient.generateConnector(connectorGenRequest);
+            const { buildStatus, connectorPath } = await langClient.generateConnector(connectorGenRequest);
             if (buildStatus) {
                 await copy(connectorPath, path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
                 vscode.window.showInformationMessage("Connector generated successfully");

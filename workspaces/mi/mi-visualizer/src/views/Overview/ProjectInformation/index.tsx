@@ -45,8 +45,8 @@ export function ProjectInformation(props: ProjectInformationProps) {
             try {
                 const response = await rpcClient.getMiVisualizerRpcClient().getProjectDetails();
                 setProjectDetails(response);
-                setDependencies(response.dependenciesDetails.connectorDependencies, setConnectorDependencies);
-                setDependencies(response.dependenciesDetails.otherDependencies, setOtherDependencies);
+                setDependencies(response.dependencies.connectorDependencies, setConnectorDependencies);
+                setDependencies(response.dependencies.otherDependencies, setOtherDependencies);
             } catch (error) {
                 console.error("Error fetching project details:", error);
             }
@@ -99,15 +99,15 @@ export function ProjectInformation(props: ProjectInformationProps) {
         return <ProgressIndicator />;
     }
 
-    const { primaryDetails, buildDetails, dependenciesDetails: dependencies, unitTestDetails: unitTests } = projectDetails;
+    const { primaryDetails, buildDetails, dependencies, unitTest } = projectDetails;
 
     function Dependencies(title: string, dependencies: DependencyDetails[], config: ParamConfig, onChange: (values: ParamConfig) => void) {
         return <FormGroup title={title} isCollapsed={false}>
             {!dependencies || dependencies.length === 0 ? <Typography>No dependencies found</Typography> :
                 <ParamManager
                     paramConfigs={config}
-                    readonly={false}
-                    addParamText="Add Dependency"
+                    readonly={true}
+                    allowAddItem={false}
                     onChange={(values: ParamConfig) => {
                         values.paramValues = values.paramValues.map((param: any) => {
                             const paramValues = param.paramValues;
@@ -173,23 +173,23 @@ export function ProjectInformation(props: ProjectInformationProps) {
                 <div>
                     <Item>
                         <Icon name="check" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Skip Tests: {unitTests?.skipTest?.value}</Typography>
+                        <Typography>Skip Tests: {unitTest?.skipTest?.value}</Typography>
                     </Item>
                     <Item>
                         <Icon name="server" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Server Host: {unitTests?.serverHost?.value}</Typography>
+                        <Typography>Server Host: {unitTest?.serverHost?.value}</Typography>
                     </Item>
                     <Item>
                         <Icon name="settings" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Server Port: {unitTests?.serverPort?.value}</Typography>
+                        <Typography>Server Port: {unitTest?.serverPort?.value}</Typography>
                     </Item>
                     <Item>
                         <Icon name="folder" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Server Path: {unitTests?.serverPath?.value}</Typography>
+                        <Typography>Server Path: {unitTest?.serverPath?.value}</Typography>
                     </Item>
                     <Item>
                         <Icon name="info" isCodicon sx={{ marginRight: '8px' }} />
-                        <Typography>Server Type: {unitTests?.serverType?.value}</Typography>
+                        <Typography>Server Type: {unitTest?.serverType?.value}</Typography>
                     </Item>
                 </div>
             </FormGroup>

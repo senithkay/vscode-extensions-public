@@ -56,9 +56,9 @@ import {
     updateContext,
     getProjectDetails,
     PomXmlEditRequest,
-    updateDependency,
-    updatePomValue,
-    updateConfigFileValue,
+    updateDependencies,
+    updatePomValues,
+    updateConfigFileValues,
     ConfigFileEditRequest,
     UpdateDependencyRequest,
     importOpenAPISpec
@@ -102,8 +102,8 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
     messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
     messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
-    messenger.onRequest(updateDependency, (args: UpdateDependencyRequest) => rpcManger.updateDependency(args));
-    messenger.onRequest(updatePomValue, (args: PomXmlEditRequest) => rpcManger.updatePomValue(args));
-    messenger.onRequest(updateConfigFileValue, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValue(args));
+    messenger.onRequest(updateDependencies, (args: UpdateDependencyRequest) => rpcManger.updateDependencies(args));
+    messenger.onRequest(updatePomValues, (args: PomXmlEditRequest) => rpcManger.updatePomValues(args));
+    messenger.onRequest(updateConfigFileValues, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValues(args));
     messenger.onRequest(importOpenAPISpec, () => rpcManger.importOpenAPISpec());
 }

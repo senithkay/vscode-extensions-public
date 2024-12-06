@@ -31,9 +31,9 @@ import {
     ProjectOverviewResponse,
     ReadmeContentResponse,
     ProjectDetailsResponse,
-    PomXmlEditRequest,
-    UpdateDependencyRequest,
-    ConfigFileEditRequest,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -72,8 +72,8 @@ export interface MIVisualizerAPI {
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
     getProjectDetails: () => Promise<ProjectDetailsResponse>;
-    updateDependency: (params: UpdateDependencyRequest) => Promise<string>;
-    updatePomValue: (params: PomXmlEditRequest) => Promise<string>;
-    updateConfigFileValue: (params: ConfigFileEditRequest) => Promise<string>;
+    updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
+    updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
+    updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
     importOpenAPISpec: () => Promise<void>;
 }
