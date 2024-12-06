@@ -34,6 +34,8 @@ import { InitVisitor } from "../visitors/InitVisitor";
 import { LinkTargetVisitor } from "../visitors/LinkTargetVisitor";
 import { NODE_WIDTH, NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
+import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
+import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
 
 export interface DiagramProps {
     model: Flow;
@@ -41,6 +43,8 @@ export interface DiagramProps {
     onDeleteNode: (node: FlowNode) => void;
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
+    addBreakpoint: (node: FlowNode) => void;
+    removeBreakpoint: (node: FlowNode) => void;
     onConnectionSelect: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView?: (filePath: string, position: NodePosition) => void;
@@ -51,6 +55,7 @@ export interface DiagramProps {
         onDiscard(): void;
     };
     projectPath?: string;
+    breakpointInfo?: BreakpointInfo;
 }
 
 export function Diagram(props: DiagramProps) {
@@ -65,6 +70,9 @@ export function Diagram(props: DiagramProps) {
         openView,
         suggestions,
         projectPath,
+        addBreakpoint,
+        removeBreakpoint,
+        breakpointInfo
     } = props;
 
     const [showErrorFlow, setShowErrorFlow] = useState(false);
@@ -110,6 +118,8 @@ export function Diagram(props: DiagramProps) {
         traverseFlow(flowModel, sizingVisitor);
         const positionVisitor = new PositionVisitor();
         traverseFlow(flowModel, positionVisitor);
+        const breakpointVisitor = new BreakpointVisitor(breakpointInfo);
+        traverseFlow(flowModel, breakpointVisitor);
         // create diagram nodes and links
         const nodeVisitor = new NodeFactoryVisitor();
         traverseFlow(flowModel, nodeVisitor);
@@ -188,6 +198,8 @@ export function Diagram(props: DiagramProps) {
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,
+        addBreakpoint: addBreakpoint,
+        removeBreakpoint: removeBreakpoint,
         onConnectionSelect: onConnectionSelect,
         goToSource: goToSource,
         openView: openView,

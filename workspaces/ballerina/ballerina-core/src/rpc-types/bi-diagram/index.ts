@@ -41,7 +41,7 @@ import {
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports } from "./interfaces";
+import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest, ProjectImports, BreakpointRequest, CurrentBreakpointsResponse } from "./interfaces";
 
 export interface BIDiagramAPI {
     getFlowModel: () => Promise<BIFlowModelResponse>;
@@ -73,6 +73,9 @@ export interface BIDiagramAPI {
     buildProject: () => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    addBreakpointToSource: (params: BreakpointRequest) => void;
+    removeBreakpointFromSource: (params: BreakpointRequest) => void;
+    getBreakpointInfo: () => Promise<CurrentBreakpointsResponse>;
     getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
     getAllImports:()=> Promise<ProjectImports>;
 }
