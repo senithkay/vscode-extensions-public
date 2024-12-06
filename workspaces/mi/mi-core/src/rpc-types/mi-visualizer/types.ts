@@ -139,7 +139,7 @@ export interface DependencyDetails {
     groupId: string;
     artifact: string;
     version: string;
-    type?: string;
+    type?: "zip" | "jar";
     range?: STRange;
 }
 

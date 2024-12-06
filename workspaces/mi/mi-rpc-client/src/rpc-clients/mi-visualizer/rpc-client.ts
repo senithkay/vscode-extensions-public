@@ -72,7 +72,10 @@ import {
     updatePomValues,
     updateConfigFileValues,
     ProjectDetailsResponse,
-    importOpenAPISpec
+    importOpenAPISpec,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";

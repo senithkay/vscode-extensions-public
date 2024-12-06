@@ -157,7 +157,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                             artifact: paramValue[1],
                             version: paramValue[2],
                             range,
-                            type: field
+                            type: 'zip' as 'zip'
                         });
                     }
                 }
