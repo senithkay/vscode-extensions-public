@@ -175,6 +175,7 @@ export interface PartialSTModification {
 
 export interface BallerinaModule {
     id?: string;
+    type?: string;
     name: string;
     displayName?: string;
     moduleName?: string;
@@ -222,7 +223,8 @@ export interface Package {
 
 export interface BallerinaTriggerInfo extends BallerinaTrigger {
     serviceTypes: ServiceType[],
-    listenerParams: Parameter[],
+    listenerParams?: Parameter[],
+    listener: any,
     documentation?: string,
 }
 
@@ -230,14 +232,23 @@ export interface ServiceType {
     name: string;
     description?: string;
     functions?: RemoteFunction[];
+    basePath?: Parameter;
+    // Editor Related
+    isImplemented?: boolean;
 }
 
 export interface RemoteFunction {
     isRemote?: boolean;
     documentation?: string;
+    optional?: boolean;
     name: string;
     parameters?: Parameter[];
+    qualifiers?: string[];
     returnType?: ReturnType;
+    // Editor Related
+    isImplemented?: boolean;
+    enabled?: boolean;
+    group?: any;
 }
 
 export interface Parameter {
@@ -250,10 +261,16 @@ export interface Parameter {
     hasRestType?: boolean;
     restType?: ReturnType;
     defaultable?: boolean;
+    defaultValue?: string;
+    defaultTypeName?: string; // Is this defaultTypeValue?
+    documentation?: string;
+    type?: string[]
+    arrayType?: boolean;
 }
 
 export interface DisplayAnnotation {
     label?: string;
+    iconPath?: string;
 }
 
 export interface MemberField {

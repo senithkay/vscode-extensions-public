@@ -123,7 +123,7 @@ export class NodeFactoryVisitor implements BaseVisitor {
     beginVisitNode = (node: FlowNode): void => {
         if (node.id) {
             this.createBaseNode(node);
-
+            
             this.addSuggestionsButton(node);
         }
     }; // only ui nodes have id

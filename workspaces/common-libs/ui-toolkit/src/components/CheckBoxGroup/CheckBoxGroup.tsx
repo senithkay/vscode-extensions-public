@@ -20,6 +20,7 @@ export type CheckBoxProps = {
     label: string;
     value?: string;
     checked: boolean;
+    disabled?: boolean;
     onChange: (checked: boolean) => void;
 };
 
@@ -46,13 +47,13 @@ export const StyledCheckBox = styled(VSCodeCheckbox)`
     --checkbox-border: var(--vscode-icon-foreground);
 `;
 
-export const CheckBox = ({ label, value, checked, onChange }: CheckBoxProps) => {
+export const CheckBox = ({ label, value, checked, onChange, disabled }: CheckBoxProps) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.checked);
     };
 
     return (
-        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
+        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange} disabled={disabled}>
             {label}
         </StyledCheckBox>
     );

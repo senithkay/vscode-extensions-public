@@ -35,7 +35,9 @@ import {
     SubPanel,
     SubPanelView,
     Diagnostic,
-    FormDiagnostics
+    FormDiagnostics,
+    BreakpointData,
+    CurrentBreakpointsResponse as BreakpointInfo
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -80,7 +82,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -122,6 +124,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
+    const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
 
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const selectedNodeRef = useRef<FlowNode>();
@@ -146,15 +149,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getFlowModel()
-            .then((model) => {
-                setModel(model.flowModel);
-            })
-            .finally(() => {
-                setShowProgressIndicator(false);
-            });
+        rpcClient.getBIDiagramRpcClient().getBreakpointInfo().then((response) => {
+            console.log(">>> Breakpoint info in flowModel", response);
+            setBreakpointInfo(response);
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFlowModel()
+                .then((model) => {
+                    setModel(model.flowModel);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
+                });
+        });
     };
 
     const handleExpressionEditorCancel = () => {
@@ -545,6 +552,30 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
 
+    const handleAddBreakpoint = (node: FlowNode) => {
+        const request = {
+            filePath: model?.fileName,
+            breakpoint: {
+                line: node.codedata.lineRange.startLine.line,
+                column: node.codedata.lineRange.startLine?.offset
+            }
+        };
+
+        rpcClient.getBIDiagramRpcClient().addBreakpointToSource(request);
+    }
+
+    const handleRemoveBreakpoint = (node: FlowNode) => {
+        const request = {
+            filePath: model?.fileName,
+            breakpoint: {
+                line: node.codedata.lineRange.startLine.line,
+                column: node.codedata.lineRange.startLine?.offset
+            }
+        };
+
+        rpcClient.getBIDiagramRpcClient().removeBreakpointFromSource(request);
+    }
+
     // ai suggestions callbacks
     const onAcceptSuggestions = () => {
         if (!suggestedModel) {
@@ -840,6 +871,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 onConnectionSelect={handleOnEditConnection}
                                 goToSource={handleOnGoToSource}
+                                addBreakpoint={handleAddBreakpoint}
+                                removeBreakpoint={handleRemoveBreakpoint}
                                 openView={handleOpenView}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
@@ -847,6 +880,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                     onDiscard: onDiscardSuggestions,
                                 }}
                                 projectPath={projectPath}
+                                breakpointInfo={breakpointInfo}
                             />
                         )}
                     </Container>
