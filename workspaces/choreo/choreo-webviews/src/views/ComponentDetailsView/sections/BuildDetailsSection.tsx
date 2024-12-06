@@ -18,6 +18,7 @@ import {
 	DeploymentStepStatus,
 	type Organization,
 	type ProjectBuildLogsData,
+	getComponentKindRepoSource,
 	getTimeAgo,
 } from "@wso2-enterprise/choreo-core";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
@@ -95,7 +96,7 @@ export const BuildDetailsSection: FC<Props> = ({ component, data, loadingData, i
 								<CommitLink
 									commitHash={buildItem.spec?.revision}
 									commitMessage={buildItem.status?.gitCommit?.message}
-									repoPath={component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository}
+									repoPath={getComponentKindRepoSource(component?.spec?.source).repo}
 								/>
 							</div>
 						</div>

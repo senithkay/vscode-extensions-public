@@ -521,35 +521,28 @@ export namespace Versions {
 export const removeCredentialsFromGitURL = (gitURL: string): string => {
 	if (gitURL.startsWith("git@")) {
 		// ssh url
-		const parts = gitURL.split(":");
-		if (parts.length === 2) {
-			const repoParts = parts[1].split("/");
-			// Extract user name & org from ssh url & generate an http URL
-			if (repoParts.length === 2) {
-				const username = repoParts[0];
-				const repository = repoParts[1].replace(".git", "");
-				if (gitURL.includes("bitbucket")) {
-					return `https://bitbucket.org/${username}/${repository}.git`;
-				}
-				return `https://github.com/${username}/${repository}.git`;
-			}
+		const urlParts = gitURL.replace('git@', '').split(':');
+		if (urlParts.length === 2) {
+			const host = urlParts[0];
+			const path = urlParts[1].replace(/\.git$/, '');
+			const httpsUrl = new URL(`https://${host}/${path}`);
+			return httpsUrl.toString();
 		}
 	} else {
 		// http/https url
 		try {
-			const parsedURL = new URL(gitURL);
-
+			const parsedUrl = new URL(gitURL);
 			// If user info is present, remove it
-			if (parsedURL.username) {
+			if (parsedUrl.username) {
 				// Remove only the user info, keep the hostname
-				parsedURL.username = "";
-				parsedURL.password = "";
+				parsedUrl.username = "";
+				parsedUrl.password = "";
 			}
 
-			// Convert the URL back to string
-			const redactedURL = parsedURL.toString();
+			// Remove the .git suffix
+			const redactedUrl = parsedUrl.toString().replace(/\.git$/, '');
 
-			return redactedURL;
+			return redactedUrl;
 		} catch (err) {
 			throw err;
 		}

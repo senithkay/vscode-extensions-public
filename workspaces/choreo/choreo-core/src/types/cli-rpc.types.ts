@@ -84,6 +84,7 @@ export interface CreateComponentReq {
 	buildPackLang: string;
 	componentDir: string;
 	repoUrl: string;
+	gitProvider: string;
 	gitCredRef: string;
 	branch: string;
 	langVersion: string;

@@ -36,6 +36,7 @@ export const componentGeneralDetailsSchema = z.object({
 	subPath: z.string(),
 	gitRoot: z.string(),
 	repoUrl: z.string().min(1, "Required"),
+	gitProvider: z.string().min(1, "Required"),
 	credential: z.string(),
 	branch: z.string().min(1, "Required"),
 });

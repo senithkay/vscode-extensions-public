@@ -27,21 +27,16 @@ export interface UserInfo {
 	userCreatedAt: Date;
 }
 
-export interface ComponentKindBitbucketSource {
-	repository: string;
-	branch: string;
-	path: string;
-}
-
-export interface ComponentKindGithubSource {
+export interface ComponentKindGitProviderSource {
 	repository: string;
 	branch: string;
 	path: string;
 }
 
 export interface ComponentKindSource {
-	bitbucket?: ComponentKindBitbucketSource;
-	github?: ComponentKindGithubSource;
+	bitbucket?: ComponentKindGitProviderSource;
+	github?: ComponentKindGitProviderSource;
+	gitlab?: ComponentKindGitProviderSource;
 }
 
 export interface ComponentKindBuildDocker {

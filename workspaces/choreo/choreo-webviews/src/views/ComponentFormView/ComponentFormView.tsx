@@ -74,7 +74,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 	const genDetailsForm = useForm<ComponentFormGenDetailsType>({
 		resolver: zodResolver(getComponentFormSchemaGenDetails(existingComponents), { async: true }, { mode: "async" }),
 		mode: "all",
-		defaultValues: { name: initialValues?.name || "", subPath: "", gitRoot: "", repoUrl: "", branch: "", credential: "" },
+		defaultValues: { name: initialValues?.name || "", subPath: "", gitRoot: "", repoUrl: "", branch: "", credential: "", gitProvider: "" },
 	});
 
 	const name = genDetailsForm.watch("name");
@@ -166,6 +166,7 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 				buildPackLang: buildDetails.buildPackLang,
 				componentDir: directoryFsPath,
 				repoUrl: genDetails.repoUrl,
+				gitProvider: genDetails.gitProvider,
 				branch: genDetails.branch,
 				langVersion: buildDetails.langVersion,
 				port: buildDetails.webAppPort,
@@ -192,8 +193,6 @@ export const ComponentFormView: FC<NewComponentWebviewProps> = (props) => {
 				createParams.proxyApiVersion = gitProxyDetails.proxyVersion;
 				createParams.proxyEndpointUrl = gitProxyDetails.proxyTargetUrl;
 			}
-
-			console.log("createParams", createParams);
 
 			const createCompCommandParams: SubmitComponentCreateReq = {
 				org: organization,

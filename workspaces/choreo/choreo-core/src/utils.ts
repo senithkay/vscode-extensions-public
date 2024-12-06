@@ -8,7 +8,7 @@
  */
 
 import { ChoreoComponentType, ComponentDisplayType, GitProvider } from "./enums";
-import type { ComponentKind, Organization, Project } from "./types/common.types";
+import type { ComponentKind, ComponentKindSource, Organization, Project } from "./types/common.types";
 
 export const makeURLSafe = (input: string) => input?.trim()?.toLowerCase().replace(/\s+/g, "-");
 
@@ -216,11 +216,20 @@ export const parseGitURL = (url?: string): null | [string, string, string] => {
 		return null;
 	}
 
-	if (url.includes("bitbucket")) {
+	if (url.includes("bitbucket.org/")) {
 		provider = GitProvider.BITBUCKET;
-	} else {
+	} else if (url.includes("github.com/")) {
 		provider = GitProvider.GITHUB;
+	} else {
+		provider = GitProvider.GITLAB_SERVER;
 	}
 
 	return [org, repoName, provider];
+};
+
+export const getComponentKindRepoSource = (source: ComponentKindSource) => {
+	return {
+		repo: source?.github?.repository || source?.bitbucket?.repository || source?.gitlab?.repository || "",
+		path: source?.github?.path || source?.bitbucket?.path || source?.gitlab?.path || "",
+	};
 };

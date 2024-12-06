@@ -29,6 +29,8 @@ export const CommitLink: FC<Props> = ({ className, commitHash, commitMessage, re
 		let commitUrl = `${repoPath}/commit/${commitHash}`;
 		if (provider === GitProvider.BITBUCKET) {
 			commitUrl = `${repoPath}/src/${commitHash}`;
+		} else if (provider === GitProvider.GITLAB_SERVER) {
+			commitUrl = `${repoPath}/-/commit/${commitHash}`;
 		}
 		ChoreoWebViewAPI.getInstance().openExternal(commitUrl);
 	};

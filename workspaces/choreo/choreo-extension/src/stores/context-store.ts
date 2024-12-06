@@ -18,6 +18,7 @@ import {
 	type ContextStoreState,
 	type Organization,
 	type Project,
+	getComponentKindRepoSource,
 	parseGitURL,
 } from "@wso2-enterprise/choreo-core";
 import * as yaml from "js-yaml";
@@ -302,7 +303,7 @@ const mapComponentList = async (components: ComponentKind[], selected?: ContextI
 				const gitRoot = await getGitRoot(ext.context, item.projectRootFsPath);
 				if (gitRoot) {
 					const remotes = await getGitRemotes(ext.context, gitRoot);
-					const repoUrl = componentItem.spec.source.github?.repository || componentItem.spec.source.bitbucket?.repository;
+					const repoUrl = getComponentKindRepoSource(componentItem.spec.source).repo;
 					const parsedRepoUrl = parseGitURL(repoUrl);
 					if (parsedRepoUrl) {
 						const [repoOrg, repoName, repoProvider] = parsedRepoUrl;
@@ -315,7 +316,7 @@ const mapComponentList = async (components: ComponentKind[], selected?: ContextI
 						});
 
 						if (hasMatchingRemote) {
-							const subPathDir = path.join(gitRoot, componentItem.spec.source.github?.path || componentItem.spec.source.bitbucket?.path || "");
+							const subPathDir = path.join(gitRoot, getComponentKindRepoSource(componentItem.spec.source)?.path);
 							const isSubPath = isSubpath(item.dirFsPath, subPathDir);
 							if (isSubPath && existsSync(subPathDir) && !comps.some((item) => item.component?.metadata?.id === componentItem.metadata?.id)) {
 								comps.push({

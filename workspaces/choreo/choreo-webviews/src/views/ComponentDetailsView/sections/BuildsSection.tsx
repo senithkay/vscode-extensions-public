@@ -22,6 +22,7 @@ import {
 	type Organization,
 	type Project,
 	type ToggleAutoBuildReq,
+	getComponentKindRepoSource,
 	getTimeAgo,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
@@ -86,9 +87,9 @@ export const BuildsSection: FC<Props> = (props) => {
 					projectHandle: project.handler,
 					orgId: organization.id?.toString(),
 					displayType: component.spec.type,
-					gitRepoUrl: component.spec.source.github?.repository || component.spec.source.bitbucket?.repository,
+					gitRepoUrl: getComponentKindRepoSource(component.spec.source).repo,
 					gitBranch: deploymentTrack?.branch,
-					subPath: component.spec.source.github?.path || component?.spec?.source?.bitbucket?.path,
+					subPath: getComponentKindRepoSource(component.spec.source).path,
 				});
 			}
 		},
@@ -213,7 +214,7 @@ const BuiltItemRow: FC<Props & { item: BuildKind; onViewBuildDetails: () => void
 				<CommitLink
 					commitHash={item.spec?.revision}
 					commitMessage={item.status?.gitCommit?.message}
-					repoPath={component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository}
+					repoPath={getComponentKindRepoSource(component?.spec?.source).repo}
 				/>
 			</GridColumnItem>
 			<GridColumnItem label="Status" index={2} lastItem>

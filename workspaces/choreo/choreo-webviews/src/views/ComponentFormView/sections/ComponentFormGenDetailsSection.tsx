@@ -35,8 +35,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 
 	const repoUrl = form.watch("repoUrl");
 	const credential = form.watch("credential");
-	const parsedRepo = parseGitURL(repoUrl);
-	const provider = parsedRepo ? parsedRepo[2] : null;
+	const provider = form.watch("gitProvider");
 
 	const {
 		data: gitData,
@@ -52,13 +51,25 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		cacheTime: 0,
 	});
 
-	const { data: gitCredentials = [], isLoading: isLoadingGitCred } = useQuery({
+	useEffect(() => {
+		const parsedRepo = parseGitURL(repoUrl);
+		if (parsedRepo && form.getValues("gitProvider") !== parsedRepo[2]) {
+			form.setValue("gitProvider", parsedRepo[2]);
+		}
+	}, [repoUrl]);
+
+	const {
+		data: gitCredentials = [],
+		isLoading: isLoadingGitCred,
+		refetch: refetchGitCred,
+		isFetching: isFetchingGitCred,
+	} = useQuery({
 		queryKey: ["git-creds", { provider }],
 		queryFn: () =>
 			ChoreoWebViewAPI.getInstance().getChoreoRpcClient().getCredentials({ orgId: organization?.id?.toString(), orgUuid: organization.uuid }),
 		select: (gitData) => gitData?.filter((item) => item.type === provider),
 		refetchOnWindowFocus: true,
-		enabled: provider !== GitProvider.GITHUB,
+		enabled: !!provider && provider !== GitProvider.GITHUB,
 	});
 
 	useEffect(() => {
@@ -96,7 +107,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		refetch: refetchBranches,
 		isFetching: isFetchingBranches,
 	} = useGetGitBranches(repoUrl, organization, provider !== GitProvider.GITHUB ? credential : "", {
-		enabled: !!repoUrl && (provider !== GitProvider.GITHUB ? !!credential : true),
+		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
 		refetchOnWindowFocus: true,
 	});
 
@@ -129,7 +140,7 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 					orgId: organization.id.toString(),
 					credRef: provider !== GitProvider.GITHUB ? credential : "",
 				}),
-		enabled: !!repoUrl && (provider !== GitProvider.GITHUB ? !!credential : true),
+		enabled: !!repoUrl && !!provider && (provider !== GitProvider.GITHUB ? !!credential : true),
 		keepPreviousData: true,
 		refetchOnWindowFocus: true,
 	});
@@ -176,9 +187,11 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 		onInvalidRepoActionClick = () => ChoreoWebViewAPI.getInstance().openExternalChoreo(`organizations/${organization.handle}/settings/credentials`);
 		invalidRepoMsg = `${toSentenceCase(provider)} credentials needs to be configured.`;
 		invalidRepoAction = "Configure Credentials";
+		onInvalidRepoRefreshClick = refetchGitCred;
+		onInvalidRepoRefreshing = isFetchingGitCred;
 	}
 
-	if (!invalidRepoMsg && repoUrl && !isLoadingRepoAccess && !isRepoAuthorizedResp?.isAccessible) {
+	if (!invalidRepoMsg && repoUrl && !isLoadingRepoAccess && !isRepoAuthorizedResp?.isAccessible && provider) {
 		if (provider === GitProvider.GITHUB) {
 			if (isRepoAuthorizedResp?.retrievedRepos) {
 				invalidRepoMsg = (
@@ -237,9 +250,20 @@ export const ComponentFormGenDetailsSection: FC<Props> = ({ onNextClick, organiz
 						loading={isLoadingGitData}
 					/>
 				)}
-				{provider !== GitProvider.GITHUB && gitCredentials?.length > 0 && (
+				{repoUrl && ![GitProvider.GITHUB, GitProvider.BITBUCKET].includes(provider as GitProvider) && (
 					<Dropdown
-						label={`${toSentenceCase(provider)} Credential`}
+						label="Git Provider"
+						key="gitProvider"
+						required
+						name="gitProvider"
+						control={form.control}
+						items={[{ value: GitProvider.GITLAB_SERVER, label: "GitLab" }]}
+						loading={isLoadingGitData}
+					/>
+				)}
+				{provider && provider !== GitProvider.GITHUB && gitCredentials?.length > 0 && (
+					<Dropdown
+						label={`${toSentenceCase(provider).replaceAll("-", " ")} Credential`}
 						key="gen-details-cred"
 						required
 						name="credential"

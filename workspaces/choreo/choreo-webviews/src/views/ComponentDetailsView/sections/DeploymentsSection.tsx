@@ -34,6 +34,7 @@ import {
 	WebviewQuickPickItemKind,
 	WorkflowInstanceStatus,
 	capitalizeFirstLetter,
+	getComponentKindRepoSource,
 	getShortenedHash,
 	getTimeAgo,
 	getTypeForDisplayType,
@@ -79,6 +80,8 @@ interface Props {
 	builds: BuildKind[];
 	openBuildDetailsPanel: (item: BuildKind) => void;
 }
+
+// todo: check visibilities instead of visibility when showing endpoints
 
 export const DeploymentsSection: FC<Props> = (props) => {
 	const { envs, loadingEnvs, deploymentTrack, component, organization, project, builds = [], openBuildDetailsPanel } = props;
@@ -439,7 +442,7 @@ const EnvItem: FC<{
 										<CommitLink
 											commitHash={deploymentStatus?.build?.commit?.sha}
 											commitMessage={deploymentStatus?.build?.commit?.message}
-											repoPath={component?.spec?.source?.github?.repository || component?.spec?.source?.bitbucket?.repository}
+											repoPath={getComponentKindRepoSource(component?.spec?.source).repo}
 										/>
 									</GridColumnItem>
 								)}
