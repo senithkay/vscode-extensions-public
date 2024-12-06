@@ -52,15 +52,15 @@ export function ProjectInformation(props: ProjectInformationProps) {
             }
         }
         fetchData();
-    }, []);
+    }, [props]);
 
     const setDependencies = (dependencies: DependencyDetails[], setDependencies: any) => {
         setDependencies({
             paramValues: dependencies.map((dep, index) => (
                 {
                     id: index,
-                    key: index.toString(),
-                    value: dep.groupId,
+                    key: dep.groupId,
+                    value: dep.artifact,
                     icon: 'package',
                     paramValues: [
                         { value: dep.groupId },
@@ -88,13 +88,11 @@ export function ProjectInformation(props: ProjectInformationProps) {
     };
 
     const openManageDependencies = (title: string, dependencies: DependencyDetails[]) => {
-        setTimeout(() => {
-            rpcClient.getMiVisualizerRpcClient().openView({
-                type: POPUP_EVENT_TYPE.OPEN_VIEW,
-                location: { view: MACHINE_VIEW.ManageDependencies, customProps: { title, dependencies } },
-                isPopup: true
-            });
-        }, 2000);
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.ManageDependencies, customProps: { title, dependencies } },
+            isPopup: true
+        });
     }
 
     if (!projectDetails) {

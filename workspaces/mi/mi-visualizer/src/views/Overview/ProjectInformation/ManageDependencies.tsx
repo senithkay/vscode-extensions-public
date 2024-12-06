@@ -25,8 +25,8 @@ export function ManageDependencies(props: ManageDependenciesProps) {
         paramValues: dependencies?.map((dep, index) => (
             {
                 id: index,
-                key: index.toString(),
-                value: dep.groupId,
+                key: dep.groupId,
+                value: dep.artifact,
                 icon: 'package',
                 paramValues: [
                     { value: dep.groupId },
@@ -85,9 +85,11 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                 range: dep[3]
             };
         }).filter(dep => dep !== null);
-        await rpcClient.getMiVisualizerRpcClient().updateDependencies({
-            dependencies: newDependencies
-        });
+        if (newDependencies.length > 0) {
+            await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+                dependencies: newDependencies
+            });
+        }
         onClose();
     };
 
