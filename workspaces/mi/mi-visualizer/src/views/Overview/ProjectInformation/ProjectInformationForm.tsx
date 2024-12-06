@@ -31,18 +31,18 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "primaryDetails.runtimeVersion": yup.string().required("Runtime version is required"),
         "dockerDetails.dockerFileBaseImage": yup.string().required("Base image is required"),
         "dockerDetails.dockerName": yup.string().required("Docker name is required"),
-        "unitTestDetails.skipTest": yup.boolean(),
-        "unitTestDetails.serverHost": yup.string(),
-        "unitTestDetails.serverPort": yup.string(),
-        "unitTestDetails.serverPath": yup.string(),
-        "unitTestDetails.serverType": yup.string(),
+        "unitTest.skipTest": yup.boolean(),
+        "unitTest.serverHost": yup.string(),
+        "unitTest.serverPort": yup.string(),
+        "unitTest.serverPath": yup.string(),
+        "unitTest.serverType": yup.string(),
         "dependenciesDetails.connectorDependencies": yup.object<any>({}),
         "dependenciesDetails.otherDependencies": yup.object<any>({})
     });
 
     const {
         register,
-        formState: { errors, isDirty, dirtyFields },
+        formState: { errors, isDirty, dirtyFields, isSubmitting },
         handleSubmit,
         reset,
         getValues,
@@ -65,13 +65,13 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "primaryDetails.runtimeVersion": response.primaryDetails.runtimeVersion.value,
                     "dockerDetails.dockerFileBaseImage": response.buildDetails.dockerDetails.dockerFileBaseImage.value,
                     "dockerDetails.dockerName": response.buildDetails.dockerDetails.dockerName.value,
-                    "unitTestDetails.skipTest": Boolean(response.unitTestDetails?.skipTest?.value),
-                    "unitTestDetails.serverHost": response.unitTestDetails?.serverHost?.value,
-                    "unitTestDetails.serverPort": response.unitTestDetails?.serverPort?.value,
-                    "unitTestDetails.serverPath": response.unitTestDetails?.serverPath?.value,
-                    "unitTestDetails.serverType": response.unitTestDetails?.serverType?.value,
-                    "dependenciesDetails.connectorDependencies": setDependencies(response.dependenciesDetails.connectorDependencies),
-                    "dependenciesDetails.otherDependencies": setDependencies(response.dependenciesDetails.otherDependencies)
+                    "unitTest.skipTest": Boolean(response.unitTest?.skipTest?.value),
+                    "unitTest.serverHost": response.unitTest?.serverHost?.value,
+                    "unitTest.serverPort": response.unitTest?.serverPort?.value,
+                    "unitTest.serverPath": response.unitTest?.serverPath?.value,
+                    "unitTest.serverType": response.unitTest?.serverType?.value,
+                    "dependenciesDetails.connectorDependencies": setDependencies(response.dependencies.connectorDependencies),
+                    "dependenciesDetails.otherDependencies": setDependencies(response.dependencies.otherDependencies)
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -120,45 +120,52 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
 
     const handleFormSubmit = async () => {
         try {
-            for (const field of Object.keys((dirtyFields as any)?.primaryDetails)) {
-                const value = getValues((field as any).toString());
-                const range = (projectDetails as any)?.primaryDetails?.[field]?.range;
+            const updatedValues = Object.keys((dirtyFields as any));
 
-                await rpcClient.getMiVisualizerRpcClient().updatePomValue({
-                    value,
-                    range
+            const updatePomValuesForSection = async (section: string) => {
+                if (updatedValues.includes(section)) {
+                    const changes = [];
+                    for (const field of Object.keys((dirtyFields as any)?.[section])) {
+                        const value = getValues((`${section}.${field}` as any).toString());
+                        const range = (projectDetails as any)?.[section]?.[field]?.range;
+
+                        if (!range) {
+                            continue;
+                        }
+                        changes.push({ value, range });
+                    }
+                    await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                        pomValues: changes
+                    });
+                }
+            };
+
+            await updatePomValuesForSection("primaryDetails");
+            await updatePomValuesForSection("dockerDetails");
+            await updatePomValuesForSection("unitTest");
+
+            const updateDependencies = async () => {
+                const dependencies = [];
+                for (const field of Object.keys((dirtyFields as any)?.dependenciesDetails)) {
+                    const value = getValues((`dependenciesDetails.${field}` as any).toString());
+                    const paramValues = getParamManagerValues(value);
+                    const range = (projectDetails as any)?.dependenciesDetails?.[field]?.range;
+
+                    for (const paramValue of paramValues) {
+                        dependencies.push({
+                            groupId: paramValue[0],
+                            artifact: paramValue[1],
+                            version: paramValue[2],
+                            range,
+                            type: field
+                        });
+                    }
+                }
+                await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+                    dependencies
                 });
             }
-            for (const field of Object.keys((dirtyFields as any)?.dockerDetails)) {
-                const value = getValues((field as any).toString());
-                const range = (projectDetails as any)?.buildDetails?.dockerDetails?.[field]?.range;
-
-                await rpcClient.getMiVisualizerRpcClient().updatePomValue({
-                    value,
-                    range
-                });
-            }
-            for (const field of Object.keys((dirtyFields as any)?.unitTestDetails)) {
-                const value = getValues((field as any).toString());
-                const range = (projectDetails as any)?.unitTestDetails?.[field]?.range;
-
-                await rpcClient.getMiVisualizerRpcClient().updatePomValue({
-                    value,
-                    range
-                });
-            }
-            for (const field of Object.keys((dirtyFields as any)?.dependenciesDetails)) {
-                const value = getValues((field as any).toString());
-                const paramValue = getParamManagerValues(value);
-                const range = (projectDetails as any)?.dependenciesDetails?.[field]?.range;
-
-                await rpcClient.getMiVisualizerRpcClient().updateDependency({
-                    groupId: paramValue[0],
-                    artifact: paramValue[1],
-                    version: paramValue[2],
-                    range
-                });
-            }
+            await updateDependencies();
 
             props.onClose();
         } catch (error) {
@@ -264,19 +271,19 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             <FormGroup title="Unit Tests Configuration" isCollapsed={false}>
                 <TextField
                     label="Server Host"
-                    {...register("unitTestDetails.serverHost")}
+                    {...register("unitTest.serverHost")}
                 />
                 <TextField
                     label="Server Port"
-                    {...register("unitTestDetails.serverPort")}
+                    {...register("unitTest.serverPort")}
                 />
                 <TextField
                     label="Server Path"
-                    {...register("unitTestDetails.serverPath")}
+                    {...register("unitTest.serverPath")}
                 />
                 <TextField
                     label="Server Type"
-                    {...register("unitTestDetails.serverType")}
+                    {...register("unitTest.serverType")}
                 />
             </FormGroup>
 
@@ -290,7 +297,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleFormSubmit)}
-                    disabled={!Object.keys(dirtyFields).length}
+                    disabled={!Object.keys(dirtyFields).length || isSubmitting}
                 >
                     Save Changes
                 </Button>

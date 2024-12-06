@@ -68,13 +68,13 @@ import {
     toggleDisplayOverview,
     updateContext,
     getProjectDetails,
-    updateDependency,
-    updatePomValue,
-    updateConfigFileValue,
+    updateDependencies,
+    updatePomValues,
+    updateConfigFileValues,
     ProjectDetailsResponse,
-    ConfigFileEditRequest,
-    PomXmlEditRequest,
-    UpdateDependencyRequest
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -217,13 +217,13 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     getProjectDetails(): Promise<ProjectDetailsResponse> {
         return this._messenger.sendRequest(getProjectDetails, HOST_EXTENSION);
     }
-    updateDependency(params: UpdateDependencyRequest): Promise<string> {
-        return this._messenger.sendRequest(updateDependency, HOST_EXTENSION, params);
+    updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateDependencies, HOST_EXTENSION, params);
     }
-    updatePomValue(params: PomXmlEditRequest): Promise<string> {
-        return this._messenger.sendRequest(updatePomValue, HOST_EXTENSION, params);
+    updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updatePomValues, HOST_EXTENSION, params);
     }
-    updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
-        return this._messenger.sendRequest(updateConfigFileValue, HOST_EXTENSION, params);
+    updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateConfigFileValues, HOST_EXTENSION, params);
     }
 }

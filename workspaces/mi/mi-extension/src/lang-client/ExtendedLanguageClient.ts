@@ -49,10 +49,11 @@ import {
     UpdateMediatorResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
-    UpdateDependencyRequest,
-    UpdateDependencyResponse
+    DependencyDetails,
+    PomNodeDetails,
+    UpdateConfigValuesResponse,
+    UpdateDependenciesResponse,
+    UpdateDependenciesRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -295,16 +296,12 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
-    async updateDependency(req: UpdateDependencyRequest): Promise<UpdateDependencyResponse> {
+    async updateDependencies(req: UpdateDependenciesRequest): Promise<UpdateDependenciesResponse> {
         return this.sendRequest('synapse/updateDependency', req);
     }
 
-    async updatePomValue(req: PomXmlEditRequest): Promise<string> {
-        return this.sendRequest('synapse/updatePomValue', req);
-    }
-
-    async updateConfigFileValue(req: ConfigFileEditRequest): Promise<string> {
-        return this.sendRequest('synapse/updateConfigFileValue', req);
+    async updateConfigFileValues(req: PomNodeDetails[]): Promise<UpdateConfigValuesResponse> {
+        return this.sendRequest('synapse/updateConfigFileValues', req);
     }
 
     async getProjectDetails(): Promise<any> {
