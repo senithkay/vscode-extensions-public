@@ -226,15 +226,6 @@ import {
     onSwaggerSpecReceived,
     GetConnectionSchemaRequest,
     GetConnectionSchemaResponse,
-    AddDriverRequest,
-    ExtendedDSSQueryGenRequest,
-    DSSFetchTablesRequest,
-    DSSFetchTablesResponse,
-    DSSQueryGenRequest,
-    AddDriverToLibResponse,
-    AddDriverToLibRequest,
-    APIContextsResponse,
-    RegistryArtifact,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -4959,32 +4950,6 @@ ${keyValuesXML}`;
             resolve(response);
         });
     }
-
-    // async updatePom(param: UpdatePOMRequest): Promise<void> {
-    //     return new Promise(async (resolve) => {
-    //         const projectDir = (await this.getProjectRoot({ path: param.documentUri })).path;
-    //         const langClient = StateMachine.context().langClient!;
-    //         let response = await langClient.generateSynapseConfig(param);
-    //         if (response && response.textEdits) {
-    //             let edits = response.textEdits;
-
-    //             for (const edit of edits) {
-    //                 await this.applyEdit({
-    //                     documentUri: projectDir,
-    //                     range: edit.range,
-    //                     text: edit.newText,
-    //                     disableUndoRedo: true
-    //                 });
-    //             }
-    //             let document = workspace.textDocuments.find(doc => doc.uri.fsPath === projectDir);
-    //             if (!document) {
-    //                 return;
-    //             }
-    //             const content = document.getText();
-    //             undoRedo.addModification(content);
-    //         }
-    //     });
-    // }
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise(async (resolve, reject) => {

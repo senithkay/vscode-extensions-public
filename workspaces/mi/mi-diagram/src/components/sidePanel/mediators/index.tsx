@@ -12,7 +12,6 @@ import React, { useState } from "react";
 import { Mediators } from "./List";
 import styled from "@emotion/styled";
 import { ConnectionPage } from "../connections";
-import { ConnectorPage } from "../connectors";
 
 const Wrapper = styled.div`
     height: calc(100vh - 150px);
@@ -55,8 +54,7 @@ export interface MediatorPageProps {
 export function HomePage(props: MediatorPageProps) {
     const [searchValue, setSearchValue] = useState<string>('');
     const [isAllMediators, setAllMediators] = useState<boolean>(true);
-    const [isConnectors, setConnectors] = useState<boolean>(false);
-    const [isEndpoints, setEndpoints] = useState<boolean>(false);
+    const [isConnections, setConnections] = useState<boolean>(false);
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
@@ -67,21 +65,13 @@ export function HomePage(props: MediatorPageProps) {
     }
 
     const handleAllMediatorsClicked = () => {
-        setConnectors(false);
-        setEndpoints(false);
+        setConnections(false);
         setAllMediators(true);
     }
 
-    const handleConnectorsClicked = () => {
+    const handleConnectionsClicked = () => {
         setAllMediators(false);
-        setEndpoints(false);
-        setConnectors(true);
-    }
-
-    const handleEndpointsClicked = () => {
-        setAllMediators(false);
-        setConnectors(false);
-        setEndpoints(true);
+        setConnections(true);
     }
 
     return (
@@ -101,13 +91,13 @@ export function HomePage(props: MediatorPageProps) {
                 />
                 {/*  Categories */}
                 <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)", justifyContent: "space-evenly" }}>
-                    <Button buttonSx={{width: '195px'}} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="module-icon"/>
+                    <Button buttonSx={{ width: '195px' }} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
+                        <Icon sx={{ marginTop: 2, marginRight: 5 }} name="module-icon" />
                         Mediators
                     </Button>
 
-                    <Button buttonSx={{width: '195px'}} onClick={handleEndpointsClicked} appearance={isEndpoints ? 'primary' : 'secondary'}>
-                        <Icon sx={{marginTop: 2, marginRight: 5}} name="caller"/>
+                    <Button buttonSx={{ width: '195px' }} onClick={handleConnectionsClicked} appearance={isConnections ? 'primary' : 'secondary'}>
+                        <Icon sx={{ marginTop: 2, marginRight: 5 }} name="caller" />
                         Connections
                     </Button>
                 </ButtonContainer>
@@ -118,12 +108,7 @@ export function HomePage(props: MediatorPageProps) {
                     <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} trailingSpace={props.trailingSpace} searchValue={searchValue} />
                 </ComponentList>
             )}
-            {isConnectors && (
-                <ComponentList>
-                    <ConnectorPage nodePosition={props.nodePosition} documentUri={props.documentUri} searchValue={searchValue} clearSearch={clearSearch} />
-                </ComponentList>
-            )}
-            {isEndpoints && (
+            {isConnections && (
                 <ComponentList>
                     <ConnectionPage
                         nodePosition={props.nodePosition}
