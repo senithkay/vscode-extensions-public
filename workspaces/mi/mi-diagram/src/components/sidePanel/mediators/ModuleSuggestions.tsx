@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import React from 'react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../SidePanelContexProvider';
@@ -36,11 +36,14 @@ export const OperationsWrapper = styled.div`
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [filteredModules, setFilteredModules] = React.useState<any[]>([]);
+    const [isSearching, setIsSearching] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         const debouncedSearchModules = debounce(async () => {
             if (props.searchValue) {
+                setIsSearching(true);
                 const modules = await searchModules();
+                setIsSearching(false);
                 setFilteredModules(modules);
             } else {
                 setFilteredModules([]);
@@ -107,7 +110,15 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
 
     return (
         <div>
-            <SuggestionList />
+            {
+                isSearching ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                        <ProgressRing />
+                    </div>
+                ) : (
+                    <SuggestionList />
+                )
+            }
         </div>
     );
 }
