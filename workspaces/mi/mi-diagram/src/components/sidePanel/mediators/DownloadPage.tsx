@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
-// AUTO-GENERATED FILE. DO NOT MODIFY.
 
 import React from 'react';
 import { Button, FormActions, Typography } from '@wso2-enterprise/ui-toolkit';
