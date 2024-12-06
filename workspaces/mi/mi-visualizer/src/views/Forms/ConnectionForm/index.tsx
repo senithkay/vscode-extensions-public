@@ -448,7 +448,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         </CardContent>
                                     </ComponentCard>
                                 ))))}
-                            {displayedStoreConnectors && displayedLocalConnectors &&
+                            {displayedStoreConnectors && Array.isArray(displayedStoreConnectors) && displayedLocalConnectors &&
                                 displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRanke).map((connector: any) => (
                                     displayedLocalConnectors.some(c => (c.connectorName === connector.name) &&
                                         (c.version.tagName === connector.version)) ? null : (

@@ -68,12 +68,6 @@ export function Mediators(props: MediatorProps) {
             mediatorType: mediator.tag,
         });
 
-        // const form =
-        //     <div style={{ padding: '20px' }}>
-        //         <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
-        //     </div>;
-        // sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
-
         if (mediator.tag.includes('.')) {
             const connecterForm = <AddConnector formData={mediatorDetails}
                 nodePosition={sidePanelContext.nodeRange}
@@ -118,11 +112,6 @@ export function Mediators(props: MediatorProps) {
             return acc;
         }, {});
     };
-
-    // const getConnectorIcon = async (iconPath: string) => {
-    //     const icon = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
-    //     return <img src={icon.uri} alt="Icon" />;
-    // }
 
     const addModule = () => {
         const modulesList = <Modules nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;

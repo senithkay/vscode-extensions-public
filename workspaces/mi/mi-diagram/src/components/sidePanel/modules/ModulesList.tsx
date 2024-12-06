@@ -103,7 +103,7 @@ export function Modules(props: ModuleProps) {
             modules = allModules;
         }
 
-        if (!modules) {
+        if (!modules || !Array.isArray(modules)) {
             return <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_MEDIATORS} />;
         }
 

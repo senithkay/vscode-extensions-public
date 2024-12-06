@@ -47,11 +47,6 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
     }
 
     const importConnector = async () => {
-        // await visualizerApi.openView({
-        //     view: MACHINE_VIEW.CONNECTION_FORM,
-        //     type: POPUP_EVENT_TYPE.IMPORT,
-        //     path
-        // });
         setIsImporting(true);
         await new Promise(resolve => setTimeout(resolve, 5000));
         setIsImporting(false);
