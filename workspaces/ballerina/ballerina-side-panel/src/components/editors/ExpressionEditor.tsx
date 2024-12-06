@@ -169,7 +169,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
     // Initial render
     useEffect(() => {
         // Fetch initial diagnostics
-        if (fieldValue !== undefined && fetchInitialDiagnostics.current) {
+        if (getExpressionEditorDiagnostics && fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
             getExpressionEditorDiagnostics(!field.optional || fieldValue !== "", fieldValue, field.key);
         }
@@ -322,8 +322,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 onChange(value);
                                 debouncedUpdateSubPanelData(value);
 
-                                getExpressionEditorDiagnostics &&
+                                if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(!field.optional || value !== '', value, field.key);
+                                }
 
                                 // Check if the current character is a trigger character
                                 cursorPositionRef.current = updatedCursorPosition;
