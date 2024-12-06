@@ -197,9 +197,9 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                                     onSubmit={handleServiceSubmit}
                                     expressionEditor={
                                         {
-                                            completions: filteredTypes,
+                                            types: filteredTypes,
                                             retrieveVisibleTypes: handleGetVisibleTypes,
-                                            onCompletionSelect: handleCompletionSelect,
+                                            onCompletionItemSelect: handleCompletionSelect,
                                             onCancel: handleExpressionEditorCancel,
                                             onBlur: handleExpressionEditorBlur
                                         }
@@ -219,9 +219,9 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                                     onSubmit={handleListenerSubmit}
                                     expressionEditor={
                                         {
-                                            completions: filteredTypes,
+                                            types: filteredTypes,
                                             retrieveVisibleTypes: handleGetVisibleTypes,
-                                            onCompletionSelect: handleCompletionSelect,
+                                            onCompletionItemSelect: handleCompletionSelect,
                                             onCancel: handleExpressionEditorCancel,
                                             onBlur: handleExpressionEditorBlur
                                         }

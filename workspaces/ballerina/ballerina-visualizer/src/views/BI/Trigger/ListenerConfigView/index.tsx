@@ -11,13 +11,13 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TriggerCharacter, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { BodyText } from "../../../styles";
 import { Colors } from "../../../../resources/constants";
 import { debounce } from "lodash";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { convertBalCompletion, convertToVisibleTypes, convertTriggerListenerConfig, updateTriggerListenerConfig } from "../../../../utils/bi";
+import { convertBalCompletion, convertToFnSignature, convertToVisibleTypes, convertTriggerListenerConfig, updateTriggerListenerConfig } from "../../../../utils/bi";
 
 const Container = styled.div`
     padding: 0 20px 20px;
@@ -225,6 +225,21 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
         250
     );
 
+    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: "",
+            expression: value,
+            startLine: { line: 0, offset: 0 },
+            offset: cursorPosition,
+            context: {
+                isRetrigger: false,
+                triggerKind: 1,
+            },
+        });
+
+        return convertToFnSignature(signatureHelp);
+    };
+
     // <------------- Expression Editor Util functions list end --------------->
 
     return (
@@ -247,9 +262,12 @@ export function ListenerConfigView(props: ListenerConfigViewProps) {
                                 onSubmit={handleListenerSubmit}
                                 expressionEditor={
                                     {
-                                        completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
+                                        completions: filteredCompletions,
+                                        triggerCharacters: TRIGGER_CHARACTERS,
+                                        extractArgsFromFunction: extractArgsFromFunction,
+                                        types: filteredTypes,
                                         retrieveVisibleTypes: handleGetVisibleTypes,
-                                        onCompletionSelect: handleCompletionSelect,
+                                        onCompletionItemSelect: handleCompletionSelect,
                                         onCancel: handleExpressionEditorCancel,
                                         onBlur: handleExpressionEditorBlur,
                                         retrieveCompletions: handleGetCompletions

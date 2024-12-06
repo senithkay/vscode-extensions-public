@@ -395,20 +395,6 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
-    // handle if node form
-    if (node.codedata.node === "IF") {
-        return <IfForm
-            fileName={fileName}
-            node={node}
-            targetLineRange={targetLineRange}
-            onSubmit={onSubmit}
-            openSubPanel={openSubPanel}
-            updatedExpressionField={updatedExpressionField}
-            isActiveSubPanel={isActiveSubPanel}
-            resetUpdatedExpressionField={resetUpdatedExpressionField}
-        />;
-    }
-
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -423,6 +409,23 @@ export function FormGenerator(props: FormProps) {
             onCancel: handleExpressionEditorCancel
         } as FormExpressionEditor
     }, [filteredCompletions, filteredTypes, handleRetrieveCompletions]);
+
+    // handle if node form
+    if (node.codedata.node === "IF") {
+        return (
+            <IfForm
+                fileName={fileName}
+                node={node}
+                targetLineRange={targetLineRange}
+                expressionEditor={expressionEditor}
+                onSubmit={onSubmit}
+                openSubPanel={openSubPanel}
+                updatedExpressionField={updatedExpressionField}
+                isActiveSubPanel={isActiveSubPanel}
+                resetUpdatedExpressionField={resetUpdatedExpressionField}
+            />
+        );
+    }
 
     // default form
     return (

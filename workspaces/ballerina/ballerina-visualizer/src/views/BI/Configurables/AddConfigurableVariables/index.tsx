@@ -12,10 +12,9 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
-import { debounce } from 'lodash';
-import { convertNodePropertiesToFormFields, convertToVisibleTypes, getFormProperties } from '../../../../utils/bi';
+import { PanelContainer, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import { convertNodePropertiesToFormFields, getFormProperties } from '../../../../utils/bi';
+import FormGenerator from '../../Forms/FormGenerator';
 
 
 namespace S {
@@ -98,8 +97,6 @@ export function AddForm(props: ConfigFormProps) {
     };
 
     const [fields, setFields] = useState<FormField[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
 
     useEffect(() => {
         const formProperties = getFormProperties(variable);
@@ -134,70 +131,21 @@ export function AddForm(props: ConfigFormProps) {
             });
     };
 
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: variable.codedata.lineRange.fileName,
-                position: variable.codedata.lineRange.startLine,
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-    }, 250);
-
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        await debouncedGetVisibleTypes(value, cursorPosition);
-    };
-
-    const handleCompletionSelect = async () => {
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-
     return (
         <>
             <PanelContainer
                 title={title}
                 show={props.isOpen}
-                onClose={onClose}>
-
-                <Form
-                    formFields={fields}
-                    onSubmit={handleSave}
+                onClose={onClose}
+            >
+                <FormGenerator
                     fileName={variable.codedata.lineRange.fileName}
-                    targetLineRange={{ startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine }}
-                    expressionEditor={{
-                        completions: filteredTypes,
-                        retrieveVisibleTypes: handleGetVisibleTypes,
-                        onCompletionSelect: handleCompletionSelect,
-                        onCancel: handleExpressionEditorCancel,
-                        onBlur: handleExpressionEditorBlur,
-                        getExpressionDiagnostics: () => {
-                            // TODO: Implement this to support diagnostics
-                            return Promise.resolve();
-                        }
+                    node={variable}
+                    targetLineRange={{
+                        startLine: variable.codedata.lineRange.startLine,
+                        endLine: variable.codedata.lineRange.endLine
                     }}
+                    onSubmit={handleSave}
                 />
 
             </PanelContainer>
