@@ -12,19 +12,18 @@ import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
-    CompletionItem,
     ExpressionBarRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditor, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
 import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
-import { Provider } from "../../context";
+import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
 namespace S {
@@ -171,34 +170,7 @@ export interface FormProps {
     isActiveSubPanel?: boolean;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
-    expressionEditor?: {
-        completions: CompletionItem[];
-        triggerCharacters?: readonly string[];
-        retrieveCompletions?: (
-            value: string,
-            offset: number,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
-        ) => Promise<void>;
-        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-            label: string;
-            args: string[];
-            currentArgIndex: number;
-        }>;
-        getExpressionDiagnostics?: (
-            showDiagnostics: boolean,
-            expression: string,
-            key: string,
-            setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
-            shouldUpdateNode?: boolean,
-            variableType?: string
-        ) => Promise<void>;
-        onCompletionSelect?: (value: string) => Promise<void>;
-        onFocus?: () => void | Promise<void>;
-        onBlur?: () => void | Promise<void>;
-        onCancel: () => void;
-    };
+    expressionEditor?: FormExpressionEditor;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
 }
@@ -347,7 +319,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     ) => {
         // HACK: For variable nodes, update the type value in the node
         const isVariableNode = selectedNode === "VARIABLE";
-        await expressionEditor?.getExpressionDiagnostics(
+        await expressionEditor?.getExpressionFormDiagnostics(
             showDiagnostics,
             expression,
             key,
@@ -370,7 +342,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
     const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
 
-    const contextValue = {
+    const contextValue: FormContext = {
         form: {
             control,
             setValue,
@@ -383,7 +355,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         },
         expressionEditor: {
             ...expressionEditor,
-            getExpressionDiagnostics: handleGetExpressionDiagnostics
+            getExpressionEditorDiagnostics: handleGetExpressionDiagnostics
         },
         targetLineRange,
         fileName

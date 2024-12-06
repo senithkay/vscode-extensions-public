@@ -8,7 +8,7 @@
  */
 
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { FormField } from '../Form/types';
+import { FormField, FormExpressionEditor } from '../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import { Button, CompletionItem, ErrorBanner, ExpressionBar, ExpressionBarRef, InputProps, RequiredFormInput } from '@wso2-enterprise/ui-toolkit';
 import { useMutation } from '@tanstack/react-query';
@@ -27,34 +27,9 @@ type ContextAwareExpressionEditorProps = {
     autoFocus?: boolean;
 }
 
-type ExpressionEditorProps = ContextAwareExpressionEditorProps & {
+type ExpressionEditorProps = ContextAwareExpressionEditorProps & FormExpressionEditor & {
     control: Control<FieldValues, any>;
     watch: UseFormWatch<any>;
-    completions: CompletionItem[];
-    triggerCharacters?: readonly string[];
-    autoFocus?: boolean;
-    retrieveCompletions?: (
-        value: string,
-        offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
-    ) => Promise<void>;
-    extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-        label: string;
-        args: string[];
-        currentArgIndex: number;
-    }>;
-    getExpressionDiagnostics?: (
-        showDiagnostics: boolean,
-        expression: string,
-        key: string
-    ) => Promise<void>;
-    onFocus?: () => void | Promise<void>;
-    onBlur?: () => void | Promise<void>;
-    onCompletionSelect?: (value: string) => void | Promise<void>;
-    onSave?: (value: string) => void | Promise<void>;
-    onCancel: () => void;
-    onRemove?: () => void;
     targetLineRange?: LineRange;
     fileName: string;
 };
@@ -162,10 +137,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         triggerCharacters,
         retrieveCompletions,
         extractArgsFromFunction,
-        getExpressionDiagnostics,
+        getExpressionEditorDiagnostics,
         onFocus,
         onBlur,
-        onCompletionSelect,
+        onCompletionItemSelect,
         onSave,
         onCancel,
         onRemove,
@@ -196,7 +171,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         // Fetch initial diagnostics
         if (fieldValue !== undefined && fetchInitialDiagnostics.current) {
             fetchInitialDiagnostics.current = false;
-            getExpressionDiagnostics(!field.optional || fieldValue !== "", fieldValue, field.key);
+            getExpressionEditorDiagnostics(!field.optional || fieldValue !== "", fieldValue, field.key);
         }
     }, [fieldValue]);
 
@@ -232,7 +207,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionSelect?.(value);
+        await onCompletionItemSelect?.(value);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -347,7 +322,8 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                 onChange(value);
                                 debouncedUpdateSubPanelData(value);
 
-                                getExpressionDiagnostics(!field.optional || value !== "", value, field.key);
+                                getExpressionEditorDiagnostics &&
+                                    getExpressionEditorDiagnostics(!field.optional || value !== '', value, field.key);
 
                                 // Check if the current character is a trigger character
                                 cursorPositionRef.current = updatedCursorPosition;
