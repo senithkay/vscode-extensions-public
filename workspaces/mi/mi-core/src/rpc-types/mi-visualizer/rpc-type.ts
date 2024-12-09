@@ -31,7 +31,7 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
-    AddConfigurableRequest
+    AddConfigurableRequest,
     ProjectDetailsResponse,
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
