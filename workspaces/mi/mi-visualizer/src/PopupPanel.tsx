@@ -22,7 +22,7 @@ import { RecipientWizard } from './views/Forms/RecipientEndpointForm';
 import { TemplateEndpointWizard } from './views/Forms/TemplateEndpointForm';
 import { DataServiceDataSourceWizard } from "./views/Forms/DataServiceForm/MainPanelForms/DataSourceForm/DatasourceForm";
 import path from 'path';
-import { ConnectorStore } from './views/Forms/ConnectionForm';
+import { ConnectionWizard } from './views/Forms/ConnectionForm';
 import AddConnection from './views/Forms/ConnectionForm/ConnectionFormGenerator';
 import { AddDriver } from './views/Popup/AddDriver';
 import { ManageDependencies } from './views/Overview/ProjectInformation/ManageDependencies';
@@ -82,7 +82,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(<TemplateEndpointWizard handlePopupClose={props.handleClose} isPopup={true} path={`${machineSate.documentUri}${endpointPath}`} />);
                     break;
                 case MACHINE_VIEW.ConnectorStore:
-                    setViewComponent(<ConnectorStore handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
+                    setViewComponent(<ConnectionWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
                 case MACHINE_VIEW.DssDataSourceForm:
                     setViewComponent(<DataServiceDataSourceWizard isPopup={true} path={machineSate.documentUri} datasource={machineSate.customProps.datasource} handlePopupClose={props.handleClose} />);

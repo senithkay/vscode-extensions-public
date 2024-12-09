@@ -205,7 +205,11 @@ import {
     GetMediatorResponse,
     UpdateMediatorRequest,
     ExpressionCompletionsRequest,
-    ExpressionCompletionsResponse
+    ExpressionCompletionsResponse,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -295,6 +299,7 @@ export interface MiDiagramAPI {
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
+    copyConnectorZip: (params: CopyConnectorZipRequest) => Promise<CopyConnectorZipResponse>;
     downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
@@ -343,5 +348,6 @@ export interface MiDiagramAPI {
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
 }

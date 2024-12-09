@@ -72,6 +72,7 @@ import {
     updatePomValues,
     updateConfigFileValues,
     ProjectDetailsResponse,
+    importOpenAPISpec,
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest
@@ -225,5 +226,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
         return this._messenger.sendRequest(updateConfigFileValues, HOST_EXTENSION, params);
+    }
+    importOpenAPISpec(): Promise<void> {
+        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION);
     }
 }

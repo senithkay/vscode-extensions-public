@@ -45,6 +45,20 @@ const CardLabel = styled.div`
     gap: 10px;
 `;
 
+const DownloadIconContainer = styled.div`
+    width: 35px;
+    height: 25px;
+    cursor: pointer;
+    border-radius: 2px;
+    align-content: center;
+    padding: 5px 5px 15px 12px;
+    &:hover, &.active {
+        background-color: var(--vscode-pickerGroup-border);
+    }
+    & img {
+        width: 25px;
+    }
+`;
 
 interface ButtonroupProps {
     title: string;
@@ -52,8 +66,9 @@ interface ButtonroupProps {
     isCollapsed?: boolean;
     iconUri?: string;
     versionTag?: string;
+    onDownload?: any;
 }
-export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag }) => {
+export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isCollapsed = true, iconUri, versionTag, onDownload }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
     useEffect(() => {
@@ -102,10 +117,6 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                         )}
                         <div style={{
                             width: '100%',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            textAlign: 'left',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'center'
@@ -115,7 +126,10 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                                 {versionTag}
                             </VersionTag>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            {onDownload && <DownloadIconContainer onClick={onDownload}>
+                                <Codicon name="desktop-download" iconSx={{ fontSize: 25 }} />
+                            </DownloadIconContainer>}
                             <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
                                 <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
                             </Button>
@@ -135,6 +149,8 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
 
 const IconContainer = styled.div`
     width: 30px;
+    display: flex;
+    align-items: center;
 
     & img {
         width: 25px;
@@ -146,39 +162,40 @@ interface GridButtonProps {
     title: string;
     description: string;
     icon?: React.ReactNode;
+    isClickable?: boolean
 }
-export const GridButton: React.FC<GridButtonProps> = ({ title, description, icon, onClick }) => {
+export const GridButton: React.FC<GridButtonProps> = ({ title, description, icon, onClick, isClickable = true }) => {
     return (
         <Tooltip content={description} position='bottom' sx={{ zIndex: 2010 }}>
             <ComponentCard
                 id={title}
                 key={description}
-                onClick={onClick}
+                onClick={isClickable ? onClick : undefined}
                 sx={{
-                    '&:hover, &.active': {
+                    '&:hover, &.active': isClickable ? {
                         '.icon svg g': {
                             fill: 'var(--vscode-editor-foreground)'
                         },
                         backgroundColor: 'var(--vscode-pickerGroup-border)',
                         border: '0.5px solid var(--vscode-focusBorder)'
-                    },
+                    } : {},
                     alignItems: 'center',
                     border: '0.5px solid var(--vscode-editor-foreground)',
                     borderRadius: 2,
-                    cursor: 'pointer',
+                    cursor: isClickable ? 'pointer' : 'default',
                     display: 'flex',
                     height: 20,
                     justifyContent: 'left',
                     marginBottom: 10,
                     padding: 10,
                     transition: '0.3s',
-                    width: 168
+                    width: 164
                 }}
             >
                 <IconContainer>
                     {icon}
                 </IconContainer>
-                <div >
+                <div style={{ overflow: 'hidden' }}>
                     <IconLabel>{FirstCharToUpperCase(title)}</IconLabel>
                 </div>
             </ComponentCard>

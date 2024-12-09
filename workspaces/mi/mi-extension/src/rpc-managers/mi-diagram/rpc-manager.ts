@@ -223,7 +223,11 @@ import {
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
-    onSwaggerSpecReceived
+    onSwaggerSpecReceived,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3256,6 +3260,34 @@ ${endpointAttributes}
         }
     }
 
+    async copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        const { connectorPath } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+
+            if (!fs.existsSync(connectorDirectory)) {
+                fs.mkdirSync(connectorDirectory, { recursive: true });
+            }
+
+            const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
+            await fs.promises.copyFile(connectorPath, destinationPath);
+            
+
+            return new Promise((resolve, reject) => {
+                resolve({ success: true });
+            });
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
     async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
@@ -3568,16 +3600,21 @@ ${endpointAttributes}
     async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
             try {
-                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data')) {
-                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data') });
+                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data') && connectorCache.has('connectors')) {
+                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
                 const response = await fetch(APIS.CONNECTOR);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE);
                 const data = await response.json();
+                const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
                     connectorCache.set('inbound-connector-data', data['inbound-connector-data']);
                     connectorCache.set('outbound-connector-data', data['outbound-connector-data']);
-                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'] });
+                    if (connectorStoreData) {
+                        connectorCache.set('connectors', connectorStoreData);
+                    }
+                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'], connectors: connectorStoreData });
                 } else {
                     console.log("Failed to fetch connectors. Status: " + data.status + ", Reason: " + data.reason);
                     reject("Failed to fetch connectors.");
@@ -4933,6 +4970,14 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+        });
+    }
+
+    async getConnectionSchema(param: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getConnectionSchema(param);
+            resolve(response);
         });
     }
 
