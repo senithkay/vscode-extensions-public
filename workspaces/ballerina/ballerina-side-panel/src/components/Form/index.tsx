@@ -305,11 +305,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
-        if (diagnosticsInfo) {
-            setDiagnosticsInfo([...diagnosticsInfo, diagnostics]);
-        } else {
-            setDiagnosticsInfo([diagnostics]);
-        }
+        const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
+        setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
     }
 
     const handleGetExpressionDiagnostics = async (
