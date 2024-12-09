@@ -364,7 +364,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         const tableKeys: string[] = [];
         elements.forEach((attribute: any) => {
-            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
+            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip, placeholder } = attribute.value;
             let defaultValue: any = attribute.value.defaultValue;
 
             tableKeys.push(name);
@@ -404,8 +404,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                 type: type as any,
                 label: displayName,
                 labelAdornment: helpTipElement,
+                placeholder: placeholder,
                 defaultValue: defaultValue,
-                ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues },
