@@ -30,23 +30,16 @@ import {
     MACHINE_VIEW,
     NodeKind,
     BIGetFunctionsRequest,
-    TRIGGER_CHARACTERS,
-    TriggerCharacter,
     SubPanel,
     SubPanelView,
-    Diagnostic,
-    FormDiagnostics,
     BreakpointData,
     CurrentBreakpointsResponse as BreakpointInfo
 } from "@wso2-enterprise/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
-    convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
-    convertToFnSignature,
-    convertToVisibleTypes,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -54,7 +47,6 @@ import {
     View,
     ViewContent,
     ViewHeader,
-    CompletionItem,
     ProgressRing,
     ProgressIndicator,
 } from "@wso2-enterprise/ui-toolkit";
@@ -62,7 +54,6 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { debounce } from "lodash";
 import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
 
@@ -116,17 +107,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [completions, setCompletions] = useState<CompletionItem[]>([]);
-    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
     const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
 
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
@@ -164,20 +150,11 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         });
     };
 
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-        setFilteredTypes([]);
-        setTypes([]);
-        triggerCompletionOnNextRequest.current = false;
-    };
-
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
         setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
-        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -504,7 +481,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
-        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
     };
 
@@ -612,116 +588,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const debouncedGetCompletions = debounce(
-        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
-            let expressionCompletions: CompletionItem[] = [];
-            const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-            const endOfStatementRegex = /[\)\]]\s*$/;
-            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                // Case 1: When a character unrelated to triggering completions is entered
-                setCompletions([]);
-            } else if (
-                completions.length > 0 &&
-                completionFetchText.length > 0 &&
-                !triggerCharacter &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest.current
-            ) {
-                // Case 2: When completions have already been retrieved and only need to be filtered
-                expressionCompletions = completions
-                    .filter((completion) => {
-                        const lowerCaseText = completionFetchText.toLowerCase();
-                        const lowerCaseLabel = completion.label.toLowerCase();
-
-                        return lowerCaseLabel.includes(lowerCaseText);
-                    })
-                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
-            } else {
-                // Case 3: When completions need to be retrieved from the language server
-                // Retrieve completions from the ls
-                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
-                    filePath: model.fileName,
-                    expression: value,
-                    startLine: targetRef.current.startLine,
-                    offset: offset,
-                    context: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter,
-                    },
-                });
-
-                if (onlyVariables) {
-                    // If only variables are requested, filter out the completions based on the kind
-                    // 'kind' for variables = 6
-                    completions = completions?.filter((completion) => completion.kind === 6);
-                    triggerCompletionOnNextRequest.current = true;
-                } else {
-                    triggerCompletionOnNextRequest.current = false;
-                }
-
-                // Convert completions to the ExpressionBar format
-                let convertedCompletions: CompletionItem[] = [];
-                completions?.forEach((completion) => {
-                    if (completion.detail) {
-                        // HACK: Currently, completion with additional edits apart from imports are not supported
-                        // Completions that modify the expression itself (ex: member access)
-                        convertedCompletions.push(convertBalCompletion(completion));
-                    }
-                });
-                setCompletions(convertedCompletions);
-
-                if (triggerCharacter) {
-                    expressionCompletions = convertedCompletions;
-                } else {
-                    expressionCompletions = convertedCompletions
-                        .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
-                            const lowerCaseLabel = completion.label.toLowerCase();
-
-                            return lowerCaseLabel.includes(lowerCaseText);
-                        })
-                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
-                }
-            }
-
-            setFilteredCompletions(expressionCompletions);
-        },
-        250
-    );
-
-    const handleExpressionDiagnostics = debounce(async (
-        showDiagnostics: boolean,
-        expression: string,
-        key: string,
-        setDiagnosticsInfo: (diagnostics: FormDiagnostics) => void,
-        shouldUpdateNode?: boolean,
-        variableType?: string
-    ) => {
-        if (!showDiagnostics) {
-            setDiagnosticsInfo({ key, diagnostics: [] });
-            return;
-        }
-
-        // HACK: For variable nodes, update the type value in the node
-        if (shouldUpdateNode) {
-            selectedNodeRef.current.properties["type"].value = variableType;
-        }
-        
-        const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
-            filePath: model.fileName,
-            context: {
-                expression: expression,
-                startLine: targetRef.current.startLine,
-                offset: 0,
-                node: selectedNodeRef.current,
-                property: key
-            },
-        });
-        
-        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
-    }, 250);
-
     const handleSubPanel = (subPanel: SubPanel) => {
         setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
@@ -756,75 +622,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
-    const handleGetCompletions = async (
-        value: string,
-        offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
-    ) => {
-        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
-
-        if (triggerCharacter) {
-            await debouncedGetCompletions.flush();
-        }
-    };
-
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: model.fileName,
-                position: targetRef.current.startLine,
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        let filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-        // Remove description from each type as its duplicate information
-        filteredTypes = filteredTypes.map((type) => ({ ...type, description: undefined }));
-
-        setFilteredTypes(filteredTypes);
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        await debouncedGetVisibleTypes(value, cursorPosition);
-    };
-
-    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
-        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
-            filePath: model.fileName,
-            expression: value,
-            startLine: targetRef.current.startLine,
-            offset: cursorPosition,
-            context: {
-                isRetrigger: false,
-                triggerKind: 1,
-            },
-        });
-
-        return convertToFnSignature(signatureHelp);
-    };
-
     const handleResetUpdatedExpressionField = () => {
         setUpdatedExpressionField(undefined);
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetCompletions.cancel();
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
     };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
@@ -931,17 +730,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onSubmit={handleOnFormSubmit}
                             isActiveSubPanel={showSubPanel}
                             openSubPanel={handleSubPanel}
-                            expressionEditor={{
-                                completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
-                                triggerCharacters: TRIGGER_CHARACTERS,
-                                retrieveCompletions: handleGetCompletions,
-                                retrieveVisibleTypes: handleGetVisibleTypes,
-                                extractArgsFromFunction: extractArgsFromFunction,
-                                getExpressionDiagnostics: handleExpressionDiagnostics,
-                                onCompletionSelect: handleCompletionSelect,
-                                onCancel: handleExpressionEditorCancel,
-                                onBlur: handleExpressionEditorBlur,
-                            }}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
                         />

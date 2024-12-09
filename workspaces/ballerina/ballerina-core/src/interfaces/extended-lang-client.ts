@@ -646,19 +646,22 @@ export const TRIGGER_CHARACTERS = [':', '.', '>', '@', '/', '\\', '?'] as const;
 
 export type TriggerCharacter = typeof TRIGGER_CHARACTERS[number];
 
-export interface ExpressionCompletionsRequest {
-    description?: string;
-    filePath: string;
+export interface ExpressionEditorContext {
     expression: string;
-    branch?: string;
-    property?: string;
     startLine: LinePosition;
     offset: number;
-    context: {
+    node: FlowNode | TriggerNode;
+    branch?: string;
+    property: string;
+}
+
+export interface ExpressionCompletionsRequest {
+    filePath: string;
+    context: ExpressionEditorContext;
+    completionContext: {
         triggerKind: TriggerKind;
         triggerCharacter?: TriggerCharacter;
     };
-    node?: FlowNode;
 }
 
 export interface ExpressionCompletionItem {
@@ -675,10 +678,8 @@ export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
 export interface SignatureHelpRequest {
     filePath: string;
-    expression: string;
-    startLine: LinePosition;
-    offset: number;
-    context: {
+    context: ExpressionEditorContext;
+    signatureHelpContext: {
         isRetrigger: boolean;
         triggerCharacter?: TriggerCharacter;
         triggerKind: number;
@@ -731,18 +732,10 @@ export interface Reference {
     uri: string;
     range: Range;
 }
-export interface Info {
-    expression: string;
-    startLine: LinePosition;
-    offset: number;
-    node: FlowNode;
-    branch?: string;
-    property: string;
-}
 
 export interface ExpressionDiagnosticsRequest {
     filePath: string;
-    context: Info;
+    context: ExpressionEditorContext;
 }
 
 export interface ExpressionDiagnosticsResponse {

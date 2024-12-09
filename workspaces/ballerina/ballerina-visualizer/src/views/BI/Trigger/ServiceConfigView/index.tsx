@@ -9,15 +9,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TriggerCharacter, TriggerNode } from "@wso2-enterprise/ballerina-core";
-import { BodyText } from "../../../styles";
+import { Typography, ProgressRing, CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { Form, FormField, FormValues } from "@wso2-enterprise/ballerina-side-panel";
+import { TRIGGER_CHARACTERS, TriggerCharacter, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
 import { debounce } from "lodash";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { convertBalCompletion, convertToVisibleTypes, convertTriggerServiceConfig, updateTriggerServiceConfig } from "../../../../utils/bi";
+import { convertBalCompletion, convertToFnSignature, convertToVisibleTypes, convertTriggerServiceConfig, updateTriggerServiceConfig } from "../../../../utils/bi";
 
 const Container = styled.div`
     padding: 0 20px 20px;
@@ -134,11 +133,12 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
 
     const handleGetCompletions = async (
         value: string,
+        key: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => {
-        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
+        await debouncedGetCompletions(value, key, offset, triggerCharacter, onlyVariables);
 
         if (triggerCharacter) {
             await debouncedGetCompletions.flush();
@@ -146,7 +146,7 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
     };
 
     const debouncedGetCompletions = debounce(
-        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+        async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
             const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
@@ -175,10 +175,14 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
                 // Retrieve completions from the ls
                 let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                     filePath: "",
-                    expression: value,
-                    startLine: { line: 0, offset: 0 },
-                    offset: offset,
                     context: {
+                        expression: value,
+                        startLine: { line: 0, offset: 0 },
+                        offset: offset,
+                        node: triggerNode,
+                        property: key
+                    },
+                    completionContext: {
                         triggerKind: triggerCharacter ? 2 : 1,
                         triggerCharacter: triggerCharacter as TriggerCharacter,
                     },
@@ -223,6 +227,25 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
         250
     );
 
+    const extractArgsFromFunction = async (value: string, key: string, cursorPosition: number) => {
+        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
+            filePath: "",
+            context: {
+                expression: value,
+                startLine: { line: 0, offset: 0 },
+                offset: cursorPosition,
+                node: triggerNode,
+                property: key
+            },
+            signatureHelpContext: {
+                isRetrigger: false,
+                triggerKind: 1,
+            },
+        });
+
+        return convertToFnSignature(signatureHelp);
+    };
+
     // <------------- Expression Editor Util functions list end --------------->
 
     return (
@@ -245,12 +268,15 @@ export function ServiceConfigView(props: ServiceConfigViewProps) {
                                 onSubmit={handleListenerSubmit}
                                 expressionEditor={
                                     {
-                                        completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
+                                        completions: filteredCompletions,
+                                        triggerCharacters: TRIGGER_CHARACTERS,
+                                        retrieveCompletions: handleGetCompletions,
+                                        extractArgsFromFunction: extractArgsFromFunction,
+                                        types: filteredTypes,
                                         retrieveVisibleTypes: handleGetVisibleTypes,
-                                        onCompletionSelect: handleCompletionSelect,
+                                        onCompletionItemSelect: handleCompletionSelect,
                                         onCancel: handleExpressionEditorCancel,
                                         onBlur: handleExpressionEditorBlur,
-                                        retrieveCompletions: handleGetCompletions
                                     }
                                 }
                             />
