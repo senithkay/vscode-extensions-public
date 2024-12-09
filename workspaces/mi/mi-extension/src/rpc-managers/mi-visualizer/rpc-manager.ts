@@ -119,20 +119,11 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const textEdits = params.pomValues.map((pomValue) => {
-                const range = pomValue.range! as Range;
                 return {
-                    range: {
-                        start: {
-                            line: range.start.line - 1,
-                            character: range.start.character - 1
-                        },
-                        end: {
-                            line: range.end.line - 1,
-                            character: range.end.character - 1
-                        }
-                    },
-                    newText: pomValue.value
+                    newText: pomValue.value,
+                    range: pomValue.range! as Range
                 };
+
             });
             this.updatePom(textEdits);
             resolve(true);

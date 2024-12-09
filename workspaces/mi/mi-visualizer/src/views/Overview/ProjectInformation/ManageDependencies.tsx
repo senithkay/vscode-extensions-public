@@ -12,6 +12,7 @@ import { getParamManagerValues, ParamConfig, ParamManager } from "@wso2-enterpri
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { Button, FormActions, FormView, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useState } from "react";
+import { Range } from "../../../../../syntax-tree/lib/src";
 
 interface ManageDependenciesProps {
     title: string;
@@ -27,12 +28,13 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                 id: index,
                 key: dep.groupId,
                 value: dep.artifact,
-                icon: 'package',
+                icon: 'query',
                 paramValues: [
                     { value: dep.groupId },
                     { value: dep.artifact },
                     { value: dep.version },
-                    { value: dep.range }
+                    { value: dep.range },
+                    { value: dep.type }
                 ]
             }
         )) || [],
@@ -63,7 +65,17 @@ export function ManageDependencies(props: ManageDependenciesProps) {
                 "label": "Range",
                 "defaultValue": "",
                 "isRequired": false,
-                "canChange": true,
+                "canChange": false,
+                "enableCondition": [
+                    "false"
+                ]
+            },
+            {
+                "type": "TextField" as "TextField",
+                "label": "Type",
+                "defaultValue": "",
+                "isRequired": false,
+                "canChange": false,
                 "enableCondition": [
                     "false"
                 ]
@@ -73,21 +85,55 @@ export function ManageDependencies(props: ManageDependenciesProps) {
 
     const updateDependencies = async () => {
         const values = getParamManagerValues(paramConfig);
-        const newDependencies = values.map((dep, index) => {
-            if (dependencies.find(d => d.groupId === dep[0] && d.artifact === dep[1] && d.version === dep[2] && d.type === dep[4])) {
-                return null;
+
+        const isSameRange = (range1: Range, range2: Range) => {
+            return range1?.start?.line === range2?.start?.line &&
+                range1?.start?.character === range2?.start?.character &&
+                range1?.end?.line === range2?.end?.line &&
+                range1?.end?.character === range2?.end?.character;
+        }
+
+        const updatedDependencies: any[] = [];
+        const removedDependencies: any[] = [];
+        for (const d of dependencies) {
+            let found = false;
+            for (const newDep of values) {
+                if (isSameRange(d.range, newDep[3])) {
+                    found = true;
+                    if (d.groupId !== newDep[0] || d.artifact !== newDep[1] || d.version !== newDep[2]) {
+                        updatedDependencies.push({
+                            groupId: newDep[0],
+                            artifact: newDep[1],
+                            version: newDep[2],
+                            range: newDep[3],
+                            type: 'zip' as 'zip'
+                        });
+                    }
+                }
             }
+            if (!found) {
+                removedDependencies.push(d);
+            }
+        }
+
+        const addedDependencies = values.filter((dep) => { return dep[3] === undefined }).map((dep) => {
             return {
                 groupId: dep[0],
                 artifact: dep[1],
                 version: dep[2],
-                type: 'zip' as 'zip',
-                range: dep[3]
+                type: 'zip' as 'zip'
             };
-        }).filter(dep => dep !== null);
-        if (newDependencies.length > 0) {
+        });
+
+        const dependenciesToUpdate = [...updatedDependencies, ...addedDependencies];
+        if (dependenciesToUpdate.length > 0) {
             await rpcClient.getMiVisualizerRpcClient().updateDependencies({
-                dependencies: newDependencies
+                dependencies: dependenciesToUpdate
+            });
+        }
+        if (removedDependencies.length > 0) {
+            await rpcClient.getMiVisualizerRpcClient().updatePomValues({
+                pomValues: removedDependencies.map(dep => ({ range: dep.range, value: '' }))
             });
         }
         onClose();
