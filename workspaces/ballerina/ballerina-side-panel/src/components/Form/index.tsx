@@ -12,7 +12,6 @@ import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
-    CompletionItem,
     FormExpressionEditorRef,
     LinkButton,
     SidePanelBody,
@@ -23,7 +22,7 @@ import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues }
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, HelperPaneData } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
