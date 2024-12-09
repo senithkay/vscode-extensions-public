@@ -8,13 +8,15 @@
  */
 
 import React, { useState } from 'react';
-import { HelperPaneData, HelperPaneFunctionInfo, HelperPaneVariableInfo } from '@wso2-enterprise/ballerina-core';
 import { HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { LibraryBrowser } from './LibraryBrowser';
 import { VariablesPage } from './VariablesPage';
+import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneVariableInfo } from '../../../Form/types';
+import { HelperPaneData } from '../../../Form/types';
 
 export type HelperPaneProps = {
     variableInfo: HelperPaneData;

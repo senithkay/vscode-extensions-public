@@ -8,8 +8,8 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { HelperPaneVariableInfo } from '@wso2-enterprise/ballerina-core';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { HelperPaneVariableInfo } from '../../../Form/types';
 
 type VariablesPageProps = {
     variableInfo: HelperPaneVariableInfo;

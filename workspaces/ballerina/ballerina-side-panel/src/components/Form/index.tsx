@@ -19,7 +19,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormExpressionEditor, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
@@ -171,7 +171,7 @@ export interface FormProps {
     isActiveSubPanel?: boolean;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
-    expressionEditor?: FormExpressionEditor;
+    expressionEditor?: FormExpressionEditorProps;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
 }

@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-core';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useRef, useState } from 'react';
+import { HelperPaneFunctionInfo } from '../../../Form/types';
 
 type LibraryBrowserProps = {
     libraryBrowserInfo: HelperPaneFunctionInfo;

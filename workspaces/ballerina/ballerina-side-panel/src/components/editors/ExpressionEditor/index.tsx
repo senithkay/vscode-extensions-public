@@ -8,7 +8,7 @@
  */
 
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { FormField, FormExpressionEditor } from '../../Form/types';
+import { FormField, FormExpressionEditorProps } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import {
     Button,
@@ -21,7 +21,6 @@ import {
 import styled from '@emotion/styled';
 import { useFormContext } from '../../../context';
 import {
-    HelperPaneData,
     LineRange,
     SubPanel,
     SubPanelView,
@@ -39,7 +38,7 @@ type ContextAwareExpressionEditorProps = {
     autoFocus?: boolean;
 }
 
-type ExpressionEditorProps = ContextAwareExpressionEditorProps & FormExpressionEditor & {
+type ExpressionEditorProps = ContextAwareExpressionEditorProps & FormExpressionEditorProps & {
     control: Control<FieldValues, any>;
     watch: UseFormWatch<any>;
     targetLineRange?: LineRange;
