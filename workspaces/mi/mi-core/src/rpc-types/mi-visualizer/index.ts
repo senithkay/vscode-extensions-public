@@ -30,8 +30,13 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
+
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
@@ -66,4 +71,9 @@ export interface MIVisualizerAPI {
     setMIHomeForMIVersion: (params: string) => Promise<boolean>;
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
+    getProjectDetails: () => Promise<ProjectDetailsResponse>;
+    updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
+    updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
+    updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
+    importOpenAPISpec: () => Promise<void>;
 }

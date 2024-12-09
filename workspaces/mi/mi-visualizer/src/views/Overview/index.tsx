@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, ParentPopupData, POPUP_EVENT_TYPE, ProjectOverviewResponse, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { ViewHeader } from "../../components/View";
@@ -17,6 +17,7 @@ import ComponentDiagram from "./ComponentDiagram";
 import styled from "@emotion/styled";
 import ReactMarkdown from "react-markdown";
 import { VSCodeLink, VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
+import { ProjectInformation } from "./ProjectInformation";
 import { ERROR_MESSAGES } from "@wso2-enterprise/mi-diagram/lib/resources/constants";
 
 const Body = styled.div`
@@ -46,6 +47,9 @@ const Column = styled.div<{ width?: string }>`
 
 const ProjectInfoColumn = styled(Column)`
     width: 300px;
+    max-height: 460px;
+    overflow: hidden;
+    padding-right: 2px;
     @media (max-width: 600px) {
         width: auto;
     }
@@ -89,6 +93,7 @@ function Overview(props: OverviewProps) {
     const [activeTab, setActiveTab] = React.useState<'diagram' | 'structure'>('diagram');
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [pomTimestamp, setPomTimestamp] = React.useState<number>(0);
 
     useEffect(() => {
         const fetchWorkspaces = async () => {
@@ -167,6 +172,20 @@ function Overview(props: OverviewProps) {
 
     const handleEditReadme = () => {
         rpcClient.getMiVisualizerRpcClient().openReadme();
+    }
+
+    const handleEditProjectInformation = () => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ProjectInformationForm
+            },
+            isPopup: true
+        });
+
+        rpcClient.onParentPopupSubmitted((data: ParentPopupData) => {
+            setPomTimestamp(pomTimestamp + 1);
+        });
     }
 
     if (isLoading) {
@@ -252,7 +271,13 @@ function Overview(props: OverviewProps) {
                         </VSCodePanels>
                     </Column>
                     <ProjectInfoColumn>
-                        <Typography variant="h3" sx={{ margin: '0 0 16px 0' }}>Project Information</Typography>
+                        <Typography variant="h3" sx={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center' }}>
+                            Project Information
+                            <Icon name="edit" isCodicon onClick={handleEditProjectInformation} sx={{ marginLeft: '8px', paddingTop: '5px', cursor: 'pointer' }} />
+                        </Typography>
+                        <div style={{ height: '100%', overflow: "scroll", scrollbarWidth: "thin", paddingRight: '5px' }}>
+                            <ProjectInformation key={pomTimestamp} />
+                        </div>
                     </ProjectInfoColumn>
                 </Columns>
                 <Column style={{ marginTop: '16px' }}>

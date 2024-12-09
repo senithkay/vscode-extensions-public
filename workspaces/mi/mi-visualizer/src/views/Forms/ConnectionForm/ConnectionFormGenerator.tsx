@@ -65,11 +65,12 @@ export function AddConnection(props: AddConnectionProps) {
 
         const fetchFormData = async () => {
             // Fetch form on creation
-            const connectionUiSchema = props.connector.connectionUiSchema[connectionType];
 
-            const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+            const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({ 
+                connectorName: props.connector.name,
+                connectionType: connectionType });
 
-            setFormData(connectionFormJSON.formJSON);
+            setFormData(connectionSchema);
             reset({
                 name: watch('name'),
                 connectionType: connectionType
@@ -105,10 +106,10 @@ export function AddConnection(props: AddConnectionProps) {
                 props.connector.name = connector.name;
 
                 const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
-
-                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
-
-                setFormData(connectionFormJSON.formJSON);
+                const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({ 
+                    documentUri: props.path  });
+                setConnectionType(connectionFound.connectionType);
+                setFormData(connectionSchema);
                 reset({
                     name: props.connectionName,
                     connectionType: connectionType
@@ -117,21 +118,7 @@ export function AddConnection(props: AddConnectionProps) {
                 const parameters = connectionFound.parameters
 
                 // Populate form with existing values
-                if (connectionFormJSON.formJSON !== "") {
-                    if (parameters) {
-                        parameters.forEach((param: any) => {
-                            if (param.name !== "name") {
-                                const inputType = getInputType(connectionFormJSON.formJSON, param.name);
-                                const isExpressionField = expressionFieldTypes.includes(inputType);
-                                const value = param.isExpression && isExpressionField ? param.expression.replace(/[{}]/g, '') : param.value;
-                                const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
-                                    prefix: prefix.split(':')[1], uri: uri
-                                })) : [];
-                                setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
-                            }
-                        });
-                    }
-                } else {
+                if (connectionSchema === undefined) {
                     // Handle connections without uischema
                     // Remove connection name from param manager fields
                     const filteredParameters = parameters.filter((param: { name: string; }) => param.name !== 'name');
@@ -371,40 +358,14 @@ export function AddConnection(props: AddConnectionProps) {
     return (
         <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
-                type={props.connector.name}
+                type={connectionType}
                 onClick={props.changeConnector}
                 showButton={!props.connectionName}
-                id='Connector:'
+                id='Connection:'
             />}
             {formData ? (
                 <>
                     {ConnectionName}
-                    {allowedConnectionTypes && (
-                        <>
-                            <Controller
-                                name="connectionType"
-                                control={control}
-                                rules={{ required: "Connection type is required" }}
-                                render={({ field }) => (
-                                    <AutoComplete
-                                        label={"Connection Type"}
-                                        items={
-                                            allowedConnectionTypes?.map((type: any) => (
-                                                type
-                                            ))
-                                        }
-                                        required={true}
-                                        value={connectionType}
-                                        onValueChange={(e: any) => {
-                                            setConnectionType(e);
-                                            field.onChange(e);
-                                        }}
-                                        errorMsg={errors.connectionType && errors.connectionType.message.toString()}
-                                    />
-                                )}
-                            />
-                        </>
-                    )}
                     <>
                         <FormGenerator
                             formData={formData}

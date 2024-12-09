@@ -48,7 +48,16 @@ import {
     UpdateMediatorRequest,
     UpdateMediatorResponse,
     ExpressionCompletionsRequest,
-    ExpressionCompletionsResponse
+    ExpressionCompletionsResponse,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    GenerateConnectorRequest,
+    GenerateConnectorResponse,
+    DependencyDetails,
+    PomNodeDetails,
+    UpdateConfigValuesResponse,
+    UpdateDependenciesResponse,
+    UpdateDependenciesRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -291,6 +300,18 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
+    async updateDependencies(req: UpdateDependenciesRequest): Promise<UpdateDependenciesResponse> {
+        return this.sendRequest('synapse/updateDependency', req);
+    }
+
+    async updateConfigFileValues(req: PomNodeDetails[]): Promise<UpdateConfigValuesResponse> {
+        return this.sendRequest('synapse/updateConfigFileValues', req);
+    }
+
+    async getProjectDetails(): Promise<any> {
+        return this.sendRequest('synapse/getOverviewPageDetails');
+    }
+
     async getSequencePath(sequenceName: string): Promise<string | undefined> {
         return new Promise(async (resolve) => {
             const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
@@ -319,11 +340,23 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/getMediatorUISchema", request);
     }
 
+    async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        if (request.documentUri) {
+            return this.sendRequest("synapse/getConnectionUISchema" , { documentUri: Uri.file(request.documentUri).toString(), });
+        }
+
+        return this.sendRequest("synapse/getConnectionUISchema", { connectorName: request.connectorName, connectionType: request.connectionType });
+    }
+
     async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
         return this.sendRequest("synapse/generateSynapseConfig", request);
     }
 
     async getExpressionCompletions(req: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this.sendRequest("synapse/expressionCompletion", req);
+    }
+
+    async generateConnector(req: GenerateConnectorRequest): Promise<GenerateConnectorResponse> {
+        return this.sendRequest("synapse/generateConnector", req);
     }
 }
