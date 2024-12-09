@@ -19,11 +19,13 @@ import {
     TriggerCharacter,
     FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
     convertToFnSignature,
+    convertToHelperPaneFunction,
+    convertToHelperPaneVariable,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
     getFormProperties,
@@ -79,6 +81,9 @@ export function FormGenerator(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
+    const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
+    const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     useEffect(() => {
@@ -394,6 +399,65 @@ export function FormGenerator(props: FormProps) {
         setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
+    const getHelperPaneData = useCallback(
+        async (type: string, searchText: string) => {
+            let result: HelperPaneData;
+            switch (type) {
+                case 'variables': {
+                    const variablesResponse = await rpcClient.getBIDiagramRpcClient().getVisibleVariableTypes({
+                        filePath: fileName,
+                        position: {
+                            line: targetLineRange.startLine.line,
+                            offset: targetLineRange.startLine.offset
+                        }
+                    });
+                    if (variablesResponse?.categories?.length) {
+                        setVariableInfo(convertToHelperPaneVariable(variablesResponse.categories));
+                    }
+                    break;
+                }
+                case 'functions': {
+                    const functionsResponse = await rpcClient.getBIDiagramRpcClient().getFunctions({
+                        position: targetLineRange,
+                        filePath: fileName,
+                        queryMap: searchText.trim()
+                            ? {
+                                  q: searchText,
+                                  limit: 12,
+                                  offset: 0
+                              }
+                            : undefined
+                    });
+                    if (functionsResponse?.categories?.length) {
+                        setFunctionInfo(convertToHelperPaneFunction(functionsResponse.categories));
+                    }
+                    break;
+                }
+                case 'library': {
+                    const functionsResponse = await rpcClient.getBIDiagramRpcClient().getFunctions({
+                        /* TODO: Add the flag */
+                        position: targetLineRange,
+                        filePath: fileName,
+                        queryMap: searchText.trim()
+                            ? {
+                                  q: searchText,
+                                  limit: 12,
+                                  offset: 0
+                              }
+                            : undefined
+                    });
+                    if (functionsResponse?.categories?.length) {
+                        setLibraryBrowserInfo(convertToHelperPaneFunction(functionsResponse.categories));
+                    }
+                    break;
+                }
+            }
+        },
+        [rpcClient, targetLineRange, fileName]
+    );
+
+    const handleGetHelperPaneData = useCallback(debounce(getHelperPaneData, 1100), [getHelperPaneData]);
+
     const handleCompletionItemSelect = async () => {
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
@@ -412,12 +476,26 @@ export function FormGenerator(props: FormProps) {
             extractArgsFromFunction: extractArgsFromFunction,
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
+            variableInfo: variableInfo,
+            functionInfo: functionInfo,
+            libraryBrowserInfo: libraryBrowserInfo,
+            getHelperPaneData: handleGetHelperPaneData,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel
-        } as FormExpressionEditor
-    }, [filteredCompletions, filteredTypes, handleRetrieveCompletions]);
+        } as FormExpressionEditorProps;
+    }, [
+        filteredCompletions,
+        filteredTypes,
+        variableInfo,
+        functionInfo,
+        libraryBrowserInfo,
+        handleRetrieveCompletions,
+        handleGetVisibleTypes,
+        handleGetHelperPaneData,
+        handleExpressionFormDiagnostics
+    ]);
 
     // handle if node form
     if (node.codedata.node === "IF") {
