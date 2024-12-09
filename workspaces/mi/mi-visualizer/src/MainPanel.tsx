@@ -38,7 +38,7 @@ import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
 import PopupPanel from './PopupPanel';
 import { AddArtifactView } from './views/AddArtifact';
 import { SequenceTemplateView } from './views/Diagram/SequenceTemplate';
-import { ConnectorStore } from './views/Forms/ConnectionForm';
+import { ConnectionWizard } from './views/Forms/ConnectionForm';
 import { TestSuiteForm } from './views/Forms/Tests/TestSuiteForm';
 import { TestCaseForm } from './views/Forms/Tests/TestCaseForm';
 import { MockServiceForm } from './views/Forms/Tests/MockServices/MockServiceForm';
@@ -332,7 +332,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     break;
                 case MACHINE_VIEW.ConnectorStore:
                     setViewComponent(
-                        <ConnectorStore path={machineView.documentUri} />);
+                        <ConnectionWizard path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.ConnectionForm:
                     setViewComponent(

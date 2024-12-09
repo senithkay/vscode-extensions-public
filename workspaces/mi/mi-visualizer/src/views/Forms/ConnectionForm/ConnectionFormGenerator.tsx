@@ -16,7 +16,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
-import { XMLBuilder } from 'xmlbuilder2/lib/interfaces';
 import { formatForConfigurable, isConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
 const ParamManagerContainer = styled.div`
@@ -67,11 +66,12 @@ export function AddConnection(props: AddConnectionProps) {
 
         const fetchFormData = async () => {
             // Fetch form on creation
-            const connectionUiSchema = props.connector.connectionUiSchema[connectionType];
 
-            const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
+            const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
+                connectorName: props.connector.name,
+                connectionType: connectionType });
 
-            setFormData(connectionFormJSON.formJSON);
+            setFormData(connectionSchema);
             reset({
                 name: watch('name'),
                 connectionType: connectionType
@@ -107,10 +107,10 @@ export function AddConnection(props: AddConnectionProps) {
                 props.connector.name = connector.name;
 
                 const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
-
-                const connectionFormJSON = await rpcClient.getMiDiagramRpcClient().getConnectionForm({ uiSchemaPath: connectionUiSchema });
-
-                setFormData(connectionFormJSON.formJSON);
+                const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
+                    documentUri: props.path  });
+                setConnectionType(connectionFound.connectionType);
+                setFormData(connectionSchema);
                 reset({
                     name: props.connectionName,
                     connectionType: connectionType
@@ -119,25 +119,7 @@ export function AddConnection(props: AddConnectionProps) {
                 const parameters = connectionFound.parameters
 
                 // Populate form with existing values
-                if (connectionFormJSON.formJSON !== "") {
-                    if (parameters) {
-                        parameters.forEach((param: any) => {
-                            if (param.name !== "name") {
-                                const inputType = getInputType(connectionFormJSON.formJSON, param.name);
-                                const isExpressionField = expressionFieldTypes.includes(inputType);
-                                const value = param.isExpression && isExpressionField ? param.expression.replace(/[{}]/g, '') : param.value;
-                                const namespaces = param.isExpression && param.namespaces ? Object.entries(param.namespaces).map(([prefix, uri]) => ({
-                                    prefix: prefix.split(':')[1], uri: uri
-                                })) : [];
-                                if (inputType === 'configurable' ) {
-                                    setValue(param.name, { isConfigurable: true, value: removeConfigurableFormat(value) });
-                                } else {
-                                    setValue(param.name, isExpressionField ? { isExpression: param.isExpression, value, namespaces } : value);
-                                }
-                            }
-                        });
-                    }
-                } else {
+                if (connectionSchema === undefined) {
                     // Handle connections without uischema
                     // Remove connection name from param manager fields
                     const filteredParameters = parameters.filter((param: { name: string; }) => param.name !== 'name');
@@ -221,9 +203,6 @@ export function AddConnection(props: AddConnectionProps) {
             console.error("Errors in saving connection form", errors);
         }
 
-        const visualizerState = await rpcClient.getVisualizerState();
-        const projectUri = visualizerState.projectUri;
-
         // Fill the values
         Object.keys(values).forEach((key: string) => {
             if ((key !== 'configRef' && key !== 'connectionType' && key !== 'connectionName') && values[key]) {
@@ -232,7 +211,6 @@ export function AddConnection(props: AddConnectionProps) {
                     const namespaces = values[key].namespaces;
                     const value = values[key].value;
                     const isExpression = values[key].isExpression;
-                    const isConfigurable = values[key].isConfigurable;
 
                     if (value) {
                         if (isExpression) {
@@ -246,17 +224,12 @@ export function AddConnection(props: AddConnectionProps) {
                             } else {
                                 connectorTag.ele(key).txt(`{${value}}`);
                             }
-                        } 
-                        else if (isConfigurable) {
-                            connectorTag.ele(key).txt(formatForConfigurable(value));
-                        }
-                        else {
+                        } else {
                             connectorTag.ele(key).txt(value);
                         }
                     }
                 } else {
                     const value = values[key];
-                    
                     if (typeof value === 'string' && value.includes('<![CDATA[')) {
                         // Handle CDATA
                         const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
@@ -270,6 +243,8 @@ export function AddConnection(props: AddConnectionProps) {
 
         const modifiedXml = template.end({ prettyPrint: true, headless: true });
 
+        const visualizerState = await rpcClient.getVisualizerState();
+        const projectUri = visualizerState.projectUri;
         const sep = visualizerState.pathSeparator;
         const localEntryPath = [projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries'].join(sep);
 
@@ -384,40 +359,14 @@ export function AddConnection(props: AddConnectionProps) {
     return (
         <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
-                type={props.connector.name}
+                type={connectionType}
                 onClick={props.changeConnector}
                 showButton={!props.connectionName}
-                id='Connector:'
+                id='Connection:'
             />}
             {formData ? (
                 <>
                     {ConnectionName}
-                    {allowedConnectionTypes && (
-                        <>
-                            <Controller
-                                name="connectionType"
-                                control={control}
-                                rules={{ required: "Connection type is required" }}
-                                render={({ field }) => (
-                                    <AutoComplete
-                                        label={"Connection Type"}
-                                        items={
-                                            allowedConnectionTypes?.map((type: any) => (
-                                                type
-                                            ))
-                                        }
-                                        required={true}
-                                        value={connectionType}
-                                        onValueChange={(e: any) => {
-                                            setConnectionType(e);
-                                            field.onChange(e);
-                                        }}
-                                        errorMsg={errors.connectionType && errors.connectionType.message.toString()}
-                                    />
-                                )}
-                            />
-                        </>
-                    )}
                     <>
                         <FormGenerator
                             formData={formData}

@@ -8,31 +8,18 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField, LinkButton, ProgressIndicator, FormCheckBox, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { ParamConfig, ParamManager } from '../../Form/ParamManager/ParamManager';
+import { ParamConfig } from '../../Form/ParamManager/ParamManager';
 import { ExpressionField, ExpressionFieldValue } from '../../Form/ExpressionField/ExpressionInput';
 import { handleOpenExprEditor, sidepanelGoBack } from '..';
 import { useForm, Controller } from 'react-hook-form';
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from '@wso2-enterprise/mi-core';
 import { FormGenerator } from '../../..';
-
-const cardStyle = {
-    display: "block",
-    margin: "5px 0",
-    padding: "10px 15px 15px 15px",
-    width: "auto",
-    cursor: "auto",
-};
-
-const Error = styled.span`
-    color: var(--vscode-errorForeground);
-    font-size: 12px;
-`;
 
 const Field = styled.div`
    margin-bottom: 5px;
@@ -495,7 +482,7 @@ const AddConnector = (props: AddConnectorProps) => {
                             watch={watch}
                             getValues={getValues}
                             skipGeneralHeading={true}
-                            ignoreFields={["connectionName"]}
+                            ignoreFields={props.connectionName ? ["configRef"] : []}
                             connections={connections}
                             addNewConnection={addNewConnection} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>

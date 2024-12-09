@@ -291,12 +291,15 @@ export const DATA_SERVICE = {
 }
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI"
 }
 
 export const ERROR_MESSAGES = {
     ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
     ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
+    ERROR_LOADING_MODULES: "Error loading module data. Please try again."
 }
 
 export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";

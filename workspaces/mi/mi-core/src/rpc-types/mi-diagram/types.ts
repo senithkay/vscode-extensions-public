@@ -358,8 +358,25 @@ export interface Connector {
     description: string;
     icon: string;
 }
+
+export interface ConnectorOperation {
+    name: string;
+    description: string;
+    isHidden: boolean;
+}
 export interface ConnectorsResponse {
     data: Connector[];
+}
+
+export interface UpdatePOMRequest {
+    documentUri: string;
+    groupId: string;
+    artifactId: string;
+    version: string;
+}
+
+export interface UpdatePOMResponse {
+    textEdits: TextEdit[];
 }
 
 export interface ESBConfigsResponse {
@@ -1456,8 +1473,9 @@ export interface GetConnectionFormResponse {
 }
 
 export interface StoreConnectorJsonResponse {
-    outboundConnectors: any[];
-    inboundConnectors: any[];
+    outboundConnectors?: any[];
+    inboundConnectors?: any[];
+    connectors?: any[];
 }
 
 export interface CreateDataSourceResponse {
@@ -1723,6 +1741,14 @@ export interface AddDriverRequest {
     driverPath: string;
 }
 
+export interface CopyConnectorZipRequest {
+    connectorPath: string;
+}
+
+export interface CopyConnectorZipResponse {
+    success: boolean;
+}
+
 export interface DSSQueryGenRequest {
     className: string;
     username: string;
@@ -1785,6 +1811,8 @@ export interface Mediator {
     type: string;
     description: string;
     icon: string;
+    operationName?: string;
+    iconPath?: string;
 }
 
 export interface GetMediatorRequest {
@@ -1794,8 +1822,9 @@ export interface GetMediatorRequest {
 }
 
 export interface GetMediatorResponse {
-    form: any;
+    form?: any;
     title: string;
+    onSubmit?: string;
 }
 
 export interface UpdateMediatorRequest {
@@ -1810,6 +1839,16 @@ export interface UpdateMediatorRequest {
 
 export interface UpdateMediatorResponse {
     textEdits: TextEdit[];
+}
+
+export interface GetConnectionSchemaRequest {
+    connectorName?: string;
+    connectionType?: string;
+    documentUri?: string;
+}
+
+export interface GetConnectionSchemaResponse {
+    form?: any;
 }
 export interface ExpressionCompletionsRequest {
     documentUri: string;
@@ -1832,3 +1871,12 @@ export type ExpressionCompletionsResponse = {
     isIncomplete: boolean;
     items: ExpressionCompletionItem[];
 };
+
+export interface GenerateConnectorRequest {
+    openAPIPath: string;
+    connectorProjectPath: string;
+}
+export interface GenerateConnectorResponse {
+    buildStatus: boolean;
+    connectorPath: string;
+}

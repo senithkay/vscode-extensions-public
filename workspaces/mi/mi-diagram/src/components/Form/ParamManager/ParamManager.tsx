@@ -53,6 +53,7 @@ export interface ParamField {
     id?: number;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager" | "ExprField";
     label?: string;
+    labelAdornment?: React.ReactNode;
     placeholder?: string;
     defaultValue?: any;
     isRequired?: boolean;
@@ -227,6 +228,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
         paramInfo.push({
             id: index,
             label: field.label,
+            labelAdornment: field.labelAdornment,
             type: field.type,
             value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
@@ -259,6 +261,11 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
 export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
     const paramField = paramFields[paramId];
     return paramField?.label;
+}
+
+export const getParamFieldLabelAdornmentFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.labelAdornment;
 }
 
 export const getParamFieldPlaceholderFromParamId = (paramFields: ParamField[], paramId: number) => {
@@ -355,6 +362,7 @@ export function ParamManager(props: ParamManagerProps) {
             const param: Param = {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
+                labelAdornment: getParamFieldLabelAdornmentFromParamId(paramConfigs.paramFields, id),
                 type,
                 placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,
