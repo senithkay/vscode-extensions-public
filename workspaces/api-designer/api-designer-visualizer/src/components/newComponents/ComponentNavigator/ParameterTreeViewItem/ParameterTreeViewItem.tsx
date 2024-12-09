@@ -62,7 +62,7 @@ export function ParameterTreeViewItem(props: PathTreeViewItemProps) {
                         {parameter}
                     </Typography>
                     <RightPathContainerButtons className="buttons-container">
-                        <Button tooltip="Delete Schema" appearance="icon" onClick={(e) => handleDeleteParameter(e, parameter)}><Codicon name="trash" /></Button>
+                        <Button tooltip="Delete Parameter" appearance="icon" onClick={(e) => handleDeleteParameter(e, parameter)}><Codicon name="trash" /></Button>
                     </RightPathContainerButtons>
                 </ParameterItemWrapper>
             </TreeViewItem>

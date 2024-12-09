@@ -60,7 +60,7 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
             "Parameter";
         openAPI.components.parameters[newParameterName] = {
             in: "query",
-            name: "",
+            name: `param${Object.keys(openAPI.components.parameters).length + 1}`,
             required: false,
             schema: {
                 type: "string"

@@ -41,6 +41,7 @@ export function ReadOnlyRefParameters(props: ReadOnlyReferenceObjectsProps) {
 
     return (
         <PanelBody>
+            <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Parameter</Typography>
             <PathWrapper>
                 <MethodWrapper>
                     <Typography

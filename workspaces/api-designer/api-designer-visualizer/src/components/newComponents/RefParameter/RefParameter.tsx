@@ -9,12 +9,11 @@
 import { Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Parameter, SchemaTypes } from '../../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Parameters/Parameters';
-import { BaseTypes } from '../../../constants';
 
 interface RefParamaterProps {
     paramerName: string;
     parameter: Parameter;
-    onParameterChange: (parameter: Parameter, name: string) => void;
+    onParameterChange: (parameter: Parameter, name: string, initialName?: string) => void;
 }
 
 const DataTypes = [
@@ -31,6 +30,9 @@ export function RefParameter(props: RefParamaterProps) {
     const handleParameterChange = (parameter: Parameter) => {
         onParameterChange(parameter, paramerName);
     };
+    const hanleParameterNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onParameterChange(parameter, e.target.value, paramerName);
+    }
 
     const dataTypes = DataTypes.map((type) => {
         return { content: type, value: type };
@@ -38,12 +40,12 @@ export function RefParameter(props: RefParamaterProps) {
 
     return (
         <PanelBody>
-            <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h3">Parameter</Typography>
+            <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Parameter</Typography>
             <TextField
                 label='Reference Name'
                 placeholder='Enter the reference name'
                 value={paramerName}
-                onChange={(e) => onParameterChange(parameter, e.target.value)}
+                onBlur={(e) => hanleParameterNameChange(e)}
             />
             <Dropdown
                 id='parameter-type'
