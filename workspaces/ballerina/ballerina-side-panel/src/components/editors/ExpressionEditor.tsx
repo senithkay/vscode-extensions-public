@@ -192,7 +192,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveCompletions(value, cursorPosition, undefined, true);
+        await retrieveCompletions(value, field.key, cursorPosition, undefined, true);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -293,6 +293,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
 
+    const handleExtractArgsFromFunction = async (value: string, cursorPosition: number) => {
+        return await extractArgsFromFunction(value, field.key, cursorPosition);
+    };
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -333,12 +337,12 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                                         ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
                                         : undefined;
                                 if (triggerCharacter) {
-                                    await retrieveCompletions(value, updatedCursorPosition, triggerCharacter);
+                                    await retrieveCompletions(value, field.key, updatedCursorPosition, triggerCharacter);
                                 } else {
-                                    await retrieveCompletions(value, updatedCursorPosition);
+                                    await retrieveCompletions(value, field.key, updatedCursorPosition);
                                 }
                             }}
-                            extractArgsFromFunction={extractArgsFromFunction}
+                            extractArgsFromFunction={handleExtractArgsFromFunction}
                             onCompletionSelect={handleCompletionSelect}
                             onFocus={() => handleFocus(value)}
                             onBlur={handleBlur}
