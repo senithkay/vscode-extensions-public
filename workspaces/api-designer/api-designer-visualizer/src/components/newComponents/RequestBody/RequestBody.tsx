@@ -16,12 +16,13 @@ import { MediaTypes } from '../../../constants';
 
 interface RequestBodyProps {
     requestBody: R;
+    hideTitle?: boolean;
     onRequestBodyChange: (mediaType: R) => void;
 }
 
 // Title, Vesrion are mandatory fields
 export function RequestBody(props: RequestBodyProps) {
-    const { requestBody, onRequestBodyChange } = props;
+    const { requestBody, hideTitle, onRequestBodyChange } = props;
     const { rpcClient } = useVisualizerContext();
     const [selectedMediaType, setSelectedMediaType] = useState<string | undefined>(requestBody?.content && Object.keys(requestBody.content)[0]);
 
@@ -96,7 +97,7 @@ export function RequestBody(props: RequestBodyProps) {
 
     return (
         <>
-            <Typography variant='h2' sx={{margin: 0}}>Request</Typography>
+            {!hideTitle && <Typography variant='h2' sx={{margin: 0}}>Request</Typography>}
             <SectionHeader
                 title="Body"
                 variant='h3'

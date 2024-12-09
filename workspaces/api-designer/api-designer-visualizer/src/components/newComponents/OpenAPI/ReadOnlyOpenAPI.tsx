@@ -13,6 +13,7 @@ import { ReadOnlyPaths } from '../Paths/ReadOnlyPaths';
 import { ReadOnlyOverview } from '../Overview/ReadOnlyOverview';
 import { ReadOnlySchemaEditor } from '../../SchemaEditor/ReadOnlySchemaEditor';
 import { ReadOnlyRefParameters } from '../RefParameter/ReadOnlyRefParameter';
+import { ReadOnlyRefRequestBody } from '../RefRequestBody/ReadOnlyRefRequestBody';
 
 interface OverviewProps {
     openAPI: O;
@@ -47,6 +48,12 @@ export function ReadOnlyOpenAPI(props: OverviewProps) {
             {componetName === "parameters" && (
                 <ReadOnlyRefParameters
                     parameter={openAPI.components.parameters[selectedComponentID.split("#-")[2]]}
+                    name={selectedComponentID.split("#-")[2]}
+                />
+            )}
+            {componetName === "requestBody" && (
+                <ReadOnlyRefRequestBody
+                    requestBody={openAPI.components.requestBodies[selectedComponentID.split("#-")[2]]}
                     name={selectedComponentID.split("#-")[2]}
                 />
             )}

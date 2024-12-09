@@ -14,6 +14,7 @@ import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 import { SchemaTreeView } from '../SchemaTreeView/SchemaTreeView';
 import { ParameterTreeView } from '../ParameterTreeView/ParameterTreeView';
+import { RequestBodyTreeView } from '../RequestBodyTreeView/RequestBodyTreeView';
 
 interface PathTreeViewItemProps {
     openAPI: OpenAPI;
@@ -48,6 +49,10 @@ export function ComponentTreeView(props: PathTreeViewItemProps) {
             <ParameterTreeView
                 openAPI={openAPI}
                 onParameterTreeViewChange={onSchemaTreeViewChange}
+            />
+            <RequestBodyTreeView
+                openAPI={openAPI}
+                onRequestBodyTreeViewChange={onSchemaTreeViewChange}
             />
         </TreeView>
     )
