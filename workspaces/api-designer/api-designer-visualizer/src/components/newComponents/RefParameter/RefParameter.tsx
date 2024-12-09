@@ -28,11 +28,11 @@ const DataTypes = [
 export function RefParameter(props: RefParamaterProps) {
     const { paramerName, parameter, onParameterChange } = props;
     const handleParameterChange = (parameter: Parameter) => {
-        onParameterChange(parameter, paramerName);
+        onParameterChange(parameter, paramerName, paramerName);
     };
     const hanleParameterNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onParameterChange(parameter, e.target.value, paramerName);
-    }
+    };
 
     const dataTypes = DataTypes.map((type) => {
         return { content: type, value: type };

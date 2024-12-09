@@ -14,40 +14,40 @@ import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 import { Views } from '../../../../constants';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { RequestBodyTreeViewItem } from '../RequestBodyTreeViewItem/RequestBodyTreeViewItem';
+import { ResponseViewItem } from '../ResponsesViewItem/ResponsesViewItem';
 
-interface RequestBodyTreeViewProps {
+interface ResponsesTreeViewProps {
     openAPI: OpenAPI;
-    onRequestBodyTreeViewChange: (openAPI: OpenAPI) => void;
+    onResponseTreeViewChange: (openAPI: OpenAPI) => void;
 }
 
-export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
-    const { openAPI, onRequestBodyTreeViewChange } = props;
+export function ResponsesTreeView(props: ResponsesTreeViewProps) {
+    const { openAPI, onResponseTreeViewChange } = props;
     const { rpcClient } = useVisualizerContext();
     const { 
         props: { selectedComponentID },
         api: { onSelectedComponentIDChange, onCurrentViewChange }
     } = useContext(APIDesignerContext);
 
-    const handleDeleteRequestBody = (requestBody: string) => {
-        rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Request Body '${requestBody}'?`, buttonText: "Delete" }).then(res => {
+    const handleDeleteResponse = (response: string) => {
+        rpcClient.showConfirmMessage({ message: `Are you sure you want to delete the Response '${response}'?`, buttonText: "Delete" }).then(res => {
             if (res) {
-                const clonedRequestBodies = { ...openAPI.components?.requestBodies };
-                delete clonedRequestBodies[requestBody];
+                const clonedResponses = { ...openAPI.components?.responses };
+                delete clonedResponses[response];
                 const updatedOpenAPIDefinition: OpenAPI = {
                     ...openAPI,
                     components: {
                         ...openAPI.components,
-                        requestBodies: clonedRequestBodies
+                        responses: clonedResponses
                     }
                 };
-                onRequestBodyTreeViewChange(updatedOpenAPIDefinition);
+                onResponseTreeViewChange(updatedOpenAPIDefinition);
                 onSelectedComponentIDChange("overview");
             }
         });
     };
 
-    const handleAddRequestBody = (evt : React.MouseEvent) => {
+    const handleAddResponse = (evt : React.MouseEvent) => {
         evt.stopPropagation();
         if (openAPI.components === undefined) {
             openAPI.components = {};
@@ -55,12 +55,12 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
         if (openAPI.components.parameters === undefined) {
             openAPI.components.parameters = {};
         }
-        const newRequestBodyName = Object.keys(openAPI.components.parameters).find((key) =>
-            key.toLocaleLowerCase() === "requestbody") ? `RequestBody${Object.keys(openAPI.components.parameters).length + 1}` :
-            "RequestBody";
-        openAPI.components.requestBodies = {
-            ...openAPI.components.requestBodies,
-            [newRequestBodyName]: {
+        const newResponseName = Object.keys(openAPI.components.parameters).find((key) =>
+            key.toLocaleLowerCase() === "response") ? `Response${Object.keys(openAPI.components.parameters).length + 1}` :
+            "Response";
+        openAPI.components.responses = {
+            ...openAPI.components.responses,
+            [newResponseName]: {
                 description: "",
                 content: {
                     "application/json": {
@@ -71,36 +71,36 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
                 }
             }
         };
-        onRequestBodyTreeViewChange(openAPI);
-        onSelectedComponentIDChange(`requestBody#-component#-${newRequestBodyName}`);
+        onResponseTreeViewChange(openAPI);
+        onSelectedComponentIDChange(`responses#-component#-${newResponseName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
-    const requestBodyArray = openAPI?.components?.requestBodies ? Object.keys(openAPI?.components?.requestBodies) : [];
+    const responseArray = openAPI?.components?.responses ? Object.keys(openAPI?.components?.responses) : [];
 
     return (
         <TreeView
             sx={{ paddingBottom: 2 }}
-            id="RequestBody#-Components"
+            id="Responses#-Components"
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Request Bodies</Typography>
+                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Responses</Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
-                        <Button tooltip="Add Request Body" appearance="icon" onClick={handleAddRequestBody}><Codicon name="plus" /></Button>
+                        <Button tooltip="Add Response" appearance="icon" onClick={handleAddResponse}><Codicon name="plus" /></Button>
                     </RightPathContainerButtons>
                 </PathContainer>
             }
             selectedId={selectedComponentID}
             onSelect={onSelectedComponentIDChange}
         >
-            {requestBodyArray.map((requestBody: string) => {
+            {responseArray.map((requestBody: string) => {
                 return (
-                    <RequestBodyTreeViewItem
-                        id={`requestBody#-component#-${requestBody}`}
-                        requestBody={requestBody}
-                        onDeleteRequestBody={handleDeleteRequestBody}
+                    <ResponseViewItem
+                        id={`responses#-component#-${requestBody}`}
+                        response={requestBody}
+                        onDeleteResponse={handleDeleteResponse}
                     />
                 );
             })}

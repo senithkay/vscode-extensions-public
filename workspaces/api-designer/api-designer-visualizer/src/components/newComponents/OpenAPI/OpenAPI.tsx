@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { OpenAPI as O, Parameter, RequestBody } from '../../../Definitions/ServiceDefinitions';
+import { OpenAPI as O, Parameter, RequestBody, Response } from '../../../Definitions/ServiceDefinitions';
 import { Overview } from '../Overview/Overview';
 import { Paths } from '../Paths/Paths';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
@@ -14,6 +14,7 @@ import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { RefParameter } from '../RefParameter/RefParameter';
 import { RefRequestBody } from '../RefRequestBody/RefRequestBody';
+import { RefResponse } from '../RefResponse/RefResponse';
 
 interface OverviewProps {
     openAPI: O;
@@ -64,7 +65,23 @@ export function OpenAPI(props: OverviewProps) {
             onSelectedComponentIDChange(`parameters#-component#-${name}`);
         }
         handleOpenAPIChange(updatedOpenAPI);
-    }
+    };
+    const handleResponseChange = (response: Response, name: string, initialName?: string) => {
+        const updatedOpenAPI = { ...openAPI };
+        const responses = { ...updatedOpenAPI.components.responses };
+        // Create new object maintaining order and replacing the key
+        const orderedResponses = Object.fromEntries(
+            Object.entries(responses).map(([key, value]) => 
+                key === initialName ? [name, response] : [key, value]
+            )
+        );
+        updatedOpenAPI.components.responses = orderedResponses;
+        if (initialName !== name) {
+            onSelectedComponentIDChange(`responses#-component#-${name}`);
+        }
+        handleOpenAPIChange(updatedOpenAPI);
+    };
+
 
     return (
         <>
@@ -106,6 +123,13 @@ export function OpenAPI(props: OverviewProps) {
                     requestBodyName={selectedComponentID.split("#-")[2]}
                     requestBody={openAPI.components.requestBodies[selectedComponentID.split("#-")[2]]}
                     onRequestBodyChange={handleRequestBodiesChange}
+                />
+            )}
+            {componetName === "responses" && (
+                <RefResponse
+                    responseName={selectedComponentID.split("#-")[2]}
+                    response={openAPI.components.responses[selectedComponentID.split("#-")[2]]}
+                    onResponseChange={handleResponseChange}
                 />
             )}
         </>

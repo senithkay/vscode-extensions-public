@@ -20,7 +20,7 @@ interface RefRequestBodyProps {
 export function RefRequestBody(props: RefRequestBodyProps) {
     const { requestBodyName, requestBody, onRequestBodyChange } = props;
     const handleRequestBodyChangeChange = (parameter: R) => {
-        onRequestBodyChange(parameter, requestBodyName);
+        onRequestBodyChange(parameter, requestBodyName, requestBodyName);
     };
     const handleRequestBodyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onRequestBodyChange(requestBody, e.target.value, requestBodyName);

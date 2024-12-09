@@ -69,6 +69,10 @@ export function ApiDesigner(props: ApiDesignerProps) {
                     // Get the first request body item and set it as the selected item
                     const requestBodies = openApi?.components?.requestBodies ? Object.keys(openApi.components.requestBodies) : [];
                     setSelectedComponentID(requestBodies && `requestBody#-component#-${requestBodies[0]}`);
+                } else if (component === "Responses#-Components") {
+                    // Get the first response item and set it as the selected item
+                    const responses = openApi?.components?.responses ? Object.keys(openApi.components.responses) : [];
+                    setSelectedComponentID(responses && `responses#-component#-${responses[0]}`);
                 } else {
                     setSelectedComponentID(component);
                 }

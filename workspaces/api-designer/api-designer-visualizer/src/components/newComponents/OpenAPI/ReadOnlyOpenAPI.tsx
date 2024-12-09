@@ -14,6 +14,7 @@ import { ReadOnlyOverview } from '../Overview/ReadOnlyOverview';
 import { ReadOnlySchemaEditor } from '../../SchemaEditor/ReadOnlySchemaEditor';
 import { ReadOnlyRefParameters } from '../RefParameter/ReadOnlyRefParameter';
 import { ReadOnlyRefRequestBody } from '../RefRequestBody/ReadOnlyRefRequestBody';
+import { ReadOnlyRefResponse } from '../RefResponse/ReadOnlyRefResponse';
 
 interface OverviewProps {
     openAPI: O;
@@ -54,6 +55,12 @@ export function ReadOnlyOpenAPI(props: OverviewProps) {
             {componetName === "requestBody" && (
                 <ReadOnlyRefRequestBody
                     requestBody={openAPI.components.requestBodies[selectedComponentID.split("#-")[2]]}
+                    name={selectedComponentID.split("#-")[2]}
+                />
+            )}
+            {componetName === "responses" && (
+                <ReadOnlyRefResponse
+                    response={openAPI.components.responses[selectedComponentID.split("#-")[2]]}
                     name={selectedComponentID.split("#-")[2]}
                 />
             )}
