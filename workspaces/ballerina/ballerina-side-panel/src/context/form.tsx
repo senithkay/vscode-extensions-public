@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HelperPaneData, LineRange } from '@wso2-enterprise/ballerina-core';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
+import { LineRange } from '@wso2-enterprise/ballerina-core';
 import React, { createContext, FC, useContext } from 'react';
 import { 
     Control,
@@ -21,6 +20,7 @@ import {
     UseFormClearErrors,
     FieldErrors
 } from 'react-hook-form';
+import { FormExpressionEditor } from '../components/Form/types';
 
 export interface FormContext {
     form: {
@@ -33,36 +33,7 @@ export interface FormContext {
         clearErrors: UseFormClearErrors<FieldValues>;
         formState: { isValidating: boolean; errors: FieldErrors<FieldValues> };
     };
-    expressionEditor?: {
-        variableInfo: HelperPaneData;
-        functionInfo: HelperPaneData;
-        libraryBrowserInfo: HelperPaneData;
-        completions: CompletionItem[];
-        triggerCharacters?: readonly string[];
-        retrieveCompletions?: (
-            value: string,
-            offset: number,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
-        ) => Promise<void>;
-        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-            label: string;
-            args: string[];
-            currentArgIndex: number;
-        }>;
-        getExpressionDiagnostics?: (
-            showDiagnostics: boolean,
-            expression: string,
-            key: string
-        ) => Promise<void>;
-        getHelperPaneData?: (type: string, filterText: string) => Promise<void>;
-        onFocus?: () => void | Promise<void>;
-        onBlur?: () => void | Promise<void>;
-        onCompletionSelect?: (value: string) => void | Promise<void>;
-        onSave?: (value: string) => void | Promise<void>;
-        onCancel: () => void;
-    };
+    expressionEditor?: FormExpressionEditor;
     targetLineRange: LineRange;
     fileName: string;
 }

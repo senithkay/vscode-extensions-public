@@ -9,3 +9,4 @@
 
 export * from './config-provider';
 export * from './model';
+export * from './breakpoint-manager';

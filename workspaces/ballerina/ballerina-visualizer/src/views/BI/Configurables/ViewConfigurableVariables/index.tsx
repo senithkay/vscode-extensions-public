@@ -145,10 +145,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     const [configIndex, setConfigIndex] = useState<number>(null);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const selectedNodeRef = useRef<FlowNode>();
+    const [updateConfigVariables, setUpdateConfigVariables] = useState(true);
 
     const handleEditConfigVariableFormOpen = (index: number) => {
         setEditConfigVariableFormOpen(true);
         setConfigIndex(index);
+        setUpdateConfigVariables(false);
     };
 
     const handleAddConfigVariableFormOpen = () => {
@@ -158,9 +160,10 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
 
     // Handler to close the child component
     const handleEditConfigFormClose = () => {
+        setUpdateConfigVariables(true);
         setEditConfigVariableFormOpen(false);
         setConfigIndex(null);
-
+        
         rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
@@ -208,12 +211,12 @@ export function ViewConfigurableVariables(props?: ConfigProps) {
     useEffect(() => {
         console.log(">>> Get Config Variables");
         getConfigVariables();
-    }, []);
+    }, [updateConfigVariables]);
 
     // Effect to handle prop changes
     useEffect(() => {
         if (props.variableIndex !== undefined && configVariables.length > 0) {
-            // Open child component if props are provided
+            // Open child component if props are provided           
             setEditConfigVariableFormOpen(true);
             setConfigIndex(props.variableIndex);
         }

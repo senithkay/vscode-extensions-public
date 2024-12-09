@@ -43,11 +43,11 @@ export function TypeEditor(props: TypeEditorProps) {
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
-        completions,
+        types,
         retrieveVisibleTypes,
         onFocus,
         onBlur,
-        onCompletionSelect,
+        onCompletionItemSelect,
         onSave,
         onCancel,
     } = expressionEditor;
@@ -77,7 +77,7 @@ export function TypeEditor(props: TypeEditorProps) {
 
     const handleCompletionSelect = async (value: string) => {
         // Trigger actions on completion select
-        await onCompletionSelect?.(value);
+        await onCompletionItemSelect?.(value);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -118,7 +118,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             key={field.key}
                             ref={exprRef}
                             name={name}
-                            completions={completions}
+                            completions={types}
                             showDefaultCompletion={showDefaultCompletion}
                             getDefaultCompletion={getDefaultCompletion}
                             value={value}
