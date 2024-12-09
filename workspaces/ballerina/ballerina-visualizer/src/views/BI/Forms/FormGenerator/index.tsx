@@ -221,7 +221,7 @@ export function FormGenerator(props: FormProps) {
     };
     
     const debouncedRetrieveCompletions = useCallback(debounce(
-        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
+        async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
             const effectiveText = value.slice(0, offset);
             const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
@@ -250,13 +250,17 @@ export function FormGenerator(props: FormProps) {
                 // Retrieve completions from the ls
                 let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
                     filePath: fileName,
-                    expression: value,
-                    startLine: targetLineRange.startLine,
-                    offset: offset,
                     context: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter,
+                        expression: value,
+                        startLine: targetLineRange.startLine,
+                        offset: offset,
+                        node: node,
+                        property: key
                     },
+                    completionContext: {
+                        triggerKind: triggerCharacter ? 2 : 1,
+                        triggerCharacter: triggerCharacter as TriggerCharacter
+                    }
                 });
 
                 if (onlyVariables) {
@@ -300,11 +304,12 @@ export function FormGenerator(props: FormProps) {
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
+        key: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => {
-        await debouncedRetrieveCompletions(value, offset, triggerCharacter, onlyVariables);
+        await debouncedRetrieveCompletions(value, key, offset, triggerCharacter, onlyVariables);
 
         if (triggerCharacter) {
             await debouncedRetrieveCompletions.flush();
@@ -338,16 +343,20 @@ export function FormGenerator(props: FormProps) {
         await debouncedGetVisibleTypes(value, cursorPosition);
     }, [debouncedGetVisibleTypes]);
 
-    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
+    const extractArgsFromFunction = async (value: string, key: string, cursorPosition: number) => {
         const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
             filePath: fileName,
-            expression: value,
-            startLine: targetLineRange.startLine,
-            offset: cursorPosition,
             context: {
-                isRetrigger: false,
-                triggerKind: 1,
+                expression: value,
+                startLine: targetLineRange.startLine,
+                offset: cursorPosition,
+                node: node,
+                property: key
             },
+            signatureHelpContext: {
+                isRetrigger: false,
+                triggerKind: 1
+            }
         });
 
         return convertToFnSignature(signatureHelp);

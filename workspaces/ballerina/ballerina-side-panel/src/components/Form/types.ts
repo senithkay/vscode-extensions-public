@@ -46,11 +46,16 @@ type FormCompletionConditionalProps = {
     triggerCharacters: readonly string[];
     retrieveCompletions: (
         value: string,
+        key: string,
         offset: number,
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (value: string, cursorPosition: number) => Promise<{
+    extractArgsFromFunction: (
+        value: string,
+        key: string,
+        cursorPosition: number
+    ) => Promise<{
         label: string;
         args: string[];
         currentArgIndex: number;
