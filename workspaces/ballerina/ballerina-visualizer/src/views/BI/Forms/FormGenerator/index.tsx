@@ -300,7 +300,7 @@ export function FormGenerator(props: FormProps) {
             setFilteredCompletions(expressionCompletions);
         },
         250
-    ), [rpcClient, completions, fileName, targetLineRange, triggerCompletionOnNextRequest.current]);
+    ), [rpcClient, completions, fileName, targetLineRange, node, triggerCompletionOnNextRequest.current]);
 
     const handleRetrieveCompletions = useCallback(async (
         value: string,
@@ -392,7 +392,7 @@ export function FormGenerator(props: FormProps) {
         });
         
         setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
-    }, 250), [rpcClient, fileName, targetLineRange]);
+    }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const handleCompletionItemSelect = async () => {
         debouncedRetrieveCompletions.cancel();

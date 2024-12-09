@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Codicon, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
@@ -256,7 +256,7 @@ export function IfForm(props: IfFormProps) {
         setBranches(updatedBranches);
     };
 
-    const handleExpressionFormDiagnostics = debounce(async (
+    const handleExpressionFormDiagnostics = useCallback(debounce(async (
         showDiagnostics: boolean,
         expression: string,
         key: string
@@ -279,7 +279,7 @@ export function IfForm(props: IfFormProps) {
         });
 
         handleSetDiagnosticsInfo({ key, diagnostics: response.diagnostics });
-    }, 250);
+    }, 250), [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]);
 
     const handleEditorFocus = (currentActive: number) => {
         if (isActiveSubPanel && activeEditor !== currentActive) {
