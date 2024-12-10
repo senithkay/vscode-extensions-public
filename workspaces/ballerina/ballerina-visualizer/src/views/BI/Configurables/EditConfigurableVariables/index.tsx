@@ -8,14 +8,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
-import { debounce } from "lodash";
+import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
-import { ConfigVariable, EVENT_TYPE, Flow, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
+import { ConfigVariable, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
-import { convertNodePropertiesToFormFields, convertToVisibleTypes, getFormProperties } from '../../../../utils/bi';
+import { PanelContainer, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import FormGenerator from '../../Forms/FormGenerator';
 
 namespace S {
     export const FormContainer = styled.div`
@@ -38,22 +36,12 @@ export function EditForm(props: ConfigFormProps) {
 
     const { rpcClient } = useRpcContext();
 
-    const [fields, setFields] = useState<FormField[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
-
     useEffect(() => {
         variable.properties.defaultable.optional = true;
         variable.properties.defaultable.advanced = true;
-        const formProperties = getFormProperties(variable);
-        console.log(">>> Edit config form properties", formProperties);
-        setFields(convertNodePropertiesToFormFields(formProperties));
     }, [variable]);
 
     const handleSave = (data: FormValues) => {
-
-        setFields([]);
-
         variable.properties.defaultable.value =
             data.defaultable === "" || data.defaultable === null ?
                 "?"
@@ -88,66 +76,22 @@ export function EditForm(props: ConfigFormProps) {
         });
     };
 
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: variable.codedata.lineRange.fileName,
-                position: variable.codedata.lineRange.startLine,
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        await debouncedGetVisibleTypes(value, cursorPosition);
-    };
-
-    const handleCompletionSelect = async () => {
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-
     return (
         <>
             <PanelContainer
                 title={title}
                 show={props.isOpen}
-                onClose={onClose ? onClose : goToViewConfig}>
-
-                <Form
-                    formFields={fields}
-                    onSubmit={handleSave}
+                onClose={onClose ? onClose : goToViewConfig}
+            >
+                <FormGenerator
                     fileName={variable.codedata.lineRange.fileName}
-                    targetLineRange={{ startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine }}
-                    expressionEditor={{
-                        completions: filteredTypes,
-                        retrieveVisibleTypes: handleGetVisibleTypes,
-                        onCompletionSelect: handleCompletionSelect,
-                        onCancel: handleExpressionEditorCancel,
-                        onBlur: handleExpressionEditorBlur,
-                    }} />
-
+                    node={variable}
+                    targetLineRange={{
+                        startLine: variable.codedata.lineRange.startLine,
+                        endLine: variable.codedata.lineRange.endLine
+                    }}
+                    onSubmit={handleSave}
+                />
             </PanelContainer>
         </>
     );

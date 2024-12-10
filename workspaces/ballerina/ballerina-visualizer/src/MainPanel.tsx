@@ -104,6 +104,11 @@ const MainPanel = () => {
         setPopupState(newState);
     });
 
+    rpcClient?.onBreakpointChanges((state: boolean) => {
+        fetchContext();
+        console.log("Breakpoint changes");
+    });
+
     // TODO: Need to refactor this function. use util apply modifications function
     const applyModifications = async (modifications: STModification[], isRecordModification?: boolean) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();

@@ -10,11 +10,10 @@
 
 import React, { useState } from 'react';
 
-import { EditorContainer, EditorContent } from './styles';
+import { EditorContainer } from './styles';
 import { Parameter } from './ParamManager';
-import Form, { FormProps } from '../Form';
+import Form from '../Form';
 import { FormField, FormValues } from '../Form/types';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import { useFormContext } from '../../context';
 
 export interface ParamProps {
@@ -26,7 +25,7 @@ export interface ParamProps {
 
 export function ParamEditor(props: ParamProps) {
     const { parameter, paramFields, onSave, onCancelEdit } = props;
-    const { expressionEditor: { completions, retrieveCompletions, retrieveVisibleTypes, getExpressionDiagnostics, onCancel } } = useFormContext();
+    const { expressionEditor } = useFormContext();
 
     const [fields, setFields] = useState<FormField[]>(paramFields);
 
@@ -42,13 +41,7 @@ export function ParamEditor(props: ParamProps) {
                 formFields={fields}
                 onSubmit={handleOnSave}
                 onCancelForm={() => onCancelEdit(parameter)}
-                expressionEditor={{
-                    completions,
-                    onCancel,
-                    retrieveCompletions,
-                    retrieveVisibleTypes,
-                    getExpressionDiagnostics
-                }}
+                expressionEditor={expressionEditor}
             />
         </EditorContainer >
     );
