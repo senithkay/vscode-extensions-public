@@ -141,6 +141,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
+    async updateConnectorDependencies(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConnectorDependencies();
+            resolve(res);
+        });
+    }
+
     openView(params: OpenViewRequest): void {
         if (params.isPopup) {
             const view = params.location.view;

@@ -61,7 +61,8 @@ import {
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
-    importOpenAPISpec
+    importOpenAPISpec,
+    updateConnectorDependencies
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -105,5 +106,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateDependencies, (args: UpdateDependenciesRequest) => rpcManger.updateDependencies(args));
     messenger.onRequest(updatePomValues, (args: UpdatePomValuesRequest) => rpcManger.updatePomValues(args));
     messenger.onRequest(updateConfigFileValues, (args: UpdateConfigValuesRequest) => rpcManger.updateConfigFileValues(args));
+    messenger.onRequest(updateConnectorDependencies, () => rpcManger.updateConnectorDependencies());
     messenger.onRequest(importOpenAPISpec, () => rpcManger.importOpenAPISpec());
 }
