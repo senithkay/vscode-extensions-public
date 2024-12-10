@@ -48,9 +48,13 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     if (dmType.kind === TypeKind.Interface) {
         fields = dmType.fields;
+    } else if (dmType.kind === TypeKind.Array) {
+        fields = [{...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`}];
     }
 
+    // let expanded = dmType.kind !== TypeKind.Array;
     let expanded = true;
+
     if (portOut && portOut.collapsed) {
         expanded = false;
     }

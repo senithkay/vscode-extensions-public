@@ -57,7 +57,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		parent?: InputOutputPortModel,
 		collapsedFields?: string[],
 		hidden?: boolean,
-		isOptional?: boolean
+		isOptional?: boolean,
+		isPreview?: boolean
 	): number {
 
 		const fieldName = dmType.fieldName;
@@ -75,7 +76,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new InputOutputPortModel(
 			dmType, portName, portType, parentId, undefined,
-			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden
+			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden, false, false, false, isPreview
 		);
 
 		this.addPort(fieldPort);
@@ -88,10 +89,16 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				fields.forEach(subField => {
 					numberOfFields += this.addPortsForInputField(
 						subField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
-						collapsedFields, isCollapsed ? true : hidden, subField.optional || isOptional
+						collapsedFields, isCollapsed ? true : hidden, subField.optional || isOptional, isPreview
 					);
 				});
 			}
+		} else if (dmType.kind === TypeKind.Array) {
+			const arrItemField = {...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`};
+			numberOfFields += this.addPortsForInputField(
+				arrItemField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+				collapsedFields, isCollapsed ? true : hidden, isOptional, true
+			);
 		}
 		return hidden ? 0 : numberOfFields;
 	}
