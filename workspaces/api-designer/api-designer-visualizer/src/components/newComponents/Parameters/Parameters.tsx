@@ -14,14 +14,11 @@ import SectionHeader from '../SectionHeader/SectionHeader';
 import { Parameter } from '../Parameter/Parameter';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import { getUpdatedObjects } from '../Utils/OpenAPIUtils';
-import { PullUpButton } from '../../PullUpButton/PullUPButton';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { RefComponent } from '../RefComponent/RefComponent';
 
 export const PanelBody = styled.div`
-    height: calc(100% - 87px);
-    overflow-y: auto;
     padding: 16px;
     gap: 15px;
     display: flex;

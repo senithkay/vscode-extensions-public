@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { RequestBody } from "../../../Definitions/ServiceDefinitions";
+import { ReferenceObject, RequestBody } from "../../../Definitions/ServiceDefinitions";
 import { RefRequestBody } from "./RefRequestBody";
 
 export default {
@@ -36,9 +36,9 @@ const r: RequestBody = {
 };
 
 export const RefRequestBodyStory = () => {
-    const [requestBody, setRequestBody] = useState<RequestBody>(r);
+    const [requestBody, setRequestBody] = useState<RequestBody | ReferenceObject>(r);
     const [name, setName] = useState<string>("Test");
-    const onParameterChange = (requestBody: RequestBody, name: string) => {
+    const onParameterChange = (requestBody: RequestBody | ReferenceObject, name: string) => {
         setRequestBody(requestBody);
         setName(name);
     }

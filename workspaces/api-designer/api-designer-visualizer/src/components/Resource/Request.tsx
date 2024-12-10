@@ -145,13 +145,13 @@ export function Request(props: ReadOnlyResourceProps) {
         }
     };
 
-    const handleDescriptionChange = (markdown: string) => {
-        const newRequestBody: RequestBody = {
-            ...resourceOperation.requestBody,
-            description: markdown
-        };
-        onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
-    };
+    // const handleDescriptionChange = (markdown: string) => {
+    //     const newRequestBody: RequestBody = {
+    //         ...resourceOperation.requestBody,
+    //         description: markdown
+    //     };
+    //     onOperationChange(path, method, { ...resourceOperation, requestBody: newRequestBody });
+    // };
     const handleInlineOptionChange = (evt: any) => {
         // TODO: Implement inline object change
     };

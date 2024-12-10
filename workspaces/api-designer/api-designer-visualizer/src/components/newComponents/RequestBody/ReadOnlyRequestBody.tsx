@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Dropdown } from '@wso2-enterprise/ui-toolkit';
-import { RequestBody as R } from '../../../Definitions/ServiceDefinitions';
+import { RequestBody as R, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import { ReadOnlyMediaType } from '../MediaType/ReadOnlyMediaType';
 
 interface RequestBodyProps {
-    requestBody: R;
+    requestBody: R | ReferenceObject;
 }
 
 const ContentWrapper = styled.div`

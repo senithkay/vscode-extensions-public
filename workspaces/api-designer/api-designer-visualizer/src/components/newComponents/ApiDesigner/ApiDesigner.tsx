@@ -121,7 +121,7 @@ export function ApiDesigner(props: ApiDesignerProps) {
                         currentViewId={currentView}
                         onViewChange={handleViewChange}
                     >
-                        <div id={Views.EDIT} style={{ minHeight: "90vh" }}>
+                        <div id={Views.EDIT} style={{ minHeight: "85vh" }}>
                             <OpenAPI
                                 openAPI={openApi}
                                 onOpenAPIChange={handleApiDesignerChange}

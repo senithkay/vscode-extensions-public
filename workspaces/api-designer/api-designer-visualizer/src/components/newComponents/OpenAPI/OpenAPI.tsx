@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { OpenAPI as O, Parameter, RequestBody, Response } from '../../../Definitions/ServiceDefinitions';
+import { OpenAPI as O, Parameter, ReferenceObject, RequestBody, Response } from '../../../Definitions/ServiceDefinitions';
 import { Overview } from '../Overview/Overview';
 import { Paths } from '../Paths/Paths';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
@@ -36,7 +36,7 @@ export function OpenAPI(props: OverviewProps) {
     const handleOpenAPIChange = (openAPI: O) => {
         onOpenAPIChange(openAPI);
     };
-    const handleRequestBodiesChange = (requestBody: RequestBody, name: string, initialName: string) => {
+    const handleRequestBodiesChange = (requestBody: RequestBody | ReferenceObject, name: string, initialName: string) => {
         const updatedOpenAPI = { ...openAPI };
         const requestBodies = { ...updatedOpenAPI.components.requestBodies };
         // Create new object maintaining order and replacing the key
@@ -45,7 +45,7 @@ export function OpenAPI(props: OverviewProps) {
                 key === initialName ? [name, requestBody] : [key, value]
             )
         );
-        updatedOpenAPI.components.requestBodies = orderedRequestBodies;
+        updatedOpenAPI.components.requestBodies = orderedRequestBodies as RequestBody;
         if (initialName !== name) {
             onSelectedComponentIDChange(`requestBody#-component#-${name}`);
         }

@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { MediaType as M, RequestBody as R } from "../../../Definitions/ServiceDefinitions";
+import { MediaType as M, RequestBody as R, ReferenceObject } from "../../../Definitions/ServiceDefinitions";
 import { RequestBody } from "./RequestBody";
 import { ReadOnlyRequestBody } from "./ReadOnlyRequestBody";
 
@@ -71,8 +71,8 @@ const RequestB: R = {
 };
 
 export const RequestBodyStory = () => {
-    const [r, setR] = useState<R>(RequestB);
-    const handleRequestBodyChange = (requestBody: R) => {
+    const [r, setR] = useState<(R | ReferenceObject)>(RequestB);
+    const handleRequestBodyChange = (requestBody: (R | ReferenceObject)) => {
         setR(requestBody);
     };
     return (

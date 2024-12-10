@@ -7,19 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import { RequestBody as R } from '../../../Definitions/ServiceDefinitions';
+import { RequestBody as R, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Parameters/Parameters';
 import { RequestBody } from '../RequestBody/RequestBody';
 
 interface RefRequestBodyProps {
     requestBodyName: string;
-    requestBody: R;
-    onRequestBodyChange: (requestBody: R, name: string, initialName?: string) => void;
+    requestBody: R | ReferenceObject;
+    onRequestBodyChange: (requestBody: R | ReferenceObject, name: string, initialName?: string) => void;
 }
 
 export function RefRequestBody(props: RefRequestBodyProps) {
     const { requestBodyName, requestBody, onRequestBodyChange } = props;
-    const handleRequestBodyChangeChange = (parameter: R) => {
+    const handleRequestBodyChangeChange = (parameter: R | ReferenceObject) => {
         onRequestBodyChange(parameter, requestBodyName, requestBodyName);
     };
     const handleRequestBodyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

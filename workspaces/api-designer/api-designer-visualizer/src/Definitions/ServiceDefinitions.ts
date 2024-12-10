@@ -71,7 +71,7 @@ export interface Operation {
     description?: string;
     operationId?: string;
     parameters?: (Parameter | ReferenceObject)[];
-    requestBody?: RequestBody;
+    requestBody?: RequestBody | ReferenceObject;
     responses?: Responses;
     [key: string]: any; // To accommodate extensions and additional properties
 }
