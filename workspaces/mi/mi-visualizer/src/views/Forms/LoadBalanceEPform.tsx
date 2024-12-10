@@ -16,7 +16,6 @@ import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { ParamManager } from "@wso2-enterprise/mi-diagram";
 
 const FieldGroup = styled.div`
@@ -56,11 +55,6 @@ type InputsFields = {
     description?: string;
     endpoints?: Endpoint[];
     properties?: any[];
-    //reg form
-    saveInReg?: boolean;
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 };
 
 const initialEndpoint: InputsFields = {
@@ -73,11 +67,6 @@ const initialEndpoint: InputsFields = {
     description: '',
     endpoints: [],
     properties: [],
-    //reg form
-    saveInReg: false,
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
 };
 
 export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
@@ -88,8 +77,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
     const [newEndpoint, setNewEndpoint] = useState<Endpoint>(initialInlineEndpoint);
-    const [artifactNames, setArtifactNames] = useState([]);
-    const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [endpointsUpdated, setEndpointsUpdated] = useState(false);
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
@@ -101,10 +88,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             .test('validateEndpointName',
                 'An artifact with same name already exists', value => {
                     return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                })
-            .test('validateEndpointArtifactName',
-                'A registry resource with this artifact name already exists', value => {
-                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                 }),
         algorithm: yup.string().required("Algorithm is required"),
         failover: yup.string().required("Failover is required"),
@@ -114,35 +97,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         description: yup.string(),
         endpoints: yup.array(),
         properties: yup.array(),
-        saveInReg: yup.boolean().default(false),
-        artifactName: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Artifact Name is required")
-                    .test('validateArtifactName',
-                        'Artifact name already exists', value => {
-                            return !artifactNames.includes(value);
-                        })
-                    .test('validateFileName',
-                        'A file already exists in the workspace with this artifact name', value => {
-                            return !workspaceFileNames.includes(value);
-                        }),
-        }),
-        registryPath: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Registry Path is required")
-                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
-                    if (formattedPath === undefined) return true;
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
-        }),
-        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -204,9 +158,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
             })();
         }
         (async () => {
-            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
-            setArtifactNames(result.artifactNamesArr);
-            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
@@ -216,9 +167,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
 
     useEffect(() => {
         setPrevName(watch("name"));
-        if (prevName === watch("artifactName")) {
-            setValue("artifactName", watch("name"));
-        }
     }, [watch("name")]);
 
     const algorithms = [
@@ -288,13 +236,10 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
         const updateEndpointParams = {
             directory: props.path,
             ...values,
-            getContentOnly: watch("saveInReg") && isNewEndpoint,
+            getContentOnly: false,
             endpoints,
         }
-        const result = await rpcClient.getMiDiagramRpcClient().updateLoadBalanceEndpoint(updateEndpointParams);
-        if (watch("saveInReg") && isNewEndpoint) {
-            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
-        }
+        await rpcClient.getMiDiagramRpcClient().updateLoadBalanceEndpoint(updateEndpointParams);
 
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -408,16 +353,6 @@ export function LoadBalanceWizard(props: LoadBalanceWizardProps) {
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
-            {isNewEndpoint && (<>
-                <FormCheckBox
-                    label="Save the endpoint in registry"
-                    {...register("saveInReg")}
-                    control={control}
-                />
-                {watch("saveInReg") && (<>
-                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
-                </>)}
-            </>)}
             <FormActions>
                 <Button
                     appearance="secondary"
