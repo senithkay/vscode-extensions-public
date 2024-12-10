@@ -325,7 +325,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             inputProps={endAdornment}
                             isHelperPaneOpen={isHelperPaneOpen}
                             changeHelperPaneState={handleChangeHelperPaneState}
-                            getHelperPane={handleGetHelperPane}
+                            getHelperPane={getHelperPaneData && handleGetHelperPane} // TODO: Remove this check when all the forms are refactored to use form generator
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
                         />
