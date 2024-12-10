@@ -61,6 +61,7 @@ export interface RefComponentProps {
     displayValue?: ReactNode;
     sx?: any;
     iconSx?: any;
+    buttonSx?: any;
     dropdownSx?: any;
     dropdownWidth?: number;
     componnetHeight?: number;
@@ -68,7 +69,7 @@ export interface RefComponentProps {
 }
 
 export const RefComponent: React.FC<RefComponentProps> = (props: RefComponentProps) => {
-    const { id, className, displayValue, sx, dropdownSx, onChange,
+    const { id, className, displayValue, sx, dropdownSx, buttonSx, onChange,
         componnetHeight = 0, dropdownWidth = 0 } = props;
     const [isComponentOpen, setIsComponentOpen] = React.useState(false);
     const [valueContainerPosition, setValueContainerPosition] = React.useState<DOMRect | null>(null);
@@ -93,7 +94,7 @@ export const RefComponent: React.FC<RefComponentProps> = (props: RefComponentPro
         <RefComponentContainer ref={containerRef} id={id} className={className} sx={sx}>
             {displayValue ? <div ref={valueContainerRef} onClick={handleComponentClick}>{displayValue}</div> : (
                 <ValueContainer ref={valueContainerRef} isOpen={isComponentOpen}>
-                    <Button appearance="icon" onClick={handleComponentClick}><Codicon name="ellipsis" /></Button>
+                    <Button buttonSx={buttonSx} appearance="icon" onClick={handleComponentClick}><Codicon name="ellipsis" /></Button>
                 </ValueContainer>
             )}
             {isComponentOpen &&

@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { Tabs } from './Tabs';
 import { useState } from 'react';
 
@@ -25,6 +26,33 @@ export const ViewSelectorStory = () => {
         <Tabs
             views={[
                 { id: '1', name: 'View 1' },
+                { id: '2', name: 'View 2' },
+                { id: '3', name: 'View 3' },
+            ]}
+            currentViewId={selectedId}
+            onViewChange={handleClick}
+        >
+            <div id="1">Hello View 1</div>
+            <div id="2">Hello View 2</div>
+            <div id="3">Hello View 3</div>
+        </Tabs>
+    );
+};
+
+export const ViewSelectorStoryWithMoreOptions = () => {
+    const [selectedId, setSelectedId] = useState<string | null>("1");
+    const handleClick = (id: string) => {
+        setSelectedId(id);
+    };
+
+    return (
+        <Tabs
+            views={[
+                { id: '1', name: 'View 1', moreOptions: 
+                    <Button buttonSx={{height: 15, marginLeft: 4, color: "var(--vscode-focusBorder)"}} appearance='icon'> 
+                        <Codicon name='ellipsis'></Codicon>
+                    </Button>
+                },
                 { id: '2', name: 'View 2' },
                 { id: '3', name: 'View 3' },
             ]}

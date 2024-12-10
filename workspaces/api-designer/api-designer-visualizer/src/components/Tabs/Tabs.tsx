@@ -14,6 +14,7 @@ export interface ViewItem {
     id: string;
     name: string;
     icon?: ReactNode;
+    moreOptions?: ReactNode;
 }
 export interface TabsProps {
     views: ViewItem[];
@@ -77,10 +78,6 @@ const ChildrenContainer = styled.div<ChildrenContainerProps>`
 export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
     const { views, children, currentViewId, onViewChange, sx, childrenSx, tabTitleSx, titleContainerSx } = props;
 
-    useEffect(() => {
-        
-    }, []);
-
     return (
         <ViewSelectorContainer sx={sx}>
             <Container sx={titleContainerSx}>
@@ -97,6 +94,7 @@ export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
                                     >
                                         {view.icon}
                                         {view.name}
+                                        {view.moreOptions}
                                     </Tab>
                                     <Divider sx={{margin: 0, borderTop: currentViewId === view.id ? '2px solid var(--vscode-focusBorder)' : 'none'}} />
                                 </TabContent>

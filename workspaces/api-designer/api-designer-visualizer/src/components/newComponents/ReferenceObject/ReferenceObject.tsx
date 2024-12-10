@@ -66,13 +66,17 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
                 existingComponents.push(key as string);
             }
         });
+    } else if (type === "response") {
+        Object.keys(openAPI.components.responses).forEach((key) => {
+            existingComponents.push(key as string);
+        });
     }
 
     const handleParameterChange = (parameter: R) => {
         onRefernceObjectChange(parameter);
     };
 
-    const referenceObjectsList = existingComponents ? existingComponents?.map((item) => ({ value: `#/components/parameters/${item}`, content: item })) : [];
+    const referenceObjectsList = existingComponents ? existingComponents?.map((item) => ({ value: type === "response" ? `#/components/responses/${item}` : `#/components/parameters/${item}`, content: item })) : [];
 
     return (
         <HorizontalFieldWrapper>

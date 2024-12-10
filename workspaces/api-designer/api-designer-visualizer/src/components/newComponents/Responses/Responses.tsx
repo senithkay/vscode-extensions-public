@@ -8,13 +8,15 @@
  */
 import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Responses as Rs, Response as R, ReferenceObject as Ro } from '../../../Definitions/ServiceDefinitions';
-import { useEffect, useState } from 'react';
+import { ReactNode, useContext, useEffect, useState } from 'react';
 import { Tabs, ViewItem } from '../../Tabs/Tabs';
 import { Response } from '../Response/Response';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { StatusCodes } from '../../../constants';
+import { RefComponent } from '../RefComponent/RefComponent';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface ResponsesProps {
     responses: Rs;
@@ -30,19 +32,45 @@ const isRefereceObject = (value: Rs | R): value is R => {
 export function Responses(props: ResponsesProps) {
     const { responses, onResponsesChange } = props;
     const { rpcClient } = useVisualizerContext();
+    const { 
+        props: { openAPI },
+    } = useContext(APIDesignerContext);
     const [selectedStatusCode, setSelectedStatusCode] = useState<string | undefined>(responses && Object.keys(responses)[0]);
 
     const statusCodes = responses && Object.keys(responses);
-    const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ id: statusCode, name: statusCode }));
+    const componentResponseNames = openAPI?.components?.responses ? Object.keys(openAPI?.components?.responses) : [];
+
+    const handleResponsesChange = (responses: Rs) => {
+        onResponsesChange(responses);
+    };
+
+    const handleMoreOptionsClick = () => {
+        const newReponse: Ro = {
+            $ref: `#/components/responses/${componentResponseNames[0]}`,
+            summary: "",
+            description: ""
+        };
+        const modifiedResponses = { ...responses, [selectedStatusCode]: newReponse };
+        handleResponsesChange(modifiedResponses);
+    };
+    const addReferenceParamButton: ReactNode = (
+        <RefComponent
+            buttonSx={{height: 15, marginLeft: 4, color: "var(--vscode-focusBorder)"}}
+            onChange={handleMoreOptionsClick}
+            dropdownWidth={157}
+            componnetHeight={32}
+        />
+    );
+    const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ 
+        id: statusCode,
+        name: statusCode,
+        moreOptions: componentResponseNames ? addReferenceParamButton : undefined
+    }));
     const statusCode: string[] = statusCodes && statusCodes?.map((status) => {
         const statusValue = StatusCodes[status as keyof typeof StatusCodes]; // Type assertion added here
         return `${status}: ${statusValue}`;
     });
     const statusCodeList: string[] = Object.entries(StatusCodes).map(([key, value]) => `${key}: ${value}`);
-
-    const handleResponsesChange = (responses: Rs) => {
-        onResponsesChange(responses);
-    };
 
     const handleResponseChange = (response: R) => {
         const newResponses: Rs = {
@@ -105,8 +133,14 @@ export function Responses(props: ResponsesProps) {
                             {isRefereceObject(responses[status]) ? (
                                     <ReferenceObject
                                         id={0}
+                                        type='response'
                                         referenceObject={responses[status] as Ro}
                                         onRefernceObjectChange={(referenceObject) => handleReferenceObjectChange(referenceObject)}
+                                        onRemoveReferenceObject={() => {
+                                            const responsesCopy = { ...responses };
+                                            responsesCopy[status] = { description: "", content: {} };
+                                            handleResponsesChange(responsesCopy);
+                                        }}
                                     />
                             ) : (
                                 <Response

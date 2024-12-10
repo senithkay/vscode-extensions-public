@@ -14,7 +14,7 @@ import { ResponsesTreeView } from "./ResponsesTreeView";
 
 export default {
     component: ResponsesTreeView,
-    title: 'New Request Body TreeView',
+    title: 'New Response TreeView',
 };
 
 export const RequestBodyTreeViewStory = () => {
