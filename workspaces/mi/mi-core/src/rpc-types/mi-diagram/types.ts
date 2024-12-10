@@ -24,6 +24,13 @@ export interface ApplyEditRequest {
     disableUndoRedo?: boolean;
 }
 
+export interface ApplyEditsRequest {
+    documentUri: string;
+    edits: TextEdit[];
+    disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
+}
+
 export interface ApplyEditResponse {
     status: boolean;
 }
@@ -1333,6 +1340,7 @@ export interface BrowseFileRequest {
     defaultUri: string;
     title: string;
     openLabel?: string;
+    filters?: { [key: string]: string[] };
 }
 
 export type ResourceType =
@@ -1359,6 +1367,7 @@ export type ResourceType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry";
 
 export interface MultipleResourceType {
@@ -1568,6 +1577,19 @@ export interface GetAllRegistryPathsRequest {
 export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
+
+export interface GetAllResourcePathsResponse {
+    resourcePaths: string[];
+}
+
+export interface GetConfigurableEntriesRequest {
+    configurableEntryType: string;
+}
+
+export interface GetConfigurableEntriesResponse {
+    configurableEntries: { name: string; type: string }[];
+}
+
 export interface GetAllArtifactsRequest {
     path: string;
 }

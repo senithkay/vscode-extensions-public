@@ -53,7 +53,7 @@ export function Mediators(props: MediatorProps) {
         try {
             const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
                 documentUri: props.documentUri,
-                position: props.nodePosition,
+                position: props.nodePosition.start,
             });
             setAllMediators(mediatorsList);
         } catch (error) {

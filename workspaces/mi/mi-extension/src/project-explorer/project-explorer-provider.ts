@@ -16,7 +16,7 @@ import path = require('path');
 import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 
-let registryDetails: ListRegistryArtifactsResponse;
+let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -123,7 +123,7 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 				const rootPath = workspace.uri.fsPath;
 
 				const resp = await langClient.getProjectExplorerModel(rootPath);
-				registryDetails = getAvailableRegistryResources(rootPath);
+				resourceDetails = getAvailableRegistryResources(rootPath);
 				const projectTree = generateTreeData(workspace, resp);
 				if (projectTree) {
 					data.push(projectTree);
@@ -207,19 +207,19 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 				case 'APIs':
 					icon = 'APIResource';
 					label = 'APIs';
-					folderName = 'apis';
+					folderName = 'artifacts/apis';
 					contextValue = 'apis';
 					break;
 				case 'Triggers':
 					icon = 'inbound-endpoint';
 					label = 'Triggers';
-					folderName = 'inbound-endpoints';
+					folderName = 'artifacts/inbound-endpoints';
 					contextValue = 'inboundEndpoints'
 					break;
 				case 'Scheduled Tasks':
 					icon = 'task';
 					label = 'Scheduled Tasks';
-					folderName = 'tasks';
+					folderName = 'artifacts/tasks';
 					contextValue = 'tasks';
 					break;
 				case 'Common Artifacts':
@@ -234,6 +234,12 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 					icon = 'endpoint';
 					label = 'Advanced Artifacts';
 					break;
+				case 'Resources':
+					icon = 'folder';
+					label = 'Resources';
+					folderName = 'resources';
+					contextValue = 'resources';
+					break;
 				default:
 			}
 			// TODO: Will introduce back when both data services and data sources are supported
@@ -241,18 +247,22 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 			// 	continue;
 			// }
 
-			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', folderName);
+			topLevelEntries[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...folderName.split("/"));
 
 			const parentEntry = new ProjectExplorerEntry(
 				label,
-				isCollapsibleState(topLevelEntries[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts'].includes(key)),
+				isCollapsibleState(topLevelEntries[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts', 'Resources'].includes(key)),
 				topLevelEntries[key]
 			);
 
-			const children =
-				(key === "APIs" || key === "Triggers" || key === "Scheduled Tasks")
-					? genProjectStructureEntry(topLevelEntries[key])
-					: generateArtifacts(topLevelEntries[key], data, project);
+			let children;
+			if (key === "APIs" || key === "Triggers" || key === "Scheduled Tasks") {
+				children = genProjectStructureEntry(topLevelEntries[key]);
+			} else if (key === "Resources") {
+				children = genResourceProjectStructureEntry(topLevelEntries[key]);
+			} else {
+				children = generateArtifacts(topLevelEntries[key], data, project);
+			}
 
 			parentEntry.children = children;
 			parentEntry.contextValue = contextValue;
@@ -264,6 +274,74 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 	}
 }
 
+function genResourceProjectStructureEntry(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
+	const result: ProjectExplorerEntry[] = [];
+	const resPathPrefix = path.join("wso2mi", "resources");
+	if (data) {
+		if (data.files) {
+			for (const entry of data.files) {
+				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
+					name: entry.name,
+					type: 'resource',
+					path: `${entry.path}`
+				}, 'code', true);
+				explorerEntry.id = entry.path;
+				explorerEntry.command = {
+					"title": "Edit Resource",
+					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
+					"arguments": [vscode.Uri.file(entry.path)]
+				};
+				result.push(explorerEntry);
+				const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+				const resourcePath = entry.path.substring(lastIndex);
+				if (checkExistenceOfResource(resourcePath)) {
+					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+				explorerEntry.contextValue = "registry-without-metadata";
+                }
+			}
+		}
+		if (data.folders) {
+			for (const entry of data.folders) {
+				if (entry.name !== ".meta") {
+					const explorerEntry = new ProjectExplorerEntry(entry.name,
+						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+						{
+							name: entry.name,
+							type: 'resource',
+							path: `${entry.path}`
+						}, 'folder', true);
+					explorerEntry.children = genResourceProjectStructureEntry(entry);
+					result.push(explorerEntry);
+					const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+					const resourcePath = entry.path.substring(lastIndex);
+					if (checkExistenceOfResource(resourcePath)) {
+						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+					explorerEntry.contextValue = "registry-without-metadata";
+                    }
+				}
+			}
+		}
+	}
+	return result;
+}
+
+function checkExistenceOfResource(resourcePath: string): boolean {
+	if (resourceDetails.artifacts) {
+		for (const artifact of resourceDetails.artifacts) {
+			let transformedPath = artifact.path.replace("/_system/governance/mi-resources", '/resources');
+			if (!artifact.isCollection) {
+				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
+			}
+			if (transformedPath === resourcePath) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
+}
 
 function generateArtifacts(
 	data: DataIntegrationResponse | CommonArtifactsResponse | AdvancedArtifactsResponse,
@@ -365,11 +443,11 @@ function generateArtifacts(
 				break;
 			case 'Data Mappers':
 				const directoryMap = projectStructure.directoryMap;
-				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
-				const govResources = resources['gov'];
-				const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.newResources;
 
-				const datamapperResourcePath = path.join(govResources.path, 'datamapper');
+				const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
+
+				const datamapperResourcePath = path.join(resources.path, 'datamappers');
 				parentEntry = new ProjectExplorerEntry(
 					'Data Mappers',
 					isCollapsibleState(dataMapperResources?.folders?.length > 0),
@@ -379,8 +457,8 @@ function generateArtifacts(
 				parentEntry.id = 'data-mapper';
 				parentEntry.contextValue = contextValue;
 				
-				if (govResources && govResources.folders.length > 0) {
-					const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
+				if (resources && resources.folders.length > 0) {
+					const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
 					if (dataMapperResources) {
 						const children = generateTreeDataOfDataMappings(projectStructure);
 						parentEntry.children = children;

@@ -16,6 +16,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from '@wso2-enterprise/mi-core';
 import { TypeChip } from '../Commons';
 import { ParamConfig, ParamManager, FormGenerator } from '@wso2-enterprise/mi-diagram';
+import { formatForConfigurable, isConfigurable, removeConfigurableFormat } from '../Commons/utils';
 
 const ParamManagerContainer = styled.div`
     width: 100%;
@@ -66,7 +67,7 @@ export function AddConnection(props: AddConnectionProps) {
         const fetchFormData = async () => {
             // Fetch form on creation
 
-            const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({ 
+            const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
                 connectorName: props.connector.name,
                 connectionType: connectionType });
 
@@ -106,7 +107,7 @@ export function AddConnection(props: AddConnectionProps) {
                 props.connector.name = connector.name;
 
                 const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
-                const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({ 
+                const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
                     documentUri: props.path  });
                 setConnectionType(connectionFound.connectionType);
                 setFormData(connectionSchema);

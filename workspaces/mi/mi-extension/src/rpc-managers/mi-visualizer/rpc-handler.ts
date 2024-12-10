@@ -21,12 +21,14 @@ import {
     SwaggerProxyRequest,
     ToggleDisplayOverviewRequest,
     UpdateContextRequest,
+    AddConfigurableRequest,
     addToHistory,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     focusOutput,
     getAvailableRuntimeServices,
     getCurrentThemeKind,
+    addConfigurable,
     getHistory,
     getProjectOverview,
     getProjectStructure,
@@ -78,6 +80,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
+    messenger.onRequest(addConfigurable, (args: AddConfigurableRequest) => rpcManger.addConfigurable(args));
     messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());
