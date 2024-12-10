@@ -88,6 +88,9 @@ export function FormGenerator(props: FormProps) {
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     useEffect(() => {
+        if (!node) {
+            return;
+        }
         if (node.codedata.node === "IF") {
             return;
         }
@@ -225,7 +228,7 @@ export function FormGenerator(props: FormProps) {
         setTypes([]);
         triggerCompletionOnNextRequest.current = false;
     };
-    
+
     const debouncedRetrieveCompletions = useCallback(debounce(
         async (value: string, key: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
             let expressionCompletions: CompletionItem[] = [];
@@ -385,7 +388,7 @@ export function FormGenerator(props: FormProps) {
         if (shouldUpdateNode) {
             node.properties["type"].value = variableType;
         }
-        
+
         const response = await rpcClient.getBIDiagramRpcClient().getExpressionDiagnostics({
             filePath: fileName,
             context: {
@@ -396,7 +399,7 @@ export function FormGenerator(props: FormProps) {
                 property: key
             },
         });
-        
+
         setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
@@ -454,7 +457,7 @@ export function FormGenerator(props: FormProps) {
                                 offset: 0,
                                 includeAvailableFunctions: "true"
                             }
-                    })
+                        })
                         .then((response) => {
                             if (response.categories?.length) {
                                 setLibraryBrowserInfo(convertToHelperPaneFunction(response.categories));
@@ -512,7 +515,7 @@ export function FormGenerator(props: FormProps) {
     ]);
 
     // handle if node form
-    if (node.codedata.node === "IF") {
+    if (node?.codedata.node === "IF") {
         return (
             <IfForm
                 fileName={fileName}
