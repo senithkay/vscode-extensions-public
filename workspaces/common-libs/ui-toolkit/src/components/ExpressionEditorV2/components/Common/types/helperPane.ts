@@ -11,6 +11,7 @@
 import { PropsWithChildren, ReactNode } from "react";
 
 export type LibraryBrowserProps = PropsWithChildren<{
+    isLoading?: boolean;
     searchValue: string;
     onSearch: (searchTerm: string) => void;
     onClose: () => void;
@@ -56,6 +57,10 @@ type SearchBoxConditionalProps = {
     searchValue?: never;
     onSearch?: never;
 }
+
+export type HelperPaneBodyProps = PropsWithChildren<{
+    isLoading?: boolean;
+}>;
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     title: string;

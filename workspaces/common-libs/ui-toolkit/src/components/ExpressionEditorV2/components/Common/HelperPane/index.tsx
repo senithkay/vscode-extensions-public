@@ -10,6 +10,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import {
+    HelperPaneBodyProps,
     HelperPaneCategoryItemProps,
     HelperPaneCompletionItemProps,
     HelperPaneHeaderProps,
@@ -23,6 +24,7 @@ import { Divider } from '../../../../Divider/Divider';
 import { SearchBox } from '../../../../SeachBox/SearchBox';
 import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
+import ProgressRing from '../../../../ProgressRing/ProgressRing';
 
 const LibraryBrowserSearchBoxContainer = styled.div`
     margin-bottom: 16px;
@@ -145,6 +147,13 @@ const SectionContainer = styled.div`
     margin-bottom: 16px;
 `;
 
+const ProgressRingContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+`;
+
 const BodyContainer = styled.div`
     width: 100%;
     display: flex;
@@ -253,7 +262,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, searchValue, onSearch, onClose }) => {
+const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = false, searchValue, onSearch, onClose }) => {
     return (
         <>
             <Overlay
@@ -272,7 +281,13 @@ const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, searchValue, 
                     <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
                 </LibraryBrowserSearchBoxContainer>
                 <LibraryBrowserBody>
-                    {children}
+                    {isLoading ? (
+                        <ProgressRingContainer>
+                            <ProgressRing />
+                        </ProgressRingContainer>
+                    ) : (
+                        children
+                    )}
                 </LibraryBrowserBody>
             </LibraryBrowserContainer>
         </>
@@ -380,8 +395,18 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC = ({ children }) => {
-    return <BodyContainer>{children}</BodyContainer>;
+const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = false }) => {
+    return (
+        <BodyContainer>
+            {isLoading ? (
+                <ProgressRingContainer>
+                    <ProgressRing />
+                </ProgressRingContainer>
+            ) : (
+                children
+            )}
+        </BodyContainer>
+    );
 };
 
 const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searchValue, onSearch }) => {
