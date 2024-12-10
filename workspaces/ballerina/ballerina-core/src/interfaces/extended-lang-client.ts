@@ -293,6 +293,14 @@ export interface VisualizableFieldsResponse {
     visualizableProperties: string[];
 }
 
+export interface AddArrayElementRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+    propertyKey: string;
+    targetField: string;
+}
+
 export interface GraphqlDesignServiceParams {
     filePath: string;
     startLine: LinePosition;

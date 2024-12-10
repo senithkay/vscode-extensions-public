@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AddArrayElementRequest,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
     InlineDataMapperModelResponse,
@@ -16,6 +17,7 @@ import {
     InlineDataMapperSourceResponse,
     VisualizableFieldsRequest,
     VisualizableFieldsResponse,
+    addNewArrayElement,
     getDataMapperModel,
     getDataMapperSource,
     getVisualizableFields
@@ -40,5 +42,9 @@ export class InlineDataMapperRpcClient implements InlineDataMapperAPI {
 
     getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse> {
         return this._messenger.sendRequest(getVisualizableFields, HOST_EXTENSION, params);
+    }
+
+    addNewArrayElement(params: AddArrayElementRequest): Promise<InlineDataMapperSourceResponse> {
+        return this._messenger.sendRequest(addNewArrayElement, HOST_EXTENSION, params);
     }
 }

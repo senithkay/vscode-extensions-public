@@ -9,9 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AddArrayElementRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
     VisualizableFieldsRequest,
+    addNewArrayElement,
     getDataMapperModel,
     getDataMapperSource,
     getVisualizableFields
@@ -24,4 +26,5 @@ export function registerInlineDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDataMapperModel, (args: InlineDataMapperModelRequest) => rpcManger.getDataMapperModel(args));
     messenger.onRequest(getDataMapperSource, (args: InlineDataMapperSourceRequest) => rpcManger.getDataMapperSource(args));
     messenger.onRequest(getVisualizableFields, (args: VisualizableFieldsRequest) => rpcManger.getVisualizableFields(args));
+    messenger.onRequest(addNewArrayElement, (args: AddArrayElementRequest) => rpcManger.addNewArrayElement(args));
 }

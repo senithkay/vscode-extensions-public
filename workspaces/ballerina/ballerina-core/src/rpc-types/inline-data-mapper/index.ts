@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import {
+    AddArrayElementRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperModelResponse,
     InlineDataMapperSourceRequest,
@@ -19,4 +20,5 @@ export interface InlineDataMapperAPI {
     getDataMapperModel: (params: InlineDataMapperModelRequest) => Promise<InlineDataMapperModelResponse>;
     getDataMapperSource: (params: InlineDataMapperSourceRequest) => Promise<InlineDataMapperSourceResponse>;
     getVisualizableFields: (params: VisualizableFieldsRequest) => Promise<VisualizableFieldsResponse>;
+    addNewArrayElement: (params: AddArrayElementRequest) => Promise<InlineDataMapperSourceResponse>;
 }

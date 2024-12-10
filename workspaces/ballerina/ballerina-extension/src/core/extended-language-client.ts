@@ -123,7 +123,8 @@ import {
     InlineDataMapperSourceResponse,
     InlineDataMapperModelResponse,
     VisualizableFieldsRequest,
-    VisualizableFieldsResponse
+    VisualizableFieldsResponse,
+    AddArrayElementRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -197,6 +198,7 @@ enum EXTENDED_APIS {
     DATA_MAPPER_MAPPINGS = 'dataMapper/mappings',
     DATA_MAPPER_GET_SOURCE = 'dataMapper/getSource',
     DATA_MAPPER_VISUALIZABLE = 'dataMapper/visualizable',
+    DATA_MAPPER_ADD_ELEMENT = 'dataMapper/addElement',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
     UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
@@ -478,6 +480,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse | NOT_SUPPORTED_TYPE> {
         return this.sendRequest<VisualizableFieldsResponse>(EXTENDED_APIS.DATA_MAPPER_VISUALIZABLE, params);
+    }
+
+    async addArrayElement(params: AddArrayElementRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperSourceResponse>(EXTENDED_APIS.DATA_MAPPER_ADD_ELEMENT, params);
     }
 
     async getGraphqlModel(params: GraphqlDesignServiceParams): Promise<GraphqlDesignService | NOT_SUPPORTED_TYPE> {

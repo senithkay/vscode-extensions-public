@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    AddArrayElementRequest,
     InlineDataMapperAPI,
     InlineDataMapperModelRequest,
     InlineDataMapperModelResponse,
@@ -48,6 +49,16 @@ export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
                 .getVisualizableFields(params) as VisualizableFieldsResponse;
 
             resolve(fieldIds);
+        });
+    }
+
+    async addNewArrayElement(params: AddArrayElementRequest): Promise<InlineDataMapperSourceResponse> {
+        return new Promise(async (resolve) => {
+            const dataMapperSource = await StateMachine
+                .langClient()
+                .addArrayElement(params) as InlineDataMapperSourceResponse;
+
+            resolve(dataMapperSource);
         });
     }
 }
