@@ -12,7 +12,6 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
 import { Button, FormActions, FormGroup, FormView, ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
-import { getParamManagerValues, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -36,17 +35,14 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         "unitTest.serverPort": yup.string(),
         "unitTest.serverPath": yup.string(),
         "unitTest.serverType": yup.string(),
-        "dependenciesDetails.connectorDependencies": yup.object<any>({}),
-        "dependenciesDetails.otherDependencies": yup.object<any>({})
     });
 
     const {
         register,
-        formState: { errors, isDirty, dirtyFields, isSubmitting },
+        formState: { errors, dirtyFields, isSubmitting },
         handleSubmit,
         reset,
         getValues,
-        control
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange"
@@ -70,8 +66,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     "unitTest.serverPort": response.unitTest?.serverPort?.value,
                     "unitTest.serverPath": response.unitTest?.serverPath?.value,
                     "unitTest.serverType": response.unitTest?.serverType?.value,
-                    "dependenciesDetails.connectorDependencies": setDependencies(response.dependencies.connectorDependencies),
-                    "dependenciesDetails.otherDependencies": setDependencies(response.dependencies.otherDependencies)
                 });
             } catch (error) {
                 console.error("Error fetching project details:", error);
@@ -144,29 +138,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             await updatePomValuesForSection("dockerDetails");
             await updatePomValuesForSection("unitTest");
 
-            const updateDependencies = async () => {
-                const dependencies = [];
-                for (const field of Object.keys((dirtyFields as any)?.dependenciesDetails)) {
-                    const value = getValues((`dependenciesDetails.${field}` as any).toString());
-                    const paramValues = getParamManagerValues(value);
-                    const range = (projectDetails as any)?.dependenciesDetails?.[field]?.range;
-
-                    for (const paramValue of paramValues) {
-                        dependencies.push({
-                            groupId: paramValue[0],
-                            artifact: paramValue[1],
-                            version: paramValue[2],
-                            range,
-                            type: 'zip' as 'zip'
-                        });
-                    }
-                }
-                await rpcClient.getMiVisualizerRpcClient().updateDependencies({
-                    dependencies
-                });
-            }
-            await updateDependencies();
-
             props.onClose();
         } catch (error) {
             console.error("Error updating project details:", error);
@@ -220,51 +191,6 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     required
                     errorMsg={errors["dockerDetails.dockerName"]?.message?.toString()}
                     {...register("dockerDetails.dockerName")}
-                />
-            </FormGroup>
-
-            <FormGroup title="Dependencies" isCollapsed={false}>
-                <Controller
-                    name="dependenciesDetails.connectorDependencies"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                        <ParamManager
-                            paramConfigs={value}
-                            readonly={false}
-                            addParamText="Add Connector Dependency"
-                            onChange={(values: ParamConfig) => {
-                                values.paramValues = values.paramValues.map((param: any) => {
-                                    const paramValues = param.paramValues;
-                                    param.key = paramValues[0].value;
-                                    param.value = paramValues[1].value;
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                onChange(values);
-                            }}
-                        />
-                    )}
-                />
-                <Controller
-                    name="dependenciesDetails.otherDependencies"
-                    control={control}
-                    render={({ field: { onChange, value } }) => (
-                        <ParamManager
-                            paramConfigs={value}
-                            readonly={false}
-                            addParamText="Add Other Dependency"
-                            onChange={(values: ParamConfig) => {
-                                values.paramValues = values.paramValues.map((param: any) => {
-                                    const paramValues = param.paramValues;
-                                    param.key = paramValues[0].value;
-                                    param.value = paramValues[1].value;
-                                    param.icon = 'query';
-                                    return param;
-                                });
-                                onChange(values);
-                            }}
-                        />
-                    )}
                 />
             </FormGroup>
 
