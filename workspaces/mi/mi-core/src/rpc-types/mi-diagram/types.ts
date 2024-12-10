@@ -1887,3 +1887,15 @@ export interface GenerateConnectorResponse {
     buildStatus: boolean;
     connectorPath: string;
 }
+
+export interface GetHelperPaneInfoRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface GetHelperPaneInfoResponse {
+    payload: any;
+    variables: any;
+    attributes: any;
+    functions: any;
+}

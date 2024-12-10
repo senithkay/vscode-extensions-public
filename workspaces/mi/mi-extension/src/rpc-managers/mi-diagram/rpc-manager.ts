@@ -109,6 +109,8 @@ import {
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetHelperPaneInfoRequest,
+    GetHelperPaneInfoResponse,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
     GetInboundEPUischemaRequest,
@@ -5032,6 +5034,19 @@ ${keyValuesXML}`;
                 }
             } catch (error) {
                 console.error(`Error getting expression completions: ${error}`);
+                reject(error);
+            }
+        });
+    }
+
+    async getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const langClient = StateMachine.context().langClient!;
+                let response = await langClient.getHelperPaneInfo(params);
+                resolve(response);
+            } catch (error) {
+                console.error(`Error getting helper pane info: ${error}`);
                 reject(error);
             }
         });
