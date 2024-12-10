@@ -41,6 +41,7 @@ export function Modules(props: ModuleProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [allModules, setAllModules] = React.useState([] as any);
+    const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [filteredModules, setFilteredModules] = React.useState([] as any);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [searchValue, setSearchValue] = React.useState<string>('');
@@ -58,6 +59,8 @@ export function Modules(props: ModuleProps) {
             }
             setIsLoading(false);
         };
+
+        fetchLocalConnectorData();
         fetchModules();
     }, [props.documentUri, props.nodePosition, rpcClient]);
 
@@ -73,6 +76,15 @@ export function Modules(props: ModuleProps) {
 
         debouncedSearchModules();
     }, [searchValue]);
+
+    const fetchLocalConnectorData = async () => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
+        if (connectorData) {
+            setLocalConnectors(connectorData.connectors);
+        } else {
+            setLocalConnectors([]);
+        }
+    };
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
@@ -90,7 +102,7 @@ export function Modules(props: ModuleProps) {
     };
 
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} />;
+        const downloadPage = <DownloadPage module={module} onDownloadSuccess={fetchLocalConnectorData} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
@@ -110,28 +122,31 @@ export function Modules(props: ModuleProps) {
         return Object.keys(modules).length === 0 ? <h3 style={{ textAlign: "center" }}>No modules found</h3> :
             <>
                 {Object.entries(modules).map(([key, values]: [string, any]) => (
-                    <div key={key}>
-                        <ButtonGroup
-                            key={key}
-                            title={FirstCharToUpperCase(values.connectorName)}
-                            isCollapsed={true}
-                            iconUri={values.iconUrl}
-                            versionTag={values.version.tagName}
-                            onDownload={() => downloadModule(values)}>
-                            <OperationsWrapper>
-                                Available Operations
-                                <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
-                                {values.version.operations.map((operation: ConnectorOperation) => (
-                                    !operation.isHidden && (
-                                        <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
-                                            {FirstCharToUpperCase(operation.name)}
-                                        </Tooltip>
-                                    )
-                                ))}
-                            </OperationsWrapper>
-                        </ButtonGroup >
-                    </div >
-                ))
+                    localConnectors && localConnectors.some((c: any) =>
+                        (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
+                        (c.version === values.version.tagName)) ? null : (
+                        <div key={key}>
+                            <ButtonGroup
+                                key={key}
+                                title={FirstCharToUpperCase(values.connectorName)}
+                                isCollapsed={true}
+                                iconUri={values.iconUrl}
+                                versionTag={values.version.tagName}
+                                onDownload={() => downloadModule(values)}>
+                                <OperationsWrapper>
+                                    Available Operations
+                                    <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
+                                    {values.version.operations.map((operation: ConnectorOperation) => (
+                                        !operation.isHidden && (
+                                            <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
+                                                {FirstCharToUpperCase(operation.name)}
+                                            </Tooltip>
+                                        )
+                                    ))}
+                                </OperationsWrapper>
+                            </ButtonGroup >
+                        </div >
+                    )))
                 }
             </>
     }

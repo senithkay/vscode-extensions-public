@@ -18,12 +18,12 @@ import { ButtonGroup } from '../commons/ButtonGroup';
 import { ConnectorOperation } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 import { APIS } from '../../../resources/constants';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 interface ModuleSuggestionProps {
-    nodePosition: any;
-    trailingSpace: string;
     documentUri: string;
     searchValue?: string;
+    onDownloadSuccess: () => void;
 }
 
 export const OperationsWrapper = styled.div`
@@ -35,8 +35,14 @@ export const OperationsWrapper = styled.div`
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
+    const { rpcClient } = useVisualizerContext();
     const [filteredModules, setFilteredModules] = React.useState<any[]>([]);
+    const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        fetchLocalConnectorData();
+    }, []);
 
     React.useEffect(() => {
         const debouncedSearchModules = debounce(async () => {
@@ -48,10 +54,19 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             } else {
                 setFilteredModules([]);
             }
-        }, 300);
+        }, 500);
 
         debouncedSearchModules();
     }, [props.searchValue]);
+
+    const fetchLocalConnectorData = async () => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
+        if (connectorData) {
+            setLocalConnectors(connectorData.connectors);
+        } else {
+            setLocalConnectors([]);
+        }
+    };
 
     const searchModules = async () => {
         try {
@@ -65,7 +80,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
     };
 
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} />;
+        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.onDownloadSuccess} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
@@ -82,28 +97,31 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
             <>
                 <h4>In Store: </h4>
                 {Object.entries(modules).map(([key, values]: [string, any]) => (
-                    <div key={key}>
-                        <ButtonGroup
-                            key={key}
-                            title={FirstCharToUpperCase(values.connectorName)}
-                            isCollapsed={true}
-                            iconUri={values.iconUrl}
-                            versionTag={values.version.tagName}
-                            onDownload={() => downloadModule(values)}>
-                            <OperationsWrapper>
-                                Available Operations
-                                <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
-                                {values.version.operations.map((operation: ConnectorOperation) => (
-                                    !operation.isHidden && (
-                                        <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
-                                            {FirstCharToUpperCase(operation.name)}
-                                        </Tooltip>
-                                    )
-                                ))}
-                            </OperationsWrapper>
-                        </ButtonGroup >
-                    </div >
-                ))
+                    localConnectors && localConnectors.some((c: any) =>
+                        (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
+                        (c.version === values.version.tagName)) ? null : (
+                        <div key={key}>
+                            <ButtonGroup
+                                key={key}
+                                title={FirstCharToUpperCase(values.connectorName)}
+                                isCollapsed={true}
+                                iconUri={values.iconUrl}
+                                versionTag={values.version.tagName}
+                                onDownload={() => downloadModule(values)}>
+                                <OperationsWrapper>
+                                    Available Operations
+                                    <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
+                                    {values.version.operations.map((operation: ConnectorOperation) => (
+                                        !operation.isHidden && (
+                                            <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
+                                                {FirstCharToUpperCase(operation.name)}
+                                            </Tooltip>
+                                        )
+                                    ))}
+                                </OperationsWrapper>
+                            </ButtonGroup >
+                        </div >
+                    )))
                 }
             </>
     }

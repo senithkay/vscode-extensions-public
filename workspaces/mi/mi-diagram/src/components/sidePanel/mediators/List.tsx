@@ -36,20 +36,6 @@ export function Mediators(props: MediatorProps) {
     const [connectorData, setConnectorData] = React.useState<any[]>([]);
 
     useEffect(() => {
-        const fetchMediators = async () => {
-            try {
-                const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
-                    documentUri: props.documentUri,
-                    position: props.nodePosition,
-                });
-                setAllMediators(mediatorsList);
-            } catch (error) {
-                console.error('Error fetching mediators:', error);
-                setAllMediators(undefined);
-            }
-            setIsLoading(false);
-        };
-
         const fetchConnectors = async () => {
             try {
                 const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
@@ -62,6 +48,20 @@ export function Mediators(props: MediatorProps) {
         fetchMediators();
         fetchConnectors();
     }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    const fetchMediators = async () => {
+        try {
+            const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
+                documentUri: props.documentUri,
+                position: props.nodePosition,
+            });
+            setAllMediators(mediatorsList);
+        } catch (error) {
+            console.error('Error fetching mediators:', error);
+            setAllMediators(undefined);
+        }
+        setIsLoading(false);
+    };
 
     const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
         const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
@@ -170,7 +170,10 @@ export function Mediators(props: MediatorProps) {
                             </LinkButton>
                         </div>
                         <MediatorList />
-                        <ModuleSuggestions nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} searchValue={props.searchValue} />
+                        <ModuleSuggestions
+                            documentUri={props.documentUri}
+                            searchValue={props.searchValue}
+                            onDownloadSuccess={fetchMediators} />
                     </>
                 )
             }
