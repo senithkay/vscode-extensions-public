@@ -17,7 +17,8 @@ import {
     TaskExecution,
     DebugAdapterTrackerFactory,
     DebugAdapterTracker,
-    ViewColumn
+    ViewColumn,
+    TabInputText
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -331,6 +332,17 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                             notifyBreakpointChange();
                         }
                     } else if (msg.command === "stackTrace") {
+                        const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+
+                        const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
+
+                        // Filter for tabs that are editor tabs and the tab that is not debug hit tab
+                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath !== uri.fsPath);
+
+                        for (const tab of editorTabs) {
+                            window.tabGroups.close(tab);
+                        }
+
                         // get the current stack trace
                         const hitBreakpoint = msg.body.stackFrames[0];
                         console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
@@ -345,16 +357,10 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
 
-                        // Check the diagram visibility
                         if (isWebviewPresent) {
                             setTimeout(async () => {
-                                const uri = Uri.parse(msg.body.stackFrames[0].source.path);
-                                if (VisualizerWebview.currentPanel) {
-                                    VisualizerWebview.currentPanel.getWebview()?.reveal(ViewColumn.Beside);
-                                    setTimeout(() => handleBreakpointVisualization(uri, clientBreakpoint, true), 200);
-                                } else {
-                                    await handleBreakpointVisualization(uri, clientBreakpoint, false);
-                                }
+                                VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.Beside);
+                                handleBreakpointVisualization(uri, clientBreakpoint);
                             }, 200);
                         }
 
@@ -369,18 +375,14 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
     }
 }
 
-async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugProtocol.StackFrame, isWebviewPresent: boolean) {
+async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugProtocol.StackFrame) {
     const newContext = StateMachine.context();
 
     // Check if breakpoint is in a different project
     if (!uri.fsPath.startsWith(newContext.projectUri)) {
         console.log("Breakpoint is in a different project");
         window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
-        return;
-    }
-
-    // Only update view if we're in a different file
-    if (newContext.documentUri === uri.fsPath) {
+        openView(EVENT_TYPE.OPEN_VIEW, newContext);
         notifyBreakpointChange();
         return;
     }
