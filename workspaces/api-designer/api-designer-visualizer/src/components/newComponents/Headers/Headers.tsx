@@ -11,6 +11,9 @@ import { Headers as Hs, HeaderDefinition as H, ReferenceObject as R } from '../.
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { Header } from '../Header/Header';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { RefComponent } from '../RefComponent/RefComponent';
 
 interface HeadersProps {
     headers : Hs;
@@ -25,9 +28,36 @@ const isReferenceObject = (obj: H | R): obj is R => {
 // Title, Vesrion are mandatory fields
 export function Headers(props: HeadersProps) {
     const { headers, title, onHeadersChange } = props;
+    const { 
+        props: { openAPI },
+    } = useContext(APIDesignerContext);
+
+    const componentParameterNames = openAPI?.components?.parameters ? Object.keys(openAPI?.components?.parameters) : [];
+    const componentHeaderParamNames = componentParameterNames.filter((name) => openAPI?.components?.parameters[name].in === "header");
 
     const handleHeaderChange = (headers: Hs) => {
         onHeadersChange(headers);
+    };
+
+    const addNewReferenceObject = () => {
+        const newHeader: R = {
+            $ref: `#/components/parameters/${componentHeaderParamNames[0]}`,
+            summary: "",
+            description: ""
+        };
+        const headerName = headers ? `header${Object.keys(headers).length + 1}` : "header1";
+        const modifiedHeaders = { ...headers, [headerName]: newHeader };
+        handleHeaderChange(modifiedHeaders);
+    };
+
+    const addReferenceParamButton = () => {
+        return (
+            <RefComponent
+                onChange={addNewReferenceObject}
+                dropdownWidth={157} 
+                componnetHeight={32}
+            />
+        );
     };
 
     const addNewHeader = () => {
@@ -40,37 +70,29 @@ export function Headers(props: HeadersProps) {
         const modiefiedHeaders = { ...headers, [headerName]: newHeader };
         handleHeaderChange(modiefiedHeaders);
     };
-    const getAddParamButton = () => (
+    const getAddHeaderButton = () => (
         <Button appearance="icon" onClick={() => addNewHeader()}>
             <Codicon sx={{ marginRight: 5 }} name="add" />
-            Add Parameter
-        </Button>
-    );
-    const addNewReferenceObject = () => {
-        const newReferenceObject: R = {
-            $ref: "",
-            summary: "",
-            description: ""
-        };
-        const referenceObjectName = headers ? `referenceObject${Object.keys(headers).length + 1}` : "referenceObject1";
-        const modiefiedHeaders = { ...headers, [referenceObjectName]: newReferenceObject };
-        handleHeaderChange(modiefiedHeaders);
-    }
-    const getAddReferenceObjectButton = () => (
-        <Button appearance="icon" onClick={() => addNewReferenceObject()}>
-            <Codicon sx={{ marginRight: 5 }} name="add" />
-            Add Reference
+            Add
         </Button>
     );
 
+    const actionButtons = [
+        getAddHeaderButton()
+    ];
+    if (componentHeaderParamNames.length > 0) {
+        actionButtons.push(addReferenceParamButton());
+    }
+
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            <SectionHeader title={title} actionButtons={[getAddParamButton(), getAddReferenceObjectButton()]} />
+            <SectionHeader title={title} actionButtons={actionButtons} />
             {headers && Object.entries(headers).map(([headerName, header], index) => (
                 <div key={index} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {isReferenceObject(header) ? (
                         <ReferenceObject
                             id={index}
+                            type={"header"}
                             referenceObject={header as R}
                             onRefernceObjectChange={(referenceObject) => handleHeaderChange({ ...headers, [headerName]: referenceObject })}
                             onRemoveReferenceObject={(id) => {

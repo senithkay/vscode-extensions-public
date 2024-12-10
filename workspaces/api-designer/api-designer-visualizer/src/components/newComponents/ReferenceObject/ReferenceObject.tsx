@@ -82,22 +82,15 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
             <Dropdown
                 id={`paramType-${referenceObject.$ref}`}
                 value={referenceObject.$ref}
-                containerSx={{ width: "35%" }}
+                containerSx={{ width: "30%" }}
                 items={referenceObjectsList}
                 onValueChange={(value) => handleParameterChange({ ...referenceObject, $ref: value })}
             />
-            {/* <TextField
-                id={`paramName-${referenceObject.summary}`}
-                placeholder="Summary"
-                value={referenceObject.summary}
-                sx={{ width: "25%" }}
-                onBlur={(evt) => handleParameterChange({ ...referenceObject, summary: evt.target.value })}
-            /> */}
             <TextField
                 id={`paramName-${referenceObject.description}`}
                 placeholder="Description"
                 value={referenceObject.description}
-                sx={{ width: "40%" }}
+                sx={{ width: "45%" }}
                 onBlur={(evt) => handleParameterChange({ ...referenceObject, description: evt.target.value })}
             />
                 <ButtonWrapperParams>

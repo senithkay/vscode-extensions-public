@@ -76,20 +76,20 @@ export function Header(props: HeaderProps) {
                 id={`headerName-${name}`}
                 placeholder="Name"
                 value={name}
-                sx={{ width: "35%" }}
+                sx={{ width: "25%" }}
                 onBlur={(evt) => handleHeaderChange({ ...header }, evt.target.value)}
             />
             <Dropdown
                 id={`header-${header.schema.type}`}
                 value={header.schema.type}
-                containerSx={{ width: "25%" }}
+                containerSx={{ width: "30%" }}
                 items={paramTypeOptions}
                 onValueChange={(value) => handleHeaderChange({ ...header, schema: { type: value as ParameterSchemaTypes } }, name)}
             />
             <TextField
                 placeholder="Description"
                 value={header.description}
-                sx={{ width: "40%" }}
+                sx={{ width: "45%" }}
                 onBlur={(evt) => handleHeaderChange({ ...header, description: evt.target.value }, name)}
             />
                 <ButtonWrapperParams>
