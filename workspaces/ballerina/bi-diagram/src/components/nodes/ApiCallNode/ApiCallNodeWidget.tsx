@@ -30,6 +30,7 @@ import ConnectorIcon from "../../ConnectorIcon";
 import { useDiagramContext } from "../../DiagramContext";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { getNodeTitle, nodeHasError } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -43,6 +44,7 @@ export namespace NodeStyles {
         disabled: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint: boolean;
     };
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
@@ -58,7 +60,7 @@ export namespace NodeStyles {
         border-color: ${(props: NodeStyleProp) =>
             props.hasError ? Colors.ERROR : props.hovered && !props.disabled ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 10px;
-        background-color: ${Colors.SURFACE_DIM};
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
         color: ${Colors.ON_SURFACE};
     `;
 
@@ -184,16 +186,18 @@ interface ApiCallNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ApiCallNodeWidgetProps, "children"> { }
 
 export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, onConnectionSelect, goToSource, onDeleteNode, removeBreakpoint, addBreakpoint } = useDiagramContext();
 
     const [isBoxHovered, setIsBoxHovered] = useState(false);
     const [isCircleHovered, setIsCircleHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+    const hasBreakpoint = model.hasBreakpoint();
+    const isActiveBreakpoint = model.isActiveBreakpoint();
 
     useEffect(() => {
         if (model.node.suggested) {
@@ -238,6 +242,16 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const onAddBreakpoint = () => {
+        addBreakpoint && addBreakpoint(model.node);
+        setAnchorEl(null);
+    }
+
+    const onRemoveBreakpoint = () => {
+        removeBreakpoint && removeBreakpoint(model.node);
+        setAnchorEl(null);
+    }
+
     const menuItems: Item[] = [
         {
             id: "edit",
@@ -258,9 +272,13 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                 disabled={disabled}
                 hovered={isBoxHovered}
                 hasError={hasError}
+                isActiveBreakpoint={isActiveBreakpoint}
                 onMouseEnter={() => setIsBoxHovered(true)}
                 onMouseLeave={() => setIsBoxHovered(false)}
             >
+                {hasBreakpoint && (
+                    <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
+                )}
                 <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                 <NodeStyles.Row>
                     <NodeStyles.Icon onClick={handleOnClick}>
@@ -291,9 +309,16 @@ export function ApiCallNodeWidget(props: ApiCallNodeWidgetProps) {
                         }}
                     >
                         <Menu>
-                            {menuItems.map((item) => (
-                                <MenuItem key={item.id} item={item} />
-                            ))}
+                            <>
+                                {menuItems.map((item) => (
+                                    <MenuItem key={item.id} item={item} />
+                                ))}
+                                <BreakpointMenu
+                                    hasBreakpoint={hasBreakpoint}
+                                    onAddBreakpoint={onAddBreakpoint}
+                                    onRemoveBreakpoint={onRemoveBreakpoint}
+                                />
+                            </>
                         </Menu>
                     </Popover>
                 </NodeStyles.Row>

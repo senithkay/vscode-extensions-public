@@ -11,10 +11,11 @@
 import {
     AddToProjectRequest,
     DeleteFromProjectRequest,
+    GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateTestRequest,
+    GenerateTypesFromRecordRequest,
     GeneratedTestSource,
-    GenerteMappingsFromRecordRequest,
     GetFromFileRequest,
     NotifyAIMappingsRequest,
     PostProcessRequest,
@@ -29,6 +30,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getFileExists,
     getFromFile,
     getGeneratedTest,
     getInitialPrompt,
@@ -38,6 +40,7 @@ import {
     getRefreshToken,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getTypesFromRecord,
     login,
     logout,
     notifyAIMappings,
@@ -62,6 +65,7 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
     messenger.onNotification(addToProject, (args: AddToProjectRequest) => rpcManger.addToProject(args));
     messenger.onRequest(getFromFile, (args: GetFromFileRequest) => rpcManger.getFromFile(args));
+    messenger.onRequest(getFileExists, (args: GetFromFileRequest) => rpcManger.getFileExists(args));
     messenger.onNotification(deleteFromProject, (args: DeleteFromProjectRequest) => rpcManger.deleteFromProject(args));
     messenger.onRequest(getRefreshToken, () => rpcManger.getRefreshToken());
     messenger.onRequest(generateMappings, (args: GenerateMappingsRequest) => rpcManger.generateMappings(args));
@@ -75,7 +79,8 @@ export function registerAiPanelRpcHandlers(messenger: Messenger) {
     messenger.onNotification(clearInitialPrompt, () => rpcManger.clearInitialPrompt());
     messenger.onRequest(getGeneratedTest, (args: GenerateTestRequest) => rpcManger.getGeneratedTest(args));
     messenger.onRequest(getTestDiagnostics, (args: GeneratedTestSource) => rpcManger.getTestDiagnostics(args));
-    messenger.onRequest(getMappingsFromRecord, (args: GenerteMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
+    messenger.onRequest(getMappingsFromRecord, (args: GenerateMappingsFromRecordRequest) => rpcManger.getMappingsFromRecord(args));
+    messenger.onRequest(getTypesFromRecord, (args: GenerateTypesFromRecordRequest) => rpcManger.getTypesFromRecord(args));
     messenger.onNotification(applyDoOnFailBlocks, () => rpcManger.applyDoOnFailBlocks());
     messenger.onRequest(postProcess, (args: PostProcessRequest) => rpcManger.postProcess(args));
     messenger.onRequest(getActiveFile, () => rpcManger.getActiveFile());

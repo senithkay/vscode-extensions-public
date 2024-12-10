@@ -11,13 +11,21 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { WhileNodeModel } from "./WhileNodeModel";
-import { Colors, WHILE_NODE_WIDTH, NODE_BORDER_WIDTH, NODE_WIDTH } from "../../../resources/constants";
+import {
+    Colors,
+    WHILE_NODE_WIDTH,
+    NODE_BORDER_WIDTH,
+    NODE_WIDTH,
+    NODE_GAP_X,
+    NODE_GAP_Y,
+} from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { FlowNode } from "../../../utils/types";
 import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { nodeHasError } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
     export const Node = styled.div`
@@ -108,6 +116,7 @@ export namespace NodeStyles {
         selected: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint?: boolean;
     };
     export const Circle = styled.div<NodeStyleProp>`
         display: flex;
@@ -116,9 +125,9 @@ export namespace NodeStyles {
         align-items: center;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) =>
-                props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
+            props.hasError ? Colors.ERROR : props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT};
         border-radius: 50px;
-        background-color: ${Colors.SURFACE_DIM};
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM};
         width: ${WHILE_NODE_WIDTH}px;
         height: ${WHILE_NODE_WIDTH}px;
     `;
@@ -134,7 +143,7 @@ export namespace NodeStyles {
         left: number;
     };
     export const Container = styled.div<ContainerStyleProp>`
-        position: absolute;
+        position: fixed;
         width: ${(props) => props.width}px;
         height: ${(props) => props.height}px;
         top: ${(props) => props.top}px;
@@ -156,15 +165,17 @@ interface WhileNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<WhileNodeWidgetProps, "children"> { }
 
 export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint } = useDiagramContext();
 
     const [isHovered, setIsHovered] = React.useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+    const hasBreakpoint = model.hasBreakpoint();
+    const isActiveBreakpoint = model.isActiveBreakpoint();
 
     useEffect(() => {
         if (model.node.suggested) {
@@ -196,6 +207,16 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const onAddBreakpoint = () => {
+        addBreakpoint && addBreakpoint(model.node);
+        setAnchorEl(null);
+    }
+
+    const onRemoveBreakpoint = () => {
+        removeBreakpoint && removeBreakpoint(model.node);
+        setAnchorEl(null);
+    }
+
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -215,8 +236,8 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
     ];
 
     const disabled = model.node.suggested;
-    const viewState = model.node.viewState;
     const hasError = nodeHasError(model.node);
+    const nodeViewState = model.node.viewState;
 
     return (
         <NodeStyles.Node>
@@ -229,7 +250,12 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                         selected={model.isSelected()}
                         hovered={isHovered}
                         hasError={hasError}
+                        isActiveBreakpoint={isActiveBreakpoint}
+
                     >
+                        {hasBreakpoint && (
+                            <div style={{ position: "absolute", left: 1, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
+                        )}
                         <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <g
@@ -268,17 +294,24 @@ export function WhileNodeWidget(props: WhileNodeWidgetProps) {
                     }}
                 >
                     <Menu>
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} item={item} />
-                        ))}
+                        <>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
+                        </>
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
             <NodeStyles.Container
-                width={viewState.cw}
-                height={viewState.ch - viewState.h}
-                top={viewState.h}
-                left={viewState.x + viewState.w / 2 + WHILE_NODE_WIDTH / 2 - viewState.cw / 2}
+                width={nodeViewState.clw + nodeViewState.crw + NODE_GAP_X / 2}
+                height={nodeViewState.ch - nodeViewState.h - NODE_GAP_Y / 2}
+                top={nodeViewState.y + nodeViewState.h + NODE_GAP_Y / 2}
+                left={nodeViewState.x + nodeViewState.lw - nodeViewState.clw - NODE_GAP_X / 4}
             ></NodeStyles.Container>
         </NodeStyles.Node>
     );

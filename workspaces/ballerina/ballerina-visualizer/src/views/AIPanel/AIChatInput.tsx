@@ -21,8 +21,12 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { AttachmentResult, AttachmentStatus, handleFileAttach } from "../../utils/attachmentUtils";
+import { COMMAND_DATAMAP, COMMAND_SCAFFOLD, COMMAND_TESTS, COMMAND_TYPECREATOR, getFileTypesForCommand } from "../AIPanel/AIChat";
+import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
+import { DataMapperAttachment } from "../../utils/datamapperAttachment";
+import { ScaffoldAttachment } from "../../utils/scaffoldAttachment";
+import { TestAttachment } from "../../utils/testAttachment";
 
 // Styled Components
 
@@ -295,6 +299,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
     const [activeSuggestionValue, setActiveSuggestionValue] = useState<string | null>(null);
     const [selectedCommand, setSelectedCommand] = useState<string | null>(null);
     const [attachments, setAttachments] = useState<AttachmentResult[]>([]);
+    const [activeCommand, setActiveCommand] = useState<string | null>(null);
 
     const suggestionsRef = useRef<HTMLUListElement>(null);
     const inputRef = useRef<StyledInputRef>(null);
@@ -519,6 +524,9 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
     // Handle suggestion click
     const handleSuggestionClick = (suggestion: string) => {
         selectSuggestion(suggestion);
+        if(suggestion.startsWith("/")){
+            setActiveCommand(suggestion);
+        }
     };
 
     function encodeHTML(str: string): string {
@@ -551,11 +559,26 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
     };
 
     const handleFileSelection = async (e: ChangeEvent<HTMLInputElement>) => {
-        const results = await handleFileAttach(e);
+        let attachmentHandler;
+        switch (activeCommand) {
+            case COMMAND_DATAMAP:
+            case COMMAND_TYPECREATOR:
+                attachmentHandler = new DataMapperAttachment(activeCommand);
+                break;
+            case COMMAND_SCAFFOLD:
+                attachmentHandler = new ScaffoldAttachment(activeCommand);
+                break;
+            case COMMAND_TESTS:
+                attachmentHandler = new TestAttachment(activeCommand);
+                break;
+            default:
+                attachmentHandler = new ScaffoldAttachment(activeCommand); 
+        }
+        const results = await attachmentHandler.handleFileAttach(e);
         setAttachments((prevAttachments) => {
             const updatedAttachments = [...prevAttachments];
 
-            results.forEach((newFile) => {
+            results.forEach((newFile: AttachmentResult) => {
                 const existingIndex = updatedAttachments.findIndex(
                     (existingFile) => existingFile.name === newFile.name && existingFile.content === newFile.content
                 );
@@ -613,7 +636,7 @@ const AIChatInput: React.FC<AIChatInputProps> = ({ value = "", baseCommands, onS
                             <input
                                 type="file"
                                 multiple
-                                accept="text/plain,application/json,application/x-yaml,application/xml,text/xml"
+                                accept={activeCommand ? getFileTypesForCommand(activeCommand).join(",") : getFileTypesForCommand("").join(",")}
                                 style={{ display: "none" }}
                                 ref={fileInputRef}
                                 onChange={handleFileSelection}

@@ -14,7 +14,11 @@ import {
     tasks,
     TaskDefinition,
     ShellExecution,
-    TaskExecution
+    TaskExecution,
+    DebugAdapterTrackerFactory,
+    DebugAdapterTracker,
+    ViewColumn,
+    TabInputText
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -41,9 +45,12 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
-import { StateMachine } from '../../stateMachine';
+import { BallerinaProject, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
+import { openView, StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
+import { BreakpointManager } from './breakpoint-manager';
+import { notifyBreakpointChange } from '../../RPCLayer';
+import { VisualizerWebview } from '../../views/visualizer/webview';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -282,7 +289,135 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 
     const factory = new BallerinaDebugAdapterDescriptorFactory(ballerinaExtInstance);
     context.subscriptions.push(debug.registerDebugAdapterDescriptorFactory('ballerina', factory));
+
+    context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory()));
+
+    // Listener to support reflect breakpoint changes in diagram when debugger is inactive
+    context.subscriptions.push(debug.onDidChangeBreakpoints((session) => {
+        notifyBreakpointChange();
+    }));
 }
+
+class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
+    createDebugAdapterTracker(session: DebugSession): DebugAdapterTracker {
+        return {
+
+            onWillStartSession() {
+                new BreakpointManager();
+            },
+
+            onWillStopSession() {
+                // clear the active breakpoint
+                BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                notifyBreakpointChange();
+            },
+
+            // Debug Adapter -> VS Code
+            onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
+                console.log("=====onDidSendMessage", message);
+                if (message.type === "response") {
+                    const msg = <DebugProtocol.Response>message;
+
+                    if (msg.command === "setBreakpoints") {
+                        const breakpoints = msg.body.breakpoints;
+                        // convert debug points to client breakpoints
+                        if (breakpoints) {
+                            console.log("!=====breakpoints in setBreakpoints tracker", breakpoints);
+                            const clientBreakpoints = breakpoints.map(bp => ({
+                                ...bp,
+                                line: bp.line - 1
+                            }));
+                            // set the breakpoints in the diagram
+                            BreakpointManager.getInstance().addBreakpoints(clientBreakpoints);
+                            notifyBreakpointChange();
+                        }
+                    } else if (msg.command === "stackTrace") {
+                        const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+
+                        const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
+
+                        // Filter for tabs that are editor tabs and the tab that is not debug hit tab
+                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath !== uri.fsPath);
+
+                        for (const tab of editorTabs) {
+                            window.tabGroups.close(tab);
+                        }
+
+                        // get the current stack trace
+                        const hitBreakpoint = msg.body.stackFrames[0];
+                        console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
+
+                        const clientBreakpoint = {
+                            ...hitBreakpoint,
+                            line: Math.max(0, hitBreakpoint.line - 1),
+                            column: Math.max(0, hitBreakpoint.column - 1)
+                        };
+
+                        BreakpointManager.getInstance().setActiveBreakpoint(clientBreakpoint);
+
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+
+                        if (isWebviewPresent) {
+                            setTimeout(async () => {
+                                VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.Beside);
+                                handleBreakpointVisualization(uri, clientBreakpoint);
+                            }, 200);
+                        }
+
+                    } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
+                    }
+                }
+            },
+        };
+    }
+}
+
+async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugProtocol.StackFrame) {
+    const newContext = StateMachine.context();
+
+    // Check if breakpoint is in a different project
+    if (!uri.fsPath.startsWith(newContext.projectUri)) {
+        console.log("Breakpoint is in a different project");
+        window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
+        openView(EVENT_TYPE.OPEN_VIEW, newContext);
+        notifyBreakpointChange();
+        return;
+    }
+
+    // Get enclosed function definition
+    const req: BIGetEnclosedFunctionRequest = {
+        filePath: uri.fsPath,
+        position: {
+            line: clientBreakpoint.line,
+            offset: clientBreakpoint.column
+        }
+    };
+
+    const res = await StateMachine.langClient().getEnclosedFunctionDef(req);
+
+    if (!res?.startLine || !res?.endLine) {
+        window.showInformationMessage("Failed to open the respective view for the breakpoint. Please manually navigate to the respective view.");
+        notifyBreakpointChange();
+        return;
+    }
+
+    // Update context with new position
+    newContext.documentUri = uri.fsPath;
+    newContext.view = undefined;
+    newContext.position = {
+        startLine: res.startLine.line,
+        startColumn: res.startLine.offset,
+        endLine: res.endLine.line,
+        endColumn: res.endLine.offset
+    };
+    openView(EVENT_TYPE.OPEN_VIEW, newContext);
+    notifyBreakpointChange();
+}
+
+
 
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
