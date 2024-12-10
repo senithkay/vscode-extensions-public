@@ -86,9 +86,10 @@ export function Controls(props: ControlsProps) {
     const { engine } = props;
 
     const handleZoomToFit = () => {
-        resetDiagramZoomAndPosition();
-        loadDiagramZoomAndPosition(engine);
-        engine.repaintCanvas();
+        if (engine.getCanvas()?.getBoundingClientRect) {
+            engine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+            engine.repaintCanvas();
+        }
     };
 
     const onZoom = (zoomIn: boolean) => {

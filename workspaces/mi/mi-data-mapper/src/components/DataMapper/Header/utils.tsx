@@ -133,7 +133,6 @@ export function filterCompletions(
                 description: details.documentation?.[0]?.text,
                 value: action + entry.name + '()',
                 kind: details.kind as CompletionItemKind,
-                args: params,
                 cursorOffset: (action + entry.name).length + (params.filter(param => !param.includes('?')).length ? 1 : 2)
             }
         } else if (localFunctionNames.includes(entry.name)) {
