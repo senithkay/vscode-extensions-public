@@ -160,6 +160,11 @@
                         "default": "https://dev-tools.wso2.com/ballerina-copilot/v2.0",
                         "description": "Ballerina AI Backend service"
                     },
+                    "kolab.contextUploadServiceUrl": {
+                        "type": "string",
+                        "default": "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/context-upload-api/v1.0",
+                        "description": "Ballerina AI Data Mapper's Context Upload API service. This service is responsible for uploading and managing context data required for AI-assisted data mapping and type creation."
+                    },
                     "kolab.authOrg": {
                         "type": "string",
                         "default": "ballerinacopilot",

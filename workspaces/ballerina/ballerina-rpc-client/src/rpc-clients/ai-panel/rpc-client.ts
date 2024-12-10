@@ -14,11 +14,13 @@ import {
     AddToProjectRequest,
     DeleteFromProjectRequest,
     GenerateMappingFromRecordResponse,
+    GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
     GenerateTestRequest,
+    GenerateTypesFromRecordRequest,
+    GenerateTypesFromRecordResponse,
     GeneratedTestSource,
-    GenerteMappingsFromRecordRequest,
     GetFromFileRequest,
     InitialPrompt,
     NotifyAIMappingsRequest,
@@ -36,6 +38,7 @@ import {
     getActiveFile,
     getAiPanelState,
     getBackendURL,
+    getFileExists,
     getFromFile,
     getGeneratedTest,
     getInitialPrompt,
@@ -45,6 +48,7 @@ import {
     getRefreshToken,
     getShadowDiagnostics,
     getTestDiagnostics,
+    getTypesFromRecord,
     login,
     logout,
     notifyAIMappings,
@@ -104,6 +108,10 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getFromFile, HOST_EXTENSION, content);
     }
 
+    getFileExists(content: GetFromFileRequest): Promise<boolean> {
+        return this._messenger.sendRequest(getFileExists, HOST_EXTENSION, content);
+    }
+
     deleteFromProject(content: DeleteFromProjectRequest): void {
         return this._messenger.sendNotification(deleteFromProject, HOST_EXTENSION, content);
     }
@@ -156,8 +164,12 @@ export class AiPanelRpcClient implements AIPanelAPI {
         return this._messenger.sendRequest(getTestDiagnostics, HOST_EXTENSION, params);
     }
 
-    getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
+    getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         return this._messenger.sendRequest(getMappingsFromRecord, HOST_EXTENSION, params);
+    }
+
+    getTypesFromRecord(params: GenerateTypesFromRecordRequest): Promise<GenerateTypesFromRecordResponse> {
+        return this._messenger.sendRequest(getTypesFromRecord, HOST_EXTENSION, params);
     }
 
     applyDoOnFailBlocks(): void {
