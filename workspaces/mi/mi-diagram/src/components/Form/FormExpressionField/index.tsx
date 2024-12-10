@@ -7,7 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { debounce } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
+import { Range } from 'vscode-languageserver-types';
+import styled from '@emotion/styled';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
     CompletionItem,
@@ -16,10 +20,8 @@ import {
     FormExpressionEditorRef,
     RequiredFormInput,
 } from '@wso2-enterprise/ui-toolkit';
-import { Range } from 'vscode-languageserver-types';
+import { getHelperPane } from './HelperPane';
 import { modifyCompletion } from './utils';
-import { debounce } from 'lodash';
-import styled from '@emotion/styled';
 
 /**
  * Props for ExpressionEditor
@@ -36,7 +38,6 @@ import styled from '@emotion/styled';
  * @param errorMsg - The error message to display
  */
 type FormExpressionFieldProps = {
-    documentUri: string;
     label: string;
     required: boolean;
     value: string;
@@ -71,7 +72,6 @@ export namespace S {
  */
 export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const {
-        documentUri,
         label,
         required,
         value,
@@ -89,11 +89,18 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const expressionRef = useRef<FormExpressionEditorRef>(null);
     const cursorPositionRef = useRef<number>(null);
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
+    const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
+    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
+    const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [attributesInfo, setAttributesInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
 
     const debouncedRetrieveCompletions = useCallback(
         async (expression: string, cursorPosition: number) => {
+            const machineView = await rpcClient.getVisualizerState();
             const completions = await rpcClient.getMiDiagramRpcClient().getExpressionCompletions({
-                documentUri,
+                documentUri: machineView.documentUri,
                 expression,
                 position: nodeRange.start,
                 offset: cursorPosition,
@@ -115,7 +122,12 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         onChange(value);
         cursorPositionRef.current = updatedCursorPosition;
 
-        retrieveCompletions(value, updatedCursorPosition);
+        const isHelperPaneOpen = value === "" ? true : false;
+        setIsHelperPaneOpen(isHelperPaneOpen);
+
+        if (!isHelperPaneOpen) {
+            retrieveCompletions(value, updatedCursorPosition);
+        }
     };
 
     const handleCancel = () => {
@@ -127,9 +139,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleFocus = async () => {
         await onFocus?.();
-
-        const cursorPosition = expressionRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-        retrieveCompletions(value, cursorPosition);
     };
 
     const handleBlur = async () => {
@@ -137,6 +146,56 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
         handleCancel();
     };
+
+    const getHelperPaneInfo = useCallback(debounce(() => {
+        rpcClient.getVisualizerState().then((machineView) => {
+            rpcClient
+                .getMiDiagramRpcClient()
+                .getHelperPaneInfo({
+                    documentUri: machineView.documentUri,
+                    position: nodeRange?.start
+                })
+                .then((response) => {
+                    setPayloadInfo(response.payload);
+                    setVariableInfo(response.variables);
+                    setAttributesInfo(response.attributes);
+                    setFunctionInfo(response.functions);
+                })
+                .finally(() => {
+                    setIsLoadingHelperPaneInfo(false);
+                });
+            });
+        }, 300),
+        [rpcClient, nodeRange?.start]
+    );
+
+    const handleGetHelperPaneInfo = useCallback(() => {
+        setIsLoadingHelperPaneInfo(true);
+        getHelperPaneInfo();
+    }, [getHelperPaneInfo]);
+
+    const handleChangeHelperPaneState = (isOpen: boolean) => {
+        if (isOpen) {
+            expressionRef.current?.focus();
+        }
+
+        setIsHelperPaneOpen(isOpen);
+    }
+
+    const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
+        return getHelperPane(
+            expressionRef,
+            isLoadingHelperPaneInfo,
+            payloadInfo,
+            variableInfo,
+            attributesInfo,
+            functionInfo,
+            () => setIsHelperPaneOpen(false),
+            handleGetHelperPaneInfo,
+            value,
+            onChange
+        );
+    }
 
     return (
         <S.Container>
@@ -154,6 +213,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onBlur={handleBlur}
                     onCancel={handleCancel}
                     completions={completions}
+                    isHelperPaneOpen={isHelperPaneOpen}
+                    changeHelperPaneState={handleChangeHelperPaneState}
+                    getHelperPane={handleGetHelperPane}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>
