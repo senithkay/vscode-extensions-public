@@ -97,7 +97,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
         const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
         if (workspaceFolder) {
             const dataMapperConfigFolder = path.join(
-                workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamappers');
             const absPath = path.join(dataMapperConfigFolder, configName, regPathParts[regPathParts.length - 1]);
             return absPath;
         };
@@ -167,7 +167,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 const dataMapperConfigFolder = path.join(
-                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamappers');
                 if (!fs.existsSync(dataMapperConfigFolder)) {
                     return resolve({ dmConfigs: [] });
                 }
@@ -193,7 +193,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
             const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
             if (workspaceFolder) {
                 const dataMapperConfigFolder = path.join(
-                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper');
+                    workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamappers');
                 const absPath = path.join(dataMapperConfigFolder, configName, `${configName}.ts`);
                 resolve({ absPath, configName });
             };
@@ -371,7 +371,7 @@ export class MiDataMapperRpcManager implements MIDataMapperAPI {
 
                 if (workspaceFolder) {
                     const dataMapperConfigFolder = path.join(
-                        workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
+                        workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamappers', dmName);
                     if (!fs.existsSync(dataMapperConfigFolder)) {
                         fs.mkdirSync(dataMapperConfigFolder, { recursive: true });
                     }

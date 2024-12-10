@@ -88,6 +88,8 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -3388,6 +3390,7 @@ ${endpointAttributes}
                 canSelectFiles: params.canSelectFiles,
                 canSelectFolders: params.canSelectFolders,
                 canSelectMany: params.canSelectMany,
+                filters: params.filters,
                 defaultUri: params.defaultUri ? Uri.file(params.defaultUri) : Uri.file(os.homedir()),
                 title: params.title,
                 ...params.openLabel && { openLabel: params.openLabel },
@@ -3400,18 +3403,23 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
+            let artifactName = ('resources/' + params.registryPath).replace(path.sep, "_").replace(/_+/g, '_');
+
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            let transformedPath = "/_system/governance/mi-resources";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
+                    artifactName = artifactName + "_" + fileName;
+                    artifactName = artifactName.replace(/\./g, '_');
+
                     const registryPath = path.join(registryDir, params.registryPath);
                     const destPath = path.join(registryPath, fileName);
                     if (!fs.existsSync(registryPath)) {
@@ -3422,13 +3430,13 @@ ${endpointAttributes}
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
-                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true);
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
-                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false);
                     }
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
@@ -3437,6 +3445,7 @@ ${endpointAttributes}
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
@@ -3445,7 +3454,7 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
 
@@ -3453,17 +3462,18 @@ ${endpointAttributes}
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 let fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
                     fs.mkdirSync(registryPath, { recursive: true });
                 }
-                await replaceFullContentToFile(destPath, fileContent ? fileContent : "");
+                fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
@@ -3897,6 +3907,22 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
             resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
+        });
+    }
+
+    async getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getResourceFiles();
+            resolve({ resourcePaths: res });
+        });
+    }
+    
+    async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConfigurableEntries();
+            resolve({ configurableEntries: res });
         });
     }
 
