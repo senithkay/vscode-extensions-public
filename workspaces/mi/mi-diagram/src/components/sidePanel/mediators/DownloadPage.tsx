@@ -24,10 +24,11 @@ const ProgressRing = styled(VSCodeProgressRing)`
 
 interface DownloadPageProps {
     module: any;
+    onDownloadSuccess: () => void;
 }
 
 export function DownloadPage(props: DownloadPageProps) {
-    const { module } = props;
+    const { module, onDownloadSuccess } = props;
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [isDownloading, setIsDownloading] = React.useState(false);
@@ -42,7 +43,8 @@ export function DownloadPage(props: DownloadPageProps) {
                 dependencies.push({
                     groupId: module.mavenGroupId,
                     artifact: module.mavenArtifactId,
-                    version: module.version.tagName
+                    version: module.version.tagName,
+                    type: 'zip' as 'zip'
                 });
                 await rpcClient.getMiVisualizerRpcClient().updateDependencies({
                     dependencies
@@ -50,6 +52,13 @@ export function DownloadPage(props: DownloadPageProps) {
             }
 
             await updateDependencies();
+
+            // Download Connector
+            const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+            if (response === "success") {
+                onDownloadSuccess();
+            }
 
             setIsDownloading(false);
             sidepanelGoBack(sidePanelContext);

@@ -349,7 +349,8 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                 dependencies.push({
                     groupId: conOnconfirmation.connector.mavenGroupId,
                     artifact: conOnconfirmation.connector.mavenArtifactId,
-                    version: conOnconfirmation.connector.version.tagName
+                    version: conOnconfirmation.connector.version.tagName,
+                    type: 'zip' as 'zip'
                 });
                 await rpcClient.getMiVisualizerRpcClient().updateDependencies({
                     dependencies
@@ -358,9 +359,12 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
             await updateDependencies();
 
-            // Logic to install connector
+            // Download Connector
+            const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            setSelectedConnector(conOnconfirmation);
+            if (response  === "success") {
+                setSelectedConnector(conOnconfirmation);
+            }
 
             setConOnconfirmation(undefined);
             setIsDownloading(false);
@@ -412,7 +416,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                             {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                                 Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
                                     <ComponentCard
-                                        key={connector.name}
+                                        key={connectionType}
                                         onClick={() => selectConnector(connector, connectionType)}
                                         sx={connectorCardStyle}
                                     >
@@ -439,13 +443,17 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         </CardContent>
                                     </ComponentCard>
                                 ))))}
+                            </SampleGrid>
+                            <h4>In Store: </h4>
+                            <SampleGrid>
                             {displayedStoreConnectors && Array.isArray(displayedStoreConnectors) && displayedLocalConnectors &&
                                 displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRanke).map((connector: any) => (
-                                    displayedLocalConnectors.some(c => (c.connectorName === connector.name) &&
-                                        (c.version.tagName === connector.version)) ? null : (
+                                    displayedLocalConnectors.some(c => 
+                                        (c.name.toLowerCase() === connector.connectorName.toLowerCase()) &&
+                                        (c.version === connector.version.tagName)) ? null : (
                                         (connector.version.connections).map((connection: any) => (
                                             <ComponentCard
-                                                key={connector.connectorName}
+                                                key={connection.name}
                                                 onClick={() => selectStoreConnector(connector, connection.name)}
                                                 sx={connectorCardStyle}
                                             >
