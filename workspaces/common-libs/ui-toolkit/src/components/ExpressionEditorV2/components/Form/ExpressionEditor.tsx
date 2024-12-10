@@ -331,14 +331,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     }
 
-    const handleTextFieldFocus = async () => {
-        changeHelperPaneState?.(true);
+    const handleTextAreaFocus = async () => {
         await onFocus?.();
     }
 
-    const handleTextFieldBlur = (e: React.FocusEvent) => {
+    const handleTextAreaBlur = (e: React.FocusEvent) => {
         e.preventDefault();
         e.stopPropagation();
+    }
+
+    const handleTextAreaMouseDown = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (document.activeElement !== textBoxRef.current) {
+            changeHelperPaneState?.(true);
+        }
     }
 
     useImperativeHandle(ref, () => ({
@@ -379,8 +385,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 value={value}
                 onTextChange={handleChange}
                 onKeyDown={handleInputKeyDown}
-                onFocus={handleTextFieldFocus}
-                onBlur={handleTextFieldBlur}
+                onFocus={handleTextAreaFocus}
+                onBlur={handleTextAreaBlur}
+                onMouseDown={handleTextAreaMouseDown}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSavingExpression}
                 growRange={{ start: 1, offset: 7 }}
@@ -426,7 +433,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 createPortal(
                     <DropdownContainer ref={helperPaneContainerRef} sx={{ ...dropdownElPosition }}>
                         <Transition show={isHelperPaneOpen} {...ANIMATION}>
-                            {getHelperPane(handleChange)}
+                            {getHelperPane(value, handleChange)}
                         </Transition>
                     </DropdownContainer>,
                     document.body
