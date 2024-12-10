@@ -579,6 +579,83 @@ importers:
       eslint-plugin-react-refresh: 0.4.5_eslint@8.56.0
       typescript: 5.3.3
 
+  ../../workspaces/ballerina/ballerina-service-designer:
+    specifiers:
+      '@emotion/css': ^11.10.5
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
+      '@headlessui/react': ^1.7.15
+      '@storybook/addon-actions': ~7.4.0
+      '@storybook/addon-essentials': ~7.4.0
+      '@storybook/addon-links': ~7.4.0
+      '@storybook/cli': ^7.6.10
+      '@storybook/react': ~7.4.0
+      '@storybook/react-webpack5': ~7.4.0
+      '@types/lodash': ^4.14.200
+      '@types/react': ^18.2.33
+      '@types/react-dom': ^18.2.14
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vscode/codicons': 0.0.33
+      '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/ballerina-side-panel': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      handlebars: ^4.7.8
+      lodash: ^4.17.21
+      monaco-editor: 0.44.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.2.2
+      vscode-messenger-common: ^0.4.5
+      vscode-messenger-webview: ^0.4.5
+      vscode-uri: ^3.0.8
+    dependencies:
+      '@emotion/css': 11.11.2
+      '@emotion/react': 11.11.4_eteh3so6nztr56vqc4nbg6qqla
+      '@emotion/styled': 11.11.0_ihbmxtfl4qsypabejwwqftkmtq
+      '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
+      '@types/lodash': 4.17.7
+      '@vscode/codicons': 0.0.33
+      '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
+      '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      handlebars: 4.7.8
+      lodash: 4.17.21
+      monaco-editor: 0.44.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+      vscode-uri: 3.0.8
+    devDependencies:
+      '@storybook/addon-actions': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
+      '@storybook/addon-essentials': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
+      '@storybook/addon-links': 7.4.6_biqbaboplfbrettd7655fr4n2y
+      '@storybook/cli': 7.6.17
+      '@storybook/react': 7.4.6_3lfo6mjrbe7gnpm2z32jgk7g6a
+      '@storybook/react-webpack5': 7.4.6_vlxecqjaetb4srhvvk7zinfeye
+      '@types/react': 18.2.55
+      '@types/react-dom': 18.2.19
+      '@typescript-eslint/eslint-plugin': 6.21.0_ue4opsjrgmbcyesuxmv4s7c57m
+      '@typescript-eslint/parser': 6.21.0_rszs4ssu3hjbruhzajramqeml4
+      copyfiles: 2.4.1
+      eslint: 8.57.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.57.0
+      eslint-plugin-react-refresh: 0.4.5_eslint@8.57.0
+      typescript: 5.3.3
+
   ../../workspaces/ballerina/ballerina-side-panel:
     specifiers:
       '@emotion/react': ^11.9.3
@@ -640,6 +717,7 @@ importers:
       '@wso2-enterprise/ballerina-inline-data-mapper': workspace:*
       '@wso2-enterprise/ballerina-low-code-diagram': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/ballerina-service-designer': workspace:*
       '@wso2-enterprise/ballerina-side-panel': workspace:*
       '@wso2-enterprise/ballerina-statement-editor': workspace:*
       '@wso2-enterprise/bi-diagram': workspace:*
@@ -649,7 +727,6 @@ importers:
       '@wso2-enterprise/persist-layer-diagram': workspace:*
       '@wso2-enterprise/record-creator': workspace:*
       '@wso2-enterprise/sequence-diagram': workspace:*
-      '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/type-diagram': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -692,6 +769,7 @@ importers:
       '@wso2-enterprise/ballerina-inline-data-mapper': link:../inline-data-mapper
       '@wso2-enterprise/ballerina-low-code-diagram': link:../ballerina-low-code-diagram
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/ballerina-service-designer': link:../ballerina-service-designer
       '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/bi-diagram': link:../bi-diagram
@@ -701,7 +779,6 @@ importers:
       '@wso2-enterprise/persist-layer-diagram': link:../persist-layer-diagram
       '@wso2-enterprise/record-creator': link:../record-creator
       '@wso2-enterprise/sequence-diagram': link:../sequence-diagram
-      '@wso2-enterprise/service-designer-view': link:../service-designer-view
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/type-diagram': link:../type-diagram
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
@@ -1421,85 +1498,6 @@ importers:
       eslint-plugin-unused-imports: 3.1.0_gypbvcydgemiv2wsdqhwkir2tu
       prettier: 3.2.5
       typescript: 4.9.5
-
-  ../../workspaces/ballerina/service-designer-view:
-    specifiers:
-      '@emotion/css': ^11.10.5
-      '@emotion/react': ^11.9.3
-      '@emotion/styled': ^11.10.5
-      '@headlessui/react': ^1.7.15
-      '@storybook/addon-actions': ~7.4.0
-      '@storybook/addon-essentials': ~7.4.0
-      '@storybook/addon-links': ~7.4.0
-      '@storybook/cli': ^7.6.10
-      '@storybook/react': ~7.4.0
-      '@storybook/react-webpack5': ~7.4.0
-      '@types/lodash': ^4.14.200
-      '@types/react': ^18.2.33
-      '@types/react-dom': ^18.2.14
-      '@typescript-eslint/eslint-plugin': ^6.9.1
-      '@typescript-eslint/parser': ^6.9.1
-      '@vscode/codicons': 0.0.33
-      '@vscode/webview-ui-toolkit': ^1.2.0
-      '@wso2-enterprise/ballerina-core': workspace:*
-      '@wso2-enterprise/ballerina-rpc-client': workspace:*
-      '@wso2-enterprise/ballerina-side-panel': workspace:*
-      '@wso2-enterprise/font-wso2-vscode': workspace:*
-      '@wso2-enterprise/service-designer': workspace:*
-      '@wso2-enterprise/syntax-tree': workspace:*
-      '@wso2-enterprise/ui-toolkit': workspace:*
-      copyfiles: ^2.4.1
-      eslint: ^8.52.0
-      eslint-plugin-react-hooks: ^4.6.0
-      eslint-plugin-react-refresh: ^0.4.4
-      handlebars: ^4.7.8
-      lodash: ^4.17.21
-      monaco-editor: 0.44.0
-      react: ^18.2.0
-      react-dom: ^18.2.0
-      typescript: ^5.2.2
-      vscode-messenger-common: ^0.4.5
-      vscode-messenger-webview: ^0.4.5
-      vscode-uri: ^3.0.8
-    dependencies:
-      '@emotion/css': 11.11.2
-      '@emotion/react': 11.11.3_eteh3so6nztr56vqc4nbg6qqla
-      '@emotion/styled': 11.11.0_dyeqyavlplouzrsokk7bfa3ywm
-      '@headlessui/react': 1.7.18_biqbaboplfbrettd7655fr4n2y
-      '@types/lodash': 4.17.0
-      '@vscode/codicons': 0.0.33
-      '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
-      '@wso2-enterprise/ballerina-core': link:../ballerina-core
-      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
-      '@wso2-enterprise/ballerina-side-panel': link:../ballerina-side-panel
-      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
-      '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
-      '@wso2-enterprise/syntax-tree': link:../syntax-tree
-      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
-      handlebars: 4.7.8
-      lodash: 4.17.21
-      monaco-editor: 0.44.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      vscode-messenger-common: 0.4.5
-      vscode-messenger-webview: 0.4.5
-      vscode-uri: 3.0.8
-    devDependencies:
-      '@storybook/addon-actions': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
-      '@storybook/addon-essentials': 7.4.6_jq2v3mgqnxhjqzsfthu2a3rfwm
-      '@storybook/addon-links': 7.4.6_biqbaboplfbrettd7655fr4n2y
-      '@storybook/cli': 7.6.13
-      '@storybook/react': 7.4.6_3lfo6mjrbe7gnpm2z32jgk7g6a
-      '@storybook/react-webpack5': 7.4.6_vlxecqjaetb4srhvvk7zinfeye
-      '@types/react': 18.2.55
-      '@types/react-dom': 18.2.19
-      '@typescript-eslint/eslint-plugin': 6.21.0_qvx5l6wcv2c6baydm2v34ogvwy
-      '@typescript-eslint/parser': 6.21.0_xdgzedli73k7lw4xlyzszm74om
-      copyfiles: 2.4.1
-      eslint: 8.56.0
-      eslint-plugin-react-hooks: 4.6.0_eslint@8.56.0
-      eslint-plugin-react-refresh: 0.4.5_eslint@8.56.0
-      typescript: 5.3.3
 
   ../../workspaces/ballerina/statement-editor:
     specifiers:
@@ -5353,17 +5351,6 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
     dev: true
 
-  /@babel/plugin-transform-class-properties/7.23.3_@babel+core@7.24.9:
-    resolution: {integrity: sha512-uM+AN8yCIjDPccsKGlw271xjJtGii+xQIF/uMPS8H15L12jZTsLfF4o5vNO7d/oUguOyfdikHGc/yi9ge4SGIg==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.9
-      '@babel/helper-create-class-features-plugin': 7.23.10_@babel+core@7.24.9
-      '@babel/helper-plugin-utils': 7.22.5
-    dev: true
-
   /@babel/plugin-transform-class-properties/7.25.4:
     resolution: {integrity: sha512-nZeZHyCWPfjkdU5pA/uHiTaDAFUEqkpzf1YoQT2NeSynCGYq9rxfyI3XpQbfx/a0hSnFH6TGlEXvae5Vi7GD8g==}
     engines: {node: '>=6.9.0'}
@@ -6197,20 +6184,6 @@ packages:
       - supports-color
     dev: true
 
-  /@babel/plugin-transform-modules-commonjs/7.23.3_@babel+core@7.24.9:
-    resolution: {integrity: sha512-aVS0F65LKsdNOtcz6FRCpE4OgsP2OFnW46qNxNIX9h3wuzaNcSQsJysuMwqSibC98HPrf2vCgtxKNwS0DAlgcA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.9
-      '@babel/helper-module-transforms': 7.25.2_@babel+core@7.24.9
-      '@babel/helper-plugin-utils': 7.22.5
-      '@babel/helper-simple-access': 7.24.7
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@babel/plugin-transform-modules-commonjs/7.24.8:
     resolution: {integrity: sha512-WHsk9H8XxRs3JXKWFiqtQebdh9b/pTk4EgueygFzYlTKAg0Ud985mSevdNjdXdFBATSKVJGQXP1tv6aGbssLKA==}
     engines: {node: '>=6.9.0'}
@@ -6455,17 +6428,6 @@ packages:
       '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3_@babel+core@7.23.9
     dev: true
 
-  /@babel/plugin-transform-nullish-coalescing-operator/7.23.4_@babel+core@7.24.9:
-    resolution: {integrity: sha512-jHE9EVVqHKAQx+VePv5LLGHjmHSJR76vawFPTdlxR/LVJPfOEGxREQwQfjuZEOPTwG92X3LINSh3M40Rv4zpVA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.9
-      '@babel/helper-plugin-utils': 7.22.5
-      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3_@babel+core@7.24.9
-    dev: true
-
   /@babel/plugin-transform-nullish-coalescing-operator/7.24.7:
     resolution: {integrity: sha512-Ts7xQVk1OEocqzm8rHMXHlxvsfZ0cEF2yomUqpKENHWMF4zKk175Y4q8H5knJes6PgYad50uuRmt3UJuhBw8pQ==}
     engines: {node: '>=6.9.0'}
@@ -6697,18 +6659,6 @@ packages:
       '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.23.9
     dev: true
 
-  /@babel/plugin-transform-optional-chaining/7.23.4_@babel+core@7.24.9:
-    resolution: {integrity: sha512-ZU8y5zWOfjM5vZ+asjgAPwDaBjJzgufjES89Rs4Lpq63O300R/kOz30WCLo6BxxX6QVEilwSlpClnG5cZaikTA==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.9
-      '@babel/helper-plugin-utils': 7.22.5
-      '@babel/helper-skip-transparent-expression-wrappers': 7.22.5
-      '@babel/plugin-syntax-optional-chaining': 7.8.3_@babel+core@7.24.9
-    dev: true
-
   /@babel/plugin-transform-optional-chaining/7.24.8:
     resolution: {integrity: sha512-5cTOLSMs9eypEy8JUVvIKOu6NgvbJMnpG62VpIHrTmROdQ+L5mDAaI40g25k5vXti55JWNX5jCkq3HZxXBQANw==}
     engines: {node: '>=6.9.0'}
@@ -6807,17 +6757,6 @@ packages:
     dependencies:
       '@babel/core': 7.23.9
       '@babel/helper-create-class-features-plugin': 7.23.10_@babel+core@7.23.9
-      '@babel/helper-plugin-utils': 7.22.5
-    dev: true
-
-  /@babel/plugin-transform-private-methods/7.23.3_@babel+core@7.24.9:
-    resolution: {integrity: sha512-UzqRcRtWsDMTLrRWFvUBDwmw06tCQH9Rl1uAjfh6ijMSmGYQ+fpdB+cnqRC8EMh5tuuxSv0/TejGL+7vyj+50g==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.24.9
-      '@babel/helper-create-class-features-plugin': 7.23.10_@babel+core@7.24.9
       '@babel/helper-plugin-utils': 7.22.5
     dev: true
 
@@ -8146,7 +8085,7 @@ packages:
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-validator-option': 7.24.8
       '@babel/plugin-syntax-jsx': 7.23.3_@babel+core@7.24.9
-      '@babel/plugin-transform-modules-commonjs': 7.23.3_@babel+core@7.24.9
+      '@babel/plugin-transform-modules-commonjs': 7.24.8_@babel+core@7.24.9
       '@babel/plugin-transform-typescript': 7.23.6_@babel+core@7.24.9
     transitivePeerDependencies:
       - supports-color
@@ -23850,6 +23789,7 @@ packages:
 
   /@types/lodash/4.17.0:
     resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
+    dev: true
 
   /@types/lodash/4.17.7:
     resolution: {integrity: sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==}
@@ -23989,7 +23929,6 @@ packages:
 
   /@types/prop-types/15.7.13:
     resolution: {integrity: sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==}
-    dev: false
 
   /@types/q/1.5.8:
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
@@ -24078,7 +24017,7 @@ packages:
   /@types/react/18.2.55:
     resolution: {integrity: sha512-Y2Tz5P4yz23brwm2d7jNon39qoAtMMmalOQv6+fEFt1mT+FcM3D841wDpoUvFXhaYenuROCy3FZYqdTjM7qVyA==}
     dependencies:
-      '@types/prop-types': 15.7.11
+      '@types/prop-types': 15.7.13
       '@types/scheduler': 0.16.8
       csstype: 3.1.3
 
@@ -33449,6 +33388,7 @@ packages:
   /eslint/8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0_eslint@8.57.0
@@ -39779,11 +39719,11 @@ packages:
     dependencies:
       '@babel/core': 7.24.9
       '@babel/parser': 7.25.6
-      '@babel/plugin-transform-class-properties': 7.23.3_@babel+core@7.24.9
-      '@babel/plugin-transform-modules-commonjs': 7.23.3_@babel+core@7.24.9
-      '@babel/plugin-transform-nullish-coalescing-operator': 7.23.4_@babel+core@7.24.9
-      '@babel/plugin-transform-optional-chaining': 7.23.4_@babel+core@7.24.9
-      '@babel/plugin-transform-private-methods': 7.23.3_@babel+core@7.24.9
+      '@babel/plugin-transform-class-properties': 7.25.4_@babel+core@7.24.9
+      '@babel/plugin-transform-modules-commonjs': 7.24.8_@babel+core@7.24.9
+      '@babel/plugin-transform-nullish-coalescing-operator': 7.24.7_@babel+core@7.24.9
+      '@babel/plugin-transform-optional-chaining': 7.24.8_@babel+core@7.24.9
+      '@babel/plugin-transform-private-methods': 7.25.4_@babel+core@7.24.9
       '@babel/preset-env': 7.23.9_@babel+core@7.23.9
       '@babel/preset-flow': 7.23.3_@babel+core@7.24.9
       '@babel/preset-typescript': 7.23.3_@babel+core@7.24.9
@@ -39813,11 +39753,11 @@ packages:
     dependencies:
       '@babel/core': 7.24.9
       '@babel/parser': 7.25.6
-      '@babel/plugin-transform-class-properties': 7.23.3_@babel+core@7.24.9
-      '@babel/plugin-transform-modules-commonjs': 7.23.3_@babel+core@7.24.9
-      '@babel/plugin-transform-nullish-coalescing-operator': 7.23.4_@babel+core@7.24.9
-      '@babel/plugin-transform-optional-chaining': 7.23.4_@babel+core@7.24.9
-      '@babel/plugin-transform-private-methods': 7.23.3_@babel+core@7.24.9
+      '@babel/plugin-transform-class-properties': 7.25.4_@babel+core@7.24.9
+      '@babel/plugin-transform-modules-commonjs': 7.24.8_@babel+core@7.24.9
+      '@babel/plugin-transform-nullish-coalescing-operator': 7.24.7_@babel+core@7.24.9
+      '@babel/plugin-transform-optional-chaining': 7.24.8_@babel+core@7.24.9
+      '@babel/plugin-transform-private-methods': 7.25.4_@babel+core@7.24.9
       '@babel/preset-env': 7.24.8_@babel+core@7.24.9
       '@babel/preset-flow': 7.23.3_@babel+core@7.24.9
       '@babel/preset-typescript': 7.23.3_@babel+core@7.24.9

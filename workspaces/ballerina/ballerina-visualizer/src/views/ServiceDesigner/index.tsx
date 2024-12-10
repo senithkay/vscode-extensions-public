@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { Resource, ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
+import { Resource, ServiceDesigner as BServiceDesigner } from "@wso2-enterprise/ballernia-service-designer";
 import { EVENT_TYPE, LineRange, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { BodyText, ViewWrapper } from "../styles";
 import { Container, ProgressRing, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
@@ -74,7 +74,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     return (
         <>
             {!triggerNode &&
-                <ServiceDesignerView
+                <BServiceDesigner
                     handleServiceConfig={handleServiceConfig}
                     model={model}
                     serviceFilePath={filePath}

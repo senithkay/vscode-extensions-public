@@ -548,8 +548,8 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/service-designer-view",
-      "projectFolder": "workspaces/ballerina/service-designer-view",
+      "packageName": "@wso2-enterprise/ballerina-service-designer",
+      "projectFolder": "workspaces/ballerina/ballerina-service-designer",
       "versionPolicyName": "ballerina-extension"
     },
     {
