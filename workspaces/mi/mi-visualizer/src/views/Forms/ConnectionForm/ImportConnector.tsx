@@ -134,14 +134,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
-                            {importOpenAPI ? (
-                                <Button
-                                    appearance="primary"
-                                    onClick={importWithOpenAPI}
-                                >
-                                    Upload OpenAPI Spec
-                                </Button>
-                            ) : (
+                            {!importOpenAPI && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     <LocationSelector
                                         label="Choose path to connector Zip"
@@ -149,16 +142,27 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                         required
                                         onSelect={handleSourceDirSelection}
                                     />
-                                    <Button
-                                        appearance="primary"
-                                        onClick={importWithZip}
-                                        disabled={!sourceDir}
-                                    >
-                                        Import
-                                    </Button>
                                 </div>
                             )}
                             <FormActions>
+                                {importOpenAPI ? (
+                                    <Button
+                                        appearance="primary"
+                                        onClick={importWithOpenAPI}
+                                    >
+                                        Upload OpenAPI Spec
+                                    </Button>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        <Button
+                                            appearance="primary"
+                                            onClick={importWithZip}
+                                            disabled={!sourceDir}
+                                        >
+                                            Import
+                                        </Button>
+                                    </div>
+                                )}
                                 <Button
                                     appearance="secondary"
                                     onClick={handleCancel}
