@@ -8,8 +8,8 @@
  */
 
 import React, { RefObject } from 'react';
-import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
-import { Codicon } from '../Codicon/Codicon';
+import { COMPLETION_ITEM_KIND, CompletionItemKind } from '../types';
+import { Codicon } from '../../Codicon/Codicon';
 
 export const checkCursorInFunction = (text: string, cursorPosition: number) => {
     const effectiveText = text.substring(0, cursorPosition);

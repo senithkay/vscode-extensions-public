@@ -9,7 +9,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Codicon, ExpressionBarRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, CompletionItem, FormExpressionEditorRef, LinkButton } from "@wso2-enterprise/ui-toolkit";
 
 import {
     FlowNode,
@@ -21,7 +21,12 @@ import {
     Diagnostic
 } from "@wso2-enterprise/ballerina-core";
 import { Colors } from "../../../../resources/constants";
-import { FormValues, ExpressionEditor, ExpressionFormField, FormExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
+import {
+    FormValues,
+    ExpressionEditor,
+    ExpressionFormField,
+    FormExpressionEditorProps
+} from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
 import { convertNodePropertyToFormField } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
@@ -32,7 +37,7 @@ interface IfFormProps {
     fileName: string;
     node: FlowNode;
     targetLineRange: LineRange;
-    expressionEditor: FormExpressionEditor;
+    expressionEditor: FormExpressionEditorProps;
     onSubmit: (node?: FlowNode) => void;
     openSubPanel: (subPanel: SubPanel) => void;
     updatedExpressionField?: ExpressionFormField;
@@ -68,7 +73,7 @@ export function IfForm(props: IfFormProps) {
     const [branches, setBranches] = useState<Branch[]>(cloneDeep(node.branches));
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     const handleFormOpen = () => {
         rpcClient
@@ -338,7 +343,6 @@ export function IfForm(props: IfFormProps) {
                                 watch={watch}
                                 getExpressionFormDiagnostics={handleExpressionFormDiagnostics}
                                 onFocus={() => handleEditorFocus(index)}
-                                onBlur={expressionEditor.onBlur}
                                 openSubPanel={openSubPanel}
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
@@ -346,9 +350,14 @@ export function IfForm(props: IfFormProps) {
                                 completions={activeEditor === index ? expressionEditor.completions : []}
                                 triggerCharacters={expressionEditor.triggerCharacters}
                                 retrieveCompletions={expressionEditor.retrieveCompletions}
+                                variableInfo={expressionEditor.variableInfo}
+                                functionInfo={expressionEditor.functionInfo}
+                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
+                                getHelperPaneData={expressionEditor.getHelperPaneData}
                                 extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
+                                onBlur={expressionEditor.onBlur}
                             />
                         </FormStyles.Row>
                     );

@@ -19,11 +19,13 @@ import {
     TriggerCharacter,
     FormDiagnostics
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditor } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
     convertToFnSignature,
+    convertToHelperPaneFunction,
+    convertToHelperPaneVariable,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
     getFormProperties,
@@ -79,6 +81,10 @@ export function FormGenerator(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
+    const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
+    const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
+    const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
 
     useEffect(() => {
@@ -394,6 +400,76 @@ export function FormGenerator(props: FormProps) {
         setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
+    const getHelperPaneData = useCallback(
+        (type: string, searchText: string) => {
+            setIsLoadingHelperPaneInfo(true);
+            switch (type) {
+                case 'variables': {
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getVisibleVariableTypes({
+                            filePath: fileName,
+                            position: {
+                                line: targetLineRange.startLine.line,
+                                offset: targetLineRange.startLine.offset
+                            }
+                        })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setVariableInfo(convertToHelperPaneVariable(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
+                    break;
+                }
+                case 'functions': {
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getFunctions({
+                            position: targetLineRange,
+                            filePath: fileName,
+                            queryMap: {
+                                q: searchText.trim(),
+                                limit: 12,
+                                offset: 0
+                            }
+                        })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setFunctionInfo(convertToHelperPaneFunction(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
+                    break;
+                }
+                case 'libraries': {
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getFunctions({
+                            position: targetLineRange,
+                            filePath: fileName,
+                            queryMap: {
+                                q: searchText.trim(),
+                                limit: 12,
+                                offset: 0,
+                                includeAvailableFunctions: "true"
+                            }
+                    })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setLibraryBrowserInfo(convertToHelperPaneFunction(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
+                    break;
+                }
+            }
+        },
+        [rpcClient, targetLineRange, fileName]
+    );
+
+    const handleGetHelperPaneData = useCallback(debounce(getHelperPaneData, 1100), [getHelperPaneData]);
+
     const handleCompletionItemSelect = async () => {
         debouncedRetrieveCompletions.cancel();
         debouncedGetVisibleTypes.cancel();
@@ -412,12 +488,28 @@ export function FormGenerator(props: FormProps) {
             extractArgsFromFunction: extractArgsFromFunction,
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
+            isLoadingHelperPaneInfo: isLoadingHelperPaneInfo,
+            variableInfo: variableInfo,
+            functionInfo: functionInfo,
+            libraryBrowserInfo: libraryBrowserInfo,
+            getHelperPaneData: handleGetHelperPaneData,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
             onCancel: handleExpressionEditorCancel
-        } as FormExpressionEditor
-    }, [filteredCompletions, filteredTypes, handleRetrieveCompletions]);
+        } as FormExpressionEditorProps;
+    }, [
+        filteredCompletions,
+        filteredTypes,
+        isLoadingHelperPaneInfo,
+        variableInfo,
+        functionInfo,
+        libraryBrowserInfo,
+        handleRetrieveCompletions,
+        handleGetVisibleTypes,
+        handleGetHelperPaneData,
+        handleExpressionFormDiagnostics
+    ]);
 
     // handle if node form
     if (node.codedata.node === "IF") {

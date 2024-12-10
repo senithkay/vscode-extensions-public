@@ -548,6 +548,7 @@ export type SearchQueryParams = {
     q?: string;
     limit?: number;
     offset?: number;
+    includeAvailableFunctions?: string;
 }
 
 export type BIGetFunctionsRequest = {

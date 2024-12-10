@@ -20,7 +20,7 @@ import {
     UseFormClearErrors,
     FieldErrors
 } from 'react-hook-form';
-import { FormExpressionEditor } from '../components/Form/types';
+import { FormExpressionEditorProps } from '../components/Form/types';
 
 export interface FormContext {
     form: {
@@ -33,7 +33,7 @@ export interface FormContext {
         clearErrors: UseFormClearErrors<FieldValues>;
         formState: { isValidating: boolean; errors: FieldErrors<FieldValues> };
     };
-    expressionEditor?: FormExpressionEditor;
+    expressionEditor?: FormExpressionEditorProps;
     targetLineRange: LineRange;
     fileName: string;
 }
