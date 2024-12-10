@@ -474,7 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
-                    if (getValues(name)) {
+                    if (getValues(name) !== undefined) {
                         setValue(name, undefined)
                     }
                     return;
@@ -502,9 +502,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     </>
                 );
             } else {
-                const name = getNameForController(element.value.name);
                 if (element.value.hidden) {
-                    setValue(name, getDefaultValue(element));
                     return;
                 }
 
