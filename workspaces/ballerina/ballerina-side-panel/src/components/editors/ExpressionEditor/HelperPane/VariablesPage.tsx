@@ -12,6 +12,7 @@ import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-t
 import { HelperPaneVariableInfo } from '../../../Form/types';
 
 type VariablesPageProps = {
+    isLoading: boolean;
     variableInfo: HelperPaneVariableInfo;
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
@@ -20,6 +21,7 @@ type VariablesPageProps = {
 };
 
 export const VariablesPage = ({
+    isLoading,
     variableInfo,
     setCurrentPage,
     setFilterText,
@@ -50,7 +52,7 @@ export const VariablesPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body>
+            <HelperPane.Body isLoading={isLoading}>
                 {variableInfo?.category.map((category) => (
                     <HelperPane.Section title={category.label}>
                         {category.items.map((item) => (

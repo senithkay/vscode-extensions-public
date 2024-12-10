@@ -81,6 +81,7 @@ export function FormGenerator(props: FormProps) {
     const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
     const [types, setTypes] = useState<CompletionItem[]>([]);
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
+    const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
     const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
@@ -400,55 +401,70 @@ export function FormGenerator(props: FormProps) {
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const getHelperPaneData = useCallback(
-        async (type: string, searchText: string) => {
-            let result: HelperPaneData;
+        (type: string, searchText: string) => {
+            setIsLoadingHelperPaneInfo(true);
             switch (type) {
                 case 'variables': {
-                    const variablesResponse = await rpcClient.getBIDiagramRpcClient().getVisibleVariableTypes({
-                        filePath: fileName,
-                        position: {
-                            line: targetLineRange.startLine.line,
-                            offset: targetLineRange.startLine.offset
-                        }
-                    });
-                    if (variablesResponse?.categories?.length) {
-                        setVariableInfo(convertToHelperPaneVariable(variablesResponse.categories));
-                    }
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getVisibleVariableTypes({
+                            filePath: fileName,
+                            position: {
+                                line: targetLineRange.startLine.line,
+                                offset: targetLineRange.startLine.offset
+                            }
+                        })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setVariableInfo(convertToHelperPaneVariable(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
                     break;
                 }
                 case 'functions': {
-                    const functionsResponse = await rpcClient.getBIDiagramRpcClient().getFunctions({
-                        position: targetLineRange,
-                        filePath: fileName,
-                        queryMap: searchText.trim()
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getFunctions({
+                            position: targetLineRange,
+                            filePath: fileName,
+                            queryMap: searchText.trim()
                             ? {
                                   q: searchText,
                                   limit: 12,
                                   offset: 0
                               }
                             : undefined
-                    });
-                    if (functionsResponse?.categories?.length) {
-                        setFunctionInfo(convertToHelperPaneFunction(functionsResponse.categories));
-                    }
+                        })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setFunctionInfo(convertToHelperPaneFunction(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
                     break;
                 }
                 case 'library': {
-                    const functionsResponse = await rpcClient.getBIDiagramRpcClient().getFunctions({
-                        /* TODO: Add the flag */
-                        position: targetLineRange,
-                        filePath: fileName,
-                        queryMap: searchText.trim()
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getFunctions({
+                            position: targetLineRange,
+                            filePath: fileName,
+                            queryMap: searchText.trim()
                             ? {
                                   q: searchText,
                                   limit: 12,
-                                  offset: 0
+                                  offset: 0,
+                                  includeAvailableFunctions: "true"
                               }
                             : undefined
-                    });
-                    if (functionsResponse?.categories?.length) {
-                        setLibraryBrowserInfo(convertToHelperPaneFunction(functionsResponse.categories));
-                    }
+                    })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setLibraryBrowserInfo(convertToHelperPaneFunction(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
                     break;
                 }
             }
@@ -476,6 +492,7 @@ export function FormGenerator(props: FormProps) {
             extractArgsFromFunction: extractArgsFromFunction,
             types: filteredTypes,
             retrieveVisibleTypes: handleGetVisibleTypes,
+            isLoadingHelperPaneInfo: isLoadingHelperPaneInfo,
             variableInfo: variableInfo,
             functionInfo: functionInfo,
             libraryBrowserInfo: libraryBrowserInfo,
@@ -488,6 +505,7 @@ export function FormGenerator(props: FormProps) {
     }, [
         filteredCompletions,
         filteredTypes,
+        isLoadingHelperPaneInfo,
         variableInfo,
         functionInfo,
         libraryBrowserInfo,

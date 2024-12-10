@@ -12,6 +12,7 @@ import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterp
 import { HelperPaneFunctionInfo } from '../../../Form/types';
 
 type FunctionsPageProps = {
+    isLoading: boolean;
     functionInfo: HelperPaneFunctionInfo;
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
@@ -20,6 +21,7 @@ type FunctionsPageProps = {
 };
 
 export const FunctionsPage = ({
+    isLoading,
     functionInfo,
     setCurrentPage,
     setFilterText,
@@ -50,7 +52,7 @@ export const FunctionsPage = ({
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body>
+            <HelperPane.Body isLoading={isLoading}>
                 {functionInfo?.category.map((category) => (
                     <HelperPane.Section
                         title={category.label}

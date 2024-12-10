@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { HelperPaneFunctionInfo } from '../../../Form/types';
 
 type LibraryBrowserProps = {
+    isLoading: boolean;
     libraryBrowserInfo: HelperPaneFunctionInfo;
     setFilterText: (filterText: string) => void;
     onBack: () => void;
@@ -20,6 +21,7 @@ type LibraryBrowserProps = {
 };
 
 export const LibraryBrowser = ({
+    isLoading,
     libraryBrowserInfo,
     setFilterText,
     onBack,
@@ -42,7 +44,12 @@ export const LibraryBrowser = ({
     };
 
     return (
-        <HelperPane.LibraryBrowser searchValue={searchValue} onSearch={handleSearch} onClose={onBack}>
+        <HelperPane.LibraryBrowser
+            isLoading={isLoading}
+            searchValue={searchValue}
+            onSearch={handleSearch}
+            onClose={onBack}
+        >
             {libraryBrowserInfo?.category.map((category) => (
                 <HelperPane.LibraryBrowserSection
                     title={category.label}

@@ -8,15 +8,16 @@
  */
 
 import React, { useState } from 'react';
-import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 
 type ConfigurablePageProps = {
+    isLoading: boolean;
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
 };
 
-export const ConfigurablePage = ({ setCurrentPage, setFilterText, onClose }: ConfigurablePageProps) => {
+export const ConfigurablePage = ({ isLoading, setCurrentPage, setFilterText, onClose }: ConfigurablePageProps) => {
     const [searchValue, setSearchValue] = useState<string>('');
 
     const handleSearch = (searchText: string) => {
@@ -33,7 +34,7 @@ export const ConfigurablePage = ({ setCurrentPage, setFilterText, onClose }: Con
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
-            <HelperPane.Body>
+            <HelperPane.Body isLoading={isLoading}>
                 <HelperPane.CompletionItem
                     label="key1"
                     type="string"

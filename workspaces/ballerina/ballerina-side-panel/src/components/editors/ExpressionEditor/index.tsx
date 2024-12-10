@@ -145,6 +145,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         control,
         field,
         watch,
+        isLoadingHelperPaneInfo,
         variableInfo,
         functionInfo,
         libraryBrowserInfo,
@@ -244,6 +245,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const handleGetHelperPane = (onChange: (value: string) => void) => {
         return getHelperPane(
+            isLoadingHelperPaneInfo,
             variableInfo,
             functionInfo,
             libraryBrowserInfo,

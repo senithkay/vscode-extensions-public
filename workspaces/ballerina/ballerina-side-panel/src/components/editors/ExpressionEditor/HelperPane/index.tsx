@@ -19,6 +19,7 @@ import { HelperPaneVariableInfo } from '../../../Form/types';
 import { HelperPaneData } from '../../../Form/types';
 
 export type HelperPaneProps = {
+    isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
@@ -28,6 +29,7 @@ export type HelperPaneProps = {
 };
 
 const HelperPaneEl = ({
+    isLoadingHelperPaneInfo,
     variableInfo,
     functionInfo,
     libraryBrowserInfo,
@@ -42,6 +44,7 @@ const HelperPaneEl = ({
             {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
             {currentPage === 1 && (
                 <VariablesPage
+                    isLoading={isLoadingHelperPaneInfo}
                     variableInfo={variableInfo as HelperPaneVariableInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('variables', filterText)}
@@ -51,6 +54,7 @@ const HelperPaneEl = ({
             )}
             {currentPage === 2 && (
                 <FunctionsPage
+                    isLoading={isLoadingHelperPaneInfo}
                     functionInfo={functionInfo as HelperPaneFunctionInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('functions', filterText)}
@@ -67,6 +71,7 @@ const HelperPaneEl = ({
             )} */}
             {currentPage === 4 && (
                 <LibraryBrowser
+                    isLoading={isLoadingHelperPaneInfo}
                     libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
                     setFilterText={(filterText) => setFilterText('library', filterText)}
                     onBack={() => setCurrentPage(2)}
@@ -79,6 +84,7 @@ const HelperPaneEl = ({
 };
 
 export const getHelperPane = (
+    isLoadingHelperPaneInfo: boolean,
     variableInfo: HelperPaneData,
     functionInfo: HelperPaneData,
     libraryBrowserInfo: HelperPaneData,
@@ -88,6 +94,7 @@ export const getHelperPane = (
 ) => {
     return (
         <HelperPaneEl
+            isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
             variableInfo={variableInfo}
             libraryBrowserInfo={libraryBrowserInfo}
             functionInfo={functionInfo}
