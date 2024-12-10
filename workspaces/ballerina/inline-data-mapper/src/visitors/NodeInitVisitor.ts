@@ -40,7 +40,7 @@ export class NodeInitVisitor implements BaseVisitor {
         this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
     }
 
-    beginVisitMapping(node: Mapping, parent?: IDMModel): void {
+    beginVisitMapping(node: Mapping, parentMapping: Mapping, parentModel?: IDMModel): void {
         // Create link connector node
         if (node.inputs.length > 1 || node.isComplex || node.isFunctionCall) {
             // Create intermediate node

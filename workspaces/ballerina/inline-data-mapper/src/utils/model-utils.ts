@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { IDMModel, IOType } from "@wso2-enterprise/ballerina-core";
+import { IDMModel, IOType, Mapping } from "@wso2-enterprise/ballerina-core";
 import { BaseVisitor } from "../visitors/BaseVisitor";
 
 export function traverseNode(model: IDMModel, visitor: BaseVisitor) {
@@ -24,10 +24,7 @@ export function traverseNode(model: IDMModel, visitor: BaseVisitor) {
     traverseIOType(model.output, model, visitor);
 
     // Visit mappings
-    for (const mapping of model.mappings) {
-        visitor.beginVisitMapping?.(mapping, model);
-        visitor.endVisitMapping?.(mapping, model);
-    }
+    traverseMappings(model.mappings, undefined, model, visitor);
 
     visitor.endVisit?.(model);
 }
@@ -39,5 +36,21 @@ function traverseIOType(ioType: IOType, parent: IDMModel, visitor: BaseVisitor) 
     } else {
         visitor.beginVisitOutputType?.(ioType, parent);
         visitor.endVisitOutputType?.(ioType, parent);
+    }
+}
+
+function traverseMappings(mappings: Mapping[], parentMapping: Mapping, parentModel: IDMModel, visitor: BaseVisitor) {
+    for (const mapping of mappings) {
+        visitor.beginVisitMapping?.(mapping, parentMapping, parentModel);
+
+        if (mapping?.elements.length > 0) {
+            const mappingElelements = mapping.elements;
+
+            for (const element of mappingElelements) {
+                traverseMappings(element.mappings, mapping, parentModel, visitor);
+            }
+        }
+
+        visitor.endVisitMapping?.(mapping, parentMapping, parentModel);
     }
 }

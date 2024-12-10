@@ -19,6 +19,6 @@ export interface BaseVisitor {
     beginVisitOutputType?(node: IOType, parent?: IDMModel): void;
     endVisitOutputType?(node: IOType, parent?: IDMModel): void;
 
-    beginVisitMapping?(node: Mapping, parent?: IDMModel): void;
-    endVisitMapping?(node: Mapping, parent?: IDMModel): void;
+    beginVisitMapping?(node: Mapping, parentMapping: Mapping, parentModel?: IDMModel): void;
+    endVisitMapping?(node: Mapping, parentMapping: Mapping, parentModel?: IDMModel): void;
 }
