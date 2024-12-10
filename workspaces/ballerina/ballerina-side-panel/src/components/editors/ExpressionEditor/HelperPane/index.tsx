@@ -8,7 +8,7 @@
  */
 
 import React, { useState } from 'react';
-import { HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
@@ -19,25 +19,44 @@ import { HelperPaneVariableInfo } from '../../../Form/types';
 import { HelperPaneData } from '../../../Form/types';
 
 export type HelperPaneProps = {
+    exprRef: React.RefObject<FormExpressionEditorRef>;
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     onClose: () => void;
     setFilterText: (type: string, filterText: string) => void;
-    onChange: (value: string) => void;
+    currentValue: string;
+    onChange: (value: string, updatedCursorPosition: number) => void;
 };
 
 const HelperPaneEl = ({
+    exprRef,
     isLoadingHelperPaneInfo,
     variableInfo,
     functionInfo,
     libraryBrowserInfo,
     onClose,
     setFilterText,
+    currentValue,
     onChange
 }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
+
+    const handleChange = (value: string) => {
+        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
+        const updatedValue = currentValue.slice(0, cursorPosition) + value + currentValue.slice(cursorPosition);
+        const updatedCursorPosition = cursorPosition + value.length;
+
+        // Update the value in the expression editor
+        onChange(updatedValue, updatedCursorPosition);
+        // Focus the expression editor
+        exprRef.current?.focus();
+        // Set the cursor
+        exprRef.current?.setCursor(updatedValue, updatedCursorPosition);
+        // Close the helper pane
+        onClose();
+    };
 
     return (
         <HelperPane>
@@ -49,7 +68,7 @@ const HelperPaneEl = ({
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('variables', filterText)}
                     onClose={onClose}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             )}
             {currentPage === 2 && (
@@ -59,7 +78,7 @@ const HelperPaneEl = ({
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('functions', filterText)}
                     onClose={onClose}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             )}
             {/* {currentPage === 3 && (
@@ -76,7 +95,7 @@ const HelperPaneEl = ({
                     setFilterText={(filterText) => setFilterText('libraries', filterText)}
                     onBack={() => setCurrentPage(2)}
                     onClose={onClose}
-                    onChange={onChange}
+                    onChange={handleChange}
                 />
             )}
         </HelperPane>
@@ -84,22 +103,26 @@ const HelperPaneEl = ({
 };
 
 export const getHelperPane = (
+    exprRef: React.RefObject<FormExpressionEditorRef>,
     isLoadingHelperPaneInfo: boolean,
     variableInfo: HelperPaneData,
     functionInfo: HelperPaneData,
     libraryBrowserInfo: HelperPaneData,
     onClose: () => void,
     setFilterText: (type: string, filterText: string) => void,
-    onChange: (value: string) => void
+    currentValue: string,
+    onChange: (value: string, updatedCursorPosition: number) => void
 ) => {
     return (
         <HelperPaneEl
+            exprRef={exprRef}
             isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
             variableInfo={variableInfo}
             libraryBrowserInfo={libraryBrowserInfo}
             functionInfo={functionInfo}
             onClose={onClose}
             setFilterText={setFilterText}
+            currentValue={currentValue}
             onChange={onChange}
         />
     );

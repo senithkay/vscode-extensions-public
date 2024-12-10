@@ -187,14 +187,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const cursorPositionRef = useRef<number | undefined>(undefined);
 
-    const handleFocus = async (value?: string) => {
-        // Retrieve the cursor position from the expression editor
-        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
-
+    const handleFocus = async () => {
         setFocused(true);
         // Trigger actions on focus
         await onFocus?.();
-        await retrieveCompletions(value, field.key, cursorPosition, undefined, true);
         handleOnFieldFocus?.(field.key);
     };
 
@@ -243,14 +239,24 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         )
     };
 
-    const handleGetHelperPane = (onChange: (value: string) => void) => {
+    const handleChangeHelperPaneState = (isOpen: boolean) => {
+        if (isOpen) {
+            exprRef.current?.focus();
+        }
+
+        setIsHelperPaneOpen(isOpen);
+    }
+
+    const handleGetHelperPane = (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => {
         return getHelperPane(
+            exprRef,
             isLoadingHelperPaneInfo,
             variableInfo,
             functionInfo,
             libraryBrowserInfo,
             () => setIsHelperPaneOpen(false),
             getHelperPaneData,
+            value,
             onChange
         );
     }
@@ -286,40 +292,39 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             autoFocus={autoFocus}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+                                cursorPositionRef.current = updatedCursorPosition;
 
                                 // Open the helper pane based on the value
-                                if (value === "") {
-                                    setIsHelperPaneOpen(true);
-                                } else {
-                                    setIsHelperPaneOpen(false);
-                                }
+                                const isHelperPaneOpen = value === "" ? true : false;
+                                setIsHelperPaneOpen(isHelperPaneOpen);
 
                                 if (getExpressionEditorDiagnostics) {
                                     getExpressionEditorDiagnostics(!field.optional || value !== '', value, field.key);
                                 }
 
-                                // Check if the current character is a trigger character
-                                cursorPositionRef.current = updatedCursorPosition;
-                                const triggerCharacter =
-                                    updatedCursorPosition > 0
-                                        ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
-                                        : undefined;
-                                if (triggerCharacter) {
-                                    await retrieveCompletions(value, field.key, updatedCursorPosition, triggerCharacter);
-                                } else {
-                                    await retrieveCompletions(value, field.key, updatedCursorPosition);
+                                if (!isHelperPaneOpen) {
+                                    // Check if the current character is a trigger character
+                                    const triggerCharacter =
+                                        updatedCursorPosition > 0
+                                            ? triggerCharacters.find((char) => value[updatedCursorPosition - 1] === char)
+                                            : undefined;
+                                    if (triggerCharacter) {
+                                        await retrieveCompletions(value, field.key, updatedCursorPosition, triggerCharacter);
+                                    } else {
+                                        await retrieveCompletions(value, field.key, updatedCursorPosition);
+                                    }
                                 }
                             }}
                             extractArgsFromFunction={handleExtractArgsFromFunction}
                             onCompletionSelect={handleCompletionSelect}
-                            onFocus={() => handleFocus(value)}
+                            onFocus={handleFocus}
                             onBlur={handleBlur}
                             onSave={onSave}
                             onCancel={onCancel}
                             onRemove={onRemove}
                             inputProps={endAdornment}
                             isHelperPaneOpen={isHelperPaneOpen}
-                            changeHelperPaneState={setIsHelperPaneOpen}
+                            changeHelperPaneState={handleChangeHelperPaneState}
                             getHelperPane={handleGetHelperPane}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
