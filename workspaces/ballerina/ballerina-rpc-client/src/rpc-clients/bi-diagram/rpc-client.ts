@@ -38,6 +38,8 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
@@ -63,6 +65,8 @@ import {
     deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
+    formDidClose,
+    formDidOpen,
     getAiSuggestions,
     getAllImports,
     getAvailableNodes,
@@ -239,5 +243,13 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getAllImports(): Promise<ProjectImports> {
         return this._messenger.sendRequest(getAllImports, HOST_EXTENSION);
+    }
+
+    formDidOpen(params: FormDidOpenParams): Promise<void> {
+        return this._messenger.sendRequest(formDidOpen, HOST_EXTENSION, params);
+    }
+
+    formDidClose(params: FormDidCloseParams): Promise<void> {
+        return this._messenger.sendRequest(formDidClose, HOST_EXTENSION, params);
     }
 }
