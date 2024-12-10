@@ -294,20 +294,26 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleAddArrayElement = async (typeKind: TypeKind) => {
         setIsAddingElement(true)
         try {
-            const { mappings } = context.model;
-            let updatedMappings = mappings.slice();
+            let updatedMapping = {...mapping}
+            const hasElements = updatedMapping.elements.length > 0;
             const defaultValue = getDefaultValue(typeKind);
 
             if (hasElements) {
-                // TODO: handle array element addition for alredy initialized array
+                // Replace closing bracket with new element
+                updatedMapping.expression = updatedMapping.expression.replace(/]$/, `,${defaultValue}]`);
             } else {
-                const newMapping: Mapping = {
-                    output: fieldFQN,
-                    inputs: [],
-                    expression: defaultValue
-                };
-                updatedMappings.push(newMapping);          
+                updatedMapping.expression = `[${defaultValue}]`;
             }
+
+            updatedMapping.elements.push({ mappings: [] });
+
+            const allMappings = context.model.mappings.slice();
+            const updatedMappings = allMappings.map((mapping) => {
+                if (mapping.output === updatedMapping.output) {
+                    return updatedMapping;
+                }
+                return mapping;
+            });
 
             return await context.applyModifications(updatedMappings);
         } finally {
