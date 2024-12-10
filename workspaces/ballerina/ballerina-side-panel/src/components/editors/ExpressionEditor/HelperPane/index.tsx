@@ -73,7 +73,7 @@ const HelperPaneEl = ({
                 <LibraryBrowser
                     isLoading={isLoadingHelperPaneInfo}
                     libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
-                    setFilterText={(filterText) => setFilterText('library', filterText)}
+                    setFilterText={(filterText) => setFilterText('libraries', filterText)}
                     onBack={() => setCurrentPage(2)}
                     onClose={onClose}
                     onChange={onChange}

@@ -428,13 +428,11 @@ export function FormGenerator(props: FormProps) {
                         .getFunctions({
                             position: targetLineRange,
                             filePath: fileName,
-                            queryMap: searchText.trim()
-                            ? {
-                                  q: searchText,
-                                  limit: 12,
-                                  offset: 0
-                              }
-                            : undefined
+                            queryMap: {
+                                q: searchText.trim(),
+                                limit: 12,
+                                offset: 0
+                            }
                         })
                         .then((response) => {
                             if (response.categories?.length) {
@@ -444,20 +442,18 @@ export function FormGenerator(props: FormProps) {
                         .then(() => setIsLoadingHelperPaneInfo(false));
                     break;
                 }
-                case 'library': {
+                case 'libraries': {
                     rpcClient
                         .getBIDiagramRpcClient()
                         .getFunctions({
                             position: targetLineRange,
                             filePath: fileName,
-                            queryMap: searchText.trim()
-                            ? {
-                                  q: searchText,
-                                  limit: 12,
-                                  offset: 0,
-                                  includeAvailableFunctions: "true"
-                              }
-                            : undefined
+                            queryMap: {
+                                q: searchText.trim(),
+                                limit: 12,
+                                offset: 0,
+                                includeAvailableFunctions: "true"
+                            }
                     })
                         .then((response) => {
                             if (response.categories?.length) {
