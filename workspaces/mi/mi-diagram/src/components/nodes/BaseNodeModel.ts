@@ -138,6 +138,7 @@ export class BaseNodeModel extends NodeModel {
                 end: this.stNode?.range?.endTagRange?.end ?? this.stNode.range.startTagRange.end
             },
             text: "",
+            disableFormatting: true
         });
     };
 

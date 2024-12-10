@@ -24,6 +24,13 @@ export interface ApplyEditRequest {
     disableUndoRedo?: boolean;
 }
 
+export interface ApplyEditsRequest {
+    documentUri: string;
+    edits: TextEdit[];
+    disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
+}
+
 export interface ApplyEditResponse {
     status: boolean;
 }

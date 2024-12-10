@@ -228,6 +228,7 @@ import {
     GetConnectionSchemaResponse,
     CopyConnectorZipRequest,
     CopyConnectorZipResponse,
+    ApplyEditsRequest,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -269,6 +270,8 @@ import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
 import { getDefaultProjectPath } from "../../util/onboardingUtils";
+import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -2389,26 +2392,39 @@ ${endpointAttributes}
         });
     }
 
-    async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
+    async applyEdit(params: ApplyEditRequest | ApplyEditsRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
             const uri = params.documentUri;
-            let text = params.text;
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri);
+            const file = Uri.file(uri);
 
-            if (!document) {
-                document = await workspace.openTextDocument(Uri.file(uri));
+            const getRange = (range: STRange | Range) =>
+                new Range(new Position(range.start.line, range.start.character),
+                    new Position(range.end.line, range.end.character));
+
+            if ('text' in params) {
+                edit.replace(file, getRange(params.range), params.text);
+            } else if ('edits' in params) {
+                params.edits.forEach(editRequest => {
+                    edit.replace(file, getRange(editRequest.range), editRequest.newText);
+                });
             }
 
-            const range = new Range(new Position(params.range.start.line, params.range.start.character),
-                new Position(params.range.end.line, params.range.end.character));
-
-            edit.replace(Uri.file(uri), range, text);
             await workspace.applyEdit(edit);
 
+            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) ||
+                await workspace.openTextDocument(file);
+
             if (!params.disableFormatting) {
-                const formatRange = this.getFormatRange(range, text);
-                await this.rangeFormat({ uri: uri, range: formatRange });
+                const formatEdits = (editRequest: TextEdit) => {
+                    const formatRange = this.getFormatRange(getRange(editRequest.range), editRequest.newText);
+                    return this.rangeFormat({ uri, range: formatRange });
+                };
+                if ('text' in params) {
+                    await formatEdits({ range: getRange(params.range), newText: params.text });
+                } else if ('edits' in params) {
+                    await Promise.all(params.edits.map(editRequest => formatEdits({ range: getRange(editRequest.range), newText: editRequest.newText })));
+                }
             }
             if (!params.disableUndoRedo) {
                 const content = document.getText();
@@ -3277,7 +3293,7 @@ ${endpointAttributes}
 
             const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
             await fs.promises.copyFile(connectorPath, destinationPath);
-            
+
 
             return new Promise((resolve, reject) => {
                 resolve({ success: true });
@@ -4955,14 +4971,11 @@ ${keyValuesXML}`;
             if (response && response.textEdits) {
                 let edits = response.textEdits;
 
-                for (const edit of edits) {
-                    await this.applyEdit({
-                        documentUri: param.documentUri,
-                        range: edit.range,
-                        text: edit.newText,
-                        disableUndoRedo: true
-                    });
-                }
+                await this.applyEdit({
+                    documentUri: param.documentUri,
+                    edits
+                });
+
                 let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
                 if (!document) {
                     return;
