@@ -1809,6 +1809,7 @@ export interface GetMediatorRequest {
 export interface GetMediatorResponse {
     form?: any;
     title: string;
+    onSubmit?: string;
 }
 
 export interface UpdateMediatorRequest {

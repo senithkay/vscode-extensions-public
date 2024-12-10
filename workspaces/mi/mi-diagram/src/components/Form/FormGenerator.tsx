@@ -364,11 +364,20 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         const tableKeys: string[] = [];
         elements.forEach((attribute: any) => {
-            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
+            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip, placeholder } = attribute.value;
             let defaultValue: any = attribute.value.defaultValue;
 
             tableKeys.push(name);
             const isRequired = required == true || required == 'true';
+
+            const helpTipElement = helpTip ? (
+                <Tooltip
+                    content={helpTip}
+                    position='right'
+                >
+                    <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
+                </Tooltip>
+            ) : null;
 
             let type;
             if (attribute.type === 'table') {
@@ -394,8 +403,9 @@ export function FormGenerator(props: FormGeneratorProps) {
             {
                 type: type as any,
                 label: displayName,
+                labelAdornment: helpTipElement,
+                placeholder: placeholder,
                 defaultValue: defaultValue,
-                ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues },
@@ -464,7 +474,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
-                    if (getValues(name)) {
+                    if (getValues(name) !== undefined) {
                         setValue(name, undefined)
                     }
                     return;
@@ -492,9 +502,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     </>
                 );
             } else {
-                const name = getNameForController(element.value.name);
                 if (element.value.hidden) {
-                    setValue(name, element.value.defaultValue ?? "");
                     return;
                 }
 
