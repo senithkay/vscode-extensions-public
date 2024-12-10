@@ -103,11 +103,13 @@ type FormTypeConditionalProps = {
 }
 
 type FormHelperPaneConditionalProps = { 
+    isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
-    getHelperPaneData?: (type: string, filterText: string) => Promise<void>;
+    getHelperPaneData?: (type: string, filterText: string) => void;
 } | {
+    isLoadingHelperPaneInfo?: never;
     variableInfo?: never;
     functionInfo?: never;
     libraryBrowserInfo?: never;
