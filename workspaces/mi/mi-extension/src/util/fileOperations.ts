@@ -27,6 +27,11 @@ interface ProgressMessage {
     increment?: number;
 }
 
+export function getFileName(filePath: string): string {
+    const fileNameWithExt = filePath.split('/').pop();
+    return fileNameWithExt?.split('.')[0] || '';
+}
+
 async function selectFileDownloadPath(): Promise<string> {
     const folderPath = await window.showOpenDialog({ title: 'Sample download directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' });
     if (folderPath && folderPath.length > 0) {
@@ -95,6 +100,18 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
         window.showErrorMessage(`Failed to download file: ${error}`);
     }
     progress.report({ message: "Download finished" });
+}
+
+export function appendContent(path: string, content: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.writeFileSync(path, content, { flag: 'a' }); 
+            resolve(true);
+        } catch (error) {
+            console.error('Error appending content:', error);
+            resolve(false);
+        }
+    });
 }
 
 export async function handleOpenFile(sampleName: string, repoUrl: string) {
@@ -189,7 +206,7 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
         }
@@ -255,7 +272,7 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             resolve(false);
         }
@@ -406,6 +423,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = 'application/yaml';
             fileExtension = 'yaml';
             break;
+        case "TEXT File":
+            mediaType = 'text/plain';
+            fileExtension = 'txt';
+            break;
+        case "XML File":
+            mediaType = 'application/xml';
+            fileExtension = 'xml';
+            break;
         case "Local Entry":
             mediaType = 'application/vnd.wso2.esb.localentry';
             break;
@@ -495,15 +520,8 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             if (platform === 'win32') {
                 tempPath = tempPath.replace(/\\/g, '/');
             }
-            tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
-            var regPath = "";
-            if (tempPath.startsWith('gov')) {
-                regPath = '/_system/governance/';
-                regPath = regPath + tempPath.replace('gov/', '');
-            } else {
-                regPath = '/_system/config/';
-                regPath = regPath + tempPath.replace('conf/', '');
-            }
+            tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
+            var regPath = "/_system/governance/mi-resources/" + tempPath;
             if (fs.lstatSync(filePath).isDirectory()) {
                 removeEntryFromArtifactXML(workspaceFolder, regPath, "");
                 await rm(filePath, { recursive: true, force: true });
@@ -513,7 +531,7 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
                 removeEntryFromArtifactXML(workspaceFolder, regPath, fileName);
                 fs.unlinkSync(filePath);
             }
-            resolve({ status: true, info: "Registry resource removed" });
+            resolve({ status: true, info: "Resource removed" });
         } else {
             resolve({ status: false, info: "Workspace not found" });
         }
@@ -589,7 +607,7 @@ export function getAvailableRegistryResources(projectDir: string): ListRegistryA
         const fileUri = Uri.file(projectDir);
         const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
         if (workspaceFolder) {
-            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
             artifactXMLPath = path.join(projectDir, 'artifact.xml');
         }
     }

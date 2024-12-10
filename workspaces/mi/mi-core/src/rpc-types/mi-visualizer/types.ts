@@ -265,6 +265,12 @@ export interface SampleDownloadRequest {
     zipFileName: string;
 }
 
+export interface AddConfigurableRequest {
+    projectUri: string;
+    configurableName: string;
+    configurableType: string;
+}
+
 export interface OpenViewRequest {
     type: EVENT_TYPE | POPUP_EVENT_TYPE;
     location: VisualizerLocation | AIVisualizerLocation | PopupVisualizerLocation;

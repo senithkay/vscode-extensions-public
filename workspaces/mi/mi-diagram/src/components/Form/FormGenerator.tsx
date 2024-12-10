@@ -66,6 +66,7 @@ interface Element {
     elements?: any[];
     tableKey?: string;
     tableValue?: string;
+    configurableType?: string;
     addParamText?: string;
 }
 
@@ -118,7 +119,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
+        } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
         } else if (inputType === 'checkbox') {
@@ -222,6 +223,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             placeholder = conditionalPlaceholder?.[conditionFieldValue];
         }
 
+        let keyType = element.keyType;
+        if (keyType?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(keyType.conditionField));
+            const conditionalKeyType = keyType.values.find((value: any) => value[conditionFieldValue]);
+            keyType = conditionalKeyType?.[conditionFieldValue];
+        }
+
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -290,18 +298,19 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'keyOrExpression':
             case 'comboOrKey':
             case 'registry':
-            case 'resource': {
+            case 'resource': 
+            case 'resourceOrExpression': {
                 let onCreateButtonClick;
-                if (!Array.isArray(element.keyType)) {
+                if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        const keyType = element.inputType === 'registry' || element.inputType === 'resource' ? "addResource" : element.keyType;
-                        openPopup(rpcClient, keyType, fetchItems, handleValueChange, undefined, { type: element.keyType });
+                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
+                        openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(element.keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
                     allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
@@ -309,8 +318,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                     required={isRequired}
                     errorMsg={errorMsg}
                     additionalItems={element.comboValues}
-                    {...element.inputType === 'keyOrExpression' && { canChangeEx: true }}
-                    {...element.inputType === 'keyOrExpression' && { exprToggleEnabled: true }}
+                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
+                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     onCreateButtonClick={onCreateButtonClick}
                 />)
@@ -330,6 +339,34 @@ export function FormGenerator(props: FormGeneratorProps) {
                     growRange={{ start: 5, offset: 10 }}
                     errorMsg={errorMsg}
                 />);
+            case 'configurable': {
+                const onCreateButtonClick = async (fetchItems: any, handleValueChange: any) => {
+                    await rpcClient.getMiVisualizerRpcClient().addConfigurable({
+                        projectUri: '',
+                        configurableName: field.value.value,
+                        configurableType: element.configurableType
+                    });
+                    handleValueChange(field.value.value);
+                }
+                return (
+                    <div>
+                        <Keylookup 
+                            name={getNameForController(element.name)}
+                            label={element.displayName}
+                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            filter={(configurableType) => configurableType === element.configurableType}
+                            filterType='configurable'
+                            value={field.value.value ? field.value.value : ""}
+                            onValueChange={(e: any) => {
+                                field.onChange({ isConfigurable: true, value: e });
+                            }}
+                            required={false}
+                            allowItemCreate={true}
+                            onCreateButtonClick={onCreateButtonClick}
+                        />
+                    </div>
+                );
+            }
             case 'connection':
                 return (
                     <>

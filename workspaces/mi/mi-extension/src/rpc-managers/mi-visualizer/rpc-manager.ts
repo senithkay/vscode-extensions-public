@@ -35,6 +35,7 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -56,9 +57,10 @@ import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
+import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import path from "path";
@@ -223,6 +225,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [projectUri, '.env'].join(path.sep);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
+        await appendContent(envFilePath, `${params.configurableName}\n`);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {
