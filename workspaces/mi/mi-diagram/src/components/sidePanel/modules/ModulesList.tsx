@@ -138,7 +138,7 @@ export function Modules(props: ModuleProps) {
                                     <hr style={{ border: '1px solid #ccc', margin: '5px 0', width: '350px' }} />
                                     {values.version.operations.map((operation: ConnectorOperation) => (
                                         !operation.isHidden && (
-                                            <Tooltip content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
+                                            <Tooltip key={key} content={operation.description} position='bottom' sx={{ zIndex: 2010 }}>
                                                 {FirstCharToUpperCase(operation.name)}
                                             </Tooltip>
                                         )

@@ -31,7 +31,6 @@ export function DownloadPage(props: DownloadPageProps) {
     const { module, onDownloadSuccess } = props;
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
-    const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [isDownloading, setIsDownloading] = React.useState(false);
 
     const handleDependencyResponse = async (response: boolean) => {
@@ -62,8 +61,6 @@ export function DownloadPage(props: DownloadPageProps) {
             }
 
             setIsDownloading(false);
-
-            onDownloadSuccess();
             sidepanelGoBack(sidePanelContext);
         } else {
             sidepanelGoBack(sidePanelContext);

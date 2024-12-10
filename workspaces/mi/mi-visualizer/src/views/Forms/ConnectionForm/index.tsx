@@ -416,7 +416,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                             {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
                                 Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
                                     <ComponentCard
-                                        key={connector.name}
+                                        key={connectionType}
                                         onClick={() => selectConnector(connector, connectionType)}
                                         sx={connectorCardStyle}
                                     >
@@ -453,7 +453,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         (c.version === connector.version.tagName)) ? null : (
                                         (connector.version.connections).map((connection: any) => (
                                             <ComponentCard
-                                                key={connector.connectorName}
+                                                key={connection.name}
                                                 onClick={() => selectStoreConnector(connector, connection.name)}
                                                 sx={connectorCardStyle}
                                             >
