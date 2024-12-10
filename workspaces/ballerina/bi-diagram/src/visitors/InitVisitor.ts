@@ -21,7 +21,16 @@ export class InitVisitor implements BaseVisitor {
     }
 
     private getDefaultViewState(): ViewState {
-        return { x: 0, y: 0, w: 0, h: 0, cw: 0, ch: 0 };
+        return { 
+            x: 0, 
+            y: 0, 
+            lw: 0, 
+            rw: 0,
+            h: 0, 
+            clw: 0,
+            crw: 0,
+            ch: 0 
+        };
     }
 
     beginVisitNode(node: FlowNode, parent?: FlowNode): void {
@@ -104,12 +113,6 @@ export class InitVisitor implements BaseVisitor {
                 children: [emptyElseBranch],
             });
         }
-
-        // HACK: replace Then branch label with condition
-        // const thenBranch = node.branches.find((branch) => branch.label === "Then");
-        // if (thenBranch) {
-        //     thenBranch.label = thenBranch.properties.condition.value;
-        // }
     }
 
     beginVisitWhile(node: FlowNode, parent?: FlowNode): void {
@@ -154,44 +157,7 @@ export class InitVisitor implements BaseVisitor {
     }
 
     beginVisitForeach(node: FlowNode, parent?: FlowNode): void {
-        node.viewState = this.getDefaultViewState();
-
-        if (!node.branches || node.branches.length < 1) {
-            console.error("Branch node model not found");
-            return;
-        }
-
-        // consider the first branch as the body branch
-        node.branches.splice(0, node.branches.length - 1);
-        node.branches.at(0).viewState = this.getDefaultViewState();
-
-        const branch = node.branches.at(0);
-
-        // remove empty nodes if the branch is not empty 
-        if (branch.children && branch.children.length > 0) {
-            let emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
-            while (emptyNodeIndex >= 0) {
-                branch.children.splice(emptyNodeIndex, 1);
-                emptyNodeIndex = branch.children.findIndex((child) => child.codedata.node === "EMPTY");
-            }
-        }
-
-        // add empty node if the branch is empty
-        if (!branch.children || branch.children.length === 0) {
-            // empty branch
-            // add empty node as `add new node` button
-            const emptyNode: FlowNode = {
-                id: `${node.id}-${branch.label}-branch`,
-                codedata: {
-                    node: "EMPTY",
-                },
-                returning: false,
-                metadata: { label: "", description: "" },
-                branches: [],
-                viewState: this.getDefaultViewState(),
-            };
-            branch.children.push(emptyNode);
-        }
+        this.beginVisitWhile(node, parent);
     }
 
     skipChildren(): boolean {

@@ -10,6 +10,7 @@
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { LinePosition } from "./common";
 import { Diagnostic as VSCodeDiagnostic } from "vscode-languageserver-types";
+import { TriggerNode } from "./triggers";
 
 export type { NodePosition };
 
@@ -44,6 +45,8 @@ export type FlowNode = {
     returning: boolean;
     suggested?: boolean;
     viewState?: ViewState;
+    hasBreakpoint?: boolean;
+    isActiveBreakpoint?: boolean;
 };
 
 export type Metadata = {
@@ -108,11 +111,13 @@ export type ViewState = {
     // element view state
     x: number;
     y: number;
-    w: number;
-    h: number;
+    lw: number; // left width from center
+    rw: number; // right width from center
+    h: number;  // height
     // container view state
-    cw?: number;
-    ch?: number;
+    clw: number; // container left width from center 
+    crw: number; // container right width from center
+    ch: number;  // container height
     // flow start node
     startNodeId?: string;
 };
@@ -126,6 +131,7 @@ export type TargetMetadata = {
 
 export enum DIRECTORY_MAP {
     SERVICES = "services",
+    LISTENERS = "listeners",
     AUTOMATION = "automation",
     FUNCTIONS = "functions",
     TRIGGERS = "triggers",
@@ -149,6 +155,7 @@ export interface ProjectStructureResponse {
     directoryMap: {
         [DIRECTORY_MAP.SERVICES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.AUTOMATION]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.LISTENERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.FUNCTIONS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.TRIGGERS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONNECTIONS]: ProjectStructureArtifactResponse[];
@@ -166,6 +173,7 @@ export interface ProjectStructureArtifactResponse {
     context?: string;
     position?: NodePosition;
     st?: STNode;
+    triggerNode?: TriggerNode;
     resources?: ProjectStructureArtifactResponse[];
 }
 export type Item = Category | AvailableNode;

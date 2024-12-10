@@ -8,7 +8,7 @@
  */
 
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_GAP_Y, NODE_LINK, NodeTypes, VSCODE_MARGIN } from "../../resources/constants";
+import { Colors, NODE_GAP_Y, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { Branch, FlowNode, LinePosition, NodeModel } from "../../utils/types";
 
 export const LINK_BOTTOM_OFFSET = 30;
@@ -196,9 +196,7 @@ export class NodeLinkModel extends DefaultLinkModel {
         const diffY = Math.abs(source.y - target.y);
         return {
             x: this.alignBottom ? source.x : target.x,
-            y: this.alignBottom
-                ? source.y + Math.min(diffY, NODE_GAP_Y) / 2
-                : target.y - (NODE_GAP_Y + VSCODE_MARGIN) / 2,
+            y: this.alignBottom ? source.y + Math.min(diffY, NODE_GAP_Y) / 2 : target.y - NODE_GAP_Y / 2,
         };
     }
 

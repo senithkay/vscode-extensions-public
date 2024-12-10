@@ -22,6 +22,8 @@ export interface DiagramContextState {
     onDeleteNode: (node: FlowNode) => void;
     onAddComment: (comment: string, target: LineRange) => void;
     onNodeSelect: (node: FlowNode) => void;
+    addBreakpoint: (node: FlowNode) => void;
+    removeBreakpoint: (node: FlowNode) => void;
     onConnectionSelect?: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView: (filePath: string, position: NodePosition) => void;
@@ -47,6 +49,8 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     onNodeSelect: () => {},
     onConnectionSelect: () => {},
     goToSource: () => {},
+    addBreakpoint: () => {},
+    removeBreakpoint: () => {},
     openView: () => {},
     suggestions: {
         fetching: false,

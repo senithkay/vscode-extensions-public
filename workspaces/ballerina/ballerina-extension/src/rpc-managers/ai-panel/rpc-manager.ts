@@ -20,11 +20,13 @@ import {
     Diagnostics,
     ErrorCode,
     GenerateMappingFromRecordResponse,
+    GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
     GenerateTestRequest,
+    GenerateTypesFromRecordRequest,
+    GenerateTypesFromRecordResponse,
     GeneratedTestSource,
-    GenerteMappingsFromRecordRequest,
     GetFromFileRequest,
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
@@ -48,7 +50,7 @@ import { writeFileSync } from "fs";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
-import { generateDataMapping } from "../../features/ai/dataMapping";
+import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
@@ -213,6 +215,25 @@ export class AiPanelRpcManager implements AIPanelAPI {
         updateView();
     }    
 
+    async getFileExists(req: GetFromFileRequest): Promise<boolean> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error("No workspaces found.");
+        }
+    
+        const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
+        const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
+        if (!fs.existsSync(ballerinaProjectFile)) {
+            throw new Error("Not a Ballerina project.");
+        }
+    
+        const balFilePath = path.join(workspaceFolderPath, req.filePath);
+        if (fs.existsSync(balFilePath)) {
+            return true;
+        } 
+        return false;
+    }    
+
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {
             const token = await refreshAccessToken();
@@ -227,7 +248,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: UNAUTHORIZED };
         }
 
-        const { filePath, position } = params;
+        let { filePath, position, file } = params;
 
         const fileUri = Uri.file(filePath).toString();
         hasStopped = false;
@@ -265,7 +286,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
-        const st = await processMappings(fnSt, fileUri);
+        const st = await processMappings(fnSt, fileUri, file);
         if (isErrorCode(st)) {
             if ((st as ErrorCode).code === 6) {
                 return { userAborted: true };
@@ -441,9 +462,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return await getDiagnostics(projectRoot, params);
     }
 
-    async getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
+    async getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         const projectRoot = await getBallerinaProjectRoot();
         return await generateDataMapping(projectRoot, params);
+    }
+
+    async getTypesFromRecord(params: GenerateTypesFromRecordRequest): Promise<GenerateTypesFromRecordResponse> {
+        const projectRoot = await getBallerinaProjectRoot();
+        return await generateTypeCreation(projectRoot, params);
     }
 
     async postProcess(req: PostProcessRequest): Promise<PostProcessResponse> {

@@ -108,7 +108,7 @@ export function genDagreEngine() {
         graph: {
             rankdir: "LR",
             nodesep: 100,
-            ranksep: 300,
+            ranksep: 400,
             marginx: 100,
             marginy: 100,
             ranker: "longest-path",

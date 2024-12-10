@@ -26,11 +26,6 @@ export class AddNodeVisitor implements BaseVisitor {
             this.topBranch = topNode as Branch;
         }
         this.newNode = newNode;
-        // console.log(">>> add link targets visitor started", {
-        //     topNode: this.topNode,
-        //     topBranch: this.topBranch,
-        //     newNode,
-        // });
     }
 
     beginVisitEventStart(node: FlowNode, parent?: FlowNode): void {

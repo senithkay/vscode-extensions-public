@@ -29,7 +29,7 @@ import styled from "@emotion/styled";
 import AIChatInput from "./AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer } from "./Components/RoleContainter";
-import { AttachmentResult, AttachmentStatus } from "../../utils/attachmentUtils";
+import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
@@ -129,9 +129,10 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 // Define constants for command keys
-const COMMAND_SCAFFOLD = "/scaffold";
-const COMMAND_TESTS = "/tests";
-const COMMAND_DATAMAP = "/datamap";
+export const COMMAND_SCAFFOLD = "/scaffold";
+export const COMMAND_TESTS = "/tests";
+export const COMMAND_DATAMAP = "/datamap";
+export const COMMAND_TYPECREATOR = "/typecreator";
 
 // Define constants for command templates
 const TEMPLATE_SCAFFOLD = [
@@ -141,15 +142,41 @@ const TEMPLATE_SCAFFOLD = [
 const TEMPLATE_TESTS = ["generate test using <servicename> service"];
 const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    "generate mapping using input as <recordname(s)> and output as <recordname>",
+    "generate mapping using input as <recordname(s)> and output as <recordname>"
 ];
+const TEMPLATE_TYPECREATOR = ["generate types using the given file content"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
     [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
+    [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR]
 ]);
+
+//TODO: Add the files relevant to the commands
+export const getFileTypesForCommand = (command: string): string[] => {
+    switch (command) {
+        case COMMAND_SCAFFOLD:
+        case COMMAND_TESTS:
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+        case COMMAND_DATAMAP:
+        case COMMAND_TYPECREATOR:
+            return [
+                "text/plain",
+                "image/jpeg",
+                "image/jpg",
+                "image/png",
+                "image/heic",
+                "image/heif",
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/msword"
+            ];
+        default:
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+    }
+};
 
 //TOOD: Add the backend URL
 //TODO: Add better error handling from backend. stream error type and non 200 status codes
@@ -386,7 +413,19 @@ export function AIChat() {
                     }
                     case COMMAND_DATAMAP: {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
-                            await processDataMappings(message, token, parameters);
+                            await processMappingParameters(message, token, parameters, attachments);
+                        } else {
+                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                        }
+                        break;
+                    }
+                    case COMMAND_TYPECREATOR: {
+                        if (messageBody === TEMPLATE_TYPECREATOR[0]) {
+                            if (attachments) {
+                                await processContextTypeCreation(message, token, attachments);
+                            } else {
+                                throw new Error("Error: Missing Attach context");
+                            }
                         } else {
                             throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
                         }
@@ -659,10 +698,11 @@ export function AIChat() {
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
         isTestCode: boolean
     ) => {
-        for (const { segmentText, filePath } of codeSegments) {
+        for (let { segmentText, filePath } of codeSegments) {
+            let originalContent = "";
             if (!tempStorage[filePath]) {
                 try {
-                    const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+                    originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
                     tempStorage[filePath] = originalContent;
                     if (originalContent === "") {
                         emptyFiles.add(filePath);
@@ -672,6 +712,11 @@ export function AIChat() {
                 } catch (error) {
                     tempStorage[filePath] = "";
                 }
+            }
+            if (!["types.bal", "mappings.bal"].includes(filePath)) {
+                segmentText = `${segmentText}`;
+            } else {
+                segmentText = `${originalContent}\n${segmentText}`;
             }
             await rpcClient
                 .getAiPanelRpcClient()
@@ -688,7 +733,7 @@ export function AIChat() {
         isTestCode: boolean
     ) => {
         for (const { filePath } of codeSegments) {
-            const originalContent = tempStorage[filePath];
+            let originalContent = tempStorage[filePath];
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
                 // Delete the file if it didn't initially exist in the workspace
                 try {
@@ -775,7 +820,7 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function processDataMappings(message: string, token: string, parameters: MappingParameters) {
+    async function processMappingParameters(message: string, token: string, parameters: MappingParameters, attachments?: AttachmentResult[]) {
         let assistant_response = "";
         const recordMap = new Map();
         const importsMap = new Map();
@@ -821,12 +866,17 @@ export function AIChat() {
                 const rec = recordMap.get(recordName);
 
                 if (!rec) {
-                    const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
-                    if (!matchedImport) {
-                        throw new Error(`Must import the module for "${recordName}".`);
+                    if (recordName.includes(":")) {
+                        const [moduleName, alias] = recordName.split(":");
+                        const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
+                        if (!matchedImport) {
+                            throw new Error(`Must import the module for "${recordName}".`);
+                        }
+                        importsMap.set(recordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
+                        return { type: `${recordName}`, isArray, filePath: null };
+                    } else {
+                        throw new Error(`${recordName} is not defined.`);
                     }
-                    importsMap.set(recordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
-                    return { type: `${recordName}`, isArray, filePath: null };
                 }
                 return { ...rec, isArray };
             });
@@ -836,24 +886,33 @@ export function AIChat() {
             let output = recordMap.get(outputRecordName);
 
             if (!output) {
-                const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
-                if (!matchedImport) {
-                    throw new Error(`Must import the module for "${outputRecordName}".`);
+                if (outputRecordName.includes(":")) {
+                    const [moduleName, alias] = outputRecordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${outputRecordName}".`);
+                    }
+                    importsMap.set(outputRecordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
+                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+                } else {
+                    throw new Error(`${outputRecordName} is not defined.`);
                 }
-                importsMap.set(outputRecordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
-                output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
             } else {
                 output = { ...output, isArray: outputIsArray };
             }
 
-            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord({
+            const requestPayload: any = {
                 backendUri: "",
                 token: "",
                 inputRecordTypes: inputs,
                 outputRecordType: output,
                 functionName,
-                imports: Array.from(importsMap.values()),
-            });
+                imports: Array.from(importsMap.values())
+            };
+            if (attachments && attachments.length > 0) {
+                requestPayload.attachment = attachments;
+            }
+            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
             setIsLoading(false);
 
             assistant_response = `Mappings consist of the following:\n`;
@@ -890,6 +949,80 @@ export function AIChat() {
             });
             throw new Error("Failed to generate Mappings.");
         }
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    async function processContextTypeCreation( message: string, token: string, attachments: AttachmentResult[]) {
+        let assistant_response = "";
+        const recordMap = new Map();
+        setIsLoading(true);
+        let filePath = "types.bal";
+
+        try {
+            const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+
+            projectComponents.components.packages?.forEach((pkg) => {
+                pkg.modules?.forEach((mod) => {
+                    let filepath = pkg.filePath;
+                    if (mod.name !== undefined) {
+                        filepath += `modules/${mod.name}/`;
+                    }
+                    mod.records.forEach((rec) => {
+                        const recFilePath = filepath + rec.filePath;
+                        recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
+                    });
+                });
+            });
+
+            if (!attachments || attachments.length === 0) {
+                throw new Error(`Missing attachment`);
+            }
+
+            const requestPayload: any = {
+                backendUri: "",
+                token: token,
+                attachment: attachments,
+            };
+
+            const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
+            let typeContent = response.typesCode;
+            const newRecords = extractRecordTypes(typeContent); 
+
+            let fileContent = "";
+            let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
+            if (fileExists) {
+                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath  });
+                typeContent = `${fileContent}\n${response.typesCode}`; 
+            }
+
+            for (const record of newRecords) {
+                if (recordMap.has(record.name)) {
+                    throw new Error(`Record "${record.name}" already exists in the workspace.`);
+                }
+            }
+            
+            assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
+
+            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = assistant_response;
+                return newMessages;
+            });
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content += `Type creation failed: ${error}`;
+                newMessages[newMessages.length - 1].type = "Error";
+                return newMessages;
+            });
+            throw new Error("Failed to generate types.");
+        }
+
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -1361,6 +1494,15 @@ function identifyLanguage(segmentText: string): string {
     } else {
         return "";
     }
+}
+
+function extractRecordTypes(typesCode: string): { name: string, code: string }[] {
+    const recordPattern = /\b(?:public|private)?\s*type\s+(\w+)\s+record\s+(?:{[|]?|[|]?{)[\s\S]*?;?\s*[}|]?;/g;
+    const matches = [...typesCode.matchAll(recordPattern)];
+    return matches.map(match => ({
+        name: match[1],
+        code: match[0].trim(),
+    }));
 }
 
 export async function fetchWithToken(url: string, options: RequestInit, rpcClient: any) {
