@@ -10,6 +10,8 @@
  */
 import {
     AIUserInput,
+    AddDriverRequest,
+    AddDriverToLibRequest,
     ApplyEditRequest,
     BrowseFileRequest,
     CommandsRequest,
@@ -30,12 +32,15 @@ import {
     CreateSequenceRequest,
     CreateTaskRequest,
     CreateTemplateRequest,
+    DSSFetchTablesRequest,
     DataSourceTemplate,
     DeleteArtifactRequest,
     DownloadConnectorRequest,
     DownloadInboundConnectorRequest,
     EditAPIRequest,
     ExportProjectRequest,
+    ExtendedDSSQueryGenRequest,
+    FileRenameRequest,
     ExpressionCompletionsRequest,
     GetAllArtifactsRequest,
     GetAllRegistryPathsRequest,
@@ -49,9 +54,12 @@ import {
     GetDiagnosticsReqeust,
     GetFailoverEPRequest,
     GetIconPathUriRequest,
+    GetInboundEPUischemaRequest,
     GetInboundEndpointRequest,
     GetLoadBalanceEPRequest,
     GetLocalEntryRequest,
+    GetMediatorRequest,
+    GetMediatorsRequest,
     GetMessageStoreRequest,
     GetProjectRootRequest,
     GetRecipientEPRequest,
@@ -76,6 +84,7 @@ import {
     RetrieveMessageProcessorRequest,
     RetrieveTemplateRequest,
     RetrieveWsdlEndpointRequest,
+    SaveInboundEPUischemaRequest,
     ShowErrorMessageRequest,
     SwaggerTypeRequest,
     TestDbConnectionRequest,
@@ -88,6 +97,7 @@ import {
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
+    UpdateMediatorRequest,
     UpdateMockServiceRequest,
     UpdateRecipientEPRequest,
     UpdateRegistryMetadataRequest,
@@ -96,12 +106,16 @@ import {
     UpdateTestSuiteRequest,
     UpdateWsdlEndpointRequest,
     WriteContentToFileRequest,
+    addDBDriver,
+    addDriverToLib,
     applyEdit,
+    askDriverPath,
     askFileDirPath,
     askProjectDirPath,
     askProjectImportDirPath,
     browseFile,
     buildProject,
+    checkDBDriver,
     checkOldProject,
     closeWebView,
     closeWebViewNotification,
@@ -124,20 +138,26 @@ import {
     createTask,
     createTemplate,
     deleteArtifact,
+    deleteDriverFromLib,
     downloadConnector,
     downloadInboundConnector,
     editAPI,
     editOpenAPISpec,
     executeCommand,
     exportProject,
+    fetchDSSTables,
+    generateDSSQueries,
     getAIResponse,
     getAPIDirectory,
     getAddressEndpoint,
+    getAllAPIcontexts,
     getAllArtifacts,
     getAllDependencies,
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getAllResourcePaths,
+    getConfigurableEntries,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -160,9 +180,12 @@ import {
     getFailoverEndpoint,
     getHttpEndpoint,
     getIconPathUri,
+    getInboundEPUischema,
     getInboundEndpoint,
     getLoadBalanceEndpoint,
     getLocalEntry,
+    getMediator,
+    getMediators,
     getMessageProcessor,
     getMessageStore,
     getMetadataOfRegistryResource,
@@ -199,6 +222,8 @@ import {
     rangeFormat,
     redo,
     refreshAccessToken,
+    renameFile,
+    saveInboundEPUischema,
     showErrorMessage,
     testDbConnection,
     undo,
@@ -210,6 +235,7 @@ import {
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
+    updateMediator,
     updateMockService,
     updateRecipientEndpoint,
     updateRegistryMetadata,
@@ -219,25 +245,11 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
-    FileRenameRequest,
-    renameFile,
-    SaveInboundEPUischemaRequest,
-    GetInboundEPUischemaRequest,
-    saveInboundEPUischema,
-    getInboundEPUischema,
-    checkDBDriver,
-    addDBDriver,
-    generateDSSQueries,
-    fetchDSSTables,
-    AddDriverRequest,
-    ExtendedDSSQueryGenRequest,
-    DSSFetchTablesRequest,
-    DSSQueryGenRequest,
-    askDriverPath,
-    addDriverToLib,
-    deleteDriverFromLib,
-    AddDriverToLibRequest,
-    getAllAPIcontexts
+    GetConnectionSchemaRequest,
+    getConnectionSchema,
+    CopyConnectorZipRequest,
+    copyConnectorZip,
+    ApplyEditsRequest
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -247,7 +259,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(executeCommand, (args: CommandsRequest) => rpcManger.executeCommand(args));
     messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
     messenger.onRequest(getSyntaxTree, (args: getSTRequest) => rpcManger.getSyntaxTree(args));
-    messenger.onRequest(applyEdit, (args: ApplyEditRequest) => rpcManger.applyEdit(args));
+    messenger.onRequest(applyEdit, (args: ApplyEditRequest | ApplyEditsRequest) => rpcManger.applyEdit(args));
     messenger.onRequest(getESBConfigs, () => rpcManger.getESBConfigs());
     messenger.onRequest(getConnectors, () => rpcManger.getConnectors());
     messenger.onRequest(getConnector, (args: ConnectorRequest) => rpcManger.getConnector(args));
@@ -292,9 +304,9 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(createDataService, (args: CreateDataServiceRequest) => rpcManger.createDataService(args));
     messenger.onRequest(createDssDataSource, (args: CreateDssDataSourceRequest) => rpcManger.createDssDataSource(args));
     messenger.onRequest(getDataService, (args: RetrieveDataServiceRequest) => rpcManger.getDataService(args));
-    messenger.onRequest(askDriverPath,() => rpcManger.askDriverPath());
+    messenger.onRequest(askDriverPath, () => rpcManger.askDriverPath());
     messenger.onRequest(addDriverToLib, (args: AddDriverToLibRequest) => rpcManger.addDriverToLib(args));
-    messenger.onRequest(deleteDriverFromLib, (args: AddDriverToLibRequest) => rpcManger.deleteDriverFromLib(args));
+    messenger.onNotification(deleteDriverFromLib, (args: AddDriverToLibRequest) => rpcManger.deleteDriverFromLib(args));
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
@@ -312,7 +324,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(highlightCode, (args: HighlightCodeRequest) => rpcManger.highlightCode(args));
     messenger.onRequest(getWorkspaceContext, () => rpcManger.getWorkspaceContext());
     messenger.onRequest(getProjectUuid, () => rpcManger.getProjectUuid());
-    messenger.onRequest(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
+    messenger.onNotification(initUndoRedoManager, (args: UndoRedoParams) => rpcManger.initUndoRedoManager(args));
     messenger.onRequest(undo, (args: UndoRedoParams) => rpcManger.undo(args));
     messenger.onRequest(redo, (args: UndoRedoParams) => rpcManger.redo(args));
     messenger.onRequest(getDefinition, (args: GetDefinitionRequest) => rpcManger.getDefinition(args));
@@ -331,13 +343,14 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(downloadInboundConnector, (args: DownloadInboundConnectorRequest) => rpcManger.downloadInboundConnector(args));
+    messenger.onRequest(copyConnectorZip, (args: CopyConnectorZipRequest) => rpcManger.copyConnectorZip(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
     messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
     messenger.onRequest(getConnectionForm, (args: GetConnectionFormRequest) => rpcManger.getConnectionForm(args));
+    messenger.onRequest(getStoreConnectorJSON, () => rpcManger.getStoreConnectorJSON());
     messenger.onRequest(saveInboundEPUischema, (args: SaveInboundEPUischemaRequest) => rpcManger.saveInboundEPUischema(args));
     messenger.onRequest(getInboundEPUischema, (args: GetInboundEPUischemaRequest) => rpcManger.getInboundEPUischema(args));
-    messenger.onRequest(getStoreConnectorJSON, () => rpcManger.getStoreConnectorJSON());
     messenger.onRequest(createDataSource, (args: DataSourceTemplate) => rpcManger.createDataSource(args));
     messenger.onRequest(getDataSource, (args: GetDataSourceRequest) => rpcManger.getDataSource(args));
     messenger.onRequest(getIconPathUri, (args: GetIconPathUriRequest) => rpcManger.getIconPathUri(args));
@@ -346,9 +359,11 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
+    messenger.onRequest(getAllResourcePaths, () => rpcManger.getAllResourcePaths());
+    messenger.onRequest(getConfigurableEntries, () => rpcManger.getConfigurableEntries());
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
-    messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts())
+    messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
     messenger.onNotification(buildProject, () => rpcManger.buildProject());
     messenger.onNotification(exportProject, (args: ExportProjectRequest) => rpcManger.exportProject(args));
     messenger.onRequest(checkOldProject, () => rpcManger.checkOldProject());
@@ -369,11 +384,15 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));
     messenger.onNotification(markAsDefaultSequence, (args: MarkAsDefaultSequenceRequest) => rpcManger.markAsDefaultSequence(args));
     messenger.onRequest(getSubFolderNames, (args: GetSubFoldersRequest) => rpcManger.getSubFolderNames(args));
-    messenger.onRequest(renameFile, (args: FileRenameRequest) => rpcManger.renameFile(args));
+    messenger.onNotification(renameFile, (args: FileRenameRequest) => rpcManger.renameFile(args));
     messenger.onNotification(openUpdateExtensionPage, () => rpcManger.openUpdateExtensionPage());
     messenger.onRequest(checkDBDriver, (args: string) => rpcManger.checkDBDriver(args));
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
     messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
+    messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
+    messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
+    messenger.onRequest(getConnectionSchema, (args: GetConnectionSchemaRequest) => rpcManger.getConnectionSchema(args));
+    messenger.onNotification(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }

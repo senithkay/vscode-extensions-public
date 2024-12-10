@@ -12,12 +12,12 @@ import { AutoComplete, Button, ProgressIndicator, TextField, Typography } from '
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../SidePanelContexProvider';
-import { AddMediatorProps } from '../mediators/common';
+import { AddMediatorProps } from '../../../Form/common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { getXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 import { Controller, useForm } from 'react-hook-form';
 import { sidepanelGoBack } from '../..';
 import { DATA_SERVICE } from "../../../../resources/constants";
+import { getDssQueryXml } from '../../../../utils/template-engine/mustach-templates/dataservice/ds-templates';
 
 const Error = styled.span`
    color: var(--vscode-errorForeground);
@@ -31,7 +31,7 @@ const Field = styled.div`
 const TransformationForm = (props: AddMediatorProps) => {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [ isLoading, setIsLoading ] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
     const { control, formState: { errors }, handleSubmit, watch, reset } = useForm();
@@ -77,11 +77,11 @@ const TransformationForm = (props: AddMediatorProps) => {
         updatedQuery.result = updatedResult;
         const queryType = sidePanelContext?.formValues.queryObject.expression ? "expression" : "sql";
 
-        let xml = getXML(DATA_SERVICE.EDIT_QUERY, {...updatedQuery, queryType}).replace(/^\s*[\r\n]/gm, '');
+        let xml = getDssQueryXml({ ...updatedQuery, queryType }).replace(/^\s*[\r\n]/gm, '');
         const range = sidePanelContext?.formValues?.queryObject.range;
         await rpcClient.getMiDiagramRpcClient().applyEdit({
             text: xml, documentUri: props.documentUri,
-            range: {start: range.startTagRange.start, end: range.endTagRange.end}
+            range: { start: range.startTagRange.start, end: range.endTagRange.end }
         });
 
         sidePanelContext.setSidePanelState({
@@ -95,7 +95,7 @@ const TransformationForm = (props: AddMediatorProps) => {
     };
 
     if (isLoading) {
-        return <ProgressIndicator/>;
+        return <ProgressIndicator />;
     }
     return (
         <>
@@ -120,7 +120,7 @@ const TransformationForm = (props: AddMediatorProps) => {
                         name="useColumnNumbers"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Use Column Numbers</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Use Column Numbers</VSCodeCheckbox>
                         )}
                     />
                     {errors.useColumnNumbers && <Error>{errors.useColumnNumbers.message.toString()}</Error>}
@@ -131,75 +131,75 @@ const TransformationForm = (props: AddMediatorProps) => {
                         name="escapeNonPrintableCharacters"
                         control={control}
                         render={({ field }) => (
-                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => {field.onChange(e.target.checked)}}>Escape Non-printable Characters</VSCodeCheckbox>
+                            <VSCodeCheckbox {...field} type="checkbox" checked={field.value} onChange={(e: any) => { field.onChange(e.target.checked) }}>Escape Non-printable Characters</VSCodeCheckbox>
                         )}
                     />
                     {errors.escapeNonPrintableCharacters && <Error>{errors.escapeNonPrintableCharacters.message.toString()}</Error>}
                 </Field>
 
                 {watch("outputType") == "RDF" &&
-                <Field>
-                    <Controller
-                        name="rdfBaseUri"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="RDF Base URI" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.rdfBaseUri && <Error>{errors.rdfBaseUri.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="rdfBaseUri"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="RDF Base URI" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.rdfBaseUri && <Error>{errors.rdfBaseUri.message.toString()}</Error>}
+                    </Field>
                 }
 
                 {watch("outputType") == "XML" &&
-                <Field>
-                    <Controller
-                        name="groupedElement"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Grouped by Element" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.groupedElement && <Error>{errors.groupedElement.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="groupedElement"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Grouped by Element" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.groupedElement && <Error>{errors.groupedElement.message.toString()}</Error>}
+                    </Field>
                 }
 
                 {watch("outputType") == "XML" &&
-                <Field>
-                    <Controller
-                        name="rowName"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Row Name" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.rowName && <Error>{errors.rowName.message.toString()}</Error>}
-                </Field>
+                    <Field>
+                        <Controller
+                            name="rowName"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Row Name" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.rowName && <Error>{errors.rowName.message.toString()}</Error>}
+                    </Field>
                 }
 
-                {!((watch("outputType") == "JSON") ) &&
-                <Field>
-                    <Controller
-                        name="rowNamespace"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="Row Namespace" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.rowNamespace && <Error>{errors.rowNamespace.message.toString()}</Error>}
-                </Field>
+                {!((watch("outputType") == "JSON")) &&
+                    <Field>
+                        <Controller
+                            name="rowNamespace"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="Row Namespace" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.rowNamespace && <Error>{errors.rowNamespace.message.toString()}</Error>}
+                    </Field>
                 }
 
-                {!((watch("outputType") == "JSON") ) &&
-                <Field>
-                    <Controller
-                        name="xsltPath"
-                        control={control}
-                        render={({ field }) => (
-                            <TextField {...field} label="XSLT Path" size={50} placeholder="" />
-                        )}
-                    />
-                    {errors.xsltPath && <Error>{errors.xsltPath.message.toString()}</Error>}
-                </Field>
+                {!((watch("outputType") == "JSON")) &&
+                    <Field>
+                        <Controller
+                            name="xsltPath"
+                            control={control}
+                            render={({ field }) => (
+                                <TextField {...field} label="XSLT Path" size={50} placeholder="" />
+                            )}
+                        />
+                        {errors.xsltPath && <Error>{errors.xsltPath.message.toString()}</Error>}
+                    </Field>
                 }
 
 
@@ -208,7 +208,7 @@ const TransformationForm = (props: AddMediatorProps) => {
                         appearance="primary"
                         onClick={handleSubmit(onClick)}
                     >
-                    Submit
+                        Submit
                     </Button>
                 </div>
 

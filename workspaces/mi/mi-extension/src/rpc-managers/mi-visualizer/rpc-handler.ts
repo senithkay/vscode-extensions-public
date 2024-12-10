@@ -21,15 +21,18 @@ import {
     SwaggerProxyRequest,
     ToggleDisplayOverviewRequest,
     UpdateContextRequest,
+    AddConfigurableRequest,
     addToHistory,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
     focusOutput,
     getAvailableRuntimeServices,
     getCurrentThemeKind,
+    addConfigurable,
     getHistory,
     getProjectOverview,
     getProjectStructure,
+    getReadmeContent,
     getWorkspaces,
     goBack,
     goHome,
@@ -37,6 +40,7 @@ import {
     goToSource,
     log,
     openExternal,
+    openReadme,
     openView,
     reloadWindow,
     retrieveContext,
@@ -52,17 +56,17 @@ import {
     isMISet,
     toggleDisplayOverview,
     updateContext,
-    getOverviewPageDetails,
-    PomXmlEditRequest,
-    updateDependency,
-    updatePomValue,
-    updateConfigFileValue,
-    ConfigFileEditRequest,
-    UpdateDependencyRequest
+    getProjectDetails,
+    updateDependencies,
+    updatePomValues,
+    updateConfigFileValues,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    importOpenAPISpec
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
-import { Range } from '../../../../syntax-tree/lib/src';
 
 export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiVisualizerRpcManager();
@@ -75,6 +79,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(goBack, () => rpcManger.goBack());
     messenger.onRequest(fetchSamplesFromGithub, () => rpcManger.fetchSamplesFromGithub());
     messenger.onNotification(downloadSelectedSampleFromGithub, (args: SampleDownloadRequest) => rpcManger.downloadSelectedSampleFromGithub(args));
+    messenger.onRequest(addConfigurable, (args: AddConfigurableRequest) => rpcManger.addConfigurable(args));
     messenger.onRequest(getHistory, () => rpcManger.getHistory());
     messenger.onNotification(addToHistory, (args: HistoryEntry) => rpcManger.addToHistory(args));
     messenger.onNotification(goHome, () => rpcManger.goHome());
@@ -89,6 +94,8 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAvailableRuntimeServices, () => rpcManger.getAvailableRuntimeServices());
     messenger.onRequest(sendSwaggerProxyRequest, (args: SwaggerProxyRequest) => rpcManger.sendSwaggerProxyRequest(args));
     messenger.onRequest(openExternal, (args: OpenExternalRequest) => rpcManger.openExternal(args));
+    messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
+    messenger.onNotification(openReadme, () => rpcManger.openReadme());
     messenger.onRequest(downloadJava, (args: string) => rpcManger.downloadJava(args));
     messenger.onRequest(downloadMI, (args: string) => rpcManger.downloadMI(args));
     messenger.onRequest(getSupportedMIVersions, () => rpcManger.getSupportedMIVersions());
@@ -97,8 +104,9 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(setMIHomeForMIVersion, (args: string) => rpcManger.setMIHomeForMIVersion(args));
     messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
     messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
-    messenger.onRequest(getOverviewPageDetails, () => rpcManger.getOverviewPageDetails());
-    messenger.onRequest(updateDependency, (args: UpdateDependencyRequest) => rpcManger.updateDependency(args));
-    messenger.onRequest(updatePomValue, (args: PomXmlEditRequest) => rpcManger.updatePomValue(args));
-    messenger.onRequest(updateConfigFileValue, (args: ConfigFileEditRequest) => rpcManger.updateConfigFileValue(args));
+    messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
+    messenger.onRequest(updateDependencies, (args: UpdateDependenciesRequest) => rpcManger.updateDependencies(args));
+    messenger.onRequest(updatePomValues, (args: UpdatePomValuesRequest) => rpcManger.updatePomValues(args));
+    messenger.onRequest(updateConfigFileValues, (args: UpdateConfigValuesRequest) => rpcManger.updateConfigFileValues(args));
+    messenger.onRequest(importOpenAPISpec, () => rpcManger.importOpenAPISpec());
 }

@@ -74,6 +74,8 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -223,6 +225,8 @@ import {
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getAllResourcePaths,
+    getConfigurableEntries,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -335,7 +339,21 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
-    getAllAPIcontexts
+    getAllAPIcontexts,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    UpdateMediatorRequest,
+    getMediator,
+    getMediators,
+    updateMediator,
+    GetConnectionSchemaRequest,
+    getConnectionSchema,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    copyConnectorZip
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -695,6 +713,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(downloadInboundConnector, HOST_EXTENSION, params);
     }
 
+    copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
+    }
+
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
         return this._messenger.sendRequest(getAvailableConnectors, HOST_EXTENSION, params);
     }
@@ -753,6 +775,14 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllRegistryPaths(params: GetAllRegistryPathsRequest): Promise<GetAllRegistryPathsResponse> {
         return this._messenger.sendRequest(getAllRegistryPaths, HOST_EXTENSION, params);
+    }
+
+    getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
+        return this._messenger.sendRequest(getAllResourcePaths, HOST_EXTENSION);
+    }
+
+    getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return this._messenger.sendRequest(getConfigurableEntries, HOST_EXTENSION);
     }
 
     getAllArtifacts(params: GetAllArtifactsRequest): Promise<GetAllArtifactsResponse> {
@@ -842,11 +872,11 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     markAsDefaultSequence(params: MarkAsDefaultSequenceRequest): Promise<void> {
         return this._messenger.sendRequest(markAsDefaultSequence, HOST_EXTENSION, params);
     }
-  
+
     getSubFolderNames(params: GetSubFoldersRequest): Promise<GetSubFoldersResponse> {
         return this._messenger.sendRequest(getSubFolderNames, HOST_EXTENSION, params);
     }
-  
+
     renameFile(params: FileRenameRequest): Promise<void> {
         return this._messenger.sendRequest(renameFile, HOST_EXTENSION, params);
     }
@@ -869,6 +899,22 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
+    }
+
+    getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return this._messenger.sendRequest(getMediators, HOST_EXTENSION, params);
+    }
+
+    getMediator(params: GetMediatorRequest): Promise<GetMediatorResponse> {
+        return this._messenger.sendRequest(getMediator, HOST_EXTENSION, params);
+    }
+
+    updateMediator(params: UpdateMediatorRequest): Promise<void> {
+        return this._messenger.sendRequest(updateMediator, HOST_EXTENSION, params);
+    }
+
+    getConnectionSchema(params: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        return this._messenger.sendRequest(getConnectionSchema, HOST_EXTENSION, params);
     }
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {

@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { Dropdown, Button, TextField, FormView, FormActions, RadioButtonGroup, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, CreateRegistryResourceRequest, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -18,10 +18,13 @@ import { colors } from "@wso2-enterprise/ui-toolkit";
 
 export interface RegistryWizardProps {
     path: string;
+    isPopup?: boolean;
+    handlePopupClose?: () => void;
+    type?: string;
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
-{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }];
+{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }, { value: "TEXT File" }, { value: "XML File" }];
 
 type InputsFields = {
     templateType?: string;
@@ -33,44 +36,103 @@ type InputsFields = {
     registryType?: "gov" | "conf";
 };
 
-const initialRegistryResource: InputsFields = {
-    templateType: "XSLT File",
-    filePath: "Please select a file or folder",
+const canCreateTemplateForType = (type: string) => {
+    if (!type) {
+        return true;
+    }
+    const allowedTypes = ["xslt", "xsl", "xsd", "wsdl", "yaml", "json", "js", "dmc", "xml", "txt"];
+    return allowedTypes.includes(type);
+}
+
+const getInitialResource = (type: string): InputsFields => ({
+    templateType: getTemplateType(type),
+    filePath: "Please select a file",
     resourceName: "",
     artifactName: "",
-    registryPath: "/",
-    createOption: "new",
+    registryPath: type ? type : "xslt",
+    createOption: canCreateTemplateForType(type) ? "new" : "import",
     registryType: "gov"
+});
+
+const getTemplateType = (type: string) => {
+    switch (type) {
+        case "xslt":
+            return "XSLT File";
+        case "xsl":
+            return "XSL File";
+        case "xsd":
+            return "XSD File";
+        case "wsdl":
+            return "WSDL File";
+        case "yaml":
+            return "YAML File";
+        case "json":
+            return "JSON File";
+        case "js":
+            return "Javascript File";
+        case "dmc":
+            return "Data Mapper";
+        case "txt":
+            return "TEXT File";
+        case "xml":
+            return "XML File";
+        case "crt":
+            return "CRT File";
+        default:
+            return "XSLT File";
+    }
 };
+
+const getFileExtension = (type: string) => {
+    switch (type) {
+        case "Data Mapper":
+            return ".dmc";
+        case "Javascript File":
+            return ".js";
+        case "JSON File":
+            return ".json";
+        case "YAML File":
+            return ".yaml";
+        case "WSDL File":
+            return ".wsdl";
+        case "XSD File":
+            return ".xsd";
+        case "XSL File":
+            return ".xsl";
+        case "XSLT File":
+            return ".xslt";
+        case "TEXT File":
+            return ".txt";
+        case "XML File":
+            return ".xml";
+        case "CRT File":
+            return ".crt";
+        default:
+            return ".xml";
+    }
+}
 
 export function RegistryResourceForm(props: RegistryWizardProps) {
 
     const { rpcClient } = useVisualizerContext();
     const [regArtifactNames, setRegArtifactNames] = useState([]);
     const [registryPaths, setRegistryPaths] = useState([]);
+    const [resourcePaths, setResourcePaths] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
 
     const schema = yup
         .object({
             createOption: yup.mixed<"new" | "import">().oneOf(["new", "import"]),
-            artifactName: yup.string().required("Artifact Name is required").test('validateArtifactName',
-                'Artifact name already exists', value => {
-                    return !regArtifactNames.includes(value);
-                }).test('validateArtifactNameInWorkspace',
-                    'A file already exists in the workspace with this artifact name', value => {
-                        return !artifactNames.includes(value);
-                    }),
             registryPath: yup.string().test('validateRegistryPath', 'Resource already exists', value => {
-                const formattedPath = formatRegistryPath(value);
-                return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
+                const formattedPath = formatResourcePath(value);
+                return !resourcePaths.includes(formattedPath);
             }),
-            registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
             filePath: yup.string().when('createOption', {
                 is: "new",
                 then: () =>
                     yup.string().notRequired(),
                 otherwise: () =>
-                    yup.string().required("File Path is required"),
+                    yup.string().required("File Path is required")
             }),
             templateType: yup.string().when('createOption', {
                 is: "new",
@@ -96,7 +158,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         setValue,
         watch
     } = useForm<InputsFields>({
-        defaultValues: initialRegistryResource,
+        defaultValues: getInitialResource(props.type),
         resolver: yupResolver(schema),
         mode: "onChange",
     });
@@ -113,33 +175,25 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 setRegArtifactNames(tempArtifactNames.artifacts);
                 const res = await rpcClient.getMiDiagramRpcClient().getAllRegistryPaths(request);
                 setRegistryPaths(res.registryPaths);
+                const resourcePathsResponse = await rpcClient.getMiDiagramRpcClient().getAllResourcePaths();
+                setResourcePaths(resourcePathsResponse.resourcePaths);
                 const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts(request);
                 setArtifactNames(artifactRes.artifacts);
             }
         })();
     }, []);
 
-    const getFileExtension = () => {
-        switch (getValues("templateType")) {
-            case "Data Mapper":
-                return ".dmc";
-            case "Javascript File":
-                return ".js";
-            case "JSON File":
-                return ".json";
-            case "YAML File":
-                return ".yaml";
-            case "WSDL File":
-                return ".wsdl";
-            case "XSD File":
-                return ".xsd";
-            case "XSL File":
-                return ".xsl";
-            case "XSLT File":
-                return ".xslt";
-            default:
-                return ".xml";
+    const formatResourcePath = (resourceDirPath: string) => {
+        let resPath = 'resources:';
+        resPath = resourceDirPath.startsWith('/') ? resPath + resourceDirPath.substring(1) : resPath + resourceDirPath;
+        if (createOptionValue) {
+            resPath.endsWith('/') ? resPath = resPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
+                : resPath = resPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
+        } else {
+            const filename = getValues("filePath").split('/').pop();
+            resPath.endsWith('/') ? resPath = resPath + filename : resPath = resPath + '/' + filename;
         }
+        return resPath;
     }
 
     const formatRegistryPath = (path: string) => {
@@ -151,8 +205,8 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         }
         path.startsWith('/') ? regPath = regPath + path : regPath = regPath + '/' + path;
         if (createOptionValue) {
-            regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension()
-                : regPath = regPath + '/' + getValues("resourceName") + getFileExtension();
+            regPath.endsWith('/') ? regPath = regPath + getValues("resourceName") + getFileExtension(getValues('templateType'))
+                : regPath = regPath + '/' + getValues("resourceName") + getFileExtension(getValues('templateType'));
         } else {
             const filename = getValues("filePath").split('/').pop();
             regPath.endsWith('/') ? regPath = regPath + filename : regPath = regPath + '/' + filename;
@@ -169,8 +223,9 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             canSelectFiles: true,
             canSelectFolders: false,
             canSelectMany: false,
+            filters: { 'types': [props.type] },
             defaultUri: "",
-            title: "Select a file to be imported as registry resource"
+            title: "Select a file to be imported as a resource"
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
             setValue("filePath", response.filePath, { shouldDirty: true });
@@ -183,7 +238,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             canSelectFolders: true,
             canSelectMany: false,
             defaultUri: "",
-            title: "Select a folder to be imported to registry as a collection"
+            title: "Select a folder to be imported to as a collection"
         }
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
             setValue("filePath", response.filePath, { shouldDirty: true });
@@ -191,40 +246,53 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     }
 
     const handleCreateRegResource = async (values: InputsFields) => {
-        const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+        const projectDir = props.path ? (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path : (await rpcClient.getVisualizerState()).projectUri;
         const regRequest: CreateRegistryResourceRequest = {
             projectDirectory: projectDir,
             templateType: values.templateType,
             filePath: values.filePath,
             resourceName: values.resourceName,
-            artifactName: values.artifactName,
+            artifactName: '',
             registryPath: values.registryPath,
-            registryRoot: values.registryType,
+            registryRoot: '',
             createOption: values.createOption
         }
+        
         const regfilePath = await rpcClient.getMiDiagramRpcClient().createRegistryResource(regRequest);
-        rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
-        rpcClient.getMiDiagramRpcClient().closeWebView();
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: formatResourcePath(values.registryPath) },
+                isPopup: true
+            });
+        } else {
+            rpcClient.getMiDiagramRpcClient().openFile(regfilePath);
+            rpcClient.getMiDiagramRpcClient().closeWebView();
+        }
     }
 
     const handleBackButtonClick = () => {
-        rpcClient.getMiVisualizerRpcClient().goBack();
+        props.handlePopupClose ? props.handlePopupClose() : rpcClient.getMiVisualizerRpcClient().goBack();
     };
 
     return (
-        <FormView title="Create New Registry Resource" onClose={handleBackButtonClick}>
-            <RadioButtonGroup
+        <FormView title="Create New Resource" onClose={handleBackButtonClick}>
+            {canCreateTemplateForType(props.type) && <RadioButtonGroup
                 label="Create Options"
                 id="createOption"
                 options={[{ content: "From existing template", value: "new" }, { content: "Import from file system", value: "import" }]}
                 {...register("createOption")}
-            />
+            />}
             {createOptionValue && (<>
                 <Dropdown
                     label="Template Type"
                     id="templateType"
                     items={templates}
-                    {...register("templateType")}
+                    value={getValues("templateType")}
+                    onChange={(e) => {
+                        setValue("templateType", e.target.value, { shouldDirty: true });
+                        setValue("registryPath", getFileExtension(getValues('templateType')).split('.').pop(), { shouldDirty: true });
+                    }}
                 ></Dropdown>
                 <TextField
                     label="Resource Name"
@@ -236,12 +304,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             {!createOptionValue && (<>
                 <div style={{ display: "flex", flexDirection: "row", gap: "10px", alignItems: "center" }}>
                     <Button appearance="secondary" onClick={openFile}>
-                        <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
                         <div style={{ color: colors.editorForeground }}>Browse file</div>
-                    </Button>
-                    <Button appearance="secondary" onClick={openFolder}>
-                        <Icon sx={{ marginTop: 2, marginRight: 5 }} name="ballerina" />
-                        <div style={{ color: colors.editorForeground }}>Browse folder</div>
                     </Button>
                     <Typography variant="body3" {...register("filePath")}>
                         {(errors && errors.filePath && errors.filePath.message)
@@ -250,21 +313,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                 </div>
             </>)}
             <TextField
-                id='artifactName'
-                label="Artifact Name"
-                errorMsg={errors.artifactName?.message.toString()}
-                {...register("artifactName")}
-            />
-            <RadioButtonGroup
-                label="Select registry type"
-                id="registryType"
-                options={[{ content: "Governance registry (gov)", value: "gov" }, { content: "Configuration registry (conf)", value: "conf" }]}
-                {...register("registryType")}
-            />
-            <TextField
                 id='registryPath'
-                label="Registry Path"
+                label="Resource Path"
+                value={getFileExtension(getValues('templateType')).split('.').pop()}
                 errorMsg={errors.registryPath?.message.toString()}
+                inputProps={{ startAdornment: "resources:" }}
                 {...register("registryPath")}
             />
             <br />
@@ -275,11 +328,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
                         handleCreateRegResource(values);
                     })}
                     disabled={!isDirty || (!createOptionValue
-                        && getValues("filePath") === "Please select a file or folder")}
+                        && getValues("filePath") === "Please select a file")}
                 >
                     Create
                 </Button>
-                <Button appearance="secondary" onClick={openOverview}>
+                <Button appearance="secondary" onClick={handleBackButtonClick}>
                     Cancel
                 </Button>
             </FormActions>

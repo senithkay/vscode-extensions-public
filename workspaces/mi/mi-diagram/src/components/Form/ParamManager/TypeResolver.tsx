@@ -28,6 +28,7 @@ const ParamManagerContainer = styled.div`
 export interface Param {
     id: number;
     label: string;
+    labelAdornment?: React.ReactNode;
     placeholder?: string;
     type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "ExprField" | "AutoComplete" | "KeyLookup" | "ParamManager";
     value: string | boolean | ExpressionFieldValue | ParamConfig; // Boolean is for Checkbox
@@ -43,7 +44,7 @@ export interface Param {
     filterType?: FilterType | ResourceType[]; // For KeyLookup
     artifactTypes?: { registryArtifacts: boolean, artifacts: boolean }; //For KeyLookup
     values?: string[]; // For Dropdown
-    openExpressionEditor?: () => void; // For ExpressionField
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: any) => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     openInDrawer?: boolean; // For ParamManager
     addParamText?: string; // For ParamManager
@@ -58,7 +59,7 @@ interface TypeResolverProps {
 
 export function TypeResolver(props: TypeResolverProps) {
     const { param, onChange } = props;
-    const { id, label, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
+    const { id, label, labelAdornment, type, value, isRequired, values, disabled, errorMessage, openExpressionEditor, paramFields,
         canChange, allowItemCreate, noItemsFoundMessage, nullable, filter, filterType, placeholder, artifactTypes } = param;
 
     const handleOnChange = (newValue: string | boolean) => {
@@ -87,6 +88,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     sx={{ marginBottom: 5 }}
                     id={`txt-field-${id}`}
                     label={label}
+                    labelAdornment={labelAdornment}
                     value={value as string}
                     disabled={disabled}
                     errorMsg={errorMessage}
@@ -130,6 +132,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     value={value as string}
                     disabled={disabled}
                     label={label}
+                    labelAdornment={labelAdornment}
                     errorMsg={errorMessage}
                     onTextChange={handleOnChange}
                 />
@@ -143,6 +146,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     openExpressionEditor={openExpressionEditor}
                     disabled={disabled}
                     label={label}
+                    labelAdornment={labelAdornment}
                     placeholder={placeholder}
                     errorMsg={errorMessage}
                     onChange={handleOnChange}
@@ -155,6 +159,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     sx={{ marginBottom: 5 }}
                     id={`auto-complete-${id}`}
                     label={label}
+                    labelAdornment={labelAdornment}
                     value={value as string}
                     required={isRequired}
                     onValueChange={handleOnChange}
@@ -170,6 +175,7 @@ export function TypeResolver(props: TypeResolverProps) {
                     sx={{ marginBottom: 5 }}
                     id={`key-lookup-${id}`}
                     label={label}
+                    labelAdornment={labelAdornment}
                     value={value as string}
                     required={isRequired}
                     onValueChange={handleOnExprChange}

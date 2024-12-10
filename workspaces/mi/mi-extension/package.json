@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.1.4",
+  "version": "1.1.6",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -151,11 +151,6 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
-        },
-        {
-          "id": "MI.registry-explorer",
-          "name": "Registry Explorer",
-          "visibility": "collapsed"
         }
       ],
       "test": [
@@ -238,7 +233,7 @@
       },
       {
         "command": "MI.registry-explorer.add",
-        "title": "Add to Registry",
+        "title": "Add to Resource",
         "icon": "$(add)",
         "category": "MI"
       },
@@ -257,6 +252,13 @@
       {
         "command": "MI.project-explorer.add-api",
         "title": "Add API",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-resource",
+        "title": "Add Resource",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
@@ -493,6 +495,10 @@
           "when": "false"
         },
         {
+          "command": "MI.project-explorer.add-resource",
+          "when": "false"
+        },
+        {
           "command": "MI.project-explorer.add-endpoint",
           "when": "false"
         },
@@ -699,6 +705,11 @@
         {
           "command": "MI.project-explorer.add-api",
           "when": "view == MI.project-explorer && viewItem == apis",
+          "group": "inline"
+        },
+        {
+          "command": "MI.project-explorer.add-resource",
+          "when": "view == MI.project-explorer && viewItem == resources",
           "group": "inline"
         },
         {

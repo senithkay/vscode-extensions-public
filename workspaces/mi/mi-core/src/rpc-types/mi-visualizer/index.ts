@@ -29,10 +29,12 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     ProjectOverviewResponse,
-    OverviewPageDetailsResponse,
-    PomXmlEditRequest,
-    UpdateDependencyRequest,
-    ConfigFileEditRequest,
+    ReadmeContentResponse,
+    AddConfigurableRequest,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -46,6 +48,7 @@ export interface MIVisualizerAPI {
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
+    addConfigurable: (params: AddConfigurableRequest) => Promise<void>;
     getHistory: () => Promise<HistoryEntryResponse>;
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;
@@ -60,6 +63,8 @@ export interface MIVisualizerAPI {
     getAvailableRuntimeServices: () => Promise<RuntimeServicesResponse>;
     sendSwaggerProxyRequest: (params: SwaggerProxyRequest) => Promise<SwaggerProxyResponse>;
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
+    getReadmeContent: () => Promise<ReadmeContentResponse>;
+    openReadme: () => void;
     downloadJava: (params: string) => Promise<string>;
     downloadMI: (params: string) => Promise<string>;
     getSupportedMIVersions: () => Promise<string[]>;
@@ -68,8 +73,9 @@ export interface MIVisualizerAPI {
     setMIHomeForMIVersion: (params: string) => Promise<boolean>;
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
-    getOverviewPageDetails: () => Promise<OverviewPageDetailsResponse>;
-    updateDependency: (params: UpdateDependencyRequest) => Promise<string>;
-    updatePomValue: (params: PomXmlEditRequest) => Promise<string>;
-    updateConfigFileValue: (params: ConfigFileEditRequest) => Promise<string>;
+    getProjectDetails: () => Promise<ProjectDetailsResponse>;
+    updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
+    updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
+    updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
+    importOpenAPISpec: () => Promise<void>;
 }

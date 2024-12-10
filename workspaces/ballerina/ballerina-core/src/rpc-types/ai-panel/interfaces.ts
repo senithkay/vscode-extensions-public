@@ -105,6 +105,7 @@ export interface GenerteMappingsFromRecordRequest {
     inputRecordTypes: DataMappingRecord[];
     outputRecordType: DataMappingRecord;
     functionName: string;
+    imports: { moduleName: string; alias?: string }[];
 }
 
 export interface GenerateMappingFromRecordResponse {

@@ -51,17 +51,18 @@ export interface EnableCondition {
 
 export interface ParamField {
     id?: number;
-    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager";
+    type: "TextField" | "Dropdown" | "Checkbox" | "TextArea" | "AutoComplete" | "KeyLookup" | "ParamManager" | "ExprField";
     label?: string;
+    labelAdornment?: React.ReactNode;
     placeholder?: string;
-    defaultValue?: string | boolean;
+    defaultValue?: any;
     isRequired?: boolean;
     values?: string[]; // For Dropdown and AutoComplete
     nullable?: boolean;
     allowItemCreate?: boolean;
     noItemsFoundMessage?: string;
     enableCondition?: (ConditionParams | string | ConditionParams[])[];
-    openExpressionEditor?: () => void; // For ExpressionField
+    openExpressionEditor?: (value: ExpressionFieldValue, setValue: any) => void; // For ExpressionField
     canChange?: boolean; // For ExpressionField
     filter?: (value: string) => boolean; // For KeyLookup
     filterType?: FilterType | ResourceType[]; // For KeyLookup
@@ -227,6 +228,7 @@ const getNewParam = (fields: ParamField[], index: number): Parameters => {
         paramInfo.push({
             id: index,
             label: field.label,
+            labelAdornment: field.labelAdornment,
             type: field.type,
             value: field.defaultValue || field?.paramManager?.paramConfigs,
             values: field.values,
@@ -259,6 +261,11 @@ export function findFieldFromParam(field: ParamField[], value: Param): ParamFiel
 export const getParamFieldLabelFromParamId = (paramFields: ParamField[], paramId: number) => {
     const paramField = paramFields[paramId];
     return paramField?.label;
+}
+
+export const getParamFieldLabelAdornmentFromParamId = (paramFields: ParamField[], paramId: number) => {
+    const paramField = paramFields[paramId];
+    return paramField?.labelAdornment;
 }
 
 export const getParamFieldPlaceholderFromParamId = (paramFields: ParamField[], paramId: number) => {
@@ -355,6 +362,7 @@ export function ParamManager(props: ParamManagerProps) {
             const param: Param = {
                 id: id,
                 label: getParamFieldLabelFromParamId(paramConfigs.paramFields, id),
+                labelAdornment: getParamFieldLabelAdornmentFromParamId(paramConfigs.paramFields, id),
                 type,
                 placeholder: getParamFieldPlaceholderFromParamId(paramConfigs.paramFields, id),
                 value: paramVal.value,

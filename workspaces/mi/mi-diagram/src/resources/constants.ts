@@ -93,6 +93,8 @@ export const Colors = {
     DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 };
 
+export const SIDE_PANEL_WIDTH = 450;
+
 export const NODE_GAP = {
     START_X: 0,
     START_Y: 40,
@@ -179,27 +181,27 @@ export const MEDIATORS = {
     CALLTEMPLATE: "Call Template",
     CLONE: "Clone",
     DATAMAPPER: "Data Mapper",
-    DATASERVICECALL: "Call Data Service",
+    DATASERVICECALL: "Call Dataservice",
     DROP: "Drop",
     ENRICH: "Enrich",
     ENTITLEMENT: "Entitlement Service",
-    FASTXSLT: "FastXSLT",
-    FAULT: "Fault",
+    FASTXSLT: "Fast XSLT",
+    FAULT: "MakeFault",
     FILTER: "Filter",
-    FOREACHMEDIATOR: "ForEach",
+    FOREACHMEDIATOR: "Foreach",
     HEADER: "Header",
     ITERATE: "Iterate",
-    JSONTRANSFORM: "JSON Transform",
+    JSONTRANSFORM: "Json Transform",
     LOG: "Log",
     LOOPBACK: "Loopback",
-    PAYLOAD: "Payload Factory",
+    PAYLOAD: "Payload",
     PROPERTY: "Property",
     PROPERTYGROUP: "Property Group",
     RESPOND: "Respond",
     REWRITE: "Rewrite",
     RULE: "Rule",
     SEND: "Send",
-    SEQUENCE: "Call Sequence",
+    SEQUENCE: "Sequence",
     SMOOKS: "Smooks",
     STORE: "Store",
     SWITCH: "Switch",
@@ -210,7 +212,7 @@ export const MEDIATORS = {
     BEAN: "Bean",
     CLASS: "Class",
     COMMAND: "Command",
-    EJB: "Ejb",
+    EJB: "EJB",
     SCRIPT: "Script",
     SPRING: "Spring",
     DBLOOKUP: "DB Lookup",
@@ -218,11 +220,11 @@ export const MEDIATORS = {
     ENQUEUE: "Enqueue",
     EVENT: "Event",
     TRANSACTION: "Transaction",
-    CONDITIONALROUTER: "Conditional Router",
+    CONDITIONALROUTER: "ConditionalRouter",
     BAM: "Bam",
     OAUTH: "OAuth",
     BUILDER: "Builder",
-    PUBLISHEVENT: "Publish Event",
+    PUBLISHEVENT: "PublishEvent",
     NTLM: "NTLM",
 }
 
@@ -289,5 +291,15 @@ export const DATA_SERVICE = {
 }
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI"
 }
+
+export const ERROR_MESSAGES = {
+    ERROR_LOADING_MEDIATORS: "Error loading mediator data. Please try again.",
+    ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
+    ERROR_LOADING_MODULES: "Error loading module data. Please try again."
+}
+
+export const DEFAULT_ICON = "https://mi-connectors.wso2.com/icons/wordpress.gif";

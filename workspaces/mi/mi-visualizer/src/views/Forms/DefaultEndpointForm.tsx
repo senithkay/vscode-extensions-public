@@ -26,6 +26,7 @@ export interface DefaultEndpointWizardProps {
     type: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    handleChangeType?: () => void;
 }
 
 type InputsFields = {
@@ -438,6 +439,10 @@ export function DefaultEndpointWizard(props: DefaultEndpointWizardProps) {
     };
 
     const changeType = () => {
+        if (props.handleChangeType) {
+            props.handleChangeType();
+            return;
+        }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {

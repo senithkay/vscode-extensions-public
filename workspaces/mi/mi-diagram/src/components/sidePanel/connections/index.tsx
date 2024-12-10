@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Codicon, ComponentCard, IconLabel, AutoComplete, LinkButton, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, ComponentCard, IconLabel, LinkButton, Typography } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import SidePanelContext from "../SidePanelContexProvider";
@@ -16,7 +16,6 @@ import { sidepanelAddPage } from "..";
 import { FirstCharToUpperCase } from "../../../utils/commons";
 import AddConnector from "../Pages/AddConnector";
 import { MACHINE_VIEW, POPUP_EVENT_TYPE, ParentPopupData } from "@wso2-enterprise/mi-core";
-import CallForm from "../Pages/mediators/core/call";
 
 const VersionTag = styled.div`
     color: #808080;
@@ -81,6 +80,8 @@ const SectionTitleWrapper = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 8px;
+    margin-bottom: 20px;
 `;
 
 const SectionContainer = styled.div`
@@ -338,7 +339,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                 ) : connections && (
                     <SectionContainer>
                         <SectionTitleWrapper>
-                            <h4>Available Connections</h4>
+                            <Typography variant="h3" sx={{ margin: '0px' }}>Available Connections</Typography>
                             {Object.values(connections).some(({ connections }) => connections.length > 0) && (
                                 <LinkButton onClick={() => addNewConnection()}>
                                     <Codicon name="plus"/>Add new connection

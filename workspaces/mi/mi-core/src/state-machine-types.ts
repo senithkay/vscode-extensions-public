@@ -57,7 +57,7 @@ export enum MACHINE_VIEW {
     ProjectCreationForm = "Project Creation Form",
     ImportProjectForm = "Import Project Form",
     LocalEntryForm = "Local Entry Form",
-    RegistryResourceForm = "Registry Resource Creation Form",
+    RegistryResourceForm = "Resource Creation Form",
     RegistryMetadataForm = "Registry Metadata Form",
     MessageStoreForm = "Message Store Form",
     ClassMediatorForm = "ClassMediator Creation Form",
@@ -73,6 +73,8 @@ export enum MACHINE_VIEW {
     MockService = "Mock Service",
     LoggedOut = "Logged Out",
     UpdateExtension = "Update Extension",
+    ManageDependencies = "Manage Dependencies",
+    ProjectInformationForm = "Project Information Form",
 }
 
 export enum AI_MACHINE_VIEW {

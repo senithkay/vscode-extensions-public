@@ -24,10 +24,12 @@ import {
     ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    ReadmeContentResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -39,9 +41,11 @@ import {
     focusOutput,
     getAvailableRuntimeServices,
     getCurrentThemeKind,
+    addConfigurable,
     getHistory,
     getProjectOverview,
     getProjectStructure,
+    getReadmeContent,
     getWorkspaces,
     goBack,
     goHome,
@@ -49,6 +53,7 @@ import {
     goToSource,
     log,
     openExternal,
+    openReadme,
     openView,
     reloadWindow,
     retrieveContext,
@@ -64,14 +69,15 @@ import {
     isMISet,
     toggleDisplayOverview,
     updateContext,
-    getOverviewPageDetails,
-    OverviewPageDetailsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
-    updateDependency,
-    UpdateDependencyRequest,
-    updatePomValue,
-    updateConfigFileValue
+    getProjectDetails,
+    updateDependencies,
+    updatePomValues,
+    updateConfigFileValues,
+    ProjectDetailsResponse,
+    importOpenAPISpec,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -117,6 +123,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         return this._messenger.sendNotification(downloadSelectedSampleFromGithub, HOST_EXTENSION, params);
+    }
+
+    addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        return this._messenger.sendRequest(addConfigurable, HOST_EXTENSION, params);
     }
 
     getHistory(): Promise<HistoryEntryResponse> {
@@ -175,11 +185,19 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(openExternal, HOST_EXTENSION, params);
     }
 
-    downloadJava(params: string): Promise<string>{
+    getReadmeContent(): Promise<ReadmeContentResponse> {
+        return this._messenger.sendRequest(getReadmeContent, HOST_EXTENSION);
+    }
+
+    openReadme(): void {
+        return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
+    }
+
+    downloadJava(params: string): Promise<string> {
         return this._messenger.sendRequest(downloadJava, HOST_EXTENSION, params);
     }
 
-    downloadMI(params: string): Promise<string>{
+    downloadMI(params: string): Promise<string> {
         return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
     }
 
@@ -203,16 +221,19 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     isMISet(): Promise<boolean> {
         return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
     }
-    getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
-        return this._messenger.sendRequest(getOverviewPageDetails, HOST_EXTENSION);
+    getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return this._messenger.sendRequest(getProjectDetails, HOST_EXTENSION);
     }
-    updateDependency(params: UpdateDependencyRequest): Promise<string> {
-        return this._messenger.sendRequest(updateDependency, HOST_EXTENSION, params);
+    updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateDependencies, HOST_EXTENSION, params);
     }
-    updatePomValue(params: PomXmlEditRequest): Promise<string> {
-        return this._messenger.sendRequest(updatePomValue, HOST_EXTENSION, params);
+    updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updatePomValues, HOST_EXTENSION, params);
     }
-    updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
-        return this._messenger.sendRequest(updateConfigFileValue, HOST_EXTENSION, params);
+    updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateConfigFileValues, HOST_EXTENSION, params);
+    }
+    importOpenAPISpec(): Promise<void> {
+        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION);
     }
 }

@@ -41,11 +41,23 @@ import {
     AddDriverRequest,
     DSSQueryGenRequest,
     DSSQueryGenResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest,
+    UpdateMediatorResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
-    UpdateDependencyRequest
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    GenerateConnectorRequest,
+    GenerateConnectorResponse,
+    DependencyDetails,
+    PomNodeDetails,
+    UpdateConfigValuesResponse,
+    UpdateDependenciesResponse,
+    UpdateDependenciesRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -157,6 +169,18 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest("synapse/getRegistryFiles", { uri: Uri.file(req).toString() });
     }
 
+    async getResourceFiles(): Promise<string[]> {
+        return this.sendRequest("synapse/getResourceFiles");
+    }
+    
+    async getConfigurableEntries(): Promise<{ name: string, type: string }[]> {
+        return this.sendRequest("synapse/getConfigurableEntries");
+    }
+
+    async getResourceUsages(resourceFilePath: string): Promise<string[]> {
+        return this.sendRequest("synapse/getResourceUsages", { resourceFilePath: resourceFilePath });
+    }
+
     async getArifactFiles(req: string): Promise<string[]> {
         return this.sendRequest("synapse/getArtifactFiles", { uri: Uri.file(req).toString() });
     }
@@ -225,11 +249,11 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async saveInboundEPUischema(req: SaveInboundEPUischemaRequest): Promise<boolean> {
-        return this.sendRequest("synapse/saveInboundConnectorSchema", { connectorName: req.connectorName, uiSchema: req.uiSchema});
+        return this.sendRequest("synapse/saveInboundConnectorSchema", { connectorName: req.connectorName, uiSchema: req.uiSchema });
     }
 
     async getInboundEPUischema(req: GetInboundEPUischemaRequest): Promise<GetInboundEPUischemaResponse> {
-        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorName: req.connectorName  });
+        return this.sendRequest("synapse/getInboundConnectorSchema", { documentPath: req.documentPath, connectorName: req.connectorName });
     }
 
     async validateBreakpoints(req: ValidateBreakpointsRequest): Promise<ValidateBreakpointsResponse> {
@@ -251,7 +275,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     async generateSchemaFromContent(req: SchemaGenFromContentRequest): Promise<SchemaGenResponse> {
         return this.sendRequest("synapse/generateSchemaFromContent", req);
     }
-    
+
     async generateAPI(req: GenerateAPIRequest): Promise<GenerateAPIResponse> {
         return this.sendRequest("synapse/generateAPI", req);
     }
@@ -288,19 +312,15 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/getProjectExplorerModel', { uri: Uri.file(path).fsPath });
     }
 
-    async updateDependency(req: UpdateDependencyRequest): Promise<string> {
+    async updateDependencies(req: UpdateDependenciesRequest): Promise<UpdateDependenciesResponse> {
         return this.sendRequest('synapse/updateDependency', req);
     }
 
-    async updatePomValue(req: PomXmlEditRequest): Promise<string> {
-        return this.sendRequest('synapse/updatePomValue', req);
+    async updateConfigFileValues(req: PomNodeDetails[]): Promise<UpdateConfigValuesResponse> {
+        return this.sendRequest('synapse/updateConfigFileValues', req);
     }
 
-    async updateConfigFileValue(req: ConfigFileEditRequest): Promise<string> {
-        return this.sendRequest('synapse/updateConfigFileValue', req);
-    }
-
-    async getOverviewPageDetails(): Promise<any> {
+    async getProjectDetails(): Promise<any> {
         return this.sendRequest('synapse/getOverviewPageDetails');
     }
 
@@ -321,7 +341,34 @@ export class ExtendedLanguageClient extends LanguageClient {
         });
     }
 
+    async getMediators(request: GetMediatorsRequest): Promise<GetMediatorsResponse> {
+        return this.sendRequest("synapse/getMediators", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.position });
+    }
+
+    async getMediator(request: GetMediatorRequest): Promise<GetMediatorResponse> {
+        if (request.documentUri && request.range) {
+            return this.sendRequest("synapse/getMediatorUISchemaWithValues", { documentIdentifier: { uri: Uri.file(request.documentUri).toString() }, position: request.range.start });
+        }
+        return this.sendRequest("synapse/getMediatorUISchema", request);
+    }
+
+    async getConnectionSchema(request: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        if (request.documentUri) {
+            return this.sendRequest("synapse/getConnectionUISchema" , { documentUri: Uri.file(request.documentUri).toString(), });
+        }
+
+        return this.sendRequest("synapse/getConnectionUISchema", { connectorName: request.connectorName, connectionType: request.connectionType });
+    }
+
+    async generateSynapseConfig(request: UpdateMediatorRequest): Promise<UpdateMediatorResponse> {
+        return this.sendRequest("synapse/generateSynapseConfig", request);
+    }
+
     async getExpressionCompletions(req: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this.sendRequest("synapse/expressionCompletion", req);
+    }
+
+    async generateConnector(req: GenerateConnectorRequest): Promise<GenerateConnectorResponse> {
+        return this.sendRequest("synapse/generateConnector", req);
     }
 }

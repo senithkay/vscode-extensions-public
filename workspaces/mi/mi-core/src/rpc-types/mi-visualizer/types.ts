@@ -9,6 +9,7 @@
 import { HistoryEntry } from "../../history";
 import { AIVisualizerLocation, EVENT_TYPE, POPUP_EVENT_TYPE, PopupVisualizerLocation, VisualizerLocation } from "../../state-machine-types";
 import { Range as STRange } from "../../../../syntax-tree/lib/src"
+import { TextEdit } from "vscode-languageserver-types";
 
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
@@ -81,18 +82,18 @@ export interface ProjectStructureArtifactResponse {
     type: string;
 }
 
-export interface OverviewPageDetailsResponse {
+export interface ProjectDetailsResponse {
     primaryDetails: PrimaryDetails;
     buildDetails: BuildDetails;
     dependencies: DependenciesDetails;
-    unitTests: UnitTestDetails;
-    configurables: PomNodeDetails[];
- }
+    unitTest: UnitTestDetails;
+    configs: PomNodeDetails[];
+}
 
 export interface PomNodeDetails {
     value: string;
     key?: string;
-    range?: STRange|STRange[];
+    range?: STRange | STRange[];
 }
 
 export interface PrimaryDetails {
@@ -115,33 +116,33 @@ export interface DockerDetails {
     keyStorePassword: PomNodeDetails;
     keyStoreAlias: PomNodeDetails;
     keyStoreType: PomNodeDetails;
- }
- 
+}
+
 export interface AdvanceDetails {
     projectGroupId: PomNodeDetails;
     projectArtifactId: PomNodeDetails;
     pluginDetatils: PluginDetatils;
 }
- 
+
 export interface PluginDetatils {
     projectBuildPluginVersion: PomNodeDetails;
     miContainerPluginVersion: PomNodeDetails;
     unitTestPluginVersion: PomNodeDetails;
 }
- 
+
 export interface DependenciesDetails {
     connectorDependencies: DependencyDetails[];
     otherDependencies: DependencyDetails[];
 }
- 
+
 export interface DependencyDetails {
     groupId: string;
     artifact: string;
     version: string;
-    type?: string;
+    type?: "zip" | "jar";
     range?: STRange;
 }
- 
+
 export interface UnitTestDetails {
     skipTest: PomNodeDetails;
     serverPath: PomNodeDetails;
@@ -151,24 +152,25 @@ export interface UnitTestDetails {
     serverType: PomNodeDetails;
     serverDownloadLink: PomNodeDetails;
 }
- 
-export interface PomXmlEditRequest {
-    value: string;
-    range?: STRange|STRange[];
+
+export interface UpdatePomValuesRequest {
+    pomValues: PomNodeDetails[];
 }
- 
-export interface ConfigFileEditRequest {
-    key: string;
-    value: string;
-    range: STRange;
+
+export interface UpdateConfigValuesRequest {
+    configValues: PomNodeDetails[];
 }
- 
-export interface UpdateDependencyRequest {
-    groupId: string;
-    artifact: string;
-    version: string;
-    type?: string;
-    range?: STRange
+
+export interface UpdateDependenciesRequest {
+    dependencies: DependencyDetails[];
+}
+
+export interface UpdateConfigValuesResponse {
+    textEdits: TextEdit[];
+}
+
+export interface UpdateDependenciesResponse {
+    textEdits: TextEdit[];
 }
 
 export interface DataIntegrationResponse {
@@ -261,6 +263,12 @@ export interface GettingStartedData {
 }
 export interface SampleDownloadRequest {
     zipFileName: string;
+}
+
+export interface AddConfigurableRequest {
+    projectUri: string;
+    configurableName: string;
+    configurableType: string;
 }
 
 export interface OpenViewRequest {
@@ -365,6 +373,7 @@ export interface ProjectOverviewResponse {
     name: string;
     connections: Connection[];
     entrypoints: Entrypoint[];
+    projectDetails: ProjectDetailsResponse;
 }
 
 export interface Connection {
@@ -378,4 +387,8 @@ export interface Entrypoint {
     path: string;
     dependencies: string[];
     connections: string[];
+}
+
+export interface ReadmeContentResponse {
+    content: string;
 }

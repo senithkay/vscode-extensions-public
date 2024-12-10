@@ -30,10 +30,12 @@ import {
     ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    ReadmeContentResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -41,28 +43,33 @@ import {
     VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse,
-    OverviewPageDetailsResponse,
-    PomXmlEditRequest,
-    ConfigFileEditRequest,
-    UpdateDependencyRequest
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
 import fetch from 'node-fetch';
 import * as vscode from 'vscode';
-import { Uri, commands, env, window, workspace } from "vscode";
+import { Position, Uri, ViewColumn, WorkspaceEdit, commands, env, window, workspace, Range } from "vscode";
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
+import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
+import path from "path";
+import { copy } from 'fs-extra';
+
+const fs = require('fs');
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
 import { COMMANDS } from '../../constants';
-import { Range } from "../../../../syntax-tree/lib/src";
+import { TextEdit } from "vscode-languageclient";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -94,35 +101,45 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
-    async getOverviewPageDetails(): Promise<OverviewPageDetailsResponse> {
+    async getProjectDetails(): Promise<ProjectDetailsResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getOverviewPageDetails();
+            const res = await langClient.getProjectDetails();
             resolve(res);
         });
     }
 
-    async updateDependency(params: UpdateDependencyRequest): Promise<string> {
+    async updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateDependency(params);
-            resolve(res);
+            const res = await langClient.updateDependencies(params);
+
+            await this.updatePom(res.textEdits);
+            resolve(true);
         });
     }
 
-    async updatePomValue(params: PomXmlEditRequest): Promise<string> {
+    async updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updatePomValue(params);
-            resolve(res);
+            const textEdits = params.pomValues.map((pomValue) => {
+                return {
+                    newText: pomValue.value,
+                    range: pomValue.range! as Range
+                };
+
+            });
+            this.updatePom(textEdits);
+            resolve(true);
         });
     }
 
-    async updateConfigFileValue(params: ConfigFileEditRequest): Promise<string> {
+    async updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateConfigFileValue(params);
-            resolve(res);
+            const res = await langClient.updateConfigFileValues(params.configValues);
+
+            await this.updatePom(res.textEdits);
+            resolve(true);
         });
     }
 
@@ -199,6 +216,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [projectUri, '.env'].join(path.sep);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
+        await appendContent(envFilePath, `${params.configurableName}\n`);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {
@@ -456,4 +481,106 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             resolve(res);
         });
     }
+
+    openReadme(): void {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            window.showErrorMessage("No workspace folder is open.");
+            return;
+        }
+
+        const projectRoot = workspaceFolders[0].uri.fsPath;
+        const readmePath = path.join(projectRoot, "README.md");
+
+        if (!fs.existsSync(readmePath)) {
+            // Create README.md if it doesn't exist
+            fs.writeFileSync(readmePath, "# Project Overview\n\nAdd your project description here.");
+        }
+
+        // Open README.md in the editor
+        workspace.openTextDocument(readmePath).then((doc) => {
+            window.showTextDocument(doc, ViewColumn.Beside);
+        });
+    }
+
+    async getReadmeContent(): Promise<ReadmeContentResponse> {
+        return new Promise((resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders || workspaceFolders.length === 0) {
+                resolve({ content: "" });
+                return;
+            }
+
+            const projectRoot = workspaceFolders[0].uri.fsPath;
+            const readmePath = path.join(projectRoot, "README.md");
+
+            if (!fs.existsSync(readmePath)) {
+                resolve({ content: "" });
+                return;
+            }
+
+            fs.readFile(readmePath, "utf8", (err, data) => {
+                if (err) {
+                    console.error("Error reading README.md:", err);
+                    resolve({ content: "" });
+                } else {
+                    resolve({ content: data });
+                }
+            });
+        });
+    }
+
+    private async updatePom(textEdits: TextEdit[]) {
+        const projectRoom = StateMachine.context().projectUri!;
+        const pomPath = path.join(projectRoom, 'pom.xml');
+
+        if (!fs.existsSync(pomPath)) {
+            throw new Error("pom.xml not found");
+        }
+
+        for (const textEdit of textEdits) {
+            const content = textEdit.newText;
+
+            const edit = new WorkspaceEdit();
+
+            const range = new Range(new Position(textEdit.range.start.line - 1, textEdit.range.start.character - 1),
+                new Position(textEdit.range.end.line - 1, textEdit.range.end.character - 1));
+
+            edit.replace(Uri.file(pomPath), range, content);
+            await workspace.applyEdit(edit);
+        }
+    }
+
+    async importOpenAPISpec(): Promise<void> {
+        // open file dialog to select the openapi spec file
+        const options: vscode.OpenDialogOptions = {
+            canSelectMany: false,
+            openLabel: 'Open OpenAPI Spec',
+            filters: {
+                'OpenAPI Spec': ['json', 'yaml', 'yml']
+            }
+        };
+        const langClient = StateMachine.context().langClient!;
+        const fileUri = await vscode.window.showOpenDialog(options);
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        const workspaceFolder = workspaceFolders[0].uri.fsPath;
+        if (fileUri && fileUri.length > 0) {
+            const filePath = fileUri[0].fsPath;
+            const connectorGenRequest = {
+                openAPIPath: filePath,
+                connectorProjectPath: path.join(workspaceFolder, 'target')
+            };
+            const { buildStatus, connectorPath } = await langClient.generateConnector(connectorGenRequest);
+            if (buildStatus) {
+                await copy(connectorPath, path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
+                vscode.window.showInformationMessage("Connector generated successfully");
+            } else {
+                vscode.window.showErrorMessage("Error while generating connector");
+            }
+        }
+    }
+
 }

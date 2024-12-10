@@ -8,16 +8,16 @@
  */
 
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Query, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getNodeIdFromModel } from "../../utils/node";
 import { NodePortModel } from "../NodePort/NodePortModel";
-import { Colors, NodeTypes } from "../../resources/constants";
+import { Colors, DATA_SERVICE_NODES, NodeTypes } from "../../resources/constants";
 import { RpcClient } from '@wso2-enterprise/mi-rpc-client';
 import { Diagnostic } from "vscode-languageserver-types";
-import { getDataFromST } from "../../utils/template-engine/mustach-templates/templateUtils";
 import SidePanelContext from "../sidePanel/SidePanelContexProvider";
 import styled, { StyledComponent } from "@emotion/styled";
 import { Button } from "@wso2-enterprise/ui-toolkit";
+import { getDSInputMappingsFromSTNode, getDSQueryFromSTNode, getDSTransformationFromSTNode, getDSOutputMappingsFromSTNode } from "../../utils/template-engine/mustach-templates/dataservice/ds";
 
 export class BaseNodeModel extends NodeModel {
     readonly stNode: STNode;
@@ -98,23 +98,33 @@ export class BaseNodeModel extends NodeModel {
                 range: nodeRange,
             });
 
-            const formData = await getDataFromST(
-                operationName,
-                stNode,
-                this.documentUri,
-                rpcClient
-            );
-
-            await new Promise(resolve => setTimeout(resolve, 1));
+            let formData;
+            if (Object.values(DATA_SERVICE_NODES).includes(operationName)) {
+                switch (operationName) {
+                    case DATA_SERVICE_NODES.INPUT:
+                        formData = getDSInputMappingsFromSTNode(this.stNode as Query);
+                        break;
+                    case DATA_SERVICE_NODES.QUERY:
+                        formData = getDSQueryFromSTNode(this.stNode as Query);
+                        break;
+                    case DATA_SERVICE_NODES.TRANSFORMATION:
+                        formData = getDSTransformationFromSTNode(this.stNode as Query);
+                        break;
+                    case DATA_SERVICE_NODES.OUTPUT:
+                        formData = getDSOutputMappingsFromSTNode(this.stNode as Query);
+                }
+            }
 
             sidePanelContext.setSidePanelState({
+                ...sidePanelContext,
                 isOpen: true,
                 operationName,
+                tag: stNode.tag,
                 nodeRange: nodeRange,
                 isEditing: true,
-                formValues: formData,
                 parentNode: node.mediatorName,
                 node: node,
+                formValues: formData,
             });
         }
     }
@@ -128,6 +138,7 @@ export class BaseNodeModel extends NodeModel {
                 end: this.stNode?.range?.endTagRange?.end ?? this.stNode.range.startTagRange.end
             },
             text: "",
+            disableFormatting: true
         });
     };
 
