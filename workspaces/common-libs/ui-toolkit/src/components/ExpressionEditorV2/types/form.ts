@@ -16,7 +16,7 @@ type HelperPaneConditionalProps = {
     // - Callback function to open/close the helper pane
     changeHelperPaneState: (isOpen: boolean) => void;
     // - Get the helper panel component
-    getHelperPane: (onChange: (value: string) => void) => ReactNode;
+    getHelperPane: (value: string, onChange: (value: string, updatedCursorPosition: number) => void) => ReactNode;
     // - Get a custom icon for the expression editor
     getExpressionEditorIcon?: () => ReactNode;  
 } | {
@@ -30,4 +30,5 @@ export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneCondit
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {
     inputElement: HTMLTextAreaElement;
+    setCursor: (value: string, cursorPosition: number) => void;
 };

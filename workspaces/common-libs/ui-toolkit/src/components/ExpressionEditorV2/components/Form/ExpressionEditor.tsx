@@ -331,6 +331,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         }
     }
 
+    const handleRefSetCursor = (value: string, cursorPosition: number) => {
+        setCursor(textBoxRef, 'textarea', value, cursorPosition);
+    }
+
     const handleTextAreaFocus = async () => {
         await onFocus?.();
     }
@@ -352,6 +356,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         inputElement: textBoxRef.current?.shadowRoot?.querySelector('textarea'),
         focus: handleRefFocus,
         blur: handleRefBlur,
+        setCursor: handleRefSetCursor,
         saveExpression: async (value?: string, ref?: React.MutableRefObject<string>) => {
             await handleExpressionSaveMutation(value, ref);
         }

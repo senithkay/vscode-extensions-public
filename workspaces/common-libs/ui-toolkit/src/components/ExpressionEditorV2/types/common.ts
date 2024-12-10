@@ -144,6 +144,7 @@ export type ExpressionEditorProps = ExpressionEditorBaseProps &
 
 export type ExpressionEditorRef = {
     shadowRoot: ShadowRoot;
+    // Focuses the expression editor
     focus: () => void;
     // Blurs the expression editor and optionally saves the expression with the provided value
     blur: (value?: string) => Promise<void>;
