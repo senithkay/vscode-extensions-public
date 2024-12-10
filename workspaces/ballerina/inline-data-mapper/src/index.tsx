@@ -42,6 +42,7 @@ const globalStyles = css`
 export interface DataMapperViewProps {
     model: IDMModel;
     applyModifications: (mappings: Mapping[]) => Promise<void>;
+    addArrayElement: (targetField: string) => Promise<void>;
     onClose: () => void;
 }
 

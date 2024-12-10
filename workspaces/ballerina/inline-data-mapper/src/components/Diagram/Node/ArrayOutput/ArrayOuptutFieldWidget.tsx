@@ -294,28 +294,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleAddArrayElement = async (typeKind: TypeKind) => {
         setIsAddingElement(true)
         try {
-            let updatedMapping = {...mapping}
-            const hasElements = updatedMapping.elements.length > 0;
-            const defaultValue = getDefaultValue(typeKind);
-
-            if (hasElements) {
-                // Replace closing bracket with new element
-                updatedMapping.expression = updatedMapping.expression.replace(/]$/, `,${defaultValue}]`);
-            } else {
-                updatedMapping.expression = `[${defaultValue}]`;
-            }
-
-            updatedMapping.elements.push({ mappings: [] });
-
-            const allMappings = context.model.mappings.slice();
-            const updatedMappings = allMappings.map((mapping) => {
-                if (mapping.output === updatedMapping.output) {
-                    return updatedMapping;
-                }
-                return mapping;
-            });
-
-            return await context.applyModifications(updatedMappings);
+            return await context.addArrayElement(mapping.output);
         } finally {
             setIsAddingElement(false);
         }

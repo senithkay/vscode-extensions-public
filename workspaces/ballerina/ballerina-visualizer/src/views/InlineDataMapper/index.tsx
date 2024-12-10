@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from "react";
 
 import {
+    AddArrayElementRequest,
     FlowNode,
     IDMModel,
     InlineDataMapperSourceRequest,
@@ -70,7 +71,30 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             const resp = await rpcClient
                 .getInlineDataMapperRpcClient()
                 .getDataMapperSource(updateSrcRequest);
-            // setModel(resp);
+            const updateData: ExpressionFormField = {
+                value: resp.source,
+                key: editorKey,
+                cursorPosition: position
+            }
+            updateFormField(updateData);
+        } catch (error) {
+            console.error(error);
+            setIsFileUpdateError(true);
+        }
+    };
+
+    const addArrayElement = async (targetField: string) => {
+        try {
+            const addElementRequest: AddArrayElementRequest = {
+                filePath,
+                flowNode,
+                propertyKey,
+                position,
+                targetField
+            };
+            const resp = await rpcClient
+                .getInlineDataMapperRpcClient()
+                .addNewArrayElement(addElementRequest);
             const updateData: ExpressionFormField = {
                 value: resp.source,
                 key: editorKey,
@@ -102,6 +126,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
                     model={model || initialModel}
                     onClose={onClose}
                     applyModifications={updateExpression}
+                    addArrayElement={addArrayElement}
                 />
             )}
         </>

@@ -59,7 +59,7 @@ function viewsReducer(state: View[], action: ViewAction) {
 }
 
 export function InlineDataMapper(props: DataMapperViewProps) {
-    const { model, applyModifications, onClose } = props;
+    const { model, applyModifications, onClose, addArrayElement } = props;
 
     const initialView = [{
         label: 'Root', // TODO: Pick a better label
@@ -98,7 +98,7 @@ export function InlineDataMapper(props: DataMapperViewProps) {
     }, [model, views]);
 
     const generateNodes = () => {
-        const context = new DataMapperContext(model, views, addView, applyModifications);
+        const context = new DataMapperContext(model, views, addView, applyModifications, addArrayElement);
         const nodeInitVisitor = new NodeInitVisitor(context);
         traverseNode(model, nodeInitVisitor);
         setNodes(nodeInitVisitor.getNodes());

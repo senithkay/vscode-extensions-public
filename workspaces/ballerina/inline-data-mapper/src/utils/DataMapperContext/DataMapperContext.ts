@@ -14,6 +14,7 @@ export interface IDataMapperContext {
     views: View[];
     addView: (view: View) => void;
     applyModifications: (mappings: Mapping[]) => Promise<void>;
+    addArrayElement: (targetField: string) => Promise<void>;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -22,6 +23,7 @@ export class DataMapperContext implements IDataMapperContext {
         public model: IDMModel,
         public views: View[] = [],
         public addView: (view: View) => void,
-        public applyModifications: (mappings: Mapping[]) => Promise<void>
+        public applyModifications: (mappings: Mapping[]) => Promise<void>,
+        public addArrayElement: (targetField: string) => Promise<void>
     ){}
 }
