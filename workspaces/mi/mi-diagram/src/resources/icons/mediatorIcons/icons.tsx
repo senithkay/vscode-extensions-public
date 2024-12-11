@@ -49,9 +49,6 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.FILTER.toLowerCase():
         case MEDIATORS.SWITCH.toLowerCase():
         case MEDIATORS.SCATTERGATHER.toLowerCase():
-        case MEDIATORS.CLONE.toLowerCase():
-        case MEDIATORS.ITERATE.toLowerCase():
-        case MEDIATORS.AGGREGATE.toLowerCase():
         case MEDIATORS.FOREACHMEDIATOR.toLowerCase():
         case MEDIATORS.VALIDATE.toLowerCase():
             color = "#26b99a";
@@ -93,6 +90,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.SPRING.toLowerCase():
         case MEDIATORS.CONDITIONALROUTER.toLowerCase():
         case MEDIATORS.BAM.toLowerCase():
+        case MEDIATORS.CLONE.toLowerCase():
+        case MEDIATORS.ITERATE.toLowerCase():
+        case MEDIATORS.AGGREGATE.toLowerCase():
             color = "#e0e0d8";
             break;
 
