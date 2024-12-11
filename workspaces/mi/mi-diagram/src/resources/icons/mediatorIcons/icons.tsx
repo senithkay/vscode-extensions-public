@@ -48,6 +48,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
 
         case MEDIATORS.FILTER.toLowerCase():
         case MEDIATORS.SWITCH.toLowerCase():
+        case MEDIATORS.SCATTERGATHER.toLowerCase():
         case MEDIATORS.CLONE.toLowerCase():
         case MEDIATORS.ITERATE.toLowerCase():
         case MEDIATORS.AGGREGATE.toLowerCase():
@@ -125,6 +126,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             break;
         case MEDIATORS.CLONE.toLowerCase():
             icon = (<Icon name="Clone" sx={{ height: 25, width: 25, fontSize: 24, color: color }} />);
+            break;
+        case MEDIATORS.SCATTERGATHER.toLowerCase():
+            icon = (<Icon name="ScatterGather" sx={{ height: 25, width: 25, fontSize: 24, color: color }} />);
             break;
         case MEDIATORS.DATAMAPPER.toLowerCase():
             icon = (<Icon name="dataMapper" sx={{ height: 25, width: 25, fontSize: 24, color: color }} />);
