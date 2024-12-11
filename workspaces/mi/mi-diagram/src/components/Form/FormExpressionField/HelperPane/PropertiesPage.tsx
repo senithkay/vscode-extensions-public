@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
 
@@ -28,7 +28,15 @@ export const PropertiesPage = ({
     onClose,
     onChange
 }: PropertiesPageProps) => {
+    const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
+
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            setFilterText('');
+        }
+    }, []);
 
     const handleSearch = (searchText: string) => {
         setFilterText(searchText);
