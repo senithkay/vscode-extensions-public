@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { CSSProperties, useState } from 'react';
 import styled from '@emotion/styled';
 import {
     HelperPaneBodyProps,
@@ -191,7 +191,7 @@ const HeaderContainerWithSearch = styled.div`
     flex-direction: column;
 `;
 
-const DropdownBody = styled.div`
+const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: 350px;
@@ -202,6 +202,7 @@ const DropdownBody = styled.div`
     color: var(--input-foreground);
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
 const LibraryBrowserSubSection: React.FC<HelperPaneSectionProps> = ({
@@ -447,8 +448,8 @@ const HelperPane: React.FC<HelperPaneProps> & {
     LibraryBrowser: typeof LibraryBrowser;
     LibraryBrowserSection: typeof LibraryBrowserSection;
     LibraryBrowserSubSection: typeof LibraryBrowserSubSection;
-} = ({ children }: HelperPaneProps) => {
-    return <DropdownBody>{children}</DropdownBody>;
+} = ({ children, sx }: HelperPaneProps) => {
+    return <DropdownBody sx={sx}>{children}</DropdownBody>;
 };
 
 HelperPane.Header = Header;
