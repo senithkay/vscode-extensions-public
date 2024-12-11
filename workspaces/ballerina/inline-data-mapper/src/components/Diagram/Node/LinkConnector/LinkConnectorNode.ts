@@ -16,6 +16,7 @@ import { findInputNode } from "../../utils/node-utils";
 import { getInputPort, getOutputPort } from "../../utils/port-utils";
 import { IDMDiagnostic, Mapping } from "@wso2-enterprise/ballerina-core";
 import { getTargetPortPrefix } from "../../utils/port-utils";
+import { ArrayOutputNode } from "../ArrayOutput";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 const NODE_ID = "link-connector-node";
@@ -61,7 +62,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         this.mapping.inputs.forEach((field) => {
             const inputNode = findInputNode(field, this);
             if (inputNode) {
-                const inputPort = getInputPort(inputNode, field);
+                const inputPort = getInputPort(inputNode, field.replace(/\.\d+/g, ''));
                 if (!this.sourcePorts.some(port => port.getID() === inputPort.getID())) {
                     this.sourcePorts.push(inputPort);
                 }
@@ -71,7 +72,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         if (this.outPort) {
             this.getModel().getNodes().map((node) => {
     
-                if (node instanceof ObjectOutputNode) {
+                if (node instanceof ObjectOutputNode || node instanceof ArrayOutputNode) {
                     const targetPortPrefix = getTargetPortPrefix(node);
 
                     this.targetPort = node.getPort(`${targetPortPrefix}.${this.mapping.output}.IN`) as InputOutputPortModel;

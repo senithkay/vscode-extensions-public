@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { IOType, Mapping, TypeKind } from "@wso2-enterprise/ballerina-core";
+import { IOType, TypeKind } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
@@ -23,7 +23,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ObjectOutputFieldWidget } from "../ObjectOutput/ObjectOutputFieldWidget";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
-import { findMappingByOutput, getDefaultValue } from "../../utils/common-utils";
+import { getDefaultValue } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
 import { getTypeName } from "../../utils/type-utils";
@@ -68,24 +68,14 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const arrayField = field.member;
     const typeName = getTypeName(field);
-    // const fieldName = field.variableName || '';
-    // const fieldId = fieldIndex !== undefined
-    //     ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-    //     : `${parentId}${fieldName && `.${fieldName}`}`;
-    // const fieldId = fieldIndex !== undefined
-    //     ? fieldName ? `${fieldName}.${fieldIndex}` : ''
-    //     : fieldName || '';
 
     let fieldFQN = parentId;
     if (fieldIndex !== undefined) {
         fieldFQN = `${parentId}.${fieldIndex}`
     }
     const fieldName = field?.variableName || '';
-    // const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 
     const portIn = getPort(`${fieldFQN}.IN`);
-
-    // const mapping = findMappingByOutput(context.model.mappings, fieldName);
     const mapping = portIn && portIn.value;
     const { inputs, expression, elements, diagnostics } = mapping || {};
     const searchValue = useDMSearchStore.getState().outputSearch;
@@ -128,7 +118,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     };
 
     const onAddElementClick = async () => {
-        await handleAddArrayElement(arrayField?.kind);
+        await handleAddArrayElement();
     };
 
     const label = (
@@ -291,10 +281,10 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
-    const handleAddArrayElement = async (typeKind: TypeKind) => {
+    const handleAddArrayElement = async () => {
         setIsAddingElement(true)
         try {
-            return await context.addArrayElement(mapping.output);
+            return await context.addArrayElement(`${mapping.output}`);
         } finally {
             setIsAddingElement(false);
         }
