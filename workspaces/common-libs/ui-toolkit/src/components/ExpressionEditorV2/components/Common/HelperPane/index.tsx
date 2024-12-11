@@ -402,8 +402,10 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = false }) =>
                 <ProgressRingContainer>
                     <ProgressRing />
                 </ProgressRingContainer>
-            ) : (
+            ) : React.Children.toArray(children).length > 0 ? (
                 children
+            ) : (
+                <Typography variant="body3">No items found.</Typography>
             )}
         </BodyContainer>
     );
