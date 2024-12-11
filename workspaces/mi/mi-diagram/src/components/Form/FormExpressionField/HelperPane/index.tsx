@@ -14,7 +14,7 @@ import { CategoryPage } from './CategoryPage';
 import { VariablesPage } from './VariablesPage';
 import { FunctionsPage } from './FunctionsPage';
 import { PayloadPage } from './PayloadPage';
-import { AttributesPage } from './AttributesPage';
+import { PropertiesPage } from './PropertiesPage';
 
 export type HelperPaneProps = {
     exprRef: React.RefObject<FormExpressionEditorRef>;
@@ -82,9 +82,9 @@ const HelperPaneEl = ({
                 />
             )}
             {currentPage === 3 && (
-                <AttributesPage
+                <PropertiesPage
                     isLoading={isLoadingHelperPaneInfo}
-                    attributesInfo={attributesInfo}
+                    propertiesInfo={attributesInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('attributes', filterText)}
                     onClose={onClose}

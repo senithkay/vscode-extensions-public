@@ -93,7 +93,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
     const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
-    const [attributesInfo, setAttributesInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [propertiesInfo, setPropertiesInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
 
     const debouncedRetrieveCompletions = useCallback(
@@ -158,7 +158,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 .then((response) => {
                     setPayloadInfo(response.payload);
                     setVariableInfo(response.variables);
-                    setAttributesInfo(response.attributes);
+                    setPropertiesInfo(response.properties);
                     setFunctionInfo(response.functions);
                 })
                 .finally(() => {
@@ -188,7 +188,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             isLoadingHelperPaneInfo,
             payloadInfo,
             variableInfo,
-            attributesInfo,
+            propertiesInfo,
             functionInfo,
             () => setIsHelperPaneOpen(false),
             handleGetHelperPaneInfo,

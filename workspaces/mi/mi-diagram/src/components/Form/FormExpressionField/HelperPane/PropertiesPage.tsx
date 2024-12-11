@@ -11,23 +11,23 @@ import React, { useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
 
-type AttributesPageProps = {
+type PropertiesPageProps = {
     isLoading: boolean;
-    attributesInfo: HelperPaneCompletionItem[];
+    propertiesInfo: HelperPaneCompletionItem[];
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const AttributesPage = ({
+export const PropertiesPage = ({
     isLoading,
-    attributesInfo,
+    propertiesInfo,
     setCurrentPage,
     setFilterText,
     onClose,
     onChange
-}: AttributesPageProps) => {
+}: PropertiesPageProps) => {
     const [searchValue, setSearchValue] = useState<string>('');
 
     const handleSearch = (searchText: string) => {
@@ -38,17 +38,17 @@ export const AttributesPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Attributes"
+                title="Properties"
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                {attributesInfo?.map((attribute) => (
+                {propertiesInfo?.map((property) => (
                     <HelperPane.CompletionItem
-                        label={attribute.label}
-                        onClick={() => onChange(attribute.insertText)}
+                        label={property.label}
+                        onClick={() => onChange(property.insertText)}
                         getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
                     />
                 ))}
