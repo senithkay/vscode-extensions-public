@@ -11,10 +11,7 @@
 import {
     AIUserInput,
     AI_EVENT_TYPE,
-    APIContextsResponse,
     AddDriverRequest,
-    AddDriverToLibRequest,
-    AddDriverToLibResponse,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -91,6 +88,8 @@ import {
     GetAllMockServicesResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllTestSuitsResponse,
     GetAvailableConnectorRequest,
     GetAvailableConnectorResponse,
@@ -228,7 +227,15 @@ import {
     SavePayloadRequest,
     GetPayloadRequest,
     GetPayloadResponse,
-    onSwaggerSpecReceived
+    AddDriverToLibResponse,
+    AddDriverToLibRequest,
+    APIContextsResponse,
+    onSwaggerSpecReceived,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    ApplyEditsRequest,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -241,6 +248,7 @@ import { Transform } from 'stream';
 import * as tmp from 'tmp';
 import { v4 as uuidv4 } from 'uuid';
 import * as vscode from 'vscode';
+import * as syntaxTree from '../../../../syntax-tree/lib/src';
 import { Position, Range, Selection, TextEdit, Uri, ViewColumn, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { parse, stringify } from "yaml";
 import { UnitTest } from "../../../../syntax-tree/lib/src";
@@ -269,6 +277,8 @@ import { VisualizerWebview } from "../../visualizer/webview";
 import path = require("path");
 import { importCapp } from "../../util/importCapp";
 import { getDefaultProjectPath } from "../../util/onboardingUtils";
+import { Range as STRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+
 const AdmZip = require('adm-zip');
 
 const { XMLParser, XMLBuilder } = require("fast-xml-parser");
@@ -370,7 +380,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                     uri: documentUri
                 },
             });
-
             resolve(res);
         });
     }
@@ -2442,26 +2451,39 @@ ${endpointAttributes}
         });
     }
 
-    async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
+    async applyEdit(params: ApplyEditRequest | ApplyEditsRequest): Promise<ApplyEditResponse> {
         return new Promise(async (resolve) => {
             const edit = new WorkspaceEdit();
             const uri = params.documentUri;
-            let text = params.text;
-            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri);
+            const file = Uri.file(uri);
 
-            if (!document) {
-                document = await workspace.openTextDocument(Uri.file(uri));
+            const getRange = (range: STRange | Range) =>
+                new Range(new Position(range.start.line, range.start.character),
+                    new Position(range.end.line, range.end.character));
+
+            if ('text' in params) {
+                edit.replace(file, getRange(params.range), params.text);
+            } else if ('edits' in params) {
+                params.edits.forEach(editRequest => {
+                    edit.replace(file, getRange(editRequest.range), editRequest.newText);
+                });
             }
 
-            const range = new Range(new Position(params.range.start.line, params.range.start.character),
-                new Position(params.range.end.line, params.range.end.character));
-
-            edit.replace(Uri.file(uri), range, text);
             await workspace.applyEdit(edit);
 
+            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === uri) ||
+                await workspace.openTextDocument(file);
+
             if (!params.disableFormatting) {
-                const formatRange = this.getFormatRange(range, text);
-                await this.rangeFormat({ uri: uri, range: formatRange });
+                const formatEdits = (editRequest: TextEdit) => {
+                    const formatRange = this.getFormatRange(getRange(editRequest.range), editRequest.newText);
+                    return this.rangeFormat({ uri, range: formatRange });
+                };
+                if ('text' in params) {
+                    await formatEdits({ range: getRange(params.range), newText: params.text });
+                } else if ('edits' in params) {
+                    await Promise.all(params.edits.map(editRequest => formatEdits({ range: getRange(editRequest.range), newText: editRequest.newText })));
+                }
             }
             if (!params.disableUndoRedo) {
                 const content = document.getText();
@@ -2771,6 +2793,28 @@ ${endpointAttributes}
             } else {
                 const parentDir = selectedFile[0].fsPath;
                 resolve({ path: parentDir });
+            }
+        });
+    }
+
+    async askOpenAPIDirPath(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            // open file dialog to select the openapi spec file
+            const options: vscode.OpenDialogOptions = {
+                canSelectMany: false,
+                openLabel: 'Open OpenAPI Spec',
+                filters: {
+                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                }
+            };
+
+            const selectedFile = await vscode.window.showOpenDialog(options);
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A file must be selected to import connector');
+                resolve({ path: "" });
+            } else {
+                const fileDir = selectedFile[0].fsPath;
+                resolve({ path: fileDir });
             }
         });
     }
@@ -3313,6 +3357,34 @@ ${endpointAttributes}
         }
     }
 
+    async copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
+        const { connectorPath } = params;
+        try {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders) {
+                throw new Error('No workspace is currently open');
+            }
+            const rootPath = workspaceFolders[0].uri.fsPath;
+
+            const connectorDirectory = path.join(rootPath, 'src', 'main', 'wso2mi', 'resources', 'connectors');
+
+            if (!fs.existsSync(connectorDirectory)) {
+                fs.mkdirSync(connectorDirectory, { recursive: true });
+            }
+
+            const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
+            await fs.promises.copyFile(connectorPath, destinationPath);
+
+
+            return new Promise((resolve, reject) => {
+                resolve({ success: true });
+            });
+        } catch (error) {
+            console.error('Error downloading connector:', error);
+            throw new Error('Failed to download connector');
+        }
+    }
+
     async getConnectorForm(params: GetConnectorFormRequest): Promise<GetConnectorFormResponse> {
         const { uiSchemaPath, operation } = params;
         const operationSchema = path.join(uiSchemaPath, `${operation}.json`);
@@ -3413,6 +3485,7 @@ ${endpointAttributes}
                 canSelectFiles: params.canSelectFiles,
                 canSelectFolders: params.canSelectFolders,
                 canSelectMany: params.canSelectMany,
+                filters: params.filters,
                 defaultUri: params.defaultUri ? Uri.file(params.defaultUri) : Uri.file(os.homedir()),
                 title: params.title,
                 ...params.openLabel && { openLabel: params.openLabel },
@@ -3425,18 +3498,23 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
+            let artifactName = ('resources/' + params.registryPath).replace(path.sep, "_").replace(/_+/g, '_');
+
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
             const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
             if (workspaceFolder) {
                 params.projectDirectory = workspaceFolder?.uri.fsPath;
-                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+                projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
             }
             let registryDir = path.join(projectDir, params.registryRoot);
-            let transformedPath = params.registryRoot === "gov" ? "/_system/governance" : "/_system/config";
+            let transformedPath = "/_system/governance/mi-resources";
             if (params.createOption === "import") {
                 if (fs.existsSync(params.filePath)) {
                     const fileName = path.basename(params.filePath);
+                    artifactName = artifactName + "_" + fileName;
+                    artifactName = artifactName.replace(/\./g, '_');
+
                     const registryPath = path.join(registryDir, params.registryPath);
                     const destPath = path.join(registryPath, fileName);
                     if (!fs.existsSync(registryPath)) {
@@ -3447,13 +3525,13 @@ ${endpointAttributes}
                         transformedPath = path.join(transformedPath, params.registryPath, fileName);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         createMetadataFilesForRegistryCollection(destPath, transformedPath);
-                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, "", true);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, "", true);
                     } else {
                         fs.copyFileSync(params.filePath, destPath);
                         transformedPath = path.join(transformedPath, params.registryPath);
                         transformedPath = transformedPath.split(path.sep).join("/");
                         const mediaType = await detectMediaType(params.filePath);
-                        addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, mediaType, false);
+                        addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, mediaType, false);
                     }
                     commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                     resolve({ path: destPath });
@@ -3462,6 +3540,7 @@ ${endpointAttributes}
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
@@ -3470,7 +3549,7 @@ ${endpointAttributes}
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
 
@@ -3478,17 +3557,18 @@ ${endpointAttributes}
                 let fileName = params.resourceName;
                 const fileData = getMediatypeAndFileExtension(params.templateType);
                 fileName = fileName + "." + fileData.fileExtension;
+                artifactName = artifactName + '_' + params.resourceName + '_' + fileData.fileExtension;
                 let fileContent = params.content ? params.content : getRegistryResourceContent(params.templateType, params.resourceName);
                 const registryPath = path.join(registryDir, params.registryPath);
                 const destPath = path.join(registryPath, fileName);
                 if (!fs.existsSync(registryPath)) {
                     fs.mkdirSync(registryPath, { recursive: true });
                 }
-                await replaceFullContentToFile(destPath, fileContent ? fileContent : "");
+                fs.writeFileSync(destPath, fileContent ? fileContent : "");
                 //add the new entry to artifact.xml
                 transformedPath = path.join(transformedPath, params.registryPath);
                 transformedPath = transformedPath.split(path.sep).join("/");
-                addNewEntryToArtifactXML(params.projectDirectory, params.artifactName, fileName, transformedPath, fileData.mediaType, false);
+                addNewEntryToArtifactXML(params.projectDirectory, artifactName, fileName, transformedPath, fileData.mediaType, false);
                 commands.executeCommand(COMMANDS.REFRESH_COMMAND);
                 resolve({ path: destPath });
             }
@@ -3576,7 +3656,7 @@ ${endpointAttributes}
 
     async getAvailableRegistryResources(params: ListRegistryArtifactsRequest): Promise<RegistryArtifactNamesResponse> {
         return new Promise(async (resolve) => {
-            const response = await getAvailableRegistryResources(params.path);
+            const response = getAvailableRegistryResources(params.path);
             const artifacts = response.artifacts;
             var tempArtifactNames: string[] = [];
             for (let i = 0; i < artifacts.length; i++) {
@@ -3584,7 +3664,7 @@ ${endpointAttributes}
             }
             let artifactsWithAdditionalData: RegistryArtifact[] = [];
             if (params.withAdditionalData) {
-                artifactsWithAdditionalData = getAvailableRegistryResources(params.path).artifacts;
+                artifactsWithAdditionalData = response.artifacts;
             }
             resolve({ artifacts: tempArtifactNames, artifactsWithAdditionalData });
         });
@@ -3625,16 +3705,21 @@ ${endpointAttributes}
     async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {
         return new Promise(async (resolve) => {
             try {
-                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data')) {
-                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data') });
+                if (connectorCache.has('inbound-connector-data') && connectorCache.has('outbound-connector-data') && connectorCache.has('connectors')) {
+                    resolve({ inboundConnectors: connectorCache.get('inbound-connector-data'), outboundConnectors: connectorCache.get('outbound-connector-data'), connectors: connectorCache.get('connectors') });
                     return;
                 }
                 const response = await fetch(APIS.CONNECTOR);
+                const connectorStoreResponse = await fetch(APIS.CONNECTORS_STORE);
                 const data = await response.json();
+                const connectorStoreData = await connectorStoreResponse.json();
                 if (data && data['inbound-connector-data'] && data['outbound-connector-data']) {
                     connectorCache.set('inbound-connector-data', data['inbound-connector-data']);
                     connectorCache.set('outbound-connector-data', data['outbound-connector-data']);
-                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'] });
+                    if (connectorStoreData) {
+                        connectorCache.set('connectors', connectorStoreData);
+                    }
+                    resolve({ inboundConnectors: data['inbound-connector-data'], outboundConnectors: data['outbound-connector-data'], connectors: connectorStoreData });
                 } else {
                     console.log("Failed to fetch connectors. Status: " + data.status + ", Reason: " + data.reason);
                     reject("Failed to fetch connectors.");
@@ -3917,6 +4002,22 @@ ${keyValuesXML}`;
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.getRegistryFiles(params.path);
             resolve({ registryPaths: res.map(element => element.split(path.sep).join("/")) });
+        });
+    }
+
+    async getAllResourcePaths(): Promise<GetAllResourcePathsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getResourceFiles();
+            resolve({ resourcePaths: res });
+        });
+    }
+    
+    async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getConfigurableEntries();
+            resolve({ configurableEntries: res });
         });
     }
 
@@ -4975,14 +5076,11 @@ ${keyValuesXML}`;
             if (response && response.textEdits) {
                 let edits = response.textEdits;
 
-                for (const edit of edits) {
-                    await this.applyEdit({
-                        documentUri: param.documentUri,
-                        range: edit.range,
-                        text: edit.newText,
-                        disableUndoRedo: true
-                    });
-                }
+                await this.applyEdit({
+                    documentUri: param.documentUri,
+                    edits
+                });
+
                 let document = workspace.textDocuments.find(doc => doc.uri.fsPath === param.documentUri);
                 if (!document) {
                     return;
@@ -4990,6 +5088,14 @@ ${keyValuesXML}`;
                 const content = document.getText();
                 undoRedo.addModification(content);
             }
+        });
+    }
+
+    async getConnectionSchema(param: GetConnectionSchemaRequest): Promise<GetConnectionSchemaResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            let response = await langClient.getConnectionSchema(param);
+            resolve(response);
         });
     }
 

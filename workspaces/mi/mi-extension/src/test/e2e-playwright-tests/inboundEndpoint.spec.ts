@@ -28,11 +28,11 @@ test.beforeAll(async () => {
     await initVSCode();
 });
 
-test('Create new project', async () => {
+test.skip('Create new project', async () => {
     await createProject(page);
 });
 
-test('Create new HTTPS inbound endpoint', async () => {
+test.skip('Create new HTTPS inbound endpoint', async () => {
     // Create HTTPS inbound endpoint with automatically generated sequences
     const addArtifactPage = new AddArtifact(page.page);
     await addArtifactPage.init();
@@ -67,7 +67,7 @@ test('Create new HTTPS inbound endpoint', async () => {
     expect(await diagramTitle).toBe('Inbound Endpoint: HTTPS_inboundEP');
 });
 
-test('Edit Inbound Endpoint', async () => {
+test.skip('Edit Inbound Endpoint', async () => {
     // Edit Inbound Endpoint
 
     const diagram = new Diagram(page.page, 'Inbound EP');

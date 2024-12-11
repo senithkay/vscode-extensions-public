@@ -176,27 +176,27 @@ export const NODE_DIMENSIONS = {
 export const MEDIATORS = {
     AGGREGATE: "Aggregate",
     CACHE: "Cache",
-    CALL: "Call",
+    CALL: "Call Endpoint",
     CALLOUT: "Callout",
-    CALLTEMPLATE: "Call-Template",
+    CALLTEMPLATE: "Call Template",
     CLONE: "Clone",
-    DATAMAPPER: "DataMapper",
-    DATASERVICECALL: "DataServiceCall",
+    DATAMAPPER: "Data Mapper",
+    DATASERVICECALL: "Call Dataservice",
     DROP: "Drop",
     ENRICH: "Enrich",
-    ENTITLEMENT: "EntitlementService",
-    FASTXSLT: "FastXSLT",
+    ENTITLEMENT: "Entitlement Service",
+    FASTXSLT: "Fast XSLT",
     FAULT: "MakeFault",
     FILTER: "Filter",
-    FOREACHMEDIATOR: "ForEach",
+    FOREACHMEDIATOR: "Foreach",
     HEADER: "Header",
     ITERATE: "Iterate",
-    JSONTRANSFORM: "JSONTransform",
+    JSONTRANSFORM: "Json Transform",
     LOG: "Log",
     LOOPBACK: "Loopback",
-    PAYLOAD: "PayloadFactory",
+    PAYLOAD: "Payload",
     PROPERTY: "Property",
-    PROPERTYGROUP: "PropertyGroup",
+    PROPERTYGROUP: "Property Group",
     RESPOND: "Respond",
     REWRITE: "Rewrite",
     RULE: "Rule",
@@ -212,11 +212,11 @@ export const MEDIATORS = {
     BEAN: "Bean",
     CLASS: "Class",
     COMMAND: "Command",
-    EJB: "Ejb",
+    EJB: "EJB",
     SCRIPT: "Script",
     SPRING: "Spring",
-    DBLOOKUP: "DBLookup",
-    DBREPORT: "DBReport",
+    DBLOOKUP: "DB Lookup",
+    DBREPORT: "DB Report",
     ENQUEUE: "Enqueue",
     EVENT: "Event",
     TRANSACTION: "Transaction",
@@ -291,7 +291,9 @@ export const DATA_SERVICE = {
 }
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI"
 }
 
 export const ERROR_MESSAGES = {
@@ -299,6 +301,7 @@ export const ERROR_MESSAGES = {
     ERROR_LOADING_TRYOUT: "Error loading tryout data. Please try again.",
     ERROR_TRYING_OUT_MEDIATOR: "Error trying out mediator. Please try again.",
     ERROR_LOADING_PROJECT_OVERVIEW: "Error loading project overview. Please try again.",
+    ERROR_LOADING_MODULES: "Error loading module data. Please try again."
 }
 
 export const REACT_JSON_THEME = {

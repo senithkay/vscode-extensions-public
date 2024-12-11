@@ -55,6 +55,9 @@ export const openPopup = (rpcClient: RpcClient, view: string, fetchItems: any, s
         case "addResource":
             rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.RegistryResourceForm, documentUri: documentUri, customProps }, isPopup: true });
             break;
+        case "sequenceTemplate":
+            rpcClient.getMiVisualizerRpcClient().openView({ type: POPUP_EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.SequenceTemplateView, documentUri: documentUri, customProps }, isPopup: true });
+            break;
         default:
             return;
     }

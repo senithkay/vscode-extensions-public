@@ -41,11 +41,6 @@ export type InputsFields = {
     templateName: string;
     requireTemplateParameters: boolean;
     templateParameters: any[];
-    saveInReg?: boolean;
-    //reg form
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 }
 
 export const initialEndpoint: InputsFields = {
@@ -80,12 +75,6 @@ export const initialEndpoint: InputsFields = {
     templateName: "",
     requireTemplateParameters: false,
     templateParameters: [],
-    saveInReg: false,
-    //reg form
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
-
 };
 
 export const paramTemplateConfigs: ParamConfig = {

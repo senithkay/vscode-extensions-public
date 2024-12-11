@@ -155,6 +155,8 @@ import {
     GetConnectorConnectionsResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
@@ -210,7 +212,11 @@ import {
     GetMediatorResponse,
     UpdateMediatorRequest,
     ExpressionCompletionsRequest,
-    ExpressionCompletionsResponse
+    ExpressionCompletionsResponse,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -274,6 +280,7 @@ export interface MiDiagramAPI {
     askProjectDirPath: () => Promise<ProjectDirResponse>;
     askProjectImportDirPath: () => Promise<ProjectDirResponse>;
     askFileDirPath: () => Promise<FileDirResponse>;
+    askOpenAPIDirPath: () => Promise<FileDirResponse>;
     createProject: (params: CreateProjectRequest) => Promise<CreateProjectResponse>;
     importProject: (params: ImportProjectRequest) => Promise<ImportProjectResponse>;
     migrateProject: (params: MigrateProjectRequest) => Promise<MigrateProjectResponse>;
@@ -300,6 +307,7 @@ export interface MiDiagramAPI {
     getMetadataOfRegistryResource: (params: GetRegistryMetadataRequest) => Promise<GetRegistryMetadataResponse>;
     rangeFormat: (params: RangeFormatRequest) => Promise<ApplyEditResponse>;
     downloadConnector: (params: DownloadConnectorRequest) => Promise<DownloadConnectorResponse>;
+    copyConnectorZip: (params: CopyConnectorZipRequest) => Promise<CopyConnectorZipResponse>;
     downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
@@ -316,6 +324,8 @@ export interface MiDiagramAPI {
     getConnectorConnections: (params: GetConnectorConnectionsRequest) => Promise<GetConnectorConnectionsResponse>;
     logoutFromMIAccount: () => void;
     getAllRegistryPaths: (params: GetAllRegistryPathsRequest) => Promise<GetAllRegistryPathsResponse>;
+    getAllResourcePaths: () => Promise<GetAllResourcePathsResponse>;
+    getConfigurableEntries: () => Promise<GetConfigurableEntriesResponse>;
     getAllArtifacts: (params: GetAllArtifactsRequest) => Promise<GetAllArtifactsResponse>;
     deleteArtifact: (params: DeleteArtifactRequest) => void;
     getAllAPIcontexts: () => Promise<APIContextsResponse>;
@@ -352,5 +362,6 @@ export interface MiDiagramAPI {
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;
+    getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
 }

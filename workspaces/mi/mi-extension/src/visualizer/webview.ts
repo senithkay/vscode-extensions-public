@@ -98,7 +98,9 @@ export class VisualizerWebview {
                 generateSwagger(document.uri.fsPath);
             }
 
-            refreshDiagram();
+            if (currentView !== 'Connector Store Form') {
+                refreshDiagram();
+            }
         }, extension.context);
 
         this._panel.onDidChangeViewState(() => {

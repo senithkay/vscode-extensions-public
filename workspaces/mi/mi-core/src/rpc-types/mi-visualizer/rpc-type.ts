@@ -31,6 +31,12 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
+    AddConfigurableRequest,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -45,6 +51,7 @@ export const reloadWindow: RequestType<void, void> = { method: `${_preFix}/reloa
 export const goBack: NotificationType<void> = { method: `${_preFix}/goBack` };
 export const fetchSamplesFromGithub: RequestType<void, GettingStartedData> = { method: `${_preFix}/fetchSamplesFromGithub` };
 export const downloadSelectedSampleFromGithub: NotificationType<SampleDownloadRequest> = { method: `${_preFix}/downloadSelectedSampleFromGithub` };
+export const addConfigurable: RequestType<AddConfigurableRequest, void> = { method: `${_preFix}/addConfigurable` };
 export const getHistory: RequestType<void, HistoryEntryResponse> = { method: `${_preFix}/getHistory` };
 export const addToHistory: NotificationType<HistoryEntry> = { method: `${_preFix}/addToHistory` };
 export const goHome: NotificationType<void> = { method: `${_preFix}/goHome` };
@@ -59,6 +66,7 @@ export const showNotification: RequestType<NotificationRequest, NotificationResp
 export const getAvailableRuntimeServices: RequestType<void, RuntimeServicesResponse> = { method: `${_preFix}/getAvailableRuntimeServices` };
 export const sendSwaggerProxyRequest: RequestType<SwaggerProxyRequest, SwaggerProxyResponse> = { method: `${_preFix}/sendSwaggerProxyRequest` };
 export const openExternal: RequestType<OpenExternalRequest, OpenExternalResponse> = { method: `${_preFix}/openExternal` };
+export const importOpenAPISpec: RequestType<ImportOpenAPISpecRequest, void> = { method: `${_preFix}/importOpenAPISpec` };
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
 
@@ -71,3 +79,8 @@ export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${
 
 export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
 export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
+export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
+export const updateDependencies: RequestType<UpdateDependenciesRequest, boolean> = { method: `${_preFix}/updateDependencies` };
+export const updatePomValues: RequestType<UpdatePomValuesRequest, boolean> = { method: `${_preFix}/updatePomValues` };
+export const updateConfigFileValues: RequestType<UpdateConfigValuesRequest, boolean> = { method: `${_preFix}/updateConfigFileValues` };
+export const updateConnectorDependencies: RequestType<void, string> = { method: `${_preFix}/updateConnectorDependencies` };

@@ -156,6 +156,8 @@ import {
     getAllDependenciesRequest,
     getAllMockServices,
     getAllRegistryPaths,
+    getAllResourcePaths,
+    getConfigurableEntries,
     getAllTestSuites,
     getAvailableConnectors,
     getAvailableRegistryResources,
@@ -249,7 +251,13 @@ import {
     getInputPayload,
     SavePayloadRequest,
     GetPayloadRequest,
-    getMediatorInputOutputSchema
+    getMediatorInputOutputSchema,
+    GetConnectionSchemaRequest,
+    getConnectionSchema,
+    CopyConnectorZipRequest,
+    copyConnectorZip,
+    ApplyEditsRequest,
+    askOpenAPIDirPath
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -259,7 +267,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(executeCommand, (args: CommandsRequest) => rpcManger.executeCommand(args));
     messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
     messenger.onRequest(getSyntaxTree, (args: getSTRequest) => rpcManger.getSyntaxTree(args));
-    messenger.onRequest(applyEdit, (args: ApplyEditRequest) => rpcManger.applyEdit(args));
+    messenger.onRequest(applyEdit, (args: ApplyEditRequest | ApplyEditsRequest) => rpcManger.applyEdit(args));
     messenger.onRequest(getESBConfigs, () => rpcManger.getESBConfigs());
     messenger.onRequest(getConnectors, () => rpcManger.getConnectors());
     messenger.onRequest(getConnector, (args: ConnectorRequest) => rpcManger.getConnector(args));
@@ -316,6 +324,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
     messenger.onRequest(askProjectImportDirPath, () => rpcManger.askProjectImportDirPath());
     messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
+    messenger.onRequest(askOpenAPIDirPath, () => rpcManger.askOpenAPIDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(importProject, (args: ImportProjectRequest) => rpcManger.importProject(args));
     messenger.onRequest(migrateProject, (args: MigrateProjectRequest) => rpcManger.migrateProject(args));
@@ -343,6 +352,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(rangeFormat, (args: RangeFormatRequest) => rpcManger.rangeFormat(args));
     messenger.onRequest(downloadConnector, (args: DownloadConnectorRequest) => rpcManger.downloadConnector(args));
     messenger.onRequest(downloadInboundConnector, (args: DownloadInboundConnectorRequest) => rpcManger.downloadInboundConnector(args));
+    messenger.onRequest(copyConnectorZip, (args: CopyConnectorZipRequest) => rpcManger.copyConnectorZip(args));
     messenger.onRequest(getAvailableConnectors, (args: GetAvailableConnectorRequest) => rpcManger.getAvailableConnectors(args));
     messenger.onNotification(updateConnectors, (args: UpdateConnectorRequest) => rpcManger.updateConnectors(args));
     messenger.onRequest(getConnectorForm, (args: GetConnectorFormRequest) => rpcManger.getConnectorForm(args));
@@ -358,6 +368,8 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnectorConnections, (args: GetConnectorConnectionsRequest) => rpcManger.getConnectorConnections(args));
     messenger.onNotification(logoutFromMIAccount, () => rpcManger.logoutFromMIAccount());
     messenger.onRequest(getAllRegistryPaths, (args: GetAllRegistryPathsRequest) => rpcManger.getAllRegistryPaths(args));
+    messenger.onRequest(getAllResourcePaths, () => rpcManger.getAllResourcePaths());
+    messenger.onRequest(getConfigurableEntries, () => rpcManger.getConfigurableEntries());
     messenger.onRequest(getAllArtifacts, (args: GetAllArtifactsRequest) => rpcManger.getAllArtifacts(args));
     messenger.onNotification(deleteArtifact, (args: DeleteArtifactRequest) => rpcManger.deleteArtifact(args));
     messenger.onRequest(getAllAPIcontexts, () => rpcManger.getAllAPIcontexts());
@@ -393,6 +405,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getInputPayload, (args:GetPayloadRequest) => rpcManger.getInputPayload(args));
     messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
     messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
+    messenger.onRequest(getConnectionSchema, (args: GetConnectionSchemaRequest) => rpcManger.getConnectionSchema(args));
     messenger.onNotification(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
 }

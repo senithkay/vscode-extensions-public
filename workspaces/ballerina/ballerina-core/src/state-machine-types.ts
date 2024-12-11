@@ -53,6 +53,8 @@ export enum MACHINE_VIEW {
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    AddTriggerWizard = "Add Trigger Wizard",
+    ListenerConfigView = "Listener View",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
@@ -117,6 +119,8 @@ export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
 export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
+
+export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';

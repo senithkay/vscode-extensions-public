@@ -29,6 +29,7 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
@@ -40,6 +41,7 @@ import {
     focusOutput,
     getAvailableRuntimeServices,
     getCurrentThemeKind,
+    addConfigurable,
     getHistory,
     getProjectOverview,
     getProjectStructure,
@@ -66,7 +68,18 @@ import {
     isJavaHomeSet,
     isMISet,
     toggleDisplayOverview,
-    updateContext
+    updateContext,
+    getProjectDetails,
+    updateDependencies,
+    updatePomValues,
+    updateConfigFileValues,
+    ProjectDetailsResponse,
+    importOpenAPISpec,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    updateConnectorDependencies,
+    ImportOpenAPISpecRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -112,6 +125,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         return this._messenger.sendNotification(downloadSelectedSampleFromGithub, HOST_EXTENSION, params);
+    }
+
+    addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        return this._messenger.sendRequest(addConfigurable, HOST_EXTENSION, params);
     }
 
     getHistory(): Promise<HistoryEntryResponse> {
@@ -205,5 +222,23 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     }
     isMISet(): Promise<boolean> {
         return this._messenger.sendRequest(isMISet, HOST_EXTENSION);
+    }
+    getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return this._messenger.sendRequest(getProjectDetails, HOST_EXTENSION);
+    }
+    updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateDependencies, HOST_EXTENSION, params);
+    }
+    updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updatePomValues, HOST_EXTENSION, params);
+    }
+    updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateConfigFileValues, HOST_EXTENSION, params);
+    }
+    updateConnectorDependencies(): Promise<string> {
+        return this._messenger.sendRequest(updateConnectorDependencies, HOST_EXTENSION);
+    }
+    importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
+        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION, params);
     }
 }

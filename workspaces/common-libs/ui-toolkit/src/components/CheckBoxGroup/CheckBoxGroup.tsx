@@ -8,7 +8,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import React, { ComponentPropsWithRef } from "react";
+import React, { ComponentPropsWithRef, ReactNode } from "react";
 import { Control, Controller } from "react-hook-form";
 
 const Directions = {
@@ -18,8 +18,10 @@ const Directions = {
 
 export type CheckBoxProps = {
     label: string;
+    labelAdornment?: ReactNode;
     value?: string;
     checked: boolean;
+    disabled?: boolean;
     onChange: (checked: boolean) => void;
 };
 
@@ -44,16 +46,28 @@ const CheckBoxContainer = styled.div<CheckBoxGroupProps>`
 
 export const StyledCheckBox = styled(VSCodeCheckbox)`
     --checkbox-border: var(--vscode-icon-foreground);
+    display: flex;
+    align-items: center; // Center vertically
 `;
 
-export const CheckBox = ({ label, value, checked, onChange }: CheckBoxProps) => {
+const LabelContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 4px;
+`;
+export const CheckBox = ({ label, labelAdornment, value, checked, onChange, disabled }: CheckBoxProps) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.checked);
     };
 
     return (
-        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
-            {label}
+        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange} disabled={disabled}>
+            <LabelContainer>
+                <div style={{ color: "var(--vscode-editor-foreground)" }}>
+                    <label htmlFor={`${label}`}>{label}</label>
+                </div>
+                {labelAdornment && labelAdornment}
+            </LabelContainer>
         </StyledCheckBox>
     );
 };
@@ -62,10 +76,11 @@ export const CheckBox = ({ label, value, checked, onChange }: CheckBoxProps) => 
 interface FormCheckBoxProps {
     name: string;
     label?: string;
+    labelAdornment?: ReactNode;
     control: Control<any>;
 }
 
-export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label }) => {
+export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label, labelAdornment }) => {
     return (
         <Controller
             name={name}
@@ -74,6 +89,7 @@ export const FormCheckBox: React.FC<FormCheckBoxProps> = ({ name, control, label
                 return (
                     <CheckBox
                         label={label}
+                        labelAdornment={labelAdornment}
                         checked={checked}
                         onChange={onChange}
                     />

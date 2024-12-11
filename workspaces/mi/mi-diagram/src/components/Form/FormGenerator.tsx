@@ -46,6 +46,7 @@ export interface FormGeneratorProps {
     ignoreFields?: string[];
     connections?: string[];
     addNewConnection?: any;
+    autoGenerateSequences?: boolean;
 }
 
 interface Element {
@@ -65,6 +66,8 @@ interface Element {
     elements?: any[];
     tableKey?: string;
     tableValue?: string;
+    configurableType?: string;
+    addParamText?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -76,10 +79,9 @@ interface ExpressionValueWithSetter {
 export function FormGenerator(props: FormGeneratorProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { formData, sequences, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields, connections, addNewConnection } = props;
+    const { formData, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields, connections, addNewConnection, autoGenerateSequences } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
-    const [autoGenerate, setAutoGenerate] = useState(!onEdit);
     const [isLoading, setIsLoading] = React.useState(true);
     const handleOnCancelExprEditorRef = useRef(() => { });
 
@@ -117,7 +119,7 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
-        } else if (['stringOrExpression', 'expression', 'keyOrExpression'].includes(inputType) &&
+        } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
         } else if (inputType === 'checkbox') {
@@ -134,15 +136,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         return String(name).replace(/\./g, '__dot__');
     }
 
-    const handleSequenceGeneration = (e: any) => {
-        setAutoGenerate(e);
-        if (e) {
-            setValue("sequence", "");
-            setValue("onError", "");
-        }
-    };
-
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string }) => {
+    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
         const name = getNameForController(element.name);
 
         return expressionEditorField !== name ? (
@@ -152,7 +146,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 labelAdornment={helpTipElement}
                 placeholder={placeholder}
                 canChange={canChange}
-                required={element.required || element.required === 'true'}
+                required={isRequired}
                 isTextArea={element.inputType === 'textAreaOrExpression'}
                 errorMsg={errors[name] && errors[name].message.toString()}
                 openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
@@ -185,43 +179,6 @@ export function FormGenerator(props: FormGeneratorProps) {
         )
     }
 
-    const sequenceFieldComponent = ({ element }: { element: Element }) => {
-        return (
-            <Controller
-                name={getNameForController(element.name)}
-                control={control}
-                rules={
-                    {
-                        ...(element.required === 'true') && {
-                            validate: (value) => {
-                                if (!value || (typeof value === 'object' && !value.value)) {
-                                    return "This field is required";
-                                }
-                                return true;
-                            },
-                        }
-                    }
-                }
-                render={({ field }) => (
-                    <Field>
-                        <AutoComplete
-                            name={getNameForController(element.name)}
-                            label={element.displayName}
-                            items={sequences}
-                            value={field.value}
-                            onValueChange={(e: any) => {
-                                field.onChange(e);
-                            }}
-                            required={element.required === 'true'}
-                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
-                            allowItemCreate={false}
-                        />
-                    </Field>
-                )}
-            />
-        );
-    }
-
     function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: React.JSX.Element, field: any) {
         return <ComponentCard sx={cardStyle} disbaleHoverEffect>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -236,6 +193,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             <ParamManager
                 paramConfigs={field.value}
                 readonly={false}
+                addParamText={element.addParamText}
                 onChange={(values) => {
                     values.paramValues = getParamManagerOnChange(element, values);
                     field.onChange(values);
@@ -265,6 +223,13 @@ export function FormGenerator(props: FormGeneratorProps) {
             placeholder = conditionalPlaceholder?.[conditionFieldValue];
         }
 
+        let keyType = element.keyType;
+        if (keyType?.conditionField) {
+            const conditionFieldValue = watch(getNameForController(keyType.conditionField));
+            const conditionalKeyType = keyType.values.find((value: any) => value[conditionFieldValue]);
+            keyType = conditionalKeyType?.[conditionFieldValue];
+        }
+
         switch (element.inputType) {
             case 'string':
                 if (element.name === 'connectionName') {
@@ -292,19 +257,13 @@ export function FormGenerator(props: FormGeneratorProps) {
                     />
                 );
             case 'boolean':
-                return (
-                    <FormCheckBox
-                        name={name}
-                        label={element.displayName}
-                        control={control}
-                    />
-                );
             case 'checkbox':
                 return (
-                    <FormCheckBox
-                        name={name}
+                    <CheckBox
+                        {...field}
                         label={element.displayName}
-                        control={control}
+                        labelAdornment={helpTipElement}
+                        checked={field.value}
                     />
                 );
             case 'stringOrExpression':
@@ -313,7 +272,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder });
+                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder, isRequired });
 
             case 'booleanOrExpression':
             case 'comboOrExpression':
@@ -337,43 +296,31 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             case 'key':
             case 'keyOrExpression':
-                return (
-                    <FormKeylookup
-                        control={control}
-                        name={name}
-                        label={element.displayName}
-                        filterType={element.keyType}
-                        allowItemCreate={element.canAddNew}
-                        required={true}
-                        errorMsg={errorMsg}
-                        {...element.inputType === 'keyOrExpression' && { canChangeEx: true }}
-                        {...element.inputType === 'keyOrExpression' && { exprToggleEnabled: true }}
-                        openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
-                        onCreateButtonClick={element.canAddNew ? (fetchItems: any, handleValueChange: any) => {
-                            openPopup(rpcClient, element.keyType, fetchItems, handleValueChange);
-                        } : undefined}
-                    />
-                );
             case 'comboOrKey':
             case 'registry':
-            case 'resource': {
+            case 'resource': 
+            case 'resourceOrExpression': {
                 let onCreateButtonClick;
-                if (!Array.isArray(element.keyType)) {
+                if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
-                        openPopup(rpcClient, element.inputType === 'comboOrKey' ? element.keyType : "addResource", fetchItems, handleValueChange, undefined, { type: element.keyType });
+                        const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
+                        openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
                 }
 
                 return (<Keylookup
                     value={field.value}
-                    filterType={(element.keyType as any) ?? "resource"}
+                    filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={true}
+                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
                     additionalItems={element.comboValues}
+                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
+                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
+                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     onCreateButtonClick={onCreateButtonClick}
                 />)
             }
@@ -392,6 +339,34 @@ export function FormGenerator(props: FormGeneratorProps) {
                     growRange={{ start: 5, offset: 10 }}
                     errorMsg={errorMsg}
                 />);
+            case 'configurable': {
+                const onCreateButtonClick = async (fetchItems: any, handleValueChange: any) => {
+                    await rpcClient.getMiVisualizerRpcClient().addConfigurable({
+                        projectUri: '',
+                        configurableName: field.value.value,
+                        configurableType: element.configurableType
+                    });
+                    handleValueChange(field.value.value);
+                }
+                return (
+                    <div>
+                        <Keylookup 
+                            name={getNameForController(element.name)}
+                            label={element.displayName}
+                            errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}
+                            filter={(configurableType) => configurableType === element.configurableType}
+                            filterType='configurable'
+                            value={field.value.value ? field.value.value : ""}
+                            onValueChange={(e: any) => {
+                                field.onChange({ isConfigurable: true, value: e });
+                            }}
+                            required={false}
+                            allowItemCreate={true}
+                            onCreateButtonClick={onCreateButtonClick}
+                        />
+                    </div>
+                );
+            }
             case 'connection':
                 return (
                     <>
@@ -426,11 +401,20 @@ export function FormGenerator(props: FormGeneratorProps) {
 
         const tableKeys: string[] = [];
         elements.forEach((attribute: any) => {
-            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip } = attribute.value;
+            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip, placeholder } = attribute.value;
             let defaultValue: any = attribute.value.defaultValue;
 
             tableKeys.push(name);
             const isRequired = required == true || required == 'true';
+
+            const helpTipElement = helpTip ? (
+                <Tooltip
+                    content={helpTip}
+                    position='right'
+                >
+                    <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
+                </Tooltip>
+            ) : null;
 
             let type;
             if (attribute.type === 'table') {
@@ -456,8 +440,9 @@ export function FormGenerator(props: FormGeneratorProps) {
             {
                 type: type as any,
                 label: displayName,
+                labelAdornment: helpTipElement,
+                placeholder: placeholder,
                 defaultValue: defaultValue,
-                ...(helpTip && { placeholder: helpTip }),
                 isRequired: isRequired,
                 ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
                 ...(type === 'Dropdown') && { values: comboValues },
@@ -526,7 +511,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             if (element?.value?.enableCondition !== undefined) {
                 const shouldRender = getConditions(element.value.enableCondition);
                 if (!shouldRender) {
-                    if (getValues(name)) {
+                    if (getValues(name) !== undefined) {
                         setValue(name, undefined)
                     }
                     return;
@@ -554,32 +539,12 @@ export function FormGenerator(props: FormGeneratorProps) {
                     </>
                 );
             } else {
-                const name = getNameForController(element.value.name);
                 if (element.value.hidden) {
-                    setValue(name, element.value.defaultValue ?? "");
                     return;
                 }
 
                 if (ignoreFields?.includes(element.value.name)) {
                     return;
-                }
-
-                if (element.value.name === "sequence") {
-                    return (
-                        <>
-                            {!onEdit && <CheckBox
-                                label="Automatically generate sequences"
-                                onChange={handleSequenceGeneration}
-                                checked={autoGenerate}
-                            />}
-                            {!autoGenerate && sequenceFieldComponent({ element: element.value })}
-                        </>);
-                }
-
-                if (element.value.name === "onError") {
-                    return (
-                        !autoGenerate && sequenceFieldComponent({ element: element.value })
-                    );
                 }
 
                 return (
@@ -592,6 +557,11 @@ export function FormGenerator(props: FormGeneratorProps) {
     const renderController = (element: any) => {
         const name = getNameForController(element.value.name);
         const isRequired = typeof element.value.required === 'boolean' ? element.value.required : element.value.required === 'true';
+        const defaultValue = getDefaultValue(element);
+
+        if (getValues(name) === undefined) {
+            setValue(name, defaultValue);
+        }
 
         if (element.type === 'table') {
             element.value.inputType = 'ParamManager';
@@ -601,7 +571,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             <Controller
                 name={name}
                 control={control}
-                defaultValue={getDefaultValue(element)}
+                defaultValue={defaultValue}
                 rules={
                     {
                         ...(isRequired) && {
@@ -625,9 +595,16 @@ export function FormGenerator(props: FormGeneratorProps) {
 
     function getConditions(conditions: any): boolean {
         const evaluateCondition = (condition: any) => {
-            const key = Object.keys(condition)[0];
-            const currentVal = watch(getNameForController(key));
-            return currentVal === condition[key] || (typeof condition[key] === 'string' && String(currentVal) === condition[key]);
+            const [conditionKey] = Object.keys(condition);
+            const expectedValue = condition[conditionKey];
+            const currentVal = watch(getNameForController(conditionKey));
+
+            if (conditionKey.includes('.')) {
+                const [key, subKey] = conditionKey.split('.');
+                const parentValue = watch(getNameForController(key));
+                return parentValue?.[subKey] === expectedValue;
+            }
+            return currentVal === condition[conditionKey] || (typeof condition[conditionKey] === 'string' && String(currentVal) === condition[conditionKey]);
         };
 
         if (Array.isArray(conditions)) {

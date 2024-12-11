@@ -55,6 +55,7 @@ export const COMMANDS = {
     ADD_COMMAND: 'MI.project-explorer.add',
     ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
+    ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',
@@ -159,7 +160,9 @@ export enum MessageStoreTypes {
 export * from "./swagger";
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";

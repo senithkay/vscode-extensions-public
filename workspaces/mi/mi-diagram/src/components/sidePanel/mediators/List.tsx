@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ErrorBanner, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, ErrorBanner, Icon, LinkButton, ProgressRing, Typography } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect } from 'react';
 import SidePanelContext from '../SidePanelContexProvider';
 import { getMediatorIconsFromFont } from '../../../resources/icons/mediatorIcons/icons';
@@ -18,6 +18,9 @@ import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
+import { ModuleSuggestions } from './ModuleSuggestions';
+import { Modules } from '../modules/ModulesList';
+import AddConnector from '../Pages/AddConnector';
 
 interface MediatorProps {
     nodePosition: any;
@@ -30,41 +33,81 @@ export function Mediators(props: MediatorProps) {
     const { rpcClient } = useVisualizerContext();
     const [allMediators, setAllMediators] = React.useState<GetMediatorsResponse>();
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [connectorIcons, setConnectorIcons] = React.useState<any[]>([]);
+    const [localConnectors, setLocalConnectors] = React.useState<any>();
 
     useEffect(() => {
-        const fetchMediators = async () => {
+        const fetchConnectorIcons = async () => {
             try {
-                const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
-                    documentUri: props.documentUri,
-                    position: props.nodePosition,
-                });
-                setAllMediators(mediatorsList);
+                const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+                setConnectorIcons(connectorDataResponse.outboundConnectors);
             } catch (error) {
-                console.error('Error fetching mediators:', error);
-                setAllMediators(undefined);
+                console.error("Failed to fetch connector data:", error);
             }
-            setIsLoading(false);
         };
+
         fetchMediators();
+        fetchLocalConnectorData();
+        fetchConnectorIcons();
     }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    const fetchMediators = async () => {
+        try {
+            const mediatorsList = await rpcClient.getMiDiagramRpcClient().getMediators({
+                documentUri: props.documentUri,
+                position: props.nodePosition.start,
+            });
+            setAllMediators(mediatorsList);
+        } catch (error) {
+            console.error('Error fetching mediators:', error);
+            setAllMediators(undefined);
+        }
+        setIsLoading(false);
+    };
+
+    const fetchLocalConnectorData = async () => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
+        if (connectorData) {
+            setLocalConnectors(connectorData.connectors);
+        } else {
+            setLocalConnectors([]);
+        }
+    };
 
     const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
         const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
             mediatorType: mediator.tag,
         });
 
-        const form =
-            <div style={{ padding: '20px' }}>
-                <MediatorPage
-                    mediatorData={mediatorDetails}
-                    mediatorType={mediator.tag}
-                    isUpdate={false}
-                    documentUri={props.documentUri}
-                    nodeRange={props.nodePosition}
-                    showMediaotrPanel={true}
-                />
-            </div>;
-        sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
+        if (mediator.tag.includes('.')) {
+            const connecterForm = <AddConnector formData={mediatorDetails}
+                nodePosition={sidePanelContext.nodeRange}
+                documentUri={props.documentUri}
+                connectorName={mediator.tag[0]}
+                operationName={mediator.operationName} />;
+
+            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${mediator.operationName}`);
+        } else {
+            const form =
+                <div style={{ padding: '20px' }}>
+                    <MediatorPage
+                        mediatorData={mediatorDetails}
+                        mediatorType={mediator.tag}
+                        isUpdate={false}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                        showMediaotrPanel={true}
+                    />
+                </div>;
+            sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
+        }
+    }
+
+    function getConnectorIconUrl(connectorName: string) {
+        const connector = connectorIcons.find(c => c.name === connectorName);
+        return connector?.icon_url ?
+            <img src={connector.icon_url} alt="Icon" onError={() => <Icon name="connector" sx={{ color: "#D32F2F" }} />} />
+            : <Icon name="connector" sx={{ color: "#D32F2F" }} />;
     }
 
     const searchForm = (value: string, search?: boolean) => {
@@ -88,6 +131,23 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
+    const reloadPalette = () => {
+        fetchMediators();
+        fetchLocalConnectorData();
+    };
+
+    const addModule = () => {
+        const modulesList = <Modules
+            nodePosition={props.nodePosition}
+            trailingSpace={props.trailingSpace}
+            documentUri={props.documentUri}
+            localConnectors={localConnectors}
+            reloadMediatorPalette={reloadPalette} />;
+        const icon = <Codicon name="library" iconSx={{ fontSize: 20, color: 'var(--vscode-textLink-foreground)' }} />
+
+        sidepanelAddPage(sidePanelContext, modulesList, 'Modules', icon);
+    }
+
     const MediatorList = () => {
         let mediators: GetMediatorsResponse;
         if (props.searchValue) {
@@ -110,7 +170,7 @@ export function Mediators(props: MediatorProps) {
                                     title={mediator.title}
                                     description={mediator.description}
                                     icon={
-                                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                        mediator.iconPath ? getConnectorIconUrl(key) : getMediatorIconsFromFont(mediator.tag, key === "most popular")
                                     }
                                     onClick={() => getMediator(mediator, key === "most popular")}
                                 />
@@ -124,13 +184,28 @@ export function Mediators(props: MediatorProps) {
 
     return (
         <div>
-            {isLoading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
-                    <ProgressRing />
-                </div>
-            ) : (
-                <MediatorList />
-            )}
-        </div>
+            {
+                isLoading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
+                        <ProgressRing />
+                    </div>
+                ) : (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', alignItems: 'center' }}>
+                            <Typography variant="h3" sx={{ margin: '0px' }}>Available Modules</Typography>
+                            <LinkButton onClick={() => addModule()}>
+                                <Codicon name="plus" />Add Module
+                            </LinkButton>
+                        </div>
+                        <MediatorList />
+                        <ModuleSuggestions
+                            documentUri={props.documentUri}
+                            searchValue={props.searchValue}
+                            localConnectors={localConnectors}
+                            reloadMediatorPalette={reloadPalette} />
+                    </>
+                )
+            }
+        </div >
     );
 }

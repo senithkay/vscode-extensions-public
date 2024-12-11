@@ -6,21 +6,26 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, {useEffect, useState} from "react";
-import {Button, TextField, FormView, FormActions, FormCheckBox} from "@wso2-enterprise/ui-toolkit";
-import {useVisualizerContext} from "@wso2-enterprise/mi-rpc-client";
-import {EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest} from "@wso2-enterprise/mi-core";
+import { useEffect, useState } from "react";
+import { Button, TextField, FormView, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { EVENT_TYPE, MACHINE_VIEW, CreateTemplateRequest, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import CardWrapper from "./Commons/CardWrapper";
-import {TypeChip} from "./Commons";
-import {useForm} from "react-hook-form";
+import { TypeChip } from "./Commons";
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import {yupResolver} from "@hookform/resolvers/yup";
-import AddToRegistry, {getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry} from "./AddToRegistry";
+import { yupResolver } from "@hookform/resolvers/yup";
+import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
+import { AddressEndpointWizard } from "./AddressEndpointForm";
+import { DefaultEndpointWizard } from "./DefaultEndpointForm";
+import { HttpEndpointWizard } from "./HTTPEndpointForm";
+import { WsdlEndpointWizard } from "./WSDLEndpointForm";
 
 export interface TemplateWizardProps {
     path: string;
-    type: string;
+    type?: string;
+    isPopup?: boolean;
     onCancel?: () => void;
 }
 
@@ -35,11 +40,6 @@ type InputsFields = {
     wsdlPort?: number;
     traceEnabled?: boolean;
     statisticsEnabled?: boolean;
-    saveInReg?: boolean;
-    //reg form
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 };
 
 const newTemplate: InputsFields = {
@@ -53,11 +53,6 @@ const newTemplate: InputsFields = {
     wsdlPort: 8080,
     traceEnabled: false,
     statisticsEnabled: false,
-    saveInReg: false,
-    //reg form
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
 }
 
 export function TemplateWizard(props: TemplateWizardProps) {
@@ -68,10 +63,6 @@ export function TemplateWizard(props: TemplateWizardProps) {
             .test('validateTemplateName',
                 'An artifact with same name already exists', value => {
                     return !isNewTemplate ? !(workspaceFileNames.includes(value) && value !== savedTemplateName) : !workspaceFileNames.includes(value);
-                })
-            .test('validateTemplateArtifactName',
-                'A registry resource with this artifact name already exists', value => {
-                    return !isNewTemplate ? !(artifactNames.includes(value) && value !== savedTemplateName) : !artifactNames.includes(value);
                 }),
         templateType: yup.string().default(""),
         address: yup.string().notRequired().default(""),
@@ -82,40 +73,11 @@ export function TemplateWizard(props: TemplateWizardProps) {
         wsdlPort: yup.number().notRequired().default(8080),
         traceEnabled: yup.boolean().default(false),
         statisticsEnabled: yup.boolean().default(false),
-        saveInReg: yup.boolean().default(false),
-        artifactName: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Artifact Name is required")
-                    .test('validateArtifactName',
-                        'Artifact name already exists', value => {
-                            return !artifactNames.includes(value);
-                        })
-                    .test('validateFileName',
-                        'A file already exists in the workspace with this artifact name', value => {
-                            return !workspaceFileNames.includes(value);
-                        }),
-        }),
-        registryPath: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Registry Path is required")
-                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("templateName"));
-                    if (formattedPath === undefined) return true;
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
-        }),
-        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
         register,
-        formState: {errors, isDirty},
+        formState: { errors, isDirty },
         handleSubmit,
         setValue,
         getValues,
@@ -128,15 +90,13 @@ export function TemplateWizard(props: TemplateWizardProps) {
         mode: "onChange"
     });
 
-    const {rpcClient} = useVisualizerContext();
-    const [templateType, setTemplateType] = useState("");
-    const [artifactNames, setArtifactNames] = useState([]);
-    const [registryPaths, setRegistryPaths] = useState([]);
+    const { rpcClient } = useVisualizerContext();
     const isNewTemplate = !props.path.endsWith(".xml");
     const [savedTemplateName, setSavedTemplateName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [paramsUpdated, setParamsUpdated] = useState(false);
     const [prevName, setPrevName] = useState<string | null>(null);
+    const [endpointType, setEndpointType] = useState<string>(props.type);
 
     const params: ParamConfig = {
         paramValues: [],
@@ -168,7 +128,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
         (async () => {
 
             if (!isNewTemplate) {
-                const existingTemplates = await rpcClient.getMiDiagramRpcClient().getTemplate({path: props.path});
+                const existingTemplates = await rpcClient.getMiDiagramRpcClient().getTemplate({ path: props.path });
                 params.paramValues = [];
                 setSequenceParams(params);
                 let i = 1;
@@ -192,16 +152,12 @@ export function TemplateWizard(props: TemplateWizardProps) {
                 });
                 reset(existingTemplates);
                 setSavedTemplateName(existingTemplates.templateName);
-                setValue('saveInReg', false);
             } else {
                 params.paramValues = [];
                 setSequenceParams(params);
                 reset(newTemplate);
             }
 
-            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
-            setArtifactNames(result.artifactNamesArr);
-            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
@@ -211,36 +167,7 @@ export function TemplateWizard(props: TemplateWizardProps) {
 
     useEffect(() => {
         setPrevName(watch("templateName"));
-        if (prevName === watch("artifactName")) {
-            setValue("artifactName", watch("templateName"));
-        }
     }, [watch("templateName")]);
-
-    const setEndpointType = (type: string) => {
-
-        if (type === 'Sequence Template') {
-            setTemplateType(type);
-        } else {
-            const endpointMappings: { [key: string]: MACHINE_VIEW } = {
-                'HTTP Endpoint Template': MACHINE_VIEW.HttpEndpointForm,
-                'WSDL Endpoint Template': MACHINE_VIEW.WsdlEndpointForm,
-                'Address Endpoint Template': MACHINE_VIEW.AddressEndpointForm,
-                'Default Endpoint Template': MACHINE_VIEW.DefaultEndpointForm,
-            };
-
-            const view = endpointMappings[type];
-            if (view) {
-                rpcClient.getMiVisualizerRpcClient().openView({
-                    type: EVENT_TYPE.OPEN_VIEW,
-                    location: {
-                        view,
-                        documentUri: props.path,
-                        customProps: {type: 'template'}
-                    }
-                });
-            }
-        }
-    };
 
     const handleParametersChange = (params: any) => {
         let i = 1;
@@ -271,14 +198,19 @@ export function TemplateWizard(props: TemplateWizardProps) {
         setValue('templateType', 'Sequence Template');
         const createTemplateParams: CreateTemplateRequest = {
             directory: props.path,
-            getContentOnly: watch("saveInReg"),
+            getContentOnly: false,
             ...values,
             parameters
         }
 
-        const result = await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
-        if (watch("saveInReg")) {
-            await saveToRegistry(rpcClient, props.path, values.registryType, values.templateName, result.content, values.registryPath, values.artifactName);
+        await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);
+
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("templateName") },
+                isPopup: true
+            });
         }
         handleCancel();
     };
@@ -289,66 +221,75 @@ export function TemplateWizard(props: TemplateWizardProps) {
         }
         rpcClient.getMiVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
-            location: {view: MACHINE_VIEW.Overview}
+            location: { view: MACHINE_VIEW.Overview }
         });
     };
 
-    return (
-        <FormView title="Template" onClose={handleCancel}>
-            {templateType === '' && isNewTemplate ? <CardWrapper cardsType="TEMPLATE" setType={setEndpointType}/> : <>
-                <TypeChip type="Sequence Template" onClick={setTemplateType} showButton={isNewTemplate}/>
-                <TextField
-                    placeholder="Name"
-                    label="Template Name"
-                    autoFocus
-                    required
-                    id="templateName"
-                    errorMsg={errors.templateName?.message.toString()}
-                    {...register("templateName")}
-                />
-                <FormCheckBox
-                    label="Trace Enabled"
-                    {...register("traceEnabled")}
-                    control={control}
-                />
-                <FormCheckBox
-                    label="Statistics Enabled"
-                    {...register("statisticsEnabled")}
-                    control={control}
-                />
-                <span>Parameters</span>
-                <ParamManager
-                    paramConfigs={sequenceParams}
-                    readonly={false}
-                    onChange={handleParametersChange}/>
-                {isNewTemplate && (
-                    <>
-                        <FormCheckBox
-                            label="Save the template in registry"
-                            {...register("saveInReg")}
-                            control={control}
-                        />
-                        {watch("saveInReg") && (<>
-                            <AddToRegistry path={props.path} fileName={watch("templateName")} register={register} errors={errors} getValues={getValues} />
-                        </>)}
-                    </>
-                )}
-                <FormActions>
-                    <Button
-                        appearance="primary"
-                        onClick={handleSubmit(handleCreateTemplate)}
-                        disabled={!(isDirty || paramsUpdated)}
-                    >
-                        {isNewTemplate ? "Create" : "Save Changes"}
-                    </Button>
-                    <Button
-                        appearance="secondary"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </Button>
-                </FormActions>
-            </>}
-        </FormView>
-    );
+    const clearEndpointType = () => {
+        setEndpointType("");
+    }
+
+    if (isNewTemplate && !endpointType) {
+        return (
+            <FormView title="Template" onClose={handleCancel}>
+                <CardWrapper cardsType="TEMPLATE" setType={setEndpointType} />
+            </FormView>
+        );
+    }
+
+    switch (endpointType) {
+        case 'Address Endpoint Template':
+            return <AddressEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+        case 'Default Endpoint Template':
+            return <DefaultEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+        case 'HTTP Endpoint Template':
+            return <HttpEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+        case 'WSDL Endpoint Template':
+            return <WsdlEndpointWizard path={props.path} type={endpointType} isPopup={true} handleChangeType={clearEndpointType} handlePopupClose={handleCancel} />;
+        case 'Sequence Template':
+            return (
+                <FormView title="Template" onClose={handleCancel}>
+                    <TextField
+                        placeholder="Name"
+                        label="Template Name"
+                        autoFocus
+                        required
+                        id="templateName"
+                        errorMsg={errors.templateName?.message.toString()}
+                        {...register("templateName")}
+                    />
+                    <FormCheckBox
+                        label="Trace Enabled"
+                        {...register("traceEnabled")}
+                        control={control}
+                    />
+                    <FormCheckBox
+                        label="Statistics Enabled"
+                        {...register("statisticsEnabled")}
+                        control={control}
+                    />
+                    <span>Parameters</span>
+                    <ParamManager
+                        paramConfigs={sequenceParams}
+                        readonly={false}
+                        onChange={handleParametersChange} />
+                    <FormActions>
+                        <Button
+                            appearance="primary"
+                            onClick={handleSubmit(handleCreateTemplate)}
+                            disabled={!(isDirty || paramsUpdated)}
+                        >
+                            {isNewTemplate ? "Create" : "Save Changes"}
+                        </Button>
+                        <Button
+                            appearance="secondary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                    </FormActions>
+                </FormView>
+            );
+    }
+
 }

@@ -10,11 +10,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
-    Button,
     CompletionItem,
     ErrorBanner,
-    ExpressionBar,
-    ExpressionBarRef,
+    FormExpressionEditor,
+    FormExpressionEditorRef,
     RequiredFormInput,
 } from '@wso2-enterprise/ui-toolkit';
 import { Range } from 'vscode-languageserver-types';
@@ -87,7 +86,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const { rpcClient } = useVisualizerContext();
 
-    const expressionRef = useRef<ExpressionBarRef>(null);
+    const expressionRef = useRef<FormExpressionEditorRef>(null);
     const cursorPositionRef = useRef<number>(null);
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
 
@@ -146,7 +145,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 {required && <RequiredFormInput />}
             </S.Header>
             <div>
-                <ExpressionBar
+                <FormExpressionEditor
                     ref={expressionRef}
                     value={value}
                     placeholder={placeholder}

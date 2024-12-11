@@ -30,8 +30,15 @@ import {
     OpenExternalResponse,
     ProjectOverviewResponse,
     ReadmeContentResponse,
+    AddConfigurableRequest,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
+
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
@@ -42,6 +49,7 @@ export interface MIVisualizerAPI {
     goBack: () => void;
     fetchSamplesFromGithub: () => Promise<GettingStartedData>;
     downloadSelectedSampleFromGithub: (params: SampleDownloadRequest) => void;
+    addConfigurable: (params: AddConfigurableRequest) => Promise<void>;
     getHistory: () => Promise<HistoryEntryResponse>;
     addToHistory: (params: HistoryEntry) => void;
     goHome: () => void;
@@ -66,4 +74,10 @@ export interface MIVisualizerAPI {
     setMIHomeForMIVersion: (params: string) => Promise<boolean>;
     isJavaHomeSet: () => Promise<boolean>;
     isMISet: () => Promise<boolean>;
+    getProjectDetails: () => Promise<ProjectDetailsResponse>;
+    updateDependencies: (params: UpdateDependenciesRequest) => Promise<boolean>;
+    updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
+    updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
+    updateConnectorDependencies: () => Promise<string>;
+    importOpenAPISpec: (params: ImportOpenAPISpecRequest) => Promise<void>;
 }

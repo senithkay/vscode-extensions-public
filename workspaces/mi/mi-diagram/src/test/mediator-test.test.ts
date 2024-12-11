@@ -122,7 +122,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "Call Sequence",
+        type: "Sequence",
         expectedDescription: "Call Sequence Description",
         expectedDefaultDescription: "defseq"
     },
@@ -172,7 +172,7 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: undefined
     },
     {
-        type: "Call Data Service",
+        type: "Call Dataservice",
         expectedDescription: "Call Dataservice Description",
         expectedDefaultDescription: "sdfa"
     },

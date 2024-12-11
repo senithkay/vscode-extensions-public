@@ -18,6 +18,7 @@ import { getParamManagerValues } from "../../Form/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ERROR_MESSAGES } from "../../../resources/constants";
+import { createAndopenDataMapper } from "./onSubmitFunctions";
 
 export interface MediatorFormProps {
     control: any;
@@ -58,6 +59,14 @@ export function MediatorForm(props: MediatorFormProps) {
             documentUri,
             range
         });
+
+        if (mediatorData.onSubmit) {
+            switch (mediatorData.onSubmit) {
+                case "openDataMapperEditor":
+                    createAndopenDataMapper(documentUri, values, rpcClient)();
+                    break;
+            }
+        }
         clearSidePanelState(sidePanelContext);
     }
 

@@ -9,13 +9,33 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    ServicesByListenerRequest,
+    ServicesByListenerResponse,
     Trigger,
+    TriggerFunctionRequest,
+    TriggerFunctionResponse,
+    TriggerModelFromCodeRequest,
+    TriggerModelFromCodeResponse,
+    TriggerModelRequest,
+    TriggerModelResponse,
+    TriggerModelsRequest,
+    TriggerModelsResponse,
     TriggerParams,
+    TriggerSourceCodeRequest,
+    TriggerSourceCodeResponse,
     TriggerWizardAPI,
     Triggers,
     TriggersParams,
+    addTriggerFunction,
+    getServicesByListener,
     getTrigger,
-    getTriggers
+    getTriggerModel,
+    getTriggerModelFromCode,
+    getTriggerModels,
+    getTriggerSourceCode,
+    getTriggers,
+    updateTriggerFunction,
+    updateTriggerSourceCode
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -33,5 +53,37 @@ export class TriggerWizardRpcClient implements TriggerWizardAPI {
 
     getTrigger(params: TriggerParams): Promise<Trigger> {
         return this._messenger.sendRequest(getTrigger, HOST_EXTENSION, params);
+    }
+
+    getServicesByListener(params: ServicesByListenerRequest): Promise<ServicesByListenerResponse> {
+        return this._messenger.sendRequest(getServicesByListener, HOST_EXTENSION, params);
+    }
+
+    getTriggerModels(params: TriggerModelsRequest): Promise<TriggerModelsResponse> {
+        return this._messenger.sendRequest(getTriggerModels, HOST_EXTENSION, params);
+    }
+
+    getTriggerModel(params: TriggerModelRequest): Promise<TriggerModelResponse> {
+        return this._messenger.sendRequest(getTriggerModel, HOST_EXTENSION, params);
+    }
+
+    getTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this._messenger.sendRequest(getTriggerSourceCode, HOST_EXTENSION, params);
+    }
+
+    updateTriggerSourceCode(params: TriggerSourceCodeRequest): Promise<TriggerSourceCodeResponse> {
+        return this._messenger.sendRequest(updateTriggerSourceCode, HOST_EXTENSION, params);
+    }
+
+    getTriggerModelFromCode(params: TriggerModelFromCodeRequest): Promise<TriggerModelFromCodeResponse> {
+        return this._messenger.sendRequest(getTriggerModelFromCode, HOST_EXTENSION, params);
+    }
+
+    addTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return this._messenger.sendRequest(addTriggerFunction, HOST_EXTENSION, params);
+    }
+
+    updateTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
+        return this._messenger.sendRequest(updateTriggerFunction, HOST_EXTENSION, params);
     }
 }

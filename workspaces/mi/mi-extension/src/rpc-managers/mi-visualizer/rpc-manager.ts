@@ -35,33 +35,42 @@ import {
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
     ToggleDisplayOverviewRequest,
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
-    WorkspacesResponse
+    WorkspacesResponse,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
 import fetch from 'node-fetch';
 import * as vscode from 'vscode';
-import { Uri, ViewColumn, commands, env, window, workspace } from "vscode";
+import { Position, Uri, ViewColumn, WorkspaceEdit, commands, env, window, workspace, Range } from "vscode";
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
+import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
+import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
 import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
 import path from "path";
+import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
 import { COMMANDS } from '../../constants';
+import { TextEdit } from "vscode-languageclient";
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -89,6 +98,56 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             }
             const projectUrl = params.documentUri ? params.documentUri : rootPath;
             const res = await langClient.getProjectStructure(projectUrl);
+            resolve(res);
+        });
+    }
+
+    async getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getProjectDetails();
+            resolve(res);
+        });
+    }
+
+    async updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateDependencies(params);
+
+            await this.updatePom(res.textEdits);
+            resolve(true);
+        });
+    }
+
+    async updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const textEdits = params.pomValues.map((pomValue) => {
+                return {
+                    newText: pomValue.value,
+                    range: pomValue.range! as Range
+                };
+
+            });
+            this.updatePom(textEdits);
+            resolve(true);
+        });
+    }
+
+    async updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConfigFileValues(params.configValues);
+
+            await this.updatePom(res.textEdits);
+            resolve(true);
+        });
+    }
+
+    async updateConnectorDependencies(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConnectorDependencies();
             resolve(res);
         });
     }
@@ -166,6 +225,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [projectUri, '.env'].join(path.sep);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
+        await appendContent(envFilePath, `${params.configurableName}\n`);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {
@@ -471,4 +538,49 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             });
         });
     }
+
+    private async updatePom(textEdits: TextEdit[]) {
+        const projectRoom = StateMachine.context().projectUri!;
+        const pomPath = path.join(projectRoom, 'pom.xml');
+
+        if (!fs.existsSync(pomPath)) {
+            throw new Error("pom.xml not found");
+        }
+
+        for (const textEdit of textEdits) {
+            const content = textEdit.newText;
+
+            const edit = new WorkspaceEdit();
+
+            const range = new Range(new Position(textEdit.range.start.line - 1, textEdit.range.start.character - 1),
+                new Position(textEdit.range.end.line - 1, textEdit.range.end.character - 1));
+
+            edit.replace(Uri.file(pomPath), range, content);
+            await workspace.applyEdit(edit);
+        }
+    }
+
+    async importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
+        const { filePath } = params;
+        const langClient = StateMachine.context().langClient!;
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        const workspaceFolder = workspaceFolders[0].uri.fsPath;
+        if (filePath && filePath.length > 0) {
+            const connectorGenRequest = {
+                openAPIPath: filePath,
+                connectorProjectPath: path.join(workspaceFolder, 'target')
+            };
+            const { buildStatus, connectorPath } = await langClient.generateConnector(connectorGenRequest);
+            if (buildStatus) {
+                await copy(connectorPath, path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
+                vscode.window.showInformationMessage("Connector generated successfully");
+            } else {
+                vscode.window.showErrorMessage("Error while generating connector");
+            }
+        }
+    }
+
 }
