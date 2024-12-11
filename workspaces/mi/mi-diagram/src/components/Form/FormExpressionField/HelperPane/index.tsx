@@ -59,7 +59,7 @@ const HelperPaneEl = ({
     };
 
     return (
-        <HelperPane>
+        <HelperPane sx={{ '> *': { boxSizing: 'border-box' } }}>
             {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
             {currentPage === 1 && (
                 <PayloadPage

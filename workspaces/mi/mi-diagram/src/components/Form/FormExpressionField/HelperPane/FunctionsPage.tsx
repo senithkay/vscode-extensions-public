@@ -37,15 +37,30 @@ export const FunctionsPage = ({
 
     const sortedFunctionInfo = useMemo(() => {
         if (!functionInfo || Object.keys(functionInfo).length === 0) {
-            return {};
+            return [];
         }
 
-        for (const value of Object.values(functionInfo)) {
-            value.sort((a, b) => a.label.localeCompare(b.label));
+        // Sort the items in each group
+        const functionInfoArrayWithSortedItems = [];
+        for (const [group, groupInfo] of Object.entries(functionInfo)) {
+            const sortedItems = groupInfo.items.sort((a, b) => a.label.localeCompare(b.label));
+            functionInfoArrayWithSortedItems.push({
+                group,
+                ...groupInfo,
+                items: sortedItems
+            });
         }
 
-        return functionInfo;
+        // Sort the groups
+        const sortedFunctionInfo = functionInfoArrayWithSortedItems.sort((a, b) => a.group.localeCompare(b.group));
+
+        return sortedFunctionInfo;
     }, [functionInfo]);
+
+    const handleFunctionItemClick = (insertText: string) => {
+        const functionName = insertText.split('(')[0];
+        onChange(`${functionName}(`);
+    }
 
     return (
         <>
@@ -57,12 +72,12 @@ export const FunctionsPage = ({
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                {Object.entries(sortedFunctionInfo).map(([group, functions]) => (
+                {sortedFunctionInfo.map(({ group, items }) => (
                     <HelperPane.Section title={group}>
-                        {functions.map((fn) => (
+                        {items.map((fn) => (
                             <HelperPane.CompletionItem
                                 label={fn.label}
-                                onClick={() => onChange(fn.insertText)}
+                                onClick={() => handleFunctionItemClick(fn.insertText)}
                                 getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                             />
                         ))}
