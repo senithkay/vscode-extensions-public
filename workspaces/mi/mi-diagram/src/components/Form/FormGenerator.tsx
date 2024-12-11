@@ -224,10 +224,8 @@ export function FormGenerator(props: FormGeneratorProps) {
                 {...field}
                 label={element.displayName}
                 required={element.required === 'true'}
-                value={field.value.value}
                 placeholder={element.placeholder}
                 nodeRange={range}
-                onChange={field.onChange}
             />
         );
     }
