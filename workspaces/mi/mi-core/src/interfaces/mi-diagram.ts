@@ -23,7 +23,10 @@ export type HelperPaneFunctionCompletionItem = {
 }
 
 export type HelperPaneFunctionInfo = {
-    [key: string]: HelperPaneFunctionCompletionItem[];
+    [key: string]: {
+        items: HelperPaneFunctionCompletionItem[];
+        sortText: string;
+    };
 }
 
 export type HelperPaneData = {
