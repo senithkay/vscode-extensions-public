@@ -1485,6 +1485,14 @@ export interface StoreConnectorJsonResponse {
     connectors?: any[];
 }
 
+export interface RemoveConnectorRequest {
+    connectorPath: string;
+}
+
+export interface RemoveConnectorResponse {
+    success: boolean;
+}
+
 export interface CreateDataSourceResponse {
     path: string;
 }
@@ -1754,6 +1762,7 @@ export interface CopyConnectorZipRequest {
 
 export interface CopyConnectorZipResponse {
     success: boolean;
+    connectorPath?: string;
 }
 
 export interface DSSQueryGenRequest {

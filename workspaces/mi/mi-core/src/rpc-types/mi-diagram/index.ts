@@ -211,7 +211,9 @@ import {
     GetConnectionSchemaRequest,
     GetConnectionSchemaResponse,
     CopyConnectorZipRequest,
-    CopyConnectorZipResponse
+    CopyConnectorZipResponse,
+    RemoveConnectorRequest,
+    RemoveConnectorResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -306,6 +308,7 @@ export interface MiDiagramAPI {
     downloadInboundConnector: (params: DownloadInboundConnectorRequest) => Promise<DownloadInboundConnectorResponse>;
     getAvailableConnectors: (params: GetAvailableConnectorRequest) => Promise<GetAvailableConnectorResponse>;
     updateConnectors: (params: UpdateConnectorRequest) => void;
+    removeConnector: (params: RemoveConnectorRequest) => Promise<RemoveConnectorResponse>;
     getConnectorForm: (params: GetConnectorFormRequest) => Promise<GetConnectorFormResponse>;
     getConnectionForm: (params: GetConnectionFormRequest) => Promise<GetConnectionFormResponse>;
     getStoreConnectorJSON: () => Promise<StoreConnectorJsonResponse>;
