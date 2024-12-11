@@ -32,6 +32,6 @@ export type HelperPaneFunctionInfo = {
 export type HelperPaneData = {
     payload: HelperPaneCompletionItem[];
     variables: HelperPaneCompletionItem[];
-    attributes: HelperPaneCompletionItem[];
+    properties: HelperPaneCompletionItem[];
     functions: HelperPaneFunctionInfo;
 };
