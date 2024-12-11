@@ -263,7 +263,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = false, searchValue, onSearch, onClose }) => {
+const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = true, searchValue, onSearch, onClose }) => {
     return (
         <>
             <Overlay
@@ -396,7 +396,7 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = false }) => {
+const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true }) => {
     return (
         <BodyContainer>
             {isLoading ? (
