@@ -147,13 +147,13 @@ async function showInputBox(paramName: string, value: string) {
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
     let debuggeePort = config.debuggeePort;
     if (!debuggeePort) {
-        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000 });
+        debuggeePort = await findFreePort();
     }
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     config['ballerina.home'] = ballerinaHome;
     config[BALLERINA_COMMAND] = ballerinaExtInstance.getBallerinaCmd();
-    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true };
+    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true, supportsFastRun: isFastRunEnabled() };
 
     if (!config.type) {
         config.type = LANGUAGE.BALLERINA;
@@ -248,8 +248,8 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
     config.debuggeePort = debuggeePort.toString();
 
     if (!config.debugServer) {
-        const debugServer = await getPortPromise({ port: 10001, stopPort: 20000 });
-        config.debugServer = debugServer.toString();
+        const debugServerPort = await findFreePort();
+        config.debugServer = debugServerPort.toString();
     }
     return config;
 }
@@ -369,8 +369,24 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
                     }
+                } else if (message.type === "event") {
+                    const msg = <DebugProtocol.Event>message;
+                    if (msg.event === "startFastRun") {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
+
+                        // Restart the run fast
+                        getCurrentRoot().then((root) => {
+                            stopRunFast(root).then((didStop) => {
+                                if (didStop) {
+                                    runFast(root, msg.body.port);
+                                }
+                            });
+                        });
+                    }
                 }
-            },
+            }
         };
     }
 }
@@ -484,7 +500,7 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;
     root: string | null = null;
-    prgramArgs: string[] = [];
+    programArgs: string[] = [];
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         const langClient = ballerinaExtInstance.langClient;
@@ -498,10 +514,10 @@ class FastRunDebugAdapter extends LoggingDebugSession {
             }
         });
         this.notificationHandler = notificationHandler;
-        this.prgramArgs = (args as any).programArgs;
+        this.programArgs = (args as any).programArgs;
         getCurrentRoot().then((root) => {
             this.root = root;
-            runFast(root, this.prgramArgs).then((didRan) => {
+            runFast(root, undefined, this.programArgs).then((didRan) => {
                 response.success = didRan;
                 this.sendResponse(response);
             });
@@ -510,13 +526,12 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
         const notificationHandler = this.notificationHandler;
-        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
+        stopRunFast(this.root).then((didStop) => {
             response.success = didStop;
             notificationHandler!.dispose();
             this.sendResponse(response);
         });
     }
-
 }
 
 const outputChannel = window.createOutputChannel("Ballerina Integrator Executor");
@@ -603,13 +618,27 @@ class BIRunAdapter extends LoggingDebugSession {
     }
 }
 
-async function runFast(root: string, args: string[]): Promise<boolean> {
+async function runFast(root: string, debugPort?: number, args: string[] = []): Promise<boolean> {
     if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
         await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
     }
+
+    const commandArguments = [
+        { key: "path", value: root },
+        ...(debugPort !== undefined ? [{ key: "debugPort", value: debugPort }] : []),
+        { key: "args", value: args },
+    ];
+
     return await ballerinaExtInstance.langClient.executeCommand({
-        command: "RUN", arguments: [
-            { key: "path", value: root }, { key: "args", value: args }]
+        command: "RUN",
+        arguments: commandArguments,
+    });
+}
+
+async function stopRunFast(root: string): Promise<boolean> {
+    return await ballerinaExtInstance.langClient.executeCommand({
+        command: "STOP", arguments: [
+            { key: "path", value: root! }]
     });
 }
 
@@ -617,4 +646,13 @@ async function getCurrentRoot(): Promise<string> {
     const file = getCurrentBallerinaFile();
     const currentProject = await getCurrentBallerinaProject(file);
     return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
+}
+
+function findFreePort(): Promise<number> {
+    return getPortPromise({ port: 5010, stopPort: 20000 });
+}
+
+function isFastRunEnabled(): boolean {
+    const config = workspace.getConfiguration('kolab');
+    return config.get<boolean>('enableRunFast');
 }
