@@ -17,6 +17,7 @@ import AddConnection from "./ConnectionFormGenerator";
 import { APIS, connectorFailoverIconUrl } from "../../../constants";
 import { ImportConnectorForm } from "./ImportConnector";
 import { debounce } from "lodash";
+import path from "path";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -158,6 +159,7 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     const [searchValue, setSearchValue] = useState<string>('');
     const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
     const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
+    const [isFailedDownload, setIsFailedDownload] = useState(false);
     const connectionStatus = useRef(null);
 
     const fetchLocalConnectorData = async () => {
@@ -278,33 +280,6 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
             }
         }
 
-        // if (downloadSuccess) {
-        //     try {
-        //         const status: any = await waitForEvent();
-
-        //         if (status.connector === connector.name && status.isSuccess) {
-        //             // Get Connector Data from LS
-        //             const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-        //                 documentUri: props.path,
-        //                 connectorName: connector.name.toLowerCase().replace(/\s/g, '')
-        //             });
-
-
-        //             if (connectorData) {
-        //                 selectConnector(connectorData);
-        //             } else {
-        //                 fetchLocalConnectorData();
-        //             }
-        //         } else {
-        //             fetchLocalConnectorData();
-        //             console.log(status.message);
-        //         }
-        //     } catch (error) {
-        //         console.log(error);
-        //     }
-        // } else {
-        //     console.error('Failed to download connector after 3 attempts');
-        // }
         await new Promise(resolve => setTimeout(resolve, 5000));
         setIsDownloading(false);
     }
@@ -359,18 +334,48 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
             await updateDependencies();
 
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+            const pomPath = path.join(projectDir, 'pom.xml');
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
+
             // Download Connector
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            if (response  === "success") {
-                setSelectedConnector(conOnconfirmation);
-            }
+            if (response === "Success") {
+                const connectorName = conOnconfirmation.connector.connectorName;
+                const connectionType = conOnconfirmation.connectionType.toUpperCase();
+                const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
-            setConOnconfirmation(undefined);
+                setSelectedConnector({ connector, connectionType });
+                fetchLocalConnectorData();
+                setConOnconfirmation(undefined);
+            } else {
+                setIsFailedDownload(true);
+            }
             setIsDownloading(false);
         } else {
+            setIsFailedDownload(false);
             setConOnconfirmation(undefined);
         }
+    }
+
+    const retryDownload = async () => {
+        setIsFailedDownload(true);
+        // Download Connector
+        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+        if (response === "Success") {
+            const connectorName = conOnconfirmation.connector.connectorName;
+            const connectionType = conOnconfirmation.connectionType.toUpperCase();
+            const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
+
+            setSelectedConnector({ connector, connectionType });
+            fetchLocalConnectorData();
+            setConOnconfirmation(undefined);
+        } else {
+            setIsFailedDownload(true);
+        }
+        setIsDownloading(false);
     }
 
     const handleImportConnector = () => {
@@ -443,12 +448,12 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         </CardContent>
                                     </ComponentCard>
                                 ))))}
-                            </SampleGrid>
-                            <h4>In Store: </h4>
-                            <SampleGrid>
+                        </SampleGrid>
+                        <h4>In Store: </h4>
+                        <SampleGrid>
                             {displayedStoreConnectors && Array.isArray(displayedStoreConnectors) && displayedLocalConnectors &&
                                 displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRanke).map((connector: any) => (
-                                    displayedLocalConnectors.some(c => 
+                                    displayedLocalConnectors.some(c =>
                                         (c.name.toLowerCase() === connector.connectorName.toLowerCase()) &&
                                         (c.version === connector.version.tagName)) ? null : (
                                         (connector.version.connections).map((connection: any) => (
@@ -551,24 +556,43 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                     Downloading connector...
                                 </LoaderWrapper>
                             ) : conOnconfirmation ? (
-                                <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
-                                    <Typography variant="body2">Dependencies will be added to the project. Do you want to continue?</Typography>
-                                    <FormActions>
-                                        <Button
-                                            appearance="primary"
-                                            onClick={() => handleDependencyResponse(true)}
-                                        >
-                                            Yes
-                                        </Button>
-                                        <Button
-                                            appearance="secondary"
-                                            onClick={() => handleDependencyResponse(false)}
-                                        >
-                                            No
-                                        </Button>
-                                    </FormActions>
-                                </div>
-                            ) : (
+                                isFailedDownload ? (
+                                    <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
+                                        <Typography variant="body2">Error downloading module. Please try again...</Typography>
+                                        <FormActions>
+                                            <Button
+                                                appearance="primary"
+                                                onClick={() => retryDownload()}
+                                            >
+                                                Retry
+                                            </Button>
+                                            <Button
+                                                appearance="secondary"
+                                                onClick={() => handleDependencyResponse(false)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </FormActions>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
+                                        <Typography variant="body2">Dependencies will be added to the project. Do you want to continue?</Typography>
+                                        <FormActions>
+                                            <Button
+                                                appearance="primary"
+                                                onClick={() => handleDependencyResponse(true)}
+                                            >
+                                                Yes
+                                            </Button>
+                                            <Button
+                                                appearance="secondary"
+                                                onClick={() => handleDependencyResponse(false)}
+                                            >
+                                                No
+                                            </Button>
+                                        </FormActions>
+                                    </div>
+                                )) : (
                                 <>
                                     {/* Search bar */}
                                     <TextField

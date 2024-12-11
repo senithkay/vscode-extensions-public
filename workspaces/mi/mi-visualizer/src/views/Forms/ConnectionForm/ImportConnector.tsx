@@ -39,20 +39,26 @@ export interface ImportConnectorFormProps {
 
 export function ImportConnectorForm(props: ImportConnectorFormProps) {
     const { rpcClient } = useVisualizerContext();
-    const [sourceDir, setSourceDir] = useState("");
+    const [zipDir, setZipDir] = useState("");
+    const [openApiDir, setOpenApiDir] = useState("");
     const [isImporting, setIsImporting] = useState(false);
     const [importOpenAPI, setImportOpenAPI] = useState(true);
     const connectionStatus = useRef(null);
 
     const handleSourceDirSelection = async () => {
         const specDirecrory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
-        setSourceDir(specDirecrory.path);
+        setZipDir(specDirecrory.path);
+    }
+
+    const handleOpenAPIDirSelection = async () => {
+        const specDirecrory = await rpcClient.getMiDiagramRpcClient().askOpenAPIDirPath();
+        setOpenApiDir(specDirecrory.path);
     }
 
     const importWithOpenAPI = async () => {
         setIsImporting(true);
         try {
-            await rpcClient.getMiVisualizerRpcClient().importOpenAPISpec();
+            await rpcClient.getMiVisualizerRpcClient().importOpenAPISpec({ filePath: openApiDir });
         } catch (error) {
             console.log(error);
         }
@@ -62,7 +68,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
 
     const importWithZip = async () => {
         setIsImporting(true);
-        await rpcClient.getMiDiagramRpcClient().copyConnectorZip({ connectorPath: sourceDir });
+        await rpcClient.getMiDiagramRpcClient().copyConnectorZip({ connectorPath: zipDir });
         try {
             await waitForEvent();
         } catch (error) {
@@ -111,7 +117,8 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                             checked={importOpenAPI}
                             onChange={() => {
                                 setImportOpenAPI(true);
-                                setSourceDir("");
+                                setZipDir("");
+                                setOpenApiDir("");
                             }}
                         />
                         Import Using OpenAPI
@@ -124,7 +131,8 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                             checked={!importOpenAPI}
                             onChange={() => {
                                 setImportOpenAPI(false);
-                                setSourceDir("");
+                                setZipDir("");
+                                setOpenApiDir("");
                             }}
                         />
                         Upload Connector ZIP file
@@ -138,12 +146,26 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
-                            {!importOpenAPI && (
+                            {importOpenAPI ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {sourceDir && !sourceDir.endsWith('.zip') && <ErrorBanner errorMsg={"Invalid file type. Please select a connector zip file"} />}
+                                {openApiDir && !['json', 'yaml', 'yml'].includes(openApiDir.split('.').pop()!) && 
+                                    <ErrorBanner errorMsg={"Invalid file type. Please select an OpenAPI specification"} />
+                                } 
+                                <LocationSelector
+                                    label="Choose path to openAPI specification"
+                                    selectedFile={openApiDir}
+                                    required
+                                    onSelect={handleOpenAPIDirSelection}
+                                />
+                            </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {zipDir && !zipDir.endsWith('.zip') &&
+                                        <ErrorBanner errorMsg={"Invalid file type. Please select a connector zip file"} />
+                                    }
                                     <LocationSelector
                                         label="Choose path to connector Zip"
-                                        selectedFile={sourceDir}
+                                        selectedFile={zipDir}
                                         required
                                         onSelect={handleSourceDirSelection}
                                     />
@@ -154,15 +176,16 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                     <Button
                                         appearance="primary"
                                         onClick={importWithOpenAPI}
+                                        disabled={!openApiDir || !['json', 'yaml', 'yml'].includes(openApiDir.split('.').pop()!)}
                                     >
-                                        Upload OpenAPI Spec
+                                        Import
                                     </Button>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                         <Button
                                             appearance="primary"
                                             onClick={importWithZip}
-                                            disabled={!sourceDir || !sourceDir.endsWith('.zip')}
+                                            disabled={!zipDir || !zipDir.endsWith('.zip')}
                                         >
                                             Import
                                         </Button>

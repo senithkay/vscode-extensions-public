@@ -32,6 +32,7 @@ export function DownloadPage(props: DownloadPageProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [isDownloading, setIsDownloading] = React.useState(false);
+    const [isFailedDownload, setIsFailedDownload] = React.useState(false);
 
     const handleDependencyResponse = async (response: boolean) => {
         if (response) {
@@ -56,14 +57,33 @@ export function DownloadPage(props: DownloadPageProps) {
             // Download Connector
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
-            if (response === "success") {
+            if (response === "Success") {
                 onDownloadSuccess();
+                setIsDownloading(false);
+                sidepanelGoBack(sidePanelContext, 2);
+            } else {
+                setIsFailedDownload(true);
+                setIsDownloading(false);
             }
 
-            setIsDownloading(false);
-            sidepanelGoBack(sidePanelContext);
+
         } else {
             sidepanelGoBack(sidePanelContext);
+        }
+    }
+
+    const retryDownload = async () => {
+        setIsFailedDownload(true);
+        // Download Connector
+        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+        if (response === "Success") {
+            onDownloadSuccess();
+            setIsDownloading(false);
+            sidepanelGoBack(sidePanelContext, 2);
+        } else {
+            setIsFailedDownload(true);
+            setIsDownloading(false);
         }
     }
 
@@ -75,6 +95,24 @@ export function DownloadPage(props: DownloadPageProps) {
                     <div style={{ display: "flex", flexDirection: "column", padding: "10px", alignItems: "center", gap: "10px" }}>
                         <ProgressRing sx={{ height: '50px', width: '50px' }} />
                         <span>Downloading Module...</span>
+                    </div>
+                ) : isFailedDownload ? (
+                    <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
+                        <Typography variant="body2">Error downloading module. Please try again...</Typography>
+                        <FormActions>
+                            <Button
+                                appearance="primary"
+                                onClick={() => retryDownload()}
+                            >
+                                Retry
+                            </Button>
+                            <Button
+                                appearance="secondary"
+                                onClick={() => handleDependencyResponse(false)}
+                            >
+                                Cancel
+                            </Button>
+                        </FormActions>
                     </div>
                 ) : (
                     <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>

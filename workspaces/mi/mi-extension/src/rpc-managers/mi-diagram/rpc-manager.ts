@@ -2740,6 +2740,28 @@ ${endpointAttributes}
         });
     }
 
+    async askOpenAPIDirPath(): Promise<FileDirResponse> {
+        return new Promise(async (resolve) => {
+            // open file dialog to select the openapi spec file
+            const options: vscode.OpenDialogOptions = {
+                canSelectMany: false,
+                openLabel: 'Open OpenAPI Spec',
+                filters: {
+                    'OpenAPI Spec': ['json', 'yaml', 'yml']
+                }
+            };
+
+            const selectedFile = await vscode.window.showOpenDialog(options);
+            if (!selectedFile || selectedFile.length === 0) {
+                window.showErrorMessage('A file must be selected to import connector');
+                resolve({ path: "" });
+            } else {
+                const fileDir = selectedFile[0].fsPath;
+                resolve({ path: fileDir });
+            }
+        });
+    }
+
     async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
         return new Promise(async (resolve) => {
             const projectUuid = uuidv4();
