@@ -180,6 +180,12 @@ export interface Foreach extends STNode {
     sequenceAttribute: string;
     id: string;
     description: string;
+    version: string;
+    collection: string;
+    executeParallel: boolean;
+    resultTarget: string;
+    resultType: string;
+    counterVariableName: string;
 }
 
 export interface PayloadFactoryFormat extends STNode {
