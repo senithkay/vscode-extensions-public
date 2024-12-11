@@ -180,6 +180,7 @@ export const MEDIATORS = {
     CALLOUT: "Callout",
     CALLTEMPLATE: "Call Template",
     CLONE: "Clone",
+    SCATTERGATHER: "Scatter-Gather",
     DATAMAPPER: "Data Mapper",
     DATASERVICECALL: "Call Dataservice",
     DROP: "Drop",

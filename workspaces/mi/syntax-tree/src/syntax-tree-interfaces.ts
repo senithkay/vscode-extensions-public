@@ -1017,6 +1017,20 @@ export interface Variable extends STNode {
     expression: string;
 }
 
+export interface ScatterGather extends STNode {
+    targets: CloneTarget[];
+    executeParallel: boolean;
+    description: string;
+    valueExpression: string;
+    condition: string;
+    resultTarget: string;
+    variableName: string;
+    contentType: string;
+    completeTimeout: string;
+    minMessages: string;
+    maxMessages: string;
+}
+
 export interface APIHandlersHandlerProperty extends STNode {
     name: string;
     value: string;

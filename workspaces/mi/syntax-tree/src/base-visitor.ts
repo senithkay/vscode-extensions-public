@@ -402,6 +402,9 @@ export interface Visitor {
     beginVisitClone?(node: Synapse.Clone): void;
     endVisitClone?(node: Synapse.Clone): void;
 
+    beginVisitScatterGather?(node: Synapse.ScatterGather): void;
+    endVisitScatterGather?(node: Synapse.ScatterGather): void;
+
     beginVisitBuilder?(node: Synapse.Builder): void;
     endVisitBuilder?(node: Synapse.Builder): void;
 
