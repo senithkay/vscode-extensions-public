@@ -280,33 +280,6 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
             }
         }
 
-        // if (downloadSuccess) {
-        //     try {
-        //         const status: any = await waitForEvent();
-
-        //         if (status.connector === connector.name && status.isSuccess) {
-        //             // Get Connector Data from LS
-        //             const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-        //                 documentUri: props.path,
-        //                 connectorName: connector.name.toLowerCase().replace(/\s/g, '')
-        //             });
-
-
-        //             if (connectorData) {
-        //                 selectConnector(connectorData);
-        //             } else {
-        //                 fetchLocalConnectorData();
-        //             }
-        //         } else {
-        //             fetchLocalConnectorData();
-        //             console.log(status.message);
-        //         }
-        //     } catch (error) {
-        //         console.log(error);
-        //     }
-        // } else {
-        //     console.error('Failed to download connector after 3 attempts');
-        // }
         await new Promise(resolve => setTimeout(resolve, 5000));
         setIsDownloading(false);
     }
