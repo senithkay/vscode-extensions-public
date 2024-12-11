@@ -20,6 +20,7 @@ import {
     Loopback,
     PayloadFactory,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     Send,
@@ -447,6 +448,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks({ node, name: MEDIATORS.LOOPBACK });
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks({ node, name: MEDIATORS.PAYLOAD });
     beginVisitProperty = (node: Property): void => this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTY });
+    beginVisitVariable = (node: Variable): void => this.createNodeAndLinks({ node, name: MEDIATORS.VARIABLE });
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTYGROUP });

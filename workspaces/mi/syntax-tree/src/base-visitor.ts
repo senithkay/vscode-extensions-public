@@ -414,6 +414,9 @@ export interface Visitor {
     beginVisitProperty?(node: Synapse.Property): void;
     endVisitProperty?(node: Synapse.Property): void;
 
+    beginVisitVariable?(node: Synapse.Variable): void;
+    endVisitVariable?(node: Synapse.Variable): void;
+
     beginVisitAPIHandlersHandlerProperty?(node: Synapse.APIHandlersHandlerProperty): void;
     endVisitAPIHandlersHandlerProperty?(node: Synapse.APIHandlersHandlerProperty): void;
 

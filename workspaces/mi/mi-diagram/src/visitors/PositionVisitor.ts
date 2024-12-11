@@ -21,6 +21,7 @@ import {
     Loopback,
     PayloadFactory,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     Send,
@@ -227,6 +228,7 @@ export class PositionVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
+    beginVisitVariable = (node: Variable): void => this.setBasicMediatorPosition(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.setBasicMediatorPosition(node);

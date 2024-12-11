@@ -25,6 +25,7 @@ import {
     PayloadFactory,
     PojoCommand,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     STNode,
@@ -290,6 +291,7 @@ export class SizingVisitor implements Visitor {
     endVisitLoopback = (node: Loopback): void => this.calculateBasicMediator(node);
     endVisitPayloadFactory = (node: PayloadFactory): void => this.calculateBasicMediator(node);
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);
+    endVisitVariable = (node: Variable): void => this.calculateBasicMediator(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.skipChildrenVisit = true;

@@ -1008,6 +1008,15 @@ export interface Property extends STNode {
     expression: string;
 }
 
+export interface Variable extends STNode {
+    type: string;
+    description: string;
+    name: string;
+    action: string;
+    value: string;
+    expression: string;
+}
+
 export interface APIHandlersHandlerProperty extends STNode {
     name: string;
     value: string;

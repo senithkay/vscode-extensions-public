@@ -196,6 +196,7 @@ export const MEDIATORS = {
     LOOPBACK: "Loopback",
     PAYLOAD: "Payload",
     PROPERTY: "Property",
+    VARIABLE: "Variable",
     PROPERTYGROUP: "Property Group",
     RESPOND: "Respond",
     REWRITE: "Rewrite",
