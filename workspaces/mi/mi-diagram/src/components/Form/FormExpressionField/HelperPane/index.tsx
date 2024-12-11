@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react';
 import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { HelperPaneCompletionItem, HelperPaneData, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
 import { CategoryPage } from './CategoryPage';
 import { VariablesPage } from './VariablesPage';
 import { FunctionsPage } from './FunctionsPage';
