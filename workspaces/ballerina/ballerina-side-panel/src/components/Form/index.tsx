@@ -12,13 +12,13 @@ import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
-    ExpressionBarRef,
+    FormExpressionEditorRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormExpressionEditor, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
@@ -170,7 +170,7 @@ export interface FormProps {
     isActiveSubPanel?: boolean;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
-    expressionEditor?: FormExpressionEditor;
+    expressionEditor?: FormExpressionEditorProps;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
 }
@@ -214,7 +214,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
     const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager

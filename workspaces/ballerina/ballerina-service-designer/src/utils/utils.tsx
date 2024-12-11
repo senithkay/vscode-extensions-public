@@ -381,7 +381,7 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPC
             // }
             resources.push(resource);
         }
-        if (STKindChecker.isObjectMethodDefinition(member)) {
+        if (serviceData.triggerModel && STKindChecker.isObjectMethodDefinition(member)) {
             const resource = await getFunction(member, rpcClient, isBI);
             // const editAction: Item = {
             //     id: "edit",

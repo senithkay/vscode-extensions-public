@@ -187,7 +187,10 @@ export function ResourceForm(props: ResourceFormProps) {
 			<SidePanel
 				isOpen={isOpen}
 				alignment="right"
-				sx={{ width: 600 }}
+				sx={{ 
+					width: 600,
+					boxShadow: "none" 
+				}}
 			>
 				{isLoading && <ProgressIndicator id="resource-loading-bar" />}
 				<SidePanelTitleContainer>

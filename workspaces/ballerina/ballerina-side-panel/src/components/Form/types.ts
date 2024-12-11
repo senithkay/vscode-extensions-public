@@ -41,6 +41,33 @@ export type ExpressionFormField = {
     isConfigured?: boolean
 };
 
+export type HelperPaneCompletionItem = {
+    label: string;
+    type?: string;
+    insertText: string;
+}
+
+export type HelperPaneCompletionCategory = {
+    label: string;
+    items: HelperPaneCompletionItem[];
+}
+
+export type HelperPaneVariableInfo = {
+    category: HelperPaneCompletionCategory[];
+}
+
+export type HelperPaneFunctionCategory = {
+    label: string;
+    items?: HelperPaneCompletionItem[];
+    subCategory?: HelperPaneFunctionCategory[];
+}
+
+export type HelperPaneFunctionInfo = {
+    category: HelperPaneFunctionCategory[];
+}
+
+export type HelperPaneData = HelperPaneVariableInfo | HelperPaneFunctionInfo;
+
 type FormCompletionConditionalProps = {
     completions: CompletionItem[];
     triggerCharacters: readonly string[];
@@ -75,7 +102,21 @@ type FormTypeConditionalProps = {
     retrieveVisibleTypes?: never;
 }
 
-export type FormExpressionEditor = FormCompletionConditionalProps & FormTypeConditionalProps & {
+type FormHelperPaneConditionalProps = { 
+    isLoadingHelperPaneInfo: boolean;
+    variableInfo: HelperPaneData;
+    functionInfo: HelperPaneData;
+    libraryBrowserInfo: HelperPaneData;
+    getHelperPaneData?: (type: string, filterText: string) => void;
+} | {
+    isLoadingHelperPaneInfo?: never;
+    variableInfo?: never;
+    functionInfo?: never;
+    libraryBrowserInfo?: never;
+    getHelperPaneData?: never;
+}
+
+type FormExpressionEditorBaseProps = {
     getExpressionEditorDiagnostics?: (
         showDiagnostics: boolean,
         expression: string,
@@ -96,3 +137,9 @@ export type FormExpressionEditor = FormCompletionConditionalProps & FormTypeCond
     onSave?: (value: string) => void | Promise<void>;
     onRemove?: () => void;
 }
+
+export type FormExpressionEditorProps = 
+    FormCompletionConditionalProps &
+    FormTypeConditionalProps &
+    FormHelperPaneConditionalProps &
+    FormExpressionEditorBaseProps;
