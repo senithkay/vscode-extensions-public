@@ -21,15 +21,15 @@ interface ServiceDesignerProps {
     // Model of the service.
     model?: Service;
     // Callback to send the position of the resource to navigate to code
-    goToSource?: (resource: Resource) =>  void;
+    goToSource?: (resource: Resource) => void;
     // Callback to add a new resource
-    onResourceAdd?: () =>  void;
+    onResourceAdd?: () => void;
     // Callback to send the Resource back to the parent component
-    onResourceDelete?: (resource: Resource, position?: NodePosition) =>  void;
+    onResourceDelete?: (resource: Resource, position?: NodePosition) => void;
     // Callback to send the resource back to the parent component
-    onResourceEdit?: (resource: Resource) =>  void;
+    onResourceEdit?: (resource: Resource) => void;
     // Callback to send the service back to the parent component
-    onServiceEdit?: (service: Service) =>  void;
+    onServiceEdit?: (service: Service) => void;
     // Callback to send the resource back for implementing
     onResourceImplement?: (resource: Resource) => void;
     // Callback to send the resource back upon clicking on it
@@ -68,8 +68,8 @@ const ResourceListHeader = styled.div`
 export function ServiceView(props: ServiceDesignerProps) {
 
     const emptyView = (
-        <Typography variant="h3" sx={{ textAlign: "center"}}>
-            { props.customEmptyResourceMessage ?? "No resources found. Add a new resource." }
+        <Typography variant="h3" sx={{ textAlign: "center" }}>
+            {props.customEmptyResourceMessage ?? "No resources found. Add a new resource."}
         </Typography>
     );
 
@@ -116,8 +116,8 @@ export function ServiceView(props: ServiceDesignerProps) {
         <div data-testid="service-design-view">
             {!disableServiceHeader && (
                 <ServiceHeader>
-                    <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Servicexx {model.path} </Typography>
-                    {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">ListeningXX {model.port}</Typography>}
+                    <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
+                    {model.port && <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>}
                     {onServiceEdit && (
                         <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
                             <Codicon name="settings-gear" />
@@ -126,10 +126,10 @@ export function ServiceView(props: ServiceDesignerProps) {
                 </ServiceHeader>
             )}
             <ResourceListHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{props.customTitle ?? "Available resources"} xx</Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{props.customTitle ?? "Available resources"}</Typography>
                 {onResourceAdd && (
                     <VSCodeButton appearance="primary" title="Edit Service" onClick={onResourceAdd}>
-                        <Codicon name="add" sx={{ marginRight: 5 }} /> Resourcexx
+                        <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                     </VSCodeButton>
                 )}
             </ResourceListHeader>
