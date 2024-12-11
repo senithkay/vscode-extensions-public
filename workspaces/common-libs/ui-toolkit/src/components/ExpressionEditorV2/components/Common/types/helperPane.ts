@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PropsWithChildren, ReactNode } from "react";
+import { CSSProperties, PropsWithChildren, ReactNode } from "react";
 
 export type LibraryBrowserProps = PropsWithChildren<{
     isLoading?: boolean;
@@ -68,4 +68,6 @@ export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     onClose?: () => void;
 };
 
-export type HelperPaneProps = PropsWithChildren<{}>;
+export type HelperPaneProps = PropsWithChildren<{
+    sx?: CSSProperties;
+}>;
