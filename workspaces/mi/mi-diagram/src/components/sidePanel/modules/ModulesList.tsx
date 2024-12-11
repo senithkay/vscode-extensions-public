@@ -36,12 +36,14 @@ interface ModuleProps {
     nodePosition: any;
     trailingSpace: string;
     documentUri: string;
+    localConnectors: any;
+    reloadMediatorPalette: () => void;
 }
 export function Modules(props: ModuleProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
+    const { localConnectors } = props;
     const [allModules, setAllModules] = React.useState([] as any);
-    const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [filteredModules, setFilteredModules] = React.useState([] as any);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [searchValue, setSearchValue] = React.useState<string>('');
@@ -59,8 +61,7 @@ export function Modules(props: ModuleProps) {
             }
             setIsLoading(false);
         };
-
-        fetchLocalConnectorData();
+        
         fetchModules();
     }, [props.documentUri, props.nodePosition, rpcClient]);
 
@@ -76,15 +77,6 @@ export function Modules(props: ModuleProps) {
 
         debouncedSearchModules();
     }, [searchValue]);
-
-    const fetchLocalConnectorData = async () => {
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
-        if (connectorData) {
-            setLocalConnectors(connectorData.connectors);
-        } else {
-            setLocalConnectors([]);
-        }
-    };
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
@@ -102,7 +94,7 @@ export function Modules(props: ModuleProps) {
     };
 
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} onDownloadSuccess={fetchLocalConnectorData} />;
+        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
