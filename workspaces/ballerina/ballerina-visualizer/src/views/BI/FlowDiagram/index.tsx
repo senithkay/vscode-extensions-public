@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
@@ -32,7 +32,6 @@ import {
     BIGetFunctionsRequest,
     SubPanel,
     SubPanelView,
-    BreakpointData,
     CurrentBreakpointsResponse as BreakpointInfo
 } from "@wso2-enterprise/ballerina-core";
 

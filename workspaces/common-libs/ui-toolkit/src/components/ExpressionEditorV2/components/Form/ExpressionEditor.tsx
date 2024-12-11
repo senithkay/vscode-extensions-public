@@ -7,56 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, Fragment, ReactNode, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { throttle } from 'lodash';
+import React, {
+    forwardRef,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { css } from '@emotion/css';
-import { Typography } from '../Typography/Typography';
-import { Codicon } from '../Codicon/Codicon';
-import { ExpressionBarProps, CompletionItem, ExpressionBarRef } from './ExpressionBar';
-import { throttle } from 'lodash';
-import { createPortal } from 'react-dom';
-import { addClosingBracketIfNeeded, checkCursorInFunction, getIcon, setCursor } from './utils';
-import { VSCodeTag } from '@vscode/webview-ui-toolkit/react';
-import { ProgressIndicator } from '../ProgressIndicator/ProgressIndicator';
-import { AutoResizeTextArea } from '../TextArea/TextArea';
-import { TextField } from '../TextField/TextField';
+import { ANIMATION } from '../constants';
+import { CompletionItem } from '../../types/common';
+import { FormExpressionEditorProps, FormExpressionEditorRef } from '../../types/form';
+import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
+import { Codicon } from '../../../Codicon/Codicon';
+import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
+import { AutoResizeTextArea } from '../../../TextArea/TextArea';
+import { FnSignatureEl } from '../Common/FnSignature';
+import { Dropdown } from '../Common';
+import { StyleBase, FnSignatureProps } from '../Common/types';
 
-// Types
-type StyleBase = {
-    sx?: React.CSSProperties;
-};
-
-type DropdownProps = StyleBase & {
-    items: CompletionItem[];
-    showDefaultCompletion?: boolean;
-    autoSelectFirstItem?: boolean;
-    getDefaultCompletion?: () => ReactNode;
-    isSavable: boolean;
-    onCompletionSelect: (item: CompletionItem) => void | Promise<void>;
-    onDefaultCompletionSelect: () => void | Promise<void>;
-};
-
-type DefaultCompletionItemProps = {
-    getDefaultCompletion: () => ReactNode;
-    onClick: () => void |Promise<void>;
-}
-
-type DropdownItemProps = {
-    item: CompletionItem;
-    isSelected?: boolean;
-    onClick: () => void | Promise<void>;
-};
-
-type FnSignatureProps = {
-    label: string;
-    args: string[];
-    currentArgIndex: number;
-};
-
-type FnSignatureElProps = StyleBase & FnSignatureProps;
-
-// Styles
+/* Styled components */
 const Container = styled.div`
     width: 100%;
     position: relative;
@@ -72,336 +45,13 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     }
 `;
 
-const StyledTextField = styled(TextField)`
-    ::part(control) {
-        font-family: monospace;
-        font-size: 12px;
-    }
-`;
-
-const StyledTag = styled(VSCodeTag)`
-    ::part(control) {
-        text-transform: none;
-        font-size: 10px;
-        height: 16px;
-    }
-`;
-
 const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
     z-index: 10000;
     ${(props: StyleBase) => props.sx}
 `;
 
-const DropdownBody = styled.div<StyleBase>`
-    width: 350px;
-    margin-block: 2px;
-    padding-top: 8px;
-    border-radius: 8px;
-    background-color: var(--vscode-dropdown-background);
-    box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
-    ${(props: StyleBase) => props.sx}
-`;
-
-const FnSignatureBody = styled.div<StyleBase>`
-    width: 350px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    margin-block: 2px;
-    padding-block: 8px;
-    border-radius: 8px;
-    background-color: var(--vscode-dropdown-background);
-    box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
-    ${(props: StyleBase) => props.sx}
-`;
-
-const DropdownItemBody = styled.div`
-    max-height: 249px;
-    overflow-y: scroll;
-`;
-
-const DropdownItemContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 4px 8px;
-    font-family: monospace;
-    cursor: pointer;
-
-    & > #description {
-        display: none;
-    }
-
-    &.hovered > #description {
-        display: block;
-        color: var(--vscode-list-deemphasizedForeground);
-    }
-    &.hovered {
-        background-color: var(--vscode-list-activeSelectionBackground);
-        color: var(--vscode-list-activeSelectionForeground);
-    }
-`;
-
-const TitleContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-`;
-
-const Divider = styled.div`
-    height: 1px;
-    background-color: var(--vscode-editorWidget-border);
-`;
-
-const DropdownFooter = styled.div`
-    display: flex;
-    padding: 8px 4px;
-    gap: 4px;
-`;
-
-const DropdownFooterSection = styled.div`
-    display: flex;
-    align-items: center;
-`;
-
-const DropdownFooterText = styled.p`
-    margin: 0;
-    font-size: 12px;
-`;
-
-const DropdownFooterKey = styled.p`
-    margin: 0;
-    font-size: 10px;
-    font-weight: 800;
-`;
-
-const KeyContainer = styled.div`
-    padding: 2px;
-    margin-inline: 4px;
-    border-radius: 2px;
-    border: 1px solid var(--vscode-editorWidget-border);
-`;
-
-const SyntaxBody = styled.div`
-    display: flex;
-    align-items: center;
-    margin: 0 16px;
-    overflow-x: auto;
-    white-space: nowrap;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-`;
-
-const SelectedArg = styled(Typography)`
-    background-color: var(--vscode-list-activeSelectionBackground);
-    color: var(--vscode-list-activeSelectionForeground);
-    font-weight: 600;
-    padding-inline: 4px;
-    margin-inline: 2px;
-    border-radius: 4px;
-`;
-
-const ANIMATION = {
-    enter: css({
-        transition: 'all 0.3s ease-in',
-    }),
-    enterFrom: css({
-        opacity: 0,
-    }),
-    enterTo: css({
-        opacity: 1,
-    }),
-    leave: css({
-        transition: 'all 0.15s ease-out',
-    }),
-    leaveFrom: css({
-        opacity: 1,
-    }),
-    leaveTo: css({
-        opacity: 0,
-    }),
-};
-
-const DefaultCompletionItem = (props: DefaultCompletionItemProps) => {
-    const { getDefaultCompletion, onClick } = props;
-    const itemRef = useRef<HTMLDivElement>(null);
-
-    const handleMouseEnter = () => {
-        const parentEl = itemRef.current.parentElement;
-        const hoveredEl = parentEl.querySelector('.hovered');
-        if (hoveredEl) {
-            hoveredEl.classList.remove('hovered');
-        }
-        itemRef.current.classList.add('hovered');
-    }
-
-    const handleClick = () => {
-        onClick();
-    }
-
-    return (
-        <DropdownItemContainer
-            ref={itemRef}
-            className="hovered"
-            id="default-completion"
-            onMouseEnter={handleMouseEnter}
-            onClick={handleClick}
-        >
-            {getDefaultCompletion()}
-        </DropdownItemContainer>
-    );
-}
-
-const DropdownItem = (props: DropdownItemProps) => {
-    const { item, isSelected, onClick } = props;
-    const itemRef = useRef<HTMLDivElement>(null);
-
-    const handleMouseEnter = () => {
-        const superParentEl = itemRef.current.parentElement.parentElement;
-        const hoveredEl = superParentEl.querySelector('.hovered');
-        if (hoveredEl) {
-            hoveredEl.classList.remove('hovered');
-        }
-        itemRef.current.classList.add('hovered');
-    };
-
-    return (
-        <DropdownItemContainer
-            ref={itemRef}
-            {...(isSelected && { className: 'hovered' })}
-            onMouseEnter={handleMouseEnter}
-            onClick={onClick}
-        >
-            <TitleContainer>
-                {getIcon(item.kind)}
-                {item.tag && <StyledTag>{item.tag}</StyledTag>}
-                <Typography variant="body3" sx={{ fontWeight: 600 }}>
-                    {item.label}
-                </Typography>
-            </TitleContainer>
-            {item.description && (
-                <Typography id="description" variant="caption">
-                    {item.description}
-                </Typography>)
-            }
-        </DropdownItemContainer>
-    );
-};
-
-const Dropdown = forwardRef<HTMLDivElement, DropdownProps>((props, ref) => {
-    const { items, showDefaultCompletion, autoSelectFirstItem, getDefaultCompletion, onCompletionSelect, onDefaultCompletionSelect, isSavable, sx } = props;
-    const listBoxRef = useRef<HTMLDivElement>(null);
-
-    useImperativeHandle(ref, () => listBoxRef.current);
-
-    return (
-        <DropdownBody sx={sx}>
-            {showDefaultCompletion && (
-                <DefaultCompletionItem
-                    getDefaultCompletion={getDefaultCompletion}
-                    onClick={async () => await onDefaultCompletionSelect()}
-                />
-            )}
-            <DropdownItemBody ref={listBoxRef}>
-                {items.map((item, index) => {
-                    return (
-                        <DropdownItem
-                            key={`dropdown-item-${index}`}
-                            {...(autoSelectFirstItem && { isSelected: index === 0 })}
-                            item={item}
-                            onClick={async () => await onCompletionSelect(item)}
-                        />
-                    );
-                })}
-            </DropdownItemBody>
-            <Divider />
-            <DropdownFooter>
-                <DropdownFooterSection>
-                    <KeyContainer>
-                        <Codicon
-                            name="arrow-small-up"
-                            sx={{ display: 'flex', height: '12px', width: '12px' }}
-                            iconSx={{
-                                fontSize: '12px',
-                                fontWeight: '600',
-                            }}
-                        />
-                    </KeyContainer>
-                    <DropdownFooterText>,</DropdownFooterText>
-                    <KeyContainer>
-                        <Codicon
-                            name="arrow-small-down"
-                            sx={{ display: 'flex', height: '12px', width: '12px' }}
-                            iconSx={{
-                                fontSize: '12px',
-                                fontWeight: '600',
-                            }}
-                        />
-                    </KeyContainer>
-                    <DropdownFooterText>to navigate.</DropdownFooterText>
-                </DropdownFooterSection>
-                <DropdownFooterSection>
-                    <KeyContainer>
-                        <DropdownFooterKey>ENTER</DropdownFooterKey>
-                    </KeyContainer>
-                    <DropdownFooterText>{isSavable ? 'to select/save.' : 'to select.'}</DropdownFooterText>
-                </DropdownFooterSection>
-                <DropdownFooterSection>
-                    <KeyContainer>
-                        <DropdownFooterKey>ESC</DropdownFooterKey>
-                    </KeyContainer>
-                    <DropdownFooterText>to cancel.</DropdownFooterText>
-                </DropdownFooterSection>
-            </DropdownFooter>
-        </DropdownBody>
-    );
-});
-Dropdown.displayName = 'Dropdown';
-
-const FnSignatureEl = (props: FnSignatureElProps) => {
-    const { label, args, currentArgIndex, sx } = props;
-    const selectedArgRef = useRef<HTMLParagraphElement>(null);
-
-    useEffect(() => {
-        if (selectedArgRef.current) {
-            selectedArgRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, [currentArgIndex]);
-
-    return (
-        <>
-            {label && (
-                <FnSignatureBody sx={sx}>
-                    <SyntaxBody>
-                        <Typography variant="body3" sx={{ fontWeight: 600 }}>
-                            {`${label}(`}
-                        </Typography>
-                        {args?.map((arg, index) => {
-                            const lastArg = index === args.length - 1;
-                            if (index === currentArgIndex) {
-                                return (
-                                    <Fragment key={`arg-${index}`}>
-                                        <SelectedArg ref={selectedArgRef}>{arg}</SelectedArg>
-                                        {!lastArg && <Typography variant="body3">{`, `}</Typography>}
-                                    </Fragment>
-                                );
-                            }
-                            return (
-                                <Typography key={`arg-${index}`} variant="body3">
-                                    {`${arg}${lastArg ? '' : ', '}`}
-                                </Typography>
-                            );
-                        })}
-                        <Typography variant="body3" sx={{ fontWeight: 600 }}>{`)`}</Typography>
-                    </SyntaxBody>
-                </FnSignatureBody>
-            )}
-        </>
-    );
-};
-
-export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>((props, ref) => {
+export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
     const {
         value,
         disabled,
@@ -410,6 +60,9 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         showDefaultCompletion,
         autoSelectFirstItem,
         getDefaultCompletion,
+        isHelperPaneOpen,
+        changeHelperPaneState,
+        getHelperPane,
         onChange,
         onSave,
         onCancel,
@@ -424,17 +77,11 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         ...rest
     } = props;
 
-    let textBoxType: 'TextField' | 'TextArea' = 'TextArea';
-    let inputElementType: 'input' | 'textarea' = 'textarea';
-    if(props.textBoxType === 'TextField') {
-        textBoxType = 'TextField';
-        inputElementType = 'input';
-    }
-
     const elementRef = useRef<HTMLDivElement>(null);
     const textBoxRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
+    const helperPaneContainerRef = useRef<HTMLDivElement>(null);
     const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
@@ -443,12 +90,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         suffix: /^((?:\w|')*)/,
     };
 
-    const showCompletions = useMemo(() => {
-        if (textBoxType === 'TextField') {
-            return showDefaultCompletion || completions?.length > 0 || !!fnSignature;
-        }
-        return showDefaultCompletion || completions?.length > 0;
-    }, [showDefaultCompletion, completions, fnSignature, textBoxType]);
+    const showCompletions = !isHelperPaneOpen && (showDefaultCompletion || completions?.length > 0);
     const isFocused = document.activeElement === textBoxRef.current;
 
     const handleResize = throttle(() => {
@@ -491,7 +133,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleChange = async (text: string, cursorPosition?: number) => {
         const updatedCursorPosition =
-            cursorPosition ?? textBoxRef.current.shadowRoot.querySelector(inputElementType).selectionStart;
+            cursorPosition ?? textBoxRef.current.shadowRoot.querySelector('textarea').selectionStart;
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
@@ -509,7 +151,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
     const handleCompletionSelect = async (item: CompletionItem) => {
         const replacementSpan = item.replacementSpan ?? 0;
-        const cursorPosition = textBoxRef.current.shadowRoot.querySelector(inputElementType).selectionStart;
+        const cursorPosition = textBoxRef.current.shadowRoot.querySelector('textarea').selectionStart;
         const prefixMatches = value.substring(0, cursorPosition).match(SUGGESTION_REGEX.prefix);
         const suffixMatches = value.substring(cursorPosition).match(SUGGESTION_REGEX.suffix);
         const prefix = value.substring(0, cursorPosition - prefixMatches[1].length - replacementSpan);
@@ -519,7 +161,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
 
         await handleChange(newTextValue, newCursorPosition);
         onCompletionSelect && await onCompletionSelect(newTextValue);
-        setCursor(textBoxRef, inputElementType, newTextValue, newCursorPosition);
+        setCursor(textBoxRef, 'textarea', newTextValue, newCursorPosition);
     };
 
     const handleExpressionSave = async (value: string, ref?: React.MutableRefObject<string>) => {
@@ -671,15 +313,6 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             await onManualCompletionRequest();
             return;
         }
-
-        if (e.key === 'Enter') {
-            if (textBoxType === 'TextField') {
-                e.preventDefault();
-                await handleExpressionSaveMutation(value);
-            }
-           
-            return;
-        }
     };
 
     const handleRefFocus = () => {
@@ -698,20 +331,32 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         }
     }
 
-    const handleTextFieldFocus = async () => {
+    const handleRefSetCursor = (value: string, cursorPosition: number) => {
+        setCursor(textBoxRef, 'textarea', value, cursorPosition);
+    }
+
+    const handleTextAreaFocus = async () => {
         await onFocus?.();
     }
 
-    const handleTextFieldBlur = (e: React.FocusEvent) => {
+    const handleTextAreaBlur = (e: React.FocusEvent) => {
         e.preventDefault();
         e.stopPropagation();
     }
 
+    const handleTextAreaMouseDown = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (document.activeElement !== textBoxRef.current) {
+            changeHelperPaneState?.(true);
+        }
+    }
+
     useImperativeHandle(ref, () => ({
         shadowRoot: textBoxRef.current?.shadowRoot,
-        inputElement: textBoxRef.current?.shadowRoot?.querySelector(inputElementType),
+        inputElement: textBoxRef.current?.shadowRoot?.querySelector('textarea'),
         focus: handleRefFocus,
         blur: handleRefBlur,
+        setCursor: handleRefSetCursor,
         saveExpression: async (value?: string, ref?: React.MutableRefObject<string>) => {
             await handleExpressionSaveMutation(value, ref);
         }
@@ -723,8 +368,10 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
             if (
                 document.activeElement === textBoxRef.current &&
                 !textBoxRef.current?.contains(e.target) &&
-                !dropdownContainerRef.current?.contains(e.target)
+                !dropdownContainerRef.current?.contains(e.target) &&
+                !helperPaneContainerRef.current?.contains(e.target)
             ) {
+                changeHelperPaneState?.(false);
                 await onBlur?.(e);
             }
         }
@@ -733,37 +380,24 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
         return () => {
             document.removeEventListener('mousedown', handleOutsideClick);
         }
-    }, [onBlur]);
+    }, [onBlur, changeHelperPaneState]);
 
     return (
         <Container ref={elementRef}>
-            {textBoxType === 'TextField' ? (
-                <StyledTextField
-                    ref={textBoxRef as React.RefObject<HTMLInputElement>}
-                    value={value}
-                    onTextChange={handleChange}
-                    onKeyDown={handleInputKeyDown}
-                    onBlur={handleTextFieldBlur}
-                    sx={{ width: '100%', ...sx }}
-                    disabled={disabled || isSavingExpression}
-                    {...rest}
-                />
-            ) : (
-                <StyledTextArea
-                    {...rest}
-                    ref={textBoxRef as React.RefObject<HTMLTextAreaElement>}
-                    value={value}
-                    onTextChange={handleChange}
-                    onKeyDown={handleInputKeyDown}
-                    onFocus={handleTextFieldFocus}
-                    onBlur={handleTextFieldBlur}
-                    sx={{ width: '100%', ...sx }}
-                    disabled={disabled || isSavingExpression}
-                    growRange={{ start: 1, offset: 7 }}
-                    resize='vertical'
-                />
-            )}
-
+            <StyledTextArea
+                {...rest}
+                ref={textBoxRef as React.RefObject<HTMLTextAreaElement>}
+                value={value}
+                onTextChange={handleChange}
+                onKeyDown={handleInputKeyDown}
+                onFocus={handleTextAreaFocus}
+                onBlur={handleTextAreaBlur}
+                onMouseDown={handleTextAreaMouseDown}
+                sx={{ width: '100%', ...sx }}
+                disabled={disabled || isSavingExpression}
+                growRange={{ start: 1, offset: 7 }}
+                resize='vertical'
+            />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
                 createPortal(
@@ -795,19 +429,22 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionBarProps>
                                 onCompletionSelect={handleCompletionSelect}
                                 onDefaultCompletionSelect={onDefaultCompletionSelect}
                             />
-                            {textBoxType === 'TextField' && (
-                                <FnSignatureEl
-                                    label={fnSignature?.label}
-                                    args={fnSignature?.args}
-                                    currentArgIndex={fnSignature?.currentArgIndex ?? 0}
-                                />
-                            )}
                         </Transition>
                     </DropdownContainer>,
                     document.body
                 )
             }
-            {isFocused && textBoxType === 'TextArea' &&
+            {getHelperPane &&
+                createPortal(
+                    <DropdownContainer ref={helperPaneContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={isHelperPaneOpen} {...ANIMATION}>
+                            {getHelperPane(value, handleChange)}
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )
+            }
+            {isFocused &&
                 createPortal(
                     <DropdownContainer sx={{ ...fnSignatureElPosition }}>
                         <Transition show={!!fnSignature} {...ANIMATION}>
