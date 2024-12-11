@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
@@ -37,6 +37,16 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const { projectName, projectStructure } = props;
 
     const { rpcClient } = useRpcContext();
+
+    console.log(">>> rendering component diagram")
+    useEffect(() => {
+        console.log(">>> requesting design model")
+        rpcClient.getBIDiagramRpcClient().getDesignModel().then((response) => {
+            console.log(">>> design model", response);
+        }).catch((error) => {
+            console.error(">>> error getting design model", error);
+        });
+    }, []);
 
     const goToView = async (filePath: string, position: NodePosition) => {
         console.log(">>> component diagram: go to view", { filePath, position });

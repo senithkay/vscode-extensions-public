@@ -18,6 +18,7 @@ import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { TriggerFunction, TriggerNode } from "./triggers";
+import { CDModel } from "./component-diagram";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -623,6 +624,16 @@ export interface BICopilotContextResponse {
     suffix: string;
 }
 
+export interface BIDesignModelRequest {
+    projectPath: string;
+}
+
+export type BIDesignModelResponse = {
+    description: string;
+    projectPath: string;
+    output: { designModel: CDModel };
+};
+
 export interface SequenceModelRequest {
     filePath: string;
     startLine: LinePosition;
@@ -843,6 +854,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
     addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+    getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
