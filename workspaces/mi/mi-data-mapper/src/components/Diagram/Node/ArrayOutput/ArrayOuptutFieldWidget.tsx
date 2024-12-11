@@ -444,6 +444,9 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     </div>
                 </div>
             )}
+            {expanded && !(hasValue && arrayLitExpr) && (field.type.memberType.kind === TypeKind.Array) && (
+                <span></span>
+            )}
         </div>
     );
 }
