@@ -15,6 +15,7 @@ import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
 import { URI } from "vscode-uri";
+import { getEntryNodeIcon } from "../ComponentListView";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -91,7 +92,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     response.packages.forEach((pkg) => {
                         pkg.modules.forEach((module: any) => {
                             module[componentType].forEach((balComp: any) => {
-                                if (balComp.name === component.label) {
+                                if (balComp.name === component.name) {
                                     rpcClient
                                         .getBIDiagramRpcClient()
                                         .deleteByComponentInfo({
@@ -165,11 +166,29 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         });
     });
     projectStructure.directoryMap[DIRECTORY_MAP.SERVICES].forEach((service) => {
+        // handle trigger service
+        if (service?.triggerNode) {
+            project.entryPoints.push({
+                id: service.name,
+                name: service.context,
+                type: "service",
+                label: service.triggerNode.properties?.name?.value,
+                description: service.triggerNode.name,
+                icon: getEntryNodeIcon(service.triggerNode),
+                location: {
+                    filePath: service.path,
+                    position: service.position,
+                },
+                connections: service.st?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
+            });
+            return;
+        }
+        // handle generic service
         project.entryPoints.push({
             id: service.name,
-            name: service.name,
+            name: service.context,
             type: "service",
-            label: service.context,
+            label: service.name,
             location: {
                 filePath: service.path,
                 position: service.position,
@@ -187,10 +206,12 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             taskName = taskName.replace(/['"]/g, "");
         }
 
+        console.log(">>> task", { taskName, task });
+
         project.entryPoints.push({
             id: task.name,
-            name: taskName || task.name,
-            label: task.context,
+            name: task.context,
+            label: taskName || task.name,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,

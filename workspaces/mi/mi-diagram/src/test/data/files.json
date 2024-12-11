@@ -110,7 +110,7 @@
     ]
   },
   {
-    "file": "CallDataService.xml",
+    "file": "CallDataservice.xml",
     "resources": [
       {
         "path": "/",
@@ -121,7 +121,7 @@
     ]
   },
   {
-    "file": "CallDataServiceWithDescription.xml",
+    "file": "CallDataserviceWithDescription.xml",
     "resources": [
       {
         "path": "/",
@@ -154,7 +154,7 @@
     ]
   },
   {
-    "file": "CallSequence.xml",
+    "file": "Sequence.xml",
     "resources": [
       {
         "path": "/",
@@ -165,7 +165,7 @@
     ]
   },
   {
-    "file": "CallSequenceWithDescription.xml",
+    "file": "SequenceWithDescription.xml",
     "resources": [
       {
         "path": "/",

@@ -21,6 +21,7 @@ export type CheckBoxProps = {
     labelAdornment?: ReactNode;
     value?: string;
     checked: boolean;
+    disabled?: boolean;
     onChange: (checked: boolean) => void;
 };
 
@@ -54,13 +55,13 @@ const LabelContainer = styled.div`
     flex-direction: row;
     margin-bottom: 4px;
 `;
-export const CheckBox = ({ label, labelAdornment, value, checked, onChange }: CheckBoxProps) => {
+export const CheckBox = ({ label, labelAdornment, value, checked, onChange, disabled }: CheckBoxProps) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.checked);
     };
 
     return (
-        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange}>
+        <StyledCheckBox key={`checkbox-${value}`} value={value} checked={checked} onClick={handleChange} disabled={disabled}>
             <LabelContainer>
                 <div style={{ color: "var(--vscode-editor-foreground)" }}>
                     <label htmlFor={`${label}`}>{label}</label>

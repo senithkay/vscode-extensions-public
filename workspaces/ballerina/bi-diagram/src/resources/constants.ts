@@ -31,6 +31,7 @@ export enum DefaultColors {
     BLUE = "#1a85ff",
     GREEN = "#388a34",
     PURPLE = "#652d90",
+    DEBUGGER_BREAKPOINT_BACKGROUND = "#ffcc004d",
 }
 
 export enum VSCodeColors {
@@ -77,6 +78,7 @@ export const Colors = {
 
     OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
     OUTLINE_VARIANT: VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
+    DEBUGGER_BREAKPOINT_BACKGROUND: DefaultColors.DEBUGGER_BREAKPOINT_BACKGROUND,
 
     ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
 
@@ -141,6 +143,4 @@ export const BUTTON_NODE_HEIGHT = 30;
 // comment node
 export const COMMENT_NODE_WIDTH = 200;
 export const COMMENT_NODE_GAP = 30;
-
-// HACK
-export const VSCODE_MARGIN = 20;
+export const COMMENT_NODE_CIRCLE_WIDTH = 8;

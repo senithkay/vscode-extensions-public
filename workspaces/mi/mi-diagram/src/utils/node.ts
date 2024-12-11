@@ -8,7 +8,7 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NODE_GAP } from "../resources/constants";
+import { MEDIATORS, NODE_GAP } from "../resources/constants";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -29,7 +29,7 @@ export function getNodeDescription(name: string, stNode: any): string {
         return stNode.description;
     }
 
-    // TODO: Add descriptions for other nodes
+    // TODO: Move to LS
     switch (name) {
         case "endpoint": {
             if (stNode.key) {
@@ -39,6 +39,64 @@ export function getNodeDescription(name: string, stNode: any): string {
                 return stNode.type;
             }
             return;
+        }
+        case (MEDIATORS.FILTER): {
+            if (stNode.regex && stNode.source) {
+                return `${stNode.source} matches ${stNode.regex}`;
+            }
+            if (stNode.regex) {
+                return stNode.regex;
+            } else if (stNode.source) {
+                return stNode.source;
+            } else if (stNode.xpath) {
+                return stNode.xpath;
+            }
+            return;
+        }
+        case (MEDIATORS.LOG): {
+            if (stNode.property) {
+                return stNode.property.map((property: any) => {
+                    return property.name;
+                }).join(", ");
+            }
+            return;
+        }
+        case (MEDIATORS.PROPERTY): {
+            if (stNode.name) {
+                return stNode.name;
+            }
+            return;
+        }
+        case (MEDIATORS.SEQUENCE): {
+            if (stNode.tag === "target") {
+                return stNode.sequenceAttribute;
+            }
+
+            const description = stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
+            if (description) {
+                return description.split(".")[0];
+            }
+            return;
+        }
+        case (MEDIATORS.SWITCH): {
+            return stNode.source;
+        }
+        case (MEDIATORS.DATAMAPPER): {
+            const description = stNode.config;
+            if (description) {
+                const match = description.match(/\/([^\/]+)\.dmc$/);
+                return match ? match[1] : null;
+            }
+            return;
+        }
+        case (MEDIATORS.DATASERVICECALL): {
+            return stNode.serviceName;
+        }
+        case (MEDIATORS.AGGREGATE): {
+            const onComplete = stNode?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+            const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+            return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
         }
         default:
             return;

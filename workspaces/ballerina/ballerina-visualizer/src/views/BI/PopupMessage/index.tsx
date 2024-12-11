@@ -19,7 +19,8 @@ const ViewContainer = styled.div`
     transform: translate(-50%, -50%);
     z-index: 3000;
     background-color: ${Colors.SURFACE_BRIGHT};
-    padding: 20px;
+    padding: 28px 56px;
+    border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
@@ -52,12 +53,12 @@ export function PopupMessage(props: PopupPanelProps) {
         <>
             <Backdrop onClick={onClose} />
             <ViewContainer>
-                <TopBar>
+                {/* <TopBar>
                     <div></div>
                     <Button appearance="icon" onClick={onClose}>
                         <Codicon name="close" />
                     </Button>
-                </TopBar>
+                </TopBar> */}
                 {children}
             </ViewContainer>
         </>

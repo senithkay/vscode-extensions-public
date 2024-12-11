@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createFunctionSignature, DataMappingRecord, ErrorCode, GenerateMappingFromRecordResponse, GenerteMappingsFromRecordRequest, getSource, PartialST, ProjectSource, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { AttachmentResult, createFunctionSignature, DataMappingRecord, ErrorCode, GenerateMappingFromRecordResponse, GenerateMappingsFromRecordRequest, GenerateTypesFromRecordRequest, GenerateTypesFromRecordResponse, getSource, PartialST, ProjectSource, SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import { FunctionDefinition, ModulePart, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { camelCase, memoize } from "lodash";
 import path from "path";
@@ -15,24 +15,44 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { Uri, workspace } from "vscode";
 import { langClient } from "./activator";
-import { getFunction, isErrorCode, processMappings } from "../../rpc-managers/ai-panel/utils";
+import { getFunction, isErrorCode, processMappings, typesFileParameterDefinitions } from "../../rpc-managers/ai-panel/utils";
 import { MODIFIYING_ERROR } from "../../views/ai-panel/errorCodes";
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 
 
 export async function generateDataMapping(
-    projectRoot: string,
-    request: GenerteMappingsFromRecordRequest
+  projectRoot: string,
+  request: GenerateMappingsFromRecordRequest
 ): Promise<GenerateMappingFromRecordResponse> {
     const source = createDataMappingFunctionSource(request.inputRecordTypes, request.outputRecordType, request.functionName);
-    const updatedSource = await getUpdatedFunctionSource(projectRoot, source, request.imports);
+    const file = request.attachment && request.attachment.length > 0
+      ? request.attachment[0]
+      : undefined;
+    const updatedSource = await getUpdatedFunctionSource(projectRoot, source, request.imports, file);
     return Promise.resolve({mappingCode: updatedSource});
+}
+
+export async function generateTypeCreation(
+  projectRoot: string,
+  request: GenerateTypesFromRecordRequest
+): Promise<GenerateTypesFromRecordResponse> {
+    const file = request.attachment && request.attachment.length > 0
+        ? request.attachment[0]
+        : undefined;
+
+    const updatedSource = await typesFileParameterDefinitions(file);
+    if (typeof updatedSource !== 'string') {
+        throw new Error(`Failed to generate types: ${JSON.stringify(updatedSource)}`);
+    }
+
+    return Promise.resolve({ typesCode: updatedSource });
 }
 
 async function getUpdatedFunctionSource(
     projectRoot: string,
     funcSource: string,
-    imports: { moduleName: string; alias?: string }[]
+    imports: { moduleName: string; alias?: string }[],
+    file?: AttachmentResult
 ): Promise<string> {
     const importsString = imports
       .map(({ moduleName, alias }) =>
@@ -70,7 +90,8 @@ async function getUpdatedFunctionSource(
   
     const processedST = await processMappings(
       funcDefinitionNode,
-      fileUri
+      fileUri,
+      file
     );
     if (isErrorCode(processedST)) {
       throw new Error((processedST as ErrorCode).message);
