@@ -59,11 +59,6 @@ export type InputsFields = {
     clientSecretExpression: boolean;
     tokenUrlExpression: boolean;
     refreshTokenExpression: boolean;
-    saveInReg?: boolean;
-    //reg form
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 }
 
 export const initialEndpoint: InputsFields = {
@@ -134,12 +129,6 @@ export const initialEndpoint: InputsFields = {
     clientSecretExpression: false,
     tokenUrlExpression: false,
     refreshTokenExpression: false,
-
-    saveInReg: false,
-    //reg form
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
 }
 
 export const paramTemplateConfigs: ParamConfig = {
