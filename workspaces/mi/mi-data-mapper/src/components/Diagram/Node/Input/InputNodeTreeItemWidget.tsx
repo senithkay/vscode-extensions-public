@@ -108,21 +108,22 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                 )}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
+                title={(portOut && portOut.isPreview) ? "Please map parent field first" : ""}
             >
                 <span className={classes.label}>
                     {fields && <Button
-                            id={"expand-or-collapse-" + fieldId} 
-                            appearance="icon"
-                            tooltip="Expand/Collapse"
-                            onClick={handleExpand}
-                            sx={{ marginLeft: treeDepth * 16 }}
-                        >
-                            {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                        </Button>}
+                        id={"expand-or-collapse-" + fieldId}
+                        appearance="icon"
+                        tooltip="Expand/Collapse"
+                        onClick={handleExpand}
+                        sx={{ marginLeft: treeDepth * 16 }}
+                    >
+                        {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                    </Button>}
                     {label}
                 </span>
                 <span className={classes.outPort}>
-                    {portOut &&
+                    {portOut && !portOut.isPreview &&
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
