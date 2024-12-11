@@ -78,7 +78,8 @@ import {
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
-    updateConnectorDependencies
+    updateConnectorDependencies,
+    ImportOpenAPISpecRequest
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -237,7 +238,7 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     updateConnectorDependencies(): Promise<string> {
         return this._messenger.sendRequest(updateConnectorDependencies, HOST_EXTENSION);
     }
-    importOpenAPISpec(): Promise<void> {
-        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION);
+    importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
+        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION, params);
     }
 }

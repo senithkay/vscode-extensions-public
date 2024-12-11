@@ -351,6 +351,10 @@ export interface SwaggerProxyResponse {
     response?: Response;
 }
 
+export interface ImportOpenAPISpecRequest {
+    filePath: string;
+}
+
 export interface RuntimeServicesResponse {
     api: RuntimeServiceDetails | undefined;
     proxy: RuntimeServiceDetails | undefined;

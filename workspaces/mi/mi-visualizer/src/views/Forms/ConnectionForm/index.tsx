@@ -17,6 +17,7 @@ import AddConnection from "./ConnectionFormGenerator";
 import { APIS, connectorFailoverIconUrl } from "../../../constants";
 import { ImportConnectorForm } from "./ImportConnector";
 import { debounce } from "lodash";
+import path from "path";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -359,6 +360,10 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
             }
 
             await updateDependencies();
+
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+            const pomPath = path.join(projectDir, 'pom.xml');
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
 
             // Download Connector
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();

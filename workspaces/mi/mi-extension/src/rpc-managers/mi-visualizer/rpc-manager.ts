@@ -47,6 +47,7 @@ import {
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -559,24 +560,15 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
-    async importOpenAPISpec(): Promise<void> {
-        // open file dialog to select the openapi spec file
-        const options: vscode.OpenDialogOptions = {
-            canSelectMany: false,
-            openLabel: 'Open OpenAPI Spec',
-            filters: {
-                'OpenAPI Spec': ['json', 'yaml', 'yml']
-            }
-        };
+    async importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
+        const { filePath } = params;
         const langClient = StateMachine.context().langClient!;
-        const fileUri = await vscode.window.showOpenDialog(options);
         const workspaceFolders = workspace.workspaceFolders;
         if (!workspaceFolders) {
             throw new Error('No workspace is currently open');
         }
         const workspaceFolder = workspaceFolders[0].uri.fsPath;
-        if (fileUri && fileUri.length > 0) {
-            const filePath = fileUri[0].fsPath;
+        if (filePath && filePath.length > 0) {
             const connectorGenRequest = {
                 openAPIPath: filePath,
                 connectorProjectPath: path.join(workspaceFolder, 'target')
