@@ -14,7 +14,6 @@ import { TypeChip } from "./Commons";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import AddToRegistry, { formatRegistryPath, saveToRegistry, getArtifactNamesAndRegistryPaths } from "./AddToRegistry";
 import { FormKeylookup, ParamConfig, ParamManager } from "@wso2-enterprise/mi-diagram";
 
 interface OptionProps {
@@ -57,11 +56,6 @@ type InputsFields = {
     timeoutAction?: string;
     templateName?: string;
     requireTemplateParameters?: boolean;
-    saveInReg?: boolean;
-    //reg form
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 };
 
 const newAddressEndpoint: InputsFields = {
@@ -92,11 +86,6 @@ const newAddressEndpoint: InputsFields = {
     timeoutAction: "",
     templateName: "",
     requireTemplateParameters: false,
-    saveInReg: false,
-    //reg form
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
 }
 
 export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
@@ -107,10 +96,6 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             .test('validateEndpointName',
                 'An artifact with same name already exists', value => {
                     return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                })
-            .test('validateEndpointArtifactName',
-                'A registry resource with this artifact name already exists', value => {
-                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                 }) :
             yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
@@ -160,42 +145,9 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             .test('validateTemplateName',
                 'An artifact with same name already exists', value => {
                     return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                })
-            .test('validateTemplateArtifactName',
-                'A registry resource with this artifact name already exists', value => {
-                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                 }) :
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean().notRequired().default(false),
-        saveInReg: yup.boolean(),
-        artifactName: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Artifact Name is required")
-                    .test('validateArtifactName',
-                        'Artifact name already exists', value => {
-                            return !artifactNames.includes(value);
-                        })
-                    .test('validateFileName',
-                        'A file already exists in the workspace with this artifact name', value => {
-                            return !workspaceFileNames.includes(value);
-                        }),
-        }),
-        registryPath: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Registry Path is required")
-                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
-                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
-                        if (formattedPath === undefined) return true;
-                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                    }),
-        }),
-        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -215,8 +167,6 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
     const { rpcClient } = useVisualizerContext();
     const isNewEndpoint = !props.path.endsWith(".xml");
     const isTemplate = props.type === 'template';
-    const [artifactNames, setArtifactNames] = useState([]);
-    const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
@@ -307,7 +257,6 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 });
                 reset(existingEndpoint);
                 setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
-                setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1));
             } else {
@@ -315,9 +264,6 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
-            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
-            setArtifactNames(result.artifactNamesArr);
-            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
@@ -327,9 +273,6 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
 
     useEffect(() => {
         setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
-        if (prevName === watch("artifactName")) {
-            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
-        }
     }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const addressingVersions: OptionProps[] = [
@@ -410,16 +353,11 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
             ...values,
             templateParameters: templateParameters,
             properties: endpointProperties,
-            getContentOnly: watch("saveInReg"),
+            getContentOnly: false,
             directory: props.path
         };
-
-        const result = await rpcClient.getMiDiagramRpcClient().updateAddressEndpoint(addressEndpointParams);
-        if (watch("saveInReg")) {
-            await saveToRegistry(rpcClient, props.path, values.registryType,
-                isTemplate ? values.templateName : values.endpointName,
-                result.content, values.registryPath, values.artifactName);
-        }
+        
+        await rpcClient.getMiDiagramRpcClient().updateAddressEndpoint(addressEndpointParams);
 
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -643,20 +581,6 @@ export function AddressEndpointWizard(props: AddressEndpointWizardProps) {
                 />
                 <Dropdown label="Timeout Action" items={timeoutOptions} {...renderProps('timeoutAction')} />
             </FormGroup>
-            {isNewEndpoint && (
-                <>
-                    <FormCheckBox
-                        label="Save the endpoint in registry"
-                        {...register("saveInReg")}
-                        control={control}
-                    />
-                    {watch("saveInReg") && (<>
-                        <AddToRegistry path={props.path}
-                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
-                            register={register} errors={errors} getValues={getValues} />
-                    </>)}
-                </>
-            )}
             <FormActions>
                 <Button
                     appearance="secondary"
