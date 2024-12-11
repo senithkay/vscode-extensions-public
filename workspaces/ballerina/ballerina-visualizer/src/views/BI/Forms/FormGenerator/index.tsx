@@ -35,6 +35,7 @@ import {
     removeEmptyNodes,
     updateNodeWithProperties
 } from "../form-utils";
+import { cloneDeep } from "lodash";
 
 interface FormProps {
     fileName: string;
@@ -164,14 +165,15 @@ export function FormGenerator(props: FormProps) {
         data: FormValues,
         targetLineRange: LineRange
     ): FlowNode => {
+        const clonedNode = cloneDeep(node);
         // Create updated node with new line range
-        const updatedNode = createNodeWithUpdatedLineRange(node, targetLineRange);
+        const updatedNode = createNodeWithUpdatedLineRange(clonedNode, targetLineRange);
         
         // assign to a existing variable
         const processedData = processFormData(data);
         
         // Update node properties
-        const nodeWithUpdatedProps = updateNodeWithProperties(node, updatedNode, processedData);
+        const nodeWithUpdatedProps = updateNodeWithProperties(clonedNode, updatedNode, processedData);
         
         // check all nodes and remove empty nodes
         return removeEmptyNodes(nodeWithUpdatedProps);
