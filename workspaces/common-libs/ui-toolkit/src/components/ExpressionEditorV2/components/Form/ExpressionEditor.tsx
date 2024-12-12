@@ -71,6 +71,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         onDefaultCompletionSelect,
         onManualCompletionRequest,
         extractArgsFromFunction,
+        onFunctionEdit,
         useTransaction,
         onFocus,
         onBlur,
@@ -127,8 +128,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     // This allows us to update the Function Signature UI
     const updateFnSignature = async (value: string, cursorPosition: number) => {
-        const fnSignature = await extractArgsFromFunction(value, cursorPosition);
-        setFnSignature(fnSignature);
+        if (extractArgsFromFunction) {
+            const fnSignature = await extractArgsFromFunction(value, cursorPosition);
+            setFnSignature(fnSignature);
+        }
     };
 
     const handleChange = async (text: string, cursorPosition?: number) => {
@@ -137,15 +140,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         // Update the text field value
         await onChange(text, updatedCursorPosition);
 
-        if (extractArgsFromFunction) {
-            const cursorInFunction = checkCursorInFunction(text, updatedCursorPosition);
-            if (cursorInFunction) {
-                // Update function signature if the cursor is inside a function
-                await updateFnSignature(text, updatedCursorPosition);
-            } else if (fnSignature) {
-                // Clear the function signature if the cursor is not in a function
-                setFnSignature(undefined);
-            }
+        const { cursorInFunction, functionName } = checkCursorInFunction(text, updatedCursorPosition);
+        if (cursorInFunction) {
+            // Update function signature if the cursor is inside a function
+            await updateFnSignature(text, updatedCursorPosition);
+            // Update function name if the cursor is inside a function name
+            await onFunctionEdit?.(functionName);
+        } else if (fnSignature) {
+            // Clear the function signature if the cursor is not in a function
+            setFnSignature(undefined);
+        }
+
+        if (!cursorInFunction) {
+            // Clear the function name if the cursor is not in a function name
+            await onFunctionEdit?.(undefined);
         }
     };
 
