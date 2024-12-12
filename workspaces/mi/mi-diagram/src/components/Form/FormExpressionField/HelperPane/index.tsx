@@ -24,7 +24,7 @@ export type HelperPaneProps = {
     isLoadingHelperPaneInfo: boolean;
     payloadInfo: HelperPaneCompletionItem[];
     variableInfo: HelperPaneCompletionItem[];
-    attributesInfo: HelperPaneCompletionItem[];
+    propertiesInfo: HelperPaneCompletionItem[];
     functionInfo: HelperPaneFunctionInfo;
     configInfo: HelperPaneCompletionItem[];
     headerInfo: HelperPaneCompletionItem[];
@@ -40,7 +40,7 @@ const HelperPaneEl = ({
     isLoadingHelperPaneInfo,
     payloadInfo,
     variableInfo,
-    attributesInfo,
+    propertiesInfo,
     functionInfo,
     configInfo,
     headerInfo,
@@ -93,7 +93,7 @@ const HelperPaneEl = ({
             {currentPage === 3 && (
                 <PropertiesPage
                     isLoading={isLoadingHelperPaneInfo}
-                    propertiesInfo={attributesInfo}
+                    propertiesInfo={propertiesInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('properties', filterText)}
                     onClose={onClose}
@@ -149,7 +149,7 @@ export const getHelperPane = (
     isLoadingHelperPaneInfo: boolean,
     payloadInfo: HelperPaneCompletionItem[],
     variableInfo: HelperPaneCompletionItem[],
-    attributesInfo: HelperPaneCompletionItem[],
+    propertiesInfo: HelperPaneCompletionItem[],
     functionInfo: HelperPaneFunctionInfo,
     configInfo: HelperPaneCompletionItem[],
     headerInfo: HelperPaneCompletionItem[],
@@ -165,7 +165,7 @@ export const getHelperPane = (
             isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
             payloadInfo={payloadInfo}
             variableInfo={variableInfo}
-            attributesInfo={attributesInfo}
+            propertiesInfo={propertiesInfo}
             functionInfo={functionInfo}
             configInfo={configInfo}
             headerInfo={headerInfo}
