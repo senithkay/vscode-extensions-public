@@ -2,6 +2,11 @@
 
 All significant updates to the [Choreo VSCode extension](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo) are documented here. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
+## [2.2.1] - 2024-12-12
+
+### Added
+- Support for Bitbucket and GitLab based repositories
+
 ## [2.2.0] - 2024-11-08
 
 ### Added
