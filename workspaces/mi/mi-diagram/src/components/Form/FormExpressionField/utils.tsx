@@ -116,34 +116,46 @@ export const filterHelperPaneFunctionCompletionItems = (
     return filteredResponse;
 };
 
-/**
- * Traverse the helper pane completion item using BFS.
- *
- * @param item - HelperPaneCompletionItem
- * @returns React.ReactNode
- */
-export const traverseHelperPaneCompletionItem = (
+const traverseHelperPaneCompletionItem = (
+    children: React.ReactNode[],
+    level: number,
     item: HelperPaneCompletionItem,
     onChange: (value: string) => void,
     getIcon: () => React.ReactNode
 ) => {
-    // BFS to get the item
-    const queue: HelperPaneCompletionItem[] = [item];
-    while (queue.length > 0) {
-        const current = queue.shift();
-        if (current.children.length === 0) {
-            return (
-                <HelperPane.CompletionItem
-                    label={current.label}
-                    onClick={() => onChange(current.insertText)}
-                    getIcon={getIcon}
-                />
-            );
-        }
-
-        // Add the children to the queue
-        for (const child of current.children) {
-            queue.push(child);
-        }
+    if (!item) {
+        return;
     }
+
+    children.push(
+        <HelperPane.CompletionItem
+            label={item.label}
+            onClick={() => onChange(item.insertText)}
+            getIcon={getIcon}
+            level={level}
+        />
+    );
+
+    for (const child of item.children) {
+        traverseHelperPaneCompletionItem(children, level + 1, child, onChange, getIcon);
+    }
+};
+
+/**
+ * Traverse the helper pane completion item using DFS.
+ *
+ * @param item - HelperPaneCompletionItem
+ * @returns React.ReactNode
+ */
+export const getHelperPaneCompletionItem = (
+    item: HelperPaneCompletionItem,
+    onChange: (value: string) => void,
+    getIcon: () => React.ReactNode
+) => {
+    const children: React.ReactNode[] = [];
+
+    // Apply DFS to get the item
+    traverseHelperPaneCompletionItem(children, 0, item, onChange, getIcon);
+    
+    return children;
 };

@@ -10,7 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
-import { traverseHelperPaneCompletionItem } from '../utils';
+import { getHelperPaneCompletionItem } from '../utils';
 
 type VariablesPageProps = {
     isLoading: boolean;
@@ -57,7 +57,7 @@ export const VariablesPage = ({
             />
             <HelperPane.Body isLoading={isLoading}>
                 {variableInfo?.map((variable) => (
-                    traverseHelperPaneCompletionItem(variable, onChange, getCompletionItemIcon)
+                    getHelperPaneCompletionItem(variable, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>
