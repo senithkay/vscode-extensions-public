@@ -8,9 +8,19 @@
  */
 
 import { LineRange } from '@wso2-enterprise/ballerina-core';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
 import React, { createContext, FC, useContext } from 'react';
-import { Control, FieldValues, UseFormWatch, UseFormRegister, UseFormSetValue, UseFormUnregister } from 'react-hook-form';
+import { 
+    Control,
+    FieldValues, 
+    UseFormWatch, 
+    UseFormRegister, 
+    UseFormSetValue, 
+    UseFormUnregister, 
+    UseFormSetError,
+    UseFormClearErrors,
+    FieldErrors
+} from 'react-hook-form';
+import { FormExpressionEditorProps } from '../components/Form/types';
 
 export interface FormContext {
     form: {
@@ -19,28 +29,11 @@ export interface FormContext {
         watch: UseFormWatch<any>;
         register: UseFormRegister<FieldValues>;
         unregister: UseFormUnregister<FieldValues>;
+        setError: UseFormSetError<FieldValues>;
+        clearErrors: UseFormClearErrors<FieldValues>;
+        formState: { isValidating: boolean; errors: FieldErrors<FieldValues> };
     };
-    expressionEditor?: {
-        completions: CompletionItem[];
-        triggerCharacters?: readonly string[];
-        retrieveCompletions?: (
-            value: string,
-            offset: number,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
-        ) => Promise<void>;
-        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-            label: string;
-            args: string[];
-            currentArgIndex: number;
-        }>;
-        onFocus?: () => void | Promise<void>;
-        onBlur?: () => void | Promise<void>;
-        onCompletionSelect?: (value: string) => void | Promise<void>;
-        onSave?: (value: string) => void | Promise<void>;
-        onCancel: () => void;
-    };
+    expressionEditor?: FormExpressionEditorProps;
     targetLineRange: LineRange;
     fileName: string;
 }

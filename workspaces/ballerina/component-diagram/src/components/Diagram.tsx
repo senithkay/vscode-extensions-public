@@ -16,7 +16,9 @@ import {
     generateEngine,
     getModelId,
     getNodeId,
+    loadDiagramZoomAndPosition,
     registerListeners,
+    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
@@ -39,7 +41,8 @@ export interface DiagramProps {
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } = props;
+    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } =
+        props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -53,8 +56,9 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         const handleResize = () => {
-            if (diagramEngine && diagramModel) {
-                diagramEngine.zoomToFit();
+            if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
+                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+                diagramEngine.repaintCanvas();
             }
         };
 
@@ -161,19 +165,19 @@ export function Diagram(props: DiagramProps) {
         // registerListeners(diagramEngine);
 
         diagramEngine.setModel(newDiagramModel);
-        // remove loader overlay layer
-        const overlayLayer = diagramEngine
-            .getModel()
-            .getLayers()
-            .find((layer) => layer instanceof OverlayLayerModel);
-        if (overlayLayer) {
-            diagramEngine.getModel().removeLayer(overlayLayer);
-        }
 
         // diagram paint with timeout
         setTimeout(() => {
-            if (diagramEngine && newDiagramModel) {
-                diagramEngine.zoomToFit();
+            // remove loader overlay layer
+            const overlayLayer = diagramEngine
+                .getModel()
+                .getLayers()
+                .find((layer) => layer instanceof OverlayLayerModel);
+            if (overlayLayer) {
+                diagramEngine.getModel().removeLayer(overlayLayer);
+            }
+            if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
+                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
             }
             diagramEngine.repaintCanvas();
         }, 200);
@@ -185,7 +189,7 @@ export function Diagram(props: DiagramProps) {
         onAddConnection,
         onEntryPointSelect,
         onConnectionSelect,
-        onDeleteComponent
+        onDeleteComponent,
     };
 
     return (
@@ -196,7 +200,6 @@ export function Diagram(props: DiagramProps) {
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
-
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}

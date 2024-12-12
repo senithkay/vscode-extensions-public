@@ -11,12 +11,13 @@
 import { CodeAction, Diagnostic, DocumentSymbol, SymbolInformation, TextDocumentItem, WorkspaceEdit } from "vscode-languageserver-types";
 import { CMDiagnostics, ComponentModel } from "./component";
 import { DocumentIdentifier, LinePosition, LineRange, NOT_SUPPORTED_TYPE, Range } from "./common";
-import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField } from "./ballerina";
+import { BallerinaConnectorInfo, BallerinaExampleCategory, BallerinaModuleResponse, BallerinaModulesRequest, BallerinaTrigger, BallerinaTriggerInfo, BallerinaConnector, ExecutorPosition, ExpressionRange, JsonToRecordMapperDiagnostic, MainTriggerModifyRequest, NoteBookCellOutputValue, NotebookCellMetaInfo, OASpec, PackageSummary, PartialSTModification, ResolvedTypeForExpression, ResolvedTypeForSymbol, STModification, SequenceModel, SequenceModelDiagnostic, ServiceTriggerModifyRequest, SymbolDocumentation, XMLToRecordConverterDiagnostic, TypeField, ComponentInfo } from "./ballerina";
 import { ModulePart, STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeActionParams, DefinitionParams, DocumentSymbolParams, ExecuteCommandParams, InitializeParams, InitializeResult, LocationLink, RenameParams } from "vscode-languageserver-protocol";
 import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
+import { TriggerFunction, TriggerNode } from "./triggers";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -164,7 +165,9 @@ export interface Connector extends BallerinaConnectorInfo {
 }
 
 export interface TriggerParams {
-    id: string
+    id?: string;
+    orgName?: string;
+    packageName?: string;
 }
 
 export interface Trigger extends BallerinaTriggerInfo {
@@ -493,8 +496,19 @@ export type BISourceCodeResponse = {
     };
 };
 
+export type BIDeleteByComponentInfoRequest = {
+    filePath: string;
+    component: ComponentInfo;
+}
+
+export type BIDeleteByComponentInfoResponse = {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+};
+
 export interface BIAvailableNodesRequest {
-    position: LineRange;
+    position: LinePosition;
     filePath: string;
 }
 
@@ -509,7 +523,7 @@ export interface BIGetVisibleVariableTypesRequest {
 
 export interface BIGetVisibleVariableTypesResponse {
     categories: VisibleType[];
-};
+}
 
 export interface BINodeTemplateRequest {
     position: LinePosition;
@@ -534,12 +548,24 @@ export type SearchQueryParams = {
     q?: string;
     limit?: number;
     offset?: number;
+    includeAvailableFunctions?: string;
 }
 
 export type BIGetFunctionsRequest = {
     position: LineRange;
     filePath: string;
     queryMap: SearchQueryParams;
+}
+
+export type BIGetEnclosedFunctionRequest = {
+    filePath: string;
+    position: LinePosition;
+}
+
+export type BIGetEnclosedFunctionResponse = {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
 }
 
 export type BIGetFunctionsResponse = {
@@ -584,7 +610,7 @@ export interface UpdateConfigVariableRequest {
 }
 
 export interface UpdateConfigVariableResponse {
-    
+
 }
 
 export interface BICopilotContextRequest {
@@ -621,19 +647,22 @@ export const TRIGGER_CHARACTERS = [':', '.', '>', '@', '/', '\\', '?'] as const;
 
 export type TriggerCharacter = typeof TRIGGER_CHARACTERS[number];
 
-export interface ExpressionCompletionsRequest {
-    description?: string;
-    filePath: string;
+export interface ExpressionEditorContext {
     expression: string;
-    branch?: string;
-    property?: string;
     startLine: LinePosition;
     offset: number;
-    context: {
+    node: FlowNode | TriggerNode;
+    branch?: string;
+    property: string;
+}
+
+export interface ExpressionCompletionsRequest {
+    filePath: string;
+    context: ExpressionEditorContext;
+    completionContext: {
         triggerKind: TriggerKind;
         triggerCharacter?: TriggerCharacter;
     };
-    node?: FlowNode;
 }
 
 export interface ExpressionCompletionItem {
@@ -650,10 +679,8 @@ export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
 
 export interface SignatureHelpRequest {
     filePath: string;
-    expression: string;
-    startLine: LinePosition;
-    offset: number;
-    context: {
+    context: ExpressionEditorContext;
+    signatureHelpContext: {
         isRetrigger: boolean;
         triggerCharacter?: TriggerCharacter;
         triggerKind: number;
@@ -690,6 +717,98 @@ export interface VisibleTypesResponse {
     types: string[];
 }
 
+export interface ReferenceLSRequest {
+    textDocument: {
+        uri: string;
+    };
+    position: {
+        character: number;
+        line: number;
+    };
+    context: {
+        includeDeclaration: boolean;
+    };
+}
+export interface Reference {
+    uri: string;
+    range: Range;
+}
+
+export interface ExpressionDiagnosticsRequest {
+    filePath: string;
+    context: ExpressionEditorContext;
+}
+
+export interface ExpressionDiagnosticsResponse {
+    diagnostics: Diagnostic[];
+}
+
+
+// <-------- Trigger Related ------->
+export interface TriggerModelsRequest {
+    organization?: string;
+    packageName?: string;
+    query?: string;
+    keyWord?: string;
+}
+
+export interface TriggerModelsResponse {
+    local: TriggerNode[];
+}
+
+export interface TriggerModelRequest {
+    id?: string;
+    organization?: string;
+    packageName?: string;
+    moduleName?: string;
+    serviceName?: string;
+    query?: string;
+    keyWords?: string;
+}
+
+export interface TriggerModelResponse {
+    trigger: TriggerNode;
+}
+
+
+export interface TriggerSourceCodeRequest {
+    filePath: string;
+    codedata?: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+    trigger: TriggerNode;
+}
+
+export interface TriggerSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface TriggerModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+}
+
+export interface TriggerModelFromCodeResponse {
+    trigger: TriggerNode
+}
+export interface TriggerFunctionRequest {
+    filePath: string;
+    codedata?: {
+        lineRange: LineRange; // For the entire service declaration
+    };
+    function: TriggerFunction;
+}
+
+export interface TriggerFunctionResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+// <-------- Trigger Related ------->
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -716,6 +835,14 @@ export interface BIInterface extends BaseLangClientInterface {
     getComponentsFromContent: (params: ComponentsFromContent) => Promise<BallerinaProjectComponents>;
     getSignatureHelp: (params: SignatureHelpRequest) => Promise<SignatureHelpResponse>;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
+    getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
+    getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    updateTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
+    addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+    updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

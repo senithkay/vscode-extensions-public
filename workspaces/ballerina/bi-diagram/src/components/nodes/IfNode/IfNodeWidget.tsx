@@ -18,6 +18,7 @@ import { useDiagramContext } from "../../DiagramContext";
 import { MoreVertIcon } from "../../../resources";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
 import { nodeHasError } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -117,18 +118,22 @@ interface IfNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<IfNodeWidgetProps, "children"> { }
 
 export function IfNodeWidget(props: IfNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, addBreakpoint, removeBreakpoint } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(anchorEl);
+    const hasBreakpoint = model.hasBreakpoint();
+    const isActiveBreakpoint = model.isActiveBreakpoint();
 
     useEffect(() => {
-        model.setAroundLinksDisabled(model.node.suggested);
+        if (model.node.suggested) {
+            model.setAroundLinksDisabled(model.node.suggested === true);
+        }
     }, [model.node.suggested]);
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -163,6 +168,16 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
         setAnchorEl(null);
     };
 
+    const onAddBreakpoint = () => {
+        addBreakpoint && addBreakpoint(model.node);
+        setAnchorEl(null);
+    }
+
+    const onRemoveBreakpoint = () => {
+        removeBreakpoint && removeBreakpoint(model.node);
+        setAnchorEl(null);
+    }
+
     const menuItems: Item[] = [
         {
             id: "edit",
@@ -185,6 +200,9 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
         >
             <NodeStyles.Row>
                 <NodeStyles.Column onClick={handleOnClick}>
+                    {hasBreakpoint && (
+                        <div style={{ position: "absolute", left: -5, width: 15, height: 15, top: 22, borderRadius: "50%", backgroundColor: "red" }} />
+                    )}
                     <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
                     <svg width={IF_NODE_WIDTH} height={IF_NODE_WIDTH} viewBox="0 0 70 70">
                         <rect
@@ -194,13 +212,13 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                             height={NODE_HEIGHT}
                             rx="5"
                             ry="5"
-                            fill={Colors.SURFACE_DIM}
+                            fill={isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_DIM}
                             stroke={
                                 hasError
                                     ? Colors.ERROR
                                     : isHovered && !disabled
-                                    ? Colors.PRIMARY
-                                    : Colors.OUTLINE_VARIANT
+                                        ? Colors.PRIMARY
+                                        : Colors.OUTLINE_VARIANT
                             }
                             strokeWidth={NODE_BORDER_WIDTH}
                             strokeDasharray={disabled ? "5 5" : "none"}
@@ -242,9 +260,16 @@ export function IfNodeWidget(props: IfNodeWidgetProps) {
                     }}
                 >
                     <Menu>
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} item={item} />
-                        ))}
+                        <>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
+                        </>
                     </Menu>
                 </Popover>
             </NodeStyles.Row>

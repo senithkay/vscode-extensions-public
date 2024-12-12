@@ -36,15 +36,41 @@ import {
     BIGetVisibleVariableTypesResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
+    BIDeleteByComponentInfoRequest,
+    BIDeleteByComponentInfoResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
 } from "../../interfaces/extended-lang-client";
-import { ProjectRequest, WorkspacesResponse, ProjectComponentsResponse, ComponentRequest, CreateComponentResponse, ReadmeContentRequest, ReadmeContentResponse, BIAiSuggestionsRequest, BIAiSuggestionsResponse, ComponentsRequest, ComponentsResponse, AIChatRequest } from "./interfaces";
+import {
+    ProjectRequest,
+    WorkspacesResponse,
+    ProjectComponentsResponse,
+    ComponentRequest,
+    CreateComponentResponse,
+    ReadmeContentRequest,
+    ReadmeContentResponse,
+    BIAiSuggestionsRequest,
+    BIAiSuggestionsResponse,
+    ComponentsRequest,
+    ComponentsResponse,
+    AIChatRequest,
+    ProjectImports,
+    BreakpointRequest,
+    CurrentBreakpointsResponse,
+    FormDidOpenParams,
+    FormDidCloseParams
+} from "./interfaces";
 
 export interface BIDiagramAPI {
     getFlowModel: () => Promise<BIFlowModelResponse>;
     getSourceCode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
     deleteFlowNode: (params: BISourceCodeRequest) => Promise<BISourceCodeResponse>;
+    deleteByComponentInfo: (params: BIDeleteByComponentInfoRequest) => Promise<BIDeleteByComponentInfoResponse>;
     getAvailableNodes: (params: BIAvailableNodesRequest) => Promise<BIAvailableNodesResponse>;
     getFunctions: (params: BIGetFunctionsRequest) => Promise<BIGetFunctionsResponse>;
+    getEnclosedFunction: (params: BIGetEnclosedFunctionRequest) => Promise<BIGetEnclosedFunctionResponse>;
     getNodeTemplate: (params: BINodeTemplateRequest) => Promise<BINodeTemplateResponse>;
     getAiSuggestions: (params: BIAiSuggestionsRequest) => Promise<BIAiSuggestionsResponse>;
     createProject: (params: ProjectRequest) => void;
@@ -68,4 +94,11 @@ export interface BIDiagramAPI {
     buildProject: () => void;
     runProject: () => void;
     getVisibleTypes: (params: VisibleTypesRequest) => Promise<VisibleTypesResponse>;
+    addBreakpointToSource: (params: BreakpointRequest) => void;
+    removeBreakpointFromSource: (params: BreakpointRequest) => void;
+    getBreakpointInfo: () => Promise<CurrentBreakpointsResponse>;
+    getExpressionDiagnostics: (params: ExpressionDiagnosticsRequest) => Promise<ExpressionDiagnosticsResponse>;
+    getAllImports:()=> Promise<ProjectImports>;
+    formDidOpen: (params: FormDidOpenParams) => Promise<void>;
+    formDidClose: (params: FormDidCloseParams) => Promise<void>;
 }

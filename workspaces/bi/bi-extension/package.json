@@ -2,7 +2,7 @@
     "name": "kola-extension",
     "displayName": "Kola",
     "description": "Project Kola.",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "publisher": "wso2",
     "repository": {
         "url": "http://repo.url"
@@ -69,7 +69,7 @@
                 },
                 {
                     "command": "BI.project-explorer.delete",
-                    "when": "view == BI.project-explorer && viewItem == connection",
+                    "when": "view == BI.project-explorer && viewItem == connection || viewItem == service || viewItem == function || viewItem == automation || viewItem == type || viewItem == configuration",
                     "group": "inline"
                 },
                 {

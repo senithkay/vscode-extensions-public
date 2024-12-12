@@ -92,7 +92,7 @@ export const ACTOR_SUFFIX = "-actor";
 export const NODE_LOCKED = true;
 
 // sizing
-export const ENTRY_NODE_WIDTH = 180;
+export const ENTRY_NODE_WIDTH = 240;
 export const ENTRY_NODE_HEIGHT = ENTRY_NODE_WIDTH / 3;
 export const CON_NODE_WIDTH = 200;
 export const CON_NODE_HEIGHT = CON_NODE_WIDTH / 3;

@@ -28,15 +28,18 @@ export class RequiredParamNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: RequiredParam,
         public typeDesc: TypeDescriptor,
-        public hasNoMatchingFields?: boolean) {
+        public hasNoMatchingFields?: boolean
+    ) {
         super(
-            `${NODE_ID}-${value.paramName.value}`,
+            `${NODE_ID}${!hasNoMatchingFields && value.paramName.value}`,
             context,
             REQ_PARAM_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.originalTypeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
-        this.typeDef = this.originalTypeDef;
+        if (!hasNoMatchingFields) {
+            this.originalTypeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
+            this.typeDef = this.originalTypeDef;
+        }
     }
 
     async initPorts() {

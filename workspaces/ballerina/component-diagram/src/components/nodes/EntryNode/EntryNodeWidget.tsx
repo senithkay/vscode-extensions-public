@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
 import { HttpIcon, TaskIcon, WebhookIcon } from "../../../resources";
+import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -61,13 +62,19 @@ export namespace NodeStyles {
 
     export const Icon = styled.div`
         padding: 4px;
+        max-width: 32px;
         svg {
             fill: ${Colors.ON_SURFACE};
         }
+        > div:first-child {
+            width: 32px;
+            height: 32px;
+            font-size: 28px;
+        }
     `;
 
-    export const Title = styled(StyledText)<NodeStyleProp>`
-        max-width: ${ENTRY_NODE_WIDTH - 60}px;
+    export const Title = styled(StyledText) <NodeStyleProp>`
+        max-width: ${ENTRY_NODE_WIDTH - 100}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -107,6 +114,10 @@ export namespace NodeStyles {
     export const Hr = styled.hr`
         width: 100%;
     `;
+
+    export const MenuButton = styled(Button)`
+    border-radius: 5px;
+`;
 }
 
 interface EntryNodeWidgetProps {
@@ -114,18 +125,24 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onEntryPointSelect } = useDiagramContext();
+    const { onEntryPointSelect, onDeleteComponent } = useDiagramContext();
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
+    const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleOnClick = () => {
         onEntryPointSelect(model.node);
     };
 
     const getNodeIcon = () => {
+        if (model.node.icon) {
+            return model.node.icon;
+        }
+
         switch (model.node.type) {
             case "trigger":
                 return <WebhookIcon />;
@@ -133,12 +150,17 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "schedule-task":
                 return <TaskIcon />;
             case "service":
+                return <HttpIcon />;
             default:
                 return <HttpIcon />;
         }
     };
 
     const getNodeDescription = () => {
+        if (model.node.description) {
+            return model.node.description;
+        }
+        // show type if no description
         switch (model.node.type) {
             case "trigger":
                 return "Webhook";
@@ -146,10 +168,25 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "schedule-task":
                 return "Automation";
             case "service":
-            default:
                 return "Service";
+            default:
+                return model.node.type;
         }
     }
+
+    const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
+        event.stopPropagation();
+        setMenuAnchorEl(event.currentTarget);
+    };
+
+    const handleOnMenuClose = () => {
+        setMenuAnchorEl(null);
+    };
+
+    const menuItems: Item[] = [
+        { id: "edit", label: "Edit", onClick: () => handleOnClick() },
+        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
+    ];
 
     return (
         <NodeStyles.Node
@@ -162,10 +199,28 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             <NodeStyles.Box hovered={isHovered}>
                 <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
                 <NodeStyles.Header hovered={isHovered}>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
+                    <NodeStyles.Title hovered={isHovered}>{model.node.label || model.node.name}</NodeStyles.Title>
                     <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
+                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                    <MoreVertIcon />
+                </NodeStyles.MenuButton>
             </NodeStyles.Box>
+            <Popover
+                open={isMenuOpen}
+                anchorEl={menuAnchorEl}
+                handleClose={handleOnMenuClose}
+                sx={{
+                    padding: 0,
+                    borderRadius: 0,
+                }}
+            >
+                <Menu>
+                    {menuItems.map((item) => (
+                        <MenuItem key={item.id} item={item} />
+                    ))}
+                </Menu>
+            </Popover>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     PanelContainer,
@@ -30,19 +30,15 @@ import {
     MACHINE_VIEW,
     NodeKind,
     BIGetFunctionsRequest,
-    TRIGGER_CHARACTERS,
-    TriggerCharacter,
     SubPanel,
     SubPanelView,
+    CurrentBreakpointsResponse as BreakpointInfo
 } from "@wso2-enterprise/ballerina-core";
 
 import {
     addDraftNodeToDiagram,
-    convertBalCompletion,
     convertBICategoriesToSidePanelCategories,
     convertFunctionCategoriesToSidePanelCategories,
-    convertToFnSignature,
-    convertToVisibleTypes,
     getContainerTitle,
 } from "../../../utils/bi";
 import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -50,7 +46,6 @@ import {
     View,
     ViewContent,
     ViewHeader,
-    CompletionItem,
     ProgressRing,
     ProgressIndicator,
 } from "@wso2-enterprise/ui-toolkit";
@@ -58,7 +53,6 @@ import { VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { applyModifications, getColorByMethod, textToModifications } from "../../../utils/utils";
 import FormGenerator from "../Forms/FormGenerator";
 import { InlineDataMapper } from "../../InlineDataMapper";
-import { debounce, set } from "lodash";
 import { Colors } from "../../../resources/constants";
 import { HelperView } from "../HelperView";
 
@@ -78,7 +72,7 @@ interface ColoredTagProps {
     color: string;
 }
 
-const ColoredTag = styled(VSCodeTag)<ColoredTagProps>`
+const ColoredTag = styled(VSCodeTag) <ColoredTagProps>`
     ::part(control) {
         color: var(--button-primary-foreground);
         background-color: ${({ color }: ColoredTagProps) => color};
@@ -112,16 +106,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [sidePanelView, setSidePanelView] = useState<SidePanelView>(SidePanelView.NODE_LIST);
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
-    const [completions, setCompletions] = useState<CompletionItem[]>([]);
-    const [filteredCompletions, setFilteredCompletions] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
+    const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
 
-    const triggerCompletionOnNextRequest = useRef<boolean>(false);
     const selectedNodeRef = useRef<FlowNode>();
     const nodeTemplateRef = useRef<FlowNode>();
     const topNodeRef = useRef<FlowNode | Branch>();
@@ -144,23 +134,19 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
 
     const getFlowModel = () => {
         setShowProgressIndicator(true);
-        rpcClient
-            .getBIDiagramRpcClient()
-            .getFlowModel()
-            .then((model) => {
-                setModel(model.flowModel);
-            })
-            .finally(() => {
-                setShowProgressIndicator(false);
-            });
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredCompletions([]);
-        setCompletions([]);
-        setFilteredTypes([]);
-        setTypes([]);
-        triggerCompletionOnNextRequest.current = false;
+        rpcClient.getBIDiagramRpcClient().getBreakpointInfo().then((response) => {
+            console.log(">>> Breakpoint info in flowModel", response);
+            setBreakpointInfo(response);
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFlowModel()
+                .then((model) => {
+                    setModel(model.flowModel);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
+                });
+        });
     };
 
     const handleOnCloseSidePanel = () => {
@@ -168,7 +154,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         setSidePanelView(SidePanelView.NODE_LIST);
         setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
-        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
         topNodeRef.current = undefined;
@@ -194,7 +179,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         updateFlowModel = true
     ) => {
         const getNodeRequest: BIAvailableNodesRequest = {
-            position: target,
+            position: target.startLine,
             filePath: model.fileName,
         };
         console.log(">>> get available node request", getNodeRequest);
@@ -464,6 +449,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         // setSidePanelView(SidePanelView.FORM);
         // setShowSidePanel(true);
         // return;
+        if (!targetRef.current) {
+            return;
+        }
         setShowProgressIndicator(true);
         rpcClient
             .getBIDiagramRpcClient()
@@ -492,7 +480,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             setSidePanelView(SidePanelView.NODE_LIST);
         }
         // clear memory
-        handleExpressionEditorCancel();
         selectedNodeRef.current = undefined;
     };
 
@@ -501,6 +488,10 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.AddConnectionWizard,
+                documentUri: model.fileName,
+                metadata: {
+                    target: targetRef.current.startLine,
+                },
             },
             isPopup: true,
         });
@@ -512,13 +503,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
                 identifier: connectionName,
-                documentUri: model.fileName,
-                position: {
-                    startLine: targetRef.current.startLine.line,
-                    endLine: targetRef.current.endLine.line,
-                    startColumn: targetRef.current.startLine.offset,
-                    endColumn: targetRef.current.endLine.offset,
-                },
             },
             isPopup: true,
         });
@@ -542,6 +526,30 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         };
         rpcClient.getCommonRpcClient().goToSource({ position: targetPosition });
     };
+
+    const handleAddBreakpoint = (node: FlowNode) => {
+        const request = {
+            filePath: model?.fileName,
+            breakpoint: {
+                line: node.codedata.lineRange.startLine.line,
+                column: node.codedata.lineRange.startLine?.offset
+            }
+        };
+
+        rpcClient.getBIDiagramRpcClient().addBreakpointToSource(request);
+    }
+
+    const handleRemoveBreakpoint = (node: FlowNode) => {
+        const request = {
+            filePath: model?.fileName,
+            breakpoint: {
+                line: node.codedata.lineRange.startLine.line,
+                column: node.codedata.lineRange.startLine?.offset
+            }
+        };
+
+        rpcClient.getBIDiagramRpcClient().removeBreakpointFromSource(request);
+    }
 
     // ai suggestions callbacks
     const onAcceptSuggestions = () => {
@@ -579,84 +587,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: context });
     };
 
-    const debouncedGetCompletions = debounce(
-        async (value: string, offset: number, triggerCharacter?: string, onlyVariables?: boolean) => {
-            let expressionCompletions: CompletionItem[] = [];
-            const effectiveText = value.slice(0, offset);
-            const completionFetchText = effectiveText.match(/[a-zA-Z0-9_']+$/)?.[0] ?? "";
-            const endOfStatementRegex = /[\)\]]\s*$/;
-            if (offset > 0 && endOfStatementRegex.test(effectiveText)) {
-                // Case 1: When a character unrelated to triggering completions is entered
-                setCompletions([]);
-            } else if (
-                completions.length > 0 &&
-                completionFetchText.length > 0 &&
-                !triggerCharacter &&
-                !onlyVariables &&
-                !triggerCompletionOnNextRequest.current
-            ) {
-                // Case 2: When completions have already been retrieved and only need to be filtered
-                expressionCompletions = completions
-                    .filter((completion) => {
-                        const lowerCaseText = completionFetchText.toLowerCase();
-                        const lowerCaseLabel = completion.label.toLowerCase();
-
-                        return lowerCaseLabel.includes(lowerCaseText);
-                    })
-                    .sort((a, b) => a.sortText.localeCompare(b.sortText));
-            } else {
-                // Case 3: When completions need to be retrieved from the language server
-                // Retrieve completions from the ls
-                let completions = await rpcClient.getBIDiagramRpcClient().getExpressionCompletions({
-                    filePath: model.fileName,
-                    expression: value,
-                    startLine: targetRef.current.startLine,
-                    offset: offset,
-                    context: {
-                        triggerKind: triggerCharacter ? 2 : 1,
-                        triggerCharacter: triggerCharacter as TriggerCharacter,
-                    },
-                });
-
-                if (onlyVariables) {
-                    // If only variables are requested, filter out the completions based on the kind
-                    // 'kind' for variables = 6
-                    completions = completions?.filter((completion) => completion.kind === 6);
-                    triggerCompletionOnNextRequest.current = true;
-                } else {
-                    triggerCompletionOnNextRequest.current = false;
-                }
-
-                // Convert completions to the ExpressionBar format
-                let convertedCompletions: CompletionItem[] = [];
-                completions?.forEach((completion) => {
-                    if (completion.detail) {
-                        // HACK: Currently, completion with additional edits apart from imports are not supported
-                        // Completions that modify the expression itself (ex: member access)
-                        convertedCompletions.push(convertBalCompletion(completion));
-                    }
-                });
-                setCompletions(convertedCompletions);
-
-                if (triggerCharacter) {
-                    expressionCompletions = convertedCompletions;
-                } else {
-                    expressionCompletions = convertedCompletions
-                        .filter((completion) => {
-                            const lowerCaseText = completionFetchText.toLowerCase();
-                            const lowerCaseLabel = completion.label.toLowerCase();
-
-                            return lowerCaseLabel.includes(lowerCaseText);
-                        })
-                        .sort((a, b) => a.sortText.localeCompare(b.sortText));
-                }
-            }
-
-            setFilteredCompletions(expressionCompletions);
-        },
-        250
-    );
-
     const handleSubPanel = (subPanel: SubPanel) => {
         setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
@@ -691,76 +621,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         }
     };
 
-    const handleGetCompletions = async (
-        value: string,
-        offset: number,
-        triggerCharacter?: string,
-        onlyVariables?: boolean
-    ) => {
-        await debouncedGetCompletions(value, offset, triggerCharacter, onlyVariables);
-
-        if (triggerCharacter) {
-            await debouncedGetCompletions.flush();
-        }
-    };
-
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: model.fileName,
-                position: targetRef.current.startLine,
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        let filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        // Remove description from each type as its duplicate information
-        filteredTypes = filteredTypes.map(type => ({ ...type, description: undefined }));
-
-        setFilteredTypes(filteredTypes);
-    }, 250);
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        await debouncedGetVisibleTypes(value, cursorPosition);
-    };
-
-    const extractArgsFromFunction = async (value: string, cursorPosition: number) => {
-        const signatureHelp = await rpcClient.getBIDiagramRpcClient().getSignatureHelp({
-            filePath: model.fileName,
-            expression: value,
-            startLine: targetRef.current.startLine,
-            offset: cursorPosition,
-            context: {
-                isRetrigger: false,
-                triggerKind: 1,
-            },
-        });
-
-        return convertToFnSignature(signatureHelp);
-    };
-
     const handleResetUpdatedExpressionField = () => {
         setUpdatedExpressionField(undefined);
-    };
-
-    const handleCompletionSelect = async () => {
-        debouncedGetCompletions.cancel();
-        debouncedGetVisibleTypes.cancel();
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
     };
 
     const method = (props?.syntaxTree as ResourceAccessorDefinition).functionName.value;
@@ -807,6 +669,8 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                 onNodeSelect={handleOnEditNode}
                                 onConnectionSelect={handleOnEditConnection}
                                 goToSource={handleOnGoToSource}
+                                addBreakpoint={handleAddBreakpoint}
+                                removeBreakpoint={handleRemoveBreakpoint}
                                 openView={handleOpenView}
                                 suggestions={{
                                     fetching: fetchingAiSuggestions,
@@ -814,6 +678,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                                     onDiscard: onDiscardSuggestions,
                                 }}
                                 projectPath={projectPath}
+                                breakpointInfo={breakpointInfo}
                             />
                         )}
                     </Container>
@@ -831,54 +696,44 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 subPanelWidth={subPanel?.view === SubPanelView.INLINE_DATA_MAPPER ? 800 : 400}
                 subPanel={findSubPanelComponent(subPanel)}
             >
-                {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
-                    <div onClick={onDiscardSuggestions}>
+                <div onClick={onDiscardSuggestions}>
+                    {sidePanelView === SidePanelView.NODE_LIST && categories?.length > 0 && (
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
                             onAddConnection={handleOnAddConnection}
                             onClose={handleOnCloseSidePanel}
                         />
-                    </div>
-                )}
-                {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
-                    <NodeList
-                        categories={categories}
-                        onSelect={handleOnSelectNode}
-                        onSearchTextChange={handleSearchFunction}
-                        onAddFunction={handleOnAddFunction}
-                        onClose={handleOnCloseSidePanel}
-                        title={"Functions"}
-                        onBack={handleOnFormBack}
-                    />
-                )}
-                {sidePanelView === SidePanelView.FORM && (
-                    <FormGenerator
-                        fileName={model.fileName}
-                        node={selectedNodeRef.current}
-                        nodeFormTemplate={nodeTemplateRef.current}
-                        connections={model.connections}
-                        clientName={selectedClientName.current}
-                        targetLineRange={targetRef.current}
-                        projectPath={projectPath}
-                        editForm={showEditForm.current}
-                        onSubmit={handleOnFormSubmit}
-                        isActiveSubPanel={showSubPanel}
-                        openSubPanel={handleSubPanel}
-                        expressionEditor={{
-                            completions: filteredCompletions?.length ? filteredCompletions : filteredTypes,
-                            triggerCharacters: TRIGGER_CHARACTERS,
-                            retrieveCompletions: handleGetCompletions,
-                            retrieveVisibleTypes: handleGetVisibleTypes,
-                            extractArgsFromFunction: extractArgsFromFunction,
-                            onCompletionSelect: handleCompletionSelect,
-                            onCancel: handleExpressionEditorCancel,
-                            onBlur: handleExpressionEditorBlur,
-                        }}
-                        updatedExpressionField={updatedExpressionField}
-                        resetUpdatedExpressionField={handleResetUpdatedExpressionField}
-                    />
-                )}
+                    )}
+                    {sidePanelView === SidePanelView.FUNCTION_LIST && categories?.length > 0 && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={handleSearchFunction}
+                            onAddFunction={handleOnAddFunction}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.FORM && (
+                        <FormGenerator
+                            fileName={model.fileName}
+                            node={selectedNodeRef.current}
+                            nodeFormTemplate={nodeTemplateRef.current}
+                            connections={model.connections}
+                            clientName={selectedClientName.current}
+                            targetLineRange={targetRef.current}
+                            projectPath={projectPath}
+                            editForm={showEditForm.current}
+                            onSubmit={handleOnFormSubmit}
+                            isActiveSubPanel={showSubPanel}
+                            openSubPanel={handleSubPanel}
+                            updatedExpressionField={updatedExpressionField}
+                            resetUpdatedExpressionField={handleResetUpdatedExpressionField}
+                        />
+                    )}
+                </div>
             </PanelContainer>
         </>
     );

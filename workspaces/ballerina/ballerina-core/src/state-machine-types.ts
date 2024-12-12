@@ -9,6 +9,7 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { LinePosition } from "./interfaces/common";
 
 export type MachineStateValue =
     | 'initialize'
@@ -52,6 +53,8 @@ export enum MACHINE_VIEW {
     BIComponentView = "BI Component View",
     BIServiceForm = "BI Service Form",
     AddConnectionWizard = "Add Connection Wizard",
+    AddTriggerWizard = "Add Trigger Wizard",
+    ListenerConfigView = "Listener View",
     ViewConfigVariables = "View Config Variables",
     EditConfigVariables = "Edit Config Variables",
     EditConnectionWizard = "Edit Connection Wizard",
@@ -86,6 +89,7 @@ export interface VisualizerMetadata {
     haveLS?: boolean;
     recordFilePath?: string;
     enableSequenceDiagram?: boolean; // Enable sequence diagram view
+    target?: LinePosition;
 }
 
 export interface PopupVisualizerLocation extends VisualizerLocation {
@@ -115,6 +119,8 @@ export const webviewReady: NotificationType<void> = { method: `webviewReady` };
 export const onParentPopupSubmitted: NotificationType<ParentPopupData> = { method: `onParentPopupSubmitted` };
 export const popupStateChanged: NotificationType<PopupMachineStateValue> = { method: 'popupStateChanged' };
 export const getPopupVisualizerState: RequestType<void, PopupVisualizerLocation> = { method: 'getPopupVisualizerState' };
+
+export const breakpointChanged: NotificationType<boolean> = { method: 'breakpointChanged' };
 
 // ------------------> AI Related state types <----------------------- 
 export type AIMachineStateValue = 'Initialize' | 'loggedOut' | 'Ready' | 'WaitingForLogin' | 'Executing' | 'disabled';

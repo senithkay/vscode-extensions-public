@@ -9,7 +9,9 @@
 
 import { LineRange } from "../../interfaces/common";
 import { DIRECTORY_MAP, Flow, OverviewFlow } from "../../interfaces/bi";
-import { BallerinaProjectComponents } from "../../interfaces/extended-lang-client";
+import { BallerinaProjectComponents, Trigger } from "../../interfaces/extended-lang-client";
+import { TriggerFormField } from "../../interfaces/triggers";
+import { RemoteFunction, ServiceType } from "../../interfaces/ballerina";
 
 export interface ProjectRequest {
     projectName: string;
@@ -30,7 +32,8 @@ export interface WorkspaceFolder {
 export interface ComponentRequest {
     type: DIRECTORY_MAP;
     serviceType?: ComponentServiceType;
-    functionType?: ComponentFunctionkType;
+    functionType?: ComponentFunctionType;
+    triggerType?: ComponentTriggerType;
 }
 
 export interface ComponentServiceType {
@@ -39,11 +42,29 @@ export interface ComponentServiceType {
     port: string;
     specPath?: string;
 }
-export interface ComponentFunctionkType {
+export interface ComponentFunctionType {
     name: string;
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;
+}
+export interface ComponentTriggerType {
+    name: string;
+    listenerOnly?: boolean;
+    trigger?: Trigger;
+    listener: TriggerFormField[];
+    service: TriggerFormField[];
+    serviceTypes: Record<string, FunctionField>;
+    functions: Record<string, FunctionField>;
+}
+
+export interface FunctionField {
+    required: boolean;
+    checked?: boolean;
+    radioValues?: string[];
+    serviceType?: ServiceType;
+    functionType?: RemoteFunction;
+    fields?: TriggerFormField[];
 }
 
 export interface FunctionParameters {
@@ -87,7 +108,53 @@ export interface ComponentsResponse {
     response: boolean;
 }
 
+export interface BreakpointPosition {
+    line: number;
+    column?: number;
+}
+export interface BreakpointRequest {
+    filePath: string;
+    breakpoint: BreakpointPosition;
+}
+
+export interface Source {
+    name?: string;
+    path?: string;
+}
+
+export interface BreakpointData {
+    verified: boolean;
+    source?: Source;
+    line?: number;
+    column?: number;
+}
+
+export interface CurrentBreakpointsResponse {
+    breakpoints: BreakpointData[];
+    activeBreakpoint?: BreakpointData;
+}
+
 export interface AIChatRequest {
     scafold: boolean;
     readme: boolean;
+}
+export interface ImportStatement {
+    moduleName: string;
+    alias?: string; 
+}
+export interface ImportStatements {
+    filePath: string; 
+    statements: ImportStatement[];
+}
+export interface ProjectImports {
+    projectPath: string;
+    imports: ImportStatements[];
+}
+
+export interface FormDidOpenParams {
+    filePath: string;
+}
+
+export interface FormDidCloseParams {
+    filePath: string;
 }

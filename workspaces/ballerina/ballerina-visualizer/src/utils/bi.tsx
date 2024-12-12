@@ -25,7 +25,16 @@ import {
     Branch,
     LineRange,
     ExpressionCompletionItem,
-    SignatureHelpResponse
+    Trigger,
+    FunctionField,
+    SignatureHelpResponse,
+    TriggerNode,
+    VisibleType,
+    HelperPaneVariableInfo,
+    HelperPaneFunctionInfo,
+    HelperPaneFunctionCategory,
+    Item,
+    HelperPaneCompletionItem
 } from "@wso2-enterprise/ballerina-core";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
@@ -74,7 +83,7 @@ export function convertBICategoriesToSidePanelCategories(categories: Category[])
 
 export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
     const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
-    const functionCategory = panelCategories.find((category) => category.title === "Project")
+    const functionCategory = panelCategories.find((category) => category.title === "Project");
     if (functionCategory && !functionCategory.items.length) {
         functionCategory.description = "No functions defined. Click below to create a new function.";
     }
@@ -117,6 +126,7 @@ export function convertNodePropertyToFormField(
         editable: isFieldEditable(property, connections, clientName),
         documentation: property.metadata?.description || "",
         value: getFormFieldValue(property, clientName),
+        valueType: getFormFieldValueType(property),
         items: getFormFieldItems(property, connections),
         diagnostics: property.diagnostics?.diagnostics || [],
     };
@@ -143,11 +153,23 @@ function getFormFieldValue(expression: Property, clientName?: string) {
     return expression.value as string;
 }
 
-function getFormFieldItems(expression: Property, connections: FlowNode[]) {
+function getFormFieldValueType(expression: Property): string | undefined {
+    if (!expression.valueTypeConstraint) {
+        return undefined;
+    }
+
+    if (Array.isArray(expression.valueTypeConstraint)) {
+        return undefined;
+    }
+
+    return expression.valueTypeConstraint;
+}
+
+function getFormFieldItems(expression: Property, connections: FlowNode[]): string[] {
     if (expression.valueType === "Identifier" && expression.metadata.label === "Connection") {
         return connections.map((connection) => connection.properties?.variable?.value as string);
     } else if (expression.valueType === "MULTIPLE_SELECT" || expression.valueType === "SINGLE_SELECT") {
-        return expression.valueTypeConstraint;
+        return expression.valueTypeConstraint as string[];
     }
     return undefined;
 }
@@ -185,13 +207,14 @@ export function getContainerTitle(view: SidePanelView, activeNode: FlowNode, cli
         case SidePanelView.NODE_LIST:
             return ""; // Show switch instead of title
         case SidePanelView.FORM:
-            if (activeNode.codedata?.node === "REMOTE_ACTION_CALL" 
-                || activeNode.codedata?.node === "RESOURCE_ACTION_CALL") {
+            if (
+                activeNode.codedata?.node === "REMOTE_ACTION_CALL" ||
+                activeNode.codedata?.node === "RESOURCE_ACTION_CALL"
+            ) {
                 return `${clientName || activeNode.properties.connection.value} → ${activeNode.metadata.label}`;
             }
-            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${
-                activeNode.metadata.label
-            }`;
+            return `${activeNode.codedata?.module ? activeNode.codedata?.module + " :" : ""} ${activeNode.metadata.label
+                }`;
         default:
             return "";
     }
@@ -260,7 +283,10 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
     const labelArray = completion.label.split("/");
     const tag = labelArray.length > 1 ? labelArray.slice(0, -1).join("/") : undefined;
     const label = labelArray[labelArray.length - 1];
-    const kind = completion.detail.split(/(?=[A-Z])/).map(word => word.toLowerCase()).join('-') as CompletionItemKind;
+    const kind = completion.detail
+        .split(/(?=[A-Z])/)
+        .map((word) => word.toLowerCase())
+        .join("-") as CompletionItemKind;
     const value = completion.filterText ?? completion.insertText;
     const description = completion.detail;
     const sortText = completion.sortText;
@@ -271,10 +297,128 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         value,
         description,
         kind,
-        sortText
-    }
+        sortText,
+    };
 }
 
+// TRIGGERS RELATED HELPERS
+export function convertTriggerServiceTypes(trigger: Trigger): Record<string, FunctionField> {
+    const response: Record<string, FunctionField> = {};
+    for (const key in trigger.serviceTypes) {
+        const serviceType = trigger.serviceTypes[key];
+        response[serviceType.name] = { checked: trigger.serviceTypes.length === 1, required: false, serviceType };
+    }
+    return response;
+}
+
+export function convertTriggerListenerConfig(trigger: TriggerNode): FormField[] {
+    const formFields: FormField[] = [];
+    for (const key in trigger.listener.properties) {
+        const expression = trigger.listener.properties[key];
+        const formField: FormField = {
+            key: key,
+            label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+            type: expression.valueType,
+            documentation: "",
+            ...expression
+        }
+        formFields.push(formField);
+    }
+    return formFields;
+}
+
+export function updateTriggerListenerConfig(formFields: FormField[], trigger: TriggerNode): TriggerNode {
+    formFields.forEach(field => {
+        const value = field.value as string;
+        trigger.listener.properties[field.key].value = value;
+        if (value && value.length > 0) {
+            trigger.listener.properties[field.key].enabled = true;
+        }
+    })
+    return trigger;
+}
+
+export function convertTriggerServiceConfig(trigger: TriggerNode): FormField[] {
+    const formFields: FormField[] = [];
+    for (const key in trigger.properties) {
+        const expression = trigger.properties[key];
+        const formField: FormField = {
+            ...expression,
+            key: key,
+            label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+            type: expression.valueType,
+            groupNo: expression.metadata.groupNo,
+            groupName: expression.metadata.groupName,
+            value: checkArrayValue(expression.value),
+            documentation: "",
+        }
+        formFields.push(formField);
+    }
+    return formFields;
+}
+
+function checkArrayValue(fieldValue: string): string[] | string {
+    try {
+        const parsedValue = JSON.parse(fieldValue);
+        // Check if parsedValue is an array
+        if (Array.isArray(parsedValue)) {
+            return parsedValue; // Return the array if it's valid
+        }
+    } catch (error) {
+        // Do nothing.
+    }
+    return fieldValue;
+}
+
+export function updateTriggerServiceConfig(formFields: FormField[], trigger: TriggerNode): TriggerNode {
+    formFields.forEach(field => {
+        const value = field.value as string;
+        trigger.properties[field.key].value = value;
+        if (value) {
+            trigger.properties[field.key].enabled = true;
+        }
+    })
+    return trigger;
+}
+
+export function convertTriggerFunctionsConfig(trigger: Trigger): Record<string, FunctionField> {
+    const response: Record<string, FunctionField> = {};
+
+    for (const service in trigger.serviceTypes) {
+        const functions = trigger.serviceTypes[service].functions;
+        for (const key in functions) {
+            const triggerFunction = functions[key];
+            const formFields: FormField[] = [];
+            if (functions.hasOwnProperty(key)) {
+                for (const param in triggerFunction.parameters) {
+                    const expression = triggerFunction.parameters[param];
+                    const formField: FormField = {
+                        key: expression.name,
+                        label: expression.name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+                        documentation: expression?.documentation,
+                        optional: expression?.optional,
+                        type: expression?.typeName,
+                        editable: true,
+                        value: expression.defaultTypeName
+                    }
+                    formFields.push(formField);
+                }
+            }
+            const isRadio = !!triggerFunction.group;
+            if (isRadio) {
+                if (!response[triggerFunction.group.name]) {
+                    response[triggerFunction.group.name] = { radioValues: [], required: !triggerFunction.optional, functionType: { name: "" } };
+                }
+                // Always set the first function as default
+                response[triggerFunction.group.name].functionType.name = functions[0].name;
+                response[triggerFunction.group.name].radioValues.push(triggerFunction.name);
+            } else {
+                response[triggerFunction.name] = { checked: !triggerFunction.optional, required: !triggerFunction.optional, fields: formFields, functionType: triggerFunction };
+            }
+        }
+    }
+    return response;
+}
 export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
     const fnText = signatureHelp.signatures[0].label;
     const fnRegex = /^(?<label>[a-zA-Z0-9_']+)\((?<args>.*)\)$/;
@@ -284,20 +428,82 @@ export function convertToFnSignature(signatureHelp: SignatureHelpResponse) {
         return undefined;
     }
     const label = fnMatch.groups?.label;
-    const args = fnMatch.groups?.args.split(",").map((arg) => arg.trim());
+
+    let args: string[] = [];
+    if (fnMatch.groups?.args !== "") {
+        // For functions with arguments
+        args = fnMatch.groups?.args.split(",").map((arg) => arg.trim())
+    }
 
     return {
         label,
         args,
-        currentArgIndex: signatureHelp.activeParameter
-    }
+        currentArgIndex: signatureHelp.activeParameter,
+    };
 }
 
 export function convertToVisibleTypes(visibleTypes: string[]): CompletionItem[] {
     return visibleTypes.map((type) => ({
         label: type,
-        description: `Type: ${type}`,
         value: type,
-        kind: COMPLETION_ITEM_KIND.TypeParameter
+        kind: COMPLETION_ITEM_KIND.TypeParameter,
     }));
+}
+
+export const clearDiagramZoomAndPosition = () => {
+    localStorage.removeItem("diagram-file-path");
+    localStorage.removeItem("diagram-zoom-level");
+    localStorage.removeItem("diagram-offset-x");
+    localStorage.removeItem("diagram-offset-y");
+};
+
+export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPaneVariableInfo => {
+    return ({
+        category: variables.map((variable) => ({
+            label: variable.name,
+            items: variable.types.map((item) => ({
+                label: item.name,
+                type: item.type.value,
+                insertText: item.name
+            }))
+        }))
+    });
+}
+
+const isCategoryType = (item: Item): item is Category => {
+    return !!(item as Category)?.items?.length;
+}
+
+export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFunctionInfo => {
+    const response: HelperPaneFunctionInfo = {
+        category: []
+    };
+    for (const category of functions) {
+        const items: HelperPaneCompletionItem[] = [];
+        const subCategory: HelperPaneFunctionCategory[] = [];
+        for (const categoryItem of category?.items) {
+            if (isCategoryType(categoryItem)) {
+                subCategory.push({
+                    label: categoryItem.metadata.label,
+                    items: categoryItem.items.map((item) => ({
+                        label: item.metadata.label,
+                        insertText: item.metadata.label
+                    }))
+                });
+            } else {
+                items.push({
+                    label: categoryItem.metadata.label,
+                    insertText: categoryItem.metadata.label
+                })
+            }
+        }
+
+        const categoryItem: HelperPaneFunctionCategory = {
+            label: category.metadata.label,
+            items: items.length ? items : undefined,
+            subCategory: subCategory.length ? subCategory : undefined
+        }
+        response.category.push(categoryItem);
+    }
+    return response;
 }

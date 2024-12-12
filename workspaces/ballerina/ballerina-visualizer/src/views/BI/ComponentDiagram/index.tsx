@@ -14,6 +14,8 @@ import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-en
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
+import { URI } from "vscode-uri";
+import { getEntryNodeIcon } from "../ComponentListView";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -76,8 +78,39 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const handleDeleteComponent = async (component: EntryPoint | Connection) => {
         console.log(">>> component diagram: delete component", component);
         if ('type' in component) {
-            // TODO: Add support for entry points deletion when LS api is available
-            console.log("====>>> deleting entrypoint", component);
+            console.log(">>> deleting entrypoint", component);
+            rpcClient
+                .getLangClientRpcClient()
+                .getBallerinaProjectComponents({ documentIdentifiers: [{ uri: URI.file(component.location.filePath).toString() }] })
+                .then((response) => {
+                    let componentType = "";
+                    if (component.type === "service") {
+                        componentType = "services";
+                    } else if (component.type === "task" || component.type === "schedule-task") {
+                        componentType = "automations";
+                    }
+                    response.packages.forEach((pkg) => {
+                        pkg.modules.forEach((module: any) => {
+                            module[componentType].forEach((balComp: any) => {
+                                if (balComp.name === component.name) {
+                                    rpcClient
+                                        .getBIDiagramRpcClient()
+                                        .deleteByComponentInfo({
+                                            filePath: component.location.filePath,
+                                            component: balComp,
+                                        }).then((response) => {
+                                            console.log(">>> Updated source code after delete", response);
+                                            if (!response.textEdits) {
+                                                console.error(">>> Error updating source code", response);
+                                            }
+                                        });
+
+                                }
+                            });
+                        });
+                    });
+                });
+
         } else {
             rpcClient
                 .getBIDiagramRpcClient()
@@ -133,10 +166,29 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         });
     });
     projectStructure.directoryMap[DIRECTORY_MAP.SERVICES].forEach((service) => {
+        // handle trigger service
+        if (service?.triggerNode) {
+            project.entryPoints.push({
+                id: service.name,
+                name: service.context,
+                type: "service",
+                label: service.triggerNode.properties?.name?.value,
+                description: service.triggerNode.name,
+                icon: getEntryNodeIcon(service.triggerNode),
+                location: {
+                    filePath: service.path,
+                    position: service.position,
+                },
+                connections: service.st?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
+            });
+            return;
+        }
+        // handle generic service
         project.entryPoints.push({
             id: service.name,
-            name: service.name,
+            name: service.context,
             type: "service",
+            label: service.name,
             location: {
                 filePath: service.path,
                 position: service.position,
@@ -154,9 +206,12 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             taskName = taskName.replace(/['"]/g, "");
         }
 
+        console.log(">>> task", { taskName, task });
+
         project.entryPoints.push({
             id: task.name,
-            name: taskName || task.name,
+            name: task.context,
+            label: taskName || task.name,
             type: isScheduleTask ? "schedule-task" : "task",
             location: {
                 filePath: task.path,

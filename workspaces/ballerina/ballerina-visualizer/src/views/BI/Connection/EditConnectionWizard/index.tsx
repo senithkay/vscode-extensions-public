@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { EVENT_TYPE, FlowNode, LinePosition, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, FlowNode, MACHINE_VIEW, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import ConnectionConfigView from "../ConnectionConfigView";
 import { convertNodePropertiesToFormFields, getFormProperties, updateNodeProperties } from "../../../../utils/bi";
@@ -42,7 +42,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
     const { fileName, connectionName, onClose } = props;
     const { rpcClient } = useRpcContext();
 
-    const [fields, setFields] = useState<FormField[]>([]);
     const [connection, setConnection] = useState<FlowNode>();
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [showSubPanel, setShowSubPanel] = useState(false);
@@ -68,7 +67,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                 setConnection(connector);
                 const formProperties = getFormProperties(connector);
                 console.log(">>> Connector form properties", formProperties);
-                setFields(convertNodePropertiesToFormFields(formProperties));
             });
     }, [connectionName]);
 
@@ -104,7 +102,6 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
                         // clear memory
-                        setFields([]);
                         if (onClose) {
                             onClose();
                         } else {
@@ -192,7 +189,7 @@ export function EditConnectionWizard(props: EditConnectionWizardProps) {
                     ) : (
                         <ConnectionConfigView
                             fileName={fileName}
-                            fields={fields}
+                            selectedNode={connection}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}

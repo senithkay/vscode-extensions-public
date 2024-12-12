@@ -20,13 +20,16 @@ export type Project = {
     connections: Connection[];
 };
 
-export type EntryPointType = "service" | "task" | "schedule-task" | "trigger";
+export type EntryPointType = "service" | "task" | "schedule-task" | "trigger" | string;
 
 export type EntryPoint = {
     id: string;
     name: string;
     type: EntryPointType;
     location?: Location;
+    icon?: React.ReactNode;
+    label?: string;
+    description?: string;
     connections?: string[];
 };
 

@@ -7,24 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useMemo, useEffect, useImperativeHandle, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import {
     Button,
     Codicon,
-    CompletionItem,
-    ExpressionBarRef,
+    FormExpressionEditorRef,
     LinkButton,
     SidePanelBody,
 } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 
-import { ExpressionFormField, FormField, FormValues } from "./types";
+import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues } from "./types";
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { LineRange, NodeKind, NodePosition, SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
-import { Provider } from "../../context";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
 namespace S {
@@ -157,44 +156,28 @@ namespace S {
     `;
 }
 export interface FormProps {
+    refKey?: string;
     formFields: FormField[];
+    hideSave?: boolean;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
     selectedNode?: NodeKind;
-    onSubmit?: (data: FormValues) => void;
+    onSubmit?: (data: FormValues, refKey?: string) => void;
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
     isActiveSubPanel?: boolean;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
-    expressionEditor?: {
-        completions: CompletionItem[];
-        triggerCharacters?: readonly string[];
-        retrieveCompletions?: (
-            value: string,
-            offset: number,
-            triggerCharacter?: string,
-            onlyVariables?: boolean
-        ) => Promise<void>;
-        retrieveVisibleTypes?: (value: string, cursorPosition: number) => Promise<void>;
-        extractArgsFromFunction?: (value: string, cursorPosition: number) => Promise<{
-            label: string;
-            args: string[];
-            currentArgIndex: number;
-        }>;
-        onCompletionSelect?: (value: string) => Promise<void>;
-        onFocus?: () => void | Promise<void>;
-        onBlur?: () => void | Promise<void>;
-        onCancel: () => void;
-    };
+    expressionEditor?: FormExpressionEditorProps;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
 }
 
-export function Form(props: FormProps) {
+export const Form = forwardRef((props: FormProps, ref) => {
     const {
+        refKey,
         formFields,
         projectPath,
         selectedNode,
@@ -206,23 +189,39 @@ export function Form(props: FormProps) {
         openSubPanel,
         isActiveSubPanel,
         expressionEditor,
+        hideSave,
         targetLineRange,
         fileName,
         updatedExpressionField,
         resetUpdatedExpressionField
     } = props;
-    const { control, getValues, register, unregister, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
+
+    const {
+        control,
+        getValues,
+        register,
+        unregister,
+        handleSubmit,
+        reset,
+        watch,
+        setValue,
+        setError,
+        clearErrors,
+        formState: { isValidating, errors }
+    } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
     const [activeFormField, setActiveFormField] = useState<string | undefined>(undefined);
+    const [diagnosticsInfo, setDiagnosticsInfo] = useState<FormDiagnostics[] | undefined>(undefined);
 
-    const exprRef = useRef<ExpressionBarRef>(null);
+    const exprRef = useRef<FormExpressionEditorRef>(null);
 
     useEffect(() => {
         // Check if the form is a onetime usage or not. This is checked due to reset issue with nested forms in param manager
         if (!oneTimeForm) {
             // Reset form with new values when formFields change
             const defaultValues: FormValues = {};
+            const diagnosticsMap: FormDiagnostics[] = [];
             formFields.forEach((field) => {
                 if (isDropdownField(field)) {
                     defaultValues[field.key] = getValueForDropdown(field) ?? "";
@@ -231,7 +230,10 @@ export function Form(props: FormProps) {
                 } else {
                     defaultValues[field.key] = field.value ?? "";
                 }
+
+                diagnosticsMap.push({ key: field.key, diagnostics: [] });
             });
+            setDiagnosticsInfo(diagnosticsMap);
             reset(defaultValues);
         }
     }, [formFields, reset]);
@@ -260,9 +262,14 @@ export function Form(props: FormProps) {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> form values", data);
-        onSubmit && onSubmit(data);
+        console.log(">>> form values xxx refKey", refKey, data);
+        onSubmit && onSubmit(data, refKey);
     };
+
+    // Expose a method to trigger the save
+    useImperativeHandle(ref, () => ({
+        triggerSave: () => handleSubmit(handleOnSave)(), // Call handleSubmit with the save function
+    }));
 
     const handleOpenRecordEditor = (open: boolean) => {
         openRecordEditor?.(open, getValues());
@@ -297,6 +304,28 @@ export function Form(props: FormProps) {
         }
     };
 
+    const handleSetDiagnosticsInfo = (diagnostics: FormDiagnostics) => {
+        const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
+        setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
+    }
+
+    const handleGetExpressionDiagnostics = async (
+        showDiagnostics: boolean,
+        expression: string,
+        key: string,
+    ) => {
+        // HACK: For variable nodes, update the type value in the node
+        const isVariableNode = selectedNode === "VARIABLE";
+        await expressionEditor?.getExpressionFormDiagnostics(
+            showDiagnostics,
+            expression,
+            key,
+            handleSetDiagnosticsInfo,
+            isVariableNode,
+            watch("type")
+        );
+    }
+
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
 
@@ -310,21 +339,62 @@ export function Form(props: FormProps) {
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
     const prioritizeVariableField = (variableField || typeField) && !dataMapperField;
 
-    const contextValue = {
+    const contextValue: FormContext = {
         form: {
             control,
             setValue,
             watch,
             register,
-            unregister
+            unregister,
+            setError,
+            clearErrors,
+            formState: { isValidating, errors }
         },
-        expressionEditor,
+        expressionEditor: {
+            ...expressionEditor,
+            getExpressionEditorDiagnostics: handleGetExpressionDiagnostics
+        },
         targetLineRange,
         fileName
     };
 
     // Find the first editable field
     const firstEditableFieldIndex = formFields.findIndex(field => field.editable !== false);
+
+    const isValid = useMemo(() => {
+        if (!diagnosticsInfo) {
+            return true;
+        }
+
+        let hasDiagnostics: boolean = true;
+        for (const diagnosticsInfoItem of diagnosticsInfo) {
+            const key = diagnosticsInfoItem.key;
+            if (!key) {
+                continue;
+            }
+
+            const diagnostics: Diagnostic[] = diagnosticsInfoItem.diagnostics || [];
+            if (diagnostics.length === 0) {
+                clearErrors(key);
+                continue;
+            } else {
+                const diagnosticsMessage = diagnostics.map(d => d.message).join('\n');
+                setError(key, { type: "validate", message: diagnosticsMessage });
+
+                // If the severity is not ERROR, don't invalidate
+                const hasErrorDiagnostics = diagnostics.some(d => d.severity === 1);
+                if (hasErrorDiagnostics) {
+                    hasDiagnostics = false;
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        return hasDiagnostics;
+    }, [diagnosticsInfo])
+
+    const disableSaveButton = !isValid || isValidating;
 
     // TODO: support multiple type fields
     return (
@@ -350,7 +420,7 @@ export function Form(props: FormProps) {
                     </S.CategoryRow>
                 )}
                 <S.CategoryRow showBorder={false}>
-                    {formFields
+                    {formFields.sort((a, b) => b.groupNo - a.groupNo)
                         .filter((field) => field.type !== "VIEW")
                         .map((field) => {
                             if (
@@ -378,7 +448,7 @@ export function Form(props: FormProps) {
                         <S.DataMapperRow>
                             <S.UseDataMapperButton
                                 appearance="secondary"
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
                             >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
@@ -428,17 +498,17 @@ export function Form(props: FormProps) {
                             }
                         })}
                 </S.CategoryRow>
-                {onSubmit && (
+                {!hideSave && onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
                         {isNewDataMapper ? (
                             <S.PrimaryButton
-                                onClick={handleSubmit((data) => handleOnSave({...data, isDataMapperFormUpdate: true}))}
+                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
                             >
                                 Create Mapping
                             </S.PrimaryButton>
                         ) : (
-                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)}>
+                            <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
                                 Save
                             </S.PrimaryButton>
                         )}
@@ -447,6 +517,6 @@ export function Form(props: FormProps) {
             </S.Container>
         </Provider>
     );
-}
+});
 
 export default Form;

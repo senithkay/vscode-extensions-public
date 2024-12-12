@@ -229,9 +229,9 @@ export function FunctionForm() {
                             oneTimeForm={true}
                             expressionEditor={
                                 {
-                                    completions: filteredTypes,
+                                    types: filteredTypes,
                                     retrieveVisibleTypes: handleGetVisibleTypes,
-                                    onCompletionSelect: handleCompletionSelect,
+                                    onCompletionItemSelect: handleCompletionSelect,
                                     onCancel: handleExpressionEditorCancel,
                                     onBlur: handleExpressionEditorBlur
                                 }

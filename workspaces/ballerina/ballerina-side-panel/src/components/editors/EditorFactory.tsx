@@ -16,10 +16,12 @@ import { MultiSelectEditor } from "./MultiSelectEditor";
 import { TextEditor } from "./TextEditor";
 import { TypeEditor } from "./TypeEditor";
 import { ContextAwareExpressionEditor } from "./ExpressionEditor";
-import { ExpressionBarRef } from "@wso2-enterprise/ui-toolkit";
+import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
 import { CheckBoxEditor } from "./CheckBoxEditor";
+import { ArrayEditor } from "./ArrayEditor";
+import { MapEditor } from "./MapEditor";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -31,12 +33,11 @@ interface FormFieldEditorProps {
     autoFocus?: boolean;
 }
 
-export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorProps>((props, ref) => {
+export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormFieldEditorProps>((props, ref) => {
     const { field, selectedNode, openRecordEditor, openSubPanel, isActiveSubPanel, handleOnFieldFocus, autoFocus } =
         props;
 
     if (field.type === "MULTIPLE_SELECT") {
-        // Enum is a dropdown field
         let label: string;
         switch (selectedNode) {
             case "DATA_MAPPER":
@@ -47,14 +48,21 @@ export const EditorFactory = React.forwardRef<ExpressionBarRef, FormFieldEditorP
                 break;
         }
         return <MultiSelectEditor field={field} label={label} />;
+    } else if (field.type === "EXPRESSION_SET") {
+        return <ArrayEditor field={field} label={"Add Another Value"} />;
+    } else if (field.type === "MAPPING_EXPRESSION_SET") {
+        return <MapEditor field={field} label={"Add Another Key-Value Pair"} />;
     } else if (field.type === "FLAG") {
         return <CheckBoxEditor field={field} />;
+    } else if (field.type === "EXPRESSION" && field.key === "resourcePath") {
+        // HACK: this should fixed with the LS API. this is used to avoid the expression editor for resource path field.
+        return <TextEditor field={field} handleOnFieldFocus={handleOnFieldFocus} />;
     } else if (field.type.toUpperCase() === "ENUM") {
         // Enum is a dropdown field
         return <DropdownEditor field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
-        return <TypeEditor field={field} openRecordEditor={openRecordEditor} handleOnFieldFocus={handleOnFieldFocus} />;
+        return <DropdownEditor field={field} />;
     } else if (!field.items && (field.key === "type" || field.type === "TYPE") && field.editable) {
         // Type field is a type editor
         return (

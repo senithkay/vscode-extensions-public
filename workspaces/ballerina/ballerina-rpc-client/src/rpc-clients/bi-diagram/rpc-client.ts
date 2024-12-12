@@ -16,47 +16,66 @@ import {
     BIAvailableNodesResponse,
     BIConnectorsRequest,
     BIConnectorsResponse,
+    BIDeleteByComponentInfoRequest,
+    BIDeleteByComponentInfoResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
-    BIModuleNodesResponse,
     BIGetVisibleVariableTypesRequest,
     BIGetVisibleVariableTypesResponse,
+    BIModuleNodesResponse,
     BINodeTemplateRequest,
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
+    CurrentBreakpointsResponse,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
+    ExpressionDiagnosticsRequest,
+    ExpressionDiagnosticsResponse,
     ProjectComponentsResponse,
+    ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
     ReadmeContentResponse,
-    UpdateConfigVariableRequest,
-    UpdateConfigVariableResponse,
     SignatureHelpRequest,
     SignatureHelpResponse,
+    UpdateConfigVariableRequest,
+    UpdateConfigVariableResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
+    addBreakpointToSource,
     buildProject,
     createComponent,
     createComponents,
     createProject,
+    deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
+    formDidClose,
+    formDidOpen,
     getAiSuggestions,
+    getAllImports,
     getAvailableNodes,
     getBIConnectors,
+    getBreakpointInfo,
     getConfigVariables,
+    getEnclosedFunction,
     getExpressionCompletions,
+    getExpressionDiagnostics,
     getFlowModel,
     getFunctions,
     getModuleNodes,
@@ -66,19 +85,20 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
-    getVisibleVariableTypes,
     getVisibleTypes,
+    getVisibleVariableTypes,
     getWorkspaces,
     handleReadmeContent,
-    updateConfigVariables,
     openAIChat,
     openReadme,
-    runProject
+    removeBreakpointFromSource,
+    runProject,
+    updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class BIDiagramRpcClient implements BIDiagramAPI {
+export class BiDiagramRpcClient implements BIDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
@@ -97,12 +117,20 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(deleteFlowNode, HOST_EXTENSION, params);
     }
 
+    deleteByComponentInfo(params: BIDeleteByComponentInfoRequest): Promise<BIDeleteByComponentInfoResponse> {
+        return this._messenger.sendRequest(deleteByComponentInfo, HOST_EXTENSION, params);
+    }
+
     getAvailableNodes(params: BIAvailableNodesRequest): Promise<BIAvailableNodesResponse> {
         return this._messenger.sendRequest(getAvailableNodes, HOST_EXTENSION, params);
     }
 
     getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
         return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
+    }
+
+    getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        return this._messenger.sendRequest(getEnclosedFunction, HOST_EXTENSION, params);
     }
 
     getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
@@ -195,5 +223,33 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getVisibleTypes(params: VisibleTypesRequest): Promise<VisibleTypesResponse> {
         return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
+    }
+
+    addBreakpointToSource(params: BreakpointRequest): void {
+        return this._messenger.sendNotification(addBreakpointToSource, HOST_EXTENSION, params);
+    }
+
+    removeBreakpointFromSource(params: BreakpointRequest): void {
+        return this._messenger.sendNotification(removeBreakpointFromSource, HOST_EXTENSION, params);
+    }
+
+    getBreakpointInfo(): Promise<CurrentBreakpointsResponse> {
+        return this._messenger.sendRequest(getBreakpointInfo, HOST_EXTENSION);
+    }
+
+    getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
+        return this._messenger.sendRequest(getExpressionDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getAllImports(): Promise<ProjectImports> {
+        return this._messenger.sendRequest(getAllImports, HOST_EXTENSION);
+    }
+
+    formDidOpen(params: FormDidOpenParams): Promise<void> {
+        return this._messenger.sendRequest(formDidOpen, HOST_EXTENSION, params);
+    }
+
+    formDidClose(params: FormDidCloseParams): Promise<void> {
+        return this._messenger.sendRequest(formDidClose, HOST_EXTENSION, params);
     }
 }

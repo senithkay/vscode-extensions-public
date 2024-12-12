@@ -21,6 +21,7 @@ import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants
 import { getMappingType, isConnectingArrays } from '../utils/common-utils';
 import { DataMapperLinkModel } from '../Link/DataMapperLink';
 import { removePendingMappingTempLinkIfExists } from '../utils/link-utils';
+import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 /**
  * This state is controlling the creation of a link.
  */
@@ -103,7 +104,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								link.addLabel(new ExpressionLabelModel({
 									link: link as DataMapperLinkModel,
 									value: undefined,
-									context: undefined
+									context: (element.getNode() as DataMapperNodeModel).context
 								}));
 								this.link = link;
 							} else {

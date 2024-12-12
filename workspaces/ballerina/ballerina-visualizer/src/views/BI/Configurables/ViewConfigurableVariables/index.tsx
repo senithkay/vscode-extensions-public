@@ -9,12 +9,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { ConfigVariable, FlowNode } from "@wso2-enterprise/ballerina-core";
+import { ConfigVariable, EVENT_TYPE, FlowNode, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Button, Codicon,Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, Typography, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import { BodyText } from "../../../styles";
 import { BIHeader } from "../../BIHeader";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
 import { EditForm } from "../EditConfigurableVariables";
 import { AddForm } from "../AddConfigurableVariables";
 import { DiagnosticsPopUp } from "../../../../components/DiagnosticsPopUp";
@@ -23,6 +23,84 @@ const Container = styled.div`
     width: 100%;
 `;
 
+type MethodProp = {
+    hasLeftMargin?: boolean;
+};
+
+type ContainerProps = {
+    borderColor?: string;
+    haveErrors?: boolean;
+};
+
+type ButtonSectionProps = {
+    isExpanded?: boolean;
+};
+
+type HeaderProps = {
+    expandable?: boolean;
+}
+
+const AccordionContainer = styled.div<ContainerProps>`
+    margin-top: 10px;
+    overflow: hidden;
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+        cursor: pointer;
+    }
+    border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
+`;
+
+const AccordionHeader = styled.div<HeaderProps>`
+    padding: 10px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+`;
+
+const ButtonWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 10px;
+    width: 40px;
+`;
+
+const MethodBox = styled.div<MethodProp>`
+    display: flex;
+    justify-content: center;
+    height: 25px;
+    min-width: 70px;
+    width: auto;
+    margin-left: ${(p: MethodProp) => p.hasLeftMargin ? "10px" : "0px"};
+    text-align: center;
+    padding: 3px 5px 3px 5px;
+    background-color: #616161;
+    color: #FFF;
+    align-items: center;
+    font-weight: bold;
+`;
+
+const MethodSection = styled.div`
+    display: flex;
+    gap: 4px;
+`;
+
+const ButtonSection = styled.div<ButtonSectionProps>`
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    gap: ${(p: ButtonSectionProps) => p.isExpanded ? "8px" : "6px"};
+`;
+
+const MethodPath = styled.div`
+    align-self: center;
+    margin-left: 10px;
+    display: flex;
+`;
+
+
 namespace S {
 
     export const Row = styled.div`
@@ -30,22 +108,49 @@ namespace S {
         justify-content: space-between;
         margin-bottom: 20px;
     `;
+
+    export const ConfigWrapper = styled.div`
+        display: flex;
+        flexDirection: row;
+        justify-content: space-between;
+        align-items: center;
+    `;
+
+    export const ConfigData = styled.div`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    `;
+
+    export const ConfigDataControls = styled.div`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100px;
+    `;
 }
 
-export function ViewConfigurableVariables() {
+export interface ConfigProps {
+    variableIndex?: number;
+    isExternallauncher?: boolean;
+}
+
+export function ViewConfigurableVariables(props?: ConfigProps) {
 
     const { rpcClient } = useRpcContext();
 
     const [configVariables, setConfigVariables] = useState<ConfigVariable[]>([]);
     const [isEditConfigVariableFormOpen, setEditConfigVariableFormOpen] = useState<boolean>(false);
     const [isAddConfigVariableFormOpen, setAddConfigVariableFormOpen] = useState<boolean>(false);
-    const [configIndex, setConfigIndex] = useState<number>(0);
+    const [configIndex, setConfigIndex] = useState<number>(null);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
     const selectedNodeRef = useRef<FlowNode>();
+    const [updateConfigVariables, setUpdateConfigVariables] = useState(true);
 
     const handleEditConfigVariableFormOpen = (index: number) => {
         setEditConfigVariableFormOpen(true);
         setConfigIndex(index);
+        setUpdateConfigVariables(false);
     };
 
     const handleAddConfigVariableFormOpen = () => {
@@ -53,10 +158,21 @@ export function ViewConfigurableVariables() {
         setAddConfigVariableFormOpen(true);
     };
 
+    // Handler to close the child component
     const handleEditConfigFormClose = () => {
+        setUpdateConfigVariables(true);
         setEditConfigVariableFormOpen(false);
-        getConfigVariables();
+        setConfigIndex(null);
+        
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.ViewConfigVariables,
+            },
+        });
+
     };
+
 
     const handleAddConfigFormClose = () => {
         setAddConfigVariableFormOpen(false);
@@ -95,7 +211,16 @@ export function ViewConfigurableVariables() {
     useEffect(() => {
         console.log(">>> Get Config Variables");
         getConfigVariables();
-    }, []);
+    }, [updateConfigVariables]);
+
+    // Effect to handle prop changes
+    useEffect(() => {
+        if (props.variableIndex !== undefined && configVariables.length > 0) {
+            // Open child component if props are provided           
+            setEditConfigVariableFormOpen(true);
+            setConfigIndex(props.variableIndex);
+        }
+    }, [props?.variableIndex, configVariables]);
 
     const getConfigVariables = () => {
         rpcClient
@@ -123,64 +248,63 @@ export function ViewConfigurableVariables() {
                     </S.Row>
 
                     {
-                        configVariables.length > 0 ?
+                        configVariables.length > 0 && configVariables.map((variable, index) => {
+                            return (
 
-                            <VSCodeDataGrid>
-                                <VSCodeDataGridRow row-type="header">
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`1`}>
-                                        Variable
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`2`}>
-                                        Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`3`}>
-                                        Value
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`4`}>
-                                        &nbsp;
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column={`5`}>
-                                        &nbsp;
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-
-                                {
-                                    configVariables.map((variable, index) => {
-                                        return (
-                                            <VSCodeDataGridRow key={index}>
-                                                <VSCodeDataGridCell grid-column={`1`}>
-                                                    <div style={{ display: "flex" }}>
-                                                        {
-                                                            typeof variable.properties.variable.value === 'string' ?
-                                                                variable.properties.variable.value : ''
-                                                        }
-                                                        {variable?.diagnostics?.hasDiagnostics &&
-                                                            <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
-                                                        }</div>
-                                                </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`2`}>{variable.properties.type.value}</VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`3`}>
+                                <AccordionContainer data-testid="config-resources" key={index}>
+                                    <AccordionHeader>
+                                        <MethodSection>
+                                            <MethodBox hasLeftMargin={false}>
+                                                {String(variable.properties.type.value)}
+                                            </MethodBox>
+                                            <MethodPath>
+                                                <div style={{ display: "flex", marginRight: "20px" }}>
+                                                    {
+                                                        typeof variable.properties.variable.value === 'string' ?
+                                                            variable.properties.variable.value : ''
+                                                    }
+                                                    {variable?.diagnostics?.hasDiagnostics &&
+                                                        <>&nbsp;&nbsp;&nbsp;&nbsp;<DiagnosticsPopUp node={variable} /></>
+                                                    }
+                                                </div>
+                                                {
+                                                    variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
+                                                        variable.properties.defaultable.value === "?" ?
+                                                            null
+                                                            : <div style={{ display: "flex", marginRight: "20px" }}>=</div>
+                                                        : null
+                                                }
+                                                <div style={{ display: "flex" }}>
                                                     {variable.properties.defaultable.value && variable.properties.defaultable.value !== null ?
                                                         variable.properties.defaultable.value === "?" ?
                                                             null
-                                                            : variable.properties.defaultable.value
+                                                            : String(variable.properties.defaultable.value)
                                                         : null}
-                                                </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`4`} style={{ display: "flex", justifyContent: "center" }}>
-                                                    <Codicon name="edit" onClick={(event) => handleEditConfigVariableFormOpen(index)} />
-                                                </VSCodeDataGridCell>
-                                                <VSCodeDataGridCell grid-column={`5`} style={{ display: "flex", justifyContent: "center" }}>
-                                                    <Codicon name="trash" onClick={(event) => handleOnDeleteConfigVariable(index)} />
-                                                </VSCodeDataGridCell>
-                                            </VSCodeDataGridRow>
+                                                </div>
+                                            </MethodPath>
+                                        </MethodSection>
+                                        <ButtonSection>
 
-                                        );
-                                    })
-                                }
-                            </VSCodeDataGrid>
-                            : null
+                                            <ButtonWrapper>
+                                                <VSCodeButton appearance="icon" title="Edit Resource" onClick={() => handleEditConfigVariableFormOpen(index)}>
+                                                    <Icon name="editIcon" />
+                                                </VSCodeButton>
+                                            </ButtonWrapper>
+
+
+                                            <ButtonWrapper>
+                                                <VSCodeButton appearance="icon" title="Delete Resource" onClick={() => handleOnDeleteConfigVariable(index)}>
+                                                    <Codicon name="trash" />
+                                                </VSCodeButton>
+                                            </ButtonWrapper>
+
+                                        </ButtonSection>
+                                    </AccordionHeader>
+                                </AccordionContainer>
+
+                            );
+                        })
                     }
-
 
                     {isEditConfigVariableFormOpen &&
                         <EditForm

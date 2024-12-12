@@ -7,12 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { exec } from "child_process";
-import { window, commands, workspace, Uri } from "vscode";
+import { window, commands, workspace, Uri, TextDocument } from "vscode";
 import * as fs from 'fs';
 import path from "path";
-import { ComponentRequest, CreateComponentResponse, createFunctionSignature, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { BallerinaTrigger, ComponentRequest, ComponentTriggerType, CreateComponentResponse, createFunctionSignature, createImportStatement, createServiceDeclartion, createTrigger, DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, NodePosition, STModification, SyntaxTreeResponse, Trigger } from "@wso2-enterprise/ballerina-core";
 import { StateMachine, history, openView, updateView } from "../stateMachine";
-import { applyModifications, modifyFileContent } from "./modification";
+import { applyModifications, modifyFileContent, writeBallerinaFileDidOpen } from "./modification";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export const README_FILE = "readme.md";
@@ -123,23 +123,23 @@ bi = true
 
     // Create Ballerina.toml file
     const ballerinaTomlPath = path.join(projectRoot, 'Ballerina.toml');
-    fs.writeFileSync(ballerinaTomlPath, ballerinaTomlContent.trim());
+    writeBallerinaFileDidOpen(ballerinaTomlPath, ballerinaTomlContent);
 
     // Create connections.bal file
     const connectionsBalPath = path.join(projectRoot, 'connections.bal');
-    fs.writeFileSync(connectionsBalPath, EMPTY);
+    writeBallerinaFileDidOpen(connectionsBalPath, EMPTY);
 
     // Create config.bal file
     const configurationsBalPath = path.join(projectRoot, 'config.bal');
-    fs.writeFileSync(configurationsBalPath, EMPTY);
+    writeBallerinaFileDidOpen(configurationsBalPath, EMPTY);
 
     // Create types.bal file
     const typesBalPath = path.join(projectRoot, 'types.bal');
-    fs.writeFileSync(typesBalPath, EMPTY);
+    writeBallerinaFileDidOpen(typesBalPath, EMPTY);
 
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
-    fs.writeFileSync(datamappingsBalPath, EMPTY);
+    writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);
 
     // Create a .vscode folder
     const vscodeDir = path.join(projectRoot, '.vscode');
@@ -155,7 +155,7 @@ bi = true
     const settingsPath = path.join(vscodeDir, 'settings.json');
 
     console.log(`BI project created successfully at ${projectRoot}`);
-    commands.executeCommand('vscode.openFolder', Uri.parse(projectRoot));
+    commands.executeCommand('vscode.openFolder', Uri.file(path.resolve(projectRoot)));
 }
 
 
@@ -216,7 +216,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
         const projectDir = path.join(StateMachine.context().projectUri);
         const targetFile = path.join(projectDir, `functions.bal`);
         if (!fs.existsSync(targetFile)) {
-            fs.writeFileSync(targetFile, '');
+            writeBallerinaFileDidOpen(targetFile, '');
         }
         const response = await handleFunctionCreation(targetFile, params);
         await modifyFileContent({ filePath: targetFile, content: response.source });
@@ -224,6 +224,79 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
         let targetPosition: NodePosition = response.syntaxTree?.position;
         modulePart.members.forEach(member => {
             if (STKindChecker.isFunctionDefinition(member) && member.functionName.value === params.functionType.name.trim()) {
+                targetPosition = member.position;
+            }
+        });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
+        history.clear();
+        commands.executeCommand("BI.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
+}
+
+export async function createBITrigger(params: ComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        const projectDir = path.join(StateMachine.context().projectUri);
+        const targetFile = path.join(projectDir, `triggers.bal`);
+        if (!fs.existsSync(targetFile)) {
+            fs.writeFileSync(targetFile, '');
+        }
+        const response = await handleTriggerCreation(targetFile, params);
+        await modifyFileContent({ filePath: targetFile, content: response.source });
+        const fileUri = Uri.parse(targetFile);
+        const fileUriString = fileUri.toString();
+        await StateMachine.langClient().resolveMissingDependencies({
+            documentIdentifier: {
+                uri: fileUriString
+            }
+        });
+        const modulePart: ModulePart = response.syntaxTree as ModulePart;
+        let targetPosition: NodePosition = response.syntaxTree?.position;
+        modulePart.members.forEach(member => {
+            const isMatchingMember = (member: any, params: ComponentRequest) => {
+                return STKindChecker.isServiceDeclaration(member) &&
+                    (Object.keys(params.triggerType.functions).some(key => member.source.toLowerCase().includes(key.toLowerCase())) ||
+                        Object.keys(params.triggerType.serviceTypes).some(key => member.source.toLowerCase().includes(key.toLowerCase())));
+            };
+            if (isMatchingMember(member, params)) {
+                targetPosition = member.position;
+            }
+        });
+        openView(EVENT_TYPE.OPEN_VIEW, { documentUri: targetFile, position: targetPosition });
+        history.clear();
+        commands.executeCommand("BI.project-explorer.refresh");
+        resolve({ response: true, error: "" });
+    });
+}
+
+export async function createBITriggerListener(params: ComponentRequest): Promise<CreateComponentResponse> {
+    return new Promise(async (resolve) => {
+        const projectDir = path.join(StateMachine.context().projectUri);
+        const targetFile = path.join(projectDir, `triggers.bal`);
+        if (!fs.existsSync(targetFile)) {
+            fs.writeFileSync(targetFile, '');
+        }
+        const response = await handleTriggerListenerCreation(targetFile, params);
+        await modifyFileContent({ filePath: targetFile, content: response.source });
+        const fileUri = Uri.parse(targetFile);
+        const fileUriString = fileUri.toString();
+        await StateMachine.langClient().resolveMissingDependencies({
+            documentIdentifier: {
+                uri: fileUriString
+            }
+        });
+        const modulePart: ModulePart = response.syntaxTree as ModulePart;
+        let targetPosition: NodePosition = response.syntaxTree?.position;
+
+        const triggerId = params.triggerType.trigger.moduleName.split(".");
+        const triggerAlias = triggerId[triggerId.length - 1];
+        const possibleName = `${triggerAlias}Listener`;
+
+        modulePart.members.forEach(member => {
+            const isMatchingMember = (member: any) => {
+                return STKindChecker.isListenerDeclaration(member) && member.variableName.value === possibleName;
+            };
+            if (isMatchingMember(member)) {
                 targetPosition = member.position;
             }
         });
@@ -258,9 +331,8 @@ service ${params.serviceType.path} on new http:Listener(${params.serviceType.por
     const projectDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const serviceFile = path.join(projectDir, `${params.serviceType.name}.bal`);
-    fs.writeFileSync(serviceFile, balContent.trim());
+    writeBallerinaFileDidOpen(serviceFile, balContent);
     console.log('Service Created.', `${params.serviceType.name}.bal`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     return serviceFile;
 }
 
@@ -296,9 +368,8 @@ ${funcSignature}
     const projectDir = path.join(StateMachine.context().projectUri);
     // Create foo.bal file within services directory
     const taskFile = path.join(projectDir, `automation.bal`);
-    fs.writeFileSync(taskFile, balContent.trim());
+    writeBallerinaFileDidOpen(taskFile, balContent);
     console.log('Task Created.', `automation.bal`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     return taskFile;
 }
 // <---------- Task Source Generation END-------->
@@ -346,6 +417,166 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
     return res;
 }
 // <---------- Function Source Generation END-------->
+
+// <---------- Trigger Source Generation START-------->
+export async function handleTriggerListenerCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
+    const triggerInfo = params.triggerType;
+
+    const document = await workspace.openTextDocument(Uri.file(targetFile));
+    const lastPosition = document.lineAt(document.lineCount - 1).range.end;
+
+    const targetPosition: NodePosition = {
+        startLine: lastPosition.line,
+        startColumn: 0,
+        endLine: lastPosition.line,
+        endColumn: 0
+    };
+    const modifications: STModification[] = [];
+    modifications.push(...createTriggerListenerCode(triggerInfo, targetPosition));
+    let res;
+    try {
+        res = await applyModifications(targetFile, modifications) as SyntaxTreeResponse;
+    } catch (error) {
+        console.log(error);
+    }
+    return res;
+}
+
+export async function handleTriggerCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
+    const triggerInfo = params.triggerType;
+
+    const document = await workspace.openTextDocument(Uri.file(targetFile));
+    const lastPosition = document.lineAt(document.lineCount - 1).range.end;
+
+    const targetPosition: NodePosition = {
+        startLine: lastPosition.line,
+        startColumn: 0,
+        endLine: lastPosition.line,
+        endColumn: 0
+    };
+    const modifications: STModification[] = [];
+    if (triggerInfo.trigger?.type === 'inbuilt') {
+        modifications.push(...createInbuiltTriggerCode(triggerInfo, targetPosition));
+    } else {
+        modifications.push(...createAsyncTriggerCode(triggerInfo, targetPosition));
+    }
+
+    let res;
+    try {
+        res = await applyModifications(targetFile, modifications) as SyntaxTreeResponse;
+    } catch (error) {
+        console.log(error);
+    }
+    return res;
+}
+
+const createTriggerListenerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
+    const triggerId = triggerInfo.trigger.moduleName.split(".");
+    const triggerAlias = triggerId[triggerId.length - 1];
+    const listenerConfig = triggerInfo.listener.map(item => item.value).filter(value => value && value.trim() !== '').join(',');
+    const listenerVariableName = `${triggerAlias}Listener`;
+
+    const config = {
+        SERVICE_TYPE: triggerAlias,
+        LISTENER_NAME: listenerVariableName,
+        LISTENER_CONFIG: listenerConfig
+    };
+
+    const trigger: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.endColumn,
+        endLine: targetPosition.startLine,
+        endColumn: targetPosition.endColumn,
+        type: "TRIGGER_LISTENER_DECLARATION",
+        config
+    };
+    const stModification = [
+        createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
+        trigger
+    ];
+    return stModification;
+};
+
+const createInbuiltTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
+    let httpBased: boolean = false;
+    const triggerId = triggerInfo.trigger.moduleName.split(".");
+    const triggerAlias = triggerId[triggerId.length - 1];
+    const serviceTypes = triggerInfo.trigger.serviceTypes.filter((sType) => {
+        return Object.entries(triggerInfo.serviceTypes).some(([key, value]) => value.checked && key === sType.name);
+    });
+
+    let functions = [];
+    // Check the selected functions for single service types
+    if (triggerInfo.trigger.serviceTypes.length === 1) {
+        functions = serviceTypes[0].functions.filter((func) => {
+            return Object.entries(triggerInfo.functions).some(([key, value]) => (value.checked && key === func.name) || (value.required && value.functionType.name === func.name));
+        });
+    }
+    const listenerConfig = triggerInfo.listener.map(item => item.value).filter(value => value && value.trim() !== '').join(',');
+    const listenerVariableName = `${triggerAlias}Listener`;
+    const basePath = triggerInfo?.service.length > 0 && triggerInfo?.service[0].value;
+    const config = {
+        triggerType: triggerAlias,
+        listenerVariableName,
+        listenerConfig,
+        basePath,
+        functions
+    };
+    // This is for initial imports only. Initially stModification import for nonHttpBased triggers
+    const triggerStatement: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.endColumn,
+        endLine: targetPosition.startLine,
+        endColumn: targetPosition.endColumn,
+        type: "TRIGGER_NEW",
+        config
+    };
+    const stModification = [
+        createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
+        triggerStatement
+    ];
+    if (httpBased) {
+        stModification.push(createImportStatement("ballerina", "http"));
+    }
+    return stModification;
+};
+
+const createAsyncTriggerCode = (triggerInfo: ComponentTriggerType, targetPosition: NodePosition) => {
+    let httpBased: boolean = true;
+    const triggerId = triggerInfo.trigger.moduleName.split(".");
+    const triggerAlias = triggerId[triggerId.length - 1];
+    const serviceTypes = triggerInfo.trigger.serviceTypes.filter((sType) => {
+        return Object.entries(triggerInfo.serviceTypes).some(([key, value]) => value.checked && key === sType.name);
+    });
+
+    // Check the selected functions for single service types
+    if (triggerInfo.trigger.serviceTypes.length === 1) {
+        serviceTypes[0].functions = serviceTypes[0].functions.filter((func) => {
+            return Object.entries(triggerInfo.functions).some(([key, value]) => (value.checked && key === func.name) || (value.required && value.functionType.name === func.name));
+        });
+    }
+
+    // TODO: This is a temporary fix till the central API supports the httpBased parameter
+    if (triggerAlias === 'asb' || triggerAlias === 'salesforce') {
+        httpBased = false;
+    }
+    const newTriggerInfo = {
+        ...triggerInfo.trigger,
+        serviceTypes,
+        triggerType: triggerAlias,
+        httpBased
+    };
+    // This is for initial imports only. Initially stModification import for nonHttpBased triggers
+    const stModification = [
+        createImportStatement(triggerInfo.trigger.package.organization, triggerInfo.trigger.moduleName),
+        createTrigger(newTriggerInfo, targetPosition)
+    ];
+    if (httpBased) {
+        stModification.push(createImportStatement("ballerina", "http"));
+    }
+    return stModification;
+};
+// <---------- Trigger Source Generation END-------->
 
 export function sanitizeName(name: string): string {
     return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); // Replace invalid characters with underscores

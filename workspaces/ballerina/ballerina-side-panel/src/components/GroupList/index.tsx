@@ -147,7 +147,7 @@ export function GroupList(props: GroupListProps) {
                 <>
                     <S.BodyText>{category.description}</S.BodyText>
                     <S.Grid columns={2}>
-                        {nodes.map((node, index) => (
+                        {nodes.filter(node => node.enabled).map((node, index) => (
                             <S.Component
                                 key={node.id + index}
                                 enabled={node.enabled}

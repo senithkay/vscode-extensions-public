@@ -25,13 +25,15 @@ import { useDiagramContext } from "../../DiagramContext";
 import { BaseNodeModel } from "./BaseNodeModel";
 import { ELineRange, FlowNode } from "@wso2-enterprise/ballerina-core";
 import { DiagnosticsPopUp } from "../../DiagnosticsPopUp";
-import { nodeHasError } from "../../../utils/node";
+import { getNodeTitle, nodeHasError } from "../../../utils/node";
+import { BreakpointMenu } from "../../BreakNodeMenu/BreakNodeMenu";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
         disabled: boolean;
         hovered: boolean;
         hasError: boolean;
+        isActiveBreakpoint?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
@@ -41,7 +43,7 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        background-color: ${Colors.SURFACE_DIM};
+        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
@@ -149,15 +151,17 @@ export interface BaseNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> { }
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode } = useDiagramContext();
+    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode, removeBreakpoint, addBreakpoint } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
+    const hasBreakpoint = model.hasBreakpoint();
+    const isActiveBreakpoint = model.isActiveBreakpoint();
 
     const handleOnClick = async (event: React.MouseEvent<HTMLDivElement>) => {
         if (event.metaKey) {
@@ -189,6 +193,16 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         onDeleteNode && onDeleteNode(model.node);
         setMenuAnchorEl(null);
     };
+
+    const onAddBreakpoint = () => {
+        addBreakpoint && addBreakpoint(model.node);
+        setMenuAnchorEl(null);
+    }
+
+    const onRemoveBreakpoint = () => {
+        removeBreakpoint && removeBreakpoint(model.node);
+        setMenuAnchorEl(null);
+    }
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -256,11 +270,7 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
         });
     }
 
-    // show module name in the title if org is ballerina
-    const nodeTitle =
-        model.node.codedata?.org === "ballerina"
-            ? `${model.node.codedata.module} : ${model.node.metadata.label}`
-            : model.node.metadata.label;
+    const nodeTitle = getNodeTitle(model.node);
 
     const hasFullAssignment = model.node.properties?.variable?.value && model.node.properties?.expression?.value;
 
@@ -284,9 +294,13 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             hovered={isHovered}
             disabled={model.node.suggested}
             hasError={hasError}
+            isActiveBreakpoint={isActiveBreakpoint}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
+            {hasBreakpoint && (
+                <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
+            )}
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
                 <NodeStyles.Icon onClick={handleOnClick}>
@@ -317,9 +331,16 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                     }}
                 >
                     <Menu>
-                        {menuItems.map((item) => (
-                            <MenuItem key={item.id} item={item} />
-                        ))}
+                        <>
+                            {menuItems.map((item) => (
+                                <MenuItem key={item.id} item={item} />
+                            ))}
+                            <BreakpointMenu
+                                hasBreakpoint={hasBreakpoint}
+                                onAddBreakpoint={onAddBreakpoint}
+                                onRemoveBreakpoint={onRemoveBreakpoint}
+                            />
+                        </>
                     </Menu>
                 </Popover>
             </NodeStyles.Row>
