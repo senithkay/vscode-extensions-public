@@ -10,9 +10,10 @@ import { create } from "zustand";
 import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
-import { SubMappingConfigForm } from "src/components/DataMapper/SidePanel/SubMappingConfig/SubMappingConfigForm";
 import { IOType } from "@wso2-enterprise/mi-core";
-import { View } from "src/components/DataMapper/Views/DataMapperView";
+import { View } from "../components/DataMapper/Views/DataMapperView";
+import { TypeKind } from "../components/types";
+
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
@@ -37,6 +38,11 @@ export interface DataMapperSearchState {
 export interface DataMapperCollapsedFieldsState {
     collapsedFields: string[];
     setCollapsedFields: (fields: string[]) => void;
+    collapsedObjectFields: string[];
+    expandedArrayFields: string[];
+    expandField: (fieldId: string, fieldKind: TypeKind) => void;
+    collapseField: (fieldId: string, fieldKind: TypeKind) => void;
+    isCollapsedField: (fieldId: string, fieldKind: TypeKind) => boolean;
 }
 
 export interface DataMapperIOConfigPanelState {
@@ -99,9 +105,41 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
     resetSearchStore: () => set({ inputSearch: '', outputSearch: '' })
 }));
 
-export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set) => ({
+export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set, get) => ({
     collapsedFields: [],
     setCollapsedFields: (collapsedFields: string[]) => set({ collapsedFields }),
+    collapsedObjectFields: [],
+    expandedArrayFields: [],
+    expandField: (fieldId: string, fieldKind: TypeKind) => set((state) => {
+        if (fieldKind === TypeKind.Array) {
+            return {
+                expandedArrayFields: [...state.expandedArrayFields, fieldId]
+            }
+        } else {
+            return {
+                collapsedObjectFields: state.collapsedObjectFields.filter((field) => field !== fieldId)
+            }
+        }
+    }),
+    collapseField: (fieldId: string, fieldKind: TypeKind) => set((state) => {
+        if (fieldKind === TypeKind.Array) {
+            return {
+                expandedArrayFields: state.expandedArrayFields.filter((field) => field !== fieldId)
+            }
+        } else {
+            return {
+                collapsedObjectFields: [...state.collapsedObjectFields, fieldId]
+            }
+        }
+    }),
+    isCollapsedField: (fieldId: string, fieldKind: TypeKind) => {
+        const state = get();
+        if (fieldKind === TypeKind.Array) {
+            return !state.expandedArrayFields.includes(fieldId);
+        } else {
+            return state.collapsedObjectFields.includes(fieldId);
+        }
+    }
 }));
 
 export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set) => ({
