@@ -313,7 +313,7 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
             },
 
             // Debug Adapter -> VS Code
-            onDidSendMessage: (message: DebugProtocol.ProtocolMessage) => {
+            onDidSendMessage: async (message: DebugProtocol.ProtocolMessage) => {
                 console.log("=====onDidSendMessage", message);
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
@@ -336,11 +336,11 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
 
-                        // Filter for tabs that are editor tabs and the tab that is not debug hit tab
-                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath !== uri.fsPath);
+                        // Filter for tabs that are editor tabs and the tab with the debug hit
+                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
 
                         for (const tab of editorTabs) {
-                            window.tabGroups.close(tab);
+                            await window.tabGroups.close(tab);
                         }
 
                         // get the current stack trace
@@ -358,16 +358,25 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
 
                         if (isWebviewPresent) {
-                            setTimeout(async () => {
-                                VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.Beside);
-                                handleBreakpointVisualization(uri, clientBreakpoint);
-                            }, 200);
+                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
+                            await handleBreakpointVisualization(uri, clientBreakpoint);
                         }
 
                     } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
                         // clear the active breakpoint
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
+                    }
+                }
+
+                if (message.type === "event") {
+                    const msg = <DebugProtocol.Event>message;
+                    if (msg.event === "stopped") {
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+
+                        if (isWebviewPresent) {
+                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
+                        }
                     }
                 }
             },
