@@ -92,16 +92,7 @@ export class BaseNodeModel extends NodeModel {
                 range: nodeRange,
                 force: true,
             });
-        } else if(e.altKey){
-            const inputOutput= await rpcClient.getMiDiagramRpcClient().tryOutMediator({file:node.documentUri,line:stNode.range.startTagRange.start.line,column:stNode.range.startTagRange.start.character});
-            sidePanelContext.setSidePanelState({
-                isTryoutOpen: true,
-                nodeRange: nodeRange,
-                inputOutput: inputOutput,
-                parentNode: node.mediatorName,
-                node: node,
-            });
-        }else if (node.isSelected()) {
+        } else if (node.isSelected()) {
             // highlight the selected node
             rpcClient.getMiDiagramRpcClient().highlightCode({
                 range: nodeRange,

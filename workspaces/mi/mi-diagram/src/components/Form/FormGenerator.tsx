@@ -156,6 +156,15 @@ export function FormGenerator(props: FormGeneratorProps) {
     const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
         const name = getNameForController(element.name);
 
+        return (
+            <FormExpressionField
+                {...field}
+                label={element.displayName}
+                required={isRequired}
+                placeholder={placeholder}
+                nodeRange={range}
+            />
+        )
         return expressionEditorField !== name ? (
             <ExpressionField
                 {...field}
@@ -216,18 +225,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                     field.onChange(values);
                 }} />
         </ComponentCard>;
-    }
-
-    const FormExpressionFieldComponent = (element: Element, field: any) => {
-        return (
-            <FormExpressionField
-                {...field}
-                label={element.displayName}
-                required={element.required === 'true'}
-                placeholder={element.placeholder}
-                nodeRange={range}
-            />
-        );
     }
 
     const renderFormElement = (element: Element, field: any) => {

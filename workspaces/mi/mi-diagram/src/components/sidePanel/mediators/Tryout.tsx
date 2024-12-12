@@ -12,9 +12,9 @@ import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from '../../Form/CodeTextArea';
-import ReactJson from 'react-json-view';
+import ReactJson, { InteractionProps } from 'react-json-view';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { MediatorTryOutInfo } from '@wso2-enterprise/mi-core';
+import { Header, MediatorProperties, MediatorTryOutInfo, Params } from '@wso2-enterprise/mi-core';
 import { Colors, ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
 
@@ -42,33 +42,57 @@ export function TryOutView(props: TryoutProps) {
     const [isLoading, setIsLoading] = React.useState(true);
     const [isTryOutLoading, setIsTryOutLoading] = React.useState(false);
     const [tryOutError, setTryOutError] = React.useState<string | null>(null);
-    const [mediatorInput, setMediatorInput] = React.useState<any>(undefined);
-    const [mediatorOutput, setMediatorOutput] = React.useState<any>({});
+    const [mediatorInput, setMediatorInput] = React.useState<MediatorTryOutInfo>(undefined);
+    const [mediatorOutput, setMediatorOutput] = React.useState<MediatorTryOutInfo>(undefined);
     const [isDefaultInput, setIsDefaultInput] = React.useState(true);
     const [inputPayload, setInputPayload] = React.useState('');
+    const [tryoutId, setTryoutId] = React.useState<string>();
+
+    // State to manage the expanded/collapsed state of each section
+    const [isInputExpanded, setIsInputExpanded] = React.useState({
+        properties: false,
+        headers: false,
+        params: false,
+        variables: false,
+    });
+
+    const [isOutputExpanded, setIsOutputExpanded] = React.useState({
+        properties: false,
+        headers: false,
+        params: false,
+        variables: false,
+    });
+
     const sidePanelContext = React.useContext(SidePanelContext);
 
     useEffect(() => {
         if (!props.isActive) {
             return;
         }
-        getSchema();
+        getInputData();
     }, [props]);
 
-    const getSchema = async () => {
+    const getInputData = async () => {
         try {
-            if (nodeRange) {
-                const schema = await rpcClient.getMiDiagramRpcClient().getMediatorInputOutputSchema({
-                    file: documentUri,
-                    line: nodeRange.start.line,
-                    column: nodeRange.start.character + 1,
-                    edits: []
-                });
-
-                setMediatorInput(schema.input);
-            }
             await getInputPayload();
+            if (!nodeRange) return;
 
+            const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
+                file: documentUri,
+                line: nodeRange.start.line,
+                column: nodeRange.start.character + 1,
+                isServerLess: false,
+                inputPayload,
+                edits: []
+            });
+
+            if (res.error) {
+                setTryOutError(typeof res.error === 'string' ? res.error : ERROR_MESSAGES.ERROR_TRYING_OUT_MEDIATOR);
+                console.error("Error trying out mediator:", res.error);
+            } else {
+                setMediatorInput(res.input);
+                setTryoutId(res.id);
+            }
         } catch (error) {
             console.error("Error fetching mediator input/output schema:", error);
         } finally {
@@ -78,8 +102,8 @@ export function TryOutView(props: TryoutProps) {
 
     const getInputPayload = async () => {
         try {
-            const payload = await rpcClient.getMiDiagramRpcClient().getInputPayload({ documentUri });
-            setInputPayload(payload.payload || '');
+            const { payload } = await rpcClient.getMiDiagramRpcClient().getInputPayload({ documentUri });
+            setInputPayload(payload || '');
         } catch (error) {
             console.error("Error fetching input payload:", error);
         }
@@ -89,13 +113,19 @@ export function TryOutView(props: TryoutProps) {
         try {
             setIsTryOutLoading(true);
             setTryOutError(null);
+
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
+                tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
-                ...(!isDefaultInput && { inputPayload })
+                isServerLess: false,
+                inputPayload,
+                mediatorInfo: mediatorInput
             });
+
             if (res.error) {
+                setMediatorOutput(undefined);
                 setTryOutError(typeof res.error === 'string' ? res.error : ERROR_MESSAGES.ERROR_TRYING_OUT_MEDIATOR);
                 console.error("Error trying out mediator:", res.error);
             } else {
@@ -113,27 +143,13 @@ export function TryOutView(props: TryoutProps) {
         clearSidePanelState(sidePanelContext);
     }
 
-    const Properties = ({ properties, isExpanded }: { properties: MediatorTryOutInfo, isExpanded?: boolean }) => {
-        return (
-            <FormGroup title='Properties' isCollapsed={!isExpanded}>
-                <PropertiesContainer>
-                    <ReactJson sortKeys name="Synapse Properties" src={properties?.synapse} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Axis2 Properties" src={properties?.axis2} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Axis2 Client Propeties" src={properties?.axis2Client} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Transport Properties" src={properties?.axis2Transport} theme={REACT_JSON_THEME} />
-                    <ReactJson sortKeys name="Axis2 Operation Properties" src={properties?.axis2Operation} theme={REACT_JSON_THEME} />
-                </PropertiesContainer>
-            </FormGroup>
-        );
-    }
-
     if (isLoading) {
         return (
             <TryoutContainer>
                 <ProgressIndicator />
             </TryoutContainer>
         );
-    } else if ((!mediatorInput || !mediatorInput.synapse) && (inputPayload === undefined)) {
+    } else if ((!mediatorInput || !mediatorInput.properties) && (inputPayload === undefined)) {
         return (
             <TryoutContainer>
                 <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_TRYOUT} />
@@ -171,19 +187,26 @@ export function TryOutView(props: TryoutProps) {
             </Typography>
 
             <Section>
-                <Properties properties={mediatorInput} isExpanded />
+                <Typography variant="h3">Payload</Typography>
+                <CheckBox
+                    label="Use default payload"
+                    checked={isDefaultInput}
+                    onChange={() => setIsDefaultInput(!isDefaultInput)}
+                />
+                {!isDefaultInput &&
+                    <div>
+                        <Typography variant="body3">Custom payload</Typography>
+                        <CodeTextArea name="Payload" rows={5} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
+                    </div>}
 
                 <div style={{ marginTop: "10px" }}>
-                    <CheckBox
-                        label="Use default payload"
-                        checked={isDefaultInput}
-                        onChange={() => setIsDefaultInput(!isDefaultInput)}
+                    <MediatorDetails
+                        data={mediatorInput}
+                        setMediatorInfo={setMediatorInput}
+                        isExpanded={isInputExpanded}
+                        setIsExpanded={setIsInputExpanded}
+                        isEditable={true}
                     />
-                    {!isDefaultInput &&
-                        <div>
-                            <Typography variant="body3">Payload</Typography>
-                            <CodeTextArea name="Payload" rows={5} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
-                        </div>}
                 </div>
                 <Button onClick={onTryOut} sx={{ marginTop: "10px", marginLeft: "auto" }} disabled={isTryOutLoading}>
                     {isTryOutLoading ? 'Running...' : 'Run'}
@@ -192,7 +215,7 @@ export function TryOutView(props: TryoutProps) {
             <hr style={{ width: "100%", border: "none", borderTop: "1px solid var(--vscode-editorWidget-border)", margin: "20px 0" }} />
 
             {tryOutError && <ErrorBanner errorMsg={tryOutError} />}
-            {mediatorOutput && mediatorOutput.synapse && <Section>
+            {mediatorOutput && mediatorOutput.properties.synapse && <Section>
                 <Typography variant="h3" sx={{ fontSize: "1.2em" }}>Output</Typography>
                 <div>
                     <Typography variant="body3">Payload</Typography>
@@ -211,10 +234,109 @@ export function TryOutView(props: TryoutProps) {
                     {!isDefaultInput && <CodeTextArea name="Payload" growRange={{ start: 5, offset: 5 }} value={mediatorOutput.payload} />}
                 </div>
                 <br />
-                <Properties properties={mediatorOutput} />
+                <MediatorDetails
+                    data={mediatorOutput}
+                    setMediatorInfo={setMediatorOutput}
+                    isExpanded={isOutputExpanded}
+                    setIsExpanded={setIsOutputExpanded}
+                    isEditable={false}
+                />
             </Section>}
         </TryoutContainer>
     );
 };
+
+const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isEditable }: { data: MediatorTryOutInfo, setMediatorInfo: React.Dispatch<React.SetStateAction<MediatorTryOutInfo>>, isExpanded: any, setIsExpanded: any, isEditable: boolean }) => {
+    const handleEdit = (type: string, edit: InteractionProps, key?: string) => {
+        if (!isEditable) return; // Prevent editing if not editable
+        setMediatorInfo((prev) => {
+            const updated = { ...prev };
+            if (key !== undefined) {
+                (updated as any)[type][key] = edit.updated_src;
+            } else {
+                (updated as any)[type] = edit.updated_src;
+            }
+            return updated;
+        });
+    }
+    const toggleExpanded = (type: any, collapsed: boolean) => {
+        setIsExpanded((prev: any) => {
+            return {
+                ...prev,
+                [type]: !collapsed
+            }
+        });
+    }
+
+    const Properties = ({ properties }: { properties: MediatorProperties }) => (
+        <FormGroup title='Properties' isCollapsed={!isExpanded.properties} onToggle={(collapsed) => toggleExpanded('properties', collapsed)}>
+            <PropertiesContainer>
+                {['synapse', 'axis2', 'axis2Client', 'axis2Transport', 'axis2Operation'].map((key) => (
+                    <ReactJson
+                        key={key}
+                        sortKeys
+                        name={`${key.charAt(0).toUpperCase() + key.slice(1)} Properties`}
+                        src={(properties as any)?.[key]}
+                        theme={REACT_JSON_THEME}
+                        onEdit={isEditable ? (edit: InteractionProps) => handleEdit('properties', edit, key) : undefined}
+                    />
+                ))}
+            </PropertiesContainer>
+        </FormGroup>
+    );
+
+    const Headers = ({ headers }: { headers: Header[] }) => (
+        <FormGroup title='Headers' isCollapsed={!isExpanded.headers} onToggle={(collapsed) => toggleExpanded('headers', collapsed)}>
+            <PropertiesContainer>
+                <ReactJson
+                    sortKeys
+                    name={false}
+                    src={headers}
+                    theme={REACT_JSON_THEME}
+                    onEdit={isEditable ? (edit: InteractionProps) => handleEdit('headers', edit) : undefined}
+                />
+            </PropertiesContainer>
+        </FormGroup>
+    );
+
+    const Params = ({ params }: { params: Params }) => (
+        <FormGroup title='Params' isCollapsed={!isExpanded.params} onToggle={(collapsed) => toggleExpanded('params', collapsed)}>
+            <PropertiesContainer>
+                {['functionParams', 'queryParams', 'uriParams'].map((key) => (
+                    <ReactJson
+                        sortKeys
+                        name={key.charAt(0).toUpperCase() + key.slice(1)}
+                        src={(params as any)?.[key]}
+                        theme={REACT_JSON_THEME}
+                        onEdit={isEditable ? (edit: InteractionProps) => handleEdit('params', edit, key) : undefined}
+                    />
+                ))}
+            </PropertiesContainer>
+        </FormGroup>
+    );
+
+    const Variables = ({ variables }: { variables: any }) => (
+        <FormGroup title='Variables' isCollapsed={!isExpanded.variables} onToggle={(collapsed) => toggleExpanded('variables', collapsed)}>
+            <PropertiesContainer>
+                <ReactJson
+                    sortKeys
+                    name={false}
+                    src={variables}
+                    theme={REACT_JSON_THEME}
+                    onEdit={isEditable ? (edit: InteractionProps) => handleEdit('variables', edit) : undefined}
+                />
+            </PropertiesContainer>
+        </FormGroup>
+    );
+
+    return (
+        <>
+            <Headers headers={data.headers} />
+            <Params params={data.params} />
+            <Variables variables={data.variables} />
+            <Properties properties={data.properties} />
+        </>
+    );
+}
 
 export default TryOutView; 

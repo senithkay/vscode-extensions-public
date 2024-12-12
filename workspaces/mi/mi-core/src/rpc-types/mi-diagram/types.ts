@@ -1805,17 +1805,21 @@ export interface FileRenameRequest {
 }
 
 export interface MediatorTryOutRequest {
-    file:string;
-    line:number;
-    column:number;
-    inputPayload?:string;
+    file: string;
+    line: number;
+    column: number;
+    inputPayload?: string;
+    mediatorInfo?: MediatorTryOutInfo,
+    tryoutId?: string;
+    isServerLess: boolean;
     edits?: {
-        text:string;
+        text: string;
         range: Range;
     }[]
 }
 
 export interface MediatorTryOutResponse {
+    id: string,
     input: MediatorTryOutInfo;
     output: MediatorTryOutInfo;
     error?: string;
@@ -1823,11 +1827,29 @@ export interface MediatorTryOutResponse {
 
 export interface MediatorTryOutInfo {
     payload: string;
+    headers: Header[];
+    params: Params;
+    variables: { [key: string]: string };
+    properties: MediatorProperties;
+}
+
+export interface MediatorProperties {
     synapse: { [key: string]: any };
     axis2: { [key: string]: any };
     axis2Client: { [key: string]: any };
     axis2Transport: { [key: string]: any };
     axis2Operation: { [key: string]: any };
+}
+
+export interface Header {
+    key: string;
+    value: string;
+}
+
+export interface Params {
+    functionParams: string[];
+    queryParams: string[];
+    uriParams: string[];
 }
 
 export interface SavePayloadRequest {
@@ -1854,7 +1876,7 @@ export interface GetMediatorsResponse {
 
 export interface Mediator {
     title: string;
-    tag:string;
+    tag: string;
     type: string;
     description: string;
     icon: string;
