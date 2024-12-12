@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExpressionCompletionItem } from '@wso2-enterprise/mi-core';
+import { ExpressionCompletionItem, HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
 import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from '@wso2-enterprise/ui-toolkit';
 
 /**
@@ -63,4 +63,54 @@ export const modifyCompletion = (completion: ExpressionCompletionItem): Completi
         description: completion.detail,
         sortText: completion.sortText
     }
+};
+
+/**
+ * Filter the completion items based on the filter text.
+ *
+ * @param items - HelperPaneCompletionItem[]
+ * @param filterText - string
+ * @returns HelperPaneCompletionItem[]
+ */
+export const filterHelperPaneCompletionItems = (
+    items: HelperPaneCompletionItem[],
+    filterText: string
+): HelperPaneCompletionItem[] => {
+    return items.filter((item) => item.label.toLowerCase().includes(filterText.toLowerCase()));
+};
+
+/**
+ * Filter the function completion items based on the filter text.
+ *
+ * If the filter text matches a group name, all functions in that group are shown.
+ * If the filter text matches a function name, only matching functions are shown within their groups.
+ *
+ * @param items - HelperPaneFunctionInfo
+ * @param filterText - string
+ * @returns HelperPaneFunctionInfo
+ */
+export const filterHelperPaneFunctionCompletionItems = (
+    items: HelperPaneFunctionInfo,
+    filterText: string
+): HelperPaneFunctionInfo => {
+    const groups = Object.keys(items);
+    const filteredResponse: HelperPaneFunctionInfo = {};
+
+    for (const group of groups) {
+        if (group.toLowerCase().includes(filterText.toLowerCase())) {
+            filteredResponse[group] = items[group];
+        } else {
+            const groupItems = items[group].items.filter((item) =>
+                item.label.toLowerCase().includes(filterText.toLowerCase())
+            );
+            if (groupItems.length > 0) {
+                filteredResponse[group] = {
+                    items: groupItems,
+                    sortText: items[group].sortText
+                };
+            }
+        }
+    }
+
+    return filteredResponse;
 };

@@ -21,7 +21,7 @@ import {
     RequiredFormInput,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from './HelperPane';
-import { modifyCompletion } from './utils';
+import { filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, modifyCompletion } from './utils';
 
 /**
  * Props for ExpressionEditor
@@ -161,25 +161,25 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 .then((response) => {
                     switch (type) {
                         case 'payload':
-                            setPayloadInfo(response.payload);
+                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
                             break;
                         case 'variables':
-                            setVariableInfo(response.variables);
+                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
                             break;
                         case 'properties':
-                            setPropertiesInfo(response.properties);
+                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
                             break;
                         case 'functions':
-                            setFunctionInfo(response.functions);
+                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
                             break;
                         case 'configs':
-                            setConfigInfo(response.configs);
+                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
                             break;
                         case 'headers':
-                            setHeaderInfo(response.headers);
+                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
                             break;
                         case 'params':
-                            setParamInfo(response.params);
+                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
                             break;
                     }
                 })
