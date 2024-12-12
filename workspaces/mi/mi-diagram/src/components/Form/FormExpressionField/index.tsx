@@ -11,7 +11,7 @@ import { debounce } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
     CompletionItem,
@@ -40,10 +40,10 @@ import { filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItem
 type FormExpressionFieldProps = {
     label: string;
     required: boolean;
-    value: string;
+    value: FormExpressionFieldValue;
     placeholder: string;
     nodeRange: Range;
-    onChange: (value: string) => void;
+    onChange: (value: FormExpressionFieldValue) => void;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onCancel?: () => void;
@@ -121,15 +121,15 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         debouncedRetrieveCompletions,
     ]);
 
-    const handleChange = async (value: string, updatedCursorPosition: number) => {
-        onChange(value);
+    const handleExpressionChange = async (expression: string, updatedCursorPosition: number) => {
+        onChange({ ...value, value: expression });
         cursorPositionRef.current = updatedCursorPosition;
 
-        const isHelperPaneOpen = value === "" ? true : false;
+        const isHelperPaneOpen = expression === "" ? true : false;
         setIsHelperPaneOpen(isHelperPaneOpen);
 
         if (!isHelperPaneOpen) {
-            retrieveCompletions(value, updatedCursorPosition);
+            retrieveCompletions(expression, updatedCursorPosition);
         }
     };
 
@@ -231,9 +231,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             <div>
                 <FormExpressionEditor
                     ref={expressionRef}
-                    value={value}
+                    value={value.value}
                     placeholder={placeholder}
-                    onChange={handleChange}
+                    onChange={handleExpressionChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     onCancel={handleCancel}
