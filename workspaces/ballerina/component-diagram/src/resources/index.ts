@@ -17,3 +17,4 @@ export * from "./icons/nodes/TaskIcon";
 export * from "./icons/nodes/WebhookIcon";
 export * from "./icons/nodes/PersonIcon";
 export * from "./icons/nodes/DatabaseIcon";
+export * from "./icons/nodes/ListenIcon";

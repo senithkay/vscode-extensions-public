@@ -10,22 +10,22 @@
 import React from "react";
 import { AbstractReactFactory, GenerateModelEvent, GenerateWidgetEvent } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { ButtonNodeModel } from "./ButtonNodeModel";
-import { ButtonNodeWidget } from "./ButtonNodeWidget";
+import { ListenerNodeModel } from "./ListenerNodeModel";
+import { ListenerNodeWidget } from "./ListenerNodeWidget";
 import { NodeTypes } from "../../../resources/constants";
 
-export class ButtonNodeFactory extends AbstractReactFactory<ButtonNodeModel, DiagramEngine> {
+export class ListenerNodeFactory extends AbstractReactFactory<ListenerNodeModel, DiagramEngine> {
     constructor() {
-        super(NodeTypes.BUTTON_NODE);
+        super(NodeTypes.LISTENER_NODE);
     }
 
-    generateModel(event: GenerateModelEvent): ButtonNodeModel {
-        return new ButtonNodeModel(event.initialConfig);
+    generateModel(event: GenerateModelEvent): ListenerNodeModel {
+        return new ListenerNodeModel(event.initialConfig);
     }
 
-    generateReactWidget(event: GenerateWidgetEvent<ButtonNodeModel>) {
+    generateReactWidget(event: GenerateWidgetEvent<ListenerNodeModel>) {
         return (
-            <ButtonNodeWidget engine={this.engine} model={event.model} />
+            <ListenerNodeWidget engine={this.engine} model={event.model} />
         );
     }
 }

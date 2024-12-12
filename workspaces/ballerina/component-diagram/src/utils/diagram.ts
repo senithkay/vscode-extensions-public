@@ -7,23 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import createEngine, { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { EntryNodeFactory } from "../components/nodes/EntryNode";
 import { NodePortFactory, NodePortModel } from "../components/NodePort";
 import { NodeLinkFactory, NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { OverlayLayerFactory } from "../components/OverlayLayer";
 import { DagreEngine } from "../resources/dagre/DagreEngine";
 import { NodeModel } from "./types";
+import { EntryNodeFactory, EntryNodeModel } from "../components/nodes/EntryNode";
 import { ConnectionNodeFactory } from "../components/nodes/ConnectionNode/ConnectionNodeFactory";
-import { ActorNodeFactory } from "../components/nodes/ActorNode/ActorNodeFactory";
+import { ListenerNodeFactory } from "../components/nodes/ListenerNode/ListenerNodeFactory";
 import {
-    ACTOR_NODE_WIDTH,
+    LISTENER_NODE_WIDTH,
     ACTOR_SUFFIX,
     ENTRY_NODE_HEIGHT,
     NODE_GAP_Y,
     NODE_PADDING,
     NodeTypes,
+    NODE_GAP_X,
+    ENTRY_NODE_WIDTH,
 } from "../resources/constants";
-import { ButtonNodeFactory } from "../components/nodes/ButtonNode/ButtonNodeFactory";
+import { ListenerNodeModel } from "../components/nodes/ListenerNode";
+import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -36,10 +39,9 @@ export function generateEngine(): DiagramEngine {
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
 
+    engine.getNodeFactories().registerFactory(new ListenerNodeFactory());
     engine.getNodeFactories().registerFactory(new EntryNodeFactory());
     engine.getNodeFactories().registerFactory(new ConnectionNodeFactory());
-    engine.getNodeFactories().registerFactory(new ActorNodeFactory());
-    engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
 
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
@@ -53,44 +55,34 @@ export function autoDistribute(engine: DiagramEngine) {
     const dagreEngine = genDagreEngine();
     dagreEngine.redistribute(model);
 
-    // reposition actor node
+    
+    // reposition listener nodes
+    const listenerX = 250;
     model.getNodes().forEach((node) => {
-        if (node.getType() === NodeTypes.ENTRY_NODE) {
-            const actorNode = model.getNode(node.getID() + ACTOR_SUFFIX);
-            if (actorNode) {
-                const entryNode = node;
-                const entryNodeX = entryNode.getX();
-                const entryNodeY = entryNode.getY();
-                const newActorNodeX = entryNodeX - (NODE_GAP_Y + ACTOR_NODE_WIDTH);
-                const newActorNodeY = entryNodeY + (ENTRY_NODE_HEIGHT - ACTOR_NODE_WIDTH) / 2 - NODE_PADDING / 2;
-                actorNode.setPosition(newActorNodeX, newActorNodeY);
-                return;
-            }
+        if (node.getType() === NodeTypes.LISTENER_NODE) {
+            const listenerNode = node as ListenerNodeModel;
+            listenerNode.setPosition(listenerX, listenerNode.getY());
+            return;
         }
     });
 
-    // reposition new connection node if no more connections
-    // const connectionNodes = model
-    //     .getNodes()
-    //     .filter((node) => node.getType() === NodeTypes.CONNECTION_NODE && node.getID() !== NEW_CONNECTION);
-    // if (connectionNodes.length === 0) {
-    //     const newConnectionNode = model.getNode(NEW_CONNECTION) as ConnectionNodeModel;
-    //     if (newConnectionNode) {
-    //         for (const id in newConnectionNode.getInPort().getLinks()) {
-    //             const link = newConnectionNode.getInPort().getLinks()[id] as NodeLinkModel;
-    //             const entryNode = link.sourceNode as EntryNodeModel;
-    //             console.log(">>> newConnectionNode", {
-    //                 entryNode: entryNode.getPosition(),
-    //                 conNode: newConnectionNode.getPosition(),
-    //             });
-    //             const entryNodeY = entryNode.getY();
-    //             const newConNodeX = newConnectionNode.getX();
-    //             const newConNodeY = entryNodeY + (ENTRY_NODE_WIDTH - CON_NODE_HEIGHT) / 2 + NODE_PADDING / 2;
-    //             newConnectionNode.setPosition(newConNodeX, newConNodeY);
-    //             return;
-    //         }
-    //     }
-    // }
+    // reposition all entrypoints
+    const entryX = listenerX + LISTENER_NODE_WIDTH + NODE_GAP_X;
+    model.getNodes().forEach((node) => {
+        if (node.getType() === NodeTypes.ENTRY_NODE) {
+            const entryNode = node as EntryNodeModel;
+            entryNode.setPosition(entryX, entryNode.getY());
+        }
+    });
+
+    // reposition all connection nodes
+    const connectionX = entryX + ENTRY_NODE_WIDTH + NODE_GAP_X;
+    model.getNodes().forEach((node) => {
+        if (node.getType() === NodeTypes.CONNECTION_NODE) {
+            const connectionNode = node as ConnectionNodeModel;
+            connectionNode.setPosition(connectionX, connectionNode.getY());
+        }
+    });
 
     engine.repaintCanvas();
 }
@@ -111,7 +103,7 @@ export function genDagreEngine() {
             ranksep: 400,
             marginx: 100,
             marginy: 100,
-            ranker: "longest-path",
+            // ranker: "longest-path",
         },
     });
 }
@@ -178,9 +170,9 @@ export const centerDiagram = (engine: DiagramEngine) => {
     }
 };
 
-export const getNodeId = (nodeType: string, id: string) => {
-    return `${nodeType}-${id}`;
-};
+// export const getNodeId = (nodeType: string, id: string) => {
+//     return `${nodeType}-${id}`;
+// };
 
 export const getModelId = (nodeId: string) => {
     return nodeId.split("-").pop();

@@ -10,17 +10,17 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
-import { EntryPoint } from "../../../utils/types";
+import { CDListener } from "@wso2-enterprise/ballerina-core";
 
-export class ActorNodeModel extends NodeModel {
-    readonly node: EntryPoint;
+export class ListenerNodeModel extends NodeModel {
+    readonly node: CDListener;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(node: EntryPoint) {
+    constructor(node: CDListener) {
         super({
-            id: node.id,
-            type: NodeTypes.ACTOR_NODE,
+            id: node.uuid,
+            type: NodeTypes.LISTENER_NODE,
             locked: NODE_LOCKED,
         });
         this.node = node;

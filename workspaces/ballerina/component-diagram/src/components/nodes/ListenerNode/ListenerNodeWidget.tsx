@@ -10,10 +10,10 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { ActorNodeModel } from "./ActorNodeModel";
-import { Colors, NODE_BORDER_WIDTH, ACTOR_NODE_WIDTH } from "../../../resources/constants";
+import { ListenerNodeModel } from "./ListenerNodeModel";
+import { Colors, NODE_BORDER_WIDTH, LISTENER_NODE_WIDTH, AUTOMATION_LISTENER } from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
-import { AppIcon, PersonIcon, ClockIcon } from "../../../resources";
+import { ClockIcon, ListenIcon } from "../../../resources";
 
 export namespace NodeStyles {
     export type NodeStyleProp = {
@@ -21,31 +21,24 @@ export namespace NodeStyles {
     };
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        width: ${ACTOR_NODE_WIDTH}px;
-        height: ${ACTOR_NODE_WIDTH}px;
-        /* border: ${NODE_BORDER_WIDTH}px solid
-            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)}; */
-        border-radius: 50%;
-        background-color: ${Colors.SURFACE_DIM};
-        color: ${Colors.ON_SURFACE};
-        /* cursor: pointer; */
-        & svg {
-            fill: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
-            opacity: ${(props: NodeStyleProp) => (props.hovered ? 1 : 0.7)};
-        }
-    `;
-
-    export const Header = styled.div<{}>`
-        display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 2px;
-        width: 100%;
-        padding: 8px;
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+    `;
+
+    export const Circle = styled.div<NodeStyleProp>`
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: ${LISTENER_NODE_WIDTH}px;
+        height: ${LISTENER_NODE_WIDTH}px;
+        border: ${NODE_BORDER_WIDTH}px solid
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 50%;
+        background-color: ${Colors.SURFACE_DIM};
+        color: ${Colors.ON_SURFACE};
     `;
 
     export const StyledButton = styled(Button)`
@@ -73,17 +66,24 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText)`
-        max-width: ${ACTOR_NODE_WIDTH - 50}px;
+    export const Header = styled.div`
+        position: absolute;
+        top: ${LISTENER_NODE_WIDTH + 8}px;
+        width: 100%;
+    `;
+
+    export const Title = styled(StyledText)<NodeStyleProp>`
+        /* max-width: ${(LISTENER_NODE_WIDTH * 3) / 2}px; */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
+        color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
     `;
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${ACTOR_NODE_WIDTH - 80}px;
+        max-width: ${LISTENER_NODE_WIDTH - 80}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
@@ -94,27 +94,19 @@ export namespace NodeStyles {
         opacity: 0.7;
     `;
 
-    export const Row = styled.div`
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    `;
-
     export const Hr = styled.hr`
         width: 100%;
     `;
 }
 
-interface ActorNodeWidgetProps {
-    model: ActorNodeModel;
+interface ListenerNodeWidgetProps {
+    model: ListenerNodeModel;
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ActorNodeWidgetProps, "children"> {}
+export interface NodeWidgetProps extends Omit<ListenerNodeWidgetProps, "children"> {}
 
-export function ActorNodeWidget(props: ActorNodeWidgetProps) {
+export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -123,16 +115,10 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
     };
 
     const getNodeIcon = () => {
-        switch (model.node.type) {
-            case "trigger":
-                return <AppIcon />;
-            case "schedule-task":
-                return <ClockIcon />;
-            case "task":
-            case "service":
-            default:
-                return <PersonIcon />;
+        if (model.node.type === AUTOMATION_LISTENER) {
+            return <ClockIcon />;
         }
+        return <ListenIcon />;
     };
 
     return (
@@ -142,13 +128,16 @@ export function ActorNodeWidget(props: ActorNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-            <NodeStyles.Row>
-                <NodeStyles.Header>
-                    <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
-                </NodeStyles.Header>
-            </NodeStyles.Row>
-            <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+            <NodeStyles.Circle hovered={isHovered}>
+                <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
+                <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
+                <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+            </NodeStyles.Circle>
+            <NodeStyles.Header>
+                {model.node.type !== AUTOMATION_LISTENER && (
+                    <NodeStyles.Title hovered={isHovered}>{model.node.type}</NodeStyles.Title>
+                )}
+            </NodeStyles.Header>
         </NodeStyles.Node>
     );
 }
