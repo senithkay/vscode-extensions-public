@@ -98,17 +98,23 @@ interface FormGroupProps {
     title: string;
     children?: React.ReactNode;
     isCollapsed?: boolean;
+    onToggle?: (collapsed: boolean) => void;
     sx?: any;
 }
 
-export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true, sx }) => {
+export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true, sx, onToggle }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
     useEffect(() => {
         setCollapsed(isCollapsed);
     }, [isCollapsed]);
 
-    const toggleCollapse = () => setCollapsed(!collapsed);
+    const toggleCollapse = () => {
+        if (onToggle) {
+            onToggle(!collapsed);
+        }
+        setCollapsed(!collapsed);
+    }
 
     return (
         <div className="form-group">

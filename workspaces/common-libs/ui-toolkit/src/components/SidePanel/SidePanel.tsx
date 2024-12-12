@@ -63,8 +63,8 @@ const SubPanelContainer = styled.div<SidePanelProps>`
     z-index: 1999;
     opacity: ${(props: SidePanelProps) => props.isSubPanelOpen ? 1 : 0};
     transform: translateX(${(props: SidePanelProps) => props.alignment === 'left'
-            ? (props.isSubPanelOpen ? '0%' : '-100%')
-            : (props.isSubPanelOpen ? '0%' : '100%')});
+        ? (props.isSubPanelOpen ? '0%' : '-100%')
+        : (props.isSubPanelOpen ? '0%' : '100%')});
     transition: transform 0.4s ease 0.1s, opacity 0.4s ease 0.1s;
 `;
 
