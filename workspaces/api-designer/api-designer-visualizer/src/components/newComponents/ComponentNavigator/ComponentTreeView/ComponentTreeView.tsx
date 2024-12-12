@@ -36,7 +36,18 @@ export function ComponentTreeView(props: PathTreeViewItemProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Components</Typography>
+                        <Typography 
+                            sx={{ 
+                                margin: "0 0 0 2px",
+                                fontWeight: 300,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }} 
+                            variant="h4"
+                        >
+                            Components
+                        </Typography>
                     </LeftPathContainer>
                 </PathContainer>
             }

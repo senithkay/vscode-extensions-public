@@ -17,10 +17,14 @@ export function ReadOnlyMediaType(props: MediaTypeProps) {
     const { mediaType } = props;
 
     return (
-        <ReadOnlySchemaEditor
-            schema={mediaType?.schema}
-            schemaName={mediaType?.schema?.type as string}
-            variant='h3'
-        />
+        <>
+            ({mediaType?.schema && 
+                <ReadOnlySchemaEditor
+                    schema={mediaType?.schema}
+                    schemaName={mediaType?.schema?.type as string}
+                    variant='h3'
+                />
+            })
+        </>
     )
 }

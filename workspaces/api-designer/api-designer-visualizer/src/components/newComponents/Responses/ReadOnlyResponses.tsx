@@ -31,12 +31,12 @@ export function ReadOnlyResponses(props: ResponsesProps) {
         <>
             <Typography sx={{ margin: 0 }} variant='h2'> Responses </Typography>
             {statusTabViewItems?.length > 0 && (
-                <Tabs views={statusTabViewItems} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
+                <Tabs views={statusTabViewItems} childrenSx={{paddingTop: 10}} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
                     {responses && Object.keys(responses)?.map((status) => (
                         <div id={status} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                             {isRefereceObject(responses[status]) ? (
                                 <>
-                                    {/* TODO: Add Readonly ReferenceObject component */}
+                                    <ReadOnlyResponse response={responses[status] as R} />
                                 </>
                             ) : (
                                 <ReadOnlyResponse

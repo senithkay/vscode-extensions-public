@@ -78,7 +78,18 @@ export function PathsTreeView(props: PathsTreeViewProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Paths</Typography>
+                        <Typography 
+                            sx={{ 
+                                margin: "0 0 0 2px",
+                                fontWeight: 300,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }} 
+                            variant="h4"
+                        >
+                            Paths
+                        </Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
                         <Button tooltip="Add Path" appearance="icon" onClick={handleAddPathMethod}><Codicon name="plus" /></Button>

@@ -42,13 +42,18 @@ interface MethodWrapperProps {
 const MethodWrapper = styled.div<MethodWrapperProps>`
     display: flex;
     width: fit-content;
+    border-radius: 2px;
     color: white;
     background-color: ${(props: MethodWrapperProps) => props.color};
 `;
 const PathWrapper = styled.div`
     display: flex;
     flex-direction: row;
+    border-radius: 2px;
     gap: 10px;
+    padding: 10px;
+    width: fit-content;
+    background-color: var(--vscode-quickInput-background);
 `;
 
 interface ReadOnlyOperationProps {
@@ -59,20 +64,19 @@ interface ReadOnlyOperationProps {
 
 export function ReadOnlyOperation(props: ReadOnlyOperationProps) {
     const { operation, method, path } = props;
-    const { rpcClient } = useVisualizerContext();
     return (
         <PanelBody>
             <PathWrapper>
-                    <MethodWrapper color={getColorByMethod(method)}>
-                        <Typography
-                            variant="h3"
-                            sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
-                        >
-                            {method.toUpperCase()}
-                        </Typography>
-                    </MethodWrapper>
-                    <Typography sx={{ margin: 0, marginTop: 4 }} variant="h3">{path}</Typography>
-                </PathWrapper>
+                <MethodWrapper color={getColorByMethod(method)}>
+                    <Typography
+                        variant="h3"
+                        sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
+                    >
+                        {method.toUpperCase()}
+                    </Typography>
+                </MethodWrapper>
+                <Typography sx={{ margin: 0, marginTop: 4 }} variant="h3">{path}</Typography>
+            </PathWrapper>
             { operation.summary && (
                 <>
                     <Typography sx={{ margin: 0 }} variant='h3'> Summary </Typography>
@@ -81,7 +85,6 @@ export function ReadOnlyOperation(props: ReadOnlyOperationProps) {
             )}
             { operation.description && (
                 <>
-                    <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
                     <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>
                         <MarkdownRenderer key="description" markdownContent={operation.description} />
                     </Typography>

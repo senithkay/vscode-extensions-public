@@ -16,7 +16,7 @@ import { BaseTypes, MediaTypes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor';
-import { Tabs, ViewItem } from '../Tabs/Tabs';
+import { ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';

@@ -231,12 +231,12 @@ export const ReadOnlySchemaEditor: React.FC<SchemaEditorProps> = (props: SchemaE
             {schema?.$ref && <Typography variant={"h3"} sx={{ margin: 0, fontWeight: "bold" }}>{schema.$ref.replace('#/components/schemas/', '')}</Typography>}
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                 <Typography variant={"h3"} sx={{ margin: 0, fontWeight: "bold" }}>{schemaName}</Typography>
-                {schema.type && <Typography variant={variant} sx={{ margin: "0 0 0 10px", fontWeight: "lighter" }}>{`<${schema.type}>`}</Typography>}
+                {schema?.type && <Typography variant={variant} sx={{ margin: "0 0 0 10px", fontWeight: "lighter" }}>{`<${schema.type}>`}</Typography>}
             </div>
-            {schema.type === 'object' && schema.properties && (
+            {schema?.type === 'object' && schema.properties && (
                 <SchemaProperties properties={schema.properties} onUpdate={handleSchemaUpdate} isRootElement />
             )}
-            {schema.type === 'array' && schema.items && (
+            {schema?.type === 'array' && schema.items && (
                 <div style={{ marginLeft: '20px' }}>
                     <ReadOnlySchemaEditor
                         schema={Array.isArray(schema.items) ? schema.items[0] : schema.items}

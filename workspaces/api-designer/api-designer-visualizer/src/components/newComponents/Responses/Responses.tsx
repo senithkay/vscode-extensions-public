@@ -131,7 +131,7 @@ export function Responses(props: ResponsesProps) {
                 }
             />
             {statusTabViewItems?.length > 0 ? (
-                <Tabs views={statusTabViewItems} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
+                <Tabs views={statusTabViewItems} childrenSx={{paddingTop: 10}} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
                     {responses && Object.keys(responses)?.map((status) => (
                         <div id={status} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                             <CheckBox

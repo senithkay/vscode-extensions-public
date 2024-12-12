@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeDataGrid } from '@vscode/webview-ui-toolkit/react';
+import { ParameterGridCell, ParamGridRow } from '../newComponents/Parameters/Parameters';
 
 export interface AccordionTableProps {
 	headers?: string[];
@@ -20,19 +21,19 @@ export function DataGrid(props: AccordionTableProps) {
     return (
         <>
             <VSCodeDataGrid>
-                <VSCodeDataGridRow row-type="header">
+                <ParamGridRow row-type="header">
                     {headers.map((header, index) => (
-                        <VSCodeDataGridCell key={index} cell-type="columnheader" grid-column={`${index + 1}`}>
+                        <ParameterGridCell key={index} cell-type="columnheader" grid-column={`${index + 1}`}>
                             {header}
-                        </VSCodeDataGridCell>
+                        </ParameterGridCell>
                     ))}
-                </VSCodeDataGridRow>
+                </ParamGridRow>
                 {content.map((row, i) => (
-                    <VSCodeDataGridRow key={i}>
+                    <ParamGridRow key={i}>
                         {row.map((cell, j) => (
-                            <VSCodeDataGridCell key={j} grid-column={`${j + 1}`}>{cell}</VSCodeDataGridCell>
+                            <ParameterGridCell key={j} grid-column={`${j + 1}`}>{cell}</ParameterGridCell>
                         ))}
-                    </VSCodeDataGridRow>
+                    </ParamGridRow>
                 ))}
             </VSCodeDataGrid>
         </>

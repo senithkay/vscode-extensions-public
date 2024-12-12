@@ -71,7 +71,6 @@ interface ChildrenContainerProps {
 const ChildrenContainer = styled.div<ChildrenContainerProps>`
     display: flex;
     flex-direction: column;
-    padding-top: 10px;
     ${(props: ChildrenContainerProps) => props.sx};
 `
 

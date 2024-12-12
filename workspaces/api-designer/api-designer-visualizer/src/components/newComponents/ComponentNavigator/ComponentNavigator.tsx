@@ -33,6 +33,7 @@ export const LeftPathContainer = styled.div`
     flex-direction: row;
     flex: 1;
     align-items: center;
+    width: 100%;
 `;
 export const RightPathContainerButtons = styled.div`
     display: flex;
@@ -52,6 +53,7 @@ export const PathContainer = styled.div`
     align-items: center;
     position: relative;
     cursor: pointer;
+    width: 100%;
     &:hover div.buttons-container {
         opacity: 1;
     }

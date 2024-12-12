@@ -85,7 +85,18 @@ export function ResponsesTreeView(props: ResponsesTreeViewProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Responses</Typography>
+                        <Typography
+                            sx={{ 
+                                margin: "0 0 0 2px",
+                                fontWeight: 300,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }}
+                            variant="h4"
+                        >
+                            Responses
+                        </Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
                         <Button tooltip="Add Response" appearance="icon" onClick={handleAddResponse}><Codicon name="plus" /></Button>

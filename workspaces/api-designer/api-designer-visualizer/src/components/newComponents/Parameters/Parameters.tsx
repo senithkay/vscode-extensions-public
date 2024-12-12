@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Parameter as P, ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { BaseTypes } from '../../../constants';
@@ -17,6 +17,7 @@ import { getUpdatedObjects } from '../Utils/OpenAPIUtils';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { RefComponent } from '../RefComponent/RefComponent';
+import { VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
 
 export const PanelBody = styled.div`
     padding: 16px;
@@ -25,13 +26,32 @@ export const PanelBody = styled.div`
     flex-direction: column;
 `;
 
+export const ParameterGridCell = styled(VSCodeDataGridCell)`
+    padding-left: 0px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    &:is(:active, :focus, :focus-visible) {
+        background-color: var(--vscode-background);
+        color: var(--vscode-foreground);
+        border-color: transparent;
+    }
+`;
+
+export const ParamGridRow = styled(VSCodeDataGridRow)`
+    &:hover {
+        background-color: var(--vscode-background);
+        color: var(--vscode-foreground);
+    }
+`;
+
 interface ParameterProps {
-    parameters: (P | R) [];
+    parameters: (P | R)[];
     paramTypes?: string[];
     currentReferences?: R[];
     title?: string;
     type: "query" | "header" | "path" | "cookie";
-    onParametersChange: (parameter: (P | R) []) => void;
+    onParametersChange: (parameter: (P | R)[]) => void;
 }
 
 enum ParameterTypes {
@@ -45,7 +65,7 @@ function isReferenceObject(obj: (P | R)): obj is R {
 
 export function Parameters(props: ParameterProps) {
     const { parameters, paramTypes = BaseTypes, title, type, currentReferences, onParametersChange } = props;
-    const { 
+    const {
         props: { openAPI },
     } = useContext(APIDesignerContext);
 
@@ -72,7 +92,7 @@ export function Parameters(props: ParameterProps) {
         return (
             <RefComponent
                 onChange={addNewReferenceObject}
-                dropdownWidth={157} 
+                dropdownWidth={157}
                 componnetHeight={32}
             />
         );
@@ -103,54 +123,70 @@ export function Parameters(props: ParameterProps) {
     ];
     if (type === "query" && componentQueryParamNames.length > 0 || (type === "header" && componentHeaderParamNames.length > 0) || (type === "path" && componentPathParamNames.length > 0)) {
         actionButtons.push(addReferenceParamButton());
-    } 
+    }
+
+    const paramsToGivenType = parameters?.filter((param) => {
+        if (isReferenceObject(param)) {
+            const paramName = param.$ref.replace("#/components/parameters/", "");
+            const parameterType = openAPI?.components?.parameters[paramName].in;
+            return parameterType === type;
+        } else {
+            return param.in === type;
+        }
+    });
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             <SectionHeader title={title} actionButtons={actionButtons} />
-            {parameters?.map((parameter, index) => {
-                if (type === parameter.in || isReferenceObject(parameter)) {
-                    if (isReferenceObject(parameter) && (type === "query" ? componentQueryParamNames.includes(parameter.$ref.replace("#/components/parameters/", "")) : type === "header" ? componentHeaderParamNames.includes(parameter.$ref.replace("#/components/parameters/", "")) : type === "path" ? componentPathParamNames.includes(parameter.$ref.replace("#/components/parameters/", "") ) : false)) {
-                        return (
-                            <ReferenceObject
-                                key={index}
-                                id={index}
-                                type={type}
-                                referenceObject={parameter}
-                                onRemoveReferenceObject={(id) => {
-                                    const parametersCopy = [...parameters];
-                                    parametersCopy.splice(id, 1);
-                                    handleParameterChange(parametersCopy as P[]);
-                                }}
-                                onRefernceObjectChange={(parameter) => {
-                                    const parametersCopy = [...parameters];
-                                    parametersCopy[index] = parameter;
-                                    handleParameterChange(parametersCopy as P[]);
-                                }}
-                            />
-                        );
-                    } else if (!isReferenceObject(parameter)) {
-                        return (
-                            <Parameter
-                                key={index}
-                                id={index}
-                                parameter={parameter as P}
-                                paramTypes={paramTypes}
-                                onRemoveParameter={(id) => {
-                                    const parametersCopy = [...parameters];
-                                    parametersCopy.splice(id, 1);
-                                    handleParameterChange(parametersCopy as P[]);
-                                }}
-                                onParameterChange={(parameter) => {
-                                    const parametersCopy = [...parameters];
-                                    parametersCopy[index] = parameter;
-                                    handleParameterChange(parametersCopy as P[]);
-                                }}
-                            />
-                        );
-                    }
-                }
-            })}
+            {paramsToGivenType?.length > 0 ? (
+                <>
+                    {parameters?.map((parameter, index) => {
+                        if (type === parameter.in || isReferenceObject(parameter)) {
+                            if (isReferenceObject(parameter) && (type === "query" ? componentQueryParamNames.includes(parameter.$ref.replace("#/components/parameters/", "")) : type === "header" ? componentHeaderParamNames.includes(parameter.$ref.replace("#/components/parameters/", "")) : type === "path" ? componentPathParamNames.includes(parameter.$ref.replace("#/components/parameters/", "")) : false)) {
+                                return (
+                                    <ReferenceObject
+                                        key={index}
+                                        id={index}
+                                        type={type}
+                                        referenceObject={parameter}
+                                        onRemoveReferenceObject={(id) => {
+                                            const parametersCopy = [...parameters];
+                                            parametersCopy.splice(id, 1);
+                                            handleParameterChange(parametersCopy as P[]);
+                                        }}
+                                        onRefernceObjectChange={(parameter) => {
+                                            const parametersCopy = [...parameters];
+                                            parametersCopy[index] = parameter;
+                                            handleParameterChange(parametersCopy as P[]);
+                                        }}
+                                    />
+                                );
+                            } else if (!isReferenceObject(parameter)) {
+                                return (
+                                    <Parameter
+                                        key={index}
+                                        id={index}
+                                        parameter={parameter as P}
+                                        paramTypes={paramTypes}
+                                        onRemoveParameter={(id) => {
+                                            const parametersCopy = [...parameters];
+                                            parametersCopy.splice(id, 1);
+                                            handleParameterChange(parametersCopy as P[]);
+                                        }}
+                                        onParameterChange={(parameter) => {
+                                            const parametersCopy = [...parameters];
+                                            parametersCopy[index] = parameter;
+                                            handleParameterChange(parametersCopy as P[]);
+                                        }}
+                                    />
+                                );
+                            }
+                        }
+                    })}
+                </>
+            ) : (
+                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>No {title}.</Typography>
+            )}
         </div>
     )
 }

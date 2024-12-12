@@ -58,12 +58,14 @@ export function ReadOnlyResponse(props: ResponseProps) {
                         title="Body"
                         variant='h3'
                         actionButtons={
-                            <Dropdown
-                                id="media-type-dropdown"
-                                value={selectedMediaType || "application/json"}
-                                items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
-                                onValueChange={(value) => setSelectedMediaType(value)}
-                            />
+                            (allMediaTypes?.length) > 0 && (
+                                <Dropdown
+                                    id="media-type-dropdown"
+                                    value={selectedMediaType || "application/json"}
+                                    items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
+                                    onValueChange={(value) => setSelectedMediaType(value)}
+                                />
+                            )
                         }
                     />
                     <div id={selectedMediaType}>
@@ -76,6 +78,9 @@ export function ReadOnlyResponse(props: ResponseProps) {
                     </div>
                 </SubSectionWrapper>
             </ContentWrapper>
+            {allMediaTypes?.length === 0 && (
+                <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body2'> No content available </Typography>
+            )}
         </ResponseTabContainer>
     )
 }

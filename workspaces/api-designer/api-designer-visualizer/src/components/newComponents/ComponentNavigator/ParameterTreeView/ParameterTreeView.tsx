@@ -80,7 +80,16 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Parameters</Typography>
+                        <Typography 
+                            sx={{ 
+                                margin: "0 0 0 2px",
+                                fontWeight: 300,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }}
+                            variant="h4">Parameters
+                        </Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
                         <Button tooltip="Add Parameter" appearance="icon" onClick={handleAddParameter}><Codicon name="plus" /></Button>

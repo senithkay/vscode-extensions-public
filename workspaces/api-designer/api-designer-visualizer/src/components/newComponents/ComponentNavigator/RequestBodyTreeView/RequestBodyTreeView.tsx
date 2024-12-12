@@ -85,7 +85,18 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Request Bodies</Typography>
+                        <Typography 
+                            sx={{ 
+                                margin: "0 0 0 2px",
+                                fontWeight: 300,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }}
+                            variant="h4"
+                        >
+                            Request Bodies
+                        </Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
                         <Button tooltip="Add Request Body" appearance="icon" onClick={handleAddRequestBody}><Codicon name="plus" /></Button>

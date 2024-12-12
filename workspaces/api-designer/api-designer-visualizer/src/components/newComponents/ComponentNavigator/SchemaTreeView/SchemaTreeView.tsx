@@ -76,7 +76,18 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             content={
                 <PathContainer>
                     <LeftPathContainer>
-                        <Typography sx={{ margin: "0 0 0 2px", fontWeight: 300 }} variant="h4">Schemas</Typography>
+                        <Typography 
+                            sx={{ 
+                                margin: "0 0 0 2px",
+                                fontWeight: 300,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                            }} 
+                            variant="h4"
+                        >
+                            Schemas
+                        </Typography>
                     </LeftPathContainer>
                     <RightPathContainerButtons className="buttons-container">
                         <Button tooltip="Add Schema" appearance="icon" onClick={handleAddSchema}><Codicon name="plus" /></Button>

@@ -34,6 +34,7 @@ const MethodWrapper = styled.div<MethodWrapperProps>`
     display: flex;
     width: fit-content;
     color: white;
+    border-radius: 2px;
     background-color: ${(props: MethodWrapperProps) => props.color};
 `;
 
@@ -68,7 +69,13 @@ export function ReadOnlyPathItem(props: PathItemProps) {
             {pathItem.description && (
                 <>
                     <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
-                    <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>
+                    <Typography 
+                        sx={{ 
+                            margin: 0, 
+                            fontWeight: "lighter"
+                        }} 
+                        variant='body3'
+                    >
                         <MarkdownRenderer key="description" markdownContent={pathItem.description} />
                     </Typography>
                 </>

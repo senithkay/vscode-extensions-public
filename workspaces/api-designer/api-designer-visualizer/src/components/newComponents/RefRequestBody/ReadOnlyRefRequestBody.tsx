@@ -37,7 +37,7 @@ export function ReadOnlyRefRequestBody(props: ReadOnlyReferenceObjectsProps) {
         <PanelBody>
             <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Request Body</Typography>
             <PathWrapper>
-                <Typography sx={{ margin: 0, marginTop: 4 }} variant="h3">{name}</Typography>
+                <Typography sx={{ margin: 0, marginTop: 4 }} variant="body3">{name}</Typography>
                 <ReadOnlyRequestBody requestBody={requestBody} />
             </PathWrapper>
         </PanelBody>

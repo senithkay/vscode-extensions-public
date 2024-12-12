@@ -12,6 +12,7 @@ import { Info as I } from '../../../Definitions/ServiceDefinitions';
 import ReactMarkdown from 'react-markdown';
 import { ReadOnlyContact } from '../Contact/ReadOnlyContact';
 import { ReadOnlyLicense } from '../License/ReadOnlyLisense';
+import { css, cx } from '@emotion/css';
 
 export const ContentWrapper = styled.div`
     display: flex;
@@ -24,11 +25,20 @@ const DescriptionWrapper = styled.div`
     flex-direction: column;
 `;
 
+export const Markdown = cx(css`
+    /* add paragraph styles */
+    p {
+        margin: 0;
+    }
+`);
+
+
 interface MarkdownRendererProps {
     markdownContent: string;
+    className?: string;
 }
-export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent }) => {
-    return <ReactMarkdown>{markdownContent}</ReactMarkdown>;
+export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownContent, className }) => {
+    return <ReactMarkdown className={className ? className : Markdown}>{markdownContent}</ReactMarkdown>;
 };
 
 interface ReadOnlyInfoProps {
@@ -61,7 +71,7 @@ export function ReadOnlyInfo(props: ReadOnlyInfoProps) {
             )}
             {info?.description && (
                 <DescriptionWrapper>
-                    <Typography sx={{ margin: 0 }} variant='h3'> Description </Typography>
+                    <Typography sx={{ margin: "0 0 10px 0" }} variant='h3'> Description </Typography>
                     <Typography sx={{ margin: 0, fontWeight: "lighter" }} variant='body3'>
                         <MarkdownRenderer key="description" markdownContent={info?.description} />
                     </Typography>

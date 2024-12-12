@@ -275,7 +275,7 @@ export function ReadOnlyResource(props: ReadOnlyResourceProps) {
                     <Typography sx={{ margin: 0 }} variant='h2'> Responses </Typography>
                     <ContentWrapper>
                         {statusTabViewItems?.length > 0 && (
-                            <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange} childrenSx={{ gap: 15 }}>
+                            <Tabs views={statusTabViewItems} currentViewId={selectedStatus} onViewChange={handleResponseCodeChange} childrenSx={{ gap: 15, paddingTop: 10 }}>
                                 {responseStatus.map((status: string) => (
                                     <div id={status}>
                                         <ResponseTabContainer>
