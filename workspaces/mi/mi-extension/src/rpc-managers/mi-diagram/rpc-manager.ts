@@ -3320,6 +3320,11 @@ ${endpointAttributes}
             }
 
             const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
+
+            if (fs.existsSync(destinationPath)) {
+                fs.unlinkSync(destinationPath); // Delete the existing file
+            }
+            
             await fs.promises.copyFile(connectorPath, destinationPath);
 
 
