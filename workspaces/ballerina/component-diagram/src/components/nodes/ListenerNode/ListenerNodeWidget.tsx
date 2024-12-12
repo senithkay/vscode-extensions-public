@@ -141,7 +141,6 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     };
 
     const getNodeTitle = () => {
-        console.log(">>> model symbol",model.node.symbol);
         if (model.node.symbol === "ANON") {
             return "";
         }

@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    DIRECTORY_MAP,
     EVENT_TYPE,
     MACHINE_VIEW,
     ProjectStructureResponse,
@@ -21,12 +20,10 @@ import {
     CDListener,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Diagram, EntryPoint } from "@wso2-enterprise/component-diagram";
+import { Diagram } from "@wso2-enterprise/component-diagram";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
-import { URI } from "vscode-uri";
-import { getEntryNodeIcon } from "../ComponentListView";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -48,12 +45,9 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const { projectName, projectStructure } = props;
 
     const [project, setProject] = useState<CDModel | null>(null);
-
     const { rpcClient } = useRpcContext();
 
-    console.log(">>> rendering component diagram");
     useEffect(() => {
-        console.log(">>> requesting design model");
         rpcClient
             .getBIDiagramRpcClient()
             .getDesignModel()

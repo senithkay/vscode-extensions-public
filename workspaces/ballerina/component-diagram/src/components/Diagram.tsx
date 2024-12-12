@@ -135,7 +135,6 @@ export function Diagram(props: DiagramProps) {
                 }
             });
         });
-        console.log(">>> nodes and links", { project, nodes, links });
 
         return { nodes, links };
     };
