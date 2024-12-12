@@ -21,7 +21,7 @@ import {
     RequiredFormInput,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from './HelperPane';
-import { modifyCompletion } from './utils';
+import { filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, modifyCompletion } from './utils';
 
 /**
  * Props for ExpressionEditor
@@ -95,6 +95,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [propertiesInfo, setPropertiesInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
+    const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
 
     const debouncedRetrieveCompletions = useCallback(
         async (expression: string, cursorPosition: number) => {
@@ -147,7 +150,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         handleCancel();
     };
 
-    const getHelperPaneInfo = useCallback(debounce(() => {
+    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
         rpcClient.getVisualizerState().then((machineView) => {
             rpcClient
                 .getMiDiagramRpcClient()
@@ -156,10 +159,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     position: nodeRange?.start
                 })
                 .then((response) => {
-                    setPayloadInfo(response.payload);
-                    setVariableInfo(response.variables);
-                    setPropertiesInfo(response.properties);
-                    setFunctionInfo(response.functions);
+                    switch (type) {
+                        case 'payload':
+                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
+                            break;
+                        case 'variables':
+                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
+                            break;
+                        case 'properties':
+                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
+                            break;
+                        case 'functions':
+                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
+                            break;
+                        case 'configs':
+                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
+                            break;
+                        case 'headers':
+                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
+                            break;
+                        case 'params':
+                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
+                            break;
+                    }
                 })
                 .finally(() => {
                     setIsLoadingHelperPaneInfo(false);
@@ -169,9 +191,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         [rpcClient, nodeRange?.start]
     );
 
-    const handleGetHelperPaneInfo = useCallback(() => {
+    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
         setIsLoadingHelperPaneInfo(true);
-        getHelperPaneInfo();
+        getHelperPaneInfo(type, filterText);
     }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
@@ -190,6 +212,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             variableInfo,
             propertiesInfo,
             functionInfo,
+            configInfo,
+            headerInfo,
+            paramInfo,
             () => setIsHelperPaneOpen(false),
             handleGetHelperPaneInfo,
             value,
