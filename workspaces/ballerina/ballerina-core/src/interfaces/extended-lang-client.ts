@@ -629,9 +629,7 @@ export interface BIDesignModelRequest {
 }
 
 export type BIDesignModelResponse = {
-    description: string;
-    projectPath: string;
-    output: { designModel: CDModel };
+    designModel: CDModel;
 };
 
 export interface SequenceModelRequest {

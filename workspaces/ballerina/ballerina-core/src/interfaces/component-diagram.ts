@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { LinePosition } from "./common";
+import { LineRange } from "./common";
 
 // Component Diagram Model
 export type CDModel = {
-    automation: CDAutomation;
+    automation?: CDAutomation;
     connections: CDConnection[];
     listeners: CDListener[];
     services: CDService[];
@@ -25,7 +25,7 @@ export type CDAutomation = {
     uuid: string;
 };
 
-export type CDLocation = LinePosition & {
+export type CDLocation = LineRange & {
     filePath: string;
 };
 
