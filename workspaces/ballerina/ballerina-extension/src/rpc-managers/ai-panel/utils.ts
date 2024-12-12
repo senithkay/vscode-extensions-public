@@ -35,6 +35,7 @@ const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
 let nestedKeyArray: string[] = [];
+let isCheckError: boolean = false;
 
 export interface ParameterMetadata {
     inputs: object;
@@ -242,14 +243,15 @@ export async function processMappings(
         return codeObject as ErrorCode;
     }
 
-    let codeString: string = constructRecord(codeObject);
+    const { recordString, isCheckError } = constructRecord(codeObject);
+    let codeString: string;
     if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
         const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
         const paramName = parameter.paramName.value;
-        codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
-        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+        const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
+        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
     } else {
-        codeString = `=> ${codeString};`;
+        codeString = isCheckError ? `|error=> ${recordString};` : `=> ${recordString};`;
     }
 
     const modifications: STModification[] = [];
@@ -581,26 +583,32 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
     }
 }
 
-export function constructRecord(codeObject: object): string {
+export function constructRecord(codeObject: object): { recordString: string; isCheckError: boolean } {
     let recordString: string = ""; 
     let objectKeys = Object.keys(codeObject);
     for (let index = 0; index < objectKeys.length; index++) {
         let key = objectKeys[index];
         let mapping = codeObject[key];
-        if (typeof codeObject[key] == "string") {
-            if (recordString != "") {
+        if (typeof mapping === "string") {
+            if (mapping.includes("check ")) {
+                isCheckError = true; 
+            }
+            if (recordString !== "") {
                 recordString += ",\n";
             }
             recordString += `${key}:${mapping}`;
         } else {
-            let subRecordString = constructRecord(codeObject[key]);
-            if (recordString != "") {
+            let subRecordResult = constructRecord(mapping);
+            if (subRecordResult.isCheckError) {
+                isCheckError = true; 
+            }
+            if (recordString !== "") {
                 recordString += ",\n";
             }
-            recordString += `${key}:${subRecordString}`;
+            recordString += `${key}:${subRecordResult.recordString}`;
         }
     }
-    return `{${recordString}}`;
+    return { recordString: `{${recordString}}`, isCheckError };
 }
 
 export function getFunction(modulePart: ModulePart, functionName: string) {
