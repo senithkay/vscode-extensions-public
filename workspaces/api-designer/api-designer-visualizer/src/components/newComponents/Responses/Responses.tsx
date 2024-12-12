@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Responses as Rs, Response as R, ReferenceObject as Ro } from '../../../Definitions/ServiceDefinitions';
 import { ReactNode, useContext, useEffect, useState } from 'react';
 import { Tabs, ViewItem } from '../../Tabs/Tabs';
@@ -53,18 +53,9 @@ export function Responses(props: ResponsesProps) {
         const modifiedResponses = { ...responses, [selectedStatusCode]: newReponse };
         handleResponsesChange(modifiedResponses);
     };
-    const addReferenceParamButton: ReactNode = (
-        <RefComponent
-            buttonSx={{height: 15, marginLeft: 4, color: "var(--vscode-focusBorder)"}}
-            onChange={handleMoreOptionsClick}
-            dropdownWidth={157}
-            componnetHeight={32}
-        />
-    );
     const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ 
         id: statusCode,
-        name: statusCode,
-        moreOptions: componentResponseNames ? addReferenceParamButton : undefined
+        name: statusCode
     }));
     const statusCode: string[] = statusCodes && statusCodes?.map((status) => {
         const statusValue = StatusCodes[status as keyof typeof StatusCodes]; // Type assertion added here
@@ -109,6 +100,19 @@ export function Responses(props: ResponsesProps) {
         })
     };
 
+    const handleIsReferenceChange = (checked: boolean) => {
+        const newResponses: Rs = {
+            ...responses,
+            [selectedStatusCode]: checked ? {
+                $ref: `#/components/responses/${componentResponseNames[0]}`, summary: "", description: ""
+            } :
+                {
+                    description: "", content: {}
+                }
+        };
+        handleResponsesChange(newResponses);
+    }
+
     useEffect(() => {
         if (statusCodes && !statusCodes.includes(selectedStatusCode)) {
             setSelectedStatusCode(statusCodes[0]);
@@ -130,6 +134,15 @@ export function Responses(props: ResponsesProps) {
                 <Tabs views={statusTabViewItems} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
                     {responses && Object.keys(responses)?.map((status) => (
                         <div id={status} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                            <CheckBox
+                                label='Is Reference?'
+                                sx={{
+                                    marginTop: 10,
+                                    marginBottom: 0
+                                }}
+                                checked={isRefereceObject(responses[status])}
+                                onChange={(checked) => handleIsReferenceChange(checked)}
+                            />
                             {isRefereceObject(responses[status]) ? (
                                     <ReferenceObject
                                         id={0}

@@ -92,7 +92,7 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
     return (
         <HorizontalFieldWrapper>
             <LabelContainer>
-                <Typography variant="caption" color="textSecondary">Reference Object</Typography>
+                <Typography variant="caption" color="textSecondary">Reference</Typography>
             </LabelContainer>
             <Dropdown
                 id={`paramType-${referenceObject.$ref}`}
