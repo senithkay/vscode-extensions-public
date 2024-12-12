@@ -95,7 +95,7 @@ const HelperPaneEl = ({
                     isLoading={isLoadingHelperPaneInfo}
                     propertiesInfo={attributesInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('attributes', filterText)}
+                    setFilterText={(filterText) => setFilterText('properties', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
