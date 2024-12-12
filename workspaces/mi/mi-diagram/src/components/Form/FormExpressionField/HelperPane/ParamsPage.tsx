@@ -12,23 +12,23 @@ import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-t
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
 import { getHelperPaneCompletionItem } from '../utils';
 
-type PropertiesPageProps = {
+type ParamsPageProps = {
     isLoading: boolean;
-    propertiesInfo: HelperPaneCompletionItem[];
+    paramInfo: HelperPaneCompletionItem[];
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const PropertiesPage = ({
+export const ParamsPage = ({
     isLoading,
-    propertiesInfo,
+    paramInfo,
     setCurrentPage,
     setFilterText,
     onClose,
     onChange
-}: PropertiesPageProps) => {
+}: ParamsPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
 
@@ -49,15 +49,15 @@ export const PropertiesPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Properties"
+                title="Params"
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                {propertiesInfo?.map((property) => (
-                    getHelperPaneCompletionItem(property, onChange, getCompletionItemIcon) 
+                {paramInfo?.map((param) => (
+                    getHelperPaneCompletionItem(param, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>
