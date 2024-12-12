@@ -658,11 +658,18 @@ export function FormGenerator(props: FormGeneratorProps) {
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
                 {formData.help && (
-                    <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
+                    <div style={{
+                        padding: "10px",
+                        marginBottom: "20px",
+                        borderBottom: "1px solid var(--vscode-editorWidget-border)",
+                        display: "flex",
+                        flexDirection: 'row'
+                    }}>
                         {typeof formData.help === 'string' && formData.help.includes('<')
                             ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
+                        {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}
                     </div>
                 )}
                 {renderForm(formData.elements)}
