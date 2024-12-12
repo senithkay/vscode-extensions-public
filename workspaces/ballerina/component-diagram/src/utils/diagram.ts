@@ -15,16 +15,7 @@ import { NodeModel } from "./types";
 import { EntryNodeFactory, EntryNodeModel } from "../components/nodes/EntryNode";
 import { ConnectionNodeFactory } from "../components/nodes/ConnectionNode/ConnectionNodeFactory";
 import { ListenerNodeFactory } from "../components/nodes/ListenerNode/ListenerNodeFactory";
-import {
-    LISTENER_NODE_WIDTH,
-    ACTOR_SUFFIX,
-    ENTRY_NODE_HEIGHT,
-    NODE_GAP_Y,
-    NODE_PADDING,
-    NodeTypes,
-    NODE_GAP_X,
-    ENTRY_NODE_WIDTH,
-} from "../resources/constants";
+import { LISTENER_NODE_WIDTH, NodeTypes, NODE_GAP_X, ENTRY_NODE_WIDTH } from "../resources/constants";
 import { ListenerNodeModel } from "../components/nodes/ListenerNode";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 
@@ -55,7 +46,6 @@ export function autoDistribute(engine: DiagramEngine) {
     const dagreEngine = genDagreEngine();
     dagreEngine.redistribute(model);
 
-    
     // reposition listener nodes
     const listenerX = 250;
     model.getNodes().forEach((node) => {

@@ -18,14 +18,34 @@ import { ClockIcon, ListenIcon } from "../../../resources";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
+        inactive?: boolean;
     };
     export const Node = styled.div<NodeStyleProp>`
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        height: ${LISTENER_NODE_WIDTH}px;
+        color: ${Colors.ON_SURFACE};
+        cursor: pointer;
+    `;
+
+    export const Column = styled.div<NodeStyleProp>`
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    `;
+
+    export const Header = styled.div`
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        color: ${Colors.ON_SURFACE};
-        cursor: pointer;
+        gap: 6px;
+        padding: 8px;
     `;
 
     export const Circle = styled.div<NodeStyleProp>`
@@ -47,11 +67,15 @@ export namespace NodeStyles {
         right: 6px;
     `;
 
-    export const TopPortWidget = styled(PortWidget)`
+    export const MenuButton = styled(Button)`
+        border-radius: 5px;
+    `;
+
+    export const LeftPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
 
-    export const BottomPortWidget = styled(PortWidget)`
+    export const RightPortWidget = styled(PortWidget)`
         margin-bottom: -2px;
     `;
 
@@ -66,19 +90,14 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Header = styled.div`
-        position: absolute;
-        top: ${LISTENER_NODE_WIDTH + 8}px;
-        width: 100%;
-    `;
-
     export const Title = styled(StyledText)<NodeStyleProp>`
-        /* max-width: ${(LISTENER_NODE_WIDTH * 3) / 2}px; */
+        max-width: ${LISTENER_NODE_WIDTH}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: "GilmerMedium";
         color: ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.ON_SURFACE)};
+        opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
     `;
 
     export const Description = styled(StyledText)`
@@ -121,6 +140,21 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
         return <ListenIcon />;
     };
 
+    const getNodeTitle = () => {
+        console.log(">>> model symbol",model.node.symbol);
+        if (model.node.symbol === "ANON") {
+            return "";
+        }
+        return model.node.symbol;
+    };
+
+    const getNodeDescription = () => {
+        if (model.node.type === AUTOMATION_LISTENER) {
+            return "Schedule";
+        }
+        return "HTTP Listener";
+    };
+
     return (
         <NodeStyles.Node
             hovered={isHovered}
@@ -128,16 +162,17 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.Circle hovered={isHovered}>
-                <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
-                <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
-                <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
-            </NodeStyles.Circle>
-            <NodeStyles.Header>
-                {model.node.type !== AUTOMATION_LISTENER && (
-                    <NodeStyles.Title hovered={isHovered}>{model.node.type}</NodeStyles.Title>
-                )}
-            </NodeStyles.Header>
+            <NodeStyles.Column hovered={isHovered}>
+                <NodeStyles.Circle hovered={isHovered}>
+                    <NodeStyles.LeftPortWidget port={model.getPort("in")!} engine={engine} />
+                    <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
+                    <NodeStyles.RightPortWidget port={model.getPort("out")!} engine={engine} />
+                </NodeStyles.Circle>
+                <NodeStyles.Header>
+                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
+                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
+                </NodeStyles.Header>
+            </NodeStyles.Column>
         </NodeStyles.Node>
     );
 }
