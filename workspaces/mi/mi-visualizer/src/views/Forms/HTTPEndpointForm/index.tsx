@@ -17,7 +17,6 @@ import * as yup from "yup";
 import { initialEndpoint, InputsFields, paramTemplateConfigs, propertiesConfigs, oauthPropertiesConfigs } from "./Types";
 import { TypeChip } from "../Commons";
 import Form from "./Form";
-import AddToRegistry, { formatRegistryPath, getArtifactNamesAndRegistryPaths, saveToRegistry } from "../AddToRegistry";
 
 export interface HttpEndpointWizardProps {
     path: string;
@@ -35,10 +34,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 .test('validateEndpointName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                    })
-                .test('validateEndpointArtifactName',
-                    'A registry resource with this artifact name already exists', value => {
-                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().required("Endpoint Name is required")
                 .matches(/^[^@\\^+;:!%&,=*#[\]?'"<>{}() /]*$/, "Invalid characters in Endpoint Name"),
@@ -133,10 +128,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 .test('validateTemplateName',
                     'An artifact with same name already exists', value => {
                         return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                    })
-                .test('validateTemplateArtifactName',
-                    'A registry resource with this artifact name already exists', value => {
-                        return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                     }) :
             yup.string().notRequired().default(""),
         requireTemplateParameters: yup.boolean(),
@@ -149,35 +140,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
         clientSecretExpression: yup.boolean().notRequired().default(false),
         tokenUrlExpression: yup.boolean().notRequired().default(false),
         refreshTokenExpression: yup.boolean().notRequired().default(false),
-        saveInReg: yup.boolean(),
-        artifactName: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Artifact Name is required")
-                    .test('validateArtifactName',
-                        'Artifact name already exists', value => {
-                            return !artifactNames.includes(value);
-                        })
-                    .test('validateFileName',
-                        'A file already exists in the workspace with this artifact name', value => {
-                            return !workspaceFileNames.includes(value);
-                        }),
-        }),
-        registryPath: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Registry Path is required")
-                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
-                        const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("endpointName"));
-                        if (formattedPath === undefined) return true;
-                        return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                    }),
-        }),
-        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"])
     });
 
     const {
@@ -200,8 +162,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
     const [templateParams, setTemplateParams] = useState(paramTemplateConfigs);
     const [additionalParams, setAdditionalParams] = useState(propertiesConfigs);
     const [additionalOauthParams, setAdditionalOauthParams] = useState(oauthPropertiesConfigs);
-    const [artifactNames, setArtifactNames] = useState([]);
-    const [registryPaths, setRegistryPaths] = useState([]);
     const [savedEPName, setSavedEPName] = useState<string>("");
     const [workspaceFileNames, setWorkspaceFileNames] = useState([]);
     const [prevName, setPrevName] = useState<string | null>(null);
@@ -256,7 +216,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 setValue('tokenUrl', removeBraces(watch('tokenUrl'), 'tokenUrlExpression'));
                 setValue('refreshToken', removeBraces(watch('refreshToken'), 'refreshTokenExpression'));
                 setSavedEPName(isTemplate ? existingEndpoint.templateName : existingEndpoint.endpointName);
-                setValue('saveInReg', false);
                 setValue('timeoutAction', existingEndpoint.timeoutAction === '' ? 'Never' :
                     existingEndpoint.timeoutAction.charAt(0).toUpperCase() + existingEndpoint.timeoutAction.slice(1)
                 );
@@ -265,9 +224,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 isTemplate ? setValue("endpointName", "$name") : setValue("endpointName", "");
             }
 
-            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
-            setArtifactNames(result.artifactNamesArr);
-            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
@@ -277,15 +233,12 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
 
     useEffect(() => {
         setPrevName(isTemplate ? watch("templateName") : watch("endpointName"));
-        if (prevName === watch("artifactName")) {
-            setValue("artifactName", isTemplate ? watch("templateName") : watch("endpointName"));
-        }
     }, [isTemplate ? watch("templateName") : watch("endpointName")]);
 
     const handleUpdateHttpEndpoint = async (values: any) => {
         const updateHttpEndpointParams: UpdateHttpEndpointRequest = {
             directory: props.path,
-            getContentOnly: watch("saveInReg"),
+            getContentOnly: false,
             ...values,
             basicAuthUsername: addBracesIfExpressionNotBlank(values.basicUsernameExpression, values.basicAuthUsername),
             basicAuthPassword: addBracesIfExpressionNotBlank(values.basicPasswordExpression, values.basicAuthPassword),
@@ -297,12 +250,7 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
             refreshToken: addBracesIfExpressionNotBlank(values.refreshTokenExpression, values.refreshToken)
         }
 
-        const result = await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
-        if (watch("saveInReg")) {
-            await saveToRegistry(rpcClient, props.path, values.registryType,
-                isTemplate ? values.templateName : values.endpointName,
-                result.content, values.registryPath, values.artifactName);
-        }
+        await rpcClient.getMiDiagramRpcClient().updateHttpEndpoint(updateHttpEndpointParams);
 
         if (props.isPopup) {
             rpcClient.getMiVisualizerRpcClient().openView({
@@ -395,20 +343,6 @@ export function HttpEndpointWizard(props: HttpEndpointWizardProps) {
                 additionalOauthParams={additionalOauthParams}
                 setAdditionalOauthParams={setAdditionalOauthParams}
             />
-            {isNewEndpoint && (
-                <>
-                    <FormCheckBox
-                        label="Save the endpoint in registry"
-                        {...register("saveInReg")}
-                        control={control}
-                    />
-                    {watch("saveInReg") && (<>
-                        <AddToRegistry path={props.path}
-                            fileName={isTemplate ? watch("templateName") : watch("endpointName")}
-                            register={register} errors={errors} getValues={getValues} />
-                    </>)}
-                </>
-            )}
             <FormActions>
                 <Button
                     appearance="secondary"

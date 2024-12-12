@@ -23,7 +23,8 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 interface ModuleSuggestionProps {
     documentUri: string;
     searchValue?: string;
-    onDownloadSuccess: () => void;
+    localConnectors: any;
+    reloadMediatorPalette: () => void;
 }
 
 export const OperationsWrapper = styled.div`
@@ -35,14 +36,9 @@ export const OperationsWrapper = styled.div`
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { localConnectors } = props;
     const [filteredModules, setFilteredModules] = React.useState<any[]>([]);
-    const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
-
-    React.useEffect(() => {
-        fetchLocalConnectorData();
-    }, []);
 
     React.useEffect(() => {
         const debouncedSearchModules = debounce(async () => {
@@ -59,15 +55,6 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
         debouncedSearchModules();
     }, [props.searchValue]);
 
-    const fetchLocalConnectorData = async () => {
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
-        if (connectorData) {
-            setLocalConnectors(connectorData.connectors);
-        } else {
-            setLocalConnectors([]);
-        }
-    };
-
     const searchModules = async () => {
         try {
             const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', props.searchValue)}`);
@@ -80,7 +67,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
     };
 
     const downloadModule = (module: any) => {
-        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.onDownloadSuccess} />;
+        const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} />;
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };

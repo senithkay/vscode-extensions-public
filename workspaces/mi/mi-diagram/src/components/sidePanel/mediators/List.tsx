@@ -33,20 +33,22 @@ export function Mediators(props: MediatorProps) {
     const { rpcClient } = useVisualizerContext();
     const [allMediators, setAllMediators] = React.useState<GetMediatorsResponse>();
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
-    const [connectorData, setConnectorData] = React.useState<any[]>([]);
+    const [connectorIcons, setConnectorIcons] = React.useState<any[]>([]);
+    const [localConnectors, setLocalConnectors] = React.useState<any>();
 
     useEffect(() => {
-        const fetchConnectors = async () => {
+        const fetchConnectorIcons = async () => {
             try {
                 const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
-                setConnectorData(connectorDataResponse.outboundConnectors);
+                setConnectorIcons(connectorDataResponse.outboundConnectors);
             } catch (error) {
                 console.error("Failed to fetch connector data:", error);
             }
         };
 
         fetchMediators();
-        fetchConnectors();
+        fetchLocalConnectorData();
+        fetchConnectorIcons();
     }, [props.documentUri, props.nodePosition, rpcClient]);
 
     const fetchMediators = async () => {
@@ -61,6 +63,15 @@ export function Mediators(props: MediatorProps) {
             setAllMediators(undefined);
         }
         setIsLoading(false);
+    };
+
+    const fetchLocalConnectorData = async () => {
+        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.documentUri, connectorName: "" });
+        if (connectorData) {
+            setLocalConnectors(connectorData.connectors);
+        } else {
+            setLocalConnectors([]);
+        }
     };
 
     const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
@@ -86,7 +97,7 @@ export function Mediators(props: MediatorProps) {
     }
 
     function getConnectorIconUrl(connectorName: string) {
-        const connector = connectorData.find(c => c.name === connectorName);
+        const connector = connectorIcons.find(c => c.name === connectorName);
         return connector?.icon_url ?
             <img src={connector.icon_url} alt="Icon" onError={() => <Icon name="connector" sx={{ color: "#D32F2F" }} />} /> 
             : <Icon name="connector" sx={{ color: "#D32F2F" }} />;
@@ -113,8 +124,18 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
+    const reloadPalette = () => {
+        fetchMediators();
+        fetchLocalConnectorData();
+    };
+
     const addModule = () => {
-        const modulesList = <Modules nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
+        const modulesList = <Modules
+            nodePosition={props.nodePosition}
+            trailingSpace={props.trailingSpace}
+            documentUri={props.documentUri}
+            localConnectors={localConnectors}
+            reloadMediatorPalette={reloadPalette} />;
         const icon = <Codicon name="library" iconSx={{ fontSize: 20, color: 'var(--vscode-textLink-foreground)' }} />
 
         sidepanelAddPage(sidePanelContext, modulesList, 'Modules', icon);
@@ -173,7 +194,8 @@ export function Mediators(props: MediatorProps) {
                         <ModuleSuggestions
                             documentUri={props.documentUri}
                             searchValue={props.searchValue}
-                            onDownloadSuccess={fetchMediators} />
+                            localConnectors={localConnectors}
+                            reloadMediatorPalette={reloadPalette} />
                     </>
                 )
             }

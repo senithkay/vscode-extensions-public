@@ -251,7 +251,8 @@ import {
     getConnectionSchema,
     CopyConnectorZipRequest,
     copyConnectorZip,
-    ApplyEditsRequest
+    ApplyEditsRequest,
+    askOpenAPIDirPath
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -318,6 +319,7 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(askProjectDirPath, () => rpcManger.askProjectDirPath());
     messenger.onRequest(askProjectImportDirPath, () => rpcManger.askProjectImportDirPath());
     messenger.onRequest(askFileDirPath, () => rpcManger.askFileDirPath());
+    messenger.onRequest(askOpenAPIDirPath, () => rpcManger.askOpenAPIDirPath());
     messenger.onRequest(createProject, (args: CreateProjectRequest) => rpcManger.createProject(args));
     messenger.onRequest(importProject, (args: ImportProjectRequest) => rpcManger.importProject(args));
     messenger.onRequest(migrateProject, (args: MigrateProjectRequest) => rpcManger.migrateProject(args));

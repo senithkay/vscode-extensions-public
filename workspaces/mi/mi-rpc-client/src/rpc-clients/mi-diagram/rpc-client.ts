@@ -356,7 +356,8 @@ import {
     GetConnectionSchemaResponse,
     CopyConnectorZipRequest,
     CopyConnectorZipResponse,
-    copyConnectorZip
+    copyConnectorZip,
+    askOpenAPIDirPath
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -606,6 +607,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     askFileDirPath(): Promise<FileDirResponse> {
         return this._messenger.sendRequest(askFileDirPath, HOST_EXTENSION);
+    }
+
+    askOpenAPIDirPath(): Promise<FileDirResponse> {
+        return this._messenger.sendRequest(askOpenAPIDirPath, HOST_EXTENSION);
     }
 
     createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {

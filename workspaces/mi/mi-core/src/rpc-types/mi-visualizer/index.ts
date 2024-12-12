@@ -35,6 +35,7 @@ import {
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -78,5 +79,5 @@ export interface MIVisualizerAPI {
     updatePomValues: (params: UpdatePomValuesRequest) => Promise<boolean>;
     updateConfigFileValues: (params: UpdateConfigValuesRequest) => Promise<boolean>;
     updateConnectorDependencies: () => Promise<string>;
-    importOpenAPISpec: () => Promise<void>;
+    importOpenAPISpec: (params: ImportOpenAPISpecRequest) => Promise<void>;
 }
