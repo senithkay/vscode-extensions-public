@@ -19,6 +19,8 @@ import { APIS, ERROR_MESSAGES } from '../../../resources/constants';
 import { OperationsWrapper } from '../mediators/ModuleSuggestions';
 import { DownloadPage } from '../mediators/DownloadPage';
 import { debounce } from 'lodash';
+import styled from '@emotion/styled';
+import { VSCodeLink } from '@vscode/webview-ui-toolkit/react';
 
 const SearchStyle = {
     width: 'auto',
@@ -29,6 +31,16 @@ const SearchStyle = {
         borderRadius: '5px',
     },
 };
+
+const LoaderWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 15px;
+    height: 100px;
+    width: 100%;
+`;
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
@@ -49,21 +61,26 @@ export function Modules(props: ModuleProps) {
     const [searchValue, setSearchValue] = React.useState<string>('');
 
     useEffect(() => {
-        const fetchModules = async () => {
-            try {
-                const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
-                const data = response.connectors;
-
-                setAllModules(data);
-            } catch (error) {
-                console.error('Error fetching mediators:', error);
-                setAllModules(undefined);
-            }
-            setIsLoading(false);
-        };
-        
         fetchModules();
     }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    const fetchModules = async () => {
+        try {
+            if (navigator.onLine) {
+                const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+                const data = response.connectors;
+                setAllModules(data);
+            } else {
+                console.error('No internet connection. Unable to fetch modules.');
+                setAllModules(undefined);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Error fetching mediators:', error);
+            setAllModules(undefined);
+        }
+        setIsLoading(false);
+    };
 
     React.useEffect(() => {
         const debouncedSearchModules = debounce(async () => {
@@ -108,7 +125,11 @@ export function Modules(props: ModuleProps) {
         }
 
         if (!modules || !Array.isArray(modules)) {
-            return <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_MEDIATORS} />;
+            return (
+                <LoaderWrapper>
+                    <span>Failed to fetch store connectors. Please <VSCodeLink onClick={fetchModules}>retry</VSCodeLink></span>
+                </LoaderWrapper>
+            );
         }
 
         return Object.keys(modules).length === 0 ? <h3 style={{ textAlign: "center" }}>No modules found</h3> :

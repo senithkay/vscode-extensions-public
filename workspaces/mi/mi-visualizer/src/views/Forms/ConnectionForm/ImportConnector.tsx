@@ -177,7 +177,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                     <ErrorBanner errorMsg={"Invalid file type. Please select an OpenAPI specification"} />
                                 } 
                                 <LocationSelector
-                                    label="Choose path to openAPI specification"
+                                    label="Choose path to OpenAPI specification"
                                     selectedFile={openApiDir}
                                     required
                                     onSelect={handleOpenAPIDirSelection}

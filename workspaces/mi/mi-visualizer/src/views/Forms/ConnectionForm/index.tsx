@@ -178,11 +178,15 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     const fetchStoreConnectors = async () => {
         setIsFetchingStoreConnectors(true);
         try {
-            const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
-            const data = response.connectors;
+            if (navigator.onLine) {
+                const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+                const data = response.connectors;
 
-            if (data) {
-                setStoreConnectors(data);
+                if (data) {
+                    setStoreConnectors(data);
+                } else {
+                    setStoreConnectors(null);
+                }
             } else {
                 setStoreConnectors(null);
             }
@@ -206,10 +210,8 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     useEffect(() => {
         const debouncedSearchModules = debounce(async () => {
             if (searchValue) {
-                if (localConnectors && storeConnectors) {
-                    setFilteredLocalConnectors(searchConnectors(localConnectors));
-                    setFilteredStoreConnectors(searchStoreConnectors(storeConnectors));
-                }
+                localConnectors && setFilteredLocalConnectors(searchConnectors(localConnectors));
+                storeConnectors && setFilteredStoreConnectors(searchStoreConnectors(storeConnectors));
             }
         }, 300);
 
@@ -234,7 +236,21 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     };
 
     const searchConnectors = (connectors: any[]) => {
-        return connectors?.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
+        if (!searchValue) return storeConnectors;
+
+        const searchTerm = searchValue.toLowerCase();
+
+        return connectors.filter(connector => {
+            // First check if connector name matches
+            if (connector.name.toLowerCase().includes(searchTerm)) {
+                return true;
+            }
+
+            // If connector name doesn't match, check connection names
+            return Object.keys(connector.connectionUiSchema).some(
+                (key) => key.toLowerCase().includes(searchTerm)
+            );
+        });
     }
 
     const searchStoreConnectors = (storeConnectors: any[]) => {
@@ -263,27 +279,6 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
         setConOnconfirmation({ connector, connectionType });
     }
 
-    const downloadStoreConnector = async (connector: any) => {
-        setIsDownloading(true);
-        let downloadSuccess = false;
-        let attempts = 0;
-
-        while (!downloadSuccess && attempts < 3) {
-            try {
-                await rpcClient.getMiDiagramRpcClient().downloadConnector({
-                    url: connector.download_url
-                });
-                downloadSuccess = true;
-            } catch (error) {
-                console.error('Error occurred while downloading connector:', error);
-                attempts++;
-            }
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        setIsDownloading(false);
-    }
-
     const findAllowedConnectionTypes = (elements: any[]): string[] | undefined => {
         for (let element of elements) {
             if (element.type === 'attribute' && element.value.inputType === 'connection') {
@@ -303,11 +298,6 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
     function capitalizeFirstChar(name: string) {
         if (!name) return '';
         return name.charAt(0).toUpperCase() + name.slice(1);
-    }
-
-    function existsInLocalConnectors(connector: any) {
-        return localConnectors?.some(localConnector =>
-            localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
     }
 
     const changeConnector = () => {
