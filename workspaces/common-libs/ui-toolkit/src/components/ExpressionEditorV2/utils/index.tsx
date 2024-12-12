@@ -13,11 +13,26 @@ import { Codicon } from '../../Codicon/Codicon';
 
 export const checkCursorInFunction = (text: string, cursorPosition: number) => {
     const effectiveText = text.substring(0, cursorPosition);
-    const effectiveOpenBracketCount = (effectiveText.match(/\(/g) || []).length;
-    const effectiveCloseBracketCount = (effectiveText.match(/\)/g) || []).length;
-    const cursorInFunction = effectiveOpenBracketCount > effectiveCloseBracketCount;
 
-    return cursorInFunction;
+    let cursorInFunction = false;
+    let functionName = null;
+    let closeBracketCount = 0;
+    for (let i = effectiveText.length - 1; i >= 0; i--) {
+        if (effectiveText[i] === ')') {
+            closeBracketCount++;
+        } else if (effectiveText[i] === '(') {
+            if (closeBracketCount === 0) {
+                cursorInFunction = true;
+                const functionMatch = effectiveText.substring(0, i).match(/((?:\w|')*)$/);
+                functionName = functionMatch ? functionMatch[1] : null;
+                break;
+            } else {
+                closeBracketCount--;
+            }
+        }
+    }
+
+    return { cursorInFunction, functionName };
 };
 
 export const addClosingBracketIfNeeded = (text: string) => {
