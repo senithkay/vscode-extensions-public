@@ -10,6 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
+import { traverseHelperPaneCompletionItem } from '../utils';
 
 type ConfigsPageProps = {
     isLoading: boolean;
@@ -43,6 +44,8 @@ export const ConfigsPage = ({
         setSearchValue(searchText);
     };
 
+    const getCompletionItemIcon = () => getIcon(COMPLETION_ITEM_KIND.Variable);
+
     return (
         <>
             <HelperPane.Header
@@ -54,11 +57,7 @@ export const ConfigsPage = ({
             />
             <HelperPane.Body isLoading={isLoading}>
                 {configInfo?.map((config) => (
-                    <HelperPane.CompletionItem
-                        label={config.label}
-                        onClick={() => onChange(config.insertText)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
+                    traverseHelperPaneCompletionItem(config, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>

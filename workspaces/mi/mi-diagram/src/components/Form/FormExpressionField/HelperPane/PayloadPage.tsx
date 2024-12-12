@@ -10,6 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { traverseHelperPaneCompletionItem } from '../utils';
 
 type PayloadPageProps = {
     isLoading: boolean;
@@ -43,6 +44,8 @@ export const PayloadPage = ({
         setSearchValue(searchText);
     };
 
+    const getCompletionItemIcon = () => getIcon(COMPLETION_ITEM_KIND.Variable);
+
     return (
         <>
             <HelperPane.Header
@@ -54,11 +57,7 @@ export const PayloadPage = ({
             />
             <HelperPane.Body isLoading={isLoading}>
                 {payloadInfo?.map((payload) => (
-                    <HelperPane.CompletionItem
-                        label={payload.label}
-                        onClick={() => onChange(payload.insertText)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
+                    traverseHelperPaneCompletionItem(payload, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>

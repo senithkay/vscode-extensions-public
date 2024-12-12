@@ -10,6 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneCompletionItem } from '@wso2-enterprise/mi-core';
+import { traverseHelperPaneCompletionItem } from '../utils';
 
 type ParamsPageProps = {
     isLoading: boolean;
@@ -43,6 +44,8 @@ export const ParamsPage = ({
         setSearchValue(searchText);
     };
 
+    const getCompletionItemIcon = () => getIcon(COMPLETION_ITEM_KIND.Variable);
+
     return (
         <>
             <HelperPane.Header
@@ -54,11 +57,7 @@ export const ParamsPage = ({
             />
             <HelperPane.Body isLoading={isLoading}>
                 {paramInfo?.map((param) => (
-                    <HelperPane.CompletionItem
-                        label={param.label}
-                        onClick={() => onChange(param.insertText)}
-                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                    />
+                    traverseHelperPaneCompletionItem(param, onChange, getCompletionItemIcon)
                 ))}
             </HelperPane.Body>
         </>

@@ -7,8 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import React from 'react';
 import { ExpressionCompletionItem, HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
-import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from '@wso2-enterprise/ui-toolkit';
+import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind, HelperPane } from '@wso2-enterprise/ui-toolkit';
 
 /**
  * Map from LSP CompletionItemKind to UI Toolkit's CompletionItemKind
@@ -113,4 +114,36 @@ export const filterHelperPaneFunctionCompletionItems = (
     }
 
     return filteredResponse;
+};
+
+/**
+ * Traverse the helper pane completion item using BFS.
+ *
+ * @param item - HelperPaneCompletionItem
+ * @returns React.ReactNode
+ */
+export const traverseHelperPaneCompletionItem = (
+    item: HelperPaneCompletionItem,
+    onChange: (value: string) => void,
+    getIcon: () => React.ReactNode
+) => {
+    // BFS to get the item
+    const queue: HelperPaneCompletionItem[] = [item];
+    while (queue.length > 0) {
+        const current = queue.shift();
+        if (current.children.length === 0) {
+            return (
+                <HelperPane.CompletionItem
+                    label={current.label}
+                    onClick={() => onChange(current.insertText)}
+                    getIcon={getIcon}
+                />
+            );
+        }
+
+        // Add the children to the queue
+        for (const child of current.children) {
+            queue.push(child);
+        }
+    }
 };
