@@ -105,6 +105,11 @@ const CompletionItemContainer = styled.div`
     }
 `;
 
+const CompletionItemGroupContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
 const CategoryItemContainer = styled.div`
     display: flex;
     align-items: center;
@@ -334,6 +339,10 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, leve
     );
 };
 
+const CompletionItemGroup: React.FC = ({ children }) => {
+    return <CompletionItemGroupContainer>{children}</CompletionItemGroupContainer>;
+};
+
 const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, onClick }) => {
     return (
         <CategoryItemContainer onClick={onClick}>
@@ -448,6 +457,7 @@ const HelperPane: React.FC<HelperPaneProps> & {
     SubSection: typeof SubSection;
     CategoryItem: typeof CategoryItem;
     CompletionItem: typeof CompletionItem;
+    CompletionItemGroup: typeof CompletionItemGroup;
     Footer: typeof Footer;
     IconButton: typeof IconButton;
     LibraryBrowser: typeof LibraryBrowser;
@@ -463,6 +473,7 @@ HelperPane.Section = Section;
 HelperPane.SubSection = SubSection;
 HelperPane.CategoryItem = CategoryItem;
 HelperPane.CompletionItem = CompletionItem;
+HelperPane.CompletionItemGroup = CompletionItemGroup;
 HelperPane.Footer = Footer;
 HelperPane.IconButton = IconButton;
 HelperPane.LibraryBrowser = LibraryBrowser;
