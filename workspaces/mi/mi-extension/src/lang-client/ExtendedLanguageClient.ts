@@ -59,7 +59,9 @@ import {
     PomNodeDetails,
     UpdateConfigValuesResponse,
     UpdateDependenciesResponse,
-    UpdateDependenciesRequest
+    UpdateDependenciesRequest,
+    GetHelperPaneInfoResponse,
+    GetHelperPaneInfoRequest
 } from "@wso2-enterprise/mi-core";
 import { readFileSync } from "fs";
 import { CancellationToken, FormattingOptions, Position, Uri, workspace } from "vscode";
@@ -384,5 +386,9 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async generateConnector(req: GenerateConnectorRequest): Promise<GenerateConnectorResponse> {
         return this.sendRequest("synapse/generateConnector", req);
+    }
+
+    async getHelperPaneInfo(req: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
+        return this.sendRequest("synapse/expressionHelperData", req);
     }
 }

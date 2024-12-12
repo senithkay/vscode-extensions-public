@@ -12,13 +12,14 @@ import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keylookup, FormKeylookup } from '.';
+import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keylookup, FormKeylookup, FormExpressionField } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
 import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -47,6 +48,7 @@ export interface FormGeneratorProps {
     connections?: string[];
     addNewConnection?: any;
     autoGenerateSequences?: boolean;
+    range?: Range;
 }
 
 interface Element {
@@ -79,7 +81,22 @@ interface ExpressionValueWithSetter {
 export function FormGenerator(props: FormGeneratorProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { formData, onEdit, control, errors, setValue, reset, getValues, watch, skipGeneralHeading, ignoreFields, connections, addNewConnection, autoGenerateSequences } = props;
+    const {
+        formData,
+        onEdit,
+        control,
+        errors,
+        setValue,
+        reset,
+        getValues,
+        watch,
+        skipGeneralHeading,
+        ignoreFields,
+        connections,
+        addNewConnection,
+        autoGenerateSequences,
+        range
+    } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
     const [expressionEditorField, setExpressionEditorField] = useState<string | null>(null);
     const [isLoading, setIsLoading] = React.useState(true);
@@ -199,6 +216,18 @@ export function FormGenerator(props: FormGeneratorProps) {
                     field.onChange(values);
                 }} />
         </ComponentCard>;
+    }
+
+    const FormExpressionFieldComponent = (element: Element, field: any) => {
+        return (
+            <FormExpressionField
+                {...field}
+                label={element.displayName}
+                required={element.required === 'true'}
+                placeholder={element.placeholder}
+                nodeRange={range}
+            />
+        );
     }
 
     const renderFormElement = (element: Element, field: any) => {

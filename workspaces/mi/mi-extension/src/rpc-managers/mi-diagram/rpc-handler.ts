@@ -53,6 +53,7 @@ import {
     GetDefinitionRequest,
     GetDiagnosticsReqeust,
     GetFailoverEPRequest,
+    GetHelperPaneInfoRequest,
     GetIconPathUriRequest,
     GetInboundEPUischemaRequest,
     GetInboundEndpointRequest,
@@ -178,6 +179,7 @@ import {
     getEndpointsAndSequences,
     getExpressionCompletions,
     getFailoverEndpoint,
+    getHelperPaneInfo,
     getHttpEndpoint,
     getIconPathUri,
     getInboundEPUischema,
@@ -408,4 +410,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getConnectionSchema, (args: GetConnectionSchemaRequest) => rpcManger.getConnectionSchema(args));
     messenger.onNotification(updateMediator, (args: UpdateMediatorRequest) => rpcManger.updateMediator(args));
     messenger.onRequest(getExpressionCompletions, (args: ExpressionCompletionsRequest) => rpcManger.getExpressionCompletions(args));
+    messenger.onRequest(getHelperPaneInfo, (args: GetHelperPaneInfoRequest) => rpcManger.getHelperPaneInfo(args));
 }

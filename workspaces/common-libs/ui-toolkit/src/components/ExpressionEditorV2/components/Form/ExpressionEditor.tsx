@@ -114,7 +114,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
             window.removeEventListener('resize', handleResize);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [elementRef, showCompletions]);
+    }, [elementRef, showCompletions, isHelperPaneOpen]);
 
     const handleCancel = () => {
         onCancel();

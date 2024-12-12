@@ -95,6 +95,8 @@ import {
     GetDiagnosticsResponse,
     GetFailoverEPRequest,
     GetFailoverEPResponse,
+    GetHelperPaneInfoRequest,
+    GetHelperPaneInfoResponse,
     GetIconPathUriRequest,
     GetIconPathUriResponse,
     GetInboundEndpointRequest,
@@ -247,6 +249,7 @@ import {
     getEndpointsAndSequences,
     getExpressionCompletions,
     getFailoverEndpoint,
+    getHelperPaneInfo,
     getHttpEndpoint,
     getIconPathUri,
     getInboundEndpoint,
@@ -948,5 +951,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return this._messenger.sendRequest(getExpressionCompletions, HOST_EXTENSION, params);
+    }
+
+    getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
+        return this._messenger.sendRequest(getHelperPaneInfo, HOST_EXTENSION, params);
     }
 }
