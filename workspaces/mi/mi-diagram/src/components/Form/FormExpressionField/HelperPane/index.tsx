@@ -91,21 +91,21 @@ const HelperPaneEl = ({
                 />
             )}
             {currentPage === 3 && (
-                <PropertiesPage
+                <HeadersPage
                     isLoading={isLoadingHelperPaneInfo}
-                    propertiesInfo={propertiesInfo}
+                    headerInfo={headerInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('properties', filterText)}
+                    setFilterText={(filterText) => setFilterText('headers', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
             )}
             {currentPage === 4 && (
-                <FunctionsPage
+                <ParamsPage
                     isLoading={isLoadingHelperPaneInfo}
-                    functionInfo={functionInfo}
+                    paramInfo={paramInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('functions', filterText)}
+                    setFilterText={(filterText) => setFilterText('params', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
@@ -121,21 +121,21 @@ const HelperPaneEl = ({
                 />
             )}
             {currentPage === 6 && (
-                <HeadersPage
+                <PropertiesPage
                     isLoading={isLoadingHelperPaneInfo}
-                    headerInfo={headerInfo}
+                    propertiesInfo={propertiesInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('headers', filterText)}
+                    setFilterText={(filterText) => setFilterText('properties', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
             )}
             {currentPage === 7 && (
-                <ParamsPage
+                <FunctionsPage
                     isLoading={isLoadingHelperPaneInfo}
-                    paramInfo={paramInfo}
+                    functionInfo={functionInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('params', filterText)}
+                    setFilterText={(filterText) => setFilterText('functions', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
