@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { CSSProperties, useState } from 'react';
 import styled from '@emotion/styled';
 import {
     HelperPaneBodyProps,
@@ -191,7 +191,7 @@ const HeaderContainerWithSearch = styled.div`
     flex-direction: column;
 `;
 
-const DropdownBody = styled.div`
+const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: 350px;
@@ -202,6 +202,7 @@ const DropdownBody = styled.div`
     color: var(--input-foreground);
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
 const LibraryBrowserSubSection: React.FC<HelperPaneSectionProps> = ({
@@ -262,7 +263,7 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = false, searchValue, onSearch, onClose }) => {
+const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = true, searchValue, onSearch, onClose }) => {
     return (
         <>
             <Overlay
@@ -395,15 +396,17 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = false }) => {
+const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true }) => {
     return (
         <BodyContainer>
             {isLoading ? (
                 <ProgressRingContainer>
                     <ProgressRing />
                 </ProgressRingContainer>
-            ) : (
+            ) : React.Children.toArray(children).length > 0 ? (
                 children
+            ) : (
+                <Typography variant="body3">No items found.</Typography>
             )}
         </BodyContainer>
     );
@@ -445,8 +448,8 @@ const HelperPane: React.FC<HelperPaneProps> & {
     LibraryBrowser: typeof LibraryBrowser;
     LibraryBrowserSection: typeof LibraryBrowserSection;
     LibraryBrowserSubSection: typeof LibraryBrowserSubSection;
-} = ({ children }: HelperPaneProps) => {
-    return <DropdownBody>{children}</DropdownBody>;
+} = ({ children, sx }: HelperPaneProps) => {
+    return <DropdownBody sx={sx}>{children}</DropdownBody>;
 };
 
 HelperPane.Header = Header;

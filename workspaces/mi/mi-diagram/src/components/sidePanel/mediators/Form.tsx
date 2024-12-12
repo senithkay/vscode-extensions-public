@@ -85,7 +85,9 @@ export function MediatorForm(props: MediatorFormProps) {
             reset={reset}
             watch={watch}
             getValues={getValues}
-            skipGeneralHeading={true} />
+            skipGeneralHeading={true}
+            range={range}
+        />
         <FormActions>
             <Button
                 appearance="secondary"

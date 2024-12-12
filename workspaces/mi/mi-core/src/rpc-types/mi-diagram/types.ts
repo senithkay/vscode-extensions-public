@@ -10,6 +10,7 @@
 
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
+import { HelperPaneData } from '../../interfaces/mi-diagram';
 
 interface Record {
     name: string;
@@ -1896,3 +1897,10 @@ export interface GenerateConnectorResponse {
     buildStatus: boolean;
     connectorPath: string;
 }
+
+export interface GetHelperPaneInfoRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export type GetHelperPaneInfoResponse = HelperPaneData;
