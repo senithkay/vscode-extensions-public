@@ -118,11 +118,10 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 	const hasDefaultValue = value && getDefaultValue(dmTypeWithValue.type.kind) === value.trim();
 
 	const handleExpand = (expanded: boolean) => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+			collapsedFieldsStore.expandField(id, dmTypeWithValue.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+			collapsedFieldsStore.collapseField(id, dmTypeWithValue.type.kind);
 		}
 	};
 

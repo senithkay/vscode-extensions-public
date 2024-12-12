@@ -90,7 +90,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Default);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
-    const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const isCollapsedField = useDMCollapsedFieldsStore(state => state.isCollapsedField);
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
     const classes = useStyles();
@@ -244,23 +244,22 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
-    const collapsedFields = collapsedFieldsStore.collapsedFields;
 
     if (source instanceof InputOutputPortModel) {
         if (source?.parentId) {
             const fieldName = source.field.fieldName;
-            isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
+            isSourceCollapsed = isCollapsedField(`${source.parentId}.${fieldName}`, source.field.kind)
         } else {
-            isSourceCollapsed = collapsedFields?.includes(source.portName)
+            isSourceCollapsed = isCollapsedField(source.portName, source.field.kind)
         }
     }
 
     if (target instanceof InputOutputPortModel) {
         if (target?.parentId) {
             const fieldName = target.field.fieldName;
-            isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
+            isTargetCollapsed = isCollapsedField(`${target.parentId}.${fieldName}`, target.field.kind);
         } else {
-            isTargetCollapsed = collapsedFields?.includes(target.portName)
+            isTargetCollapsed = isCollapsedField(target.portName, target.field.kind);
         }
     }
 

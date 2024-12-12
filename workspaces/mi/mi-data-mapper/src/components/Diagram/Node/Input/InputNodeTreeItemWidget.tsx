@@ -78,11 +78,10 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     );
 
     const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
+            collapsedFieldsStore.expandField(fieldId, dmType.kind);
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+            collapsedFieldsStore.collapseField(fieldId, dmType.kind);
         }
     };
 

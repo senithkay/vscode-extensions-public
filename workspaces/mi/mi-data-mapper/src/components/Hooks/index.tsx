@@ -107,7 +107,12 @@ export const useDiagramModel = (
     const { focusedST, views } = context ?? {};
 	const focusedSrc = focusedST ? focusedST.getText() : undefined;
     const lastView = views ? views[views.length - 1] : undefined;
-    const collapsedFields = useDMCollapsedFieldsStore(state => state.collapsedFields); // Subscribe to collapsedFields
+
+    const {collapsedObjectFields, expandedArrayFields} = useDMCollapsedFieldsStore(state => ({
+        collapsedObjectFields: state.collapsedObjectFields,
+        expandedArrayFields: state.expandedArrayFields
+    })); // Subscribe to collapsedFields
+
     const { inputSearch, outputSearch } = useDMSearchStore();
     const prevScreenWidth = useRef(screenWidth);
 
@@ -166,7 +171,7 @@ export const useDiagramModel = (
         refetch,
     } = useQuery([
         'genModel',
-        { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedFields, screenWidth }
+        { noOfNodes, focusedSrc, lastView, inputSearch, outputSearch, collapsedObjectFields, expandedArrayFields, screenWidth }
     ], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };

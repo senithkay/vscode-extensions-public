@@ -10,10 +10,8 @@ import { create } from "zustand";
 import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
-import { IOType } from "@wso2-enterprise/mi-core";
+import { IOType, TypeKind } from "@wso2-enterprise/mi-core";
 import { View } from "../components/DataMapper/Views/DataMapperView";
-import { TypeKind } from "../components/types";
-
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
@@ -36,8 +34,6 @@ export interface DataMapperSearchState {
 }
 
 export interface DataMapperCollapsedFieldsState {
-    collapsedFields: string[];
-    setCollapsedFields: (fields: string[]) => void;
     collapsedObjectFields: string[];
     expandedArrayFields: string[];
     expandField: (fieldId: string, fieldKind: TypeKind) => void;
@@ -106,8 +102,6 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
 }));
 
 export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set, get) => ({
-    collapsedFields: [],
-    setCollapsedFields: (collapsedFields: string[]) => set({ collapsedFields }),
     collapsedObjectFields: [],
     expandedArrayFields: [],
     expandField: (fieldId: string, fieldKind: TypeKind) => set((state) => {

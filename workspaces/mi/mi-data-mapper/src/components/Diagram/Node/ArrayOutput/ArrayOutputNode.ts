@@ -73,7 +73,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
@@ -83,7 +83,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
 
             const parentPort = this.addPortsForHeader(
                 this.dmType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, valueEnrichedType, this.isMapFn
+                isCollapsedField, valueEnrichedType, this.isMapFn
             );
 
             if (valueEnrichedType.type.kind === TypeKind.Array) {
@@ -91,7 +91,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.elements.forEach((field, index) => {
                         this.addPortsForOutputField(
                             field.member, "IN", this.rootName, index, ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                            parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                         );
                     });
                 }

@@ -51,21 +51,21 @@ export class InputNode extends DataMapperNodeModel {
         this.hasNoMatchingFields = !this.dmType;
 
         if (this.dmType) {
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
-            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, collapsedFields);
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
+            const parentPort = this.addPortsForHeader(this.dmType, this._paramName, "OUT", undefined, isCollapsedField);
 
             if (this.dmType.kind === TypeKind.Interface) {
                 const fields = this.dmType.fields;
                 fields.forEach((subField) => {
                     this.numberOfFields += this.addPortsForInputField(
                         subField, "OUT", this._paramName, this._paramName, '',
-                        parentPort, collapsedFields, parentPort.collapsed, subField.optional
+                        parentPort, isCollapsedField, parentPort.collapsed, subField.optional
                     );
                 });
             } else {
                 this.addPortsForInputField(
                     this.dmType, "OUT", this._paramName, this._paramName,  '',
-                    parentPort, collapsedFields, parentPort.collapsed, this.dmType.optional
+                    parentPort, isCollapsedField, parentPort.collapsed, this.dmType.optional
                 );
             }
         }

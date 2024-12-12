@@ -74,7 +74,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
@@ -83,7 +83,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
     
             const parentPort = this.addPortsForHeader(
                 this.dmType, this.rootName, "IN", OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, valueEnrichedType, this.isMapFn
+                isCollapsedField, valueEnrichedType, this.isMapFn
             );
     
             if (valueEnrichedType.type.kind === TypeKind.Interface) {
@@ -93,14 +93,14 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                     this.dmTypeWithValue.childrenTypes.forEach(field => {
                         this.addPortsForOutputField(
                             field, "IN", this.rootName, undefined, OBJECT_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                            parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                         );
                     });
                 }
 
                 if (this.isSubMapping && focusedView.subMappingInfo.focusedOnSubMappingRoot) {
                     this.addOutputFieldAdderPort(
-                        this.rootName, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                        this.rootName, parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                     );
                 }
             }
