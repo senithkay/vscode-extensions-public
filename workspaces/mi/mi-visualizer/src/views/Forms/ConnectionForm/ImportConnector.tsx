@@ -7,12 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { FormView, FormActions, Button, LocationSelector, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
-import { useRef, useState } from "react";
+import { FormView, FormActions, Button, LocationSelector, ErrorBanner, Typography } from "@wso2-enterprise/ui-toolkit";
+import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { getAPIDirectory } from "@wso2-enterprise/mi-core";
+import { ConnectorStatus } from "@wso2-enterprise/mi-core";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -43,7 +43,15 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
     const [openApiDir, setOpenApiDir] = useState("");
     const [isImporting, setIsImporting] = useState(false);
     const [importOpenAPI, setImportOpenAPI] = useState(true);
+    const [isFailedImport, setIsFailedImport] = useState(false);
     const connectionStatus = useRef(null);
+
+    useEffect(() => {
+        rpcClient.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
+            connectionStatus.current = connectorStatus;
+        });
+
+    }, []);
 
     const handleSourceDirSelection = async () => {
         const specDirecrory = await rpcClient.getMiDiagramRpcClient().askFileDirPath();
@@ -68,15 +76,21 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
 
     const importWithZip = async () => {
         setIsImporting(true);
-        await rpcClient.getMiDiagramRpcClient().copyConnectorZip({ connectorPath: zipDir });
+        const response = await rpcClient.getMiDiagramRpcClient().copyConnectorZip({ connectorPath: zipDir });
         try {
-            await waitForEvent();
+            const newConnector: any = await waitForEvent();
+
+            if (newConnector?.isSuccess) {
+                props.onImportSuccess();
+            } else {
+                await removeInvalidConnector(response.connectorPath);
+                setIsFailedImport(true);
+            }
         } catch (error) {
             console.log(error);
         }
 
         setIsImporting(false);
-        props.onImportSuccess();
     };
 
     const waitForEvent = () => {
@@ -95,6 +109,10 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
             }, 10000);
         });
     };
+
+    const removeInvalidConnector = async (connectorPath: string) => {
+        await rpcClient.getMiDiagramRpcClient().removeConnector({ connectorPath: connectorPath });
+    }
 
     const handleCancel = () => {
         props.goBack();
@@ -119,6 +137,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                 setImportOpenAPI(true);
                                 setZipDir("");
                                 setOpenApiDir("");
+                                setIsFailedImport(false);
                             }}
                         />
                         Import Using OpenAPI
@@ -133,6 +152,7 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                                 setImportOpenAPI(false);
                                 setZipDir("");
                                 setOpenApiDir("");
+                                setIsFailedImport(false);
                             }}
                         />
                         Upload Connector ZIP file
@@ -146,13 +166,18 @@ export function ImportConnectorForm(props: ImportConnectorFormProps) {
                         </LoaderWrapper>
                     ) : (
                         <>
+                            {isFailedImport && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                                    <Typography variant="body3">Error importing connector. Please try again...</Typography>
+                                </div>
+                            )}
                             {importOpenAPI ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 {openApiDir && !['json', 'yaml', 'yml'].includes(openApiDir.split('.').pop()!) && 
                                     <ErrorBanner errorMsg={"Invalid file type. Please select an OpenAPI specification"} />
                                 } 
                                 <LocationSelector
-                                    label="Choose path to openAPI specification"
+                                    label="Choose path to OpenAPI specification"
                                     selectedFile={openApiDir}
                                     required
                                     onSelect={handleOpenAPIDirSelection}

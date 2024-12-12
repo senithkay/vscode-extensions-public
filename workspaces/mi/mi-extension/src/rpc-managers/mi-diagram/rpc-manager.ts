@@ -238,6 +238,8 @@ import {
     CopyConnectorZipRequest,
     CopyConnectorZipResponse,
     ApplyEditsRequest,
+    RemoveConnectorRequest,
+    RemoveConnectorResponse,
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -3375,11 +3377,16 @@ ${endpointAttributes}
             }
 
             const destinationPath = path.join(connectorDirectory, path.basename(connectorPath));
+
+            if (fs.existsSync(destinationPath)) {
+                fs.unlinkSync(destinationPath); // Delete the existing file
+            }
+            
             await fs.promises.copyFile(connectorPath, destinationPath);
 
 
             return new Promise((resolve, reject) => {
-                resolve({ success: true });
+                resolve({ success: true, connectorPath: destinationPath });
             });
         } catch (error) {
             console.error('Error downloading connector:', error);
@@ -3702,6 +3709,28 @@ ${endpointAttributes}
 
             resolve(res);
         })
+    }
+
+    async removeConnector(params: RemoveConnectorRequest): Promise<RemoveConnectorResponse> {
+        const { connectorPath } = params;
+        return new Promise((resolve, reject) => {
+            try {
+                if (fs.existsSync(connectorPath)) {
+                    fs.unlink(connectorPath, (err) => {
+                        if (err) {
+                            reject(`Failed to delete the zip file at ${connectorPath}: ${err.message}`);
+                        } else {
+                            resolve({ success: true }); // Successfully deleted the file
+                        }
+                    });
+                } else {
+                    reject(`Zip file at ${connectorPath} does not exist.`);
+                }
+            } catch (error) {
+                console.log("Error removing connector", error);
+                reject("Failed to remove connector.");
+            }
+        });
     }
 
     async getStoreConnectorJSON(): Promise<StoreConnectorJsonResponse> {

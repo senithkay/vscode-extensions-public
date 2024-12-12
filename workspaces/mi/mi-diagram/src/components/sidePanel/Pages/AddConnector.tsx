@@ -236,11 +236,9 @@ const AddConnector = (props: AddConnectorProps) => {
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
             location: {
                 documentUri: props.documentUri,
-                view: MACHINE_VIEW.ConnectionForm,
+                view: MACHINE_VIEW.ConnectorStore,
                 customProps: {
                     allowedConnectionTypes: findAllowedConnectionTypes(props.formData.elements ?? ""),
-                    connector: connectorData,
-                    fromSidePanel: true
                 }
             },
             isPopup: true

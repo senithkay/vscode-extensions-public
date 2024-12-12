@@ -366,7 +366,10 @@ import {
     CopyConnectorZipRequest,
     CopyConnectorZipResponse,
     copyConnectorZip,
-    askOpenAPIDirPath
+    askOpenAPIDirPath,
+    RemoveConnectorRequest,
+    removeConnector,
+    RemoveConnectorResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -732,6 +735,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     copyConnectorZip(params: CopyConnectorZipRequest): Promise<CopyConnectorZipResponse> {
         return this._messenger.sendRequest(copyConnectorZip, HOST_EXTENSION, params)
+    }
+
+    removeConnector(params: RemoveConnectorRequest): Promise<RemoveConnectorResponse> {
+        return this._messenger.sendRequest(removeConnector, HOST_EXTENSION, params);
     }
 
     getAvailableConnectors(params: GetAvailableConnectorRequest): Promise<GetAvailableConnectorResponse> {
