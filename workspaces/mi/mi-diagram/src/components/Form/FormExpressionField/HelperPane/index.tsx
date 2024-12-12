@@ -15,6 +15,9 @@ import { VariablesPage } from './VariablesPage';
 import { FunctionsPage } from './FunctionsPage';
 import { PayloadPage } from './PayloadPage';
 import { PropertiesPage } from './PropertiesPage';
+import { ConfigsPage } from './ConfigsPage';
+import { HeadersPage } from './HeadersPage';
+import { ParamsPage } from './ParamsPage';
 
 export type HelperPaneProps = {
     exprRef: React.RefObject<FormExpressionEditorRef>;
@@ -23,6 +26,9 @@ export type HelperPaneProps = {
     variableInfo: HelperPaneCompletionItem[];
     attributesInfo: HelperPaneCompletionItem[];
     functionInfo: HelperPaneFunctionInfo;
+    configInfo: HelperPaneCompletionItem[];
+    headerInfo: HelperPaneCompletionItem[];
+    paramInfo: HelperPaneCompletionItem[];
     onClose: () => void;
     setFilterText: (type: string, filterText: string) => void;
     currentValue: string;
@@ -36,6 +42,9 @@ const HelperPaneEl = ({
     variableInfo,
     attributesInfo,
     functionInfo,
+    configInfo,
+    headerInfo,
+    paramInfo,
     onClose,
     setFilterText,
     currentValue,
@@ -101,6 +110,36 @@ const HelperPaneEl = ({
                     onChange={handleChange}
                 />
             )}
+            {currentPage === 5 && (
+                <ConfigsPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    configInfo={configInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('configs', filterText)}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
+            {currentPage === 6 && (
+                <HeadersPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    headerInfo={headerInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('headers', filterText)}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
+            {currentPage === 7 && (
+                <ParamsPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    paramInfo={paramInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('params', filterText)}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
         </HelperPane>
     );
 };
@@ -112,6 +151,9 @@ export const getHelperPane = (
     variableInfo: HelperPaneCompletionItem[],
     attributesInfo: HelperPaneCompletionItem[],
     functionInfo: HelperPaneFunctionInfo,
+    configInfo: HelperPaneCompletionItem[],
+    headerInfo: HelperPaneCompletionItem[],
+    paramInfo: HelperPaneCompletionItem[],
     onClose: () => void,
     setFilterText: (type: string, filterText: string) => void,
     currentValue: string,
@@ -125,6 +167,9 @@ export const getHelperPane = (
             variableInfo={variableInfo}
             attributesInfo={attributesInfo}
             functionInfo={functionInfo}
+            configInfo={configInfo}
+            headerInfo={headerInfo}
+            paramInfo={paramInfo}
             onClose={onClose}
             setFilterText={setFilterText}
             currentValue={currentValue}

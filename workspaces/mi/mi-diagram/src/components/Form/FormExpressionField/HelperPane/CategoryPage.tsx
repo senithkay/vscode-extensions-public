@@ -24,6 +24,9 @@ export const CategoryPage = ({ setCurrentPage, onClose }: CategoryPageProps) => 
                 <HelperPane.CategoryItem label="Variables" onClick={() => setCurrentPage(2)} />
                 <HelperPane.CategoryItem label="Properties" onClick={() => setCurrentPage(3)} />
                 <HelperPane.CategoryItem label="Functions" onClick={() => setCurrentPage(4)} />
+                <HelperPane.CategoryItem label="Configs" onClick={() => setCurrentPage(5)} />
+                <HelperPane.CategoryItem label="Headers" onClick={() => setCurrentPage(6)} />
+                <HelperPane.CategoryItem label="Params" onClick={() => setCurrentPage(7)} />
             </HelperPane.Body>
         </>
     );
