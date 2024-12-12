@@ -91,6 +91,7 @@ export function ComponentListView() {
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIServiceForm,
+                    serviceType: "http"
                 },
             });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {

@@ -91,10 +91,10 @@ type ServiceType = "Scratch" | "OAS";
 export interface HttpFormProps {
 }
 
-export function ServiceHttpForm(props: HttpFormProps) {
+export function ServiceHttpOASForm(props: HttpFormProps) {
     const { rpcClient } = useRpcContext();
     const [specPath, setSpecPath] = useState("");
-    const [selectedModule, setSelectedModule] = useState<ServiceType>("Scratch");
+    const [selectedModule, setSelectedModule] = useState<ServiceType>("OAS");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -128,10 +128,6 @@ export function ServiceHttpForm(props: HttpFormProps) {
         setError(res.error);
     };
 
-    const handleSelection = (type: ServiceType) => {
-        setSelectedModule(type);
-    };
-
     const handleFileSelect = async () => {
         const projectDirectory = await rpcClient.getCommonRpcClient().selectFileOrDirPath({ isFile: true });
         setSpecPath(projectDirectory.path);
@@ -156,18 +152,34 @@ export function ServiceHttpForm(props: HttpFormProps) {
                 <BIHeader />
                 <Container>
                     <FormContainer>
-                        <Typography variant="h2">Create an HTTP Service from scratch</Typography>
+                        <Typography variant="h2">Create an HTTP Service</Typography>
                         <BodyText>
-                            Design your HTTP service using the our Service Designer.
+                            Import an OpenAPI Specification(OAS) file to set it up quickly.
                         </BodyText>
-                        <ServiceWizard type="http" />
+                        <>
+                            <LocationSelector
+                                sx={{ marginTop: 20 }}
+                                label="Select Open API Spec File"
+                                btnText="Select File"
+                                selectedFile={specPath}
+                                onSelect={handleFileSelect}
+                            />
+                            <TextField
+                                {...register("port")}
+                                sx={{ marginTop: 20 }}
+                                label="Port"
+                                placeholder="Enter service port"
+                                errorMsg={errors.port?.message}
+                            />
+                            <ButtonWrapper>
+                                <Button disabled={formHasError()} onClick={handleSubmit(onSubmit)} appearance="primary">
+                                    Create Service
+                                </Button>
+                            </ButtonWrapper>
+                        </>
                     </FormContainer>
                 </Container>
             </ViewContent>
         </View>
     );
 }
-
-const ErrorMsg = css`
-    margin-top: 10px;
-`;

@@ -8,14 +8,24 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, ResourceSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest } from "../../interfaces/extended-lang-client";
 import {
     ExportOASRequest,
     ExportOASResponse,
     RecordSTRequest,
     RecordSTResponse,
+    SourceUpdateResponse,
 } from "./interfaces";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
 export const getRecordST: RequestType<RecordSTRequest, RecordSTResponse> = { method: `${_preFix}/getRecordST` };
 export const exportOASFile: RequestType<ExportOASRequest, ExportOASResponse> = { method: `${_preFix}/exportOASFile` };
+export const getListeners: RequestType<ListenersRequest, ListenersResponse> = { method: `${_preFix}/getListeners` };
+export const getListenerModel: RequestType<ListenerModelRequest, ListenerModelResponse> = { method: `${_preFix}/getListenerModel` };
+export const updateListenerSourceCode: RequestType<ListenerSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateListenerSourceCode` };
+export const getServiceModel: RequestType<ServiceModelRequest, ServiceModelResponse> = { method: `${_preFix}/getServiceModel` };
+export const updateServiceSourceCode: RequestType<ServiceSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateServiceSourceCode` };
+export const getServiceModelFromCode: RequestType<ServiceModelFromCodeRequest, ServiceModelFromCodeResponse> = { method: `${_preFix}/getServiceModelFromCode` };
+export const getHttpResourceModel: RequestType<HttpResourceModelRequest, HttpResourceModelResponse> = { method: `${_preFix}/getHttpResourceModel` };
+export const updateResourceSourceCode: RequestType<ResourceSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateResourceSourceCode` };

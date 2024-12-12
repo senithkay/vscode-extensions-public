@@ -96,8 +96,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position,
-                        haveServiceType: haveServiceType
+                        position: position
                     }
                 };
             }

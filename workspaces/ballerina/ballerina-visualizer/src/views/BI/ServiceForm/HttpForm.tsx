@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DIRECTORY_MAP } from "@wso2-enterprise/ballerina-core";
 import {
     Button,

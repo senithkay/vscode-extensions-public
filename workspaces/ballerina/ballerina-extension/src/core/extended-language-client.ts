@@ -131,7 +131,22 @@ import {
     TriggerFunctionRequest,
     TriggerFunctionResponse,
     BIGetEnclosedFunctionRequest,
-    BIGetEnclosedFunctionResponse
+    BIGetEnclosedFunctionResponse,
+    HttpResourceModelRequest,
+    HttpResourceModelResponse,
+    ListenerModelRequest,
+    ListenerModelResponse,
+    ListenerSourceCodeRequest,
+    ListenerSourceCodeResponse,
+    ListenersRequest,
+    ListenersResponse,
+    ResourceSourceCodeRequest,
+    ResourceSourceCodeResponse,
+    ServiceModelFromCodeRequest,
+    ServiceModelFromCodeResponse,
+    ServiceModelRequest,
+    ServiceModelResponse,
+    ServiceSourceCodeRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -220,7 +235,16 @@ enum EXTENDED_APIS {
     BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',
     BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
     BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
-    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction'
+    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
+    BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
+    BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
+    BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
+    BI_SERVICE_GET_SERVICE = 'serviceDesign/getServiceModel',
+    BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
+    BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
+    BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
+    BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
+    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -745,6 +769,31 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
         return this.sendRequest<TriggerFunctionResponse>(EXTENDED_APIS.BI_TRIGGER_UPDATE_FUNCTION, params);
+    }
+
+    async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
+        return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
+    }
+    async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {
+        return this.sendRequest<ListenerModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENER, params);
+    }
+    async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_LISTENER, params);
+    }
+    async getServiceModel(params: ServiceModelRequest): Promise<ServiceModelResponse> {
+        return this.sendRequest<ServiceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE, params);
+    }
+    async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_SERVICE, params);
+    }
+    async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
+        return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
+    }
+    async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
+        return this.sendRequest<HttpResourceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_RESOURCE, params);
+    }
+    async updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+        return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_RESOURCE, params);
     }
 
     // <------------ BI APIS END --------------->

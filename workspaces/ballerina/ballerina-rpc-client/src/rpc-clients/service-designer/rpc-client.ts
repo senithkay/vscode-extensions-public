@@ -11,11 +11,33 @@
 import {
     ExportOASRequest,
     ExportOASResponse,
+    HttpResourceModelRequest,
+    HttpResourceModelResponse,
+    ListenerModelRequest,
+    ListenerModelResponse,
+    ListenerSourceCodeRequest,
+    ListenersRequest,
+    ListenersResponse,
     RecordSTRequest,
     RecordSTResponse,
+    ResourceSourceCodeRequest,
     ServiceDesignerAPI,
+    ServiceModelFromCodeRequest,
+    ServiceModelFromCodeResponse,
+    ServiceModelRequest,
+    ServiceModelResponse,
+    ServiceSourceCodeRequest,
+    SourceUpdateResponse,
     exportOASFile,
-    getRecordST
+    getHttpResourceModel,
+    getListenerModel,
+    getListeners,
+    getRecordST,
+    getServiceModel,
+    getServiceModelFromCode,
+    updateListenerSourceCode,
+    updateResourceSourceCode,
+    updateServiceSourceCode
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -33,5 +55,37 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     exportOASFile(params: ExportOASRequest): Promise<ExportOASResponse> {
         return this._messenger.sendRequest(exportOASFile, HOST_EXTENSION, params);
+    }
+
+    getListeners(params: ListenersRequest): Promise<ListenersResponse> {
+        return this._messenger.sendRequest(getListeners, HOST_EXTENSION, params);
+    }
+
+    getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {
+        return this._messenger.sendRequest(getListenerModel, HOST_EXTENSION, params);
+    }
+
+    updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(updateListenerSourceCode, HOST_EXTENSION, params);
+    }
+
+    getServiceModel(params: ServiceModelRequest): Promise<ServiceModelResponse> {
+        return this._messenger.sendRequest(getServiceModel, HOST_EXTENSION, params);
+    }
+
+    updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(updateServiceSourceCode, HOST_EXTENSION, params);
+    }
+
+    getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
+        return this._messenger.sendRequest(getServiceModelFromCode, HOST_EXTENSION, params);
+    }
+
+    getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
+        return this._messenger.sendRequest(getHttpResourceModel, HOST_EXTENSION, params);
+    }
+
+    updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(updateResourceSourceCode, HOST_EXTENSION, params);
     }
 }

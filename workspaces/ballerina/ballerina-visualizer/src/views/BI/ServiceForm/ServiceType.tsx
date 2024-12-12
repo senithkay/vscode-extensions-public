@@ -81,7 +81,7 @@ export function ServiceType(props: HttpFormProps) {
                         <CardGrid>
                             <ButtonCard
                                 icon={<Icon name="bi-http-service" iconSx={{ fontSize: "16px" }} />}
-                                title="HTTP Service"
+                                title="HTTP Servicexx"
                                 description="Create an HTTP service to handle web requests and responses."
                                 onClick={() => handleClick(SERVICE_VIEW.HTTP_FORM)}
                             />

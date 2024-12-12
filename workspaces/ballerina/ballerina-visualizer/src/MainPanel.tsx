@@ -59,6 +59,9 @@ import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
 import EditConfigurableVariables from "./views/BI/Configurables/EditConfigurableVariables";
 import ListenerView from "./views/BI/Trigger/ListenerView";
+import { ServiceWizard } from "./views/BI/ServiceWizard";
+import { ServiceHttpOASForm } from "./views/BI/ServiceHttpOASForm";
+import { ServiceHTTPImplementation } from "./views/BI/ServiceHTTPImplementation";
 
 const globalStyles = css`
     *,
@@ -172,7 +175,7 @@ const MainPanel = () => {
                                 model={value?.syntaxTree as ServiceDeclaration}
                                 applyModifications={applyModifications}
                                 isBI={value.isBI}
-                                isEditingDisabled={value.haveServiceType}
+                                isEditingDisabled={!!value.serviceType}
                             />
                         );
                         break;
@@ -220,8 +223,17 @@ const MainPanel = () => {
                     case MACHINE_VIEW.BIComponentView:
                         setViewComponent(<ComponentListView />);
                         break;
+                    // case MACHINE_VIEW.BIServiceForm:
+                    //     setViewComponent(<ServiceHttpForm />);
+                    //     break;
+                    case MACHINE_VIEW.BIServiceHTTPImplementation:
+                        setViewComponent(<ServiceHTTPImplementation />);
+                        break;
                     case MACHINE_VIEW.BIServiceForm:
-                        setViewComponent(<ServiceHttpForm />);
+                        setViewComponent(<ServiceWizard type={value.serviceType} />);
+                        break;
+                    case MACHINE_VIEW.BIServiceOASForm:
+                        setViewComponent(<ServiceHttpOASForm />);
                         break;
                     case MACHINE_VIEW.AddConnectionWizard:
                         rpcClient.getVisualizerLocation().then((location) => {
