@@ -146,7 +146,7 @@ import {
     ServiceModelFromCodeResponse,
     ServiceModelRequest,
     ServiceModelResponse,
-    ServiceSourceCodeRequest
+    ServiceSourceCodeRequest,
     BIDesignModelRequest,
     BIDesignModelResponse
 } from "@wso2-enterprise/ballerina-core";
