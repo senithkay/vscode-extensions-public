@@ -511,7 +511,8 @@
             {
                 "command": "kolab.tryit",
                 "title": "Open Try It",
-                "category": "Ballerina"
+                "category": "Ballerina",
+                "icon": "$(beaker)"
             },
             {
                 "command": "kolab.open.ai.panel",
@@ -632,6 +633,12 @@
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                },
+                {
+                    "command": "kolab.tryit",
+                    "group": "navigation@1",
+                    "title": "Open Try It",
+                    "when": "isBIProjectRunning"
                 },
                 {
                     "command": "kolab.project.run.config",

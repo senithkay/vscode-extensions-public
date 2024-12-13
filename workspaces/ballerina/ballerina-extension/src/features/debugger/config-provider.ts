@@ -45,12 +45,13 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
+import { BallerinaProject, BallerinaProjectComponents, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
 import { openView, StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
 import { BreakpointManager } from './breakpoint-manager';
 import { notifyBreakpointChange } from '../../RPCLayer';
 import { VisualizerWebview } from '../../views/visualizer/webview';
+import { URI } from 'vscode-uri';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -310,6 +311,7 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                 // clear the active breakpoint
                 BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                 notifyBreakpointChange();
+                commands.executeCommand('setContext', 'isBIProjectRunning', false);
             },
 
             // Debug Adapter -> VS Code
@@ -376,6 +378,26 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         if (isWebviewPresent) {
                             VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
+                        }
+                    } else if (msg.event === "output") {
+                        if (msg.body.output === "Running executable\n") {
+                            const workspaceRoot = workspace.workspaceFolders && workspace.workspaceFolders[0].uri.fsPath;
+                            if (workspaceRoot) {
+                                // Get the component list
+                                const components: BallerinaProjectComponents = await ballerinaExtInstance?.langClient?.getBallerinaProjectComponents({
+                                    documentIdentifiers: [{ uri: URI.file(workspaceRoot).toString() }]
+                                });
+
+                                // Iterate and extract the services 
+                                const services = components.packages
+                                    ?.flatMap(pkg => pkg.modules)
+                                    .flatMap(module => module.services);
+
+                                if (services && services.length > 0) {
+                                    commands.executeCommand('setContext', 'isBIProjectRunning', true);
+                                }
+                            }
+
                         }
                     }
                 }
