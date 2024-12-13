@@ -8,7 +8,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { ConfigVariable, EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -29,31 +28,27 @@ export interface ConfigFormProps {
     onClose?: () => void;
     variable: ConfigVariable;
     title: string;
+    filename: string;
 }
 
 export function EditForm(props: ConfigFormProps) {
-    const { isOpen, onClose, variable, title } = props;
+    const { isOpen, onClose, variable, title, filename } = props;
 
     const { rpcClient } = useRpcContext();
 
-    useEffect(() => {
-        variable.properties.defaultable.optional = true;
-        variable.properties.defaultable.advanced = true;
-    }, [variable]);
-
     const handleSave = (data: FormValues) => {
         variable.properties.defaultable.value =
-            data.defaultable === "" || data.defaultable === null ?
+            data.properties.defaultable.value === "" || data.properties.defaultable.value === null ?
                 "?"
-                : data.defaultable;
-        variable.properties.type.value = data.type;
-        variable.properties.variable.value = data.variable;
+                : data.properties.defaultable.value;
+        variable.properties.type.value = data.properties.type.value;
+        variable.properties.variable.value = data.properties.variable.value;
 
         rpcClient
             .getBIDiagramRpcClient()
             .updateConfigVariables({
                 configVariable: variable,
-                configFilePath: variable.codedata.lineRange.fileName
+                configFilePath: filename
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
@@ -80,11 +75,11 @@ export function EditForm(props: ConfigFormProps) {
         <>
             <PanelContainer
                 title={title}
-                show={props.isOpen}
+                show={isOpen}
                 onClose={onClose ? onClose : goToViewConfig}
             >
                 <FormGenerator
-                    fileName={variable.codedata.lineRange.fileName}
+                    fileName={filename}
                     node={variable}
                     targetLineRange={{
                         startLine: variable.codedata.lineRange.startLine,

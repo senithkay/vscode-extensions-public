@@ -638,7 +638,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequest = params;
-            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
 
             if (!fs.existsSync(params.configFilePath)) {
 
