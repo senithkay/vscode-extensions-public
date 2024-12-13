@@ -43,15 +43,7 @@ export function ReadOnlyRefParameters(props: ReadOnlyReferenceObjectsProps) {
         <PanelBody>
             <Typography sx={{ margin: 0, marginTop: 0, flex: 1 }} variant="h2">Parameter</Typography>
             <PathWrapper>
-                <MethodWrapper>
-                    <Typography
-                        variant="h3"
-                        sx={{ margin: 0, padding: 4, display: "flex", justifyContent: "center", minWidth: 60 }}
-                    >
-                        {parameter.in}
-                    </Typography>
-                </MethodWrapper>
-                <Typography sx={{ margin: 0, marginTop: 4 }} variant="h3">{name}</Typography>
+                <Typography sx={{ margin: 0, marginTop: 4 }} variant="body3">{name}</Typography>
                 <ReadOnlyParameter parameter={parameter} />
             </PathWrapper>
         </PanelBody>

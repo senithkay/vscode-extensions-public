@@ -103,7 +103,8 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
                 return (
                     <ParameterTreeViewItem
                         id={`parameters#-component#-${parameterName}`}
-                        parameter={parameterName}
+                        parameterName={parameterName}
+                        parameterType={openAPI.components?.parameters[parameterName].in}
                         onDeleteParameter={handleDeleteParameter}
                     />
                 );

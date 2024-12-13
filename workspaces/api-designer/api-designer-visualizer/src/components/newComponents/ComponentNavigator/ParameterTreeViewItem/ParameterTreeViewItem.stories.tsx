@@ -19,7 +19,8 @@ export const ParameterTreeViewItemStory = () => {
     return (
         <ParameterTreeViewItem
             id="parameter-tree-view-item"
-            parameter="parameter"
+            parameterName="parameter"
+            parameterType="query"
             onDeleteParameter={(schema: string) => {
                 console.log("Delete Parameter", schema);
             }}
