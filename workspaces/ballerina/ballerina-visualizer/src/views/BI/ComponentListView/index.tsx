@@ -171,13 +171,20 @@ export function ComponentListView() {
     };
 
     const handleOnSelect = async (trigger: TriggerNode) => {
-        if (!trigger) {
-            console.error(">>> Error selecting trigger. No codedata found");
-            return;
-        }
-        const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
-        console.log(">>>Trigger by id", response);
-        setTrigger(response.trigger);
+        // if (!trigger) {
+        //     console.error(">>> Error selecting trigger. No codedata found");
+        //     return;
+        // }
+        // const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
+        // console.log(">>>Trigger by id", response);
+        // setTrigger(response.trigger);
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceForm,
+                serviceType: trigger.moduleName
+            },
+        });
     };
 
     const [trigger, setTrigger] = useState<TriggerNode>(undefined);

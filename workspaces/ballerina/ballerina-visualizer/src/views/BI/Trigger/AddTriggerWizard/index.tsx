@@ -9,7 +9,7 @@
 
 import React, { useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField, TriggerNode, SubPanelView, Trigger } from "@wso2-enterprise/ballerina-core";
+import { FlowNode, LineRange, ComponentTriggerType, DIRECTORY_MAP, FunctionField, TriggerNode, SubPanelView, Trigger, EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import TriggerView from "../TriggerView";
 import TriggerConfigView from "../TriggerConfigView";
@@ -57,14 +57,21 @@ export function TriggerWizard(props: TriggerWizardProps) {
     const [trigger, setTrigger] = useState<TriggerNode>(undefined);
 
     const handleOnSelect = async (trigger: TriggerNode) => {
-        if (!trigger) {
-            console.error(">>> Error selecting trigger. No codedata found");
-            return;
-        }
-        setCurrentView(TriggerWizardPage.TRIGGER_CONFIG);
-        const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
-        console.log(">>>Trigger by id", response);
-        setTrigger(response.trigger);
+        // if (!trigger) {
+        //     console.error(">>> Error selecting trigger. No codedata found");
+        //     return;
+        // }
+        // setCurrentView(TriggerWizardPage.TRIGGER_CONFIG);
+        // const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
+        // console.log(">>>Trigger by id", response);
+        // setTrigger(response.trigger);
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceForm,
+                serviceType: trigger.moduleName
+            },
+        });
     };
 
     const handleServiceFormSubmit = async (trigger: TriggerNode) => {

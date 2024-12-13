@@ -229,7 +229,7 @@ enum EXTENDED_APIS {
     BI_VISIBLE_TYPES = 'expressionEditor/types',
     REFERENCES = 'textDocument/references',
     BI_EXPRESSION_DIAGNOSTICS = 'expressionEditor/diagnostics',
-    BI_TRIGGER_MODELS = 'triggerDesignService/getTriggerModels',
+    BI_TRIGGER_MODELS = 'serviceDesign/getTriggerModels',
     BI_TRIGGER_MODEL = 'triggerDesignService/getTriggerModel',
     BI_TRIGGER_SOURCE_CODE = 'triggerDesignService/getSourceCode',
     BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',

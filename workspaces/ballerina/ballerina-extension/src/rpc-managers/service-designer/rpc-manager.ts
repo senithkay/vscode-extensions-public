@@ -130,7 +130,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
-                }
+                };
                 if (StateMachine.context().isBI) {
                     commands.executeCommand("BI.project-explorer.refresh");
                 }
@@ -169,7 +169,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
-                }
+                };
                 if (StateMachine.context().isBI) {
                     commands.executeCommand("BI.project-explorer.refresh");
                 }
@@ -216,7 +216,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
-                }
+                };
                 resolve(result);
             } catch (error) {
                 console.log(error);

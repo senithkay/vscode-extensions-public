@@ -225,9 +225,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const triggerModel: TriggerNode = serviceConfig?.triggerModel;
-    const name = serviceConfig?.triggerModel?.properties['name'].value;
-    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayName} - ${name} Service` : `Service ${serviceConfig?.path}`;
-    const showAddNew = serviceConfig?.triggerModel ? triggerModel?.service?.functions?.some((func) => !func.enabled) : !isEditingDisabled;
+    const name = serviceConfig?.path;
+    const title = serviceConfig?.triggerModel ? `${serviceConfig?.triggerModel?.displayAnnotation.label} - ${name} Service` : `Service ${serviceConfig?.path}`;
+    const showAddNew = serviceConfig?.triggerModel ? (triggerModel?.service?.functions?.some((func) => !func.enabled) || triggerModel.moduleName === "http") : !isEditingDisabled;
 
     return (
         <ContextProvider commonRpcClient={commonRpcClient} applyModifications={applyModifications} serviceEndPosition={model?.closeBraceToken.position}>
@@ -246,7 +246,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <Codicon name="add" sx={{ marginRight: 5 }} /> {serviceConfig?.triggerModel ? `Function` : 'Resource'}
                                 </VSCodeButton>
                             }
-                            {!serviceConfig?.triggerModel && <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
+                            {serviceConfig?.triggerModel.moduleName === "http" && <VSCodeButton appearance="secondary" title="Export OAS" onClick={handleExportOAS}>
                                 <Codicon name="export" sx={{ marginRight: 5 }} /> Export OAS
                             </VSCodeButton>
                             }
@@ -259,7 +259,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         </ServiceHeader>
                         <ViewContent padding>
                             <ServiceView
-                                customTitle={serviceConfig?.triggerModel ? `Available functions` : 'Available resources'}
+                                customTitle={serviceConfig?.triggerModel && serviceConfig?.triggerModel.moduleName !== "http" ? `Available functions` : 'Available resources'}
                                 customEmptyResourceMessage={serviceConfig?.triggerModel && "No functions found. Add a function."}
                                 model={serviceConfig}
                                 onResourceClick={handleGoToSource}
@@ -293,7 +293,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                             } */}
                         </ViewContent>
                     </View>
-                    {isResourceFormOpen && !serviceConfig?.triggerModel &&
+                    {isResourceFormOpen && serviceConfig?.triggerModel && serviceConfig?.triggerModel.moduleName === "http" &&
                         <ResourceForm
                             isOpen={isResourceFormOpen}
                             isBallerniaExt={isParentBallerinaExt}
@@ -305,7 +305,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                             applyModifications={applyModifications}
                         />
                     }
-                    {isResourceFormOpen && serviceConfig?.triggerModel &&
+                    {isResourceFormOpen && serviceConfig?.triggerModel && serviceConfig?.triggerModel.moduleName !== "http" &&
                         <FunctionForm
                             isOpen={isResourceFormOpen}
                             triggerNode={triggerModel}
@@ -319,7 +319,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                             isSaving={isLoading}
                         />
                     }
-                    {isServiceFormOpen && !serviceConfig?.triggerModel &&
+                    {isServiceFormOpen && serviceConfig?.triggerModel && serviceConfig?.triggerModel.moduleName === "http" &&
                         <ServiceForm
                             isOpen={isServiceFormOpen}
                             serviceConfig={serviceConfig}

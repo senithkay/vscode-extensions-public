@@ -133,7 +133,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
     };
 
     const handleOnNext = () => {
-        if (!creatingListener) {
+        if (existing && !creatingListener) {
             handleListenerSubmit();
         } else {
             if (listenerConfigForm.current) {

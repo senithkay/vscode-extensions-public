@@ -239,12 +239,12 @@ export const getServiceData = async (service: ServiceDeclaration, rpcClient: RPC
     // Get trigger model if available
     const position: NodePosition = service.position;
     const range: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
-    const triggerResponse = await rpcClient.triggerWizardRpcClient.getTriggerModelFromCode({ filePath: serviceFilePath, codedata: { lineRange: range } });
-    if (triggerResponse?.trigger) {
+    const triggerResponse = await rpcClient.serviceDesignerRpcClient.getServiceModelFromCode({ filePath: serviceFilePath, codedata: { lineRange: range } });
+    if (triggerResponse?.service) {
         serviceData = {
             ...serviceData,
-            serviceType: triggerResponse.trigger.displayName,
-            triggerModel: triggerResponse.trigger,
+            serviceType: triggerResponse.service.displayName,
+            triggerModel: triggerResponse.service,
         };
     }
 
@@ -381,7 +381,7 @@ export async function getService(serviceDecl: ServiceDeclaration, rpcClient: RPC
             // }
             resources.push(resource);
         }
-        if (serviceData.triggerModel && STKindChecker.isObjectMethodDefinition(member)) {
+        if (serviceData.triggerModel && serviceData.triggerModel.moduleName !== "http" && STKindChecker.isObjectMethodDefinition(member)) {
             const resource = await getFunction(member, rpcClient, isBI);
             // const editAction: Item = {
             //     id: "edit",
