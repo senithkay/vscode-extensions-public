@@ -20,7 +20,7 @@ export interface RegistryWizardProps {
     path: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
-    type?: string;
+    type?: string[];
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
@@ -43,6 +43,19 @@ const canCreateTemplateForType = (type: string) => {
     const allowedTypes = ["xslt", "xsl", "xsd", "wsdl", "yaml", "json", "js", "dmc", "xml", "txt"];
     return allowedTypes.includes(type);
 }
+
+const filterTemplateCreatableTypes = (types: string[]): string[] => {
+    const result: string[] = [];
+    if (!types || types.length === 0) {
+        return result;
+    }
+    types.forEach(type => {
+        if (canCreateTemplateForType(type)) {
+            result.push(type);
+        }
+    });
+    return result;
+};
 
 const getInitialResource = (type: string): InputsFields => ({
     templateType: getTemplateType(type),
@@ -119,6 +132,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     const [registryPaths, setRegistryPaths] = useState([]);
     const [resourcePaths, setResourcePaths] = useState([]);
     const [artifactNames, setArtifactNames] = useState([]);
+    const filteredPropTypes = filterTemplateCreatableTypes(props.type);
 
     const schema = yup
         .object({
@@ -158,7 +172,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         setValue,
         watch
     } = useForm<InputsFields>({
-        defaultValues: getInitialResource(props.type),
+        defaultValues: getInitialResource(filteredPropTypes[0]),
         resolver: yupResolver(schema),
         mode: "onChange",
     });
@@ -223,7 +237,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
             canSelectFiles: true,
             canSelectFolders: false,
             canSelectMany: false,
-            filters: { 'types': [props.type] },
+            filters: { 'types': props.type },
             defaultUri: "",
             title: "Select a file to be imported as a resource"
         }
@@ -243,6 +257,13 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
         await rpcClient.getMiDiagramRpcClient().browseFile(request).then(response => {
             setValue("filePath", response.filePath, { shouldDirty: true });
         }).catch(e => { console.log(e); });
+    }
+
+    const canCreateTemplate = (): boolean => {
+        if (!props.type || filterTemplateCreatableTypes.length > 0) {
+            return true;
+        }
+        return false;
     }
 
     const handleCreateRegResource = async (values: InputsFields) => {
@@ -277,7 +298,7 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
 
     return (
         <FormView title="Create New Resource" onClose={handleBackButtonClick}>
-            {canCreateTemplateForType(props.type) && <RadioButtonGroup
+            {canCreateTemplate() && <RadioButtonGroup
                 label="Create Options"
                 id="createOption"
                 options={[{ content: "From existing template", value: "new" }, { content: "Import from file system", value: "import" }]}
