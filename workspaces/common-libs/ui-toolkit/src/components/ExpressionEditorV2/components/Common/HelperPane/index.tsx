@@ -87,14 +87,17 @@ const FooterContainer = styled.footer`
     flex-direction: column;
 `;
 
+const CompletionItemOuterContainer = styled.div<{ level: number }>`
+    margin-bottom: 2px;
+    padding-left: ${({ level }: { level: number }) => level * 16}px;
+`;
+
 const CompletionItemContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 2px;
-    border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 4px;
-    margin-bottom: 2px;
     cursor: pointer;
 
     &:hover {
@@ -313,19 +316,21 @@ const Footer: React.FC = ({ children }) => {
     );
 };
 
-const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, label, type, onClick }) => {
+const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, level = 0, label, type, onClick }) => {
     return (
-        <CompletionItemContainer onClick={onClick}>
-            {getIcon && getIcon()}
-            <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {label}
-            </Typography>
-            {type && (
-                <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
-                    {type}
+        <CompletionItemOuterContainer level={level}>
+            <CompletionItemContainer onClick={onClick}>
+                {getIcon && getIcon()}
+                <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {label}
                 </Typography>
-            )}
-        </CompletionItemContainer>
+                {type && (
+                    <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
+                        {type}
+                    </Typography>
+                )}
+            </CompletionItemContainer>
+        </CompletionItemOuterContainer>
     );
 };
 
