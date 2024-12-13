@@ -364,7 +364,7 @@ export class SizingVisitor implements Visitor {
     }
     endVisitScatterGather = (node: ScatterGather): void => {
         let targets: { [key: string]: any } = {}
-        node.targets.map((target, index) => {
+        node.targets.forEach((target, index) => {
             targets[target.to || index] = target.endpoint || target.sequence || target
         });
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
