@@ -143,7 +143,7 @@ export const NodeLinkWidget: React.FC<NodeLinkWidgetProps> = ({ link, engine }) 
                     </div>
                 </foreignObject>
             )}
-            {showAddButton && (
+            {showAddButton && onAddNode && (
                 <foreignObject x={addButtonPosition.x - 35} y={addButtonPosition.y - 10} width="70" height="20">
                     <div
                         css={css`
