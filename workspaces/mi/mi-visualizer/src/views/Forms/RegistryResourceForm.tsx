@@ -24,7 +24,8 @@ export interface RegistryWizardProps {
 }
 
 const templates = [{ value: "Data Mapper" }, { value: "Javascript File" }, { value: "JSON File" }, { value: "WSDL File" },
-{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }, { value: "TEXT File" }, { value: "XML File" }];
+{ value: "WS-Policy" }, { value: "XSD File" }, { value: "XSL File" }, { value: "XSLT File" }, { value: "YAML File" }, { value: "TEXT File" }, { value: "XML File" },
+{ value: "RB File" }, { value: "GROOVY File" }];
 
 type InputsFields = {
     templateType?: string;
@@ -91,6 +92,10 @@ const getTemplateType = (type: string) => {
             return "XML File";
         case "crt":
             return "CRT File";
+        case "rb":
+            return "RB File";
+        case "groovy":
+            return "GROOVY File";
         default:
             return "XSLT File";
     }
@@ -120,6 +125,10 @@ const getFileExtension = (type: string) => {
             return ".xml";
         case "CRT File":
             return ".crt";
+        case "RB File":
+            return ".rb";
+        case "GROOVY File":
+            return ".groovy";
         default:
             return ".xml";
     }
