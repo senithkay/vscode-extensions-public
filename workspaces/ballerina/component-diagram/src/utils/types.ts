@@ -7,46 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ActorNodeModel } from "../components/nodes/ActorNode";
-import { ButtonNodeModel } from "../components/nodes/ButtonNode/ButtonNodeModel";
+import { CDAutomation, CDService } from "@wso2-enterprise/ballerina-core";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
 import { EntryNodeModel } from "../components/nodes/EntryNode";
+import { ListenerNodeModel } from "../components/nodes/ListenerNode";
 
-export type NodeModel = EntryNodeModel | ConnectionNodeModel | ActorNodeModel | ButtonNodeModel;
+export type NodeModel = ListenerNodeModel | EntryNodeModel | ConnectionNodeModel;
 
-export type Project = {
-    name: string;
-    entryPoints: EntryPoint[];
-    connections: Connection[];
-};
+export type EntryPointType = "service" | "automation";
 
-export type EntryPointType = "service" | "task" | "schedule-task" | "trigger" | string;
-
-export type EntryPoint = {
-    id: string;
-    name: string;
-    type: EntryPointType;
-    location?: Location;
-    icon?: React.ReactNode;
-    label?: string;
-    description?: string;
-    connections?: string[];
-};
-
-export type Connection = {
-    id: string;
-    name: string;
-    location?: Location;
-};
-
-export type Location = {
-    filePath: string;
-    position: NodePosition;
-};
-
-export type NodePosition = {
-    startLine?: number;
-    startColumn?: number;
-    endLine?: number;
-    endColumn?: number;
-};
+export type EntryPoint = CDService | CDAutomation;
