@@ -19,6 +19,7 @@ import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wiza
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { TriggerFunction, TriggerNode } from "./triggers";
 import { FunctionModel, ListenerModel, ServiceModel } from "./service";
+import { CDModel } from "./component-diagram";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -624,6 +625,14 @@ export interface BICopilotContextResponse {
     suffix: string;
 }
 
+export interface BIDesignModelRequest {
+    projectPath: string;
+}
+
+export type BIDesignModelResponse = {
+    designModel: CDModel;
+};
+
 export interface SequenceModelRequest {
     filePath: string;
     startLine: LinePosition;
@@ -932,6 +941,8 @@ export interface BIInterface extends BaseLangClientInterface {
     getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
     getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
     updateResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+
+    getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

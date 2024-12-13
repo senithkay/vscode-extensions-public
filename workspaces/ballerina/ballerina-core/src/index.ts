@@ -18,6 +18,7 @@ export * from "./interfaces/ballerina";
 export * from "./interfaces/bi";
 export * from "./interfaces/common";
 export * from "./interfaces/component";
+export * from "./interfaces/component-diagram";
 export * from "./interfaces/constants";
 export * from "./interfaces/config-spec";
 export * from "./interfaces/event";

@@ -7,15 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
-import { DIRECTORY_MAP, EVENT_TYPE, MACHINE_VIEW, ProjectStructureResponse } from "@wso2-enterprise/ballerina-core";
+import { useEffect, useState } from "react";
+import {
+    EVENT_TYPE,
+    MACHINE_VIEW,
+    ProjectStructureResponse,
+    CDModel,
+    CDService,
+    NodePosition,
+    CDAutomation,
+    CDConnection,
+    CDListener,
+} from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { Connection, Diagram, EntryPoint, NodePosition, Project } from "@wso2-enterprise/component-diagram";
+import { Diagram } from "@wso2-enterprise/component-diagram";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources/constants";
-import { URI } from "vscode-uri";
-import { getEntryNodeIcon } from "../ComponentListView";
 
 const SpinnerContainer = styled.div`
     display: flex;
@@ -36,7 +44,23 @@ interface ComponentDiagramProps {
 export function ComponentDiagram(props: ComponentDiagramProps) {
     const { projectName, projectStructure } = props;
 
+    const [project, setProject] = useState<CDModel | null>(null);
     const { rpcClient } = useRpcContext();
+
+    useEffect(() => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getDesignModel()
+            .then((response) => {
+                console.log(">>> design model", response);
+                if (response?.designModel) {
+                    setProject(response.designModel);
+                }
+            })
+            .catch((error) => {
+                console.error(">>> error getting design model", error);
+            });
+    }, []);
 
     const goToView = async (filePath: string, position: NodePosition) => {
         console.log(">>> component diagram: go to view", { filePath, position });
@@ -54,91 +78,65 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         });
     };
 
-    const handleGoToEntryPoints = (entryPoint: EntryPoint) => {
-        if (entryPoint.location) {
-            goToView(entryPoint.location.filePath, entryPoint.location.position);
+    const handleGoToListener = (listener: CDListener) => {
+        // TODO: implement
+    };
+
+    const handleGoToService = (service: CDService) => {
+        if (service.location) {
+            goToView(service.location.filePath, {
+                startLine: service.location.startLine.line,
+                startColumn: service.location.startLine.offset,
+                endLine: service.location.endLine.line,
+                endColumn: service.location.endLine.offset,
+            });
         }
     };
 
-    const handleAddConnection = () => {
-        handleAddArtifact();
+    const handleGoToAutomation = (automation: CDAutomation) => {
+        if (automation.location) {
+            goToView(automation.location.filePath, {
+                startLine: automation.location.startLine.line,
+                startColumn: automation.location.startLine.offset,
+                endLine: automation.location.endLine.line,
+                endColumn: automation.location.endLine.offset,
+            });
+        }
     };
 
-    const handleGoToConnection = async (connection: Connection) => {
+    const handleGoToConnection = async (connection: CDConnection) => {
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 view: MACHINE_VIEW.EditConnectionWizard,
-                identifier: connection.name,
+                identifier: connection.symbol,
             },
-            isPopup: true
+            isPopup: true,
         });
     };
 
-    const handleDeleteComponent = async (component: EntryPoint | Connection) => {
-        console.log(">>> component diagram: delete component", component);
-        if ('type' in component) {
-            console.log(">>> deleting entrypoint", component);
-            rpcClient
-                .getLangClientRpcClient()
-                .getBallerinaProjectComponents({ documentIdentifiers: [{ uri: URI.file(component.location.filePath).toString() }] })
-                .then((response) => {
-                    let componentType = "";
-                    if (component.type === "service") {
-                        componentType = "services";
-                    } else if (component.type === "task" || component.type === "schedule-task") {
-                        componentType = "automations";
-                    }
-                    response.packages.forEach((pkg) => {
-                        pkg.modules.forEach((module: any) => {
-                            module[componentType].forEach((balComp: any) => {
-                                if (balComp.name === component.name) {
-                                    rpcClient
-                                        .getBIDiagramRpcClient()
-                                        .deleteByComponentInfo({
-                                            filePath: component.location.filePath,
-                                            component: balComp,
-                                        }).then((response) => {
-                                            console.log(">>> Updated source code after delete", response);
-                                            if (!response.textEdits) {
-                                                console.error(">>> Error updating source code", response);
-                                            }
-                                        });
-
-                                }
-                            });
-                        });
-                    });
-                });
-
-        } else {
-            rpcClient
-                .getBIDiagramRpcClient()
-                .getModuleNodes()
-                .then((res) => {
-                    console.log(">>> moduleNodes", { moduleNodes: res });
-                    const connector = res?.flowModel?.connections.find(
-                        (node) => node.properties.variable.value === component.name
-                    );
-                    if (connector) {
-                        rpcClient
-                            .getBIDiagramRpcClient()
-                            .deleteFlowNode({
-                                filePath: component.location.filePath,
-                                flowNode: connector,
-                            })
-                            .then((response) => {
-                                console.log(">>> Updated source code after delete", response);
-                                if (!response.textEdits) {
-                                    console.error(">>> Error updating source code", response);
-                                }
-                            });
-                    } else {
-                        console.error(">>> Error finding connector", { connectionName: component.name });
-                    }
-                });
-        }
-    }
+    const handleDeleteComponent = async (component: CDListener | CDService | CDAutomation | CDConnection) => {
+        console.log(">>> delete component", component);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .deleteByComponentInfo({
+                filePath: component.location.filePath,
+                component: {
+                    name: (component as any).name || (component as any).symbol || "",
+                    filePath: component.location.filePath,
+                    startLine: component.location.startLine.line,
+                    startColumn: component.location.startLine.offset,
+                    endLine: component.location.endLine.line,
+                    endColumn: component.location.endLine.offset,
+                },
+            })
+            .then((response) => {
+                console.log(">>> Updated source code after delete", response);
+                if (!response.textEdits) {
+                    console.error(">>> Error updating source code", response);
+                }
+            });
+    };
 
     if (!projectStructure) {
         return (
@@ -148,91 +146,18 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         );
     }
 
-    const project: Project = {
-        name: projectName,
-        entryPoints: [],
-        connections: [],
-    };
-    // generate project structure
-    projectStructure.directoryMap[DIRECTORY_MAP.CONNECTIONS].forEach((connection) => {
-        const name = connection.name.trim();
-        project.connections.push({
-            id: name,
-            name: name,
-            location: {
-                filePath: connection.path,
-                position: connection.position,
-            },
-        });
-    });
-    projectStructure.directoryMap[DIRECTORY_MAP.SERVICES].forEach((service) => {
-        // handle trigger service
-        if (service?.triggerNode) {
-            project.entryPoints.push({
-                id: service.name,
-                name: service.context,
-                type: "service",
-                label: service.triggerNode.properties?.name?.value,
-                description: service.triggerNode.name,
-                icon: getEntryNodeIcon(service.triggerNode),
-                location: {
-                    filePath: service.path,
-                    position: service.position,
-                },
-                connections: service.st?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
-            });
-            return;
-        }
-        // handle generic service
-        project.entryPoints.push({
-            id: service.name,
-            name: service.context,
-            type: "service",
-            label: service.name,
-            location: {
-                filePath: service.path,
-                position: service.position,
-            },
-            connections: service.st?.VisibleEndpoints?.map((endpoint) => endpoint.name) || [],
-        });
-    });
-    projectStructure.directoryMap[DIRECTORY_MAP.AUTOMATION].forEach((task) => {
-        const isScheduleTask =
-            (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(2)?.valueExpr?.literalToken
-                ?.value === '"SCHEDULED"';
-        let taskName = (task.st as any)?.metadata?.annotations?.at(0)?.annotValue?.fields?.at(0)?.valueExpr
-            ?.literalToken?.value;
-        if (taskName) {
-            taskName = taskName.replace(/['"]/g, "");
-        }
-
-        console.log(">>> task", { taskName, task });
-
-        project.entryPoints.push({
-            id: task.name,
-            name: task.context,
-            label: taskName || task.name,
-            type: isScheduleTask ? "schedule-task" : "task",
-            location: {
-                filePath: task.path,
-                position: task.position,
-            },
-            connections:
-                (task.st as any)?.functionBody?.VisibleEndpoints?.map((endpoint: { name: string }) => endpoint.name) ||
-                [],
-        });
-    });
-
     return (
         <DiagramContainer>
-            <Diagram
-                project={project}
-                onAddEntryPoint={handleAddArtifact}
-                onAddConnection={handleAddConnection}
-                onEntryPointSelect={handleGoToEntryPoints}
-                onConnectionSelect={handleGoToConnection}
-                onDeleteComponent={handleDeleteComponent}
-            />
+            {project && (
+                <Diagram
+                    project={project}
+                    onListenerSelect={handleGoToListener}
+                    onServiceSelect={handleGoToService}
+                    onAutomationSelect={handleGoToAutomation}
+                    onConnectionSelect={handleGoToConnection}
+                    onDeleteComponent={handleDeleteComponent}
+                />
+            )}
         </DiagramContainer>
     );
 }

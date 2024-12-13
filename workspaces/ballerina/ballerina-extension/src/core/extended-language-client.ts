@@ -147,6 +147,8 @@ import {
     ServiceModelRequest,
     ServiceModelResponse,
     ServiceSourceCodeRequest
+    BIDesignModelRequest,
+    BIDesignModelResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -244,7 +246,8 @@ enum EXTENDED_APIS {
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
     BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
-    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels'
+    BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
+    BI_DESIGN_MODEL = 'designModelService/getDesignModel'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -774,26 +777,37 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     async getListeners(params: ListenersRequest): Promise<ListenersResponse> {
         return this.sendRequest<ListenersResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENERS, params);
     }
+
     async getListenerModel(params: ListenerModelRequest): Promise<ListenerModelResponse> {
         return this.sendRequest<ListenerModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENER, params);
     }
+
     async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_LISTENER, params);
     }
+
     async getServiceModel(params: ServiceModelRequest): Promise<ServiceModelResponse> {
         return this.sendRequest<ServiceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE, params);
     }
+
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_SERVICE, params);
     }
+
     async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
         return this.sendRequest<ServiceModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE_SOURCE, params);
     }
+
     async getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
         return this.sendRequest<HttpResourceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_RESOURCE, params);
     }
+
     async updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
         return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_RESOURCE, params);
+    }
+
+    async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
+        return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
     }
 
     // <------------ BI APIS END --------------->
