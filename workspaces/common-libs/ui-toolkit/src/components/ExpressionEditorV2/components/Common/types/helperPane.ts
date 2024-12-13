@@ -24,6 +24,7 @@ export type HelperPaneIconButtonProps = {
 }
 
 export type HelperPaneCompletionItemProps = {
+    level?: number;
     label: string;
     type?: string;
     getIcon?: () => ReactNode;

@@ -93,7 +93,7 @@ export function HomePage(props: MediatorPageProps) {
                 <ButtonContainer style={{ marginBottom: "10px", width: "calc(100% - 15px)", justifyContent: "space-evenly" }}>
                     <Button buttonSx={{ width: '195px' }} onClick={handleAllMediatorsClicked} appearance={isAllMediators ? 'primary' : 'secondary'} >
                         <Icon sx={{ marginTop: 2, marginRight: 5 }} name="module-icon" />
-                        Mediators
+                        Modules
                     </Button>
 
                     <Button buttonSx={{ width: '195px' }} onClick={handleConnectionsClicked} appearance={isConnections ? 'primary' : 'secondary'}>

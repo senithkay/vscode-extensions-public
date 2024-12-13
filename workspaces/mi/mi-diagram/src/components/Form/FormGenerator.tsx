@@ -16,7 +16,7 @@ import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keyloo
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
+import { getParamManagerFromValues, getParamManagerOnChange, openPopup, deriveDefaultValue } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
@@ -70,6 +70,7 @@ interface Element {
     tableValue?: string;
     configurableType?: string;
     addParamText?: string;
+    deriveResponseVariable?: boolean;
 }
 
 interface ExpressionValueWithSetter {
@@ -132,7 +133,10 @@ export function FormGenerator(props: FormGeneratorProps) {
         const type = element.type;
         const value = element.value;
         const inputType = value.inputType;
-        const currentValue = value.currentValue ?? value.defaultValue;
+        const deriveResponseVariable = value.deriveResponseVariable ?? false;
+        const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
+        const currentValue = value.currentValue ?? defaultValue;
+        deriveDefaultValue(formData.connectorName, formData.operationName);
 
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
@@ -322,16 +326,36 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             case 'key':
             case 'keyOrExpression':
-            case 'comboOrKey':
-            case 'registry':
-            case 'resource': 
-            case 'resourceOrExpression': {
+            case 'comboOrKey': {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
                         const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
                         openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
+                }
+
+                return (<Keylookup
+                    value={field.value}
+                    filterType={(keyType as any) ?? "resource"}
+                    label={element.displayName}
+                    labelAdornment={helpTipElement}
+                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    onValueChange={field.onChange}
+                    required={isRequired}
+                    errorMsg={errorMsg}
+                    additionalItems={element.comboValues}
+                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
+                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
+                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                    onCreateButtonClick={onCreateButtonClick}
+                />)
+            }
+            case 'registry':
+            case 'resource': 
+            case 'resourceOrExpression': {
+                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                    openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: Array.isArray(keyType) ? keyType : [keyType] });
                 }
 
                 return (<Keylookup

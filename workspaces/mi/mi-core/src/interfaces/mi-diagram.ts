@@ -34,4 +34,7 @@ export type HelperPaneData = {
     variables: HelperPaneCompletionItem[];
     properties: HelperPaneCompletionItem[];
     functions: HelperPaneFunctionInfo;
+    configs: HelperPaneCompletionItem[];
+    headers: HelperPaneCompletionItem[];
+    params: HelperPaneCompletionItem[];
 };

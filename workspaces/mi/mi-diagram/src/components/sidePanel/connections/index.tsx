@@ -433,7 +433,7 @@ export function ConnectionPage(props: ConnectorPageProps) {
                                                                     {((filteredOperations.find(([filteredConnection]) => filteredConnection === connection)?.slice(1)[0])
                                                                         || filteredConnections[key].connectorData?.actions).map((operation: any) => {
                                                                             const allowedTypes = operation.allowedConnectionTypes;
-                                                                            if (operation.isHidden || ((allowedTypes?.length > 0) && !(allowedTypes?.includes(connection.connectionType)))) {
+                                                                            if (operation.isHidden || (!(allowedTypes?.includes(connection.connectionType)))) {
                                                                                 return null;
                                                                             }
 

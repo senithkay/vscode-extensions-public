@@ -156,3 +156,8 @@ const getParamManagerKeyOrValue = (elements: any, key: string, fields: ParamFiel
 
     return values[keyIndex].value ?? '';
 }
+
+export const deriveDefaultValue = (connectorName: string, connectorOperation: string): string => {
+    const randomNum = Math.floor(Math.random() * 1000);
+    return `${connectorName}_${connectorOperation}_${randomNum}`;
+}
