@@ -31,6 +31,11 @@ export const mediatorTestCases: MediatorTestCase[] = [
         expectedDefaultDescription: "Source XPath"
     },
     {
+        type: "Scatter Gather",
+        expectedDescription: "Scatter Gather Description",
+        expectedDefaultDescription: undefined
+    },
+    {
         type: "Clone",
         expectedDescription: "Clone Description",
         expectedDefaultDescription: undefined
