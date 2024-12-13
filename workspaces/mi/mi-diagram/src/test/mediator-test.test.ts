@@ -275,6 +275,11 @@ export const mediatorTestCases: MediatorTestCase[] = [
         type: "Bam",
         expectedDescription: "BAM Description",
         expectedDefaultDescription: undefined
+    },
+    {
+        type: "Variable",
+        expectedDescription: "Variable Description",
+        expectedDefaultDescription: undefined
     }
     // Add more test cases as needed
 ];
