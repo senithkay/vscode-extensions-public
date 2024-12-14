@@ -28,7 +28,7 @@ export async function updateTsFileIoTypes(dmName: string, sourcePath: string, sc
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
     const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamappers');
+      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
     const tsSource = getTsAST(tsFilepath);
     const tsSources = separateInterfacesWithComments(tsSource);
@@ -98,7 +98,7 @@ export async function updateTsFileCustomTypes(dmName: string, sourcePath: string
   const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(sourcePath));
   if (workspaceFolder) {
     const dataMapperConfigFolder = path.join(
-      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamappers');
+      workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'datamapper');
     const tsFilepath = path.join(dataMapperConfigFolder, dmName, `${dmName}.ts`);
 
     const readAndConvertSchema = async (schema: JSONSchema3or4, title: string) => {

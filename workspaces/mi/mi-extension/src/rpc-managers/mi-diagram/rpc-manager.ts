@@ -3450,7 +3450,7 @@ ${endpointAttributes}
 
     async createRegistryResource(params: CreateRegistryResourceRequest): Promise<CreateRegistryResourceResponse> {
         return new Promise(async (resolve) => {
-            let artifactName = ('resources/' + params.registryPath).replace(path.sep, "_").replace(/_+/g, '_');
+            let artifactName = ('resources/' + params.registryPath).replace(new RegExp('/', 'g'), "_").replace(/_+/g, '_');
 
             let projectDir = params.projectDirectory;
             const fileUri = Uri.file(params.projectDirectory);
