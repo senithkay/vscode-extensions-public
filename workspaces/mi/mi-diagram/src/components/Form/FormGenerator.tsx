@@ -356,16 +356,36 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             case 'key':
             case 'keyOrExpression':
-            case 'comboOrKey':
-            case 'registry':
-            case 'resource': 
-            case 'resourceOrExpression': {
+            case 'comboOrKey': {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
                         const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
                         openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
+                }
+
+                return (<Keylookup
+                    value={field.value}
+                    filterType={(keyType as any) ?? "resource"}
+                    label={element.displayName}
+                    labelAdornment={helpTipElement}
+                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    onValueChange={field.onChange}
+                    required={isRequired}
+                    errorMsg={errorMsg}
+                    additionalItems={element.comboValues}
+                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
+                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
+                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                    onCreateButtonClick={onCreateButtonClick}
+                />)
+            }
+            case 'registry':
+            case 'resource': 
+            case 'resourceOrExpression': {
+                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                    openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: Array.isArray(keyType) ? keyType : [keyType] });
                 }
 
                 return (<Keylookup
