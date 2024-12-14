@@ -231,6 +231,46 @@ export function FormGenerator(props: FormGeneratorProps) {
         </ComponentCard>;
     }
 
+    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element) => {
+        const name = getNameForController(element.name);
+        
+        return expressionEditorField !== name ? (
+            <FormExpressionField
+                {...field}
+                label={element.displayName}
+                required={element.required === 'true'}
+                placeholder={element.placeholder}
+                nodeRange={range}
+                openExpressionEditor={(value, setValue) => {
+                    setCurrentExpressionValue({ value, setValue });
+                    setExpressionEditorField(name);
+                }}
+            />
+        ) : (
+            <>
+                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                    <label>{element.displayName}</label>
+                    {element.required === "true" && <RequiredFormInput />}
+                    <div style={{ paddingTop: '5px' }}>
+                        {helpTipElement}
+                    </div>
+                </div>
+                <ExpressionEditor
+                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                    handleOnSave={(newValue) => {
+                        if (currentExpressionValue) {
+                            currentExpressionValue.setValue(newValue);
+                        }
+                        setExpressionEditorField(null);
+                    }}
+                    handleOnCancel={() => {
+                        setExpressionEditorField(null);
+                    }}
+                />
+            </>
+        );
+    }
+
     const renderFormElement = (element: Element, field: any) => {
         const name = getNameForController(element.name);
         const isRequired = typeof element.required === 'boolean' ? element.required : element.required === 'true';
@@ -302,8 +342,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder, isRequired });
-
+                return FormExpressionFieldComponent(element, field, helpTipElement);
             case 'booleanOrExpression':
             case 'comboOrExpression':
             case 'combo':
