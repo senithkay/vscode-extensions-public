@@ -38,3 +38,14 @@ export type HelperPaneData = {
     headers: HelperPaneCompletionItem[];
     params: HelperPaneCompletionItem[];
 };
+
+export type Namespace = {
+    prefix: string;
+    uri: string;
+}
+
+export type FormExpressionFieldValue = {
+    isExpression: boolean;
+    value: string;
+    namespaces: Namespace[];
+}
