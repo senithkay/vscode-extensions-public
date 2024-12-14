@@ -8,7 +8,7 @@
 */
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox } from '@wso2-enterprise/ui-toolkit';
+import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox, Icon, TextArea } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from '../../Form/CodeTextArea';
@@ -69,13 +69,23 @@ export function TryOutView(props: TryoutProps) {
         if (!props.isActive) {
             return;
         }
-        getInputData();
+        const fetchMediatorDetails = async () => {
+            await getInputPayload();
+            await getInputData();
+        };
+        fetchMediatorDetails();
     }, [props]);
 
     const getInputData = async () => {
         try {
-            await getInputPayload();
-            if (!nodeRange) return;
+            setIsTryOutLoading(true);
+            setTryOutError(null);
+            setMediatorInput(undefined);
+            setMediatorOutput(undefined);
+            if (!nodeRange) {
+                setIsLoading(false);
+                return;
+            }
 
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 file: documentUri,
@@ -96,6 +106,7 @@ export function TryOutView(props: TryoutProps) {
         } catch (error) {
             console.error("Error fetching mediator input/output schema:", error);
         } finally {
+            setIsTryOutLoading(false);
             setIsLoading(false);
         }
     }
@@ -187,60 +198,53 @@ export function TryOutView(props: TryoutProps) {
             </Typography>
 
             <Section>
-                <Typography variant="h3">Payload</Typography>
+                <Typography variant="h3">Request</Typography>
                 <CheckBox
-                    label="Use default payload"
+                    label="Use default request payload"
                     checked={isDefaultInput}
+                    disabled={isTryOutLoading}
                     onChange={() => setIsDefaultInput(!isDefaultInput)}
                 />
                 {!isDefaultInput &&
                     <div>
-                        <Typography variant="body3">Custom payload</Typography>
-                        <CodeTextArea name="Payload" rows={5} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
+                        <CodeTextArea label='Custom request payload' rows={5} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
                     </div>}
 
-                <div style={{ marginTop: "10px" }}>
-                    <MediatorDetails
-                        data={mediatorInput}
-                        setMediatorInfo={setMediatorInput}
-                        isExpanded={isInputExpanded}
-                        setIsExpanded={setIsInputExpanded}
-                        isEditable={true}
-                    />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h2">Before running the mediator</Typography>
+                    <Button onClick={getInputData} sx={{ marginLeft: "10px", marginTop: "8px" }} tooltip={isTryOutLoading ? 'Running...' : 'Refresh'} appearance="secondary" disabled={isTryOutLoading}>
+                        <Icon name="refresh" isCodicon />
+                    </Button>
                 </div>
-                <Button onClick={onTryOut} sx={{ marginTop: "10px", marginLeft: "auto" }} disabled={isTryOutLoading}>
-                    {isTryOutLoading ? 'Running...' : 'Run'}
-                </Button>
+                {mediatorInput &&
+                    <>
+                        <div style={{ marginTop: "10px" }}>
+                            <MediatorDetails
+                                data={mediatorInput}
+                                setMediatorInfo={setMediatorInput}
+                                isExpanded={isInputExpanded}
+                                setIsExpanded={setIsInputExpanded}
+                                isEditable={true}
+                            />
+                        </div>
+                        <Button onClick={onTryOut} sx={{ marginTop: "10px", marginLeft: "auto" }} disabled={isTryOutLoading}>
+                            {isTryOutLoading ? 'Running...' : 'Run'}
+                        </Button>
+                    </>
+                }
             </Section>
             <hr style={{ width: "100%", border: "none", borderTop: "1px solid var(--vscode-editorWidget-border)", margin: "20px 0" }} />
 
             {tryOutError && <ErrorBanner errorMsg={tryOutError} />}
             {mediatorOutput && mediatorOutput.properties.synapse && <Section>
-                <Typography variant="h3" sx={{ fontSize: "1.2em" }}>Output</Typography>
-                <div>
-                    <Typography variant="body3">Payload</Typography>
-                    {isDefaultInput &&
-                        <div style={{
-                            border: "1px solid",
-                            borderRadius: "4px",
-                            padding: "10px",
-                            whiteSpace: "pre-wrap",
-                            backgroundColor: Colors.SURFACE_CONTAINER,
-                            borderColor: Colors.OUTLINE
-                        }}>
-                            {mediatorOutput.payload}
-                        </div>
-                    }
-                    {!isDefaultInput && <CodeTextArea name="Payload" growRange={{ start: 5, offset: 5 }} value={mediatorOutput.payload} />}
-                </div>
-                <br />
-                <MediatorDetails
+                <Typography variant="h2">After running the mediator</Typography>
+                {mediatorOutput && <MediatorDetails
                     data={mediatorOutput}
                     setMediatorInfo={setMediatorOutput}
                     isExpanded={isOutputExpanded}
                     setIsExpanded={setIsOutputExpanded}
                     isEditable={false}
-                />
+                />}
             </Section>}
         </TryoutContainer>
     );
@@ -267,6 +271,13 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
             }
         });
     }
+
+    const Payload = ({ payload }: { payload: string }) => (
+        <FormGroup title='Payload' isCollapsed={!isExpanded.payload} onToggle={(collapsed) => toggleExpanded('payload', collapsed)}>
+            {isEditable && <CodeTextArea name="Payload" label='Payload' rows={5} value={payload} />}
+            {!isEditable && <TextArea name="Payload" label='Payload' value={payload} rows={5} readOnly />}
+        </FormGroup>
+    );
 
     const Properties = ({ properties }: { properties: MediatorProperties }) => (
         <FormGroup title='Properties' isCollapsed={!isExpanded.properties} onToggle={(collapsed) => toggleExpanded('properties', collapsed)}>
@@ -331,6 +342,7 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
 
     return (
         <>
+            <Payload payload={data.payload} />
             <Headers headers={data.headers} />
             <Params params={data.params} />
             <Variables variables={data.variables} />

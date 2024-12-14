@@ -63,7 +63,7 @@ export function MediatorPage(props: MediatorPageProps) {
                     <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
-                        isActive={activeTab === "tryout"}
+                        isActive={activeTab === "tryout" || !showMediaotrPanel}
                     />
                 </PanelContent>
             </VSCodePanels>
