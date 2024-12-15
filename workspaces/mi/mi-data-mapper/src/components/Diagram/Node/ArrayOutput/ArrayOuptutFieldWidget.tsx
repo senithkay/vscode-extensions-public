@@ -32,6 +32,7 @@ import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -147,7 +148,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.labelDisabled : "")}
-                style={{ marginLeft: hasValue && !connectedViaLink ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
@@ -380,6 +380,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     ];
 
     return (
+        <>
         <div
             className={classnames(classes.treeLabelArray, hasHoveredParent ? classes.treeLabelParentHovered : "")}
         >
@@ -406,7 +407,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         )}
                     </span>
                     <span className={classes.label}>
-                        {(hasValue && !connectedViaLink) && (
+                        {(!connectedViaLink) && (
                             <FieldActionWrapper>
                                 <Button
                                     appearance="icon"
@@ -443,9 +444,18 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     </div>
                 </div>
             )}
-            {expanded && !(hasValue && arrayLitExpr) && (field.type.memberType.kind === TypeKind.Array) && (
-                <span></span>
-            )}
+            
         </div>
+        {expanded && !(hasValue && arrayLitExpr) && (
+                <OutputFieldPreviewWidget
+                    engine={engine}
+                    dmType={{...field.type.memberType, fieldName: `<${field.type.fieldName}Item>`}}
+                    getPort={getPort}
+                    parentId={fieldId}
+                    treeDepth={treeDepth + 2}
+                    hasHoveredParent={isHovered}
+                />
+            )}
+        </>
     );
 }

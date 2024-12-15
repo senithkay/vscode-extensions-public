@@ -21,7 +21,7 @@ import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
 
 
-export interface InputNodeTreeItemWidgetProps {
+export interface OutputFieldPreviewWidgetProps {
     parentId: string;
     dmType: DMType;
     engine: DiagramEngine;
@@ -30,7 +30,7 @@ export interface InputNodeTreeItemWidgetProps {
     hasHoveredParent?: boolean;
 }
 
-export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
+export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
     const { parentId, dmType, getPort, engine, treeDepth = 0, hasHoveredParent } = props;
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -40,7 +40,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     const fieldName = dmType.fieldName;
     const typeName = getTypeName(dmType);
     const fieldId = `${parentId}.${fieldName}`;
-    const portOut = getPort(`${fieldId}.OUT`);
+    const portIn = getPort(fieldId + ".IN");
 
     const classes = useIONodesStyles();
 
@@ -54,7 +54,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     let expanded = true;
 
-    if (portOut && portOut.collapsed) {
+    if (portIn && portIn.collapsed) {
         expanded = false;
     }
 
@@ -64,7 +64,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 <InputSearchHighlight>{fieldName}</InputSearchHighlight>
-                {dmType.optional && "?"}
+                {!dmType.optional && "*"}
                 {typeName && ":"}
             </span>
             {typeName && (
@@ -106,7 +106,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                 )}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
-                title={(portOut && portOut.isPreview) ? "Please map parent field first" : ""}
+                title={"Please map parent field first"}
             >
                 <span className={classes.label}>
                     {fields && <Button
@@ -120,16 +120,11 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
                     </Button>}
                     {label}
                 </span>
-                <span className={classes.outPort}>
-                    {portOut && !portOut.isPreview &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
-                </span>
             </div>
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
-                        <InputNodeTreeItemWidget
+                        <OutputFieldPreviewWidget
                             key={index}
                             engine={engine}
                             dmType={subField}
