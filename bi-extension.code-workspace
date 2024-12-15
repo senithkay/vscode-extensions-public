@@ -29,6 +29,9 @@
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/ballerina/type-diagram"
 		}
 	],
 	"settings": {}

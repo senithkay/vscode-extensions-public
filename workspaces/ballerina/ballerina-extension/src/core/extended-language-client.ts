@@ -32,7 +32,6 @@ import {
     PersistERModelParams,
     PersistERModel,
     Diagnostics,
-    TypeParams,
     ExpressionType,
     ConnectorsParams,
     TriggersParams,
@@ -134,6 +133,12 @@ import {
     BIGetEnclosedFunctionResponse,
     BIDesignModelRequest,
     BIDesignModelResponse
+    GetTypesResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
+    GetTypeRequest,
+    GetTypeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -223,7 +228,10 @@ enum EXTENDED_APIS {
     BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
     BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
     BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
-    BI_DESIGN_MODEL = 'designModelService/getDesignModel'
+    BI_DESIGN_MODEL = 'designModelService/getDesignModel',
+    BI_GET_TYPES = 'typesManager/getTypes',
+    BI_GET_TYPE = 'typesManager/getType',
+    BI_UPDATE_TYPE = 'typesManager/updateType'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -356,9 +364,9 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return response;
     }
 
-    async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
-        return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
-    }
+    // async getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE> {
+    //     return this.sendRequest(EXTENDED_APIS.SYMBOL_TYPE, params);
+    // }
 
     async getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.CONNECTOR_CONNECTORS);
@@ -752,6 +760,18 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
         return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
+    }
+    
+    async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        return this.sendRequest<GetTypesResponse>(EXTENDED_APIS.BI_GET_TYPES, params);
+    }
+
+    async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return this.sendRequest<GetTypeResponse>(EXTENDED_APIS.BI_GET_TYPE, params);
+    }
+
+    async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this.sendRequest<UpdateTypeResponse>(EXTENDED_APIS.BI_UPDATE_TYPE, params);
     }
 
     // <------------ BI APIS END --------------->

@@ -53,6 +53,10 @@ import {
     FlowNode,
     FormDidCloseParams,
     FormDidOpenParams,
+    GetTypeRequest,
+    GetTypeResponse,
+    GetTypesRequest,
+    GetTypesResponse,
     ImportStatement,
     ImportStatements,
     OverviewFlow,
@@ -68,6 +72,8 @@ import {
     SyntaxTree,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -97,6 +103,7 @@ import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure,
 import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
+import { reject } from "lodash";
 
 export class BiDiagramRpcManager implements BIDiagramAPI {
 
@@ -945,7 +952,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
             const breakpoints = breakpointsForFile.filter((breakpoint) => {
                 return breakpoint.location.range.start.line === params.breakpoint.line &&
-                breakpoint.location.range.start?.character === params.breakpoint?.column;
+                    breakpoint.location.range.start?.character === params.breakpoint?.column;
             });
 
             // If there are no breakpoints found,
@@ -1011,14 +1018,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
             StateMachine.langClient()
                 .getEnclosedFunctionDef(params)
                 .then((response) => {
-                    if(response?.filePath && response?.startLine && response?.endLine) {
+                    if (response?.filePath && response?.startLine && response?.endLine) {
                         console.log(">>> parent function position ", response);
                         resolve(response);
                     } else {
                         console.log(">>> parent function position not found");
                         resolve(undefined);
                     }
-                    
+
                 })
                 .catch((error) => {
                     console.log(">>> error fetching parent function position", error);
@@ -1086,6 +1093,38 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+    async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        const projectUri = StateMachine.context().projectUri;
+        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
+
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getTypes({ filePath: ballerinaFiles[0] })
+                .then((types) => {
+                    resolve(types);
+                }).catch((error) => {
+                    console.log(">>> error fetching types from ls", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .getType(params)
+                .then((type) => {
+                    console.log(">>> type from ls", type);
+                    resolve(type);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching type from ls", error);
+                    reject(error);
                 });
         });
     }

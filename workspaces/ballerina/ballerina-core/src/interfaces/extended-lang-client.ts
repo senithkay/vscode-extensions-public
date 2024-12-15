@@ -130,13 +130,6 @@ export interface Diagnostics {
     diagnostics: Diagnostic[];
 }
 
-export interface TypeParams {
-    documentIdentifier: {
-        uri: string;
-    };
-    position: LinePosition;
-}
-
 export interface ExpressionType {
     documentIdentifier: {
         uri: string;
@@ -811,6 +804,35 @@ export interface TriggerFunctionRequest {
     function: TriggerFunction;
 }
 
+// <-------- Type Related ------->
+export interface GetTypesRequest {
+    filePath: string;
+}
+
+export interface GetTypeRequest {
+    filePath: string;
+    linePosition: LinePosition;
+}
+
+export interface UpdateTypeRequest {
+    filePath: string;
+    type: string;
+}
+
+export interface GetTypesResponse {
+    types: any;
+}
+
+export interface GetTypeResponse {
+    type: any;
+}
+
+export interface UpdateTypeResponse {
+
+}
+
+// <-------- Trigger Related ------->
+
 export interface TriggerFunctionResponse {
     textEdits: {
         [key: string]: TextEdit[];
@@ -853,6 +875,9 @@ export interface BIInterface extends BaseLangClientInterface {
     addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {
@@ -865,7 +890,6 @@ export interface ExtendedLangClientInterface extends BIInterface {
     getPackageComponentModels(params: ComponentModelsParams): Promise<ComponentModels>;
     getPersistERModel(params: PersistERModelParams): Promise<PersistERModel>;
     getDiagnostics(params: DiagnosticsParams): Promise<Diagnostics[] | NOT_SUPPORTED_TYPE>;
-    getType(params: TypeParams): Promise<ExpressionType | NOT_SUPPORTED_TYPE>;
     getConnectors(params: ConnectorsParams, reset?: boolean): Promise<Connectors | NOT_SUPPORTED_TYPE>;
     getTriggers(params: TriggersParams): Promise<Triggers | NOT_SUPPORTED_TYPE>;
     getConnector(params: ConnectorRequest): Promise<ConnectorResponse | NOT_SUPPORTED_TYPE>;

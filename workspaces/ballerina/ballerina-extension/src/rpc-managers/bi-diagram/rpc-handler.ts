@@ -26,10 +26,13 @@ import {
     ExpressionDiagnosticsRequest,
     FormDidCloseParams,
     FormDidOpenParams,
+    GetTypeRequest,
+    GetTypesRequest,
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
     UpdateConfigVariableRequest,
+    UpdateTypeRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
     buildProject,
@@ -60,6 +63,8 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
+    getType,
+    getTypes,
     getVisibleTypes,
     getVisibleVariableTypes,
     getWorkspaces,
@@ -69,6 +74,7 @@ import {
     removeBreakpointFromSource,
     runProject,
     updateConfigVariables,
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { BiDiagramRpcManager } from "./rpc-manager";
@@ -113,4 +119,7 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
     messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
     messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
+    messenger.onRequest(getTypes, (args: GetTypesRequest) => rpcManger.getTypes(args));
+    messenger.onRequest(getType, (args: GetTypeRequest) => rpcManger.getType(args));
+    messenger.onRequest(updateType, (args: UpdateTypeRequest) => rpcManger.updateType(args));
 }

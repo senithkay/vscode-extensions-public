@@ -45,6 +45,10 @@ import {
     ExpressionDiagnosticsResponse,
     FormDidCloseParams,
     FormDidOpenParams,
+    GetTypeRequest,
+    GetTypeResponse,
+    GetTypesRequest,
+    GetTypesResponse,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -55,6 +59,8 @@ import {
     SignatureHelpResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateTypeRequest,
+    UpdateTypeResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
@@ -87,6 +93,8 @@ import {
     getReadmeContent,
     getSignatureHelp,
     getSourceCode,
+    getType,
+    getTypes,
     getVisibleTypes,
     getVisibleVariableTypes,
     getWorkspaces,
@@ -95,7 +103,8 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
-    updateConfigVariables
+    updateConfigVariables,
+    updateType
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -257,5 +266,17 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
+    }
+    
+    getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
+        return this._messenger.sendRequest(getTypes, HOST_EXTENSION, params);
+    }
+
+    getType(params: GetTypeRequest): Promise<GetTypeResponse> {
+        return this._messenger.sendRequest(getType, HOST_EXTENSION, params);
+    }
+
+    updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
+        return this._messenger.sendRequest(updateType, HOST_EXTENSION, params);
     }
 }

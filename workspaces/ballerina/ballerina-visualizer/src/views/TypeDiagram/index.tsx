@@ -38,6 +38,15 @@ export function TypeDiagram(props: TypeDiagramProps) {
         if (!rpcClient || !visualizerLocation?.metadata?.recordFilePath) {
             return;
         }
+        rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath }).then((response: any) => {
+            // @ts-ignore
+            response.types.forEach((type) => {
+                console.log(type);
+                rpcClient.getBIDiagramRpcClient().getType({ filePath: type.codedata.lineRange.fileName, linePosition: type.codedata.lineRange.startLine }).then((typeResponse: any) => {
+                    console.log(typeResponse);
+                });
+            });
+        });
         const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
         return response;
     };
@@ -57,7 +66,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
         if (!rpcClient) {
             return;
         }
-        rpcClient.getCommonRpcClient().goToSource({ filePath, position});
+        rpcClient.getCommonRpcClient().goToSource({ filePath, position });
 
     };
 

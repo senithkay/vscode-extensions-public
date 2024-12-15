@@ -43,6 +43,12 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    GetTypesResponse,
+    UpdateTypeResponse,
+    GetTypesRequest,
+    UpdateTypeRequest,
+    GetTypeRequest,
+    GetTypeResponse,
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -84,8 +90,8 @@ export interface BIDiagramAPI {
     createComponents: (params: ComponentsRequest) => Promise<ComponentsResponse>;
     getVisibleVariableTypes: (params: BIGetVisibleVariableTypesRequest) => Promise<BIGetVisibleVariableTypesResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
-    getConfigVariables:() => Promise<ConfigVariableResponse>;
-    updateConfigVariables:(params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
+    getConfigVariables: () => Promise<ConfigVariableResponse>;
+    updateConfigVariables: (params: UpdateConfigVariableRequest) => Promise<UpdateConfigVariableResponse>;
     getModuleNodes: () => Promise<BIModuleNodesResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
@@ -103,4 +109,7 @@ export interface BIDiagramAPI {
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
     getDesignModel: () => Promise<BIDesignModelResponse>;
+    getTypes: (params: GetTypesRequest) => Promise<GetTypesResponse>;
+    getType: (params: GetTypeRequest) => Promise<GetTypeResponse>;
+    updateType: (params: UpdateTypeRequest) => Promise<UpdateTypeResponse>;
 }
