@@ -88,7 +88,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
     const [canOpenView, setCanOpenView] = useState(false);
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     useEffect(() => {
         if (node.mediatorName === MEDIATORS.DATAMAPPER) {
@@ -205,7 +205,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getMediatorIconsFromFont(node.mediatorName)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
@@ -214,7 +214,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name>{node.mediatorName}</Name>
+                                    <Name>{node.stNode.displayName || node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >

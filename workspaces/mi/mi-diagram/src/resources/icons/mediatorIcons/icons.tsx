@@ -204,6 +204,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             icon = (<Icon name="Send" sx={{ height: 30, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SEQUENCE.toLowerCase():
+        case MEDIATORS.RESOURCE.toLowerCase():
             icon = (<Icon name="CallSequence" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
         case MEDIATORS.SMOOKS.toLowerCase():

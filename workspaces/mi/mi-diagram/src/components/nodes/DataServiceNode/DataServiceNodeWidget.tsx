@@ -111,7 +111,7 @@ export function DataServiceNodeWidget(props: DataServiceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     // datasource node
     const [isHoveredDataSource, setIsHoveredDataSource] = React.useState(false);
