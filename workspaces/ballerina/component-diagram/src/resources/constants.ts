@@ -94,9 +94,10 @@ export const NODE_LOCKED = false;
 // sizing
 export const ENTRY_NODE_WIDTH = 240;
 export const ENTRY_NODE_HEIGHT = 64;
-export const CON_NODE_WIDTH = 200;
+export const CON_NODE_WIDTH = ENTRY_NODE_WIDTH - 40;
 export const CON_NODE_HEIGHT = ENTRY_NODE_HEIGHT;
-export const LISTENER_NODE_WIDTH = ENTRY_NODE_HEIGHT;
+export const LISTENER_NODE_WIDTH = CON_NODE_WIDTH;
+export const LISTENER_NODE_HEIGHT = CON_NODE_HEIGHT;
 
 export const NODE_BORDER_WIDTH = 1.5;
 export const NODE_PADDING = 8;

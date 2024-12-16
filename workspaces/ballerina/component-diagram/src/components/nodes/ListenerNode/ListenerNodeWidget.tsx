@@ -11,7 +11,13 @@ import React from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ListenerNodeModel } from "./ListenerNodeModel";
-import { Colors, NODE_BORDER_WIDTH, LISTENER_NODE_WIDTH, AUTOMATION_LISTENER } from "../../../resources/constants";
+import {
+    Colors,
+    NODE_BORDER_WIDTH,
+    LISTENER_NODE_WIDTH,
+    AUTOMATION_LISTENER,
+    LISTENER_NODE_HEIGHT,
+} from "../../../resources/constants";
 import { Button } from "@wso2-enterprise/ui-toolkit";
 import { ClockIcon, ListenIcon } from "../../../resources";
 
@@ -23,37 +29,35 @@ export namespace NodeStyles {
     export const Node = styled.div<NodeStyleProp>`
         display: flex;
         flex-direction: row;
-        justify-content: center;
+        justify-content: flex-end;
         align-items: center;
-        height: ${LISTENER_NODE_WIDTH}px;
+        height: ${LISTENER_NODE_HEIGHT}px;
+        width: ${LISTENER_NODE_WIDTH}px;
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
 
-    export const Column = styled.div<NodeStyleProp>`
+    export const Row = styled.div<NodeStyleProp>`
         display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
+        flex-direction: row-reverse;
         align-items: center;
-        gap: 4px;
+        gap: 12px;
         width: 100%;
     `;
 
     export const Header = styled.div`
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        align-items: flex-end;
         gap: 6px;
-        padding: 8px;
     `;
 
     export const Circle = styled.div<NodeStyleProp>`
         display: flex;
         justify-content: space-between;
         align-items: center;
-        width: ${LISTENER_NODE_WIDTH}px;
-        height: ${LISTENER_NODE_WIDTH}px;
+        width: ${LISTENER_NODE_HEIGHT}px;
+        height: ${LISTENER_NODE_HEIGHT}px;
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 50%;
@@ -91,7 +95,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)<NodeStyleProp>`
-        max-width: ${LISTENER_NODE_WIDTH}px;
+        max-width: ${LISTENER_NODE_WIDTH - LISTENER_NODE_HEIGHT}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -102,7 +106,7 @@ export namespace NodeStyles {
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${LISTENER_NODE_WIDTH - 80}px;
+        max-width: ${LISTENER_NODE_WIDTH - LISTENER_NODE_HEIGHT}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
@@ -164,7 +168,7 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.Column hovered={isHovered}>
+            <NodeStyles.Row hovered={isHovered}>
                 <NodeStyles.Circle hovered={isHovered}>
                     <NodeStyles.LeftPortWidget port={model.getPort("in")!} engine={engine} />
                     <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
@@ -174,7 +178,7 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
                     <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
                     <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
-            </NodeStyles.Column>
+            </NodeStyles.Row>
         </NodeStyles.Node>
     );
 }
