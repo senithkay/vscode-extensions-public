@@ -151,7 +151,7 @@ export const CreateConnection: FC<Props> = ({ item, component, org, project, dir
 				serviceVisibility: data.visibility,
 				componentType: getTypeForDisplayType(component?.spec?.type),
 				componentPath: directoryFsPath,
-				generateCreds: component?.spec?.type !== ComponentDisplayType.ByocWebAppDockerLess
+				generateCreds: component?.spec?.type !== ComponentDisplayType.ByocWebAppDockerLess,
 			};
 			const created = await ChoreoWebViewAPI.getInstance().getChoreoRpcClient().createComponentConnection(req);
 
