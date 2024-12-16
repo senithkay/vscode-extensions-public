@@ -14,18 +14,14 @@ import { HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
 type FunctionsPageProps = {
     isLoading: boolean;
     functionInfo: HelperPaneFunctionInfo;
-    setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
-    onClose: () => void;
     onChange: (value: string) => void;
 };
 
 export const FunctionsPage = ({
     isLoading,
     functionInfo,
-    setCurrentPage,
     setFilterText,
-    onClose,
     onChange
 }: FunctionsPageProps) => {
     const firstRender = useRef<boolean>(true);
@@ -73,9 +69,6 @@ export const FunctionsPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Functions"
-                onBack={() => setCurrentPage(0)}
-                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
