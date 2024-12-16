@@ -14,6 +14,7 @@ import { COMMANDS } from '../constants';
 import { EVENT_TYPE, MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { extension } from '../MIExtensionContext';
 import { importCapp } from '../util/importCapp';
+import { SELECTED_SERVER_PATH } from '../debugger/constants';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -72,6 +73,27 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                     const displayOverview = displayState === undefined ? true : displayState;
                     openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.UnsupportedProject, customProps: { displayOverview } });
                     break;
+            }
+        })
+    );
+
+    // Listen for configuration changes
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeConfiguration((event) => {
+            // Check if the specific configuration key changed
+            if (event.affectsConfiguration('MI.' + SELECTED_SERVER_PATH)) {
+                // Show a prompt to restart the window
+                vscode.window
+                    .showInformationMessage(
+                        'The workspace setting has changed. A window reload is required for changes to take effect.',
+                        'Reload Window'
+                    )
+                    .then((selectedAction) => {
+                        if (selectedAction === 'Reload Window') {
+                            // Command to reload the window
+                            vscode.commands.executeCommand('workbench.action.reloadWindow');
+                        }
+                    });
             }
         })
     );
