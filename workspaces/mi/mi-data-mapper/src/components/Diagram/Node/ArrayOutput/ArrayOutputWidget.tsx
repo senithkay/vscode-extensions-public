@@ -28,6 +28,7 @@ import { IOType } from "@wso2-enterprise/mi-core";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
 import { createSourceForUserInput, modifyChildFieldsOptionality } from "../../utils/modification-utils";
 import { ValueConfigMenu, ValueConfigMenuItem, ValueConfigOption } from '../commons/ValueConfigButton';
+import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
 export interface ArrayOutputWidgetProps {
 	id: string;
 	dmTypeWithValue: DMTypeWithValue;
@@ -244,20 +245,18 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						)}
 					</span>
 					<span className={classes.label}>
-						{hasValue && isBodyArrayLitExpr && (
-							<FieldActionWrapper>
-								<Button
-									id={"expand-or-collapse-" + id}
-									appearance="icon"
-									tooltip="Expand/Collapse"
-									onClick={() => handleExpand(expanded)}
-									data-testid={`${id}-expand-icon-mapping-target-node`}
-									sx={{ marginLeft: indentation }}
-								>
-									{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-								</Button>
-							</FieldActionWrapper>
-						)}
+						<FieldActionWrapper>
+							<Button
+								id={"expand-or-collapse-" + id}
+								appearance="icon"
+								tooltip="Expand/Collapse"
+								onClick={() => handleExpand(expanded)}
+								data-testid={`${id}-expand-icon-mapping-target-node`}
+								sx={{ marginLeft: indentation }}
+							>
+								{expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+							</Button>
+						</FieldActionWrapper>
 						{label}
 					</span>
 					{focusedOnSubMappingRoot && (
@@ -299,6 +298,17 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 							context={context}
 							deleteField={deleteField}
 							asOutput={true}
+						/>
+					</TreeBody>
+				)}
+				{expanded && !(hasValue && isBodyArrayLitExpr) && (
+					<TreeBody>
+						<OutputFieldPreviewWidget
+							engine={engine}
+							dmType={{...dmTypeWithValue.type.memberType, fieldName: `<${dmTypeWithValue.type.fieldName}Item>`}}
+							getPort={getPort}
+							parentId={id}
+							treeDepth={1}
 						/>
 					</TreeBody>
 				)}

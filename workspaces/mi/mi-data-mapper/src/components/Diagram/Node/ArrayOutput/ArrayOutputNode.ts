@@ -95,6 +95,12 @@ export class ArrayOutputNode extends DataMapperNodeModel {
                         );
                     });
                 }
+                this.dmTypeWithValue.type.fieldName = "";
+                const arrItemField = { ...this.dmTypeWithValue.type.memberType, fieldName: `<${this.dmTypeWithValue.type.fieldName}Item>` };
+                this.addPortsForInputField(
+                    arrItemField, "IN", this.rootName, this.rootName, ARRAY_OUTPUT_TARGET_PORT_PREFIX, parentPort,
+                    isCollapsedField, parentPort.collapsed, this.isMapFn, true
+                );
             }
         }
     }
