@@ -40,6 +40,7 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
             'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version,LATEST_MI_VERSION),
             'src': {
                 'main': {
+                    'java': '',
                     'wso2mi': {
                         'artifacts': {
                             'apis': '',
