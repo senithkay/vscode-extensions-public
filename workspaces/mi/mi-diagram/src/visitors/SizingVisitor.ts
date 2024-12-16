@@ -25,6 +25,7 @@ import {
     PayloadFactory,
     PojoCommand,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     STNode,
@@ -43,6 +44,7 @@ import {
     Event,
     DataServiceCall,
     Clone,
+    ScatterGather,
     Cache,
     Aggregate,
     traversNode,
@@ -290,6 +292,7 @@ export class SizingVisitor implements Visitor {
     endVisitLoopback = (node: Loopback): void => this.calculateBasicMediator(node);
     endVisitPayloadFactory = (node: PayloadFactory): void => this.calculateBasicMediator(node);
     endVisitProperty = (node: Property): void => this.calculateBasicMediator(node);
+    endVisitVariable = (node: Variable): void => this.calculateBasicMediator(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.skipChildrenVisit = true;
@@ -356,6 +359,14 @@ export class SizingVisitor implements Visitor {
             targets[target.to || index] = target.endpoint || target.sequence || target
         });
 
+        this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
+        this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
+    }
+    endVisitScatterGather = (node: ScatterGather): void => {
+        let targets: { [key: string]: any } = {}
+        node.targets.forEach((target, index) => {
+            targets[target.to || index] = target.endpoint || target.sequence || target
+        });
         this.calculateBasicMediator(node, NODE_DIMENSIONS.GROUP.WIDTH, NODE_DIMENSIONS.GROUP.HEIGHT)
         this.calculateAdvancedMediator(node, targets, NodeTypes.GROUP_NODE, true);
     }
