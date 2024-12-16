@@ -2192,7 +2192,7 @@ importers:
       '@wso2-enterprise/ballerina-core':
         specifier: workspace:*
         version: link:../../ballerina/ballerina-core
-      '@wso2-enterprise/cell-diagram':
+      '@wso2-enterprise/choreo-cell-diagram':
         specifier: workspace:*
         version: link:../cell-diagram
       '@wso2-enterprise/choreo-client':
