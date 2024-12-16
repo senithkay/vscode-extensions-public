@@ -10,21 +10,22 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import { NodePortModel } from "../../NodePort";
 import { NODE_LOCKED, NodeTypes } from "../../../resources/constants";
-import { EntryPoint } from "../../../utils/types";
-import { getNodeId } from "../../../utils/diagram";
+import { EntryPoint, EntryPointType } from "../../../utils/types";
 
 export class EntryNodeModel extends NodeModel {
     readonly node: EntryPoint;
+    readonly type: EntryPointType;
     protected portIn: NodePortModel;
     protected portOut: NodePortModel;
 
-    constructor(node: EntryPoint) {
+    constructor(node: EntryPoint, type: EntryPointType) {
         super({
-            id: getNodeId(NodeTypes.ENTRY_NODE, node.id),
+            id: node.uuid,
             type: NodeTypes.ENTRY_NODE,
             locked: NODE_LOCKED,
         });
         this.node = node;
+        this.type = type || "service";
         this.addInPort("in");
         this.addOutPort("out");
     }

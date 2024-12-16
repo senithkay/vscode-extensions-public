@@ -38,12 +38,13 @@ import {
     ConfigVariableResponse,
     CreateComponentResponse,
     CurrentBreakpointsResponse,
-    FormDidCloseParams,
-    FormDidOpenParams,
+    BIDesignModelResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ProjectComponentsResponse,
     ProjectImports,
     ProjectRequest,
@@ -73,6 +74,7 @@ import {
     getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
+    getDesignModel,
     getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
@@ -251,5 +253,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     formDidClose(params: FormDidCloseParams): Promise<void> {
         return this._messenger.sendRequest(formDidClose, HOST_EXTENSION, params);
+    }
+
+    getDesignModel(): Promise<BIDesignModelResponse> {
+        return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
 }
