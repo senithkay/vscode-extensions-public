@@ -201,6 +201,11 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse,
     GetMediatorsRequest,
     GetMediatorsResponse,
     GetMediatorRequest,
@@ -355,6 +360,10 @@ export interface MiDiagramAPI {
     addDBDriver: (params: AddDriverRequest) => Promise<boolean>;
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
+    tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
+    getInputPayload: (params:GetPayloadRequest) => Promise<GetPayloadResponse>;
+    getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
     getMediators: (param: GetMediatorsRequest) => Promise<GetMediatorsResponse>;
     getMediator: (param: GetMediatorRequest) => Promise<GetMediatorResponse>;
     updateMediator: (param: UpdateMediatorRequest) => Promise<void>;

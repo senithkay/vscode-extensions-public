@@ -41,6 +41,8 @@ import {
     AddDriverRequest,
     DSSQueryGenRequest,
     DSSQueryGenResponse,
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
     GetMediatorsRequest,
     GetMediatorsResponse,
     GetMediatorRequest,
@@ -345,6 +347,14 @@ export class ExtendedLanguageClient extends LanguageClient {
 
             resolve(undefined);
         });
+    }
+
+    async tryOutMediator(req: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this.sendRequest("synapse/tryOutMediator", req);
+    }
+
+    async getMediatorInputOutputSchema(req: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this.sendRequest("synapse/mediatorInputOutputSchema", req);
     }
 
     async getMediators(request: GetMediatorsRequest): Promise<GetMediatorsResponse> {

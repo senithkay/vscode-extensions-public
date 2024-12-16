@@ -10,9 +10,10 @@ import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
-import { MediatorForm } from './mediators/Form';
+import InputPayloadForm from './Pages/InputPayload';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getMediatorIconsFromFont } from '../../resources/icons/mediatorIcons/icons';
+import { MediatorPage } from './mediators/Mediator';
 
 const SidePanelContainer = styled.div`
     padding: 20px;
@@ -135,19 +136,33 @@ const SidePanelList = (props: SidePanelListProps) => {
 
                     const form = allForms.find(form => form.operationName.toLowerCase() === sidePanelContext.operationName?.toLowerCase());
                     if (form) {
-                        sidepanelAddPage(sidePanelContext, form, `Edit ${form.title}`);
+                        sidepanelAddPage(sidePanelContext, form.form, `Edit ${form.title}`);
                     }
                 } else {
+                    const isStartNode = sidePanelContext.operationName === "startNode";
 
-                    const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+                    const mediatorDetails = isStartNode ? undefined : await rpcClient.getMiDiagramRpcClient().getMediator({
                         mediatorType: sidePanelContext.tag,
                         range: sidePanelContext?.nodeRange,
                         documentUri: props?.documentUri
                     });
 
-                    const form = <MediatorForm mediatorData={mediatorDetails} mediatorType={sidePanelContext.tag} isUpdate={true} documentUri={props.documentUri} range={props.nodePosition} />;
-                    sidepanelAddPage(sidePanelContext, form, `Edit ${mediatorDetails?.title || sidePanelContext.tag}`, getMediatorIconsFromFont(sidePanelContext.tag, false));
+                    const title = isStartNode ? undefined : `Edit ${mediatorDetails?.title || sidePanelContext.tag}`;
+                    const icon = isStartNode ? undefined : getMediatorIconsFromFont(sidePanelContext.tag, false);
+                    const page = <MediatorPage
+                        mediatorData={mediatorDetails}
+                        mediatorType={sidePanelContext.tag}
+                        isUpdate={true}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                        showMediaotrPanel={!isStartNode}
+                    />;
+                    sidepanelAddPage(sidePanelContext, page, title, icon);
                 }
+            } else if (sidePanelContext.isEditing && sidePanelContext.operationName == "input") {
+
+                const payloadForm = { content: <InputPayloadForm />, title: `Edit Input Payload` };
+                sidepanelAddPage(sidePanelContext, payloadForm.content, payloadForm.title);
             } else {
                 const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
                 sidepanelAddPage(sidePanelContext, home);

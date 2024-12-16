@@ -202,6 +202,11 @@ import {
     AddDriverToLibRequest,
     AddDriverToLibResponse,
     APIContextsResponse,
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse,
     GetMediatorsRequest,
     GetMediatorsResponse,
     GetMediatorRequest,
@@ -358,6 +363,10 @@ export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}
 export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
 export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
 export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
+export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
+export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
+export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
+export const getInputPayload: RequestType<GetPayloadRequest,GetPayloadResponse> = { method: `${_preFix}/getInputPayload` };
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
 export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };

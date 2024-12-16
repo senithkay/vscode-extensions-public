@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const SELECTED_SERVER_PATH = "selected-server-path";
-export const SELECTED_JAVA_HOME = "selected-java-home";
+export const SELECTED_SERVER_PATH = "SERVER_PATH";
+export const SELECTED_JAVA_HOME = "JAVA_HOME";
 
 export const INCORRECT_SERVER_PATH_MSG = "Unable to locate the MI server at the provided path. Please provide the correct path.";
 

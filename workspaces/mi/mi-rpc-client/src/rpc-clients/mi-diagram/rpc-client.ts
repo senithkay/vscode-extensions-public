@@ -343,6 +343,15 @@ import {
     AddDriverToLibResponse,
     APIContextsResponse,
     getAllAPIcontexts,
+    MediatorTryOutRequest,
+    tryOutMediator,
+    getInputPayload,
+    saveInputPayload,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse,
+    getMediatorInputOutputSchema,
     GetMediatorRequest,
     GetMediatorResponse,
     GetMediatorsRequest,
@@ -914,6 +923,21 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     fetchDSSTables(params: DSSFetchTablesRequest): Promise<DSSFetchTablesResponse> {
         return this._messenger.sendRequest(fetchDSSTables, HOST_EXTENSION, params);
+    }
+
+    tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this._messenger.sendRequest(tryOutMediator, HOST_EXTENSION, params);
+    }
+
+    getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
+        return this._messenger.sendRequest(getMediatorInputOutputSchema, HOST_EXTENSION, params);
+    }
+
+    saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
+        return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
+    }
+    getInputPayload(params: GetPayloadRequest): Promise<GetPayloadResponse> {
+        return this._messenger.sendRequest(getInputPayload, HOST_EXTENSION, params);
     }
 
     getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {

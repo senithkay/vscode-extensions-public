@@ -40,6 +40,7 @@ import { FormattingProvider } from './FormattingProvider';
 import util = require('util');
 import { log } from '../util/logger';
 import { getJavaHomeFromConfig } from '../util/onboardingUtils';
+import { SELECTED_SERVER_PATH } from '../debugger/constants';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -91,8 +92,8 @@ export class MILanguageClient {
 
     constructor(private context: ExtensionContext) { }
 
-    public static async getInstance(context: ExtensionContext) {
-        if (!this._instance) {
+    public static async getInstance(context?: ExtensionContext) {
+        if (!this._instance && context) {
             this._instance = new MILanguageClient(context);
             await this._instance.launch();
         }
@@ -119,10 +120,10 @@ export class MILanguageClient {
     }
 
     public async checkJDKCompatibility(javaHome: string): Promise<boolean> {
-        const env = { ...process.env }; 
+        const env = { ...process.env };
         env.PATH = `${path.join(javaHome, 'bin')}${path.delimiter}${env.PATH}`;
         const { stderr } = await exec('java -version',
-            {env: env}
+            { env: env }
         );
         const isCompatible = this.isCompatibleJDKVersion(stderr);
         return isCompatible;
@@ -279,7 +280,10 @@ export class MILanguageClient {
 
             }
             let extensionPath = extensions.getExtension("wso2.micro-integrator")!.extensionPath;
+            const config = workspace.getConfiguration('MI');
+            const currentServerPath = config.get<string>(SELECTED_SERVER_PATH) || "";
             xml['xml']['extensionPath'] = [`${extensionPath}`];
+            xml['xml']['miServerPath'] = currentServerPath;
             xml['xml']['catalogs'] = [`${extensionPath}/synapse-schemas/catalog.xml`];
             xml['xml']['useCache'] = true;
             return xml;
@@ -381,6 +385,12 @@ export class MILanguageClient {
         function registerFormattingProvider(context: ExtensionContext, langClient: ExtendedLanguageClient) {
             const formattingProvider = new FormattingProvider(langClient);
             context.subscriptions.push(languages.registerDocumentRangeFormattingEditProvider("SynapseXml", formattingProvider));
+        }
+    }
+
+    public async stop() {
+        if (this.languageClient) {
+            return this.languageClient.stop();
         }
     }
 }

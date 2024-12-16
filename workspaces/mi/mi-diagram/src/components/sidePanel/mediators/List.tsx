@@ -15,9 +15,9 @@ import { FirstCharToUpperCase } from '../../../utils/commons';
 import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
-import { MediatorForm } from './Form';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
 import { ERROR_MESSAGES } from '../../../resources/constants';
+import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
 import AddConnector from '../Pages/AddConnector';
@@ -90,7 +90,14 @@ export function Mediators(props: MediatorProps) {
         } else {
             const form =
                 <div style={{ padding: '20px' }}>
-                    <MediatorForm mediatorData={mediatorDetails} mediatorType={mediator.tag} isUpdate={false} documentUri={props.documentUri} range={props.nodePosition} />
+                    <MediatorPage
+                        mediatorData={mediatorDetails}
+                        mediatorType={mediator.tag}
+                        isUpdate={false}
+                        documentUri={props.documentUri}
+                        nodeRange={props.nodePosition}
+                        showMediaotrPanel={true}
+                    />
                 </div>;
             sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
         }
@@ -99,7 +106,7 @@ export function Mediators(props: MediatorProps) {
     function getConnectorIconUrl(connectorName: string) {
         const connector = connectorIcons.find(c => c.name === connectorName);
         return connector?.icon_url ?
-            <img src={connector.icon_url} alt="Icon" onError={() => <Icon name="connector" sx={{ color: "#D32F2F" }} />} /> 
+            <img src={connector.icon_url} alt="Icon" onError={() => <Icon name="connector" sx={{ color: "#D32F2F" }} />} />
             : <Icon name="connector" sx={{ color: "#D32F2F" }} />;
     }
 

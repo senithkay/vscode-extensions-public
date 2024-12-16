@@ -13,7 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { MediatorNodeModel } from "./MediatorNodeModel";
 import { Colors, NODE_DIMENSIONS } from "../../../resources/constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { Button, ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { ClickAwayListener, Menu, MenuItem, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { MoreVertIcon } from "../../../resources";
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from "../../sidePanel/SidePanelContexProvider";
@@ -21,7 +21,6 @@ import { getNodeDescription } from "../../../utils/node";
 import { Header, Description, Name, Content, OptionsMenu, Body } from "../BaseNodeModel";
 import { getMediatorIconsFromFont } from "../../../resources/icons/mediatorIcons/icons";
 import { BreakpointMenu } from "../../BreakpointMenu/BreakpointMenu";
-import { link } from "fs";
 
 namespace S {
     export type NodeStyleProp = {
@@ -133,9 +132,11 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                         <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
+                                <div>
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
-                                    <MoreVertIcon />
-                                </OptionsMenu>
+                                        <MoreVertIcon />
+                                    </OptionsMenu>
+                                </div>
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>

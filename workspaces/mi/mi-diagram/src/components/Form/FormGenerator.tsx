@@ -160,6 +160,15 @@ export function FormGenerator(props: FormGeneratorProps) {
     const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
         const name = getNameForController(element.name);
 
+        return (
+            <FormExpressionField
+                {...field}
+                label={element.displayName}
+                required={isRequired}
+                placeholder={placeholder}
+                nodeRange={range}
+            />
+        )
         return expressionEditorField !== name ? (
             <ExpressionField
                 {...field}

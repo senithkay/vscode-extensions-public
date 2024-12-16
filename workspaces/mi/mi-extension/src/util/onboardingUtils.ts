@@ -70,20 +70,18 @@ export async function getMIDetailsFromPom(): Promise<MIDetails> {
 async function isMISetup(miVersion: string): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
-        const settingJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json');
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        if (fs.existsSync(settingJsonPath)) {
-            const currentMIPath = config.get<string>(SELECTED_SERVER_PATH);
-            if (currentMIPath) {
-                const availableMIVersion = getMIVersion(currentMIPath);
-                if (availableMIVersion && compareVersions(availableMIVersion, miVersion) >= 0) { // lower mi version not compatible
-                    if (availableMIVersion !== miVersion) {
-                        showMIPathChangePrompt();
-                    }
-                    return true;
+        const currentMIPath = config.get<string>(SELECTED_SERVER_PATH);
+        if (currentMIPath) {
+            const availableMIVersion = getMIVersion(currentMIPath);
+            if (availableMIVersion && compareVersions(availableMIVersion, miVersion) >= 0) { // lower mi version not compatible
+                if (availableMIVersion !== miVersion) {
+                    showMIPathChangePrompt();
                 }
+                return true;
             }
         }
+
         const miCachedPath = getMICachedPath(miVersion);
 
         const oldServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
@@ -142,18 +140,15 @@ async function isMISetup(miVersion: string): Promise<boolean> {
 async function isJavaSetup(miVersion: string): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
-        const settingJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json');
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        if (fs.existsSync(settingJsonPath)) {
-            const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
-            if (currentJavaHome) {
-                const currentJavaVersion = getJavaVersion(path.join(currentJavaHome, 'bin')) ?? '';
-                if (isCompatibleJavaVersionForMI(currentJavaVersion, miVersion)) {
-                    if (!isRecommendedJavaVersionForMI(currentJavaVersion, miVersion)) {
-                        showJavaHomeChangePrompt();
-                    }
-                    return true;
+        const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
+        if (currentJavaHome) {
+            const currentJavaVersion = getJavaVersion(path.join(currentJavaHome, 'bin')) ?? '';
+            if (isCompatibleJavaVersionForMI(currentJavaVersion, miVersion)) {
+                if (!isRecommendedJavaVersionForMI(currentJavaVersion, miVersion)) {
+                    showJavaHomeChangePrompt();
                 }
+                return true;
             }
         }
 
@@ -517,8 +512,6 @@ export async function getJavaAndMIPathsFromWorkspace(): Promise<JavaAndMIPathRes
             } else {
                 response.miPath = { status: "mismatch", path: validServerPath, version: miVersion! };
             }
-        } else {
-            config.update(SELECTED_SERVER_PATH, undefined, vscode.ConfigurationTarget.Workspace);
         }
     }
     if (!response.javaPath) {
@@ -613,29 +606,15 @@ function compareVersions(v1: string, v2: string): number {
 export function getJavaHomeFromConfig(): string | undefined {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
-        const settingJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json');
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        if (fs.existsSync(settingJsonPath)) {
-            const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
+        const currentJavaHome = config.get<string>(SELECTED_JAVA_HOME);
 
-            if (currentJavaHome) {
-                if (!isJavaHomePathValid(currentJavaHome)) {
-                    vscode.window
-                        .showErrorMessage(
-                            'Invalid Java Home path. Please set a valid Java Home path and run the command again.',
-                            'Change Java Home'
-                        )
-                        .then((selection) => {
-                            if (selection) {
-                                vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
-                            }
-                        });
-                }
-            } else {
+        if (currentJavaHome) {
+            if (!isJavaHomePathValid(currentJavaHome)) {
                 vscode.window
                     .showErrorMessage(
-                        'Java Home path is not set. Please set a valid Java Home path and run the command again.',
-                        'Set Java Home'
+                        'Invalid Java Home path. Please set a valid Java Home path and run the command again.',
+                        'Change Java Home'
                     )
                     .then((selection) => {
                         if (selection) {
@@ -643,8 +622,19 @@ export function getJavaHomeFromConfig(): string | undefined {
                         }
                     });
             }
-            return currentJavaHome;
+        } else {
+            vscode.window
+                .showErrorMessage(
+                    'Java Home path is not set. Please set a valid Java Home path and run the command again.',
+                    'Set Java Home'
+                )
+                .then((selection) => {
+                    if (selection) {
+                        vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
+                    }
+                });
         }
+        return currentJavaHome;
     }
     function isJavaHomePathValid(javaHome: string): boolean {
         const javaExecutable = path.join(javaHome, 'bin', process.platform === 'win32' ? 'java.exe' : 'java');
@@ -655,29 +645,15 @@ export function getJavaHomeFromConfig(): string | undefined {
 export function getServerPathFromConfig(): string | undefined {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
-        const settingJsonPath = path.join(workspaceFolder.uri.fsPath, '.vscode', 'settings.json');
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        if (fs.existsSync(settingJsonPath)) {
-            const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
+        const currentServerPath = config.get<string>(SELECTED_SERVER_PATH);
 
-            if (currentServerPath) {
-                if (!isMIInstalledAtPath(currentServerPath)) {
-                    vscode.window
-                        .showErrorMessage(
-                            'Invalid Micro Integrator path. Please set a valid Micro Integrator path and run the command again.',
-                            'Change Micro Integrator Path'
-                        )
-                        .then((selection) => {
-                            if (selection) {
-                                vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
-                            }
-                        });
-                }
-            } else {
+        if (currentServerPath) {
+            if (!isMIInstalledAtPath(currentServerPath)) {
                 vscode.window
                     .showErrorMessage(
-                        'Micro Integrator path is not set. Please set a valid Micro Integrator path and run the command again.',
-                        'Set Micro Integrator Path'
+                        'Invalid Micro Integrator path. Please set a valid Micro Integrator path and run the command again.',
+                        'Change Micro Integrator Path'
                     )
                     .then((selection) => {
                         if (selection) {
@@ -685,8 +661,19 @@ export function getServerPathFromConfig(): string | undefined {
                         }
                     });
             }
-            return currentServerPath;
+        } else {
+            vscode.window
+                .showErrorMessage(
+                    'Micro Integrator path is not set. Please set a valid Micro Integrator path and run the command again.',
+                    'Set Micro Integrator Path'
+                )
+                .then((selection) => {
+                    if (selection) {
+                        vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+                    }
+                });
         }
+        return currentServerPath;
     }
 }
 

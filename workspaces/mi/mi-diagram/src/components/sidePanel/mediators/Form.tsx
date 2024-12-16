@@ -9,7 +9,6 @@
 
 import { FormActions, Button, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import React, { useContext } from "react";
-import { useForm } from "react-hook-form";
 import FormGenerator from "../../Form/FormGenerator";
 import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
@@ -22,6 +21,14 @@ import { ERROR_MESSAGES } from "../../../resources/constants";
 import { createAndopenDataMapper } from "./onSubmitFunctions";
 
 export interface MediatorFormProps {
+    control: any;
+    errors: any;
+    setValue: any;
+    reset: any;
+    watch: any;
+    getValues: any;
+    dirtyFields: any;
+    handleSubmit: any;
     mediatorData: GetMediatorResponse
     mediatorType: string;
     isUpdate: boolean;
@@ -30,15 +37,12 @@ export interface MediatorFormProps {
 }
 
 const FormContainer = styled.div`
+    width: 100%;
 `;
 export function MediatorForm(props: MediatorFormProps) {
-    const { mediatorData, mediatorType, isUpdate, documentUri, range } = props;
+    const { control, errors, setValue, reset, watch, getValues, dirtyFields, handleSubmit, mediatorData, mediatorType, isUpdate, documentUri, range } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const sidePanelContext = useContext(SidePanelContext);
-    const { control, handleSubmit, setValue, getValues, watch, reset, formState: { dirtyFields, errors } } = useForm<any>({
-        defaultValues: {
-        }
-    });
 
     const handleOnSubmit = async (values: any) => {
         setDiagramLoading(true);
@@ -76,31 +80,32 @@ export function MediatorForm(props: MediatorFormProps) {
         />
     }
 
-    return (<FormContainer>
-        <FormGenerator
-            formData={mediatorData}
-            control={control}
-            errors={errors}
-            setValue={setValue}
-            reset={reset}
-            watch={watch}
-            getValues={getValues}
-            skipGeneralHeading={true}
-            range={range}
-        />
-        <FormActions>
-            <Button
-                appearance="secondary"
-                onClick={handleOnClose}
-            >
-                Cancel
-            </Button>
-            <Button
-                appearance="primary"
-                onClick={handleSubmit(handleOnSubmit)}
-            >
-                {isUpdate ? "Update" : "Add"}
-            </Button>
-        </FormActions>
-    </FormContainer>);
+    return (
+        <FormContainer>
+            <FormGenerator
+                formData={mediatorData}
+                control={control}
+                errors={errors}
+                setValue={setValue}
+                reset={reset}
+                watch={watch}
+                getValues={getValues}
+                skipGeneralHeading={true}
+                range={range}
+            />
+            <FormActions>
+                <Button
+                    appearance="secondary"
+                    onClick={handleOnClose}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleOnSubmit)}
+                >
+                    {isUpdate ? "Update" : "Add"}
+                </Button>
+            </FormActions>
+        </FormContainer>);
 }

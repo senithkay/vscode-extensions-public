@@ -247,6 +247,13 @@ import {
     updateTestSuite,
     updateWsdlEndpoint,
     writeContentToFile,
+    tryOutMediator,
+    MediatorTryOutRequest,
+    saveInputPayload,
+    getInputPayload,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    getMediatorInputOutputSchema,
     GetConnectionSchemaRequest,
     getConnectionSchema,
     CopyConnectorZipRequest,
@@ -397,6 +404,10 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(addDBDriver, (args: AddDriverRequest) => rpcManger.addDBDriver(args));
     messenger.onRequest(generateDSSQueries, (args: ExtendedDSSQueryGenRequest) => rpcManger.generateDSSQueries(args));
     messenger.onRequest(fetchDSSTables, (args: DSSFetchTablesRequest) => rpcManger.fetchDSSTables(args));
+    messenger.onRequest(tryOutMediator, (args:MediatorTryOutRequest) => rpcManger.tryOutMediator(args));
+    messenger.onRequest(getMediatorInputOutputSchema, (args:MediatorTryOutRequest) => rpcManger.getMediatorInputOutputSchema(args));
+    messenger.onRequest(saveInputPayload, (args:SavePayloadRequest) => rpcManger.saveInputPayload(args));
+    messenger.onRequest(getInputPayload, (args:GetPayloadRequest) => rpcManger.getInputPayload(args));
     messenger.onRequest(getMediators, (args: GetMediatorsRequest) => rpcManger.getMediators(args));
     messenger.onRequest(getMediator, (args: GetMediatorRequest) => rpcManger.getMediator(args));
     messenger.onRequest(getConnectionSchema, (args: GetConnectionSchemaRequest) => rpcManger.getConnectionSchema(args));

@@ -56,6 +56,15 @@ interface DiagramData {
     model: STNode;
 }
 
+
+const ButtonContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+    height: 30px;
+`;
+
 namespace S {
     export const Container = styled.div`
         height: 100vh;
@@ -403,6 +412,13 @@ export function Diagram(props: DiagramProps) {
 
         diagramEngine.repaintCanvas();
     }
+    const handleClose = () => {
+        setSidePanelState({
+            ...sidePanelState,
+            isTryoutOpen: false,
+            inputOutput: {},
+        });
+    };
 
     return (
         <>
