@@ -119,6 +119,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     const handleCancel = () => {
         onCancel();
+        changeHelperPaneState?.(false);
         setFnSignature(undefined);
     };
 
@@ -313,6 +314,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                         }
                         return;
                 }
+            }
+        }
+
+        if (helperPaneContainerRef.current) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                handleCancel();
+                return;
             }
         }
 
