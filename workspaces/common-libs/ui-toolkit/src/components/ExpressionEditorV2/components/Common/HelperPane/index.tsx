@@ -17,7 +17,10 @@ import {
     HelperPaneIconButtonProps,
     HelperPaneProps,
     HelperPaneSectionProps,
-    LibraryBrowserProps
+    LibraryBrowserProps,
+    PanelsProps,
+    PanelTabProps,
+    PanelViewProps
 } from '../types';
 import { Codicon } from '../../../../Codicon/Codicon';
 import { Divider } from '../../../../Divider/Divider';
@@ -25,6 +28,46 @@ import { SearchBox } from '../../../../SeachBox/SearchBox';
 import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
 import ProgressRing from '../../../../ProgressRing/ProgressRing';
+import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
+
+const PanelViewContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+`;
+
+const PanelTabContainer = styled.div<{ isActive: boolean }>`
+    padding: 4px 0;
+    color: var(--panel-tab-foreground);
+    cursor: pointer;
+    ${({ isActive }: { isActive: boolean }) =>
+        isActive &&
+        `
+        color: var(--panel-tab-active-foreground);
+        border-bottom: 1px solid var(--panel-tab-active-border);
+    `}
+`;
+
+const ViewContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    overflow-y: auto;
+`;
+
+const TabContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 32px;
+`;
+
+const PanelContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+`;
 
 const LibraryBrowserSearchBoxContainer = styled.div`
     margin-bottom: 16px;
@@ -207,6 +250,57 @@ const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
+
+const PanelView: React.FC<PanelViewProps> = ({ children, id }) => {
+    const { activePanelIndex } = useHelperPanePanelContext();
+    
+    return (
+        <>
+            {activePanelIndex === id && (
+                <PanelViewContainer>
+                    {children}
+                </PanelViewContainer>
+            )}
+        </>
+    );
+};
+PanelView.displayName = 'PanelView';
+
+const PanelTab: React.FC<PanelTabProps> = ({ title, id }) => {
+    const { activePanelIndex, setActivePanelIndex } = useHelperPanePanelContext();
+
+    return (
+        <PanelTabContainer isActive={activePanelIndex === id} onClick={() => setActivePanelIndex(id)}>
+            <Typography variant="body3">{title}</Typography>
+        </PanelTabContainer>
+    );
+};
+PanelTab.displayName = 'PanelTab';
+
+const Panels: React.FC<PanelsProps> = ({ children }) => {
+    const [activePanelIndex, setActivePanelIndex] = useState<number>(0);
+
+    const tabs = React.Children.toArray(children).filter(child => 
+        React.isValidElement(child) && (child.type as any).displayName === 'PanelTab'
+    );
+
+    const views = React.Children.toArray(children).filter(child => 
+        React.isValidElement(child) && (child.type as any).displayName === 'PanelView'
+    );
+    
+    return (
+        <HelperPanePanelProvider activePanelIndex={activePanelIndex} setActivePanelIndex={setActivePanelIndex}>
+            <PanelContainer>
+                <TabContainer>
+                    {tabs}
+                </TabContainer>
+                <ViewContainer>
+                    {views}
+                </ViewContainer>
+            </PanelContainer>
+        </HelperPanePanelProvider>
+    );
+};
 
 const LibraryBrowserSubSection: React.FC<HelperPaneSectionProps> = ({
     title,
