@@ -2794,10 +2794,6 @@ ${endpointAttributes}
                                 'resources': {
                                     'connectors': '',
                                     'metadata': '',
-                                    'registry': {
-                                        'gov': '',
-                                        'conf': '',
-                                    },
                                 },
                             },
                         },
