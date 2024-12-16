@@ -811,7 +811,7 @@
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f1b3"
+                    "fontCharacter": "\\f1b4"
                 }
             },
             "distro-debug": {

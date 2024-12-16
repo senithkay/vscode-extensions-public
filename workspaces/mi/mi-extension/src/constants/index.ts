@@ -58,6 +58,7 @@ export const COMMANDS = {
     ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
+    ADD_DATAMAPPER_COMMAND: 'MI.project-explorer.add-datamapper',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',
     ADD_PROXY_SERVICE_COMMAND: 'MI.project-explorer.add-proxy-service',
     ADD_TASK_COMMAND: 'MI.project-explorer.add-task',

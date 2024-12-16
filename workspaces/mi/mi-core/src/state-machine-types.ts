@@ -40,6 +40,7 @@ export enum MACHINE_VIEW {
     RecipientEndPointForm = "Recipient Endpoint Form",
     TemplateEndPointForm = "Template Endpoint Form",
     SequenceForm = "Sequence Form",
+    DatamapperForm = "Datamapper Form",
     InboundEPForm = "Inbound EP Form",
     InboundEPView = "Inbound EP View",
     MessageProcessorForm = "Message Processor Form",
