@@ -31,8 +31,10 @@ export const generateRoundedOctagonSVG = (diagramHeight: number, radiusMultiplie
     const sideLength = (diagramHeight * 4.14) / 10;
     const { width, height, path } = getRoundedOctagonSVG(sideLength, sideLength * radiusMultiplier);
     return (
-        <svg width={width} height={height} id={MAIN_CELL} transform={`rotate(${45 / 2})`}>
-            <path d={path} />
+        <svg width={width} height={height} id={MAIN_CELL}>
+            <g transform={`rotate(${45 / 2}, ${width/2}, ${height/2})`}>
+                <path d={path} />
+            </g>
         </svg>
     );
 };
