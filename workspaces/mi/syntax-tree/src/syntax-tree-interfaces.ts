@@ -9,6 +9,7 @@
 import { Diagnostic } from "vscode-languageserver-types";
 
 export interface STNode {
+    displayName: string;
     hasTextNode: boolean;
     selfClosed: boolean;
     textNode: string;

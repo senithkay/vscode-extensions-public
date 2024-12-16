@@ -2409,10 +2409,12 @@ ${endpointAttributes}
                     new Position(range.end.line, range.end.character));
 
             if ('text' in params) {
-                edit.replace(file, getRange(params.range), params.text);
+                const textToInsert = params.text.endsWith('\n') ? params.text : `${params.text}\n`;
+                edit.replace(file, getRange(params.range), textToInsert);
             } else if ('edits' in params) {
                 params.edits.forEach(editRequest => {
-                    edit.replace(file, getRange(editRequest.range), editRequest.newText);
+                    const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
+                    edit.replace(file, getRange(editRequest.range), textToInsert);
                 });
             }
 
@@ -2423,7 +2425,8 @@ ${endpointAttributes}
 
             if (!params.disableFormatting) {
                 const formatEdits = (editRequest: TextEdit) => {
-                    const formatRange = this.getFormatRange(getRange(editRequest.range), editRequest.newText);
+                    const textToInsert = editRequest.newText.endsWith('\n') ? editRequest.newText : `${editRequest.newText}\n`;
+                    const formatRange = this.getFormatRange(getRange(editRequest.range), textToInsert);
                     return this.rangeFormat({ uri, range: formatRange });
                 };
                 if ('text' in params) {
@@ -3320,7 +3323,7 @@ ${endpointAttributes}
             if (fs.existsSync(destinationPath)) {
                 fs.unlinkSync(destinationPath); // Delete the existing file
             }
-            
+
             await fs.promises.copyFile(connectorPath, destinationPath);
 
 
@@ -3982,7 +3985,7 @@ ${keyValuesXML}`;
             resolve({ resourcePaths: res });
         });
     }
-    
+
     async getConfigurableEntries(): Promise<GetConfigurableEntriesResponse> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;

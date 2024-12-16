@@ -30,6 +30,7 @@ import { ProjectInformationForm } from './views/Overview/ProjectInformation/Proj
 import { SequenceWizard } from './views/Forms/SequenceForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { TemplateWizard } from './views/Forms/TemplateForm';
+import { DatamapperForm } from './views/Forms/DatamapperForm';
 
 const ViewContainer = styled.div`
     
@@ -108,7 +109,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     break;
                 case MACHINE_VIEW.ProjectInformationForm:
                     setViewComponent(<ProjectInformationForm onClose={props.handleClose} />);
-                    break;    
+                    break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard handlePopupClose={props.handleClose} isPopup={true} path={machineSate.documentUri} />);
                     break;
@@ -118,6 +119,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                 case MACHINE_VIEW.SequenceTemplateView:
                     const rPath = [machineSate.projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'templates'].join(machineSate.pathSeparator);
                     setViewComponent(<TemplateWizard onCancel={props.handleClose} isPopup={true} path={rPath} type='Sequence Template' />);
+                    break;
+                case MACHINE_VIEW.DatamapperForm:
+                    setViewComponent(<DatamapperForm path={machineSate.documentUri} handlePopupClose={props.handleClose} isPopup={true} />);
                     break;
                 default:
                     setViewComponent(null);

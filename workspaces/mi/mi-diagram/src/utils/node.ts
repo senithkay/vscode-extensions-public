@@ -24,13 +24,13 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
     return Date.now().toString();
 }
 
-export function getNodeDescription(name: string, stNode: any): string {
+export function getNodeDescription(stNode: any): string {
     if (stNode.description) {
         return stNode.description;
     }
 
     // TODO: Move to LS
-    switch (name) {
+    switch (stNode.tag.toLowerCase()) {
         case "endpoint": {
             if (stNode.key) {
                 return stNode.key;
@@ -40,7 +40,7 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.FILTER): {
+        case (MEDIATORS.FILTER.toLowerCase()): {
             if (stNode.regex && stNode.source) {
                 return `${stNode.source} matches ${stNode.regex}`;
             }
@@ -53,7 +53,7 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.LOG): {
+        case (MEDIATORS.LOG.toLowerCase()): {
             if (stNode.property) {
                 return stNode.property.map((property: any) => {
                     return property.name;
@@ -61,13 +61,13 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.PROPERTY): {
+        case (MEDIATORS.PROPERTY.toLowerCase()): {
             if (stNode.name) {
                 return stNode.name;
             }
             return;
         }
-        case (MEDIATORS.SEQUENCE): {
+        case (MEDIATORS.SEQUENCE.toLowerCase()): {
             if (stNode.tag === "target") {
                 return stNode.sequenceAttribute;
             }
@@ -78,10 +78,10 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.SWITCH): {
+        case (MEDIATORS.SWITCH.toLowerCase()): {
             return stNode.source;
         }
-        case (MEDIATORS.DATAMAPPER): {
+        case (MEDIATORS.DATAMAPPER.toLowerCase()): {
             const description = stNode.config;
             if (description) {
                 const match = description.match(/\/([^\/]+)\.dmc$/);
@@ -89,10 +89,10 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.DATASERVICECALL): {
+        case (MEDIATORS.DATASERVICECALL.toLowerCase()): {
             return stNode.serviceName;
         }
-        case (MEDIATORS.AGGREGATE): {
+        case (MEDIATORS.AGGREGATE.toLowerCase()): {
             const onComplete = stNode?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
             const isSequnceReference = onComplete.sequenceAttribute !== undefined;
 

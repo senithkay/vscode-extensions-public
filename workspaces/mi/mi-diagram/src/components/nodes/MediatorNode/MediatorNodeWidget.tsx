@@ -89,7 +89,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     const handleOnClickMenu = (event: any) => {
         setIsPopoverOpen(!isPopoverOpen);
@@ -130,7 +130,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                     )}
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getMediatorIconsFromFont(node.mediatorName)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
@@ -139,7 +139,7 @@ export function MediatorNodeWidget(props: CallNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name data-testid="mediator-name">{node.mediatorName}</Name>
+                                    <Name data-testid="mediator-name">{node.stNode.displayName || node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >

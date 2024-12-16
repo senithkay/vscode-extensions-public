@@ -222,16 +222,17 @@ export function FormGenerator(props: FormGeneratorProps) {
         </ComponentCard>;
     }
 
-    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element) => {
+    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element, isRequired: boolean, errorMsg: string) => {
         const name = getNameForController(element.name);
-        
+
         return expressionEditorField !== name ? (
             <FormExpressionField
                 {...field}
                 label={element.displayName}
-                required={element.required === 'true'}
+                required={isRequired}
                 placeholder={element.placeholder}
                 nodeRange={range}
+                errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
                     setExpressionEditorField(name);
@@ -333,7 +334,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return FormExpressionFieldComponent(element, field, helpTipElement);
+                return FormExpressionFieldComponent(element, field, helpTipElement, isRequired, errorMsg);
             case 'booleanOrExpression':
             case 'comboOrExpression':
             case 'combo':
@@ -370,7 +371,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                     filterType={(keyType as any) ?? "resource"}
                     label={element.displayName}
                     labelAdornment={helpTipElement}
-                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    allowItemCreate={element.canAddNew !== false || (element.canAddNew as any) !== 'false'}
                     onValueChange={field.onChange}
                     required={isRequired}
                     errorMsg={errorMsg}
@@ -382,7 +383,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 />)
             }
             case 'registry':
-            case 'resource': 
+            case 'resource':
             case 'resourceOrExpression': {
                 const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
                     openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: Array.isArray(keyType) ? keyType : [keyType] });
@@ -430,7 +431,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 }
                 return (
                     <div>
-                        <Keylookup 
+                        <Keylookup
                             name={getNameForController(element.name)}
                             label={element.displayName}
                             errorMsg={errors[getNameForController(element.name)] && errors[getNameForController(element.name)].message.toString()}

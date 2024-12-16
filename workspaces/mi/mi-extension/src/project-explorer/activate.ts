@@ -70,6 +70,11 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		console.log('Add Sequence');
 	});
 
+	commands.registerCommand(COMMANDS.ADD_DATAMAPPER_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DatamapperForm, documentUri: entry.info?.path });
+		console.log('Add Datamapper');
+	});
+
 	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.InboundEPForm, documentUri: entry.info?.path });
 		console.log('Add Inbound API');
