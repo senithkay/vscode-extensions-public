@@ -12,10 +12,8 @@ import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
 import { CategoryPage } from './CategoryPage';
 import { VariablesPage } from './VariablesPage';
-import { FunctionsPage } from './FunctionsPage';
 import { PayloadPage } from './PayloadPage';
 import { PropertiesPage } from './PropertiesPage';
-import { ConfigsPage } from './ConfigsPage';
 import { HeadersPage } from './HeadersPage';
 import { ParamsPage } from './ParamsPage';
 
@@ -69,7 +67,17 @@ const HelperPaneEl = ({
 
     return (
         <HelperPane sx={{ '> *': { boxSizing: 'border-box' } }}>
-            {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
+            {currentPage === 0 && (
+                <CategoryPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    functionInfo={functionInfo}
+                    configInfo={configInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={setFilterText}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
             {currentPage === 1 && (
                 <PayloadPage
                     isLoading={isLoadingHelperPaneInfo}
@@ -111,31 +119,11 @@ const HelperPaneEl = ({
                 />
             )}
             {currentPage === 5 && (
-                <ConfigsPage
-                    isLoading={isLoadingHelperPaneInfo}
-                    configInfo={configInfo}
-                    setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('configs', filterText)}
-                    onClose={onClose}
-                    onChange={handleChange}
-                />
-            )}
-            {currentPage === 6 && (
                 <PropertiesPage
                     isLoading={isLoadingHelperPaneInfo}
                     propertiesInfo={propertiesInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('properties', filterText)}
-                    onClose={onClose}
-                    onChange={handleChange}
-                />
-            )}
-            {currentPage === 7 && (
-                <FunctionsPage
-                    isLoading={isLoadingHelperPaneInfo}
-                    functionInfo={functionInfo}
-                    setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('functions', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />

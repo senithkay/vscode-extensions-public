@@ -50,14 +50,12 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
             <Ex.ExpressionBox>
                 <ExpressionEditor ref={ref} {...rest} />
             </Ex.ExpressionBox>
-            {(props.changeHelperPaneState || getExpressionEditorIcon) && (
-                <Button appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-                    {getExpressionEditorIcon ? (
-                        getExpressionEditorIcon()
-                    ) : (
+            {getExpressionEditorIcon ? getExpressionEditorIcon() : (
+                props.changeHelperPaneState && (
+                    <Button appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
                         <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                    )}
-                </Button>
+                    </Button>
+                )
             )}
             {onRemove && (
                 <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
