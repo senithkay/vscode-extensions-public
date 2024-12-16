@@ -61,7 +61,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto", opacity: (portOut && portOut.isPreview) ? 0.5 : 1 }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 <InputSearchHighlight>{fieldName}</InputSearchHighlight>
                 {dmType.optional && "?"}

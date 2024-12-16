@@ -61,7 +61,7 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
     const indentation = fields ? 0 : ((treeDepth + 1) * 16) + 8;
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto", opacity: 0.5  }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!dmType.optional && <span className={classes.requiredMark}>*</span>}
