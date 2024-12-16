@@ -36,7 +36,10 @@ import {
     UpdateDependenciesRequest,
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
-    ImportOpenAPISpecRequest
+    ImportOpenAPISpecRequest,
+    MIDetails,
+    JavaAndMIPathResponse,
+    JavaAndMIPathRequest,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -73,14 +76,13 @@ export const openReadme: NotificationType<void> = { method: `${_preFix}/openRead
 export const downloadJava: RequestType<string, string> = { method: `${_preFix}/downloadJava` };
 export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
 export const getSupportedMIVersions: RequestType<void, string[]> = { method: `${_preFix}/getSupportedMIVersions` };
-export const getMIVersionFromPom: RequestType<void, string> = { method: `${_preFix}/getMIVersionFromPom` };
-export const setJavaHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setJavaHomeForMIVersion` };
-export const setMIHomeForMIVersion: RequestType<string, boolean> = { method: `${_preFix}/setMIHomeForMIVersion` };
-
-export const isJavaHomeSet: RequestType<void, boolean> = { method: `${_preFix}/isJavaHomeSet` };
-export const isMISet: RequestType<void, boolean> = { method: `${_preFix}/isMISet` };
 export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
 export const updateDependencies: RequestType<UpdateDependenciesRequest, boolean> = { method: `${_preFix}/updateDependencies` };
 export const updatePomValues: RequestType<UpdatePomValuesRequest, boolean> = { method: `${_preFix}/updatePomValues` };
 export const updateConfigFileValues: RequestType<UpdateConfigValuesRequest, boolean> = { method: `${_preFix}/updateConfigFileValues` };
 export const updateConnectorDependencies: RequestType<void, string> = { method: `${_preFix}/updateConnectorDependencies` };
+export const getMIDetailsFromPom: RequestType<void, MIDetails> = { method: `${_preFix}/getMIDetailsFromPom` };
+export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
+export const getJavaAndMIPaths: RequestType<void, JavaAndMIPathResponse> = { method: `${_preFix}/getJavaAndMIPaths` };
+export const setJavaAndMIPaths: RequestType<JavaAndMIPathRequest, JavaAndMIPathResponse> = { method: `${_preFix}/setJavaAndMIPaths` };
+export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };

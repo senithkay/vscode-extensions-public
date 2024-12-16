@@ -39,7 +39,8 @@ import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
 import { log } from '../util/logger';
-import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH } from '../debugger/constants';
+import { getJavaHomeFromConfig } from '../util/onboardingUtils';
+import { SELECTED_SERVER_PATH } from '../debugger/constants';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -130,9 +131,7 @@ export class MILanguageClient {
 
     private async launch() {
         try {
-            const config = workspace.getConfiguration('MI');
-            const JAVA_HOME: string | undefined = config.get(CONFIG_JAVA_HOME);
-
+            const JAVA_HOME= getJavaHomeFromConfig();
             if (JAVA_HOME) {
                 const isJDKCompatible = await this.checkJDKCompatibility(JAVA_HOME);
                 if (!isJDKCompatible) {
@@ -282,7 +281,7 @@ export class MILanguageClient {
             }
             let extensionPath = extensions.getExtension("wso2.micro-integrator")!.extensionPath;
             const config = workspace.getConfiguration('MI');
-            const currentServerPath = config.get<string>(CONFIG_SERVER_PATH);
+            const currentServerPath = config.get<string>(SELECTED_SERVER_PATH) || "";
             xml['xml']['extensionPath'] = [`${extensionPath}`];
             xml['xml']['miServerPath'] = currentServerPath;
             xml['xml']['catalogs'] = [`${extensionPath}/synapse-schemas/catalog.xml`];
