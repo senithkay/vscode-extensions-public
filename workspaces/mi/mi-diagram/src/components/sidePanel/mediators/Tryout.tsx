@@ -17,6 +17,7 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Header, MediatorProperties, MediatorTryOutInfo, Params } from '@wso2-enterprise/mi-core';
 import { Colors, ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
 import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
+import { getParamManagerValues } from '../../..';
 
 const TryoutContainer = styled.div`
     width: 100%;
@@ -33,6 +34,8 @@ const PropertiesContainer = styled.div`
 interface TryoutProps {
     documentUri: string;
     nodeRange?: Range;
+    mediatorType: string;
+    getValues: any;
     isActive: boolean;
 }
 
@@ -76,6 +79,16 @@ export function TryOutView(props: TryoutProps) {
         fetchMediatorDetails();
     }, [props]);
 
+    const getEdits = () => {
+        const values = props.getValues();
+        for (const key in values) {
+            if (values[key]?.paramValues) {
+                values[key] = getParamManagerValues(values[key]);
+            }
+        }
+        return values;
+    }
+
     const getInputData = async () => {
         try {
             setIsTryOutLoading(true);
@@ -93,7 +106,8 @@ export function TryOutView(props: TryoutProps) {
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
                 inputPayload,
-                edits: []
+                mediatorType: props.mediatorType,
+                edits: getEdits()
             });
 
             if (res.error) {
@@ -141,6 +155,7 @@ export function TryOutView(props: TryoutProps) {
                 console.error("Error trying out mediator:", res.error);
             } else {
                 setMediatorOutput(res.output);
+                setTryoutId(undefined);
             }
         } catch (error) {
             console.error("Error during try out:", error);

@@ -1818,6 +1818,7 @@ export interface MediatorTryOutRequest {
     line: number;
     column: number;
     inputPayload?: string;
+    mediatorType?: string;
     mediatorInfo?: MediatorTryOutInfo,
     tryoutId?: string;
     isServerLess: boolean;

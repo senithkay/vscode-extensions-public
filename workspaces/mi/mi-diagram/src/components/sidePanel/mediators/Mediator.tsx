@@ -63,6 +63,8 @@ export function MediatorPage(props: MediatorPageProps) {
                     <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
+                        mediatorType={mediatorType}
+                        getValues={getValues}
                         isActive={activeTab === "tryout" || !showMediaotrPanel}
                     />
                 </PanelContent>
