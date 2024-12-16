@@ -48,6 +48,10 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
     const { rpcClient } = useRpcContext();
 
     useEffect(() => {
+        fetchProject();
+    }, []);
+
+    const fetchProject = () => {
         rpcClient
             .getBIDiagramRpcClient()
             .getDesignModel()
@@ -60,22 +64,13 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             .catch((error) => {
                 console.error(">>> error getting design model", error);
             });
-    }, []);
+    };
 
     const goToView = async (filePath: string, position: NodePosition) => {
         console.log(">>> component diagram: go to view", { filePath, position });
         rpcClient
             .getVisualizerRpcClient()
             .openView({ type: EVENT_TYPE.OPEN_VIEW, location: { documentUri: filePath, position: position } });
-    };
-
-    const handleAddArtifact = () => {
-        rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                view: MACHINE_VIEW.BIComponentView,
-            },
-        });
     };
 
     const handleGoToListener = (listener: CDListener) => {
@@ -134,7 +129,10 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                 console.log(">>> Updated source code after delete", response);
                 if (!response.textEdits) {
                     console.error(">>> Error updating source code", response);
+                    return;
                 }
+                // Refresh the component diagram
+                fetchProject();
             });
     };
 
