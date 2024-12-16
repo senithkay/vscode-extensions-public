@@ -539,7 +539,7 @@ function generateArtifacts(
 						folder.name,
 						isCollapsibleState(false),
 						folder,
-						'data-mapper'
+						'dataMapper'
 					);
 					explorerEntry.contextValue = 'data-mapper';
 					explorerEntry.command = {
