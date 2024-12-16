@@ -106,8 +106,8 @@ export function TryOutView(props: TryoutProps) {
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
                 inputPayload,
-                mediatorType: props.mediatorType,
-                edits: getEdits()
+                // mediatorType: props.mediatorType,
+                edits: []
             });
 
             if (res.error) {
