@@ -21,6 +21,7 @@ import {
     Loopback,
     PayloadFactory,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     Send,
@@ -43,6 +44,7 @@ import {
     Event,
     DataServiceCall,
     Clone,
+    ScatterGather,
     Aggregate,
     Iterate,
     Switch,
@@ -227,6 +229,7 @@ export class PositionVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.setBasicMediatorPosition(node);
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
+    beginVisitVariable = (node: Variable): void => this.setBasicMediatorPosition(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.setBasicMediatorPosition(node);
@@ -318,6 +321,15 @@ export class PositionVisitor implements Visitor {
         this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
     }
     endVisitClone = (node: Clone): void => this.setSkipChildrenVisit(false);
+
+    beginVisitScatterGather = (node: ScatterGather): void => {
+        let targets: { [key: string]: any } = {}
+        node.targets.map((target, index) => {
+            targets[target.to || index] = target.endpoint || target.sequence || target
+        });
+        this.setAdvancedMediatorPosition(node, targets, NodeTypes.GROUP_NODE, true);
+    }
+    endVisitScatterGather = (node: ScatterGather): void => this.setSkipChildrenVisit(false);
 
     beginVisitDataServiceCall = (node: DataServiceCall): void => {
         this.setBasicMediatorPosition(node);
