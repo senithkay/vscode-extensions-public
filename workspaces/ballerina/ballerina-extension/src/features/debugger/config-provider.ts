@@ -666,9 +666,7 @@ async function runFast(root: string, options: { debugPort?: number; env?: Map<st
         if (window.activeTextEditor?.document.isDirty) {
             await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
         }
-
         const { debugPort, env = new Map(), programArgs = [] } = options;
-
         const commandArguments = [
             { key: "path", value: root },
             { key: "debugPort", value: debugPort },
