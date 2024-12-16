@@ -376,13 +376,12 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         BreakpointManager.getInstance().setActiveBreakpoint(undefined);
                         notifyBreakpointChange();
 
-                        // Restart the run fast
-                        getCurrentRoot().then((root) => {
-                            stopRunFast(root).then((didStop) => {
-                                if (didStop) {
-                                    runFast(root, msg.body.port);
-                                }
-                            });
+                        // restart the fast-run
+                        getCurrentRoot().then(async (root) => {
+                            const didStop = await stopRunFast(root);
+                            if (didStop) {
+                                runFast(root, msg.body);
+                            }
                         });
                     }
                 }
@@ -437,6 +436,7 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
 
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
+    private notificationHandler: Disposable | null = null;
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
@@ -481,11 +481,26 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             });
         }).then(() => {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
+            this.registerLogTraceNotificationHandler(session);
             return new DebugAdapterServer(port);
         }).catch((error) => {
             sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
             return Promise.reject(error);
         });
+    }
+    private registerLogTraceNotificationHandler(session: DebugSession) {
+        const langClient = ballerinaExtInstance.langClient;
+        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
+            if (params.verbose === "stopped") {
+                // do nothing 
+            } else {
+                if (params && params.message) {
+                    const category = params.verbose === 'err' ? 'stderr' : 'stdout';
+                    session.customRequest('output', { output: params.message, category: category });
+                }
+            }
+        });
+        this.notificationHandler = notificationHandler;
     }
     getScriptPath(args: string[]): string {
         args.push('start-debugger-adapter');
@@ -517,7 +532,7 @@ class FastRunDebugAdapter extends LoggingDebugSession {
         this.programArgs = (args as any).programArgs;
         getCurrentRoot().then((root) => {
             this.root = root;
-            runFast(root, undefined, this.programArgs).then((didRan) => {
+            runFast(root, { programArgs: this.programArgs }).then((didRan) => {
                 response.success = didRan;
                 this.sendResponse(response);
             });
@@ -618,21 +633,29 @@ class BIRunAdapter extends LoggingDebugSession {
     }
 }
 
-async function runFast(root: string, debugPort?: number, args: string[] = []): Promise<boolean> {
-    if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
-        await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+async function runFast(root: string, options: { debugPort?: number; env?: Map<string, string>; programArgs?: string[]; } = {}): Promise<boolean> {
+    try {
+        if (window.activeTextEditor?.document.isDirty) {
+            await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+        }
+
+        const { debugPort, env = new Map(), programArgs = [] } = options;
+
+        const commandArguments = [
+            { key: "path", value: root },
+            { key: "debugPort", value: debugPort },
+            { key: "env", value: env },
+            { key: "programArgs", value: programArgs }
+        ];
+
+        return await ballerinaExtInstance.langClient.executeCommand({
+            command: "RUN",
+            arguments: commandArguments,
+        });
+    } catch (error) {
+        console.error('Error while executing the fast-run command:', error);
+        return false;
     }
-
-    const commandArguments = [
-        { key: "path", value: root },
-        ...(debugPort !== undefined ? [{ key: "debugPort", value: debugPort }] : []),
-        { key: "args", value: args },
-    ];
-
-    return await ballerinaExtInstance.langClient.executeCommand({
-        command: "RUN",
-        arguments: commandArguments,
-    });
 }
 
 async function stopRunFast(root: string): Promise<boolean> {
