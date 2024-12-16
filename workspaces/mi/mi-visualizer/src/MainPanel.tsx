@@ -53,6 +53,7 @@ import { WelcomeView } from './views/WelcomeView';
 import { TaskView } from './views/Diagram/Task';
 import { InboundEPView } from './views/Diagram/InboundEndpoint';
 import Overview from './views/Overview';
+import { DatamapperForm } from './views/Forms/DatamapperForm';
 
 const MainContainer = styled.div`
     display: flex;
@@ -256,6 +257,9 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     break;
                 case MACHINE_VIEW.SequenceForm:
                     setViewComponent(<SequenceWizard path={machineView.documentUri} />);
+                    break;
+                case MACHINE_VIEW.DatamapperForm:
+                    setViewComponent(<DatamapperForm path={machineView.documentUri} />);
                     break;
                 case MACHINE_VIEW.InboundEPForm:
                     setViewComponent(<InboundEPWizard

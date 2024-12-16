@@ -455,7 +455,6 @@ function generateArtifacts(
 				);
 				parentEntry.contextValue = 'data-mappers';
 				parentEntry.id = 'data-mapper';
-				parentEntry.contextValue = contextValue;
 				
 				if (resources && resources.folders.length > 0) {
 					const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
