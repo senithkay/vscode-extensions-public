@@ -27,21 +27,16 @@ export interface UserInfo {
 	userCreatedAt: Date;
 }
 
-export interface ComponentKindBitbucketSource {
-	repository: string;
-	branch: string;
-	path: string;
-}
-
-export interface ComponentKindGithubSource {
+export interface ComponentKindGitProviderSource {
 	repository: string;
 	branch: string;
 	path: string;
 }
 
 export interface ComponentKindSource {
-	bitbucket?: ComponentKindBitbucketSource;
-	github?: ComponentKindGithubSource;
+	bitbucket?: ComponentKindGitProviderSource;
+	github?: ComponentKindGitProviderSource;
+	gitlab?: ComponentKindGitProviderSource;
 }
 
 export interface ComponentKindBuildDocker {
@@ -528,4 +523,13 @@ export interface OpenApiSpec {
 	openapi: string | number;
 	swagger: string | number;
 	servers?: { url?: string }[];
+}
+
+export interface CredentialItem {
+	id: string;
+	name: string;
+	createdAt: string;
+	organizationUuid: string;
+	type: string;
+	referenceToken: string;
 }
