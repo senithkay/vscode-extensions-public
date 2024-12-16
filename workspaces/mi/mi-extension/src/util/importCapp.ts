@@ -88,6 +88,7 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
             'src': {
                 'main': {
                     'wso2mi': {
+                        'java': '',
                         'artifacts': {
                             'apis': '',
                             'endpoints': '',

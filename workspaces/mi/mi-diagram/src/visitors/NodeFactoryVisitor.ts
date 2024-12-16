@@ -20,6 +20,7 @@ import {
     Loopback,
     PayloadFactory,
     Property,
+    Variable,
     PropertyGroup,
     Respond,
     Send,
@@ -42,6 +43,7 @@ import {
     Event,
     DataServiceCall,
     Clone,
+    ScatterGather,
     Cache,
     Aggregate,
     Iterate,
@@ -447,6 +449,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitLoopback = (node: Loopback): void => this.createNodeAndLinks({ node, name: MEDIATORS.LOOPBACK });
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks({ node, name: MEDIATORS.PAYLOAD });
     beginVisitProperty = (node: Property): void => this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTY });
+    beginVisitVariable = (node: Variable): void => this.createNodeAndLinks({ node, name: MEDIATORS.VARIABLE });
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTYGROUP });
@@ -598,6 +601,24 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = true;
     }
     endVisitClone(node: Clone): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+    beginVisitScatterGather(node: ScatterGather): void {
+        this.createNodeAndLinks(({ node, name: MEDIATORS.SCATTERGATHER, type: NodeTypes.GROUP_NODE }))
+        this.parents.push(node);
+        let targets: { [key: string]: any } = {}
+        node.targets.map((target, index) => {
+            targets[target.to || index] = target.endpoint || target.sequence || target
+        })
+        const newSequenceRange = {
+            start: node.range.endTagRange.start,
+            end: node.range.endTagRange.start,
+        }
+        this.visitSubSequences(node, MEDIATORS.SCATTERGATHER, targets, NodeTypes.GROUP_NODE, true, newSequenceRange);
+        this.skipChildrenVisit = true;
+    }
+    endVisitScatterGather(node: ScatterGather): void {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }

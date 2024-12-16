@@ -39,7 +39,7 @@ import { FormattingProvider } from './FormattingProvider';
 
 import util = require('util');
 import { log } from '../util/logger';
-import { CONFIG_JAVA_HOME } from '../debugger/constants';
+import { getJavaHomeFromConfig } from '../util/onboardingUtils';
 const exec = util.promisify(require('child_process').exec);
 
 export interface ScopeInfo {
@@ -130,9 +130,7 @@ export class MILanguageClient {
 
     private async launch() {
         try {
-            const config = workspace.getConfiguration('MI');
-            const JAVA_HOME: string | undefined = config.get(CONFIG_JAVA_HOME);
-
+            const JAVA_HOME= getJavaHomeFromConfig();
             if (JAVA_HOME) {
                 const isJDKCompatible = await this.checkJDKCompatibility(JAVA_HOME);
                 if (!isJDKCompatible) {

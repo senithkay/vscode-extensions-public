@@ -120,6 +120,19 @@ export const rootPomXmlContent = (projectName: string, groupID: string, artifact
             </configuration>
           </plugin>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>compile</phase>
+                <id>default-jar</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <groupId>org.wso2.maven</groupId>
             <artifactId>vscode-car-plugin</artifactId>
             <version>5.2.75</version>

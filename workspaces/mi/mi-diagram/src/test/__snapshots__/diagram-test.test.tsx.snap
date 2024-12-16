@@ -1051,7 +1051,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-cjkiyf"
+                        class="css-1y9wcek"
                       >
                         <i
                           class="fw-Aggregate"
@@ -1598,7 +1598,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-cjkiyf"
+                        class="css-1y9wcek"
                       >
                         <i
                           class="fw-Aggregate"
@@ -9871,7 +9871,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-q4be3z"
+                        class="css-t7l6co"
                       >
                         <i
                           class="fw-Clone"
@@ -10454,7 +10454,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-q4be3z"
+                        class="css-t7l6co"
                       >
                         <i
                           class="fw-Clone"
@@ -26780,7 +26780,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-1of8dar"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-Iterate"
@@ -27401,7 +27401,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-1of8dar"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-Iterate"
@@ -28090,7 +28090,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1wk9l6y"
                     >
                       <div
-                        class="css-1of8dar"
+                        class="css-znnhbi"
                       >
                         <i
                           class="fw-Iterate"
@@ -67756,10 +67756,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-a0ffy3"
+      class="css-sdsx4w"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="301"
+      height="411"
       width="150"
     >
       <div
@@ -68161,10 +68161,10 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
       </div>
     </div>
     <div
-      class="css-a0ffy3"
+      class="css-sdsx4w"
       color="var(--vscode-foreground)"
       data-testid="diagram-canvas-flow"
-      height="301"
+      height="411"
       width="150"
     >
       <div

@@ -69,12 +69,8 @@ export function copyMavenWrapper(resourcePath: string, targetPath: string) {
 
 	fs.mkdirSync(mavenWrapperPropertiesPath, { recursive: true });
 	fs.copyFileSync(path.join(resourcePath, 'maven-wrapper.properties'), path.join(mavenWrapperPropertiesPath, 'maven-wrapper.properties'));
-
-	if (process.platform === 'win32') {
-		fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
-	} else {
-		fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
-	}
+	fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
+	fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
 }
 
 export function createGitignoreFile(targetPath: string): Promise<void> {
