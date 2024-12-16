@@ -83,10 +83,6 @@ export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
 export const LOADING_OVERLAY = "loading-overlay";
 
-// export const NEW_ENTRY = "new-entry";
-// export const NEW_CONNECTION = "new-connection";
-// export const NEW_COMPONENT = "new-component";
-// export const ACTOR_SUFFIX = "-actor";
 export const AUTOMATION_LISTENER = "automation-listener";
 
 export const NODE_LOCKED = false;

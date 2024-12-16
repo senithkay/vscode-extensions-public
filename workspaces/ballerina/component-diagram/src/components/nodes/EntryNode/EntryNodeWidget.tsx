@@ -166,8 +166,8 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             return "Automation";
         }
         // Service
-        if ((model.node as any).type) {
-            return (model.node as any).type.replace(":Listener", ":Service");
+        if ((model.node as CDService).type) {
+            return (model.node as CDService).type.replace(":Listener", ":Service");
         }
         return "Service";
     };
