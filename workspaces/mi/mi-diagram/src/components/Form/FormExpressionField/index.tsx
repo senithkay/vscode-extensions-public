@@ -11,9 +11,11 @@ import { debounce } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/mi-core';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import {
+    Button,
+    Codicon,
     CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
@@ -21,7 +23,7 @@ import {
     RequiredFormInput,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from './HelperPane';
-import { modifyCompletion } from './utils';
+import { filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, modifyCompletion } from './utils';
 
 /**
  * Props for ExpressionEditor
@@ -35,18 +37,20 @@ import { modifyCompletion } from './utils';
  * @param onFocus - Callback function to be called when the expression is focused
  * @param onBlur - Callback function to be called when the expression is blurred
  * @param onCancel - Callback function to be called when the completions dropdown is closed
+ * @param openExpressionEditor - Callback function to be called when the expression editor is opened
  * @param errorMsg - The error message to display
  */
 type FormExpressionFieldProps = {
     label: string;
     required: boolean;
-    value: string;
+    value: FormExpressionFieldValue;
     placeholder: string;
     nodeRange: Range;
-    onChange: (value: string) => void;
+    onChange: (value: FormExpressionFieldValue) => void;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onCancel?: () => void;
+    openExpressionEditor: (value: FormExpressionFieldValue, setValue: (value: FormExpressionFieldValue) => void) => void;
     errorMsg: string;
 };
 
@@ -63,6 +67,11 @@ export namespace S {
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
         textTransform: 'capitalize',
+    });
+
+    export const Namespace = styled.div({
+        marginLeft: 'auto',
+        marginRight: '32px'
     });
 }
 
@@ -82,6 +91,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         errorMsg,
         onFocus,
         onBlur,
+        openExpressionEditor
     } = params;
 
     const { rpcClient } = useVisualizerContext();
@@ -91,10 +101,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const [completions, setCompletions] = useState<CompletionItem[]>([]);
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
     const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
+    const [isExActive, setIsExActive] = useState<boolean>(false);
     const [payloadInfo, setPayloadInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [variableInfo, setVariableInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [propertiesInfo, setPropertiesInfo] = useState<HelperPaneCompletionItem[]>(null);
     const [functionInfo, setFunctionInfo] = useState<HelperPaneFunctionInfo>(null);
+    const [configInfo, setConfigInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [headerInfo, setHeaderInfo] = useState<HelperPaneCompletionItem[]>(null);
+    const [paramInfo, setParamInfo] = useState<HelperPaneCompletionItem[]>(null);
 
     const debouncedRetrieveCompletions = useCallback(
         async (expression: string, cursorPosition: number) => {
@@ -118,15 +132,15 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         debouncedRetrieveCompletions,
     ]);
 
-    const handleChange = async (value: string, updatedCursorPosition: number) => {
-        onChange(value);
+    const handleExpressionChange = async (expression: string, updatedCursorPosition: number) => {
+        onChange({ ...value, value: expression });
         cursorPositionRef.current = updatedCursorPosition;
 
-        const isHelperPaneOpen = value === "" ? true : false;
+        const isHelperPaneOpen = expression === "" ? true : false;
         setIsHelperPaneOpen(isHelperPaneOpen);
 
         if (!isHelperPaneOpen) {
-            retrieveCompletions(value, updatedCursorPosition);
+            retrieveCompletions(expression, updatedCursorPosition);
         }
     };
 
@@ -147,7 +161,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         handleCancel();
     };
 
-    const getHelperPaneInfo = useCallback(debounce(() => {
+    const getHelperPaneInfo = useCallback(debounce((type: string, filterText: string) => {
         rpcClient.getVisualizerState().then((machineView) => {
             rpcClient
                 .getMiDiagramRpcClient()
@@ -156,10 +170,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     position: nodeRange?.start
                 })
                 .then((response) => {
-                    setPayloadInfo(response.payload);
-                    setVariableInfo(response.variables);
-                    setPropertiesInfo(response.properties);
-                    setFunctionInfo(response.functions);
+                    switch (type) {
+                        case 'payload':
+                            setPayloadInfo(filterHelperPaneCompletionItems(response.payload, filterText));
+                            break;
+                        case 'variables':
+                            setVariableInfo(filterHelperPaneCompletionItems(response.variables, filterText));
+                            break;
+                        case 'properties':
+                            setPropertiesInfo(filterHelperPaneCompletionItems(response.properties, filterText));
+                            break;
+                        case 'functions':
+                            setFunctionInfo(filterHelperPaneFunctionCompletionItems(response.functions, filterText));
+                            break;
+                        case 'configs':
+                            setConfigInfo(filterHelperPaneCompletionItems(response.configs, filterText));
+                            break;
+                        case 'headers':
+                            setHeaderInfo(filterHelperPaneCompletionItems(response.headers, filterText));
+                            break;
+                        case 'params':
+                            setParamInfo(filterHelperPaneCompletionItems(response.params, filterText));
+                            break;
+                    }
                 })
                 .finally(() => {
                     setIsLoadingHelperPaneInfo(false);
@@ -169,9 +202,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         [rpcClient, nodeRange?.start]
     );
 
-    const handleGetHelperPaneInfo = useCallback(() => {
+    const handleGetHelperPaneInfo = useCallback((type: string, filterText: string) => {
         setIsLoadingHelperPaneInfo(true);
-        getHelperPaneInfo();
+        getHelperPaneInfo(type, filterText);
     }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
@@ -190,6 +223,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             variableInfo,
             propertiesInfo,
             functionInfo,
+            configInfo,
+            headerInfo,
+            paramInfo,
             () => setIsHelperPaneOpen(false),
             handleGetHelperPaneInfo,
             value,
@@ -197,18 +233,39 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         );
     }
 
+    const handleFunctionEdit = (functionName: string) => {
+        // Open Expression Editor for xpath
+        if (functionName === 'xpath') {
+            setIsExActive(true);
+        } else {
+            setIsExActive(false);
+        }
+    }
+
     return (
         <S.Container>
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
+                {isExActive && (
+                    <S.Namespace>
+                        <Button
+                            tooltip="Open Expression editor"
+                            appearance='icon'
+                            onClick={() => openExpressionEditor(value, onChange)}
+                            sx={{ height: '12px', width: '12px' }}
+                        >
+                            <Codicon name="edit" iconSx={{ fontSize: '12px' }} sx={{ height: '12px', width: '12px' }} />
+                        </Button>
+                    </S.Namespace>
+                )}
             </S.Header>
             <div>
                 <FormExpressionEditor
                     ref={expressionRef}
-                    value={value}
+                    value={value.value}
                     placeholder={placeholder}
-                    onChange={handleChange}
+                    onChange={handleExpressionChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     onCancel={handleCancel}
@@ -216,6 +273,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     isHelperPaneOpen={isHelperPaneOpen}
                     changeHelperPaneState={handleChangeHelperPaneState}
                     getHelperPane={handleGetHelperPane}
+                    onFunctionEdit={handleFunctionEdit}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>

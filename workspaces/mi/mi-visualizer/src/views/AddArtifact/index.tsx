@@ -131,7 +131,7 @@ export function AddArtifactView() {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-inbound-endpoint", entry] });
-        } else if (key === "registry") {
+        } else if (key === "resources") {
             await rpcClient
                 .getMiDiagramRpcClient()
                 .executeCommand({ commands: ["MI.project-explorer.add-registry-resource", entry] });
@@ -326,9 +326,9 @@ export function AddArtifactView() {
                                     />
                                     <Card
                                         icon="registry"
-                                        title="Registry"
+                                        title="Resource"
                                         description="Manage shared resources and configurations."
-                                        onClick={() => handleClick("registry")}
+                                        onClick={() => handleClick("resources")}
                                     />
                                     <Card
                                         icon="message-processor"

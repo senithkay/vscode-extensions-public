@@ -214,6 +214,8 @@ import {
     CopyConnectorZipRequest,
     CopyConnectorZipResponse,
     ApplyEditsRequest,
+    RemoveConnectorRequest,
+    RemoveConnectorResponse,
     GetHelperPaneInfoRequest,
     GetHelperPaneInfoResponse
 } from "./types";
@@ -311,6 +313,7 @@ export const downloadInboundConnector: RequestType<DownloadInboundConnectorReque
 export const copyConnectorZip: RequestType<CopyConnectorZipRequest, CopyConnectorZipResponse> = { method: `${_preFix}/copyConnectorZip` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
+export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnectorResponse> = { method: `${_preFix}/removeConnector` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };

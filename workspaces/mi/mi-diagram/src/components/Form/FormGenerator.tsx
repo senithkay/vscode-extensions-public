@@ -16,7 +16,7 @@ import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keyloo
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
 import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { getParamManagerFromValues, getParamManagerOnChange, openPopup } from './common';
+import { getParamManagerFromValues, getParamManagerOnChange, openPopup, deriveDefaultValue } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
@@ -70,6 +70,7 @@ interface Element {
     tableValue?: string;
     configurableType?: string;
     addParamText?: string;
+    deriveResponseVariable?: boolean;
 }
 
 interface ExpressionValueWithSetter {
@@ -132,7 +133,10 @@ export function FormGenerator(props: FormGeneratorProps) {
         const type = element.type;
         const value = element.value;
         const inputType = value.inputType;
-        const currentValue = value.currentValue ?? value.defaultValue;
+        const deriveResponseVariable = value.deriveResponseVariable ?? false;
+        const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
+        const currentValue = value.currentValue ?? defaultValue;
+        deriveDefaultValue(formData.connectorName, formData.operationName);
 
         if (type === 'table') {
             return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
@@ -218,15 +222,43 @@ export function FormGenerator(props: FormGeneratorProps) {
         </ComponentCard>;
     }
 
-    const FormExpressionFieldComponent = (element: Element, field: any) => {
-        return (
+    const FormExpressionFieldComponent = (element: Element, field: any, helpTipElement: React.JSX.Element) => {
+        const name = getNameForController(element.name);
+        
+        return expressionEditorField !== name ? (
             <FormExpressionField
                 {...field}
                 label={element.displayName}
                 required={element.required === 'true'}
                 placeholder={element.placeholder}
                 nodeRange={range}
+                openExpressionEditor={(value, setValue) => {
+                    setCurrentExpressionValue({ value, setValue });
+                    setExpressionEditorField(name);
+                }}
             />
+        ) : (
+            <>
+                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
+                    <label>{element.displayName}</label>
+                    {element.required === "true" && <RequiredFormInput />}
+                    <div style={{ paddingTop: '5px' }}>
+                        {helpTipElement}
+                    </div>
+                </div>
+                <ExpressionEditor
+                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
+                    handleOnSave={(newValue) => {
+                        if (currentExpressionValue) {
+                            currentExpressionValue.setValue(newValue);
+                        }
+                        setExpressionEditorField(null);
+                    }}
+                    handleOnCancel={() => {
+                        setExpressionEditorField(null);
+                    }}
+                />
+            </>
         );
     }
 
@@ -301,8 +333,7 @@ export function FormGenerator(props: FormGeneratorProps) {
             case 'textAreaOrExpression':
             case 'integerOrExpression':
             case 'expression':
-                return ExpressionFieldComponent({ element, canChange: element.inputType !== 'expression', field, helpTipElement, placeholder, isRequired });
-
+                return FormExpressionFieldComponent(element, field, helpTipElement);
             case 'booleanOrExpression':
             case 'comboOrExpression':
             case 'combo':
@@ -325,16 +356,36 @@ export function FormGenerator(props: FormGeneratorProps) {
                 );
             case 'key':
             case 'keyOrExpression':
-            case 'comboOrKey':
-            case 'registry':
-            case 'resource': 
-            case 'resourceOrExpression': {
+            case 'comboOrKey': {
                 let onCreateButtonClick;
                 if (!Array.isArray(keyType)) {
                     onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
                         const resolvedView = element.inputType === 'registry' || element.inputType === 'resource' || element.inputType === 'resourceOrExpression' ? "addResource" : element.keyType;
                         openPopup(rpcClient, resolvedView, fetchItems, handleValueChange, undefined, { type: keyType });
                     }
+                }
+
+                return (<Keylookup
+                    value={field.value}
+                    filterType={(keyType as any) ?? "resource"}
+                    label={element.displayName}
+                    labelAdornment={helpTipElement}
+                    allowItemCreate={element.canAddNew === true || (element.canAddNew as any) === 'true'}
+                    onValueChange={field.onChange}
+                    required={isRequired}
+                    errorMsg={errorMsg}
+                    additionalItems={element.comboValues}
+                    {...element.inputType.endsWith('OrExpression') && { canChangeEx: true }}
+                    {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
+                    openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
+                    onCreateButtonClick={onCreateButtonClick}
+                />)
+            }
+            case 'registry':
+            case 'resource': 
+            case 'resourceOrExpression': {
+                const onCreateButtonClick = (fetchItems: any, handleValueChange: any) => {
+                    openPopup(rpcClient, "addResource", fetchItems, handleValueChange, undefined, { type: Array.isArray(keyType) ? keyType : [keyType] });
                 }
 
                 return (<Keylookup
@@ -658,11 +709,18 @@ export function FormGenerator(props: FormGeneratorProps) {
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
                 {formData.help && (
-                    <div style={{ padding: "10px", marginBottom: "20px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}>
+                    <div style={{
+                        padding: "10px",
+                        marginBottom: "20px",
+                        borderBottom: "1px solid var(--vscode-editorWidget-border)",
+                        display: "flex",
+                        flexDirection: 'row'
+                    }}>
                         {typeof formData.help === 'string' && formData.help.includes('<')
                             ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
+                        {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}
                     </div>
                 )}
                 {renderForm(formData.elements)}

@@ -15,14 +15,20 @@ import { VariablesPage } from './VariablesPage';
 import { FunctionsPage } from './FunctionsPage';
 import { PayloadPage } from './PayloadPage';
 import { PropertiesPage } from './PropertiesPage';
+import { ConfigsPage } from './ConfigsPage';
+import { HeadersPage } from './HeadersPage';
+import { ParamsPage } from './ParamsPage';
 
 export type HelperPaneProps = {
     exprRef: React.RefObject<FormExpressionEditorRef>;
     isLoadingHelperPaneInfo: boolean;
     payloadInfo: HelperPaneCompletionItem[];
     variableInfo: HelperPaneCompletionItem[];
-    attributesInfo: HelperPaneCompletionItem[];
+    propertiesInfo: HelperPaneCompletionItem[];
     functionInfo: HelperPaneFunctionInfo;
+    configInfo: HelperPaneCompletionItem[];
+    headerInfo: HelperPaneCompletionItem[];
+    paramInfo: HelperPaneCompletionItem[];
     onClose: () => void;
     setFilterText: (type: string, filterText: string) => void;
     currentValue: string;
@@ -34,8 +40,11 @@ const HelperPaneEl = ({
     isLoadingHelperPaneInfo,
     payloadInfo,
     variableInfo,
-    attributesInfo,
+    propertiesInfo,
     functionInfo,
+    configInfo,
+    headerInfo,
+    paramInfo,
     onClose,
     setFilterText,
     currentValue,
@@ -82,16 +91,46 @@ const HelperPaneEl = ({
                 />
             )}
             {currentPage === 3 && (
-                <PropertiesPage
+                <HeadersPage
                     isLoading={isLoadingHelperPaneInfo}
-                    propertiesInfo={attributesInfo}
+                    headerInfo={headerInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('attributes', filterText)}
+                    setFilterText={(filterText) => setFilterText('headers', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
             )}
             {currentPage === 4 && (
+                <ParamsPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    paramInfo={paramInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('params', filterText)}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
+            {currentPage === 5 && (
+                <ConfigsPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    configInfo={configInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('configs', filterText)}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
+            {currentPage === 6 && (
+                <PropertiesPage
+                    isLoading={isLoadingHelperPaneInfo}
+                    propertiesInfo={propertiesInfo}
+                    setCurrentPage={setCurrentPage}
+                    setFilterText={(filterText) => setFilterText('properties', filterText)}
+                    onClose={onClose}
+                    onChange={handleChange}
+                />
+            )}
+            {currentPage === 7 && (
                 <FunctionsPage
                     isLoading={isLoadingHelperPaneInfo}
                     functionInfo={functionInfo}
@@ -110,8 +149,11 @@ export const getHelperPane = (
     isLoadingHelperPaneInfo: boolean,
     payloadInfo: HelperPaneCompletionItem[],
     variableInfo: HelperPaneCompletionItem[],
-    attributesInfo: HelperPaneCompletionItem[],
+    propertiesInfo: HelperPaneCompletionItem[],
     functionInfo: HelperPaneFunctionInfo,
+    configInfo: HelperPaneCompletionItem[],
+    headerInfo: HelperPaneCompletionItem[],
+    paramInfo: HelperPaneCompletionItem[],
     onClose: () => void,
     setFilterText: (type: string, filterText: string) => void,
     currentValue: string,
@@ -123,8 +165,11 @@ export const getHelperPane = (
             isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
             payloadInfo={payloadInfo}
             variableInfo={variableInfo}
-            attributesInfo={attributesInfo}
+            propertiesInfo={propertiesInfo}
             functionInfo={functionInfo}
+            configInfo={configInfo}
+            headerInfo={headerInfo}
+            paramInfo={paramInfo}
             onClose={onClose}
             setFilterText={setFilterText}
             currentValue={currentValue}

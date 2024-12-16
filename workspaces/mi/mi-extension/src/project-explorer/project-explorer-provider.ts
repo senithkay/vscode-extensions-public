@@ -445,9 +445,9 @@ function generateArtifacts(
 				const directoryMap = projectStructure.directoryMap;
 				const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.newResources;
 
-				const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
+				const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamapper');
 
-				const datamapperResourcePath = path.join(resources.path, 'datamappers');
+				const datamapperResourcePath = path.join(resources.path, 'datamapper');
 				parentEntry = new ProjectExplorerEntry(
 					'Data Mappers',
 					isCollapsibleState(dataMapperResources?.folders?.length > 0),
@@ -458,7 +458,7 @@ function generateArtifacts(
 				parentEntry.contextValue = contextValue;
 				
 				if (resources && resources.folders.length > 0) {
-					const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamappers');
+					const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamapper');
 					if (dataMapperResources) {
 						const children = generateTreeDataOfDataMappings(projectStructure);
 						parentEntry.children = children;

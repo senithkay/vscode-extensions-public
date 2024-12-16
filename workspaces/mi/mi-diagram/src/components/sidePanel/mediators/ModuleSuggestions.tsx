@@ -42,7 +42,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
 
     React.useEffect(() => {
         const debouncedSearchModules = debounce(async () => {
-            if (props.searchValue) {
+            if (props.searchValue && navigator.onLine) {
                 setIsSearching(true);
                 const modules = await searchModules();
                 setIsSearching(false);

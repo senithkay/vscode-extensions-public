@@ -86,7 +86,7 @@ export function Mediators(props: MediatorProps) {
                 connectorName={mediator.tag[0]}
                 operationName={mediator.operationName} />;
 
-            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${mediator.operationName}`);
+            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${mediator.operationName} operation`);
         } else {
             const form =
                 <div style={{ padding: '20px' }}>
@@ -138,7 +138,7 @@ export function Mediators(props: MediatorProps) {
             reloadMediatorPalette={reloadPalette} />;
         const icon = <Codicon name="library" iconSx={{ fontSize: 20, color: 'var(--vscode-textLink-foreground)' }} />
 
-        sidepanelAddPage(sidePanelContext, modulesList, 'Modules', icon);
+        sidepanelAddPage(sidePanelContext, modulesList, 'Add Modules', icon);
     }
 
     const MediatorList = () => {

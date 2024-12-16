@@ -415,6 +415,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = '';
             fileExtension = 'sql';
             break;
+        case "RB File":
+            mediaType = '';
+            fileExtension = 'rb';
+            break;
+        case "GROOVY File":
+            mediaType = '';
+            fileExtension = 'groovy';
+            break;
         case "JSON File":
             mediaType = 'application/json';
             fileExtension = 'json';
