@@ -23,6 +23,8 @@ export type HelperPaneIconButtonProps = {
     onClick: () => void;
 }
 
+export type HelperPaneFooterProps = PropsWithChildren<{}>;
+
 export type HelperPaneCompletionItemProps = {
     level?: number;
     label: string;
@@ -46,6 +48,17 @@ type CollapsibleConditionalProps = {
     collapsedItemsCount?: never;
 }
 
+export type PanelViewProps = PropsWithChildren<{
+    id: number;
+}>;
+
+export type PanelTabProps = {
+    id: number;
+    title: string;
+};
+
+export type PanelsProps = PropsWithChildren<{}>;
+
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
@@ -64,7 +77,7 @@ export type HelperPaneBodyProps = PropsWithChildren<{
 }>;
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
-    title: string;
+    title?: string;
     onBack?: () => void;
     onClose?: () => void;
 };

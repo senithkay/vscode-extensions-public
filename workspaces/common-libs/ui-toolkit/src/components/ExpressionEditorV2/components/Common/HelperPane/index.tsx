@@ -13,6 +13,7 @@ import {
     HelperPaneBodyProps,
     HelperPaneCategoryItemProps,
     HelperPaneCompletionItemProps,
+    HelperPaneFooterProps,
     HelperPaneHeaderProps,
     HelperPaneIconButtonProps,
     HelperPaneProps,
@@ -189,8 +190,7 @@ const SectionBody = styled.div<{ columns?: number }>`
 const SectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
 `;
 
 const ProgressRingContainer = styled.div`
@@ -210,7 +210,6 @@ const BodyContainer = styled.div`
 `;
 
 const SearchBoxContainer = styled.div`
-    padding-top: 8px;
     padding-inline: 8px;
 `;
 
@@ -235,6 +234,7 @@ const HeaderContainer = styled.header`
 const HeaderContainerWithSearch = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 8px;
 `;
 
 const DropdownBody = styled.div<{ sx?: CSSProperties }>`
@@ -360,7 +360,13 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = true, searchValue, onSearch, onClose }) => {
+const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
+    children,
+    isLoading = true,
+    searchValue,
+    onSearch,
+    onClose
+}) => {
     return (
         <>
             <Overlay
@@ -401,7 +407,7 @@ const IconButton: React.FC<HelperPaneIconButtonProps> = ({ title, getIcon, onCli
     );
 };
 
-const Footer: React.FC = ({ children }) => {
+const Footer: React.FC<HelperPaneFooterProps> = ({ children }) => {
     return (
         <FooterContainer>
             <Divider />
@@ -513,25 +519,29 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true }) => 
 
 const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searchValue, onSearch }) => {
     return (
-        <HeaderContainerWithSearch>
-            <HeaderContainer>
-                <TitleContainer isLink={!!onBack} onClick={onBack}>
-                    {onBack && <Codicon name="chevron-left" />}
-                    {onBack ? (
-                        <Typography variant="caption">{title}</Typography>
-                    ) : (
-                        <Typography variant="body1">{title}</Typography>
-                    )}
-                </TitleContainer>
-                {onClose && <Codicon name="close" onClick={onClose} />}
-            </HeaderContainer>
-            {onSearch && (
-                <SearchBoxContainer>
-                    <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
-                </SearchBoxContainer>
-            )}
+        <>
+            <HeaderContainerWithSearch>
+                {title && (
+                    <HeaderContainer>
+                        <TitleContainer isLink={!!onBack} onClick={onBack}>
+                            {onBack && <Codicon name="chevron-left" />}
+                            {onBack ? (
+                                <Typography variant="caption">{title}</Typography>
+                            ) : (
+                                <Typography variant="body1">{title}</Typography>
+                            )}
+                        </TitleContainer>
+                        {onClose && <Codicon name="close" onClick={onClose} />}
+                    </HeaderContainer>
+                )}
+                {onSearch && (
+                    <SearchBoxContainer>
+                        <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
+                    </SearchBoxContainer>
+                )}
+            </HeaderContainerWithSearch>
             <Divider />
-        </HeaderContainerWithSearch>
+        </>
     );
 };
 
@@ -547,6 +557,9 @@ const HelperPane: React.FC<HelperPaneProps> & {
     LibraryBrowser: typeof LibraryBrowser;
     LibraryBrowserSection: typeof LibraryBrowserSection;
     LibraryBrowserSubSection: typeof LibraryBrowserSubSection;
+    Panels: typeof Panels;
+    PanelTab: typeof PanelTab;
+    PanelView: typeof PanelView;
 } = ({ children, sx }: HelperPaneProps) => {
     return <DropdownBody sx={sx}>{children}</DropdownBody>;
 };
@@ -562,5 +575,8 @@ HelperPane.IconButton = IconButton;
 HelperPane.LibraryBrowser = LibraryBrowser;
 HelperPane.LibraryBrowserSection = LibraryBrowserSection;
 HelperPane.LibraryBrowserSubSection = LibraryBrowserSubSection;
+HelperPane.Panels = Panels;
+HelperPane.PanelTab = PanelTab;
+HelperPane.PanelView = PanelView;
 
 export default HelperPane;
