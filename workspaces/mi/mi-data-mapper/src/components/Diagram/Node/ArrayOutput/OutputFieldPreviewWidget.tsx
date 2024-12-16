@@ -15,7 +15,7 @@ import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from "../../Port";
-import { InputSearchHighlight } from "../commons/Search";
+import { OutputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
@@ -63,8 +63,8 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
-                <InputSearchHighlight>{fieldName}</InputSearchHighlight>
-                {!dmType.optional && "*"}
+                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
+                {!dmType.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>
             {typeName && (
