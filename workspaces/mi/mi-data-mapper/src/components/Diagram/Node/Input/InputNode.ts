@@ -62,7 +62,14 @@ export class InputNode extends DataMapperNodeModel {
                         parentPort, isCollapsedField, parentPort.collapsed, subField.optional
                     );
                 });
-            } else {
+            } else if(this.dmType.kind === TypeKind.Array){
+                this.dmType.fieldName = this._paramName;
+                const arrItemField = { ...this.dmType.memberType, fieldName: `<${this.dmType.fieldName}Item>` };
+                this.numberOfFields += this.addPortsForInputField(
+                    arrItemField, "OUT", this._paramName, this._paramName, '',
+                    parentPort, isCollapsedField, parentPort.collapsed, arrItemField.optional, true
+                );
+            }else {
                 this.addPortsForInputField(
                     this.dmType, "OUT", this._paramName, this._paramName,  '',
                     parentPort, isCollapsedField, parentPort.collapsed, this.dmType.optional
