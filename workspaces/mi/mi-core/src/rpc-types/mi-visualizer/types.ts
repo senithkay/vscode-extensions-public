@@ -392,7 +392,23 @@ export interface Entrypoint {
     dependencies: string[];
     connections: string[];
 }
-
 export interface ReadmeContentResponse {
     content: string;
+}
+export interface PathResponse {
+    path?: string;
+    status: "valid" | "suggest" | "mismatch" | "not-found";
+    version?: string;
+}
+export interface JavaAndMIPathResponse {
+    javaPath?: PathResponse;
+    miPath?: PathResponse;
+}
+export interface JavaAndMIPathRequest {
+    javaPath?: string;
+    miPath?: string;
+}
+export interface MIDetails {
+    miVersion: string;
+    javaVersion: string;
 }

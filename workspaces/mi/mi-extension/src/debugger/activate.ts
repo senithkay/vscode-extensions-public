@@ -17,8 +17,8 @@ import { getDockerTask } from './tasks';
 import { navigate } from '../stateMachine';
 import * as fs from 'fs';
 import * as path from 'path';
-import { CONFIG_JAVA_HOME, CONFIG_SERVER_PATH } from './constants';
-import { validateJavaHomeInFolder, getMIVersionFromPom, isMIInstalledAtPath } from '../util/onboardingUtils';
+import { SELECTED_SERVER_PATH, SELECTED_JAVA_HOME } from './constants';
+import { verifyJavaHomePath, verifyMIPath } from '../util/onboardingUtils';
 
 
 class MiConfigurationProvider implements vscode.DebugConfigurationProvider {
@@ -57,8 +57,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     // Register command to change the Micro Integrator server path
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => {
         const addServerOptionLabel = "Add Micro Integrator Server";
-        const config = vscode.workspace.getConfiguration('MI');
-        const currentServerPath = config.get<string>(CONFIG_SERVER_PATH);
+        const currentServerPath : string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
         const quickPickItems: vscode.QuickPickItem[] = [];
 
         if (currentServerPath) {
@@ -98,17 +97,14 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             } else {
                 selectedServerPath = selected.label;
             }
-            if (isMIInstalledAtPath(selectedServerPath)) {
-                await config.update(CONFIG_SERVER_PATH, selectedServerPath, vscode.ConfigurationTarget.Workspace);
+            const verifiedServerPath = verifyMIPath(selectedServerPath);
+            if (verifiedServerPath) {
+                await extension.context.globalState.update(SELECTED_SERVER_PATH, verifiedServerPath);
                 return true;
-            } else if (isMIInstalledAtPath(path.normalize(path.join(selectedServerPath, '..')))) { // If the user selects the bin directory
-                await config.update(CONFIG_SERVER_PATH, path.normalize(path.join(selectedServerPath, '..')), vscode.ConfigurationTarget.Workspace);
-                return false;
             } else {
-                vscode.window.showErrorMessage('Invalid Micro Integrator Server path.');
+                vscode.window.showErrorMessage('Invalid Micro Integrator Server path or unsupported Micro Integrator version. Micro Integrator 4.3.0 or later is required.');
                 return false;
             }
-
         }
         return false;
     });
@@ -116,12 +112,9 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     // Register command to change the Java Home path
     vscode.commands.registerCommand(COMMANDS.CHANGE_JAVA_HOME, async () => {
         try {
-            const miVersion = await getMIVersionFromPom();
             const setJavaOptionLabel = "Set Java Home Path";
-            const config = vscode.workspace.getConfiguration('MI');
-            const currentJavaHomePath = config.get<string>(CONFIG_JAVA_HOME);
+            const currentJavaHomePath: string | undefined = extension.context.globalState.get(SELECTED_JAVA_HOME);
             const quickPickItems: vscode.QuickPickItem[] = [];
-
             if (currentJavaHomePath) {
                 quickPickItems.push(
                     { kind: vscode.QuickPickItemKind.Separator, label: "Current Java Home Path" },
@@ -130,6 +123,13 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 );
             } else {
                 quickPickItems.push({ label: setJavaOptionLabel });
+            }
+            const environmentJavaHome = process.env.JAVA_HOME;
+            if (environmentJavaHome) {
+                quickPickItems.push(
+                    { kind: vscode.QuickPickItemKind.Separator, label: "Environment Java Home" },
+                    { label: environmentJavaHome }
+                );
             }
 
             const quickPickOptions: vscode.QuickPickOptions = {
@@ -160,12 +160,12 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                     selectedJavaHomePath = selected.label;
                 }
 
-                const validatedJavaHomePath = validateJavaHomeInFolder(selectedJavaHomePath, miVersion);
-                if (validatedJavaHomePath) {
-                    await config.update(CONFIG_JAVA_HOME, validatedJavaHomePath, vscode.ConfigurationTarget.Workspace);
+                const verifiedJavaHomePath = verifyJavaHomePath(selectedJavaHomePath);
+                if (verifiedJavaHomePath) {
+                    await extension.context.globalState.update(SELECTED_JAVA_HOME, verifiedJavaHomePath);
                     return true;
                 } else {
-                    vscode.window.showErrorMessage('Invalid Java Home path.');
+                    vscode.window.showErrorMessage('Invalid Java Home path or unsupported Java version. Java 11 or later is required.');
                     return false;
                 }
             }

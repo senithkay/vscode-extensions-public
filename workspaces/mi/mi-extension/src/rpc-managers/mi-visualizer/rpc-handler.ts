@@ -49,11 +49,6 @@ import {
     downloadJava,
     downloadMI,
     getSupportedMIVersions,
-    getMIVersionFromPom,
-    setJavaHomeForMIVersion,
-    setMIHomeForMIVersion,
-    isJavaHomeSet,
-    isMISet,
     toggleDisplayOverview,
     updateContext,
     getProjectDetails,
@@ -65,7 +60,13 @@ import {
     UpdateConfigValuesRequest,
     importOpenAPISpec,
     updateConnectorDependencies,
-    ImportOpenAPISpecRequest
+    ImportOpenAPISpecRequest,
+    updateRuntimeVersionsInPom,
+    getMIDetailsFromPom,
+    getJavaAndMIPaths,
+    setJavaAndMIPaths,
+    selectFolder,
+    JavaAndMIPathRequest,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -101,15 +102,15 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(downloadJava, (args: string) => rpcManger.downloadJava(args));
     messenger.onRequest(downloadMI, (args: string) => rpcManger.downloadMI(args));
     messenger.onRequest(getSupportedMIVersions, () => rpcManger.getSupportedMIVersions());
-    messenger.onRequest(getMIVersionFromPom, () => rpcManger.getMIVersionFromPom());
-    messenger.onRequest(setJavaHomeForMIVersion, (args: string) => rpcManger.setJavaHomeForMIVersion(args));
-    messenger.onRequest(setMIHomeForMIVersion, (args: string) => rpcManger.setMIHomeForMIVersion(args));
-    messenger.onRequest(isJavaHomeSet, (args: string) => rpcManger.isJavaHomeSet());
-    messenger.onRequest(isMISet, (args: string) => rpcManger.isMISet());
     messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
     messenger.onRequest(updateDependencies, (args: UpdateDependenciesRequest) => rpcManger.updateDependencies(args));
     messenger.onRequest(updatePomValues, (args: UpdatePomValuesRequest) => rpcManger.updatePomValues(args));
     messenger.onRequest(updateConfigFileValues, (args: UpdateConfigValuesRequest) => rpcManger.updateConfigFileValues(args));
     messenger.onRequest(updateConnectorDependencies, () => rpcManger.updateConnectorDependencies());
     messenger.onRequest(importOpenAPISpec, (args: ImportOpenAPISpecRequest) => rpcManger.importOpenAPISpec(args));
+    messenger.onRequest(getMIDetailsFromPom, () => rpcManger.getMIDetailsFromPom());
+    messenger.onRequest(updateRuntimeVersionsInPom, (args: string) => rpcManger.updateRuntimeVersionsInPom(args));
+    messenger.onRequest(getJavaAndMIPaths, () => rpcManger.getJavaAndMIPaths());
+    messenger.onRequest(setJavaAndMIPaths, (args: JavaAndMIPathRequest) => rpcManger.setJavaAndMIPaths(args));
+    messenger.onRequest(selectFolder, (args: string) => rpcManger.selectFolder(args));
 }

@@ -17,8 +17,11 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
+    JavaAndMIPathRequest,
+    JavaAndMIPathResponse,
     LogRequest,
     MACHINE_VIEW,
+    MIDetails,
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
@@ -54,11 +57,12 @@ import Mustache from "mustache";
 import fetch from 'node-fetch';
 import * as vscode from 'vscode';
 import { Position, Uri, ViewColumn, WorkspaceEdit, commands, env, window, workspace, Range } from "vscode";
+import * as os from 'os';
 import { extension } from "../../MIExtensionContext";
 import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile, appendContent, getFileName } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent, selectFolderDialog } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
 import { openPopupView } from "../../stateMachinePopup";
 import { SwaggerServer } from "../../swagger/server";
@@ -68,9 +72,8 @@ import path from "path";
 import { copy } from 'fs-extra';
 
 const fs = require('fs');
-import { downloadJava, downloadMI, ensureJavaSetup, ensureMISetup, getMIVersionFromPom, getSupportedMIVersions } from '../../util/onboardingUtils';
-import { COMMANDS } from '../../constants';
 import { TextEdit } from "vscode-languageclient";
+import { downloadJava, downloadMI, getJavaAndMIPathsFromWorkspace, getMIDetailsFromPom, getSupportedMIVersions, setJavaAndMIPathsInWorkspace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -456,32 +459,40 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return getSupportedMIVersions();
     }
 
-    async isJavaHomeSet(): Promise<boolean> {
-        try {
-            const miVersion = await getMIVersionFromPom();
-            return await ensureJavaSetup(miVersion);
-        } catch (error) {
-            return false;
-        }
+    async getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
+        return await getJavaAndMIPathsFromWorkspace();
+
     }
-    async isMISet(): Promise<boolean> {
+    async setJavaAndMIPaths(request: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
+        return await setJavaAndMIPathsInWorkspace(request);
+    }
+
+    async selectFolder(title: string): Promise<string | undefined> {
         try {
-            const miVersion = await getMIVersionFromPom();
-            const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
-            return ensureMISetup(projectUri, miVersion);
+            const selectedFolder = await selectFolderDialog(title, vscode.Uri.file(os.homedir()));
+
+            if (selectedFolder) {
+                const folderPath = selectedFolder.fsPath;
+                return folderPath;
+            } else {
+                vscode.window.showInformationMessage('No folder selected.');
+            }
         } catch (error) {
-            return false;
+            vscode.window.showErrorMessage(`Error selecting folder: ${error}`);
         }
     }
 
-    async getMIVersionFromPom(): Promise<string> {
-        return getMIVersionFromPom();
+    async getMIDetailsFromPom(): Promise<MIDetails> {
+        return getMIDetailsFromPom();
     }
-    async setJavaHomeForMIVersion(miVersion: string): Promise<boolean> {
-        return await vscode.commands.executeCommand(COMMANDS.CHANGE_JAVA_HOME);
-    }
-    async setMIHomeForMIVersion(miVersion: string): Promise<boolean> {
-        return await vscode.commands.executeCommand(COMMANDS.CHANGE_SERVER_PATH);
+    async updateRuntimeVersionsInPom(version: string): Promise<boolean> {
+        try {
+            await updateRuntimeVersionsInPom(version);
+            return true;
+        } catch (e) {
+            vscode.window.showErrorMessage('Error updating the runtime versions in the pom.xml file');
+            return false;
+        }
     }
     async getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
         return new Promise(async (resolve) => {

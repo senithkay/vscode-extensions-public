@@ -415,6 +415,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = '';
             fileExtension = 'sql';
             break;
+        case "RB File":
+            mediaType = '';
+            fileExtension = 'rb';
+            break;
+        case "GROOVY File":
+            mediaType = '';
+            fileExtension = 'groovy';
+            break;
         case "JSON File":
             mediaType = 'application/json';
             fileExtension = 'json';
@@ -1045,4 +1053,16 @@ async function extractArchive(filePath: string, destination: string) {
 
         throw new Error(`Error while extracting the archive: ${errorMessage}`);
     }
+}
+export async function selectFolderDialog(title: string, defaultUri?: Uri): Promise<Uri | undefined> {
+    return window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: defaultUri,
+        openLabel: 'Select',
+        title: title
+    }).then((uris) => {
+        return uris ? uris[0] : undefined;
+    });
 }

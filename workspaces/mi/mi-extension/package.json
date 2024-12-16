@@ -124,14 +124,14 @@
             "default": 8290,
             "description": "Port to check the readiness of the MI server"
           },
-          "MI.serverPath": {
+          "MI.selected-server-path": {
             "type": "string",
             "default": "",
             "description": "Location to store MI archives, considering the user's home directory"
           },
-          "MI.javaHome": {
+          "MI.selected-java-home": {
             "type": "string",
-            "default": "",
+            "default": "${env:JAVA_HOME}",
             "description": "Java Home path"
           }
         }
@@ -187,7 +187,7 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Micro Integrator is not set up. Please set up the MI server and Java home to continue.\n[Set up MI server](command:MI.change.server)\n[Set Java Home](command:MI.change.java)",
+        "contents": "Micro Integrator is not set up. Please set up the MI server and Java home to continue.",
         "when": "MI.status == 'notSetUp'"
       }
     ],
