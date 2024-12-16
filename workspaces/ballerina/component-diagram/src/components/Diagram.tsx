@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, createNodesLink, generateEngine } from "../utils/diagram";
+import { autoDistribute, createNodesLink, generateEngine, sortItems } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeModel } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -61,14 +61,40 @@ export function Diagram(props: DiagramProps) {
     }, [diagramEngine, diagramModel]);
 
     const getDiagramData = () => {
-        // generate diagram nodes and links
         const nodes: NodeModel[] = [];
         const links: NodeLinkModel[] = [];
 
-        // create connections
-        project.connections?.forEach((connection) => {
+        // Sort and create connections
+        const sortedConnections = sortItems(project.connections || []) as CDConnection[];
+        sortedConnections.forEach((connection, index) => {
             const node = new ConnectionNodeModel(connection);
+            // Set initial Y position for connections
+            node.setPosition(0, 100 + index * 100);
             nodes.push(node);
+        });
+
+        // Sort services by sortText before creating nodes
+        const sortedServices = sortItems(project.services || []) as CDService[];
+
+        // create services with initial positions
+        const startY = 100;
+        const verticalGap = 100;
+
+        sortedServices.forEach((service, index) => {
+            const node = new EntryNodeModel(service, "service");
+            // Set initial Y position based on sorted order
+            node.setPosition(0, startY + index * verticalGap);
+            nodes.push(node);
+
+            service.connections.forEach((connectionUuid) => {
+                const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                if (connectionNode) {
+                    const link = createNodesLink(node, connectionNode);
+                    if (link) {
+                        links.push(link);
+                    }
+                }
+            });
         });
 
         // create automation
@@ -95,6 +121,9 @@ export function Diagram(props: DiagramProps) {
                 type: AUTOMATION_LISTENER,
                 args: [],
                 uuid: automation.uuid + "-listener",
+                icon: "",
+                enableFlowModel: false,
+                sortText: "",
             });
             nodes.push(listenerNode);
             // link automation to the listener
@@ -103,22 +132,6 @@ export function Diagram(props: DiagramProps) {
                 links.push(link);
             }
         }
-
-        // create services
-        project.services?.forEach((service) => {
-            const node = new EntryNodeModel(service, "service");
-            nodes.push(node);
-            // link connections
-            service.connections.forEach((connectionUuid) => {
-                const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
-                if (connectionNode) {
-                    const link = createNodesLink(node, connectionNode);
-                    if (link) {
-                        links.push(link);
-                    }
-                }
-            });
-        });
 
         // create listeners
         project.listeners?.forEach((listener) => {
