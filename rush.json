@@ -578,7 +578,7 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
-      "packageName": "@wso2-enterprise/cell-diagram",
+      "packageName": "@wso2-enterprise/choreo-cell-diagram",
       "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
     },
