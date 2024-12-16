@@ -139,19 +139,16 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		} else if (field.type.kind === TypeKind.Array) {
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length) {
-				if (elements.length == 1 && elements[0].elementNode == undefined) {
-					const arrItemField = { ...field.type.memberType, fieldName: `<${field.type.fieldName}Item>` };
-					this.addPortsForInputField(
-						arrItemField, type, fieldFQN, fieldFQN, portPrefix, fieldPort,
-						isCollapsedField, isCollapsed || hidden, false, true
-					);
-				} else {
-					elements.forEach((element, index) => {
-						this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,
-							fieldPort, isCollapsedField, isCollapsed ? true : hidden);
-					});
-				}
+				elements.forEach((element, index) => {
+					this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,
+						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
+				});
 			}
+			const arrItemField = { ...field.type.memberType, fieldName: `<${field.type.fieldName}Item>` };
+			this.addPortsForInputField(
+				arrItemField, type, fieldFQN, fieldFQN, portPrefix, fieldPort,
+				isCollapsedField, isCollapsed || hidden, false, true
+			);
 		}
 	}
 
