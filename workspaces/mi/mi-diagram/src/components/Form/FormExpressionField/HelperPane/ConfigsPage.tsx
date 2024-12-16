@@ -15,18 +15,14 @@ import { getHelperPaneCompletionItem } from '../utils';
 type ConfigsPageProps = {
     isLoading: boolean;
     configInfo: HelperPaneCompletionItem[];
-    setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
-    onClose: () => void;
     onChange: (value: string) => void;
 };
 
 export const ConfigsPage = ({
     isLoading,
     configInfo,
-    setCurrentPage,
     setFilterText,
-    onClose,
     onChange
 }: ConfigsPageProps) => {
     const firstRender = useRef<boolean>(true);
@@ -49,9 +45,6 @@ export const ConfigsPage = ({
     return (
         <>
             <HelperPane.Header
-                title="Configs"
-                onBack={() => setCurrentPage(0)}
-                onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
             />
