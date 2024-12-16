@@ -22,10 +22,10 @@ import {
     BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
-    FormDidCloseParams,
-    FormDidOpenParams,
     ExpressionCompletionsRequest,
     ExpressionDiagnosticsRequest,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ProjectRequest,
     ReadmeContentRequest,
     SignatureHelpRequest,
@@ -47,6 +47,7 @@ import {
     getBIConnectors,
     getBreakpointInfo,
     getConfigVariables,
+    getDesignModel,
     getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
@@ -111,4 +112,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getAllImports, () => rpcManger.getAllImports());
     messenger.onRequest(formDidOpen, (args: FormDidOpenParams) => rpcManger.formDidOpen(args));
     messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
+    messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
 }

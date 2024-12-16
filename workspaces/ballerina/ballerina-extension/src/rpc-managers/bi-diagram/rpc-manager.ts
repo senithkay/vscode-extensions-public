@@ -44,14 +44,15 @@ import {
     CreateComponentResponse,
     CurrentBreakpointsResponse,
     DIRECTORY_MAP,
-    FormDidCloseParams,
-    FormDidOpenParams,
+    BIDesignModelResponse,
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     FlowNode,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ImportStatement,
     ImportStatements,
     OverviewFlow,
@@ -71,7 +72,7 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
@@ -638,7 +639,6 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequest = params;
-            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
 
             if (!fs.existsSync(params.configFilePath)) {
 
@@ -1067,6 +1067,26 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 console.error("Error closing file in didClose", error);
                 reject(error);
             }
+        });
+    }
+
+    async getDesignModel(): Promise<BIDesignModelResponse> {
+        console.log(">>> requesting design model from ls");
+        return new Promise((resolve) => {
+            const projectUri = StateMachine.context().projectUri;
+
+            StateMachine.langClient()
+                .getDesignModel({ projectPath: projectUri })
+                .then((model) => {
+                    console.log(">>> design model from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching design model from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
         });
     }
 }

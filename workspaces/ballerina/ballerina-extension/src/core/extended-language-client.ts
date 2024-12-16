@@ -131,7 +131,9 @@ import {
     TriggerFunctionRequest,
     TriggerFunctionResponse,
     BIGetEnclosedFunctionRequest,
-    BIGetEnclosedFunctionResponse
+    BIGetEnclosedFunctionResponse,
+    BIDesignModelRequest,
+    BIDesignModelResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -220,7 +222,8 @@ enum EXTENDED_APIS {
     BI_TRIGGER_MODEL_FROM_CODE = 'triggerDesignService/getTriggerModelFromCode',
     BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
     BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
-    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction'
+    BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
+    BI_DESIGN_MODEL = 'designModelService/getDesignModel'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -745,6 +748,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateTriggerFunction(params: TriggerFunctionRequest): Promise<TriggerFunctionResponse> {
         return this.sendRequest<TriggerFunctionResponse>(EXTENDED_APIS.BI_TRIGGER_UPDATE_FUNCTION, params);
+    }
+
+    async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
+        return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
     }
 
     // <------------ BI APIS END --------------->
