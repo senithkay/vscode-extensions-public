@@ -305,6 +305,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-2-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -981,6 +982,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -1113,6 +1115,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-10-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -1528,6 +1531,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -1660,6 +1664,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-10-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -2011,6 +2016,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -2416,6 +2422,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -2823,6 +2830,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -3228,6 +3236,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -3635,6 +3644,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -4040,6 +4050,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -4511,6 +4522,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -4643,6 +4655,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-6-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -5058,6 +5071,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -5192,6 +5206,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-6-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -5543,6 +5558,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -5948,6 +5964,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -6353,6 +6370,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -6826,6 +6844,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -7301,6 +7320,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -7706,6 +7726,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -8113,6 +8134,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -8518,6 +8540,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -8925,6 +8948,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -9330,6 +9354,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -9801,6 +9826,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -9933,6 +9959,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-7-5"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -10384,6 +10411,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -10518,6 +10546,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-7-5"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -10905,6 +10934,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -11310,6 +11340,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -11717,6 +11748,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -12122,6 +12154,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -12529,6 +12562,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -12934,6 +12968,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -13341,6 +13376,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -13746,6 +13782,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -14153,6 +14190,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -14558,6 +14596,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -14963,6 +15002,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -15368,6 +15408,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -15775,6 +15816,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -16180,6 +16222,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -16587,6 +16630,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -16992,6 +17036,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -17399,6 +17444,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -17804,6 +17850,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -18467,6 +18514,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -18599,6 +18647,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-7-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -18669,6 +18718,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-6-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -18739,6 +18789,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-8-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -18809,6 +18860,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-9-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -19416,6 +19468,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -19550,6 +19603,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-7-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -19620,6 +19674,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-6-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -19690,6 +19745,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-8-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -19760,6 +19816,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-9-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -20111,6 +20168,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -20516,6 +20574,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -20923,6 +20982,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -21328,6 +21388,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -21735,6 +21796,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -22140,6 +22202,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -22797,6 +22860,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -23511,6 +23575,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -24039,6 +24104,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -24171,6 +24237,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-6-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -24660,6 +24727,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-12-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -24792,6 +24860,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-foreach_seq_ref_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -25349,6 +25418,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -25483,6 +25553,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-6-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -25834,6 +25905,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -26239,6 +26311,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -26710,6 +26783,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -26842,6 +26916,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-7-5"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -27331,6 +27406,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-14-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -27463,6 +27539,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-target_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -28020,6 +28097,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -28154,6 +28232,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-7-5"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -28505,6 +28584,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -28910,6 +28990,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -29317,6 +29398,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -29724,6 +29806,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -30131,6 +30214,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -30536,6 +30620,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -30943,6 +31028,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -31348,6 +31434,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -31755,6 +31842,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -32160,6 +32248,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -32567,6 +32656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -32972,6 +33062,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -33379,6 +33470,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -33786,6 +33878,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -34191,6 +34284,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -34598,6 +34692,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -35005,6 +35100,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -35410,6 +35506,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -35763,6 +35860,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -36223,6 +36321,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -36378,6 +36477,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -36823,6 +36923,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -36978,6 +37079,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -37312,6 +37414,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -37651,6 +37754,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-11-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -38031,6 +38135,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-15-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -38116,6 +38221,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -38440,6 +38546,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-19-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -38820,6 +38927,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-23-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -38905,6 +39013,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -39340,6 +39449,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -39495,6 +39605,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-28-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -39860,6 +39971,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -40015,6 +40127,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-32-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -40279,6 +40392,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -40739,6 +40853,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -40894,6 +41009,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -41319,6 +41435,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-44-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -41404,6 +41521,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-47-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -41658,6 +41776,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-50-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -42028,6 +42147,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-56-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -42113,6 +42233,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-59-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -42478,6 +42599,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-62-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -42563,6 +42685,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -42998,6 +43121,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -43153,6 +43277,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-69-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -43508,6 +43633,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-75-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -43593,6 +43719,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-78-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -43948,6 +44075,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-83-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -44033,6 +44161,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-84-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -44388,6 +44517,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-91-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -44473,6 +44603,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-92-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -44828,6 +44959,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-99-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -44913,6 +45045,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-104-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -45231,6 +45364,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-2-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -45749,6 +45883,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-7-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -45908,6 +46043,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -46296,6 +46432,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-12-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -46814,6 +46951,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-17-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -46973,6 +47111,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -47472,6 +47611,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -47627,6 +47767,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-23-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -48130,6 +48271,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -48285,6 +48427,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-28-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -48623,6 +48766,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -49083,6 +49227,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -49238,6 +49383,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -49791,6 +49937,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-43-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -49950,6 +50097,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-47-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -50342,6 +50490,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-51-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -50914,6 +51063,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-59-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -51073,6 +51223,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-63-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -51576,6 +51727,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-67-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -51735,6 +51887,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-outSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -52234,6 +52387,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-inSequence_start"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -52389,6 +52543,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-76-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -52946,6 +53101,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-84-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -53105,6 +53261,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-88-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -53662,6 +53819,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-95-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -53821,6 +53979,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-96-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -54378,6 +54537,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-106-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -54537,6 +54697,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-107-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -55094,6 +55255,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-117-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -55253,6 +55415,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-outSequence-124-8"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -55645,6 +55808,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -56050,6 +56214,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -56457,6 +56622,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -56862,6 +57028,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -57269,6 +57436,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -57674,6 +57842,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -58081,6 +58250,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -58486,6 +58656,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -58893,6 +59064,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -59366,6 +59538,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -59841,6 +60014,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -60246,6 +60420,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -60651,6 +60826,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -61056,6 +61232,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -61463,6 +61640,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -61868,6 +62046,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -62275,6 +62454,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -62680,6 +62860,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -63337,6 +63518,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -64087,6 +64269,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -64837,6 +65020,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -65549,6 +65733,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -66013,6 +66198,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -66418,6 +66604,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -66889,6 +67076,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -67021,6 +67209,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-9-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -67436,6 +67625,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -67570,6 +67760,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-start-9-4"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -67921,6 +68112,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -68326,6 +68518,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -68733,6 +68926,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
@@ -69138,6 +69332,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
             <div
               class="css-2ttski"
               data-testid="startNode-start-resource-3-1"
+              style="cursor: pointer;"
             >
               <div
                 class="port "
