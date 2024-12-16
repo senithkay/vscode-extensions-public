@@ -3,8 +3,8 @@
   "displayName": "Choreo",
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
-  "version": "2.1.3",
-  "cliVersion": "v1.2.62411071200",
+  "version": "2.2.1",
+  "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -229,7 +229,7 @@
         "FeaturePreview.ProxyCreation": {
           "type": "boolean",
           "default": false,
-          "description": "Enable proxy creation from GH repository",
+          "description": "Enable proxy creation from GitHub repository",
           "scope": "window"
         }
       }
