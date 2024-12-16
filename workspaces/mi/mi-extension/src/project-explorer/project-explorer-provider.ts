@@ -532,12 +532,9 @@ function generateArtifacts(
 				break;
 			}
 			case 'Data Mappers': {
-				const resources = (projectStructure.directoryMap as any)?.src?.main?.wso2mi.resources.newResources;
-				const dataMapperResources = resources.folders.find((folder: any) => folder.name === 'datamapper');
-
 				parentEntry.contextValue = 'data-mappers';
 				parentEntry.id = 'data-mapper';
-				parentEntry.children = dataMapperResources?.folders.map((folder: any) => {
+				parentEntry.children = data[key].map((folder: any) => {
 					const explorerEntry = new ProjectExplorerEntry(
 						folder.name,
 						isCollapsibleState(false),
@@ -548,7 +545,7 @@ function generateArtifacts(
 					explorerEntry.command = {
 						title: "Open Data Mapper",
 						command: COMMANDS.SHOW_DATA_MAPPER,
-						arguments: [folder.files[0].path]
+						arguments: [folder.files.find((file: any) => !file.name.endsWith("utils.ts"))?.path]
 					};
 					return explorerEntry;
 				});
