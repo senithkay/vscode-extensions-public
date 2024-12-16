@@ -11,10 +11,10 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
-import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT, AUTOMATION_LISTENER } from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { HttpIcon, TaskIcon, WebhookIcon } from "../../../resources";
+import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDService } from "@wso2-enterprise/ballerina-core";
 
@@ -162,13 +162,14 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     };
 
     const getNodeDescription = () => {
-        switch (model.type) {
-            case "automation":
-                return "Automation";
-            case "service":
-            default:
-                return "Service";
+        if (model.type === "automation") {
+            return "Automation";
         }
+        // Service
+        if ((model.node as any).type) {
+            return (model.node as any).type.replace(":Listener", ":Service");
+        }
+        return "Service";
     };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {

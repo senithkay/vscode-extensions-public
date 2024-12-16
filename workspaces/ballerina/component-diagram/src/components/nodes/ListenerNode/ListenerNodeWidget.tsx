@@ -148,10 +148,13 @@ export function ListenerNodeWidget(props: ListenerNodeWidgetProps) {
     };
 
     const getNodeDescription = () => {
-        if (model.node.type === AUTOMATION_LISTENER) {
+        if (model.node?.type === AUTOMATION_LISTENER) {
             return "Schedule";
         }
-        return "HTTP Listener";
+        if (model.node.type) {
+            return model.node.type;
+        }
+        return "Listener";
     };
 
     return (

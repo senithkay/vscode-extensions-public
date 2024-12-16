@@ -161,6 +161,14 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         setMenuAnchorEl(null);
     };
 
+    const getNodeTitle = () => {
+        return model.node.symbol;
+    };
+
+    const getNodeDescription = () => {
+        return "Connection";
+    };
+
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
         { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
@@ -179,8 +187,8 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
                     <NodeStyles.Icon>{hasDatabaseName ? <DatabaseIcon /> : <LinkIcon />}</NodeStyles.Icon>
                 </NodeStyles.Circle>
                 <NodeStyles.Header>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.symbol}</NodeStyles.Title>
-                    {<NodeStyles.Description>Connection</NodeStyles.Description>}
+                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
+                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
