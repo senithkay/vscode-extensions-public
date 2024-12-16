@@ -124,15 +124,17 @@
             "default": 8290,
             "description": "Port to check the readiness of the MI server"
           },
-          "MI.selected-server-path": {
+          "MI.SERVER_PATH": {
             "type": "string",
             "default": "",
-            "description": "Location to store MI archives, considering the user's home directory"
+            "description": "Location to store MI archives, considering the user's home directory",
+            "scope": "resource"
           },
-          "MI.selected-java-home": {
+          "MI.JAVA_HOME": {
             "type": "string",
             "default": "${env:JAVA_HOME}",
-            "description": "Java Home path"
+            "description": "Java Home path",
+            "scope": "resource"
           }
         }
       }
