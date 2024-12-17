@@ -19,7 +19,7 @@ export const supportedJavaVersionsForMI: { [key: string]: string } = {
 export const LATEST_MI_VERSION = "4.4.0";
 const COMPATIBLE_JDK_VERSION = "11";
 const miDownloadUrls: { [key: string]: string } = {
-    '4.4.0': 'https://github.com/wso2/micro-integrator/releases/download/v4.3.0/wso2mi-4.3.0.zip',
+    '4.4.0': 'https://github.com/wso2/product-micro-integrator/releases/download/v4.4.0-prealpha/wso2mi-4.4.0-prealpha.zip',
     '4.3.0': 'https://github.com/wso2/micro-integrator/releases/download/v4.3.0/wso2mi-4.3.0.zip'
 };
 
@@ -380,10 +380,19 @@ export async function downloadMI(miVersion: string): Promise<string> {
         }
 
         const miDownloadPath = path.join(miPath, `wso2mi-${miVersion}.zip`);
+        const extractedMIPath = path.join(miPath, `wso2mi-${miVersion}`);
 
-        await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
-        await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
-        return path.join(miPath, `wso2mi-${miVersion}`);
+        if (!fs.existsSync(miDownloadPath)) {
+            await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
+        } else {
+            vscode.window.showInformationMessage('Micro Integrator already downloaded.');
+        }
+        if (!fs.existsSync(extractedMIPath)) {
+            await extractWithProgress(miDownloadPath, miPath, 'Extracting Micro Integrator');
+        } else {
+            vscode.window.showInformationMessage('Micro Integrator already extracted.');
+        }
+        return extractedMIPath;
     } catch (error) {
         throw new Error('Failed to download Micro Integrator.');
     }
@@ -463,7 +472,6 @@ export async function setJavaAndMIPathsInWorkspace(request: JavaAndMIPathRequest
         if (request.miPath) {
             const validServerPath = verifyMIPath(request.miPath);
             if (validServerPath) {
-                const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
                 const miVersion = getMIVersion(validServerPath);
                 if (miDetails.miVersion === miVersion) {
                     response.miPath = { status: "valid", path: validServerPath, version: miVersion };

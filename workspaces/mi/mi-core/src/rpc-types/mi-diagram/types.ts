@@ -1720,10 +1720,6 @@ export interface Dependency {
     range?: Range;
 }
 
-export interface UpdateDependencyInPomRequest extends Dependency {
-    file: string
-}
-
 export interface OpenDependencyPomRequest {
     name: string;
     file: string
