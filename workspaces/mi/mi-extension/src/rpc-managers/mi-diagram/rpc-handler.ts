@@ -94,7 +94,6 @@ import {
     UpdateAddressEndpointRequest,
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
-    UpdateDependencyInPomRequest,
     UpdateFailoverEPRequest,
     UpdateHttpEndpointRequest,
     UpdateLoadBalanceEPRequest,
@@ -233,7 +232,6 @@ import {
     updateAddressEndpoint,
     updateConnectors,
     updateDefaultEndpoint,
-    updateDependencyInPom,
     updateFailoverEndpoint,
     updateHttpEndpoint,
     updateLoadBalanceEndpoint,
@@ -392,7 +390,6 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateMockService, (args: UpdateMockServiceRequest) => rpcManger.updateMockService(args));
     messenger.onRequest(getAllTestSuites, () => rpcManger.getAllTestSuites());
     messenger.onRequest(getAllMockServices, () => rpcManger.getAllMockServices());
-    messenger.onNotification(updateDependencyInPom, (args: UpdateDependencyInPomRequest) => rpcManger.updateDependencyInPom(args));
     messenger.onNotification(openDependencyPom, (args: OpenDependencyPomRequest) => rpcManger.openDependencyPom(args));
     messenger.onRequest(getAllDependencies, (args: getAllDependenciesRequest) => rpcManger.getAllDependencies(args));
     messenger.onRequest(testDbConnection, (args: TestDbConnectionRequest) => rpcManger.testDbConnection(args));

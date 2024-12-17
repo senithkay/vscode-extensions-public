@@ -196,7 +196,6 @@ import {
     UpdateConnectorRequest,
     UpdateDefaultEndpointRequest,
     UpdateDefaultEndpointResponse,
-    UpdateDependencyInPomRequest,
     UpdateFailoverEPRequest,
     UpdateFailoverEPResponse,
     UpdateHttpEndpointRequest,
@@ -4657,126 +4656,6 @@ ${keyValuesXML}`;
             }
 
             return resolve({ mockServices: services });
-        });
-    }
-
-    async updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
-        const showErrorMessage = () => {
-            window.showErrorMessage('Failed to add the dependency to the POM file');
-        }
-
-        return new Promise(async (resolve) => {
-            const { groupId, artifactId, version, file, range } = params;
-            const workspaceFolder = workspace.getWorkspaceFolder(Uri.file(file));
-
-            if (!workspaceFolder) {
-                showErrorMessage();
-                throw new Error('Cannot find workspace folder');
-            }
-
-            const pomPath = path.join(workspaceFolder.uri.fsPath, 'pom.xml');
-            const pomContent = fs.readFileSync(pomPath, 'utf-8');
-            const options = {
-                ignoreAttributes: false,
-                attributeNamePrefix: "@_"
-            };
-            const parser = new XMLParser(options);
-            const pom = parser.parse(pomContent);
-
-            if (!pom) {
-                showErrorMessage();
-                throw new Error('Failed to parse POM XML');
-            }
-
-            if (range) {
-                const workspaceEdit = new WorkspaceEdit();
-                const document = await workspace.openTextDocument(pomPath);
-                if (groupId || artifactId || version) {
-                    const originalText = document.getText(new Range(range.start.line, range.start.character, range.end.line, range.end.character));
-                    let updatedText = originalText;
-
-                    if (groupId) {
-                        updatedText = updatedText.replace(/<groupId>.*<\/groupId>/, `<groupId>${groupId}</groupId>`);
-                    }
-                    if (artifactId) {
-                        updatedText = updatedText.replace(/<artifactId>.*<\/artifactId>/, `<artifactId>${artifactId}</artifactId>`);
-                    }
-                    if (version) {
-                        updatedText = updatedText.replace(/<version>.*<\/version>/, `<version>${version}</version>`);
-                    }
-
-
-                    workspaceEdit.replace(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character), updatedText);
-                    await workspace.applyEdit(workspaceEdit);
-                } else {
-                    workspaceEdit.delete(Uri.file(pomPath), new Range(range.start.line, range.start.character, range.end.line, range.end.character));
-                    await workspace.applyEdit(workspaceEdit);
-
-                    const lineText = document.lineAt(range.start.line).text;
-                    if (lineText.trim() === '') {
-                        const deleteEmptyLine = new WorkspaceEdit();
-                        deleteEmptyLine.delete(Uri.file(pomPath), new Range(range.start.line, 0, range.start.line + 1, 0));
-                        await workspace.applyEdit(deleteEmptyLine);
-                    }
-                }
-                resolve();
-                return;
-            }
-
-            let dependencies: any = (await this.getAllDependencies({ file: file }))?.dependencies;
-            let dependencyExists = dependencies.some(dep =>
-                dep.groupId === groupId &&
-                dep.artifactId === artifactId &&
-                dep.version === version
-            );
-
-            if (!dependencyExists) {
-                const newDependency = {
-                    groupId: groupId,
-                    artifactId: artifactId,
-                    version: version
-                };
-
-                const isUpdate = dependencies.length > 0;
-                const tagToFind = !isUpdate ? '</pluginRepositories>' : '</dependencies>';
-                const index = pomContent.lastIndexOf(tagToFind);
-
-                if (!isUpdate) {
-                    dependencies.push(newDependency);
-
-                    dependencies = {
-                        dependencies: dependencies.map(dep => { return { dependency: dep } })
-                    }
-                } else {
-                    dependencies = {
-                        dependency: newDependency
-                    }
-                }
-
-                if (index !== -1) {
-                    let insertIndex = index + (isUpdate ? 0 : tagToFind.length);
-                    const lineString = pomContent.substring(0, insertIndex).split('\n').pop();
-                    const spacesCount = lineString?.match(/^\s*/)?.[0].length ?? 0;
-                    const indentation = ' '.repeat(spacesCount * (isUpdate ? 2 : 1));
-
-                    if (isUpdate) {
-                        insertIndex -= spacesCount;
-                    }
-
-                    const builder = new XMLBuilder({ format: true, oneListGroup: "true" });
-                    let text = builder.build(dependencies);
-                    const lines = text.split('\n');
-                    text = lines.map((line, index) => (index === lines.length - 1) ? line : indentation + line).join('\n');
-                    text = isUpdate ? text : `\n${text}`;
-
-                    await replaceFullContentToFile(pomPath, pomContent.slice(0, insertIndex) + text + pomContent.slice(insertIndex + (isUpdate ? 0 : 1)));
-                } else {
-                    showErrorMessage();
-                    throw new Error(`Failed to find ${tagToFind} tag`);
-                }
-            }
-
-            resolve();
         });
     }
 
