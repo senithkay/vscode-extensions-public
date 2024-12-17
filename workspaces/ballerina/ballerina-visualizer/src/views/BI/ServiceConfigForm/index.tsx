@@ -119,10 +119,18 @@ function convertConfig(listener: ServiceModel): FormField[] {
         const expression = listener.properties[key];
         const formField: FormField = {
             key: key,
-            label: key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
+            label: expression?.metadata.label || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
             type: expression.valueType,
-            documentation: "",
-            ...expression
+            documentation: expression?.metadata.description || "",
+            valueType: expression.valueTypeConstraint,
+            editable: expression.editable,
+            optional: expression.optional,
+            value: expression.value,
+            valueTypeConstraint: expression.valueTypeConstraint,
+            advanced: expression.advanced,
+            diagnostics: [],
+            items: [""].concat(expression.items),
+            placeholder: expression.placeholder
         }
         formFields.push(formField);
     }

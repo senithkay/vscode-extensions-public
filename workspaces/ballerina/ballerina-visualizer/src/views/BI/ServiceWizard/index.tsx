@@ -120,12 +120,14 @@ export function ServiceWizard(props: ServiceWizardProps) {
                 listenerName = value.properties['name'].value;
             }
         }
-        if (existing) {
+        if (!value && existing) {
             listenerName = existingListener;
         }
         rpcClient.getServiceDesignerRpcClient().getServiceModel({ filePath: "", moduleName: type, listenerName }).then(res => {
             console.log("Service Model: ", res);
-            res.service.properties["listener"].editable = true;
+            if (existing) {
+                res.service.properties["listener"].editable = true;
+            }
             setServiceModel(res.service);
             setSaving(false);
             setStep(1);
