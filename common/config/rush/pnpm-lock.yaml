@@ -2409,6 +2409,51 @@ importers:
       webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
 
+  ../../workspaces/mi/mi-component-diagram:
+    specifiers:
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
+      '@projectstorm/geometry': ^6.7.4
+      '@projectstorm/react-canvas-core': ^6.7.4
+      '@projectstorm/react-diagrams': ^6.7.4
+      '@projectstorm/react-diagrams-core': ^6.7.4
+      '@projectstorm/react-diagrams-defaults': ^6.7.4
+      '@projectstorm/react-diagrams-routing': ^6.7.4
+      '@storybook/react': ^6.3.7
+      '@types/dagre': ~0.7.52
+      '@types/lodash': ~4.14.202
+      '@types/react': ^17.0.14
+      '@types/react-dom': ^17.0.9
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      copyfiles: ^2.4.1
+      dagre: ~0.8.5
+      lodash: ~4.17.21
+      react: ~18.2.0
+      react-dom: ~18.2.0
+      typescript: ^4.3.5
+    dependencies:
+      '@emotion/react': 11.11.4_ujupp4aqvz5yjxfmu635blrdgm
+      '@emotion/styled': 11.11.0_jwuiumyj4eeb4ggxu6dhhwwtmq
+      '@projectstorm/geometry': 6.7.4
+      '@projectstorm/react-canvas-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
+      '@projectstorm/react-diagrams-core': 6.7.4_zrp62gez7omnrwllyfdlincg3a
+      '@projectstorm/react-diagrams-defaults': 6.7.4_qudwbk4fbis32hnzuxpdo4wjza
+      '@projectstorm/react-diagrams-routing': 6.7.4_g2znnorjjo64lgpxjgy7c7zesu
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      dagre: 0.8.5
+      lodash: 4.17.21
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
+      '@types/dagre': 0.7.52
+      '@types/lodash': 4.14.202
+      '@types/react': 17.0.75
+      '@types/react-dom': 17.0.14
+      copyfiles: 2.4.1
+      typescript: 4.9.5
+
   ../../workspaces/mi/mi-core:
     specifiers:
       '@types/vscode-webview': ^1.57.3
@@ -2638,7 +2683,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.51.2_react@18.2.0
       react-json-view: 1.21.3_jczjbtsmbzi7zofs22bstoer6y
-      react-json-view-lite: 1.5.0_react@18.2.0
+      react-json-view-lite: 2.0.1_react@18.2.0
       vscode-languageserver-types: 3.17.5
       xmlbuilder2: 3.1.1
       yup: 1.4.0
@@ -2879,7 +2924,7 @@ importers:
       '@types/vscode-webview': ^1.57.4
       '@uiw/react-codemirror': ~4.21.22
       '@vscode/webview-ui-toolkit': ^1.2.0
-      '@wso2-enterprise/component-diagram': workspace:*
+      '@wso2-enterprise/mi-component-diagram': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-data-mapper': workspace:*
       '@wso2-enterprise/mi-diagram': workspace:*
@@ -2936,7 +2981,7 @@ importers:
       '@types/vscode-webview': 1.57.5
       '@uiw/react-codemirror': 4.21.24_4ndsyykedba3u2psgexaldpule
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
-      '@wso2-enterprise/component-diagram': link:../../common-libs/component-diagram
+      '@wso2-enterprise/mi-component-diagram': link:../mi-component-diagram
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-data-mapper': link:../mi-data-mapper
       '@wso2-enterprise/mi-diagram': link:../mi-diagram
@@ -8419,17 +8464,6 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    dependencies:
-      '@codemirror/language': 6.10.1
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.26.0
-      '@lezer/common': 1.2.1
-    dev: false
-
-  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
-    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
-    peerDependencies:
-      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -25677,7 +25711,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
+      '@codemirror/autocomplete': 6.15.0
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0
@@ -26271,7 +26305,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.90.1_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/configtest/2.1.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -26299,7 +26333,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.11.1
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
 
   /@webpack-cli/info/2.0.2_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -26331,6 +26365,7 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.90.1
+    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -26343,7 +26378,6 @@ packages:
     dependencies:
       webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
-    dev: true
 
   /@webpack-cli/serve/2.0.5_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-lqaoKnRYBdo1UgDX8uF24AfGMifWK19TxPmM5FHc2vAGxrJ/qtyUyFBWoY1tISZdelsQ5fBcOusifo5o5wSJxQ==}
@@ -46678,11 +46712,11 @@ packages:
   /react-is/18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  /react-json-view-lite/1.5.0_react@18.2.0:
-    resolution: {integrity: sha512-nWqA1E4jKPklL2jvHWs6s+7Na0qNgw9HCP6xehdQJeg6nPBTFZgGwyko9Q0oj+jQWKTTVRS30u0toM5wiuL3iw==}
-    engines: {node: '>=14'}
+  /react-json-view-lite/2.0.1_react@18.2.0:
+    resolution: {integrity: sha512-yElNMSzL7UJ9rMDQIbTiBemXbvfAoqpxM/0IQd3nr52CLLBC0HxOSKcta/bayct2QCq7ZVzLzI8CGfuf387hHw==}
+    engines: {node: '>=18'}
     peerDependencies:
-      react: ^16.13.1 || ^17.0.0 || ^18.0.0
+      react: ^18.0.0
     dependencies:
       react: 18.2.0
     dev: false
@@ -53789,7 +53823,6 @@ packages:
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-dev-server: 4.15.1_6gndg7zj7jvfuawvaw3en4bimi
       webpack-merge: 5.10.0
-    dev: true
 
   /webpack-cli/4.10.0_webpack@5.90.1:
     resolution: {integrity: sha512-NLhDfH/h4O6UOy+0LSso42xvYypClINuMNBVVzX4vX98TmTaTUxwRbXdhucbFMd2qLaCTcLq/PdYrvi8onw90w==}
@@ -53824,6 +53857,7 @@ packages:
       rechoir: 0.7.1
       webpack: 5.90.1_webpack-cli@4.10.0
       webpack-merge: 5.10.0
+    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -54097,7 +54131,6 @@ packages:
       - debug
       - supports-color
       - utf-8-validate
-    dev: true
 
   /webpack-dev-server/4.15.1_fsfaki5eyzmxu77y2afce3sch4:
     resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
@@ -54700,7 +54733,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.10_webpack@5.90.1
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_webpack@5.90.1
+      webpack-cli: 4.10.0_5nabick7x4u3vnr2pltk3mmvae
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'
