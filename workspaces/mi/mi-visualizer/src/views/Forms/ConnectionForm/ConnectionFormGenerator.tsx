@@ -220,9 +220,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 namespaces.forEach((namespace: any) => {
                                     element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                 });
-                                element.txt(`{${value}}`);
+                                element.txt(`\${${value}}`);
                             } else {
-                                connectorTag.ele(key).txt(`{${value}}`);
+                                connectorTag.ele(key).txt(`\${${value}}`);
                             }
                         } else {
                             connectorTag.ele(key).txt(value);
