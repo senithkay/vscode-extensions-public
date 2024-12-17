@@ -423,6 +423,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (<CodeTextArea
                     {...field}
                     label={element.displayName}
+                    labelAdornment={helpTipElement}
                     placeholder={placeholder}
                     required={isRequired}
                     resize="vertical"
