@@ -116,9 +116,23 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
             const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateDependencies(params);
 
-            await this.updatePom(res.textEdits);
+            const projectDetails = await langClient.getProjectDetails();
+            const existingDependencies = projectDetails.dependencies || [];
+            const newDependencies = params.dependencies.filter(dep => {
+                const dependenciesToCheck = dep.type === 'zip' ? existingDependencies.connectorDependencies : existingDependencies.otherDependencies;
+                return !dependenciesToCheck.some(existingDep =>
+                    existingDep.groupId === dep.groupId &&
+                    existingDep.artifact === dep.artifact &&
+                    existingDep.version === dep.version
+                )
+            }
+            );
+
+            if (newDependencies.length > 0) {
+                const res = await langClient.updateDependencies({ dependencies: newDependencies });
+                await this.updatePom(res.textEdits);
+            }
             resolve(true);
         });
     }
@@ -558,17 +572,16 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             throw new Error("pom.xml not found");
         }
 
+        const edit = new WorkspaceEdit();
         for (const textEdit of textEdits) {
             const content = textEdit.newText;
-
-            const edit = new WorkspaceEdit();
 
             const range = new Range(new Position(textEdit.range.start.line - 1, textEdit.range.start.character - 1),
                 new Position(textEdit.range.end.line - 1, textEdit.range.end.character - 1));
 
             edit.replace(Uri.file(pomPath), range, content);
-            await workspace.applyEdit(edit);
         }
+        await workspace.applyEdit(edit);
     }
 
     async importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {

@@ -10,7 +10,6 @@
  */
 import {
     AIUserInput,
-    UpdateDependencyInPomRequest,
     ApiDirectoryResponse,
     ApplyEditRequest,
     ApplyEditResponse,
@@ -185,7 +184,6 @@ import {
     UpdateWsdlEndpointResponse,
     WriteContentToFileRequest,
     WriteContentToFileResponse,
-    updateDependencyInPom,
     applyEdit,
     askFileDirPath,
     askProjectDirPath,
@@ -875,10 +873,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getAllMockServices(): Promise<GetAllMockServicesResponse> {
         return this._messenger.sendRequest(getAllMockServices, HOST_EXTENSION);
-    }
-
-    updateDependencyInPom(params: UpdateDependencyInPomRequest): Promise<void> {
-        return this._messenger.sendRequest(updateDependencyInPom, HOST_EXTENSION, params);
     }
 
     openDependencyPom(params: OpenDependencyPomRequest): Promise<void> {

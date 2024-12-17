@@ -177,7 +177,6 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
     StoreConnectorJsonResponse,
     OpenDependencyPomRequest,
@@ -351,7 +350,6 @@ export const updateTestCase: RequestType<UpdateTestCaseRequest, UpdateTestCaseRe
 export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMockServiceResponse> = { method: `${_preFix}/updateMockService` };
 export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
 export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };
-export const updateDependencyInPom: NotificationType<UpdateDependencyInPomRequest> = { method: `${_preFix}/updateDependencyInPom` };
 export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { method: `${_preFix}/openDependencyPom` };
 export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };
 export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };

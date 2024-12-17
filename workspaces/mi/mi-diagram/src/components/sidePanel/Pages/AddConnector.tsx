@@ -321,15 +321,6 @@ const AddConnector = (props: AddConnectorProps) => {
             documentUri: documentUri, range: nodePosition, text: modifiedXml
         });
 
-        if (connectorName === 'redis') {
-            rpcClient.getMiDiagramRpcClient().updateDependencyInPom({
-                groupId: "redis.clients",
-                artifactId: "jedis",
-                version: "3.6.0",
-                file: props.documentUri
-            });
-        }
-
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
