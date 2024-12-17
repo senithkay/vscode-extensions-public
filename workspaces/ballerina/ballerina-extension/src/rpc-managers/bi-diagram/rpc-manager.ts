@@ -1093,6 +1093,12 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                }
+            );
+        });
+    }
+
+    
     async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         const projectUri = StateMachine.context().projectUri;
         const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);

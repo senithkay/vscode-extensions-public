@@ -805,6 +805,46 @@ export interface TriggerFunctionRequest {
 }
 
 // <-------- Type Related ------->
+
+export interface Type {
+    name: string;
+    editable: boolean;
+    metadata: TypeMetadata;
+    codedata: TypeCodeData;
+    properties: Record<string, TypeProperty>;
+    members: Record<string, Member>;
+    restMember?: Member;
+    includes: string[];
+}
+
+export interface TypeMetadata {
+    label: string;
+    description: string;
+}
+
+// todo make this consistant
+export interface TypeCodeData {
+    lineRange: LineRange;
+    kind: string;
+}
+
+export interface TypeProperty {
+    metadata: TypeMetadata;
+    valueType: string;
+    value: string;
+    optional: boolean;
+    editable: boolean;
+    advanced: boolean;
+}
+
+export interface Member {
+    kind: string;
+    ref: string;
+    type: string;
+    name: string;
+    docs: string;
+}
+
 export interface GetTypesRequest {
     filePath: string;
 }
@@ -820,11 +860,11 @@ export interface UpdateTypeRequest {
 }
 
 export interface GetTypesResponse {
-    types: any;
+    types: Type[];
 }
 
 export interface GetTypeResponse {
-    type: any;
+    type: Type;
 }
 
 export interface UpdateTypeResponse {

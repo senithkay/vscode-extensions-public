@@ -132,7 +132,7 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelRequest,
-    BIDesignModelResponse
+    BIDesignModelResponse,
     GetTypesResponse,
     GetTypesRequest,
     UpdateTypeRequest,

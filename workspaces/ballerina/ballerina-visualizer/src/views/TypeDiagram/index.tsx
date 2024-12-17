@@ -39,6 +39,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
             return;
         }
         rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath }).then((response: any) => {
+            console.log(response);
             // @ts-ignore
             response.types.forEach((type) => {
                 console.log(type);
