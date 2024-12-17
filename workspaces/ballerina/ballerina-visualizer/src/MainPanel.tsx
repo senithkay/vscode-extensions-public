@@ -57,7 +57,6 @@ import { TypeDiagram } from "./views/TypeDiagram";
 import { Overview as OverviewBI } from "./views/BI/Overview/index";
 import EditConnectionWizard from "./views/BI/Connection/EditConnectionWizard";
 import ViewConfigurableVariables from "./views/BI/Configurables/ViewConfigurableVariables";
-import EditConfigurableVariables from "./views/BI/Configurables/EditConfigurableVariables";
 import ListenerView from "./views/BI/Trigger/ListenerView";
 import { ServiceWizard } from "./views/BI/ServiceWizard";
 import { ServiceHttpOASForm } from "./views/BI/ServiceHttpOASForm";
@@ -267,7 +266,13 @@ const MainPanel = () => {
                         setViewComponent(<FunctionForm />);
                         break;
                     case MACHINE_VIEW.ViewConfigVariables:
-                        setViewComponent(<ViewConfigurableVariables />);
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <ViewConfigurableVariables
+                                    fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.EditConfigVariables:
                         rpcClient.getVisualizerLocation().then((location) => {
@@ -286,7 +291,8 @@ const MainPanel = () => {
                                     setViewComponent(
                                         <ViewConfigurableVariables
                                             variableIndex={variableIndex}
-                                            isExternallauncher={true} />
+                                            isExternallauncher={true}
+                                            fileName={Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath} />
                                     );
                                 }
                             });

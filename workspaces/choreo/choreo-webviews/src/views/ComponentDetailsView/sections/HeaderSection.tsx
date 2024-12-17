@@ -12,6 +12,7 @@ import {
 	CommandIds,
 	type ComponentsDetailsWebviewProps,
 	type DeploymentTrack,
+	getComponentKindRepoSource,
 	getComponentTypeText,
 	getTypeForDisplayType,
 } from "@wso2-enterprise/choreo-core";
@@ -35,7 +36,7 @@ export const HeaderSection: FC<
 			organization,
 		});
 
-	const openGitPage = () => ChoreoWebViewAPI.getInstance().openExternal(component.spec.source?.github?.repository);
+	const openGitPage = () => ChoreoWebViewAPI.getInstance().openExternal(getComponentKindRepoSource(component.spec.source).repo);
 
 	const { mutate: onDeleteComponent, isLoading: deletingComponent } = useMutation({
 		mutationFn: () =>
