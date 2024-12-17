@@ -39,6 +39,7 @@ type EXProps = {
  * @param value - The value of the expression
  * @param placeholder - The placeholder of the expression
  * @param nodeRange - The range of the node with the expression
+ * @param canChange - Whether the expression mode can be toggled
  * @param onChange - Callback function to be called when the expression changes
  * @param onFocus - Callback function to be called when the expression is focused
  * @param onBlur - Callback function to be called when the expression is blurred
@@ -52,6 +53,7 @@ type FormExpressionFieldProps = {
     value: FormExpressionFieldValue;
     placeholder: string;
     nodeRange: Range;
+    canChange: boolean;
     onChange: (value: FormExpressionFieldValue) => void;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
@@ -108,6 +110,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         value,
         placeholder,
         nodeRange,
+        canChange,
         onChange,
         onCancel,
         errorMsg,
@@ -268,7 +271,9 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleGetExpressionEditorIcon = () => {
         const handleClick = () => {
-            onChange({ ...value, isExpression: !value.isExpression });
+            if (canChange) {
+                onChange({ ...value, isExpression: !value.isExpression });
+            }
         }
 
         return (

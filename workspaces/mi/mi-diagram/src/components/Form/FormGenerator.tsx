@@ -241,6 +241,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 required={isRequired}
                 placeholder={element.placeholder}
                 nodeRange={range}
+                canChange={element.inputType !== 'expression'}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
