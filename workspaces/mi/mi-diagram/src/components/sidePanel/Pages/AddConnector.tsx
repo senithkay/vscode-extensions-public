@@ -294,9 +294,9 @@ const AddConnector = (props: AddConnectorProps) => {
                                 namespaces.forEach((namespace: any) => {
                                     element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                 });
-                                element.txt(`{${value}}`);
+                                element.txt(`\${${value}}`);
                             } else {
-                                root.ele(name).txt(`{${value}}`);
+                                root.ele(name).txt(`\${${value}}`);
                             }
                         } else {
                             root.ele(name).txt(value);
