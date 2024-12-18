@@ -8,7 +8,15 @@
  */
 
 import styled from "@emotion/styled";
+import React from "react";
 import { ReactNode, useState, useRef } from "react";
+
+interface SplitViewProps {
+    children: ReactNode[];
+    sx?: any;
+    dynamicContainerSx?: any;
+    defaultWidths?: number[];
+}
 
 const Container = styled.div<SplitViewProps>`
     display: flex;
@@ -32,13 +40,6 @@ const Resizer = styled.div`
         background-color: var(--vscode-button-hoverBackground);
     }
 `;
-
-interface SplitViewProps {
-    children: ReactNode[];
-    sx?: any;
-    dynamicContainerSx?: any;
-    defaultWidths?: number[];
-}
 
 export function SplitView(props: SplitViewProps) {
     const { children, sx, dynamicContainerSx, defaultWidths } = props;
@@ -90,7 +91,7 @@ export function SplitView(props: SplitViewProps) {
                         {child}
                     </DynamicDiv>
                     {index < children.length - 1 && (
-                        <Resizer key={`resizer-${index}`} onMouseDown={(e) => handleMouseDown(index, e)} />
+                        <Resizer key={`resizer-${index}`} onMouseDown={e => handleMouseDown(index, e)} />
                     )}
                 </>
             ))}

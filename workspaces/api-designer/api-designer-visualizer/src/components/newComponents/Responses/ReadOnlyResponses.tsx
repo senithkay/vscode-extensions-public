@@ -6,10 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Tabs, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
 import { Responses as Rs, Response as R } from '../../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
-import { Tabs, ViewItem } from '../../Tabs/Tabs';
 import { ReadOnlyResponse } from '../Response/ReadOnlyResponse';
 
 interface ResponsesProps {

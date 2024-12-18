@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Dropdown, FormGroup, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Dropdown, Tabs, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { HeaderDefinition, Operation } from '../../Definitions/ServiceDefinitions';
 import { ContentWrapper, PanelBody, SubSectionWrapper } from '../Overview/Overview';
@@ -14,7 +14,6 @@ import { getColorByMethod, resolveTypeFormSchema } from '../Utils/OpenAPIUtils';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ContentTypeWrapper } from './Response';
-import { Tabs, ViewItem } from '../Tabs/Tabs';
 import SectionHeader from './SectionHeader';
 import { ReadOnlySchemaEditor } from '../SchemaEditor/ReadOnlySchemaEditor';
 

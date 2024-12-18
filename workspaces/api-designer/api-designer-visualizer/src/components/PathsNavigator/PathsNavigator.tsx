@@ -7,11 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Components, Paths } from "../../Definitions/ServiceDefinitions";
-import { Button, Codicon, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Tooltip, TreeView, TreeViewItem, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { getBackgroundColorByMethod, getColorByMethod, getResourceID } from "../Utils/OpenAPIUtils";
-import { TreeView } from "../Treeview/TreeView";
-import { TreeViewItem } from "../Treeview/TreeViewItem";
 import { useEffect, useRef, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";

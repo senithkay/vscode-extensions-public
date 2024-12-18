@@ -6,8 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
-import { TreeViewItem } from '../../../Treeview/TreeViewItem';
+import { Button, Codicon, TreeViewItem, Typography } from '@wso2-enterprise/ui-toolkit';
 import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';

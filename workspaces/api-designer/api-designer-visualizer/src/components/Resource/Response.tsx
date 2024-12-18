@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, Tabs, TextField, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Header, OpenAPI, Operation, Param, Parameter, Responses } from '../../Definitions/ServiceDefinitions';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,6 @@ import { BaseTypes, MediaTypes, StatusCodes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { convertParamsToParameters, getResponseHeadersFromResponse, resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper, ParamEditor } from '../Parameter/ParamEditor';
-import { Tabs, ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';

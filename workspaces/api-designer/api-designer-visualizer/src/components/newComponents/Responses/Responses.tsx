@@ -6,16 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Tabs, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
 import { Responses as Rs, Response as R, ReferenceObject as Ro } from '../../../Definitions/ServiceDefinitions';
-import { ReactNode, useContext, useEffect, useState } from 'react';
-import { Tabs, ViewItem } from '../../Tabs/Tabs';
+import { useContext, useEffect, useState } from 'react';
 import { Response } from '../Response/Response';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { StatusCodes } from '../../../constants';
-import { RefComponent } from '../RefComponent/RefComponent';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface ResponsesProps {

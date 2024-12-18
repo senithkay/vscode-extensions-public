@@ -6,9 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useEffect } from 'react';
-import { Divider } from '@wso2-enterprise/ui-toolkit';
+import React, { ReactNode } from 'react';
 import styled from "@emotion/styled";
+import { Divider } from '../Divider/Divider';
 
 export interface ViewItem {
     id: string;
@@ -84,9 +84,8 @@ export const Tabs: React.FC<TabsProps> = (props: TabsProps) => {
                     {
                         views.map((view, index) => {
                             return (
-                                <TabContent sx={tabTitleSx}>
+                                <TabContent sx={tabTitleSx} key={view.id}>
                                     <Tab 
-                                        key={index} 
                                         isFirst={index === 0}
                                         isSelected={currentViewId === view.id}
                                         onClick={() => onViewChange(view.id)}

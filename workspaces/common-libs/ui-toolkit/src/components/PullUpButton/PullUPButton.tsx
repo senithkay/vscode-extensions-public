@@ -8,18 +8,9 @@
  */
 
 import styled from "@emotion/styled";
-import { MultiSelect } from "@wso2-enterprise/ui-toolkit";
 import { ReactNode } from "react";
-
-interface ContainerProps {
-    sx?: any;
-};
-
-const Container = styled.div<ContainerProps>`
-    display: flex;
-    flex-direction: row;
-    ${(props: PullUpProps) => props.sx};
-`;
+import { MultiSelect } from "../MultiSelect/MultiSelect";
+import React from "react";
 
 interface PullUpProps {
     options: string[];
@@ -31,6 +22,15 @@ interface PullUpProps {
     onOptionChange?: (options: string[]) => void;
     sx?: any;
 }
+interface ContainerProps {
+    sx?: any;
+}
+
+const Container = styled.div<ContainerProps>`
+    display: flex;
+    flex-direction: row;
+    ${(props: PullUpProps) => props.sx};
+`;
 
 export function PullUpButton(props: PullUpProps) {
     const { options, sx, children, selectedOptions, selectSingleOption, dripdownHeight, dropdownWidth, onOptionChange } = props;

@@ -6,10 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, TreeView, Typography } from '@wso2-enterprise/ui-toolkit';
 import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../ComponentNavigator';
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
-import { TreeView } from '../../../Treeview/TreeView';
 import { PathTreeViewItem } from '../PathTreeViewItem/PathTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { APIResources } from '../../../../constants';

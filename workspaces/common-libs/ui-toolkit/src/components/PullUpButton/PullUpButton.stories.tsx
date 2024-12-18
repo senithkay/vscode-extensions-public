@@ -8,10 +8,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button } from "@wso2-enterprise/ui-toolkit";
 import { PullUpButton } from "./PullUPButton";
 import styled from "@emotion/styled";
 import { useState } from "react";
+import React from "react";
+import { Button } from "../Button/Button";
+import { storiesOf } from "@storybook/react";
 
 export default {
     component: PullUpButton,
@@ -24,8 +26,8 @@ const Container = styled.div`
 
 const options = ["Option 1", "Option 2", "Option 3"];
 
-export const SplitViewStory = () => {
-    const [values, setValues] = useState<string[]>(options);
+export const PullDownButton = () => {
+    const [, setValues] = useState<string[]>(options);
 
     return (
         <Container>
@@ -37,8 +39,9 @@ export const SplitViewStory = () => {
         </Container>
     );
 };
+storiesOf("Pull Down Button").add("Pull Down Button", () => <PullDownButton />);
 
-export const SingleOptionStory = () => {
+export const PullDownButtonSingleOptionStory = () => {
     const [values, setValues] = useState<string[]>(options);
 
     const handleOptionChange = (options: string[]) => {
@@ -56,3 +59,4 @@ export const SingleOptionStory = () => {
         </Container>
     );
 }
+storiesOf("Pull Down Button").add("Pull Down Button Single Option", () => <PullDownButtonSingleOptionStory />);

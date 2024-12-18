@@ -8,7 +8,7 @@
  */
 import React, { ReactNode, useEffect, useState } from 'react';
 import styled from "@emotion/styled";
-import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Codicon } from '../Codicon/Codicon';
 
 export interface TreeViewProps {
     id: string;
@@ -93,7 +93,7 @@ export const TreeView: React.FC<TreeViewProps> = (props: TreeViewProps) => {
             </div>
             {isExpanded && (
                 <div>
-                    {React.Children.map(children, (child) =>
+                    {React.Children.map(children, child =>
                         React.cloneElement(child as React.ReactElement<any>, {
                             selectedId: selectedId,
                             disableClick: disableClick,

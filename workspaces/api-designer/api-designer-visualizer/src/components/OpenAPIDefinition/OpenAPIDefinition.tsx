@@ -14,16 +14,14 @@ import * as yup from "yup";
 import { Overview } from "../Overview/Overview";
 import { getMethodFromResourceID, getOperationFromOpenAPI, getPathFromResourceID, getResourceID } from "../Utils/OpenAPIUtils";
 import { Resource } from "../Resource/Resource";
-import { SplitView } from "../SplitView/SplitView";
 import { ReadOnlyResource } from "../Resource/ReadOnlyResource";
 import { ReadOnlyOverview } from "../Overview/ReadOnlyOverview";
-import { Tabs } from "../Tabs/Tabs";
 import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { PathItem as PI } from "../PathItem/PathItem";
 import { ReadOnlyPathItem } from "../PathItem/ReadOnlyPathItem";
 import { Schema, SchemaEditor } from "../SchemaEditor/SchemaEditor";
 import { ReadOnlySchemaEditor } from "../SchemaEditor/ReadOnlySchemaEditor";
-import { Codicon, Button, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Button, Typography, SplitView, Tabs } from "@wso2-enterprise/ui-toolkit";
 import { APIDesignerContext } from "../../APIDesignerContext";
 import { Views } from "../../constants";
 

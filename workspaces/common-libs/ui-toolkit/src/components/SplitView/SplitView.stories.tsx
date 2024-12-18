@@ -7,13 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { storiesOf } from "@storybook/react";
 import { SplitView } from "./SplitView";
 import styled from "@emotion/styled";
-
-export default {
-    component: SplitView,
-    title: 'SplitView',
-};
+import React from "react";
 
 const Container = styled.div`
     min-height: 500px;
@@ -30,3 +27,5 @@ export const SplitViewStory = () => {
         </Container>
     );
 };
+
+storiesOf("SplitView").add("SplitViewStory", () => <SplitViewStory />);

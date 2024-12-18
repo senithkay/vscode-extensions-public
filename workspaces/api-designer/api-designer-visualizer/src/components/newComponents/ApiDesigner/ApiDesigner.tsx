@@ -11,12 +11,11 @@ import { OpenAPI as O } from '../../../Definitions/ServiceDefinitions';
 import { ComponentNavigator } from '../ComponentNavigator/ComponentNavigator';
 import { OpenAPI } from '../OpenAPI/OpenAPI';
 import styled from '@emotion/styled';
-import { SplitView } from '../../SplitView/SplitView';
-import { Tabs } from '../../Tabs/Tabs';
 import { Views } from '../../../constants';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 import { getAllComponents } from '../../Utils/OpenAPIUtils';
 import { ReadOnlyOpenAPI } from '../OpenAPI/ReadOnlyOpenAPI';
+import { SplitView, Tabs } from '@wso2-enterprise/ui-toolkit';
 
 const SplitViewContainer = styled.div`
     display: flex;

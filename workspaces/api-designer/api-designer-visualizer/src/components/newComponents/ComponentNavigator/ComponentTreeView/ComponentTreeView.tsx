@@ -6,10 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { TreeView, Typography } from '@wso2-enterprise/ui-toolkit';
 import { LeftPathContainer, PathContainer } from '../ComponentNavigator';
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
-import { TreeView } from '../../../Treeview/TreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
 import { SchemaTreeView } from '../SchemaTreeView/SchemaTreeView';

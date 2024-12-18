@@ -7,12 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Typography } from '@wso2-enterprise/ui-toolkit';
-import { TreeView } from './TreeView'; // Adjust the import path as necessary
-import { TreeViewItem } from './TreeViewItem';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import styled from '@emotion/styled';
-import { getColorByMethod } from '../Utils/OpenAPIUtils';
+import React from 'react';
+import Typography from '../Typography/Typography';
+import { storiesOf } from '@storybook/react';
+import { TreeView } from './TreeView';
+import { TreeViewItem } from './TreeViewItem';
 
 export default {
     component: TreeView,
@@ -33,10 +34,6 @@ const Operation = styled.div<OperationProps>`
     color: white;
     cursor: pointer;
 `;
-
-const text: ReactNode = (
-    <Typography sx={{margin: 0}} variant="h4">Hello World</Typography>
-)
 
 export const TreeViewStory = () => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -59,7 +56,9 @@ export const TreeViewStory = () => {
             <TreeView id="1-3" content={<Typography sx={{margin: 0}} variant="h4">Item 1.1</Typography>} selectedId={selectedId} onSelect={handleClick}>
                 <TreeViewItem id="1-3-1">Body 1.3.1</TreeViewItem>
             </TreeView>
-            <TreeView id="1-4" content={<Typography sx={{margin: 0}} variant="h4">Item 1.2</Typography>}></TreeView>
+            <TreeView id="1-4" content={<Typography sx={{margin: 0}} variant="h4">Item 1.2</Typography>} />
         </TreeView>
     );
 };
+
+storiesOf("TreeView").add("TreeViewStory", () => <TreeViewStory />);

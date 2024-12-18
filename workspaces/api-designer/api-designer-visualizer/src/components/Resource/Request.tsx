@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, Codicon, Dropdown, FormGroup, TextArea, TextField, Typography, ViewItem } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { OpenAPI, Operation, RequestBody, SchemaTypes } from '../../Definitions/ServiceDefinitions';
 import { useState } from 'react';
@@ -16,7 +16,6 @@ import { BaseTypes, MediaTypes } from '../../constants';
 import { MarkDownEditor } from '../MarkDownEditor/MarkDownEditor';
 import { resolveTypeFromSchema } from '../Utils/OpenAPIUtils';
 import { ButtonWrapper, HorizontalFieldWrapper } from '../Parameter/ParamEditor';
-import { ViewItem } from '../Tabs/Tabs';
 import { CodeTextArea } from '../CodeTextArea/CodeTextArea';
 import { ContentWrapper, SubSectionWrapper } from '../Overview/Overview';
 import SectionHeader from './SectionHeader';
