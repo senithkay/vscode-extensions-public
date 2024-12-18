@@ -23,7 +23,6 @@ import { ButtonNodeFactory } from "../components/nodes/ButtonNode";
 import { NodeTypes } from "../resources/constants";
 import { CommentNodeFactory } from "../components/nodes/CommentNode";
 import { WhileNodeFactory } from "../components/nodes/WhileNode";
-import { CodeBlockNodeFactory } from "../components/nodes/CodeBlockNode";
 import { EndNodeFactory } from "../components/nodes/EndNode";
 
 export function generateEngine(): DiagramEngine {
@@ -44,7 +43,6 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new ApiCallNodeFactory());
     engine.getNodeFactories().registerFactory(new DraftNodeFactory());
     engine.getNodeFactories().registerFactory(new CommentNodeFactory());
-    engine.getNodeFactories().registerFactory(new CodeBlockNodeFactory());
     engine.getNodeFactories().registerFactory(new ButtonNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
 
