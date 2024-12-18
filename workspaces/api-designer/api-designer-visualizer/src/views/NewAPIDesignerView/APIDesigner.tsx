@@ -14,7 +14,7 @@ import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { debounce } from "lodash";
 import { Views } from "../../constants";
 import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
-import { ApiDesigner } from "../../components/newComponents/ApiDesigner/ApiDesigner";
+import { ApiDesigner } from "../../components/OpenAPIComponents/ApiDesigner/ApiDesigner";
 
 interface ServiceDesignerProps {
     fileUri: string;

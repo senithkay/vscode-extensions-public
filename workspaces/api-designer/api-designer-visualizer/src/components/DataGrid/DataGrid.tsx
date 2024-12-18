@@ -8,7 +8,7 @@
  */
 
 import { VSCodeDataGrid } from '@vscode/webview-ui-toolkit/react';
-import { ParameterGridCell, ParamGridRow } from '../newComponents/Parameters/Parameters';
+import { ParameterGridCell, ParamGridRow } from '../OpenAPIComponents/Parameters/Parameters';
 
 export interface AccordionTableProps {
 	headers?: string[];
