@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, Codicon, Dropdown, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Dropdown, TextField, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { Parameter as P } from '../../../Definitions/ServiceDefinitions';
 import { BaseTypes, ParameterSchemaTypes } from '../../../constants';
@@ -41,7 +41,7 @@ const RequiredElement = styled.div<RequiredFormInputProps>`
     font-size: 28px;
     color: ${(props: RequiredFormInputProps) => props.color || "var(--vscode-editor-foreground)"};
     font-weight: bold;
-    line-height: 24px; // Reduced line height to lower the asterisk
+    line-height: 24px;
     cursor: pointer;
 `;
 const RequiredElementWrapper = styled.div`
@@ -49,12 +49,10 @@ const RequiredElementWrapper = styled.div`
     padding: 2px;
     border-radius: 4px;
     &:hover {
-        /* background-color: var(--vscode-editorHoverWidget-background); */
         background-color: var(--button-icon-hover-background)
     }
 `;
 
-// Title, Vesrion are mandatory fields
 export function Parameter(props: ParameterProps) {
     const { id, parameter, paramTypes = BaseTypes, onRemoveParameter, onParameterChange } = props;
 

@@ -27,7 +27,6 @@ interface ReadOnlyContactProps {
     contact: C;
 }
 
-// Title, Vesrion are mandatory fields
 export function ReadOnlyContact(props: ReadOnlyContactProps) {
     const { contact } = props;
 

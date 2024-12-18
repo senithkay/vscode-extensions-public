@@ -25,7 +25,6 @@ const isReferenceObject = (obj: H | R): obj is R => {
     return obj && typeof obj === 'object' && '$ref' in obj;
 }
 
-// Title, Vesrion are mandatory fields
 export function Headers(props: HeadersProps) {
     const { headers, title, onHeadersChange } = props;
     const { 

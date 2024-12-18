@@ -26,7 +26,6 @@ const isRefereceObject = (value: Rs | R): value is R => {
     return value.hasOwnProperty('$ref');
 };
 
-// Title, Vesrion are mandatory fields
 export function Responses(props: ResponsesProps) {
     const { responses, onResponsesChange } = props;
     const { rpcClient } = useVisualizerContext();

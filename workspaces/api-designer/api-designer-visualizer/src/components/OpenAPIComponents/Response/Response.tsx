@@ -28,7 +28,6 @@ interface ResponseProps {
     onResponseChange: (response: R) => void;
 }
 
-// Title, Vesrion are mandatory fields
 export function Response(props: ResponseProps) {
     const { response, onResponseChange } = props;
     const { rpcClient } = useVisualizerContext();

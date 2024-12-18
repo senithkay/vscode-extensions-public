@@ -43,7 +43,6 @@ const getAllOperationsFromPathItem = (pathItem: P) => {
     return Object.keys(pathItem).filter(key => httpMethods.includes(key));
 }
 
-// Title, Vesrion are mandatory fields
 export function PathItem(props: PathItemProps) {
     const { pathItem, path, onPathItemChange } = props;
     const { rpcClient } = useVisualizerContext();

@@ -48,7 +48,6 @@ interface OverviewProps {
 
 const moreOptions = ["Summary", "Description", "Contact", "License"];
 
-// Title, Vesrion are mandatory fields
 export function Overview(props: OverviewProps) {
     const { openAPIDefinition, isNewFile } = props;
     const { rpcClient } = useVisualizerContext();

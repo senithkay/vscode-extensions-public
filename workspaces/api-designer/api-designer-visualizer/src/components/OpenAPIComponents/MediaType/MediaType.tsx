@@ -16,7 +16,6 @@ interface MediaTypeProps {
     onMediaTypeChange: (mediaType: M) => void;
 }
 
-// Title, Vesrion are mandatory fields
 export function MediaType(props: MediaTypeProps) {
     const { mediaType, onMediaTypeChange } = props;
     const { 

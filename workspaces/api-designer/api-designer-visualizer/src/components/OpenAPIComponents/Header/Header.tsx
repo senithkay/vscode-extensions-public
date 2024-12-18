@@ -54,7 +54,6 @@ const RequiredElementWrapper = styled.div`
     }
 `;
 
-// Title, Vesrion are mandatory fields
 export function Header(props: HeaderProps) {
     const { id, header, name, headerTypes = BaseTypes, onRemoveHeader: onRemoveParameter, onHeaderChange: onHeaderChange } = props;
 

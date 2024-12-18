@@ -34,7 +34,6 @@ interface OverviewProps {
     openAPIDefinition: OpenAPI;
 }
 
-// Title, Vesrion are mandatory fields
 export function ReadOnlyOverview(props: OverviewProps) {
     const { openAPIDefinition } = props;
 

@@ -27,7 +27,6 @@ interface ContactProps {
     onContactChange: (contact: C) => void;
 }
 
-// Title, Vesrion are mandatory fields
 export function Contact(props: ContactProps) {
     const { contact, onContactChange } = props;
 
