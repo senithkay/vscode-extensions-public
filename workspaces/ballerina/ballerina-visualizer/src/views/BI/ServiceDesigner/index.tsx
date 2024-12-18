@@ -11,14 +11,15 @@ import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { Resource, ServiceDesigner as BServiceDesigner } from "@wso2-enterprise/ballerina-service-designer";
-import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, FunctionModel, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { BodyText, ViewWrapper } from "../../styles";
 import { Codicon, Container, Grid, ProgressRing, Typography, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
-import ServiceConfigView from "../Trigger/ServiceConfigView";
 import { BIHeader } from "../BIHeader";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ResourceAccordion } from "./components/ResourceAccordion";
+import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
 
 
 const LoadingContainer = styled.div`
@@ -46,6 +47,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const { filePath, position } = props;
     const { rpcClient } = useRpcContext();
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
+    const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
 
     useEffect(() => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
@@ -90,9 +92,31 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         });
 
     };
-    const handlenewFunction = () => {
 
+    const handleNewFunction = () => {
+        rpcClient.getServiceDesignerRpcClient().getHttpResourceModel({}).then(res => {
+            console.log("New Function Model: ", res.resource);
+            setFunctionModel(res.resource);
+        })
     };
+
+    const handleNewFunctionClose = () => {
+        setFunctionModel(undefined);
+    };
+
+    const handleFunctionSubmit = async (value: FunctionModel) => {
+        setIsSaving(true);
+        const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
+        const res = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                documentUri: filePath,
+                position: position
+            },
+        });
+        setIsSaving(false);
+    }
 
     const handleExportOAS = () => {
         rpcClient.getServiceDesignerRpcClient().exportOASFile({});
@@ -112,7 +136,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 {serviceModel &&
                     <>
                         <ViewHeader title={serviceModel.displayAnnotation.label} codicon="globe" onEdit={handleServiceEdit}>
-                            <VSCodeButton appearance="primary" title="Add Function" onClick={handlenewFunction}>
+                            <VSCodeButton appearance="primary" title="Add Function" onClick={handleNewFunction}>
                                 <Codicon name="add" sx={{ marginRight: 5 }} /> Function
                             </VSCodeButton>
 
@@ -143,6 +167,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                 />
                             ))}
                         </FunctionSection>
+                    </>
+                }
+                {functionModel &&
+                    <>
+                        <PanelContainer
+                            title={"Function Configuration"}
+                            show={!!functionModel}
+                            onClose={handleNewFunctionClose}
+                        >
+                            <FunctionConfigForm functionModel={functionModel} onSubmit={handleFunctionSubmit} onBack={handleNewFunctionClose} />
+                        </PanelContainer>
                     </>
                 }
             </ViewContent>
