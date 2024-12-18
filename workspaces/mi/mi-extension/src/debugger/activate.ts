@@ -57,7 +57,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
     // Register command to change the Micro Integrator server path
     vscode.commands.registerCommand(COMMANDS.CHANGE_SERVER_PATH, async () => {
         const addServerOptionLabel = "Add Micro Integrator Server";
-        const currentServerPath : string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
+        const currentServerPath: string | undefined = extension.context.globalState.get(SELECTED_SERVER_PATH);
         const quickPickItems: vscode.QuickPickItem[] = [];
 
         if (currentServerPath) {
@@ -100,6 +100,12 @@ export function activateDebugger(context: vscode.ExtensionContext) {
             const verifiedServerPath = verifyMIPath(selectedServerPath);
             if (verifiedServerPath) {
                 await extension.context.globalState.update(SELECTED_SERVER_PATH, verifiedServerPath);
+                const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+                if (workspaceFolder) {
+                    const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+                    await config.update(SELECTED_SERVER_PATH, verifiedServerPath, vscode.ConfigurationTarget.Workspace);
+
+                }
                 return true;
             } else {
                 vscode.window.showErrorMessage('Invalid Micro Integrator Server path or unsupported Micro Integrator version. Micro Integrator 4.3.0 or later is required.');
@@ -163,6 +169,12 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 const verifiedJavaHomePath = verifyJavaHomePath(selectedJavaHomePath);
                 if (verifiedJavaHomePath) {
                     await extension.context.globalState.update(SELECTED_JAVA_HOME, verifiedJavaHomePath);
+                    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+                    if (workspaceFolder) {
+                        const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
+                        await config.update(SELECTED_JAVA_HOME, verifiedJavaHomePath, vscode.ConfigurationTarget.Workspace);
+
+                    }
                     return true;
                 } else {
                     vscode.window.showErrorMessage('Invalid Java Home path or unsupported Java version. Java 11 or later is required.');
