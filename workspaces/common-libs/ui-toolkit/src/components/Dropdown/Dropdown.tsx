@@ -31,6 +31,7 @@ export interface DropdownProps extends ComponentProps<"select"> {
     errorMsg?: string;
     sx?: any;
     containerSx?: any;
+    dropdownContainerSx?: any;
     onValueChange?: (value: string) => void;
 }
 
@@ -41,16 +42,17 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
-const DropDownContainer = styled.div`
+interface ContainerProps {
+    sx?: any;
+}
+
+const DropDownContainer = styled.div<ContainerProps>`
     display: flex;
     flex-direction: column;
     gap : 2px;
     color: var(--vscode-editor-foreground);
+    ${(props: ContainerProps) => props.sx};
 `;
-
-interface ContainerProps {
-    sx?: any;
-}
 
 const Container = styled.div<ContainerProps>`
     ${(props: ContainerProps) => props.sx};
@@ -63,7 +65,7 @@ const LabelContainer = styled.div<ContainerProps>`
 `;
 
 export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((props, ref) => {
-    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, ...rest } = props;
+    const { isLoading, isRequired, id, items, label, errorMsg, sx, containerSx, dropdownContainerSx, ...rest } = props;
 
     const handleValueChange = (e: any) => {
         props.onValueChange && props.onValueChange(e.target.value);
@@ -75,11 +77,13 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>((prop
             {isLoading ? (
                 <SmallProgressRing />
             ) : (
-                <DropDownContainer>
-                    <LabelContainer>
-                        <label htmlFor={id}>{label}</label> 
-                        {(isRequired && label) && (<RequiredFormInput />)}
-                    </LabelContainer>
+                <DropDownContainer sx={dropdownContainerSx}>
+                    { label && (
+                        <LabelContainer>
+                            <label htmlFor={id}>{label}</label> 
+                            {(isRequired) && (<RequiredFormInput />)}
+                        </LabelContainer>
+                    )}
                     <VSCodeDropdown ref={ref} id={id} style={sx} {...rest} onChange={handleValueChange}>
                         {items?.map((item: OptionProps) => (
                             <VSCodeOption key={item?.id} value={item.value}>

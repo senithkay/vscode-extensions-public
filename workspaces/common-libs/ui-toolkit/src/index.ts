@@ -52,6 +52,7 @@ export * from './components/Alert/Alert';
 export * from './components/MultiSelect/MultiSelect';
 export * from './components/Toggle/Toggle';
 export * from './components/ExpressionEditorV2';
+export * from './components/Commons/Overlay';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';

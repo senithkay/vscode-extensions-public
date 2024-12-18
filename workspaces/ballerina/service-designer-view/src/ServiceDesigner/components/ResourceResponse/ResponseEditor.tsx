@@ -114,7 +114,7 @@ export function ResponseEditor(props: ParamProps) {
                     sx={{ zIndex: 1, position: "relative", marginTop: "3px" }}
                     borderBox={isBallerniaExt}
                     label="Code"
-                    value={getTitleFromResponseCode(response.code)}
+                    value={getTitleFromResponseCode(response.code as number)}
                     items={responseCodes.map(code => code.title)}
                     onValueChange={handleCodeChange}
                 />
