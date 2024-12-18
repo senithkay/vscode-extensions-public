@@ -38,7 +38,6 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: flex-start;
         gap: 6px;
-        padding: 8px;
     `;
 
     export const Circle = styled.div<NodeStyleProp>`
@@ -95,7 +94,7 @@ export namespace NodeStyles {
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${CON_NODE_WIDTH - 80}px;
+        max-width: ${CON_NODE_WIDTH - CON_NODE_HEIGHT}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
@@ -111,7 +110,7 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
-        gap: 6px;
+        gap: 12px;
         width: 100%;
     `;
 
@@ -161,6 +160,14 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         setMenuAnchorEl(null);
     };
 
+    const getNodeTitle = () => {
+        return model.node.symbol;
+    };
+
+    const getNodeDescription = () => {
+        return "Connection";
+    };
+
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
         { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
@@ -179,8 +186,8 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
                     <NodeStyles.Icon>{hasDatabaseName ? <DatabaseIcon /> : <LinkIcon />}</NodeStyles.Icon>
                 </NodeStyles.Circle>
                 <NodeStyles.Header>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.symbol}</NodeStyles.Title>
-                    {<NodeStyles.Description>Connection</NodeStyles.Description>}
+                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
+                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />

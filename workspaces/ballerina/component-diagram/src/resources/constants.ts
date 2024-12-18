@@ -83,10 +83,6 @@ export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
 export const LOADING_OVERLAY = "loading-overlay";
 
-// export const NEW_ENTRY = "new-entry";
-// export const NEW_CONNECTION = "new-connection";
-// export const NEW_COMPONENT = "new-component";
-// export const ACTOR_SUFFIX = "-actor";
 export const AUTOMATION_LISTENER = "automation-listener";
 
 export const NODE_LOCKED = false;
@@ -94,9 +90,10 @@ export const NODE_LOCKED = false;
 // sizing
 export const ENTRY_NODE_WIDTH = 240;
 export const ENTRY_NODE_HEIGHT = 64;
-export const CON_NODE_WIDTH = 200;
+export const CON_NODE_WIDTH = ENTRY_NODE_WIDTH - 40;
 export const CON_NODE_HEIGHT = ENTRY_NODE_HEIGHT;
-export const LISTENER_NODE_WIDTH = ENTRY_NODE_HEIGHT;
+export const LISTENER_NODE_WIDTH = CON_NODE_WIDTH;
+export const LISTENER_NODE_HEIGHT = CON_NODE_HEIGHT;
 
 export const NODE_BORDER_WIDTH = 1.5;
 export const NODE_PADDING = 8;
