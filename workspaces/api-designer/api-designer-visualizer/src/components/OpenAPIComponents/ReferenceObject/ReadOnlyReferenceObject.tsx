@@ -10,7 +10,7 @@ import { Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { resolveTypeFormSchema } from '../../Utils/OpenAPIUtils';
 import { VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
 import { ParameterGridCell, ParamGridRow } from '../Parameters/Parameters';

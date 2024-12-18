@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { createContext } from "react"
-import { APIDesignerContext as APIDesignerContextDef } from "../Definitions/NewContext";
+import { APIDesignerContext as APIDesignerContextDef } from "../Definitions/Context";
 
 const defaultContext: APIDesignerContextDef = {
     props: {

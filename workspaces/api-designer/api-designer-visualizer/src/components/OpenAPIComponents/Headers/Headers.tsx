@@ -12,7 +12,7 @@ import SectionHeader from '../SectionHeader/SectionHeader';
 import { Header } from '../Header/Header';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { RefComponent } from '../RefComponent/RefComponent';
 
 interface HeadersProps {

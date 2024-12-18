@@ -12,7 +12,7 @@ import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { SchemaTreeViewItem } from '../SchemaTreeViewItem/SchemaTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 import { Views } from '../../../../constants';
 
 interface PathTreeViewItemProps {

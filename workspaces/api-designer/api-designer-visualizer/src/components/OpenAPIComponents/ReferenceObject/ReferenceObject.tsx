@@ -10,7 +10,7 @@ import { Button, Codicon, Dropdown, TextField, Typography } from '@wso2-enterpri
 import styled from "@emotion/styled";
 import { ReferenceObject as R } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 
 const HorizontalFieldWrapper = styled.div`
     display: flex;

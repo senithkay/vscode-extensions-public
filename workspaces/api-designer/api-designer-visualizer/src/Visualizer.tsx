@@ -48,10 +48,6 @@ export function Visualizer({ mode }: { mode: string }) {
         rpcClient.webviewReady();
     }, []);
 
-    const goHome = () => {
-        rpcClient.getApiDesignerVisualizerRpcClient().goHome();
-    };
-
     return (
         <ErrorBoundary errorMsg="An error occurred in the API Designer" ref={errorBoundaryRef}>
             {(() => {

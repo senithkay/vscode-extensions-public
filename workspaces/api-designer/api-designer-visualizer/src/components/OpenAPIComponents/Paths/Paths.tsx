@@ -10,7 +10,7 @@ import { Paths as P, PathItem as PI, Operation as O } from '../../../Definitions
 import { PathItem } from '../PathItem/PathItem';
 import { Operation } from "../Operation/Operation";
 import { useContext, useState } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 
 interface PathsProps {
     paths: P;

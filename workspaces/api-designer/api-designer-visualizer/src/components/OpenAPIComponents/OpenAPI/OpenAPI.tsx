@@ -11,7 +11,7 @@ import { Overview } from '../Overview/Overview';
 import { Paths } from '../Paths/Paths';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { RefParameter } from '../RefParameter/RefParameter';
 import { RefRequestBody } from '../RefRequestBody/RefRequestBody';
 import { RefResponse } from '../RefResponse/RefResponse';

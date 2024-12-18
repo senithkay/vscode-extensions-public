@@ -14,7 +14,7 @@ import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import SectionHeader from '../SectionHeader/SectionHeader';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { StatusCodes } from '../../../constants';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 
 interface ResponsesProps {
     responses: Rs;

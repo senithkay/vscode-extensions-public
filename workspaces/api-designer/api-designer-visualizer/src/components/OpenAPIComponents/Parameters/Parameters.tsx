@@ -15,7 +15,7 @@ import { Parameter } from '../Parameter/Parameter';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 import { getUpdatedObjects } from '../Utils/OpenAPIUtils';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { RefComponent } from '../RefComponent/RefComponent';
 import { VSCodeDataGridCell, VSCodeDataGridRow } from '@vscode/webview-ui-toolkit/react';
 

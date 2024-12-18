@@ -12,7 +12,7 @@ import { ComponentNavigator } from '../ComponentNavigator/ComponentNavigator';
 import { OpenAPI } from '../OpenAPI/OpenAPI';
 import styled from '@emotion/styled';
 import { Views } from '../../../constants';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { getAllComponents } from '../../Utils/OpenAPIUtils';
 import { ReadOnlyOpenAPI } from '../OpenAPI/ReadOnlyOpenAPI';
 import { SplitView, Tabs } from '@wso2-enterprise/ui-toolkit';

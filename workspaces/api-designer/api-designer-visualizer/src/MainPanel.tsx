@@ -3,9 +3,6 @@ import { EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } f
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { Overview } from './views/Overview';
 import styled from '@emotion/styled';
-import { ErrorBoundary, FormView } from '@wso2-enterprise/ui-toolkit';
-import PopupPanel from './PopupPanel';
-import { NavigationBar } from './components/NavigationBar';
 import { APIDesignerView } from './views/NewAPIDesignerView/APIDesigner';
 
 const MainContainer = styled.div`
@@ -87,10 +84,6 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
         };
     }, []);
 
-    const getUniqueKey = (model: any, documentUri: string) => {
-        return `${JSON.stringify(model?.range)}-${documentUri}`;
-    }
-
     const fetchContext = () => {
         rpcClient.getVisualizerState().then(async (machineView) => {
             let shouldShowNavigator = true;
@@ -108,11 +101,6 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
             setShowNavigator(shouldShowNavigator);
         });
     }
-
-    const handleOnClose = () => {
-        rpcClient.getApiDesignerVisualizerRpcClient().openView({ type: EVENT_TYPE.CLOSE_VIEW, location: { view: null }, isPopup: true })
-    }
-
     return (
         <ViewContainer>
             {!viewComponent ? (
@@ -122,13 +110,6 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                 {/* {showNavigator && <NavigationBar />} */}
                 {viewComponent}
             </>}
-            {typeof formState === 'object' && 'open' in formState && (
-                <PopUpContainer>
-                    <FormView title='' onClose={handleOnClose}>
-                        <PopupPanel formState={formState} />
-                    </FormView>
-                </PopUpContainer>
-            )}
         </ViewContainer>
     );
 };

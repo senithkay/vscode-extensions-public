@@ -8,7 +8,7 @@
  */
 import { useContext } from 'react';
 import { MediaType as M } from '../../../Definitions/ServiceDefinitions';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { SchemaEditor } from '../../SchemaEditor/SchemaEditor';
 
 interface MediaTypeProps {

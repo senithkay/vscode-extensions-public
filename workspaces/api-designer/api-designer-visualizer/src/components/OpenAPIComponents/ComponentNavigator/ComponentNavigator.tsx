@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { OpenAPI } from '../../../Definitions/ServiceDefinitions';
 import { PathsTreeView } from './PathsTreeView/PathsTreeView';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { ComponentTreeView } from './ComponentTreeView/ComponentTreeView';
 
 interface ContainerProps {

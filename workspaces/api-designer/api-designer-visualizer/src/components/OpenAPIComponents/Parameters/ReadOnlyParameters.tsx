@@ -12,7 +12,7 @@ import { Parameter as P, ReferenceObject as R } from '../../../Definitions/Servi
 import { ReadOnlyParameter } from '../Parameter/ReadOnlyParameter';
 import { ReadOnlyReferenceObject } from '../ReferenceObject/ReadOnlyReferenceObject';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { VSCodeDataGrid } from '@vscode/webview-ui-toolkit/react';
 import { ParameterGridCell, ParamGridRow } from './Parameters';
 

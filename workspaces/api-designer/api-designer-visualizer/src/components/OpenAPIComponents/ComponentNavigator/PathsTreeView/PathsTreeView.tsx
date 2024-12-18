@@ -11,7 +11,7 @@ import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../
 import { OpenAPI, PathItem, Paths } from '../../../../Definitions/ServiceDefinitions';
 import { PathTreeView } from '../PathTreeView/PathTreeView';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 import { Views } from '../../../../constants';
 
 interface PathsTreeViewProps {

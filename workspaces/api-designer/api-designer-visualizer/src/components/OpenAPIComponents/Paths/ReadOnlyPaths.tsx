@@ -8,7 +8,7 @@
  */
 import { Paths as P, PathItem as PI, Operation as O } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { ReadOnlyOperation } from '../Operation/ReadOnlyOperation';
 import { ReadOnlyPathItem } from '../PathItem/ReadOnlyPathItem';
 

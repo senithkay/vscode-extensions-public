@@ -8,7 +8,7 @@
  */
 import { OpenAPI as O } from '../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { ReadOnlyPaths } from '../Paths/ReadOnlyPaths';
 import { ReadOnlyOverview } from '../Overview/ReadOnlyOverview';
 import { ReadOnlySchemaEditor } from '../../SchemaEditor/ReadOnlySchemaEditor';

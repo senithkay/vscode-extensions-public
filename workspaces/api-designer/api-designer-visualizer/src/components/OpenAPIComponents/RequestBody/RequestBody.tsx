@@ -13,7 +13,7 @@ import { ReactNode, useContext, useState } from 'react';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { MediaType } from '../MediaType/MediaType';
 import { MediaTypes } from '../../../constants';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 import { RefComponent } from '../RefComponent/RefComponent';
 import { ReferenceObject } from '../ReferenceObject/ReferenceObject';
 

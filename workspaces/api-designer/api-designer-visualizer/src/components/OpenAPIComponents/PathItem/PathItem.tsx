@@ -13,7 +13,7 @@ import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useContext } from 'react';
 import { getColorByMethod } from '../../Utils/OpenAPIUtils';
 import { Parameters } from '../Parameters/Parameters';
-import { APIDesignerContext } from '../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../APIDesignerContext';
 
 const PanelBody = styled.div`
     height: calc(100% - 87px);

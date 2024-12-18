@@ -10,7 +10,7 @@ import { Button, Codicon, TreeViewItem, Typography } from '@wso2-enterprise/ui-t
 import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 
 const ResponseViewItemWrapper = styled.div`
     display: flex;

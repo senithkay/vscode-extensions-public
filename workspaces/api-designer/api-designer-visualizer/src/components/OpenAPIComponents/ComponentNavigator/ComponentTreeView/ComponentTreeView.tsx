@@ -10,7 +10,7 @@ import { TreeView, Typography } from '@wso2-enterprise/ui-toolkit';
 import { LeftPathContainer, PathContainer } from '../ComponentNavigator';
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 import { SchemaTreeView } from '../SchemaTreeView/SchemaTreeView';
 import { ParameterTreeView } from '../ParameterTreeView/ParameterTreeView';
 import { RequestBodyTreeView } from '../RequestBodyTreeView/RequestBodyTreeView';

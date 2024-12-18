@@ -10,7 +10,7 @@ import { Button, Codicon, TreeView, Typography } from '@wso2-enterprise/ui-toolk
 import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../ComponentNavigator';
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 import { Views } from '../../../../constants';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { ResponseViewItem } from '../ResponsesViewItem/ResponsesViewItem';

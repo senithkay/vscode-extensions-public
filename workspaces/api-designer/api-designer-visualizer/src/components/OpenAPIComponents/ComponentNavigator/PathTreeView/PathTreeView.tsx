@@ -13,7 +13,7 @@ import { PathTreeViewItem } from '../PathTreeViewItem/PathTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { APIResources } from '../../../../constants';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 
 interface PathTreeViewProps {
     id: string;

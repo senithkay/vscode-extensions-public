@@ -12,7 +12,7 @@ import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { getBackgroundColorByMethod, getColorByMethod } from '../../../Utils/OpenAPIUtils';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useContext } from 'react';
-import { APIDesignerContext } from '../../../../NewAPIDesignerContext';
+import { APIDesignerContext } from '../../../../APIDesignerContext';
 
 interface PathTreeViewItemProps {
     id: string;
