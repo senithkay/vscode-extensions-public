@@ -93,7 +93,7 @@ export interface ReadmeContentResponse {
 export interface BIAiSuggestionsRequest {
     position: LineRange;
     filePath: string;
-    isOverview?: boolean;
+    prompt?: string;
 }
 export interface BIAiSuggestionsResponse {
     flowModel: Flow;
