@@ -59,5 +59,5 @@ export const CodeTextArea = forwardRef<HTMLTextAreaElement, CodeTextAreaProps>((
         growRange && growTextArea(props.value || "");
     }, []);
 
-    return <TextArea ref={textAreaRef} onBlur={handleChange} onClick={handleChange} onScroll={handleChange} onWheel={handleChange} rows={rows} {...rest} />;
+    return <TextArea ref={textAreaRef} onChange={handleChange} rows={rows} {...rest} />;
 });

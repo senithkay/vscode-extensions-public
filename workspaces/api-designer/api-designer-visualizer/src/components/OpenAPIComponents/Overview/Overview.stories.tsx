@@ -8,7 +8,7 @@
  */
 import { useState } from "react";
 import { OpenAPI } from "../../../Definitions/ServiceDefinitions";
-import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
+import petstoreJSON from "../../Data/petstoreJSON.json";
 import { Overview } from "./Overview";
 import { ReadOnlyOverview } from "./ReadOnlyOverview";
 

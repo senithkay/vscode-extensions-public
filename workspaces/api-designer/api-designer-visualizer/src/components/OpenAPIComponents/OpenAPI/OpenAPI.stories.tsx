@@ -10,7 +10,7 @@
 import { useState } from "react";
 import { OpenAPI as O } from "../../../Definitions/ServiceDefinitions";
 import { OpenAPI } from "./OpenAPI";
-import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
+import petstoreJSON from "../../Data/petstoreJSON.json";
 
 export default {
     component: OpenAPI,

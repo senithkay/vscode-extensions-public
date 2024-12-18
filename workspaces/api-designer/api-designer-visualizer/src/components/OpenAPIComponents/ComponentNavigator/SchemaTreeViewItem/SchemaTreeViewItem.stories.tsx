@@ -7,8 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { OpenAPI } from "../../../../Definitions/ServiceDefinitions";
-import petstoreJSON from "../../../OpenAPIDefinition/Data/petstore.json";
 import { SchemaTreeViewItem } from "./SchemaTreeViewItem";
 
 export default {

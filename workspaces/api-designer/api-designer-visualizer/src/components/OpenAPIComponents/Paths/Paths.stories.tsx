@@ -10,7 +10,7 @@
 import { useState } from "react";
 import { Paths as P } from "../../../Definitions/ServiceDefinitions";
 import { Paths } from "./Paths";
-import petstoreJSON from "../../OpenAPIDefinition/Data/petstore.json";
+import petstoreJSON from "../../Data/petstoreJSON.json";
 import { ReadOnlyPaths } from "./ReadOnlyPaths";
 
 export default {

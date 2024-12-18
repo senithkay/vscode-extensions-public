@@ -9,7 +9,7 @@
 import { Paths as P, PathItem as PI, Operation as O } from '../../../Definitions/ServiceDefinitions';
 import { PathItem } from '../PathItem/PathItem';
 import { Operation } from "../Operation/Operation";
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
 
 interface PathsProps {
@@ -23,8 +23,10 @@ export function Paths(props: PathsProps) {
         props: { selectedComponentID },
         api: { onSelectedComponentIDChange }
     } = useContext(APIDesignerContext);
+    const [prevSelectedPath, setPrevSelectedPath] = useState(selectedComponentID.split("#-")[2]);
     const handlePathsChange = (pathItem: PI, path: string) => {
         const previousPath = selectedComponentID.split("#-")[2];
+        setPrevSelectedPath(previousPath);
         if (previousPath !== path) {
             const newPaths = Object.keys(paths).reduce((acc, key) => {
                 if (key === previousPath) {
@@ -53,10 +55,11 @@ export function Paths(props: PathsProps) {
     const selectedPath = selectedComponentID.split("#-")[2];
     const selectedMethod = selectedComponentID.split("#-")[3];
     const selectedOperation: O = selectedPath && selectedMethod && paths[selectedPath] && paths[selectedPath][selectedMethod] as O;
+    const selectedPathInPaths = Object.keys(paths).includes(selectedPath);
     return (
         <>
             {Object.keys(paths).map((key) => {
-                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && !selectedMethod) {
+                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && !selectedMethod && (selectedPathInPaths ? selectedPath === key : key === prevSelectedPath)) {
                     return (
                         <PathItem
                             pathItem={paths[key]}

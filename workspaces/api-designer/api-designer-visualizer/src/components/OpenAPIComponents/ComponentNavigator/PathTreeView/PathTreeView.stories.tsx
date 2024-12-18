@@ -8,7 +8,7 @@
  */
 
 import { OpenAPI } from "../../../../Definitions/ServiceDefinitions";
-import petstoreJSON from "../../../OpenAPIDefinition/Data/petstore.json";
+import petstoreJSON from "../../../Data/petstoreJSON.json";
 import { PathTreeView } from "./PathTreeView";
 
 export default {

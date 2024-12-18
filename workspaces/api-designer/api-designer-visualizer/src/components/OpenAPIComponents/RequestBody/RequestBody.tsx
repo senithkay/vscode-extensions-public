@@ -24,7 +24,7 @@ interface RequestBodyProps {
 }
 
 const isRefereceObject = (value: R | RO): value is RO => {
-    return (value as RO).$ref !== undefined;
+    return (value as RO)?.$ref !== undefined;
 };
 
 export function RequestBody(props: RequestBodyProps) {
@@ -47,7 +47,7 @@ export function RequestBody(props: RequestBodyProps) {
         const newRequestBody: R = {
             ...requestBody,
             content: options.reduce((acc, item) => {
-                acc[item] = requestBody.content[item] || { schema: { type: "object" } };
+                acc[item] = requestBody?.content[item] || { schema: { type: "object" } };
                 return acc;
             }, {} as Record<string, M>)
         };
@@ -57,7 +57,7 @@ export function RequestBody(props: RequestBodyProps) {
     const onConfigureRequestClick = () => {
         rpcClient.selectQuickPickItems({
             title: "Select Content Types",
-            items: MediaTypes.map(item => ({ label: item, picked: mediaTypes.includes(item) }))
+            items: MediaTypes.map(item => ({ label: item, picked: mediaTypes?.includes(item) }))
         }).then(resp => {
             if (resp) {
                 handleOptionChange(resp.map(item => item.label))
@@ -69,7 +69,7 @@ export function RequestBody(props: RequestBodyProps) {
         if (selectedMediaType) {
             // Update the schema of the selected media type
             const newRequestBody: R = {
-                requestBody,
+                ...requestBody,
                 content: {
                     ...requestBody.content,
                     [selectedMediaType]: {

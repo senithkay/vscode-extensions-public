@@ -33,16 +33,17 @@ export function APIDesignerView(props: ServiceDesignerProps) {
         }
     });
     
-    const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
-        const resp = await rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
+    const writeToFile = async (openApiDefinition: OpenAPI) => {
+        rpcClient.getApiDesignerVisualizerRpcClient().writeOpenApiContent({
             filePath: fileUri,
             content: JSON.stringify(openApiDefinition),
         });
-        if (resp.success) {
-            setApiDefinition(openApiDefinition);
-        }
     };
-    const debouncedOpenApiDefinitionChange = debounce(handleOpenApiDefinitionChange, 300);
+    const debouncedFileWrite = debounce(writeToFile, 300);
+    const handleOpenApiDefinitionChange = async (openApiDefinition: OpenAPI) => {
+        setApiDefinition(openApiDefinition);
+        debouncedFileWrite(openApiDefinition);
+    };
 
     const fetchData = async () => {
         const resp = await rpcClient.getApiDesignerVisualizerRpcClient().getOpenApiContent({
@@ -79,7 +80,7 @@ export function APIDesignerView(props: ServiceDesignerProps) {
             openApi={apiDefinition}
             isEditMode={isNewFile}
             openAPIVersion={apiDefinition?.openapi || "3.0.1"}
-            onOpenApiChange={debouncedOpenApiDefinitionChange}
+            onOpenApiChange={handleOpenApiDefinitionChange}
         />
     )
 }

@@ -73,13 +73,13 @@ export function PathTreeView(props: PathTreeViewProps) {
                 { label: "Select Methods", detail: `Select the methods belonging to the path '${path}'` }
             ]
         }).then(res => {
-            if (res.label === "Edit Route path") {
+            if (res?.label === "Edit Route path") {
                 rpcClient.showInputBox({ title: "Edit Route path", value: path }).then(newPath => {
                     if (onPathRename && newPath) {
                         onPathRename(newPath, path)
                     }
                 })
-            } else if (res.label === "Select Methods") {
+            } else if (res?.label === "Select Methods") {
                 rpcClient.selectQuickPickItems({
                     title: "Select the methods of the path", items: APIResources.map(method => ({
                         label: method,
