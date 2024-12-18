@@ -112,25 +112,6 @@ export function Diagram(props: DiagramProps) {
                     }
                 }
             });
-            // add listener to the automation
-            const listenerNode = new ListenerNodeModel({
-                symbol: "",
-                location: automation.location,
-                attachedServices: [automation.uuid],
-                kind: "ANON",
-                type: AUTOMATION_LISTENER,
-                args: [],
-                uuid: automation.uuid + "-listener",
-                icon: "",
-                enableFlowModel: false,
-                sortText: "",
-            });
-            nodes.push(listenerNode);
-            // link automation to the listener
-            const link = createNodesLink(listenerNode, automationNode);
-            if (link) {
-                links.push(link);
-            }
         }
 
         // create listeners
