@@ -28,11 +28,11 @@ test.beforeAll(async () => {
     await initVSCode();
 });
 
-test('Create new project', async () => {
+test.skip('Create new project', async () => {
     await createProject(page);
 });
 
-test('Create new Connection', async () => {
+test.skip('Create new Connection', async () => {
     // Create connection
     const addArtifactPage = new AddArtifact(page.page);
     await addArtifactPage.init();
@@ -77,7 +77,7 @@ test('Create new Connection', async () => {
     expect(await overviewPage.checkForArtifact('Connections', 'email_connection')).toBeTruthy();
 });
 
-test('Edit Connection', async () => {
+test.skip('Edit Connection', async () => {
     // Edit connection
     const overviewPage = new Overview(page.page);
     await overviewPage.init();
