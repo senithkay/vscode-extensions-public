@@ -9,18 +9,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
+import { Button, ButtonWrapper, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ServiceModel } from "@wso2-enterprise/ballerina-core";
+import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ListenerModel } from "@wso2-enterprise/ballerina-core";
 import { debounce } from "lodash";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
-import { BodyText } from "../../styles";
+import { BodyText } from "../../../styles";
+import FormGeneratorNew from "../../Forms/FormGeneratorNew";
 
 const Container = styled.div`
     padding: 0 20px 20px;
     max-width: 600px;
-    height: 100%;
     > div:last-child {
         padding: 20px 0;
         > div:last-child {
@@ -42,67 +42,65 @@ const LoadingContainer = styled.div`
     flex-direction: column;
 `;
 
-const ListenerBtn = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-right: 15px;
-`;
-
-
-
-interface ServiceConfigFormProps {
-    serviceModel: ServiceModel;
-    onSubmit: (data: ServiceModel) => void;
-    openListenerForm?: () => void;
-    onBack: () => void;
+interface ListenerConfigFormProps {
+    listenerModel: ListenerModel;
+    onSubmit?: (data: ListenerModel) => void;
+    onBack?: () => void;
     formRef?: React.Ref<unknown>;
 }
 
-export function ServiceConfigForm(props: ServiceConfigFormProps) {
+export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
-    const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, formRef, openListenerForm } = props;
+    const [listenerFields, setListenerFields] = useState<FormField[]>([]);
+    const { listenerModel, onSubmit, onBack, formRef } = props;
+    const [filePath, setFilePath] = useState<string>('');
 
     useEffect(() => {
-        serviceModel && setServiceFields(convertConfig(serviceModel));
-    }, [serviceModel]);
+        listenerModel && setListenerFields(convertConfig(listenerModel));
+        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'triggers.bal').fsPath) });
+    }, [listenerModel]);
 
     const handleListenerSubmit = async (data: FormValues) => {
-        serviceFields.forEach(val => {
+        listenerFields.forEach(val => {
             if (data[val.key]) {
                 val.value = data[val.key]
             }
         })
-        const response = updateConfig(serviceFields, serviceModel);
+        const response = updateConfig(listenerFields, listenerModel);
         onSubmit(response);
     };
 
     return (
         <Container>
-            {serviceModel &&
+
+            {!listenerModel &&
+                <LoadingContainer>
+                    <ProgressRing />
+                    <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Listener Configurations...</Typography>
+                </LoadingContainer>
+            }
+
+            {listenerModel &&
                 <>
-                    {serviceFields.length > 0 &&
+                    {listenerFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
+                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label} Configuration</Typography>
                             <BodyText>
-                                Provide the necessary configuration details for the {serviceModel.displayAnnotation.label} to complete the
+                                Provide the necessary configuration details for the {listenerModel.displayAnnotation.label} to complete the
                                 setup.
                             </BodyText>
-                            {openListenerForm &&
-                                <ListenerBtn>
-                                    <LinkButton onClick={openListenerForm} sx={{ marginBottom: '-30px' }}>
-                                        + New Listener
-                                    </LinkButton>
-                                </ListenerBtn>
+                            {filePath &&
+                                <FormGeneratorNew
+                                    ref={formRef}
+                                    fileName={filePath}
+                                    targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
+                                    fields={listenerFields}
+                                    onSubmit={handleListenerSubmit}
+                                    onBack={onBack}
+                                    submitText={formRef && "Next"}
+                                />
                             }
-                            <Form
-                                ref={formRef}
-                                formFields={serviceFields}
-                                onSubmit={handleListenerSubmit}
-                                hideSave={!!formRef}
-                            />
                         </FormContainer>
                     }
                 </>
@@ -111,9 +109,9 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     );
 }
 
-export default ServiceConfigForm;
+export default ListenerConfigForm;
 
-function convertConfig(listener: ServiceModel): FormField[] {
+function convertConfig(listener: ListenerModel): FormField[] {
     const formFields: FormField[] = [];
     for (const key in listener.properties) {
         const expression = listener.properties[key];
@@ -137,7 +135,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
     return formFields;
 }
 
-function updateConfig(formFields: FormField[], listener: ServiceModel): ServiceModel {
+function updateConfig(formFields: FormField[], listener: ListenerModel): ListenerModel {
     formFields.forEach(field => {
         const value = field.value as string;
         listener.properties[field.key].value = value;

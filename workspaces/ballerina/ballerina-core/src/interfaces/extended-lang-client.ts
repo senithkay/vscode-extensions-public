@@ -878,6 +878,15 @@ export interface ServiceModelFromCodeRequest {
 export interface ServiceModelFromCodeResponse {
     service: ServiceModel;
 }
+export interface ListenerModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ListenerModelFromCodeResponse {
+    listener: ListenerModel;
+}
 export interface HttpResourceModelRequest {
 }
 export interface HttpResourceModelResponse {
@@ -936,6 +945,7 @@ export interface BIInterface extends BaseLangClientInterface {
     getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
     getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
     updateListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getListenerFromSourceCode: (params: ListenerModelFromCodeRequest) => Promise<ListenerModelFromCodeResponse>;
     getServiceModel: (params: ServiceModelRequest) => Promise<ServiceModelResponse>;
     updateServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
     getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;

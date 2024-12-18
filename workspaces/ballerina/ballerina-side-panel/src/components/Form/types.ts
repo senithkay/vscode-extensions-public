@@ -78,7 +78,7 @@ type FormCompletionConditionalProps = {
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (
+    extractArgsFromFunction?: (
         value: string,
         key: string,
         cursorPosition: number
@@ -102,7 +102,7 @@ type FormTypeConditionalProps = {
     retrieveVisibleTypes?: never;
 }
 
-type FormHelperPaneConditionalProps = { 
+type FormHelperPaneConditionalProps = {
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
@@ -138,7 +138,7 @@ type FormExpressionEditorBaseProps = {
     onRemove?: () => void;
 }
 
-export type FormExpressionEditorProps = 
+export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &

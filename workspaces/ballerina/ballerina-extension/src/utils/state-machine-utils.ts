@@ -68,7 +68,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             const variablePosition = listenerST.variableName.position;
             return {
                 location: {
-                    view: MACHINE_VIEW.ListenerConfigView,
+                    view: MACHINE_VIEW.BIListenerConfigView,
                     documentUri: documentUri,
                     position: variablePosition
                 }

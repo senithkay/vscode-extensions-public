@@ -158,7 +158,7 @@ namespace S {
 export interface FormProps {
     refKey?: string;
     formFields: FormField[];
-    hideSave?: boolean;
+    submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -181,6 +181,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formFields,
         projectPath,
         selectedNode,
+        submitText,
         onSubmit,
         onCancelForm,
         oneTimeForm,
@@ -189,7 +190,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openSubPanel,
         isActiveSubPanel,
         expressionEditor,
-        hideSave,
         targetLineRange,
         fileName,
         updatedExpressionField,
@@ -262,7 +262,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> form values xxx refKey", refKey, data);
+        console.log(">>> saved form fields", { data, refKey });
         onSubmit && onSubmit(data, refKey);
     };
 
@@ -498,7 +498,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             }
                         })}
                 </S.CategoryRow>
-                {!hideSave && onSubmit && (
+                {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
                         {isNewDataMapper ? (
@@ -509,7 +509,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             </S.PrimaryButton>
                         ) : (
                             <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                Save
+                                {submitText || "Save"}
                             </S.PrimaryButton>
                         )}
                     </S.Footer>

@@ -14,6 +14,8 @@ import {
     ExportOASResponse,
     HttpResourceModelRequest,
     HttpResourceModelResponse,
+    ListenerModelFromCodeRequest,
+    ListenerModelFromCodeResponse,
     ListenerModelRequest,
     ListenerModelResponse,
     ListenerSourceCodeRequest,
@@ -41,7 +43,7 @@ import { ModulePart, NodePosition, STKindChecker, TypeDefinition } from "@wso2-e
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import * as path from 'path';
-import { commands, Uri, window, workspace } from "vscode";
+import { Uri, commands, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
@@ -295,5 +297,17 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             console.log(">>> error updating source", error);
         }
         return position;
+    }
+
+    async getListenerModelFromCode(params: ListenerModelFromCodeRequest): Promise<ListenerModelFromCodeResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const res: ListenerModelFromCodeResponse = await context.langClient.getListenerFromSourceCode(params);
+                resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
     }
 }

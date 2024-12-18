@@ -12,8 +12,6 @@ export { ProjectForm } from "./ProjectForm";
 export { Overview as BIOverview } from "./Overview";
 export { AddComponentView } from "./ComponentView";
 export { ComponentListView } from "./ComponentListView";
-export { ServiceForm } from "./ServiceForm";
-export { ServiceHttpForm } from "./ServiceHttpForm";
 export { ComponentDiagram } from "./ComponentDiagram";
 export { PopupMessage } from "./PopupMessage";
 export { MainForm } from "./AutomationForm";

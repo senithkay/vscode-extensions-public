@@ -148,7 +148,9 @@ import {
     ServiceModelResponse,
     ServiceSourceCodeRequest,
     BIDesignModelRequest,
-    BIDesignModelResponse
+    BIDesignModelResponse,
+    ListenerModelFromCodeRequest,
+    ListenerModelFromCodeResponse
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -241,6 +243,7 @@ enum EXTENDED_APIS {
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
     BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
+    BI_SERVICE_GET_LISTENER_SOURCE = 'serviceDesign/getListenerFromSource',
     BI_SERVICE_GET_SERVICE = 'serviceDesign/getServiceModel',
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
@@ -784,6 +787,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_LISTENER, params);
+    }
+
+    async getListenerFromSourceCode(params: ListenerModelFromCodeRequest): Promise<ListenerModelFromCodeResponse> {
+        return this.sendRequest<ListenerModelFromCodeResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENER_SOURCE, params);
     }
 
     async getServiceModel(params: ServiceModelRequest): Promise<ServiceModelResponse> {

@@ -40,6 +40,7 @@ export interface ServiceModel {
     listenerProtocol: string;
     icon: string;
     properties?: ConfigProperties;
+    functions?: FunctionModel[];
     displayAnnotation?: DisplayAnnotation;
 }
 
@@ -91,6 +92,7 @@ export interface PropertyModel {
     optional: boolean;
     advanced: boolean;
     items?: string[];
+    choices?: PropertyModel[];
     properties?: ConfigProperties;
 }
 

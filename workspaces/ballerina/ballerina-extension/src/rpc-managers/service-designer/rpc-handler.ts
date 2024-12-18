@@ -11,6 +11,7 @@
 import {
     ExportOASRequest,
     HttpResourceModelRequest,
+    ListenerModelFromCodeRequest,
     ListenerModelRequest,
     ListenerSourceCodeRequest,
     ListenersRequest,
@@ -22,6 +23,7 @@ import {
     exportOASFile,
     getHttpResourceModel,
     getListenerModel,
+    getListenerModelFromCode,
     getListeners,
     getRecordST,
     getServiceModel,
@@ -40,6 +42,7 @@ export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getListeners, (args: ListenersRequest) => rpcManger.getListeners(args));
     messenger.onRequest(getListenerModel, (args: ListenerModelRequest) => rpcManger.getListenerModel(args));
     messenger.onRequest(updateListenerSourceCode, (args: ListenerSourceCodeRequest) => rpcManger.updateListenerSourceCode(args));
+    messenger.onRequest(getListenerModelFromCode, (args: ListenerModelFromCodeRequest) => rpcManger.getListenerModelFromCode(args));
     messenger.onRequest(getServiceModel, (args: ServiceModelRequest) => rpcManger.getServiceModel(args));
     messenger.onRequest(updateServiceSourceCode, (args: ServiceSourceCodeRequest) => rpcManger.updateServiceSourceCode(args));
     messenger.onRequest(getServiceModelFromCode, (args: ServiceModelFromCodeRequest) => rpcManger.getServiceModelFromCode(args));

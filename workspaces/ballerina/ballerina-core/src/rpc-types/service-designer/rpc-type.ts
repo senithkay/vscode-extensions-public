@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, ResourceSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest } from "../../interfaces/extended-lang-client";
+import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, ResourceSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse } from "../../interfaces/extended-lang-client";
 import {
     ExportOASRequest,
     ExportOASResponse,
@@ -24,6 +24,7 @@ export const exportOASFile: RequestType<ExportOASRequest, ExportOASResponse> = {
 export const getListeners: RequestType<ListenersRequest, ListenersResponse> = { method: `${_preFix}/getListeners` };
 export const getListenerModel: RequestType<ListenerModelRequest, ListenerModelResponse> = { method: `${_preFix}/getListenerModel` };
 export const updateListenerSourceCode: RequestType<ListenerSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateListenerSourceCode` };
+export const getListenerModelFromCode: RequestType<ListenerModelFromCodeRequest, ListenerModelFromCodeResponse> = { method: `${_preFix}/getListenerModelFromCode` };
 export const getServiceModel: RequestType<ServiceModelRequest, ServiceModelResponse> = { method: `${_preFix}/getServiceModel` };
 export const updateServiceSourceCode: RequestType<ServiceSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateServiceSourceCode` };
 export const getServiceModelFromCode: RequestType<ServiceModelFromCodeRequest, ServiceModelFromCodeResponse> = { method: `${_preFix}/getServiceModelFromCode` };

@@ -90,7 +90,7 @@ export function ComponentListView() {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.BIServiceForm,
+                    view: MACHINE_VIEW.BIServiceWizard,
                     serviceType: "http"
                 },
             });
@@ -181,7 +181,7 @@ export function ComponentListView() {
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
-                view: MACHINE_VIEW.BIServiceForm,
+                view: MACHINE_VIEW.BIServiceWizard,
                 serviceType: trigger.moduleName
             },
         });

@@ -8,12 +8,12 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel } from '@wso2-enterprise/ballerina-core';
+import { DIRECTORY_MAP, EVENT_TYPE, ListenerModel, ListenersResponse, ServiceModel, NodePosition } from '@wso2-enterprise/ballerina-core';
 import { Button, Codicon, ComponentCard, Icon, TextField, Typography, Stepper, ProgressRing, View, ViewContent, CheckBox, AutoComplete } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
-import ListenerConfigForm from '../ListenerConfigForm';
-import ServiceConfigForm from '../ServiceConfigForm';
+import ListenerConfigForm from './Forms/ListenerConfigForm';
+import ServiceConfigForm from './Forms/ServiceConfigForm';
 import { BodyText, LoadingContainer } from '../../styles';
 import { BIHeader } from '../BIHeader';
 import { FormValues } from '@wso2-enterprise/ballerina-side-panel';
@@ -79,12 +79,16 @@ export interface ServiceWizardProps {
 export function ServiceWizard(props: ServiceWizardProps) {
     const { type } = props;
     const { rpcClient } = useRpcContext();
+
     const [step, setStep] = useState<number>(0);
+
     const [listenerModel, setListenerModel] = useState<ListenerModel>(undefined);
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [listeners, setListeners] = useState<ListenersResponse>(undefined);
+
     const [existing, setExisting] = useState<boolean>(false);
     const [creatingListener, setCreatingListener] = useState<boolean>(false);
+
     const [saving, setSaving] = useState<boolean>(false);
     const [existingListener, setExistingListener] = useState<string>(undefined);
 
@@ -190,49 +194,13 @@ export function ServiceWizard(props: ServiceWizardProps) {
                 }
                 {listenerModel &&
                     <Container>
-                        {/* <Typography variant="h2">Create {listenerModel.moduleName.toLocaleUpperCase()} Service</Typography>
-                        <BodyText>
-                            Design your {listenerModel.moduleName.toLocaleUpperCase()} Service using the our Service Designer.
-                        </BodyText> */}
                         {!listeners.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
                         {step === 0 && !saving &&
                             <>
-                                {/* {listeners.hasListeners &&
-                                    <BottomMarginTextWrapper>
-                                        <CheckBox
-                                            checked={existing}
-                                            label={"Select an already created listener"}
-                                            onChange={(checked) => {
-                                                setExisting(checked);
-                                            }}
-                                            value={"1"}
-                                        />
-                                    </BottomMarginTextWrapper>
-                                } */}
-                                {/* {existing &&
-                                    <ContainerX>
-                                        <FormContainer>
-                                            <Typography variant="h3" sx={{ marginTop: '16px' }}>Select {listenerModel.displayAnnotation.label}</Typography>
-                                            <AutoComplete identifier='listeners' items={listeners.listeners} onValueChange={onListenerSelect} onCreateButtonClick={() => setExisting(false)} />
-                                        </FormContainer>
-                                    </ContainerX>
-                                } */}
-
-                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={onBack} />
-                                <ButtonWrapper>
-                                    {creatingListener && <Button appearance="secondary" onClick={onBack}>
-                                        Cancel
-                                    </Button>
-                                    }
-                                    <Button appearance="primary" onClick={handleOnNext}>
-                                        Next
-                                    </Button>
-                                </ButtonWrapper>
-
+                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} />
                             </>
                         }
                         {step === 0 && saving &&
-
                             <LoadingContainer>
                                 <ProgressRing />
                                 <Typography variant="h3" sx={{ marginTop: '16px' }}>Creating the listener...</Typography>
@@ -240,16 +208,10 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 1 && !saving &&
                             <>
-                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handlServiceSubmit} onBack={onBack} openListenerForm={existing && openListenerForm} />
-                                <ButtonWrapper>
-                                    <Button appearance="primary" onClick={handleOnSave}>
-                                        Save
-                                    </Button>
-                                </ButtonWrapper>
+                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handlServiceSubmit} openListenerForm={existing && openListenerForm} />
                             </>
                         }
                         {step === 1 && saving &&
-
                             <LoadingContainer>
                                 <ProgressRing />
                                 <Typography variant="h3" sx={{ marginTop: '16px' }}>Saving... Please wait</Typography>

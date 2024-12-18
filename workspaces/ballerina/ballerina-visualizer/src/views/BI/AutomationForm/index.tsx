@@ -203,6 +203,7 @@ export function MainForm() {
             editable: true,
             documentation: '',
             value: '',
+            valueTypeConstraint: 'string'
         },
         {
             key: `params`,
@@ -211,6 +212,7 @@ export function MainForm() {
             optional: false,
             editable: true,
             documentation: '',
+            valueTypeConstraint: '',
             value: '',
             paramManagerProps: {
                 paramValues: [],
