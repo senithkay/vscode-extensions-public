@@ -6,15 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Button, CheckBox, CheckBoxGroup, Codicon, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { Button, CheckBox, CheckBoxGroup, Codicon, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from "@emotion/styled";
 import { PathItem as P, Parameter, ReferenceObject } from '../../../Definitions/ServiceDefinitions';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { getColorByMethod } from '../../Utils/OpenAPIUtils';
 import { Parameters } from '../Parameters/Parameters';
 import { APIDesignerContext } from '../../../NewAPIDesignerContext';
-import { Views } from '../../../constants';
 
 const PanelBody = styled.div`
     height: calc(100% - 87px);
@@ -50,7 +49,7 @@ export function PathItem(props: PathItemProps) {
     const { rpcClient } = useVisualizerContext();
     const { 
         props: { pathInitiated },
-        api: { onPathInitiatedChange, onCurrentViewChange }
+        api: { onPathInitiatedChange }
     } = useContext(APIDesignerContext);
     let selectedOptions: string[] = [];
     if (pathItem && pathItem.summary === "" || pathItem.summary) {
@@ -191,7 +190,7 @@ export function PathItem(props: PathItemProps) {
                     id="description"
                     sx={{ width: "100%" }}
                     value={pathItem?.description || ""}
-                    onChange={handleDescriptionChange}
+                    onBlur={handleDescriptionChange}
                 />
             )}
             <label>Operations</label>

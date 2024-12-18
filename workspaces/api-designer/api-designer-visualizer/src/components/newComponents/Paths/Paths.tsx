@@ -56,21 +56,21 @@ export function Paths(props: PathsProps) {
     return (
         <>
             {Object.keys(paths).map((key) => {
-                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key && selectedMethod) {
+                if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && !selectedMethod) {
+                    return (
+                        <PathItem
+                            pathItem={paths[key]}
+                            path={key !== selectedPath ? selectedPath : key}
+                            onPathItemChange={handlePathsChange}
+                        />
+                    )
+                } else if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key && selectedMethod) {
                     return (
                         <Operation
                             operation={selectedOperation}
                             method={selectedMethod}
                             path={selectedPath}
                             onOperationChange={handleOperationsChange}
-                        />
-                    )
-                } else if (key !== "$ref" && key !== "summary" && key !== "description" && key !== "servers" && selectedPath === key) {
-                    return (
-                        <PathItem
-                            pathItem={paths[key]}
-                            path={key}
-                            onPathItemChange={handlePathsChange}
                         />
                     )
                 }
