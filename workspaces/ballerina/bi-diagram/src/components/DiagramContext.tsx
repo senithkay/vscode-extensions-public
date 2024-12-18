@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { Flow, NodeKind, FlowNode, Branch, LineRange, NodePosition, FlowNodeStyle } from "../utils/types";
 
 export interface DiagramContextState {
@@ -19,6 +19,7 @@ export interface DiagramContextState {
     };
     showErrorFlow: boolean;
     onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onAddNodePrompt?: (parent: FlowNode | Branch, target: LineRange, prompt: string) => void;
     onDeleteNode?: (node: FlowNode) => void;
     onAddComment?: (comment: string, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
@@ -34,6 +35,8 @@ export interface DiagramContextState {
     };
     projectPath?: string;
     readOnly?: boolean;
+    lockCanvas: boolean;
+    setLockCanvas: (lock: boolean) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -45,6 +48,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     },
     showErrorFlow: false,
     onAddNode: () => {},
+    onAddNodePrompt: () => {},
     onDeleteNode: () => {},
     onAddComment: () => {},
     onNodeSelect: () => {},
@@ -60,17 +64,19 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     },
     projectPath: "",
     readOnly: false,
+    lockCanvas: false,
+    setLockCanvas: (lock: boolean) => {},
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
 
 export function DiagramContextProvider(props: { children: React.ReactNode; value: DiagramContextState }) {
-    // add node states
-    // const [addNodeTargetMetadata, setAddNodeTargetMetadata] = React.useState<TargetMetadata | undefined>();
-    const [addNodeKind, setAddNodeKind] = React.useState<NodeKind | undefined>();
-    // enrich context with optional states
+    const [lockCanvas, setLockCanvas] = useState(false);
+    
     const ctx = {
         ...props.value,
+        lockCanvas,
+        setLockCanvas,
     };
 
     return <DiagramContext.Provider value={ctx}>{props.children}</DiagramContext.Provider>;
