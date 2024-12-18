@@ -369,6 +369,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
     return (
         <Container ref={elementRef}>
             <StyledTextField
+                {...rest}
                 ref={inputRef as React.RefObject<HTMLInputElement>}
                 value={value}
                 onTextChange={handleChange}
@@ -376,7 +377,6 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
                 onBlur={handleTextFieldBlur}
                 sx={{ width: '100%', ...sx }}
                 disabled={disabled || isSavingExpression}
-                {...rest}
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
             {isFocused &&
