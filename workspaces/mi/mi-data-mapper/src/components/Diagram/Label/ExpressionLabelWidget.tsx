@@ -263,10 +263,10 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         }
     }
 
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
+    if (valueNode && isSourceCollapsed && isTargetCollapsed && source.field.kind !== TypeKind.Array && target.field.kind !== TypeKind.Array) {
         // for direct links, disable link widgets if both sides are collapsed
         return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+    } else if (!valueNode && ((isSourceCollapsed && source.field.kind !== TypeKind.Array) || (isTargetCollapsed && target.field.kind !== TypeKind.Array))) {
         // for links with intermediary nodes,
         // disable link widget if either source or target port is collapsed
         return null;
