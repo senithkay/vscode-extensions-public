@@ -342,7 +342,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
                     setViewComponent(
                         <AddConnection
                             connectionName={machineView.customProps.connectionName}
-                            allowedConnectionTypes={machineView.customProps.allowedConnectionTypes}
+                            connectionType={machineView.customProps.connectionType}
                             connector={machineView.customProps}
                             path={machineView.documentUri} />);
                     break;
