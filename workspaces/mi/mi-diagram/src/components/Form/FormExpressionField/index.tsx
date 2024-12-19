@@ -51,6 +51,7 @@ type StyleProps = {
  * @param onBlur - Callback function to be called when the expression is blurred
  * @param onCancel - Callback function to be called when the completions dropdown is closed
  * @param openExpressionEditor - Callback function to be called when the expression editor is opened
+ * @param expressionType - Whether the expression is of type xpath/jsonPath or synapse
  * @param errorMsg - The error message to display
  * @param sx - The style to apply to the container
  */
@@ -371,7 +372,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             <Typography variant='h4' sx={{ margin: 0 }}>{'}'}</Typography>
                         </S.AdornmentContainer>
                     })}
-                    {...(value.isExpression && {
+                    {...(expressionType !== 'xpath/jsonPath' && value.isExpression && {
                         completions,
                         isHelperPaneOpen,
                         changeHelperPaneState: handleChangeHelperPaneState,

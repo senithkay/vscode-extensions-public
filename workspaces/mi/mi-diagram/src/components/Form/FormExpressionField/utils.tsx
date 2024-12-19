@@ -183,8 +183,8 @@ export const extractExpressionValue = (expression: string) => {
  * @param expressionType - 'xpath/jsonPath' | 'synapse'
  * @returns string
  */
-export const enrichExpressionValue = (expression: string, expressionType: 'xpath/jsonPath' | 'synapse') => {
-    if (expressionType === 'synapse') {
+export const enrichExpressionValue = (expression: string, expressionType?: 'xpath/jsonPath' | 'synapse') => {
+    if (expressionType !== 'xpath/jsonPath') {
         return `\${${expression}}`;
     }
     
