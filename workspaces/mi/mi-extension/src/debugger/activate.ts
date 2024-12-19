@@ -104,7 +104,7 @@ export function activateDebugger(context: vscode.ExtensionContext) {
                 if (workspaceFolder) {
                     const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
                     await config.update(SELECTED_SERVER_PATH, verifiedServerPath, vscode.ConfigurationTarget.Workspace);
-
+                    vscode.window.showWarningMessage('All the artifacts in the server will be cleaned.');
                 }
                 return true;
             } else {
