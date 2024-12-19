@@ -224,6 +224,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 paramConfigs={field.value}
                 readonly={false}
                 addParamText={element.addParamText}
+                nodeRange={range}
                 onChange={(values) => {
                     values.paramValues = getParamManagerOnChange(element, values);
                     field.onChange(values);
@@ -241,6 +242,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 required={isRequired}
                 placeholder={element.placeholder}
                 nodeRange={range}
+                canChange={element.inputType !== 'expression'}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });

@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
@@ -31,40 +31,54 @@ type EXProps = {
     isActive: boolean;
 }
 
+type StyleProps = {
+    sx?: CSSProperties;
+}
+
 /**
  * Props for ExpressionEditor
- * @param documentUri - The URI of the document
+ * @param labelAdornment - The label adornment to display
+ * @param id - The id of the expression field
+ * @param disabled - Whether the expression field is disabled
  * @param label - The label of the expression
  * @param required - Whether the expression is required
  * @param value - The value of the expression
  * @param placeholder - The placeholder of the expression
  * @param nodeRange - The range of the node with the expression
+ * @param canChange - Whether the expression mode can be toggled
  * @param onChange - Callback function to be called when the expression changes
  * @param onFocus - Callback function to be called when the expression is focused
  * @param onBlur - Callback function to be called when the expression is blurred
  * @param onCancel - Callback function to be called when the completions dropdown is closed
  * @param openExpressionEditor - Callback function to be called when the expression editor is opened
  * @param errorMsg - The error message to display
+ * @param sx - The style to apply to the container
  */
 type FormExpressionFieldProps = {
+    labelAdornment?: ReactNode;
+    id?: string;
+    disabled?: boolean;
     label: string;
-    required: boolean;
+    required?: boolean;
     value: FormExpressionFieldValue;
     placeholder: string;
     nodeRange: Range;
+    canChange: boolean;
     onChange: (value: FormExpressionFieldValue) => void;
     onFocus?: (e?: any) => void | Promise<void>;
     onBlur?: (e?: any) => void | Promise<void>;
     onCancel?: () => void;
     openExpressionEditor: (value: FormExpressionFieldValue, setValue: (value: FormExpressionFieldValue) => void) => void;
     errorMsg: string;
+    sx?: CSSProperties;
 };
 
 export namespace S {
-    export const Container = styled.div({
+    export const Container = styled.div<StyleProps>(({ sx }: StyleProps) => ({
         width: '100%',
         fontFamily: 'var(--font-family)',
-    });
+        ...sx
+    }));
 
     export const Header = styled.div({
         display: 'flex',
@@ -86,13 +100,20 @@ export namespace S {
         justifyContent: 'center',
         width: '26px',
         height: '26px',
-        border: `1px solid ${isActive ? 'var(--focus-border)' : 'var(--dropdown-border)'}`,
+        border: '1px solid transparent',
         cursor: 'pointer',
+
+        '&:hover': {
+            backgroundColor: 'var(--vscode-inputOption-activeBackground)'
+        },
+
+        ...(isActive && {
+            backgroundColor: 'var(--vscode-inputOption-activeBackground)',
+            borderColor: 'var(--vscode-inputOption-activeBorder)'
+        }),
     }));
 
     export const EXText = styled(Typography)<EXProps>(({ isActive }: EXProps) => ({
-        fontSize: '10px',
-        fontWeight: 600,
         color: isActive ? 'var(--focus-border)' : 'inherit',
     }));
 }
@@ -103,17 +124,22 @@ export namespace S {
  */
 export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const {
+        labelAdornment,
+        id,
+        disabled,
         label,
         required,
         value,
         placeholder,
         nodeRange,
+        canChange,
         onChange,
         onCancel,
         errorMsg,
         onFocus,
         onBlur,
-        openExpressionEditor
+        openExpressionEditor,
+        sx
     } = params;
 
     const { rpcClient } = useVisualizerContext();
@@ -158,11 +184,14 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         onChange({ ...value, value: expression });
         cursorPositionRef.current = updatedCursorPosition;
 
-        const isHelperPaneOpen = expression === "" ? true : false;
-        handleChangeHelperPaneState(isHelperPaneOpen);
+        // Only retrieve completions if the value is an expression
+        if (value.isExpression) {
+            const isHelperPaneOpen = expression === "" ? true : false;
+            handleChangeHelperPaneState(isHelperPaneOpen);
 
-        if (!isHelperPaneOpen) {
-            retrieveCompletions(expression, updatedCursorPosition);
+            if (!isHelperPaneOpen) {
+                retrieveCompletions(expression, updatedCursorPosition);
+            }
         }
     };
 
@@ -268,18 +297,20 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
 
     const handleGetExpressionEditorIcon = () => {
         const handleClick = () => {
-            onChange({ ...value, isExpression: !value.isExpression });
+            if (canChange) {
+                onChange({ ...value, isExpression: !value.isExpression });
+            }
         }
 
         return (
             <S.EX isActive={value.isExpression} onClick={handleClick}>
-                <S.EXText isActive={value.isExpression}>EX</S.EXText>
+                <S.EXText variant='h6' sx={{ margin: 0 }} isActive={value.isExpression}>EX</S.EXText>
             </S.EX>
         );
     }
 
     return (
-        <S.Container>
+        <S.Container id={id} sx={sx}>
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
@@ -311,6 +342,8 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             <div>
                 <FormExpressionEditor
                     ref={expressionRef}
+                    labelAdornment={labelAdornment}
+                    disabled={disabled}
                     value={value.value}
                     placeholder={placeholder}
                     onChange={handleExpressionChange}
