@@ -28,6 +28,8 @@ import { AutoResizeTextArea } from '../../../TextArea/TextArea';
 import { FnSignatureEl } from '../Common/FnSignature';
 import { Dropdown } from '../Common';
 import { StyleBase, FnSignatureProps } from '../Common/types';
+import { Icon } from '../../../Icon/Icon';
+import { Button } from '../../../Button/Button';
 
 /* Styled components */
 const Container = styled.div`
@@ -35,6 +37,14 @@ const Container = styled.div`
     position: relative;
     display: flex;
 `;
+
+const ActionButtons = styled.div`
+    position: absolute;
+    top: -14px;
+    right: 0;
+    display: flex;
+    gap: 4px;
+`
 
 const StyledTextArea = styled(AutoResizeTextArea)`
     ::part(control) {
@@ -63,6 +73,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         isHelperPaneOpen,
         changeHelperPaneState,
         getHelperPane,
+        actionButtons,
         onChange,
         onSave,
         onCancel,
@@ -79,6 +90,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     } = props;
 
     const elementRef = useRef<HTMLDivElement>(null);
+    const actionButtonsRef = useRef<HTMLDivElement>(null);
     const textBoxRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
@@ -401,6 +413,47 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
 
     return (
         <Container ref={elementRef}>
+            {/* Action buttons at the top of the expression editor */}
+            {actionButtons?.length > 0 && (
+                <ActionButtons ref={actionButtonsRef}>
+                    {actionButtons.map((actBtn, index) => {
+                        let icon: React.ReactNode;
+                        if (actBtn.iconType === 'codicon') {
+                            icon = (
+                                <Codicon
+                                    key={index}
+                                    name={actBtn.name}
+                                    iconSx={{ fontSize: '12px', color: 'var(--vscode-button-background)' }}
+                                    sx={{ height: '14px', width: '18px' }}
+                                />
+                            );
+                        } else {
+                            icon = (
+                                <Icon
+                                    key={index}
+                                    name={actBtn.name}
+                                    iconSx={{ fontSize: '12px', color: 'var(--vscode-button-background)' }}
+                                    sx={{ height: '14px', width: '18px' }}
+                                />
+                            );
+                        }
+                        
+                        return (
+                            <Button
+                                key={index}
+                                tooltip={actBtn.tooltip}
+                                onClick={actBtn.onClick}
+                                appearance='icon'
+                                sx={{ height: '14px', width: '18px' }}
+                            >
+                                {icon}
+                            </Button>
+                        )
+                    })}
+                </ActionButtons>
+            )}
+
+            {/* Expression editor component */}
             <StyledTextArea
                 {...rest}
                 ref={textBoxRef as React.RefObject<HTMLTextAreaElement>}
