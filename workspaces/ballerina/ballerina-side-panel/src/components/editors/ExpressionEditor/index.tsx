@@ -12,12 +12,10 @@ import { FormField, FormExpressionEditorProps } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import {
     Button,
-    Codicon,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
-    RequiredFormInput,
-    ThemeColors
+    RequiredFormInput
 } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useFormContext } from '../../../context';
@@ -30,6 +28,7 @@ import {
 import { Colors } from '../../../resources/constants';
 import { sanitizeType } from '../utils';
 import { getHelperPane } from './HelperPane';
+import { debounce } from 'lodash';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
@@ -166,6 +165,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
 
+    // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
+    const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
+    const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
+    const effectiveFileName = fileName ?? contextFileName;
 
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
     /* Define state to retrieve helper pane data */
@@ -226,11 +229,11 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             openSubPanel({view: SubPanelView.UNDEFINED});
         } else {
             handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                filePath: fileName,
+                filePath: effectiveFileName,
                 flowNode: undefined, // This will be updated in the Form component
                 position: {
-                    line: targetLineRange.startLine.line,
-                    offset: targetLineRange.startLine.offset,
+                    line: effectiveTargetLineRange.startLine.line,
+                    offset: effectiveTargetLineRange.startLine.offset,
                 },
                 propertyKey: field.key,
                 editorKey: field.key
@@ -262,8 +265,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     }
 
     const updateSubPanelData = (value: string) => {
-        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
-
         if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
             handleInlineDataMapperOpen(true);
         }
@@ -273,15 +274,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         return await extractArgsFromFunction(value, field.key, cursorPosition);
     };
 
+    const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
+
     const actionButtons = [
         visualizable && (
-            <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)} tooltip="Edit using Data Mapper">
-                <S.DataMapperBtnTxt>DM</S.DataMapperBtnTxt>
-            </Button>
-        ),
-        onRemove && (
-            <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
-                <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
+            <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
+                <S.DataMapperBtnTxt>Open In Data Mapper</S.DataMapperBtnTxt>
             </Button>
         )
     ];
@@ -313,6 +311,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             autoFocus={autoFocus}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+                                debouncedUpdateSubPanelData(value);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Open the helper pane based on the value
