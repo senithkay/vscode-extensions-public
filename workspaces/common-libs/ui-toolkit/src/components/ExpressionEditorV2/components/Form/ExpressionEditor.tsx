@@ -117,13 +117,23 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 left: rect.left,
             });
         }
-    }, 100);
+    }, 10);
 
     useEffect(() => {
         handleResize();
+
+        // Create ResizeObserver to watch textarea size changes
+        const resizeObserver = new ResizeObserver(handleResize);
+        if (elementRef.current) {
+            resizeObserver.observe(elementRef.current);
+        }
+
+        // Handle window resize
         window.addEventListener('resize', handleResize);
+
         return () => {
             window.removeEventListener('resize', handleResize);
+            resizeObserver.disconnect();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [elementRef, showCompletions, isHelperPaneOpen]);
