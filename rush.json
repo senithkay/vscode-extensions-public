@@ -249,7 +249,9 @@
       "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
       "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/bi/bi-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/apk/apk-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/api-designer/api-designer-extension && pnpm run copyVSIXToRoot"
+
     ]
   },
   /**
@@ -578,7 +580,7 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
-      "packageName": "@wso2-enterprise/cell-diagram",
+      "packageName": "@wso2-enterprise/choreo-cell-diagram",
       "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
     },
@@ -650,6 +652,10 @@
       "projectFolder": "workspaces/mi/mi-data-mapper-utils"
     },
     {
+      "packageName": "@wso2-enterprise/mi-component-diagram",
+      "projectFolder": "workspaces/mi/mi-component-diagram"
+    },
+    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"
@@ -708,6 +714,22 @@
       "packageName": "@wso2-enterprise/ballerina-inline-data-mapper",
       "projectFolder": "workspaces/ballerina/inline-data-mapper",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "api-designer",
+      "projectFolder": "workspaces/api-designer/api-designer-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-designer-core",
+      "projectFolder": "workspaces/api-designer/api-designer-core"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-designer-visualizer",
+      "projectFolder": "workspaces/api-designer/api-designer-visualizer"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-designer-rpc-client",
+      "projectFolder": "workspaces/api-designer/api-designer-rpc-client"
     }
   ]
 }

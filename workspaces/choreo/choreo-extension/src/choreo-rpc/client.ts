@@ -26,6 +26,7 @@ import type {
 	CreateConfigYamlReq,
 	CreateDeploymentReq,
 	CreateProjectReq,
+	CredentialItem,
 	DeleteCompReq,
 	DeleteConnectionReq,
 	DeploymentLogsData,
@@ -45,6 +46,7 @@ import type {
 	GetConnectionGuideResp,
 	GetConnectionItemReq,
 	GetConnectionsReq,
+	GetCredentialsReq,
 	GetDeploymentStatusReq,
 	GetDeploymentTracksReq,
 	GetMarketplaceIdlReq,
@@ -219,6 +221,14 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		}
 		const response = await this.client.sendRequest<IsRepoAuthorizedResp>("repo/isRepoAuthorized", params);
 		return response;
+	}
+
+	async getCredentials(params: GetCredentialsReq) {
+		if (!this.client) {
+			throw new Error("RPC client is not initialized");
+		}
+		const response = await this.client.sendRequest<{ credentials: CredentialItem[] }>("repo/getCredentials", params);
+		return response?.credentials;
 	}
 
 	async getUserInfo(): Promise<UserInfo> {

@@ -142,7 +142,7 @@ const TEMPLATE_SCAFFOLD = [
 const TEMPLATE_TESTS = ["generate test using <servicename> service"];
 const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
-    "generate mapping using input as <recordname(s)> and output as <recordname>"
+    "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
 const TEMPLATE_TYPECREATOR = ["generate types using the given file content"];
 
@@ -151,7 +151,7 @@ const commandToTemplate = new Map<string, string[]>([
     [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
-    [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR]
+    [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
 ]);
 
 //TODO: Add the files relevant to the commands
@@ -171,7 +171,7 @@ export const getFileTypesForCommand = (command: string): string[] => {
                 "image/heif",
                 "application/pdf",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                "application/msword"
+                "application/msword",
             ];
         default:
             return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
@@ -456,10 +456,10 @@ export function AIChat() {
         const expectedTemplates = commandToTemplate.get(command);
         for (const template of expectedTemplates ?? []) {
             let pattern = template
-                .replace(/<servicename>/g, "(\\S+?)") 
+                .replace(/<servicename>/g, "(\\S+?)")
                 .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
                 .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
-                .replace(/<use-case>/g, "(.+?)") 
+                .replace(/<use-case>/g, "(.+?)")
                 .replace(/<functionname>/g, "(\\S+?)");
 
             const regex = new RegExp(`^${pattern}$`, "i");
@@ -587,10 +587,9 @@ export function AIChat() {
             } else if (event.event == "functions") {
                 functions = event.body;
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient
-                    .getAiPanelRpcClient().postProcess({
-                        assistant_response: assistant_response
-                    })
+                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                    assistant_response: assistant_response,
+                });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
                 if (diagnostics.length > 0) {
@@ -763,6 +762,7 @@ export function AIChat() {
         });
 
         let generatedTestCode = "";
+        let configToml = "";
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             assistant_response += `\n\n<progress>Generating tests for the ${serviceName} service. This may take a moment.</progress>`;
@@ -774,6 +774,7 @@ export function AIChat() {
             .getAiPanelRpcClient()
             .getGeneratedTest({ backendUri: backendRootUri, token: token, serviceName: serviceName });
         generatedTestCode = response.testContent;
+        configToml = response.configContent;
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             assistant_response += `\n<progress>Analyzing generated tests for potential issues.</progress>`;
@@ -782,6 +783,7 @@ export function AIChat() {
         });
 
         const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics(response);
+        console.log(diagnostics);
         if (diagnostics.diagnostics.length > 0) {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
@@ -808,7 +810,10 @@ export function AIChat() {
 
         setIsLoading(false);
         setIsCodeLoading(false);
-        assistant_response += `\n\n<code filename="test/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        assistant_response += `\n\n<code filename="tests/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        if (configToml !== "") {
+            assistant_response += `\n\n<code filename="tests/Config.toml">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
+        }
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             newMessages[newMessages.length - 1].content = assistant_response;
@@ -820,7 +825,12 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function processMappingParameters(message: string, token: string, parameters: MappingParameters, attachments?: AttachmentResult[]) {
+    async function processMappingParameters(
+        message: string,
+        token: string,
+        parameters: MappingParameters,
+        attachments?: AttachmentResult[]
+    ) {
         let assistant_response = "";
         const recordMap = new Map();
         const importsMap = new Map();
@@ -836,15 +846,16 @@ export function AIChat() {
             throw new Error("Please provide a valid function name without special characters.");
         }
 
-        const projectImports = await rpcClient.getBIDiagramRpcClient().getAllImports();    
+        const projectImports = await rpcClient.getBIDiagramRpcClient().getAllImports();
         const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
         const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: activeFile });
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
 
-        const activeFileImports = projectImports.imports.find(file => {
-            const fileName = file.filePath.split("/").pop(); 
-            return fileName === activeFile;
-        })?.statements || [];
+        const activeFileImports =
+            projectImports.imports.find((file) => {
+                const fileName = file.filePath.split("/").pop();
+                return fileName === activeFile;
+            })?.statements || [];
 
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
@@ -872,7 +883,10 @@ export function AIChat() {
                         if (!matchedImport) {
                             throw new Error(`Must import the module for "${recordName}".`);
                         }
-                        importsMap.set(recordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
+                        importsMap.set(recordName, {
+                            moduleName: matchedImport.moduleName,
+                            alias: matchedImport.alias,
+                        });
                         return { type: `${recordName}`, isArray, filePath: null };
                     } else {
                         throw new Error(`${recordName} is not defined.`);
@@ -892,7 +906,10 @@ export function AIChat() {
                     if (!matchedImport) {
                         throw new Error(`Must import the module for "${outputRecordName}".`);
                     }
-                    importsMap.set(outputRecordName, { moduleName: matchedImport.moduleName, alias: matchedImport.alias });
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                    });
                     output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
                 } else {
                     throw new Error(`${outputRecordName} is not defined.`);
@@ -907,7 +924,7 @@ export function AIChat() {
                 inputRecordTypes: inputs,
                 outputRecordType: output,
                 functionName,
-                imports: Array.from(importsMap.values())
+                imports: Array.from(importsMap.values()),
             };
             if (attachments && attachments.length > 0) {
                 requestPayload.attachment = attachments;
@@ -923,14 +940,14 @@ export function AIChat() {
             }
             assistant_response += `- **Output Record**: ${outputParam}\n`;
             assistant_response += `- **Function Name**: ${functionName}\n`;
-            
-            let filePath = "mappings.bal"; 
+
+            let filePath = "mappings.bal";
             let finalContent = response.mappingCode;
             const needsImports = Array.from(importsMap.values()).length > 0;
 
             if (needsImports) {
                 filePath = activeFile;
-                finalContent = `${fileContent}\n${response.mappingCode}`; 
+                finalContent = `${fileContent}\n${response.mappingCode}`;
             }
             assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
@@ -953,7 +970,7 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function processContextTypeCreation( message: string, token: string, attachments: AttachmentResult[]) {
+    async function processContextTypeCreation(message: string, token: string, attachments: AttachmentResult[]) {
         let assistant_response = "";
         const recordMap = new Map();
         setIsLoading(true);
@@ -987,13 +1004,13 @@ export function AIChat() {
 
             const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
             let typeContent = response.typesCode;
-            const newRecords = extractRecordTypes(typeContent); 
+            const newRecords = extractRecordTypes(typeContent);
 
             let fileContent = "";
             let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
             if (fileExists) {
-                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath  });
-                typeContent = `${fileContent}\n${response.typesCode}`; 
+                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+                typeContent = `${fileContent}\n${response.typesCode}`;
             }
 
             for (const record of newRecords) {
@@ -1001,7 +1018,7 @@ export function AIChat() {
                     throw new Error(`Record "${record.name}" already exists in the workspace.`);
                 }
             }
-            
+
             assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
 
             assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
@@ -1496,10 +1513,10 @@ function identifyLanguage(segmentText: string): string {
     }
 }
 
-function extractRecordTypes(typesCode: string): { name: string, code: string }[] {
+function extractRecordTypes(typesCode: string): { name: string; code: string }[] {
     const recordPattern = /\b(?:public|private)?\s*type\s+(\w+)\s+record\s+(?:{[|]?|[|]?{)[\s\S]*?;?\s*[}|]?;/g;
     const matches = [...typesCode.matchAll(recordPattern)];
-    return matches.map(match => ({
+    return matches.map((match) => ({
         name: match[1],
         code: match[0].trim(),
     }));
