@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { CSSProperties, ReactNode, useCallback, useRef, useState } from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
@@ -322,6 +322,27 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         );
     }
 
+    const actionButtons = useMemo(() => {
+        if (!value.isExpression) {
+            return [];
+        }
+
+        return [
+            ...(isExActive ? [{
+                tooltip: 'Open Expression Editor',
+                iconType: 'codicon' as any,
+                name: 'edit',
+                onClick: () => openExpressionEditor(value, onChange)
+            }] : []),
+            {
+                tooltip: 'Open Helper Pane',
+                iconType: 'icon' as any,
+                name: 'function-icon',
+                onClick: () => handleChangeHelperPaneState(!isHelperPaneOpen)
+            }
+        ];
+    }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
+
     return (
         <S.Container id={id} sx={sx}>
             <S.Header>
@@ -374,10 +395,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     })}
                     {...(expressionType !== 'xpath/jsonPath' && value.isExpression && {
                         completions,
+                        actionButtons,
                         isHelperPaneOpen,
                         changeHelperPaneState: handleChangeHelperPaneState,
                         getHelperPane: handleGetHelperPane,
-                        onFunctionEdit: handleFunctionEdit,
+                        onFunctionEdit: handleFunctionEdit
                     })}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
