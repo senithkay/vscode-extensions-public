@@ -72,11 +72,6 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 					return;
 				}
 
-				let elementAccessSuffix = '';
-				if (mappingType === MappingType.ArrayToSingleton) {
-					elementAccessSuffix = genArrayElementAccessSuffix(sourcePort, targetPort);
-				}
-
                 const targetPortHasLinks = Object.values(targetPort.links)
                     ?.some(link => link instanceof DataMapperLinkModel && link.isActualLink);
                 const valueType = getValueType(lm);

@@ -26,19 +26,30 @@ export async function createNewMapping(link: DataMapperLinkModel) {
 	const input = (link.getSourcePort() as InputOutputPortModel).optionalOmittedFieldFQN;
 	const outputPortParts = outputPortModel.portName.split('.');
 	const isWithinArray = outputPortParts.some(part => !isNaN(Number(part)));
+	const model = targetNode.context.model;
 
 	if (isWithinArray) {
-		createNewMappingWithinArray(outputPortParts.slice(1), input, targetNode.context.model);
+		createNewMappingWithinArray(outputPortParts.slice(1), input, model);
 		const updatedMappings = mappings;
 		return await targetNode.context.applyModifications(updatedMappings);
 	} else {
-		const newMapping = {
-			output: outputPortParts.slice(1).join('.'),
-			inputs: [input],
-			expression: input
-		};
-	
-		mappings.push(newMapping);
+		const mappingFindingVisitor = new MappingFindingVisitor(outputPortParts.slice(1).join('.'));
+        traverseNode(model, mappingFindingVisitor);
+        const targetMapping = mappingFindingVisitor.getTargetMapping();
+
+		if (targetMapping) {
+			// Overwrite the existing mapping with default value
+			targetMapping.expression = input;
+			targetMapping.inputs.push(input);
+		} else {
+			const newMapping = {
+				output: outputPortParts.slice(1).join('.'),
+				inputs: [input],
+				expression: input
+			};
+		
+			mappings.push(newMapping);
+		}
 	}
 
 	return await targetNode.context.applyModifications(mappings);
@@ -119,6 +130,10 @@ function createNewMappingWithinArray(outputPortParts: string[], input: string, m
 					expression: input,
 					elements: []
 				});
+			} else if (isNaN(arrayIndex)) {
+				// When mapped directly to an array element
+				targetMapping.expression = input;
+				targetMapping.inputs.push(input);
 			} else {
 				const newMapping: Mapping = {
 					output: targetId,

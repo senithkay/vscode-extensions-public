@@ -253,7 +253,7 @@ export const ExpressionEditor = forwardRef<ExpressionBarRef, ExpressionEditorPro
                     line: effectiveTargetLineRange.startLine.line,
                     offset: effectiveTargetLineRange.startLine.offset,
                 },
-                propertyKey: field.type,
+                propertyKey: field.key,
                 editorKey: field.key
             }});
             handleOnFieldFocus?.(field.key);
