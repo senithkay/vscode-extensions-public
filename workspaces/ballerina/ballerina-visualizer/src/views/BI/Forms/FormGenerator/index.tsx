@@ -24,6 +24,7 @@ import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
     convertToFnSignature,
+    convertToHelperPaneConfigurableVariable,
     convertToHelperPaneFunction,
     convertToHelperPaneVariable,
     convertToVisibleTypes,
@@ -36,7 +37,8 @@ import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
+import { URI, Utils } from "vscode-uri";
 
 interface FormProps {
     fileName: string;
@@ -83,6 +85,7 @@ export function FormGenerator(props: FormProps) {
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
     const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
+    const [configVariableInfo, setConfigVariableInfo] = useState<HelperPaneData>();
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
@@ -425,6 +428,24 @@ export function FormGenerator(props: FormProps) {
                         .then(() => setIsLoadingHelperPaneInfo(false));
                     break;
                 }
+                case 'configurable': {
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getVisibleVariableTypes({
+                            filePath: fileName,
+                            position: {
+                                line: targetLineRange.startLine.line,
+                                offset: targetLineRange.startLine.offset
+                            }
+                        })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setConfigVariableInfo(convertToHelperPaneConfigurableVariable(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
+                    break;
+                }
                 case 'functions': {
                     rpcClient
                         .getBIDiagramRpcClient()
@@ -483,6 +504,21 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    function handleSaveConfigurables(values: any): void {
+        rpcClient.getVisualizerLocation().then((location) => {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .updateConfigVariables({
+                    configVariable: values,
+                    configFilePath: Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath
+                })
+                .then((response: any) => {
+                    console.log(">>> Config variables------", response);
+                    getHelperPaneData('configurable', '');
+                });
+        });
+    }
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -493,19 +529,22 @@ export function FormGenerator(props: FormProps) {
             retrieveVisibleTypes: handleGetVisibleTypes,
             isLoadingHelperPaneInfo: isLoadingHelperPaneInfo,
             variableInfo: variableInfo,
+            configVariableInfo: configVariableInfo,
             functionInfo: functionInfo,
             libraryBrowserInfo: libraryBrowserInfo,
             getHelperPaneData: handleGetHelperPaneData,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
-            onCancel: handleExpressionEditorCancel
+            onCancel: handleExpressionEditorCancel,
+            onSaveConfigurables: handleSaveConfigurables,
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
         filteredTypes,
         isLoadingHelperPaneInfo,
         variableInfo,
+        configVariableInfo,
         functionInfo,
         libraryBrowserInfo,
         handleRetrieveCompletions,
@@ -565,3 +604,6 @@ export function FormGenerator(props: FormProps) {
 }
 
 export default FormGenerator;
+
+
+

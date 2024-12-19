@@ -7,22 +7,138 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, TextField } from '@wso2-enterprise/ui-toolkit';
+import { HelperPaneVariableInfo } from '../../../Form/types';
+import styled from '@emotion/styled';
+import { Colors } from '../../../../resources/constants';
+import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 
 type ConfigurablePageProps = {
     isLoading: boolean;
+    variableInfo: HelperPaneVariableInfo;
     setCurrentPage: (page: number) => void;
     setFilterText: (filterText: string) => void;
     onClose: () => void;
+    onChange: (value: string) => void;
+    onSave: (values: any) => Promise<void>;
 };
 
-export const ConfigurablePage = ({ isLoading, setCurrentPage, setFilterText, onClose }: ConfigurablePageProps) => {
+namespace S {
+
+    export const PrimaryButton = styled(Button)`
+        appearance: "primary";
+        background-color: ${Colors.PRIMARY};
+    `;
+
+    export const SecondaryButton = styled(Button)`
+        appearance: "secondary";
+        background-color: ${Colors.SECONDARY};
+        margin-left: 20px;
+    `;
+
+    export const ButtonPanel = styled.div`
+        display: flex;
+        margin-top: 20px;
+    `;
+
+}
+
+export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setFilterText, onClose, onChange, onSave }: ConfigurablePageProps) => {
+    const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
+    const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
+    const [confName, setConfName] = useState<string>('');
+    const [confValue, setConfValue] = useState<string>('');
+
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            setFilterText('');
+        }
+    }, []);
 
     const handleSearch = (searchText: string) => {
         setFilterText(searchText);
         setSearchValue(searchText);
+    };
+
+    const variable: ConfigVariable = {
+        "id": "",
+        "metadata": {
+            "label": "Config",
+            "description": "Create a configurable variable"
+        },
+        "codedata": {
+            "node": "CONFIG_VARIABLE",
+            "lineRange": {
+                "fileName": "config.bal",
+                "startLine": {
+                    "line": 0,
+                    "offset": 0
+                },
+                "endLine": {
+                    "line": 0,
+                    "offset": 0
+                }
+            }
+        },
+        "returning": false,
+        "properties": {
+            "type": {
+                "metadata": {
+                    "label": "Type",
+                    "description": "Type of the variable"
+                },
+                "valueType": "TYPE",
+                "value": "",
+                "optional": false,
+                "advanced": false,
+                "editable": true
+            },
+            "variable": {
+                "metadata": {
+                    "label": "Variable",
+                    "description": "Name of the variable"
+                },
+                "valueType": "IDENTIFIER",
+                "value": "",
+                "optional": false,
+                "advanced": false,
+                "editable": true,
+            },
+            "defaultable": {
+                "metadata": {
+                    "label": "Default value",
+                    "description": "Default value for the config, if empty your need to provide a value at runtime"
+                },
+                "valueType": "EXPRESSION",
+                "value": "",
+                "optional": true,
+                "advanced": true,
+                "editable": true
+            }
+        },
+        branches: []
+    };
+
+    const handleSave = () => {
+        variable.properties.variable.value = confName;
+        variable.properties.defaultable.value =
+            confValue === "" || confValue === null ?
+                "?"
+                : '"' + confValue + '"';
+        variable.properties.defaultable.optional = true;
+        variable.properties.type.value = "anydata";
+
+        onSave(variable as any)
+            .then(() => {
+            setIsFormVisible(false);
+            setCurrentPage(3);
+            })
+            .catch((error) => {
+            console.error('Failed to save variable:', error);
+            });
     };
 
     return (
@@ -35,19 +151,63 @@ export const ConfigurablePage = ({ isLoading, setCurrentPage, setFilterText, onC
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                <HelperPane.CompletionItem
-                    label="key1"
-                    type="string"
-                    onClick={() => setCurrentPage(1)}
-                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                />
-                <HelperPane.CompletionItem
-                    label="key2"
-                    type="int"
-                    onClick={() => setCurrentPage(1)}
-                    getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
-                />
+                {!isFormVisible ?
+                    <>
+                        {variableInfo?.category.map((category) => (
+                            <React.Fragment key={category.label}>
+                                {category.items.map((item, index) => (
+                                    <HelperPane.CompletionItem
+                                        key={index}
+                                        label={item.label}
+                                        type={item.type}
+                                        onClick={() => onChange(item.label)}
+                                        getIcon={() => getIcon(COMPLETION_ITEM_KIND.Variable)}
+                                    />
+                                ))}
+                            </React.Fragment>
+                        ))}
+                    </>
+                    :
+
+                    <HelperPane.Section title="Create New Configurable Variable">
+                        <TextField
+                            label="Variable Name"
+                            placeholder="Enter a name for the variable"
+                            value={confName}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfName(e.currentTarget.value)}
+                            sx={{ marginBottom: '20px' }}
+                        />
+                        <TextField
+                            label="Value"
+                            placeholder="Enter a value for the variable"
+                            value={confValue}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfValue(e.currentTarget.value)}
+                        />
+                        <S.ButtonPanel>
+                            <S.PrimaryButton onClick={handleSave}>
+                                Save
+                            </S.PrimaryButton>
+                            <S.SecondaryButton onClick={() => setIsFormVisible(false)}>
+                                Cancel
+                            </S.SecondaryButton>
+                        </S.ButtonPanel>
+                    </HelperPane.Section>
+                }
+
             </HelperPane.Body>
+
+            {
+                !isFormVisible &&
+                <HelperPane.Footer>
+                    <HelperPane.IconButton
+                        title="Create New Configurable Variable"
+                        getIcon={() => <Codicon name="add" />}
+                        onClick={() => setIsFormVisible(true)}
+                    />
+                </HelperPane.Footer>
+
+            }
+
         </>
     );
 };
