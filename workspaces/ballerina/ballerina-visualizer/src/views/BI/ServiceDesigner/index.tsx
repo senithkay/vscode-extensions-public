@@ -48,25 +48,25 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const { rpcClient } = useRpcContext();
     const [serviceModel, setServiceModel] = useState<ServiceModel>(undefined);
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
 
-    useEffect(() => {
+    const initService = () => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
         rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({ filePath, codedata: { lineRange } }).then(res => {
             console.log("Service Model: ", res.service);
             setServiceModel(res.service);
         })
-    }, []);
+    }
 
-
-
-    const [isSaving, setIsSaving] = useState<boolean>(false);
+    useEffect(() => {
+        initService();
+    }, [position]);
 
     const handleOpenDiagram = (resource: Resource) => {
         rpcClient.getVisualizerLocation().then(res => {
             rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: resource.position, documentUri: res.documentUri } })
         })
     }
-
 
     const handlServiceSubmit = async (value: ServiceModel) => {
         setIsSaving(true);

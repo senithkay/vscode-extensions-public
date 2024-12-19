@@ -85,6 +85,7 @@ export interface PropertyModel {
     enabled: boolean;
     editable: boolean;
     value: string;
+    values: string[];
     valueType: string;
     valueTypeConstraint: string;
     isType: boolean;

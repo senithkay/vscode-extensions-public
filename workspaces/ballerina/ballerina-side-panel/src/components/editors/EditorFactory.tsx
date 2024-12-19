@@ -23,6 +23,7 @@ import { FileSelect } from "./FileSelect";
 import { CheckBoxEditor } from "./CheckBoxEditor";
 import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
+import { ChoiceForm } from "./ChoiceForm";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -49,6 +50,8 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 break;
         }
         return <MultiSelectEditor field={field} label={label} />;
+    } else if (field.type === "CHOICE") {
+        return <ChoiceForm field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {

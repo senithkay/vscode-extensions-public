@@ -45,6 +45,7 @@ import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { Uri, commands, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
+import { existsSync, writeFileSync } from "fs";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
@@ -98,7 +99,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 const res: ListenersResponse = await context.langClient.getListeners(params);
                 resolve(res);
@@ -125,7 +126,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 const res: ListenerSourceCodeResponse = await context.langClient.updateListenerSourceCode(params);
                 const position = await this.updateSource(res);
@@ -148,7 +149,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 const res: ServiceModelResponse = await context.langClient.getServiceModel(params);
                 resolve(res);
@@ -163,7 +164,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 const listenerName = params.service.properties["listener"].value;
                 const res: ListenerSourceCodeResponse = await context.langClient.updateServiceSourceCode(params);
@@ -211,7 +212,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
                 const position = await this.updateSource(res);
@@ -232,6 +233,9 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         for (const [key, value] of Object.entries(params.textEdits)) {
             const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
+            if (!existsSync(fileUri.path)) {
+                writeFileSync(fileUri.path, '');
+            }
             const edits = value;
 
             if (edits && edits.length > 0) {

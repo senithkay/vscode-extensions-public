@@ -237,7 +237,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
 export async function createBITrigger(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `triggers.bal`);
+        const targetFile = path.join(projectDir, `main.bal`);
         if (!fs.existsSync(targetFile)) {
             fs.writeFileSync(targetFile, '');
         }
@@ -272,7 +272,7 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
 export async function createBITriggerListener(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `triggers.bal`);
+        const targetFile = path.join(projectDir, `main.bal`);
         if (!fs.existsSync(targetFile)) {
             fs.writeFileSync(targetFile, '');
         }

@@ -69,13 +69,23 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
 
     useEffect(() => {
         serviceModel && setServiceFields(convertConfig(serviceModel));
-        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'triggers.bal').fsPath) });
+        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [serviceModel]);
 
     const handleListenerSubmit = async (data: FormValues) => {
         serviceFields.forEach(val => {
-            if (data[val.key]) {
-                val.value = data[val.key]
+            if (val.type === "CHOICE") {
+                val.choices.forEach((choice, index) => {
+                    choice.enabled = false;
+                    if (data[val.key] === index) {
+                        choice.enabled = true;
+                        for (const key in choice.properties) {
+                            choice.properties[key].value = data[key];
+                        }
+                    }
+                })
+            } else if (data[val.key]) {
+                val.value = data[val.key];
             }
         })
         const response = updateConfig(serviceFields, serviceModel);
@@ -137,9 +147,11 @@ function convertConfig(listener: ServiceModel): FormField[] {
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: [""].concat(expression.items),
+            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items,
+            choices: expression.choices,
             placeholder: expression.placeholder
         }
+
         formFields.push(formField);
     }
     return formFields;
@@ -147,8 +159,12 @@ function convertConfig(listener: ServiceModel): FormField[] {
 
 function updateConfig(formFields: FormField[], listener: ServiceModel): ServiceModel {
     formFields.forEach(field => {
-        const value = field.value as string;
-        listener.properties[field.key].value = value;
+        const value = field.value;
+        if (field.type === "MULTIPLE_SELECT") {
+            listener.properties[field.key].values = value as string[];
+        } else {
+            listener.properties[field.key].value = value as string;
+        }
         if (value && value.length > 0) {
             listener.properties[field.key].enabled = true;
         }

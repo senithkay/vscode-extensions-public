@@ -665,6 +665,7 @@ importers:
       '@types/react': ^17.0.14
       '@types/react-dom': ^17.0.9
       '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       lodash: ~4.17.21
@@ -676,6 +677,7 @@ importers:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
       '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       lodash: 4.17.21
       react: 18.2.0

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, PropertyModel } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
@@ -28,6 +28,7 @@ export type FormField = {
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    choices?: PropertyModel[];
     paramManagerProps?: ParamConfig;
     valueTypeConstraint: string;
     groupNo?: number;

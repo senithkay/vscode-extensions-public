@@ -58,7 +58,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
     useEffect(() => {
         functionModel && setFunctionFields(convertConfig(functionModel));
-        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'triggers.bal').fsPath) });
+        rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
     }, [functionModel]);
 
     const handleListenerSubmit = async (data: FormValues) => {
