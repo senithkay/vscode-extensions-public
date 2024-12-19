@@ -272,12 +272,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
-        if (isOpen) {
-            expressionRef.current?.focus();
-        } else {
-            expressionRef.current?.blur();
-        }
-
         setIsHelperPaneOpen(isOpen);
     }
 
