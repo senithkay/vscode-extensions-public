@@ -70,6 +70,14 @@
                 "additionalProperties": {
                   "type": "string"
                 }
+              },
+              "vmArgs": {
+                "type": "array",
+                "description": "Arguments to pass to the MI server",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
               }
             }
           }
@@ -79,7 +87,8 @@
             "type": "mi",
             "name": "MI: Run and Debug",
             "request": "launch",
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "vmArgs": []
           }
         ]
       }
