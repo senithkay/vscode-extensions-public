@@ -83,9 +83,9 @@ export async function updateExistingMapping(link: DataMapperLinkModel) {
 export async function addValue(fieldId: string, value: string, context: IDataMapperContext) {
 	const { mappings } = context.model;
 
-	const newMapping = {
-		output: fieldId,
-		inputs: [value],
+	const newMapping: Mapping = {
+		output: fieldId.split('.').slice(1).join('.'),
+		inputs: [],
 		expression: value
 	};
 

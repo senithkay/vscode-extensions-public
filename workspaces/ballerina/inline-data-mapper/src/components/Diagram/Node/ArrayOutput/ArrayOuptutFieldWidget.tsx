@@ -354,7 +354,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         <FieldActionWrapper>
                             <ValueConfigMenu
                                 menuItems={valConfigMenuItems}
-                                isDisabled={!typeName}
                                 portName={portIn?.getName()}
                             />
                         </FieldActionWrapper>
