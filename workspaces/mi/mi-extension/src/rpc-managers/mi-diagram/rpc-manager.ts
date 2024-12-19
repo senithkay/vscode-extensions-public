@@ -333,8 +333,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const projectUri = StateMachine.context().projectUri!;
             const payloadPath = path.join(projectUri, ".tryout", "input.json");
-            const payload = fs.readFileSync(payloadPath, "utf8");
-            // const payloadJson = JSON.parse(payload);
+            const payload = fs.existsSync(payloadPath) ? fs.readFileSync(payloadPath, "utf8") : '';
+
             params.inputPayload = payload
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.tryOutMediator(params);
