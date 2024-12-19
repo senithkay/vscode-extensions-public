@@ -98,6 +98,28 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
         })
     );
 
+    // Listen for pom changes and update dependencies
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeTextDocument(async (event) => {
+            if (event.document.uri.fsPath.endsWith('pom.xml')) {
+                const langClient = StateMachine.context().langClient;
+                const confirmUpdate = await vscode.window.showInformationMessage(
+                    'The pom.xml file has been modified. Do you want to update the dependencies?',
+                    'Yes',
+                    'No'
+                );
+
+                if (confirmUpdate === 'Yes') {
+                    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+                    statusBarItem.text = '$(sync) Updating dependencies...';
+                    statusBarItem.show();
+                    await langClient?.updateConnectorDependencies();
+                    statusBarItem.hide();
+                }
+            }
+        })
+    );
+
     StateMachine.service().onTransition((state) => {
         if (state.event.viewLocation?.view) {
             const documentUri = state.event.viewLocation?.documentUri?.toLowerCase();

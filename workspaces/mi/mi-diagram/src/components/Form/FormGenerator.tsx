@@ -8,18 +8,19 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AutoComplete, CheckBox, Codicon, ComponentCard, FormCheckBox, FormGroup, Icon, LinkButton, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, CheckBox, Codicon, ComponentCard, FormGroup, Icon, LinkButton, RequiredFormInput, TextArea, TextField, Tooltip, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { Controller } from 'react-hook-form';
 import React from 'react';
-import { ExpressionFieldValue, ExpressionField, ParamManager, ParamField, Keylookup, FormKeylookup, FormExpressionField } from '.';
+import { ExpressionFieldValue, Keylookup, FormExpressionField } from '.';
 import ExpressionEditor from '../sidePanel/expressionEditor/ExpressionEditor';
-import { handleOpenExprEditor, sidepanelAddPage, sidepanelGoBack } from '../sidePanel';
+import { handleOpenExprEditor, sidepanelGoBack } from '../sidePanel';
 import SidePanelContext from '../sidePanel/SidePanelContexProvider';
-import { getParamManagerFromValues, getParamManagerOnChange, openPopup, deriveDefaultValue } from './common';
+import { openPopup, deriveDefaultValue } from './common';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import ParameterManager from './GigaParamManager/ParameterManager';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -79,12 +80,18 @@ interface ExpressionValueWithSetter {
 };
 
 
+export function getNameForController(name: string | number) {
+    if (name === 'configRef') {
+        return 'configKey';
+    }
+    return String(name).replace(/\./g, '__dot__');
+}
+
 export function FormGenerator(props: FormGeneratorProps) {
     const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const {
         formData,
-        onEdit,
         control,
         errors,
         setValue,
@@ -95,7 +102,6 @@ export function FormGenerator(props: FormGeneratorProps) {
         ignoreFields,
         connections,
         addNewConnection,
-        autoGenerateSequences,
         range
     } = props;
     const [currentExpressionValue, setCurrentExpressionValue] = useState<ExpressionValueWithSetter | null>(null);
@@ -130,16 +136,29 @@ export function FormGenerator(props: FormGeneratorProps) {
     }
 
     function getDefaultValue(element: any) {
+        const name = getNameForController(element.value.name);
         const type = element.type;
         const value = element.value;
         const inputType = value.inputType;
         const deriveResponseVariable = value.deriveResponseVariable ?? false;
         const defaultValue = deriveResponseVariable ? deriveDefaultValue(formData.connectorName, formData.operationName) : value.defaultValue;
-        const currentValue = value.currentValue ?? defaultValue;
+        const currentValue = value.currentValue ?? defaultValue ?? getValues(name);
         deriveDefaultValue(formData.connectorName, formData.operationName);
 
         if (type === 'table') {
-            return getParamManagerConfig(value.elements, value.tableKey, value.tableValue, currentValue);
+            const valueObj: any[] = [];
+            currentValue?.forEach((param: any[]) => {
+                const val: any = {};
+                value.elements.forEach((field: any, index: number) => {
+                    const fieldName = getNameForController(field.value.name);
+                    const fieldValue = param[index];
+
+                    val[fieldName] = fieldValue;
+                });
+                valueObj.push(val);
+            });
+
+            return valueObj;
         } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
             return { isExpression: inputType === "expression", value: currentValue ?? "" };
@@ -148,65 +167,6 @@ export function FormGenerator(props: FormGeneratorProps) {
         } else {
             return currentValue ?? "";
         }
-    }
-
-    function getNameForController(name: string | number) {
-        if (name === 'configRef') {
-            return 'configKey';
-        }
-        return String(name).replace(/\./g, '__dot__');
-    }
-
-    const ExpressionFieldComponent = ({ element, canChange, field, helpTipElement, placeholder, isRequired }: { element: Element, canChange: boolean, field: any, helpTipElement: React.JSX.Element, placeholder: string, isRequired: boolean }) => {
-        const name = getNameForController(element.name);
-
-        return (
-            <FormExpressionField
-                {...field}
-                label={element.displayName}
-                required={isRequired}
-                placeholder={placeholder}
-                nodeRange={range}
-            />
-        )
-        return expressionEditorField !== name ? (
-            <ExpressionField
-                {...field}
-                label={element.displayName}
-                labelAdornment={helpTipElement}
-                placeholder={placeholder}
-                canChange={canChange}
-                required={isRequired}
-                isTextArea={element.inputType === 'textAreaOrExpression'}
-                errorMsg={errors[name] && errors[name].message.toString()}
-                openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => {
-                    setCurrentExpressionValue({ value, setValue });
-                    setExpressionEditorField(name);
-                }}
-            />
-        ) : (
-            <>
-                <div style={{ display: "flex", alignItems: "center", gap: '10px' }}>
-                    <label>{element.displayName}</label>
-                    {element.required === "true" && <RequiredFormInput />}
-                    <div style={{ paddingTop: '5px' }}>
-                        {helpTipElement}
-                    </div>
-                </div>
-                <ExpressionEditor
-                    value={currentExpressionValue.value || { isExpression: false, value: '', namespaces: [] }}
-                    handleOnSave={(newValue) => {
-                        if (currentExpressionValue) {
-                            currentExpressionValue.setValue(newValue);
-                        }
-                        setExpressionEditorField(null);
-                    }}
-                    handleOnCancel={() => {
-                        setExpressionEditorField(null);
-                    }}
-                />
-            </>
-        )
     }
 
     function ParamManagerComponent(element: Element, isRequired: boolean, helpTipElement: React.JSX.Element, field: any) {
@@ -220,14 +180,12 @@ export function FormGenerator(props: FormGeneratorProps) {
             </div>
             <Typography variant="body3">{element.description}</Typography>
 
-            <ParamManager
-                paramConfigs={field.value}
-                readonly={false}
-                addParamText={element.addParamText}
-                onChange={(values) => {
-                    values.paramValues = getParamManagerOnChange(element, values);
-                    field.onChange(values);
-                }} />
+            <ParameterManager
+                formData={element}
+                parameters={field.value}
+                setParameters={field.onChange}
+                nodeRange={range}
+            />
         </ComponentCard>;
     }
 
@@ -241,6 +199,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 required={isRequired}
                 placeholder={element.placeholder}
                 nodeRange={range}
+                canChange={element.inputType !== 'expression'}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -423,6 +382,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (<CodeTextArea
                     {...field}
                     label={element.displayName}
+                    labelAdornment={helpTipElement}
                     placeholder={placeholder}
                     required={isRequired}
                     resize="vertical"
@@ -485,115 +445,6 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return null;
         }
     };
-
-    const getParamManagerConfig = (elements: any[], tableKey: string, tableValue: string, values?: any[]) => {
-        let paramFields: any = [];
-
-        const tableKeys: string[] = [];
-        elements.forEach((attribute: any) => {
-            const { name, displayName, enableCondition, inputType, required, comboValues, helpTip, placeholder } = attribute.value;
-            let defaultValue: any = attribute.value.defaultValue;
-
-            tableKeys.push(name);
-            const isRequired = required == true || required == 'true';
-
-            const helpTipElement = helpTip ? (
-                <Tooltip
-                    content={helpTip}
-                    position='right'
-                >
-                    <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
-                </Tooltip>
-            ) : null;
-
-            let type;
-            if (attribute.type === 'table') {
-                type = 'ParamManager';
-            } else if (inputType === 'string' || inputType === 'registry') {
-                type = 'TextField';
-            } else if (inputType === 'stringOrExpression' || inputType === 'expression') {
-                type = 'ExprField';
-                let isExpression = inputType === 'expression';
-                defaultValue = { isExpression: isExpression, value: defaultValue };
-            } else if (inputType === 'connection' || inputType === 'comboOrExpression' || inputType === 'combo') {
-                type = 'Dropdown';
-            } else if (inputType === 'checkbox') {
-                type = "Checkbox";
-                if (!defaultValue) {
-                    defaultValue = false;
-                }
-            } else if (inputType == "key" || inputType == "keyOrExpression") {
-                type = "KeyLookup";
-            }
-
-            const paramField: ParamField =
-            {
-                type: type as any,
-                label: displayName,
-                labelAdornment: helpTipElement,
-                placeholder: placeholder,
-                defaultValue: defaultValue,
-                isRequired: isRequired,
-                ...(type === 'ExprField') && { canChange: inputType === 'stringOrExpression' },
-                ...(type === 'Dropdown') && { values: comboValues },
-                ...(type === 'KeyLookup') && { filterType: attribute.value.keyType },
-                ...(enableCondition) && { enableCondition: generateParammanagerCondition(enableCondition, tableKeys) },
-            };
-
-            if (type === 'ExprField') {
-                paramField.openExpressionEditor = (value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef);
-
-            } else if (type === 'ParamManager') {
-                const { paramValues: paramValues2, paramFields: paramFields2 } = getParamManagerConfig(attribute.value.elements, tableKey, tableValue);
-                paramField.paramManager = {
-                    paramConfigs: {
-                        paramValues: paramValues2,
-                        paramFields: paramFields2
-                    },
-                    openInDrawer: true,
-                    addParamText: `New ${displayName}`
-                };
-            }
-            paramFields.push(paramField);
-        })
-
-        let keyIndex = tableKeys.indexOf(tableKey) ?? 0;
-        let valueIndex = tableKeys.indexOf(tableValue) ?? 1;
-        const paramValues = values ? getParamManagerFromValues(values, keyIndex, valueIndex) : [];
-        return { paramValues, paramFields };
-
-        function generateParammanagerCondition(enableCondition: any[], keys: string[]) {
-            enableCondition.forEach((conditionElement: any) => {
-                if (Array.isArray(conditionElement)) {
-                    return generateParammanagerCondition(conditionElement, keys);
-                }
-                if (typeof conditionElement !== 'object') {
-                    return;
-                }
-                const condition = Object.keys(conditionElement)[0];
-                const conditionKey = keys.indexOf(condition);
-                const value = conditionElement[condition];
-                delete conditionElement[condition];
-                conditionElement[conditionKey] = value;
-            });
-
-            return enableCondition;
-        }
-
-        function handleOpenExprEditor(value: ExpressionFieldValue, setValue: any, handleOnCancelExprEditorRef: any) {
-            const content = <ExpressionEditor
-                value={value}
-                handleOnSave={(value) => {
-                    setValue(value);
-                    handleOnCancelExprEditorRef.current();
-                }}
-                handleOnCancel={() => {
-                    handleOnCancelExprEditorRef.current();
-                }}
-            />;
-            sidepanelAddPage(sidePanelContext, content, "Expression Editor");
-        }
-    }
 
     const renderForm: any = (elements: any[]) => {
         return elements.map((element: { type: string; value: any; }) => {
@@ -718,7 +569,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
-                {formData.help && (
+                {formData.help && !ignoreFields?.includes('connectionName') && (
                     <div style={{
                         padding: "10px",
                         marginBottom: "20px",

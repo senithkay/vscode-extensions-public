@@ -19,6 +19,7 @@ import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Codicon, LinkButton, Typography } from '@wso2-enterprise/ui-toolkit';
 import { FilterType } from '../Keylookup/Keylookup';
 import { ResourceType } from "@wso2-enterprise/mi-core";
+import { Range } from 'vscode-languageserver-types';
 
 export interface ParamValue {
     value: string | boolean | ExpressionFieldValue | ParamConfig;
@@ -83,6 +84,7 @@ export interface ParamManagerProps {
     addParamText?: string;
     allowAddItem?: boolean;
     errorMessage?: string;
+    nodeRange?: Range;
 }
 
 const AddButtonWrapper = styled.div`
@@ -346,7 +348,7 @@ const getAddParamTextFromParamId = (paramFields: ParamField[], paramId: number) 
 
 export function ParamManager(props: ParamManagerProps) {
     const { paramConfigs, readonly, openInDrawer,
-        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage
+        addParamText = "Add Parameter", onChange, allowAddItem = true, errorMessage, nodeRange
     } = props;
 
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
@@ -381,6 +383,7 @@ export function ParamManager(props: ParamManagerProps) {
                 artifactTypes: geArtifactTypeParamFromParamId(paramConfigs.paramFields, id),
                 openInDrawer: getPramOpenInDrawerFromParamId(paramConfigs.paramFields, id),
                 addParamText: getAddParamTextFromParamId(paramConfigs.paramFields, id),
+                nodeRange,
                 ...(type === 'ParamManager') && { paramFields: paramConfigs.paramFields[id].paramManager.paramConfigs.paramFields }
             };
             return param;

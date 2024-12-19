@@ -81,7 +81,7 @@ export function Mediators(props: MediatorProps) {
 
         if (mediator.tag.includes('.')) {
             const connecterForm = <AddConnector formData={mediatorDetails}
-                nodePosition={sidePanelContext.nodeRange}
+                nodePosition={props.nodePosition}
                 documentUri={props.documentUri}
                 connectorName={mediator.tag[0]}
                 operationName={mediator.operationName} />;

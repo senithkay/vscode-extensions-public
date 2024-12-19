@@ -45,7 +45,7 @@ const HelperPaneEl = ({
     paramInfo,
     onClose,
     setFilterText,
-    currentValue,
+    currentValue = "",
     onChange
 }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);

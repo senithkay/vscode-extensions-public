@@ -321,15 +321,6 @@ const AddConnector = (props: AddConnectorProps) => {
             documentUri: documentUri, range: nodePosition, text: modifiedXml
         });
 
-        if (connectorName === 'redis') {
-            rpcClient.getMiDiagramRpcClient().updateDependencyInPom({
-                groupId: "redis.clients",
-                artifactId: "jedis",
-                version: "3.6.0",
-                file: props.documentUri
-            });
-        }
-
         sidePanelContext.setSidePanelState({
             ...sidePanelContext,
             isOpen: false,
@@ -482,7 +473,8 @@ const AddConnector = (props: AddConnectorProps) => {
                             skipGeneralHeading={true}
                             ignoreFields={props.connectionName ? ["configRef"] : []}
                             connections={connections}
-                            addNewConnection={addNewConnection} />
+                            addNewConnection={addNewConnection}
+                            range={props.nodePosition} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                             <Button
                                 appearance="primary"
