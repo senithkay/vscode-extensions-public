@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { EVENT_TYPE, PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/api-designer-core';
+import { PopupMachineStateValue, MACHINE_VIEW, MachineStateValue } from '@wso2-enterprise/api-designer-core';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
-import { Overview } from './views/Overview';
 import styled from '@emotion/styled';
-import { APIDesignerView } from './views/NewAPIDesignerView/APIDesigner';
-
-const MainContainer = styled.div`
-    display: flex;
-    overflow: hidden;
-`;
-
-const MainContent = styled.div`
-    flex-grow: 1;
-`;
+import { APIDesignerView } from './views/APIDesignerView/APIDesigner';
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -89,7 +79,7 @@ const MainPanel = ({ handleResetError }: { handleResetError: () => void }) => {
             let shouldShowNavigator = true;
             switch (machineView?.view) {
                 case MACHINE_VIEW.Overview:
-                    setViewComponent(<Overview stateUpdated />);
+                    // setViewComponent(<Overview stateUpdated />);
                     break;
                 case MACHINE_VIEW.Welcome:
                     setViewComponent(<APIDesignerView fileUri={machineView.documentUri}/>);

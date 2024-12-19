@@ -12,7 +12,6 @@ import { useVisualizerContext } from "@wso2-enterprise/api-designer-rpc-client";
 import { convertOpenAPIStringToOpenAPI } from "../../components/Utils/OpenAPIUtils";
 import { OpenAPI } from "../../Definitions/ServiceDefinitions";
 import { debounce } from "lodash";
-import { Views } from "../../constants";
 import { MachineStateValue } from "@wso2-enterprise/api-designer-core";
 import { ApiDesigner } from "../../components/OpenAPIComponents/ApiDesigner/ApiDesigner";
 
