@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Connection, Diagram, EntryPoint, Project } from "@wso2-enterprise/component-diagram";
+import { Connection, Diagram, EntryPoint, Project } from "@wso2-enterprise/mi-component-diagram";
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse } from "@wso2-enterprise/mi-core";
