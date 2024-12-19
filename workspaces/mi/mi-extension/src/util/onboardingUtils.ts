@@ -483,7 +483,6 @@ export async function setJavaAndMIPathsInWorkspace(request: JavaAndMIPathRequest
             if (response.miPath) {
                 config.update(SELECTED_SERVER_PATH, validServerPath, vscode.ConfigurationTarget.Workspace);
                 extension.context.globalState.update(SELECTED_SERVER_PATH, validServerPath);
-                vscode.window.showWarningMessage('All the artifacts in the server will be cleaned.');
             } else {
                 response.miPath = { status: "not-found" };
                 vscode.window.showErrorMessage('Invalid Micro Integrator path or Unsupported version. Please set a valid Micro Integrator path');

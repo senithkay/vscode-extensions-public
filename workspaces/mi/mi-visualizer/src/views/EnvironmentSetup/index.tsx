@@ -470,6 +470,8 @@ export const EnvironmentSetup = () => {
                                             <Row>
                                                 <StepDescription>
                                                     Micro Integrator runtime {miDetails.miVersion} is required. Select MI path if you have already installed.
+                                                    <br />
+                                                    <strong>Note:</strong> All the artifacts in the server will be cleaned in this selected runtime.
                                                 </StepDescription>
                                             </Row>
                                             <Row>
