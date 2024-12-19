@@ -91,11 +91,6 @@ export namespace S {
         textTransform: 'capitalize',
     });
 
-    export const ExpressionIconContainer = styled.div({
-        marginLeft: 'auto',
-        marginRight: '44px'
-    });
-
     export const AdornmentContainer = styled.div({
         marginTop: '3.75px',
         marginBottom: '2.5px',
@@ -342,30 +337,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
-                <S.ExpressionIconContainer>
-                    {value.isExpression && (
-                        <>
-                            {isExActive && (
-                                <Button
-                                    tooltip="Open Expression editor"
-                                    appearance='icon'
-                                    onClick={() => openExpressionEditor(value, onChange)}
-                                    sx={{ height: '14px', width: '12px' }}
-                                >
-                                    <Codicon name="edit" iconSx={{ fontSize: '12px' }} sx={{ height: '12px', width: '12px' }} />
-                                </Button>
-                            )}
-                            <Button
-                                tooltip="Open Helper Pane"
-                                appearance='icon'
-                                onClick={() => handleChangeHelperPaneState(!isHelperPaneOpen)}
-                                sx={{ height: '14px', width: '12px' }}
-                            >
-                                <Icon name="function-icon" sx={{ color: 'var(--vscode-button-background)' }} />
-                            </Button>
-                        </>
-                    )}
-                </S.ExpressionIconContainer>
             </S.Header>
             <div>
                 <FormExpressionEditor
