@@ -78,3 +78,5 @@ export * from './components/Alert/Alert';
 export * from './components/View';
 
 export * from './components/Commons/Overlay';
+
+export * from './components/ImageWithFallback';
