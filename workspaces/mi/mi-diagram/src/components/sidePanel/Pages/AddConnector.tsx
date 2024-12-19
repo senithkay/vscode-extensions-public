@@ -473,7 +473,8 @@ const AddConnector = (props: AddConnectorProps) => {
                             skipGeneralHeading={true}
                             ignoreFields={props.connectionName ? ["configRef"] : []}
                             connections={connections}
-                            addNewConnection={addNewConnection} />
+                            addNewConnection={addNewConnection}
+                            range={props.nodePosition} />
                         <div style={{ display: "flex", textAlign: "right", justifyContent: "flex-end", marginTop: "10px" }}>
                             <Button
                                 appearance="primary"

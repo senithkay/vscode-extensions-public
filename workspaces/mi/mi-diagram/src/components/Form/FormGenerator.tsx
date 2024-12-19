@@ -184,6 +184,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 formData={element}
                 parameters={field.value}
                 setParameters={field.onChange}
+                nodeRange={range}
             />
         </ComponentCard>;
     }
@@ -198,6 +199,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 required={isRequired}
                 placeholder={element.placeholder}
                 nodeRange={range}
+                canChange={element.inputType !== 'expression'}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -380,6 +382,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 return (<CodeTextArea
                     {...field}
                     label={element.displayName}
+                    labelAdornment={helpTipElement}
                     placeholder={placeholder}
                     required={isRequired}
                     resize="vertical"

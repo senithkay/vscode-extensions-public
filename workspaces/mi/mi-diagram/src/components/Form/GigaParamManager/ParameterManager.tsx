@@ -14,6 +14,7 @@ import FormGenerator from '../FormGenerator';
 import { useForm } from 'react-hook-form';
 import { ExpressionFieldValue } from '../ExpressionField/ExpressionInput';
 import { Colors } from '../../../resources/constants';
+import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -76,10 +77,11 @@ export interface Param extends Array<any> {
 export interface ParameterManagerProps {
     formData: any;
     parameters?: Param[];
+    nodeRange?: Range;
     setParameters?: (params: Param[]) => void;
 }
 const ParameterManager = (props: ParameterManagerProps) => {
-    const { formData, parameters, setParameters } = props;
+    const { formData, nodeRange, parameters, setParameters } = props;
     const { addParamText, readonly, tableKey, tableValue } = formData;
     const { control, setValue, getValues, reset, watch, handleSubmit, formState: { errors } } = useForm();
 
@@ -132,6 +134,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
         return <FormWrapper>
             <FormGenerator
                 formData={formData}
+                range={nodeRange}
                 control={control}
                 errors={errors}
                 setValue={setValue}
