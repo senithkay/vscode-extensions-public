@@ -446,7 +446,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             )}
             
         </div>
-        {expanded && !(hasValue && arrayLitExpr) && (
+        {expanded && !hasValue && (
                 <OutputFieldPreviewWidget
                     engine={engine}
                     dmType={{...field.type.memberType, fieldName: `<${field.type.fieldName}Item>`}}

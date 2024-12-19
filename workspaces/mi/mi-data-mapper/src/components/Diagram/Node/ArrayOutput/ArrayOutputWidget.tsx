@@ -301,7 +301,7 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 						/>
 					</TreeBody>
 				)}
-				{expanded && !(hasValue && isBodyArrayLitExpr) && (
+				{expanded && !hasValue && (
 					<TreeBody>
 						<OutputFieldPreviewWidget
 							engine={engine}
