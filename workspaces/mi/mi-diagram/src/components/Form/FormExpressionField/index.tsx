@@ -175,7 +175,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             const machineView = await rpcClient.getVisualizerState();
             const completions = await rpcClient.getMiDiagramRpcClient().getExpressionCompletions({
                 documentUri: machineView.documentUri,
-                expression,
+                expression: expression,
                 position: nodeRange.start,
                 offset: cursorPosition,
             });
@@ -193,8 +193,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     ]);
 
     const handleExpressionChange = async (expression: string, updatedCursorPosition: number) => {
-        const enrichedExpression = enrichExpressionValue(expression, expressionType);
-        onChange({ ...value, value: enrichedExpression });
+        onChange({ ...value, value: enrichExpressionValue(expression, expressionType) });
         cursorPositionRef.current = updatedCursorPosition;
 
         // Only retrieve completions if the value is an expression
@@ -203,7 +202,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             handleChangeHelperPaneState(isHelperPaneOpen);
 
             if (!isHelperPaneOpen) {
-                retrieveCompletions(enrichedExpression, updatedCursorPosition);
+                retrieveCompletions(expression, updatedCursorPosition);
             }
         }
     };
@@ -357,7 +356,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     ref={expressionRef}
                     labelAdornment={labelAdornment}
                     disabled={disabled}
-                    value={extractExpressionValue(value.value, expressionType)}
+                    value={extractExpressionValue(value.value)}
                     placeholder={placeholder}
                     onChange={handleExpressionChange}
                     onFocus={handleFocus}
