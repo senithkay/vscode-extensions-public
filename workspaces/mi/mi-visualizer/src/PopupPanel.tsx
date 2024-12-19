@@ -92,7 +92,7 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     setViewComponent(
                         <AddConnection
                             connectionName={machineSate.customProps.connectionName}
-                            allowedConnectionTypes={machineSate.customProps.allowedConnectionTypes}
+                            connectionType={machineSate.customProps.connectionType}
                             connector={machineSate.customProps.connector}
                             fromSidePanel={machineSate.customProps.fromSidePanel}
                             isPopup={true}

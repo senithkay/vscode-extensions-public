@@ -24,10 +24,10 @@ const ParamManagerContainer = styled.div`
 
 export interface AddConnectionProps {
     path: string;
-    allowedConnectionTypes?: string[];
+    connectionType?: string;
     connector?: any;
     connectionName?: string;
-    changeConnector?: () => void;
+    changeConnectionType?: () => void;
     fromSidePanel?: boolean;
     isPopup?: boolean;
     handlePopupClose?: () => void;
@@ -36,7 +36,7 @@ export interface AddConnectionProps {
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
-    const { allowedConnectionTypes, handlePopupClose } = props;
+    const { handlePopupClose } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [formData, setFormData] = useState(undefined);
@@ -46,7 +46,7 @@ export function AddConnection(props: AddConnectionProps) {
             name: props.connectionName ?? ""
         }
     });
-    const [connectionType, setConnectionType] = useState(allowedConnectionTypes ? allowedConnectionTypes[0] : "");
+    const [connectionType, setConnectionType] = useState(props.connectionType ?? "");
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -106,7 +106,6 @@ export function AddConnection(props: AddConnectionProps) {
                 });
                 props.connector.name = connector.name;
 
-                const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
                 const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
                     documentUri: props.path  });
                 setConnectionType(connectionFound.connectionType);
@@ -328,8 +327,8 @@ export function AddConnection(props: AddConnectionProps) {
     const handleOnClose = () => {
         if (props.fromSidePanel) {
             handlePopupClose();
-        } else if (props.changeConnector) {
-            props.changeConnector();
+        } else if (props.changeConnectionType) {
+            props.changeConnectionType();
         } else {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
         }
@@ -360,7 +359,7 @@ export function AddConnection(props: AddConnectionProps) {
         <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
                 type={connectionType}
-                onClick={props.changeConnector}
+                onClick={props.changeConnectionType}
                 showButton={!props.connectionName}
                 id='Connection:'
             />}
