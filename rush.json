@@ -694,6 +694,11 @@
       "projectFolder": "workspaces/common-libs/component-diagram",
       "versionPolicyName": "ballerina-extension"
     },
+    {
+      "packageName": "@wso2-enterprise/mi-component-diagram",
+      "projectFolder": "workspaces/mi/mi-component-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/bi-overview",
     //   "projectFolder": "workspaces/bi/bi-overview",

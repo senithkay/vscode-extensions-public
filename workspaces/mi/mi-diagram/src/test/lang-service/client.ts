@@ -82,6 +82,7 @@ export class LanguageClient implements IMILangClient {
             };
 
             xml['xml']['extensionPath'] = [extensionRoot];
+            xml['xml']['miServerPath'] = "";
             xml['xml']['catalogs'] = [path.join(extensionRoot, "synapse-schemas", "catalog.xml")];
             xml['xml']['useCache'] = true;
             return xml;

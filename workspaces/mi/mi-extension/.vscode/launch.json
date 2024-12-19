@@ -15,10 +15,10 @@
             },
             "debugWebviews": true,
             "args": [
-                "--extensionDevelopmentPath=${fileWorkspaceFolder}"
+                "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [
-                "${fileWorkspaceFolder}/dist/**/*.js",
+                "${workspaceFolder}/dist/**/*.js",
             ],
             "skipFiles": [
                 "**/node_modules/**"
