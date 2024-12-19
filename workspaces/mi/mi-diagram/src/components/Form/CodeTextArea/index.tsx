@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, ReactNode } from "react";
 import { TextArea } from "@wso2-enterprise/ui-toolkit";
 
 interface RowRange {
@@ -22,6 +22,7 @@ interface CodeTextAreaProps {
     autoFocus?: boolean;
     required?: boolean;
     errorMsg?: string;
+    labelAdornment?: ReactNode;
     placeholder?: string;
     cols?: number;
     rows?: number;
