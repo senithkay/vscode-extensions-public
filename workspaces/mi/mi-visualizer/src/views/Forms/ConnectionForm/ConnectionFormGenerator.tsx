@@ -43,6 +43,7 @@ export function AddConnection(props: AddConnectionProps) {
     const [connections, setConnections] = useState([]);
     const [connectionSuccess, setConnectionSuccess] = useState(null);
     const [isTesting, setIsTesting] = useState(false);
+    const [connectionErrorMessage, setConnectionErrorMessage] = useState(null);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? ""
@@ -338,6 +339,8 @@ export function AddConnection(props: AddConnectionProps) {
 
     const testConnection = async (values: any) => {
         setIsTesting(true);
+        setConnectionSuccess(null);
+        setConnectionErrorMessage(null);
         try {
             const testResponse = await rpcClient.getMiDiagramRpcClient().testConnectorConnection({
                 connectorName: props.connector.name,
@@ -346,15 +349,12 @@ export function AddConnection(props: AddConnectionProps) {
             });
             setConnectionSuccess(testResponse.isConnectionValid);
             if (testResponse.errorMessage) {
-                if (!testResponse.isConnectionTested) {
-                    console.error("Test connection failed", testResponse.errorMessage);
-                } else if (!testResponse.isConnectionValid) {
-                    console.error("Connection parameters are incorrect", testResponse.errorMessage);
-                }
+                setConnectionErrorMessage(testResponse.errorMessage);
             }
         } catch (error) {
             console.error("Error in testing connection", error);
             setConnectionSuccess(false);
+            setConnectionErrorMessage("Connection failed. Please check your settings and try again.");
         } finally {
             setIsTesting(false);
         }
@@ -406,21 +406,29 @@ export function AddConnection(props: AddConnectionProps) {
                         <FormActions>
                             {formData.testConnectionEnabled && <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
                                 <Button
-                                    appearance='primary'
+                                    appearance='secondary'
                                     onClick={testConnection}
-                                    sx={{ marginRight: '10px' }}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    disabled={isTesting}
                                 >
                                     Test Connection
+                                    {isTesting && (
+                                        <span style={{ display: 'flex', alignItems: 'center', marginLeft: '8px' }}>
+                                            <Codicon name="loading" iconSx={{ color: 'white' }} />
+                                        </span>
+                                    )}
                                 </Button>
-                                {isTesting ? (
-                                    <Codicon name="loading" iconSx={{ color: 'blue' }} sx={{ marginRight: '10px' }} />
-                                ) : connectionSuccess !== null ? (
+                                {connectionSuccess !== null && (
                                     connectionSuccess ? (
-                                        <Codicon name="pass" iconSx={{ color: 'green' }} sx={{ marginRight: 'auto' }} />
+                                        <Codicon name="pass" iconSx={{ color: 'green' }} sx={{ marginLeft: '10px' }} />
                                     ) : (
-                                        <Codicon name="error" iconSx={{ color: 'red' }} sx={{ marginRight: 'auto' }} />
+                                        <Codicon name="error" iconSx={{ color: 'red' }} sx={{ marginLeft: '10px' }} />
                                     )
-                                ) : null}
+                                )}
                             </div>}
                             <Button
                                 appearance="primary"
@@ -435,6 +443,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 Cancel
                             </Button>
                         </FormActions>
+                        { connectionErrorMessage && <span style={{ color: 'red' }}>
+                            {connectionErrorMessage}
+                        </span>}
                     </>
                 </>
             ) : (
