@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 import classnames from "classnames";
 
@@ -19,6 +19,7 @@ import { InputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
+import { pad } from "lodash";
 
 
 export interface InputNodeTreeItemWidgetProps {
@@ -98,34 +99,39 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
 
     return (
         <>
-            <div
-                id={"recordfield-" + fieldId}
-                className={classnames(classes.treeLabel,
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                    hasHoveredParent ? classes.treeLabelParentHovered : ""
-                )}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-                title={(portOut && portOut.isPreview) ? "Please map parent field first" : ""}
+            <Tooltip
+                content={(portOut && portOut.isPreview) && (<span>Please map parent field first. <a href="https://mi.docs.wso2.com/en/latest/reference/mediators/data-mapper-mediator/#array-mapping">Learn more</a></span>)}
+                sx={{ fontSize: "12px" }}
+                containerSx={{ width: "100%" }}
             >
-                <span className={classes.label}>
-                    {fields && <Button
-                        id={"expand-or-collapse-" + fieldId}
-                        appearance="icon"
-                        tooltip="Expand/Collapse"
-                        onClick={handleExpand}
-                        sx={{ marginLeft: treeDepth * 16 }}
-                    >
-                        {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                    </Button>}
-                    {label}
-                </span>
-                <span className={classes.outPort}>
-                    {portOut && !portOut.isPreview &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
-                </span>
-            </div>
+                <div
+                    id={"recordfield-" + fieldId}
+                    className={classnames(classes.treeLabel,
+                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                    )}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                >
+                    <span className={classes.label}>
+                        {fields && <Button
+                            id={"expand-or-collapse-" + fieldId}
+                            appearance="icon"
+                            tooltip="Expand/Collapse"
+                            onClick={handleExpand}
+                            sx={{ marginLeft: treeDepth * 16 }}
+                        >
+                            {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                        </Button>}
+                        {label}
+                    </span>
+                    <span className={classes.outPort}>
+                        {portOut && !portOut.isPreview &&
+                            <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
+                        }
+                    </span>
+                </div>
+            </Tooltip>
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
