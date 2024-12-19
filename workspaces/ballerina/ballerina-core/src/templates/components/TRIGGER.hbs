@@ -12,7 +12,7 @@ listener {{triggerType}}:Listener webhookListener =  new({{#if (checkConfigurabl
 service {{../triggerType}}:{{ this.name }} on webhookListener {
   
   {{#each this.functions}}
-    remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}} {{/each}}) returns error? {
+    remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{#if this.defaultTypeName}}{{this.defaultTypeName}}{{else}}{{../../../triggerType}}:{{this.typeInfo.name}}{{/if}} {{this.name}} {{/each}}) returns error? {
       //Not Implemented
     }
   {{/each}}

@@ -66,6 +66,7 @@ export interface DeleteFromProjectRequest {
 export interface GenerateMappingsRequest {
     position: NodePosition;
     filePath: string;
+    file?: AttachmentResult;
 }
 
 export interface GenerateMappingsResponse {
@@ -99,16 +100,40 @@ export interface DataMappingRecord {
     filePath: string;
 }
 
-export interface GenerteMappingsFromRecordRequest {
+export interface GenerateMappingsFromRecordRequest {
     backendUri: string;
     token: string;
     inputRecordTypes: DataMappingRecord[];
     outputRecordType: DataMappingRecord;
     functionName: string;
+    imports: { moduleName: string; alias?: string }[];
+    attachment?: AttachmentResult[]
+}
+
+export interface GenerateTypesFromRecordRequest {
+    backendUri: string;
+    token: string;
+    attachment?: AttachmentResult[]
+}
+
+export interface AttachmentResult {
+    name: string;
+    content?: string;
+    status: AttachmentStatus;
+}
+
+export enum AttachmentStatus {
+    Success = "Success",
+    FileSizeError = "FileSizeError",
+    FileFormatError = "FileFormatError",
+    Unknown = "Unknown"
 }
 
 export interface GenerateMappingFromRecordResponse {
     mappingCode: string;
+}
+export interface GenerateTypesFromRecordResponse {
+    typesCode: string;
 }
 export interface MappingParameters{
     inputRecord: string[];

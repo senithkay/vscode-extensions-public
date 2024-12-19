@@ -13,6 +13,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { CommentNodeModel } from "./CommentNodeModel";
 import {
     Colors,
+    COMMENT_NODE_CIRCLE_WIDTH,
     COMMENT_NODE_GAP,
     COMMENT_NODE_WIDTH,
     DRAFT_NODE_BORDER_WIDTH,
@@ -59,8 +60,8 @@ export namespace NodeStyles {
     `;
 
     export const Circle = styled.div`
-        width: ${NODE_PADDING}px;
-        height: ${NODE_PADDING}px;
+        width: ${COMMENT_NODE_CIRCLE_WIDTH}px;
+        height: ${COMMENT_NODE_CIRCLE_WIDTH}px;
         border-radius: 50%;
         border: ${DRAFT_NODE_BORDER_WIDTH}px solid ${Colors.PRIMARY};
         background-color: ${Colors.PRIMARY_CONTAINER};
@@ -148,7 +149,7 @@ export interface NodeWidgetProps extends Omit<CommentNodeWidgetProps, "children"
 
 export function CommentNodeWidget(props: CommentNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { onNodeSelect, goToSource, onDeleteNode } = useDiagramContext();
+    const { onNodeSelect, goToSource, onDeleteNode, readOnly } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -212,9 +213,11 @@ export function CommentNodeWidget(props: CommentNodeWidgetProps) {
                             <NodeStyles.Description>{model.node.metadata.description || "..."}</NodeStyles.Description>
                         </Tooltip>
                     </NodeStyles.Header>
-                    <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
-                        <MoreVertIcon />
-                    </NodeStyles.StyledButton>
+                    {!readOnly && (
+                        <NodeStyles.StyledButton appearance="icon" onClick={handleOnMenuClick}>
+                            <MoreVertIcon />
+                        </NodeStyles.StyledButton>
+                    )}
                     <Popover
                         open={isMenuOpen}
                         anchorEl={anchorEl}

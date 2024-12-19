@@ -39,7 +39,7 @@ import { LinkConnectorNode } from './Node/LinkConnector';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
-import { useDiagramModel, useRepositionedNodes } from '../Hooks';
+import { useDiagramModel, useRepositionedNodes, useSearchScrollReset } from '../Hooks';
 import { throttle } from 'lodash';
 import { defaultModelOptions } from './utils/constants';
 import { calculateZoomLevel } from './utils/diagram-utils';
@@ -114,6 +114,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const repositionedNodes = useRepositionedNodes(nodes, zoomLevel, diagramModel);
 	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError, zoomLevel, screenWidth);
+	useSearchScrollReset(diagramModel);
 
 	engine.setModel(diagramModel);
 
@@ -150,16 +151,22 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	useEffect(() => {
 		if (!isFetching && engine.getModel()) {
-			engine.getModel().getNodes().forEach((node) => {
-				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
-					node.initLinks();
-					const targetPortPosition = node.targetPort?.getPosition();
-					if (targetPortPosition) {
-						node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
-						forceUpdate({} as any);
-					}
+			const modelNodes = engine.getModel().getNodes();
+			const nodesToUpdate = modelNodes.filter(node => 
+				node instanceof LinkConnectorNode || node instanceof QueryExpressionNode
+			);
+
+			nodesToUpdate.forEach((node: LinkConnectorNode | QueryExpressionNode) => {
+				node.initLinks();
+				const targetPortPosition = node.targetPort?.getPosition();
+				if (targetPortPosition) {
+					node.setPosition(targetPortPosition.x - 180, targetPortPosition.y - 6.5);
 				}
 			});
+	
+			if (nodesToUpdate.length > 0) {
+				forceUpdate({});
+			}
 		}
 	}, [diagramModel, isFetching, screenWidth]);
 

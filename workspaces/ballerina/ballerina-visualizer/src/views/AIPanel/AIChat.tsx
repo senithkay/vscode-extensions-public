@@ -29,7 +29,7 @@ import styled from "@emotion/styled";
 import AIChatInput from "./AIChatInput";
 import ProgressTextSegment from "./Components/ProgressTextSegment";
 import RoleContainer, { PreviewContainer } from "./Components/RoleContainter";
-import { AttachmentResult, AttachmentStatus } from "../../utils/attachmentUtils";
+import { AttachmentResult, AttachmentStatus } from "@wso2-enterprise/ballerina-core";
 import AttachmentBox, { AttachmentsContainer } from "./Components/AttachmentBox";
 import { findRegexMatches } from "../../utils/utils";
 import { Collapse } from "react-collapse";
@@ -129,9 +129,10 @@ var remaingTokenLessThanOne: boolean = false;
 var timeToReset: number;
 
 // Define constants for command keys
-const COMMAND_SCAFFOLD = "/scaffold";
-const COMMAND_TESTS = "/tests";
-const COMMAND_DATAMAP = "/datamap";
+export const COMMAND_SCAFFOLD = "/scaffold";
+export const COMMAND_TESTS = "/tests";
+export const COMMAND_DATAMAP = "/datamap";
+export const COMMAND_TYPECREATOR = "/typecreator";
 
 // Define constants for command templates
 const TEMPLATE_SCAFFOLD = [
@@ -143,13 +144,39 @@ const TEMPLATE_DATAMAP = [
     "generate mapping using input as <recordname(s)> and output as <recordname> using the function <functionname>",
     "generate mapping using input as <recordname(s)> and output as <recordname>",
 ];
+const TEMPLATE_TYPECREATOR = ["generate types using the given file content"];
 
 // Use the constants in the commandToTemplate map
 const commandToTemplate = new Map<string, string[]>([
     [COMMAND_SCAFFOLD, TEMPLATE_SCAFFOLD],
     [COMMAND_TESTS, TEMPLATE_TESTS],
     [COMMAND_DATAMAP, TEMPLATE_DATAMAP],
+    [COMMAND_TYPECREATOR, TEMPLATE_TYPECREATOR],
 ]);
+
+//TODO: Add the files relevant to the commands
+export const getFileTypesForCommand = (command: string): string[] => {
+    switch (command) {
+        case COMMAND_SCAFFOLD:
+        case COMMAND_TESTS:
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+        case COMMAND_DATAMAP:
+        case COMMAND_TYPECREATOR:
+            return [
+                "text/plain",
+                "image/jpeg",
+                "image/jpg",
+                "image/png",
+                "image/heic",
+                "image/heif",
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/msword",
+            ];
+        default:
+            return ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
+    }
+};
 
 //TOOD: Add the backend URL
 //TODO: Add better error handling from backend. stream error type and non 200 status codes
@@ -386,7 +413,19 @@ export function AIChat() {
                     }
                     case COMMAND_DATAMAP: {
                         if (parameters.inputRecord.length >= 1 && parameters.outputRecord) {
-                            await processDataMappings(message, token, parameters);
+                            await processMappingParameters(message, token, parameters, attachments);
+                        } else {
+                            throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
+                        }
+                        break;
+                    }
+                    case COMMAND_TYPECREATOR: {
+                        if (messageBody === TEMPLATE_TYPECREATOR[0]) {
+                            if (attachments) {
+                                await processContextTypeCreation(message, token, attachments);
+                            } else {
+                                throw new Error("Error: Missing Attach context");
+                            }
                         } else {
                             throw new Error("Error: Invalid parameters for " + COMMAND_DATAMAP + " command");
                         }
@@ -418,8 +457,8 @@ export function AIChat() {
         for (const template of expectedTemplates ?? []) {
             let pattern = template
                 .replace(/<servicename>/g, "(\\S+?)")
-                .replace(/<recordname\(s\)>/g, "([\\w\\[\\]]+(?:[\\s,]+[\\w\\[\\]]+)*)")
-                .replace(/<recordname>/g, "([\\w\\[\\]]+)")
+                .replace(/<recordname\(s\)>/g, "([\\w:\\[\\]]+(?:[\\s,]+[\\w:\\[\\]]+)*)")
+                .replace(/<recordname>/g, "([\\w:\\[\\]]+)")
                 .replace(/<use-case>/g, "(.+?)")
                 .replace(/<functionname>/g, "(\\S+?)");
 
@@ -548,10 +587,9 @@ export function AIChat() {
             } else if (event.event == "functions") {
                 functions = event.body;
             } else if (event.event == "message_stop") {
-                const postProcessResp: PostProcessResponse = await rpcClient
-                    .getAiPanelRpcClient().postProcess({
-                        assistant_response: assistant_response
-                    })
+                const postProcessResp: PostProcessResponse = await rpcClient.getAiPanelRpcClient().postProcess({
+                    assistant_response: assistant_response,
+                });
                 assistant_response = postProcessResp.assistant_response;
                 const diagnostics = postProcessResp.diagnostics.diagnostics;
                 if (diagnostics.length > 0) {
@@ -659,10 +697,11 @@ export function AIChat() {
         setIsCodeAdded: React.Dispatch<React.SetStateAction<boolean>>,
         isTestCode: boolean
     ) => {
-        for (const { segmentText, filePath } of codeSegments) {
+        for (let { segmentText, filePath } of codeSegments) {
+            let originalContent = "";
             if (!tempStorage[filePath]) {
                 try {
-                    const originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+                    originalContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
                     tempStorage[filePath] = originalContent;
                     if (originalContent === "") {
                         emptyFiles.add(filePath);
@@ -673,10 +712,16 @@ export function AIChat() {
                     tempStorage[filePath] = "";
                 }
             }
+            if (!["types.bal", "mappings.bal"].includes(filePath)) {
+                segmentText = `${segmentText}`;
+            } else {
+                segmentText = `${originalContent}\n${segmentText}`;
+            }
             await rpcClient
                 .getAiPanelRpcClient()
                 .addToProject({ filePath: filePath, content: segmentText, isTestCode: isTestCode });
         }
+        //TODO:Modify the function signature or comment this for datamapper working correctly
         await rpcClient.getAiPanelRpcClient().applyDoOnFailBlocks();
         setIsCodeAdded(true);
     };
@@ -687,7 +732,7 @@ export function AIChat() {
         isTestCode: boolean
     ) => {
         for (const { filePath } of codeSegments) {
-            const originalContent = tempStorage[filePath];
+            let originalContent = tempStorage[filePath];
             if (originalContent === "" && !initialFiles.has(filePath) && !emptyFiles.has(filePath)) {
                 // Delete the file if it didn't initially exist in the workspace
                 try {
@@ -717,6 +762,7 @@ export function AIChat() {
         });
 
         let generatedTestCode = "";
+        let configToml = "";
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             assistant_response += `\n\n<progress>Generating tests for the ${serviceName} service. This may take a moment.</progress>`;
@@ -728,6 +774,7 @@ export function AIChat() {
             .getAiPanelRpcClient()
             .getGeneratedTest({ backendUri: backendRootUri, token: token, serviceName: serviceName });
         generatedTestCode = response.testContent;
+        configToml = response.configContent;
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             assistant_response += `\n<progress>Analyzing generated tests for potential issues.</progress>`;
@@ -736,6 +783,7 @@ export function AIChat() {
         });
 
         const diagnostics = await rpcClient.getAiPanelRpcClient().getTestDiagnostics(response);
+        console.log(diagnostics);
         if (diagnostics.diagnostics.length > 0) {
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
@@ -762,7 +810,10 @@ export function AIChat() {
 
         setIsLoading(false);
         setIsCodeLoading(false);
-        assistant_response += `\n\n<code filename="test/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        assistant_response += `\n\n<code filename="tests/test.bal">\n\`\`\`ballerina\n${generatedTestCode}\n\`\`\`\n</code>`;
+        if (configToml !== "") {
+            assistant_response += `\n\n<code filename="tests/Config.toml">\n\`\`\`ballerina\n${configToml}\n\`\`\`\n</code>`;
+        }
         setMessages((prevMessages) => {
             const newMessages = [...prevMessages];
             newMessages[newMessages.length - 1].content = assistant_response;
@@ -774,8 +825,15 @@ export function AIChat() {
         addChatEntry("assistant", assistant_response);
     }
 
-    async function processDataMappings(message: string, token: string, parameters: MappingParameters) {
+    async function processMappingParameters(
+        message: string,
+        token: string,
+        parameters: MappingParameters,
+        attachments?: AttachmentResult[]
+    ) {
         let assistant_response = "";
+        const recordMap = new Map();
+        const importsMap = new Map();
         setIsLoading(true);
 
         const inputParams = parameters.inputRecord;
@@ -785,11 +843,20 @@ export function AIChat() {
         const invalidPattern = /[<>\/\(\)\{\}\[\]\\!@#$%^&*_+=|;:'",.?`~]/;
 
         if (invalidPattern.test(functionName)) {
-            throw new Error("Error: Please provide a valid function name without special characters.");
+            throw new Error("Please provide a valid function name without special characters.");
         }
 
+        const projectImports = await rpcClient.getBIDiagramRpcClient().getAllImports();
+        const activeFile = await rpcClient.getAiPanelRpcClient().getActiveFile();
+        const fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: activeFile });
         const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
-        const recordMap: Map<string, DataMappingRecord> = new Map();
+
+        const activeFileImports =
+            projectImports.imports.find((file) => {
+                const fileName = file.filePath.split("/").pop();
+                return fileName === activeFile;
+            })?.statements || [];
+
         projectComponents.components.packages?.forEach((pkg) => {
             pkg.modules?.forEach((mod) => {
                 let filepath = pkg.filePath;
@@ -804,37 +871,66 @@ export function AIChat() {
         });
 
         try {
-            const inputs: DataMappingRecord[] = inputParams.map((param) => {
+            const inputs: DataMappingRecord[] = inputParams.map((param: string) => {
                 const isArray = param.endsWith("[]");
                 const recordName = param.replace(/\[\]$/, "");
                 const rec = recordMap.get(recordName);
 
                 if (!rec) {
-                    throw new Error(`Input parameter "${recordName}" does not match any record name.`);
+                    if (recordName.includes(":")) {
+                        const [moduleName, alias] = recordName.split(":");
+                        const matchedImport = activeFileImports.find((imp) => recordName.startsWith(imp.alias));
+                        if (!matchedImport) {
+                            throw new Error(`Must import the module for "${recordName}".`);
+                        }
+                        importsMap.set(recordName, {
+                            moduleName: matchedImport.moduleName,
+                            alias: matchedImport.alias,
+                        });
+                        return { type: `${recordName}`, isArray, filePath: null };
+                    } else {
+                        throw new Error(`${recordName} is not defined.`);
+                    }
                 }
-
                 return { ...rec, isArray };
             });
 
             const outputRecordName = outputParam.replace(/\[\]$/, "");
             const outputIsArray = outputParam.endsWith("[]");
-            const output = recordMap.get(outputRecordName);
+            let output = recordMap.get(outputRecordName);
 
             if (!output) {
-                throw new Error(`Output parameter "${outputRecordName}" does not match any record name.`);
+                if (outputRecordName.includes(":")) {
+                    const [moduleName, alias] = outputRecordName.split(":");
+                    const matchedImport = activeFileImports.find((imp) => outputRecordName.startsWith(imp.alias));
+                    if (!matchedImport) {
+                        throw new Error(`Must import the module for "${outputRecordName}".`);
+                    }
+                    importsMap.set(outputRecordName, {
+                        moduleName: matchedImport.moduleName,
+                        alias: matchedImport.alias,
+                    });
+                    output = { type: `${outputRecordName}`, isArray: outputIsArray, filePath: null };
+                } else {
+                    throw new Error(`${outputRecordName} is not defined.`);
+                }
+            } else {
+                output = { ...output, isArray: outputIsArray };
             }
 
-            const outputRecord: DataMappingRecord = { ...output, isArray: outputIsArray };
-
-            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord({
+            const requestPayload: any = {
                 backendUri: "",
                 token: "",
                 inputRecordTypes: inputs,
-                outputRecordType: outputRecord,
+                outputRecordType: output,
                 functionName,
-            });
+                imports: Array.from(importsMap.values()),
+            };
+            if (attachments && attachments.length > 0) {
+                requestPayload.attachment = attachments;
+            }
+            const response = await rpcClient.getAiPanelRpcClient().getMappingsFromRecord(requestPayload);
             setIsLoading(false);
-            setIsCodeLoading(false);
 
             assistant_response = `Mappings consist of the following:\n`;
             if (inputParams.length === 1) {
@@ -844,7 +940,16 @@ export function AIChat() {
             }
             assistant_response += `- **Output Record**: ${outputParam}\n`;
             assistant_response += `- **Function Name**: ${functionName}\n`;
-            assistant_response += `<code filename="mappings.bal">\n\`\`\`ballerina\n${response.mappingCode}\n\`\`\`\n</code>`;
+
+            let filePath = "mappings.bal";
+            let finalContent = response.mappingCode;
+            const needsImports = Array.from(importsMap.values()).length > 0;
+
+            if (needsImports) {
+                filePath = activeFile;
+                finalContent = `${fileContent}\n${response.mappingCode}`;
+            }
+            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${finalContent}\n\`\`\`\n</code>`;
 
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
@@ -855,13 +960,86 @@ export function AIChat() {
             setIsLoading(false);
             setMessages((prevMessages) => {
                 const newMessages = [...prevMessages];
-                let errorMessage = `Mappings generation failed: ${error}`;
-                newMessages[newMessages.length - 1].content += errorMessage;
+                newMessages[newMessages.length - 1].content += `Mappings generation failed: ${error}`;
                 newMessages[newMessages.length - 1].type = "Error";
                 return newMessages;
             });
             throw new Error("Failed to generate Mappings.");
         }
+        addChatEntry("user", message);
+        addChatEntry("assistant", assistant_response);
+    }
+
+    async function processContextTypeCreation(message: string, token: string, attachments: AttachmentResult[]) {
+        let assistant_response = "";
+        const recordMap = new Map();
+        setIsLoading(true);
+        let filePath = "types.bal";
+
+        try {
+            const projectComponents = await rpcClient.getBIDiagramRpcClient().getProjectComponents();
+
+            projectComponents.components.packages?.forEach((pkg) => {
+                pkg.modules?.forEach((mod) => {
+                    let filepath = pkg.filePath;
+                    if (mod.name !== undefined) {
+                        filepath += `modules/${mod.name}/`;
+                    }
+                    mod.records.forEach((rec) => {
+                        const recFilePath = filepath + rec.filePath;
+                        recordMap.set(rec.name, { type: rec.name, isArray: false, filePath: recFilePath });
+                    });
+                });
+            });
+
+            if (!attachments || attachments.length === 0) {
+                throw new Error(`Missing attachment`);
+            }
+
+            const requestPayload: any = {
+                backendUri: "",
+                token: token,
+                attachment: attachments,
+            };
+
+            const response = await rpcClient.getAiPanelRpcClient().getTypesFromRecord(requestPayload);
+            let typeContent = response.typesCode;
+            const newRecords = extractRecordTypes(typeContent);
+
+            let fileContent = "";
+            let fileExists = await rpcClient.getAiPanelRpcClient().getFileExists({ filePath: filePath });
+            if (fileExists) {
+                fileContent = await rpcClient.getAiPanelRpcClient().getFromFile({ filePath: filePath });
+                typeContent = `${fileContent}\n${response.typesCode}`;
+            }
+
+            for (const record of newRecords) {
+                if (recordMap.has(record.name)) {
+                    throw new Error(`Record "${record.name}" already exists in the workspace.`);
+                }
+            }
+
+            assistant_response = `Record types generated from the ${attachments[0].name} file shown below.\n`;
+
+            assistant_response += `<code filename="${filePath}">\n\`\`\`ballerina\n${response.typesCode}\n\`\`\`\n</code>`;
+
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content = assistant_response;
+                return newMessages;
+            });
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            setMessages((prevMessages) => {
+                const newMessages = [...prevMessages];
+                newMessages[newMessages.length - 1].content += `Type creation failed: ${error}`;
+                newMessages[newMessages.length - 1].type = "Error";
+                return newMessages;
+            });
+            throw new Error("Failed to generate types.");
+        }
+
         addChatEntry("user", message);
         addChatEntry("assistant", assistant_response);
     }
@@ -1333,6 +1511,15 @@ function identifyLanguage(segmentText: string): string {
     } else {
         return "";
     }
+}
+
+function extractRecordTypes(typesCode: string): { name: string; code: string }[] {
+    const recordPattern = /\b(?:public|private)?\s*type\s+(\w+)\s+record\s+(?:{[|]?|[|]?{)[\s\S]*?;?\s*[}|]?;/g;
+    const matches = [...typesCode.matchAll(recordPattern)];
+    return matches.map((match) => ({
+        name: match[1],
+        code: match[0].trim(),
+    }));
 }
 
 export async function fetchWithToken(url: string, options: RequestInit, rpcClient: any) {

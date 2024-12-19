@@ -8,14 +8,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, Form, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
-import { CompletionItem } from '@wso2-enterprise/ui-toolkit';
-import { debounce } from 'lodash';
-import { convertNodePropertiesToFormFields, convertToVisibleTypes, getFormProperties } from '../../../../utils/bi';
+import { PanelContainer, FormValues } from '@wso2-enterprise/ballerina-side-panel';
+import FormGenerator from '../../Forms/FormGenerator';
 
 
 namespace S {
@@ -31,10 +28,11 @@ export interface ConfigFormProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
+    filename: string;
 }
 
 export function AddForm(props: ConfigFormProps) {
-    const { isOpen, onClose, title } = props;
+    const { isOpen, onClose, title, filename } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -97,34 +95,21 @@ export function AddForm(props: ConfigFormProps) {
         branches: []
     };
 
-    const [fields, setFields] = useState<FormField[]>([]);
-    const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
-    const [types, setTypes] = useState<CompletionItem[]>([]);
-
-    useEffect(() => {
-        const formProperties = getFormProperties(variable);
-        console.log(">>> Edit config form properties", formProperties);
-        setFields(convertNodePropertiesToFormFields(formProperties));
-    }, []);
-
-    const handleSave = (data: FormValues) => {
-
-        setFields([]);
-
+    const handleSave = async (data: FormValues) => {
         variable.properties.defaultable.value =
-            data.defaultable === "" || data.defaultable === null ?
+            data.properties.defaultable.value === "" || data.properties.defaultable.value === null ?
                 "?"
-                : data.defaultable;
+                : data.properties.defaultable.value;
         variable.properties.defaultable.optional = true;
 
-        variable.properties.type.value = data.type;
-        variable.properties.variable.value = data.variable;
-
+        variable.properties.type.value = data.properties.type.value;
+        variable.properties.variable.value = data.properties.variable.value;
+        
         rpcClient
             .getBIDiagramRpcClient()
             .updateConfigVariables({
                 configVariable: variable,
-                configFilePath: variable.codedata.lineRange.fileName
+                configFilePath: filename
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
@@ -134,70 +119,21 @@ export function AddForm(props: ConfigFormProps) {
             });
     };
 
-    const debouncedGetVisibleTypes = debounce(async (value: string, cursorPosition: number) => {
-        let visibleTypes: CompletionItem[] = types;
-        if (!types.length) {
-            const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
-                filePath: variable.codedata.lineRange.fileName,
-                position: variable.codedata.lineRange.startLine,
-            });
-
-            visibleTypes = convertToVisibleTypes(response.types);
-            setTypes(visibleTypes);
-        }
-
-        const effectiveText = value.slice(0, cursorPosition);
-        const filteredTypes = visibleTypes.filter((type) => {
-            const lowerCaseText = effectiveText.toLowerCase();
-            const lowerCaseLabel = type.label.toLowerCase();
-
-            return lowerCaseLabel.includes(lowerCaseText);
-        });
-
-        setFilteredTypes(filteredTypes);
-    }, 250);
-
-
-    const handleGetVisibleTypes = async (value: string, cursorPosition: number) => {
-        await debouncedGetVisibleTypes(value, cursorPosition);
-    };
-
-    const handleCompletionSelect = async () => {
-        handleExpressionEditorCancel();
-    };
-
-    const handleExpressionEditorCancel = () => {
-        setFilteredTypes([]);
-        setTypes([]);
-    };
-
-    const handleExpressionEditorBlur = () => {
-        handleExpressionEditorCancel();
-    };
-
     return (
         <>
             <PanelContainer
                 title={title}
-                show={props.isOpen}
-                onClose={onClose}>
-
-                <Form
-                    formFields={fields}
-                    onSubmit={handleSave}
-                    fileName={variable.codedata.lineRange.fileName}
-                    targetLineRange={{ startLine: variable.codedata.lineRange.startLine, endLine: variable.codedata.lineRange.endLine }}
-                    expressionEditor={{
-                        completions: filteredTypes,
-                        retrieveVisibleTypes: handleGetVisibleTypes,
-                        onCompletionSelect: handleCompletionSelect,
-                        onCancel: handleExpressionEditorCancel,
-                        onBlur: handleExpressionEditorBlur,
-                        getExpressionDiagnostics: () => {
-                            // TODO: Implement this to support diagnostics
-                            return Promise.resolve();
-                        }
+                show={isOpen}
+                onClose={onClose}
+            >
+                <FormGenerator
+                    fileName={filename}
+                    node={variable}
+                    targetLineRange={{
+                        startLine: variable.codedata.lineRange.startLine,
+                        endLine: variable.codedata.lineRange.endLine
                     }}
+                    onSubmit={handleSave}
                 />
 
             </PanelContainer>

@@ -11,16 +11,10 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConnectionNodeModel } from "./ConnectionNodeModel";
-import {
-    Colors,
-    NODE_BORDER_WIDTH,
-    CON_NODE_WIDTH,
-    NEW_CONNECTION,
-    CON_NODE_HEIGHT,
-} from "../../../resources/constants";
+import { Colors, NODE_BORDER_WIDTH, CON_NODE_WIDTH, CON_NODE_HEIGHT } from "../../../resources/constants";
 import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { DatabaseIcon, LinkIcon, PlusIcon } from "../../../resources";
+import { DatabaseIcon, LinkIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 
 export namespace NodeStyles {
@@ -33,7 +27,6 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        /* width: ${CON_NODE_WIDTH}px; */
         height: ${CON_NODE_HEIGHT}px;
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
@@ -45,7 +38,6 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: flex-start;
         gap: 6px;
-        padding: 8px;
     `;
 
     export const Circle = styled.div<NodeStyleProp>`
@@ -71,11 +63,11 @@ export namespace NodeStyles {
         border-radius: 5px;
     `;
 
-    export const TopPortWidget = styled(PortWidget)`
+    export const LeftPortWidget = styled(PortWidget)`
         margin-top: -3px;
     `;
 
-    export const BottomPortWidget = styled(PortWidget)`
+    export const RightPortWidget = styled(PortWidget)`
         margin-bottom: -2px;
     `;
 
@@ -90,7 +82,7 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText) <NodeStyleProp>`
+    export const Title = styled(StyledText)<NodeStyleProp>`
         max-width: ${CON_NODE_WIDTH - 50}px;
         white-space: nowrap;
         overflow: hidden;
@@ -102,7 +94,7 @@ export namespace NodeStyles {
 
     export const Description = styled(StyledText)`
         font-size: 12px;
-        max-width: ${CON_NODE_WIDTH - 80}px;
+        max-width: ${CON_NODE_WIDTH - CON_NODE_HEIGHT}px;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: monospace;
@@ -118,9 +110,8 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
-        gap: 6px;
+        gap: 12px;
         width: 100%;
-        padding: 0 8px;
     `;
 
     export const Hr = styled.hr`
@@ -133,7 +124,7 @@ interface ConnectionNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<ConnectionNodeWidgetProps, "children"> {}
 
 export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const { model, engine } = props;
@@ -141,7 +132,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
-    const { onAddConnection, onConnectionSelect, onDeleteComponent } = useDiagramContext();
+    const { onConnectionSelect, onDeleteComponent } = useDiagramContext();
     // TODO: fix this database icon hack with icon prop from node model
     const databaseNames = [
         "MySQL",
@@ -154,14 +145,10 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         "MongoDB",
         "MariaDB",
     ];
-    const hasDatabaseName = databaseNames.some((name) => model.node.name.toLowerCase().includes(name.toLowerCase()));
+    const hasDatabaseName = databaseNames.some((name) => model.node.symbol?.toLowerCase().includes(name.toLowerCase()));
 
     const handleOnClick = () => {
-        if (model.node.id === NEW_CONNECTION) {
-            onAddConnection();
-        } else {
-            onConnectionSelect(model.node);
-        }
+        onConnectionSelect(model.node);
     };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
@@ -173,9 +160,17 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
         setMenuAnchorEl(null);
     };
 
+    const getNodeTitle = () => {
+        return model.node.symbol;
+    };
+
+    const getNodeDescription = () => {
+        return "Connection";
+    };
+
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
-        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
+        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
     ];
 
     return (
@@ -185,14 +180,14 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
             onClick={handleOnClick}
         >
-            <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
+            <NodeStyles.LeftPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row hovered={isHovered}>
                 <NodeStyles.Circle hovered={isHovered}>
                     <NodeStyles.Icon>{hasDatabaseName ? <DatabaseIcon /> : <LinkIcon />}</NodeStyles.Icon>
                 </NodeStyles.Circle>
                 <NodeStyles.Header>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.name}</NodeStyles.Title>
-                    {<NodeStyles.Description>Connection</NodeStyles.Description>}
+                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
+                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
                     <MoreVertIcon />
@@ -213,7 +208,7 @@ export function ConnectionNodeWidget(props: ConnectionNodeWidgetProps) {
                     ))}
                 </Menu>
             </Popover>
-            <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
+            <NodeStyles.RightPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
     );
 }

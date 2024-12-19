@@ -61,7 +61,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
     const { rpcClient } = useRpcContext();
 
     const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.CONNECTOR_LIST);
-    const [fields, setFields] = useState<FormField[]>([]);
     const [isPullingConnector, setIsPullingConnector] = useState<boolean>(false);
     const selectedConnectorRef = useRef<AvailableNode>();
     const selectedNodeRef = useRef<FlowNode>();
@@ -97,7 +96,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                 }
                 // get node properties
                 setCurrentStep(WizardStep.CONNECTION_CONFIG);
-                setFields(convertNodePropertiesToFormFields(formProperties));
             })
             .finally(() => {
                 setFetchingInfo(false);
@@ -160,7 +158,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                     console.log(">>> Updated source code", response);
                     if (response.textEdits) {
                         // clear memory
-                        setFields([]);
                         selectedNodeRef.current = undefined;
                         onClose ? onClose() : gotoHome();
                     } else {
@@ -176,7 +173,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
 
     const handleOnBack = () => {
         setCurrentStep(WizardStep.CONNECTOR_LIST);
-        setFields([]);
     };
 
     const handleSubPanel = (subPanel: SubPanel) => {
@@ -269,7 +265,6 @@ export function AddConnectionWizard(props: AddConnectionWizardProps) {
                         </BodyText>
                         <ConnectionConfigView
                             fileName={fileName}
-                            fields={fields}
                             selectedNode={selectedNodeRef.current}
                             onSubmit={handleOnFormSubmit}
                             updatedExpressionField={updatedExpressionField}

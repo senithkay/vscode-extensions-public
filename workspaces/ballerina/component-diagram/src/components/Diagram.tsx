@@ -10,38 +10,31 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import {
-    autoDistribute,
-    createNodesLink,
-    generateEngine,
-    getModelId,
-    getNodeId,
-    loadDiagramZoomAndPosition,
-    registerListeners,
-    resetDiagramZoomAndPosition,
-} from "../utils/diagram";
+import { autoDistribute, createNodesLink, generateEngine, sortItems } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
-import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
+import { NodeModel } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
-import { EntryNodeModel } from "./nodes/EntryNode";
-import { ConnectionNodeModel } from "./nodes/ConnectionNode";
-import { ActorNodeModel } from "./nodes/ActorNode/ActorNodeModel";
-import { ACTOR_SUFFIX, NEW_CONNECTION, NEW_ENTRY, NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
+import { CDAutomation, CDConnection, CDListener, CDModel, CDService } from "@wso2-enterprise/ballerina-core";
+import { EntryNodeModel } from "./nodes/EntryNode";
+import { ListenerNodeModel } from "./nodes/ListenerNode";
+import { ConnectionNodeModel } from "./nodes/ConnectionNode";
+import { AUTOMATION_LISTENER } from "../resources/constants";
 
 export interface DiagramProps {
-    project: Project;
-    onAddEntryPoint: () => void;
-    onAddConnection: () => void;
-    onEntryPointSelect: (entryPoint: EntryPoint) => void;
-    onConnectionSelect: (connection: Connection) => void;
-    onDeleteComponent: (component: EntryPoint | Connection) => void;
+    project: CDModel;
+    onListenerSelect: (listener: CDListener) => void;
+    onServiceSelect: (service: CDService) => void;
+    onAutomationSelect: (automation: CDAutomation) => void;
+    onConnectionSelect: (connection: CDConnection) => void;
+    onDeleteComponent: (component: CDListener | CDService | CDAutomation | CDConnection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } = props;
+    const { project, onListenerSelect, onServiceSelect, onAutomationSelect, onConnectionSelect, onDeleteComponent } =
+        props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -55,8 +48,9 @@ export function Diagram(props: DiagramProps) {
 
     useEffect(() => {
         const handleResize = () => {
-            if (diagramEngine && diagramModel) {
-                diagramEngine.zoomToFit();
+            if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
+                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+                diagramEngine.repaintCanvas();
             }
         };
 
@@ -67,87 +61,74 @@ export function Diagram(props: DiagramProps) {
     }, [diagramEngine, diagramModel]);
 
     const getDiagramData = () => {
-        // generate diagram nodes and links
         const nodes: NodeModel[] = [];
         const links: NodeLinkModel[] = [];
 
-        // create entry nodes
-        project.entryPoints.forEach((entryPoint) => {
-            const node = new EntryNodeModel(entryPoint);
-            nodes.push(node);
-            // add actor node for each entry node
-            const actorNode = new ActorNodeModel({ ...entryPoint, id: node.getID() + ACTOR_SUFFIX });
-            nodes.push(actorNode);
-            // create link between entry and actor nodes
-            const link = createNodesLink(actorNode, node, { visible: true });
-            if (link) {
-                links.push(link);
-            }
-        });
-
-        // if there are no entry nodes, create a new entry node
-        // if (project.entryPoints.length === 0) {
-        //     const node = new EntryNodeModel({ id: NEW_ENTRY, name: "New Entry Point", type: "service" });
-        //     nodes.push(node);
-        //     // add actor node for new entry node
-        //     const actorNode = new ActorNodeModel({ ...node.node, id: NEW_ENTRY + ACTOR_SUFFIX });
-        //     nodes.push(actorNode);
-        //     // create link between entry and actor nodes
-        //     const link = createNodesLink(actorNode, node);
-        //     if (link) {
-        //         links.push(link);
-        //     }
-        // }
-
-        // create connection nodes
-        project.connections.forEach((connection) => {
+        // Sort and create connections
+        const sortedConnections = sortItems(project.connections || []) as CDConnection[];
+        sortedConnections.forEach((connection, index) => {
             const node = new ConnectionNodeModel(connection);
+            // Set initial Y position for connections
+            node.setPosition(0, 100 + index * 100);
             nodes.push(node);
         });
 
-        // create new connection node
-        // const node = new ConnectionNodeModel({ id: NEW_CONNECTION, name: "New Connection" });
-        // nodes.push(node);
+        // Sort services by sortText before creating nodes
+        const sortedServices = sortItems(project.services || []) as CDService[];
 
-        // create new component add button node
-        // const node = new ButtonNodeModel({ id: NEW_COMPONENT, name: "New Component" });
-        // nodes.push(node);
+        // create services with initial positions
+        const startY = 100;
+        const verticalGap = 100;
 
-        // create links between entry and connection nodes
-        project.entryPoints.forEach((entryPoint) => {
-            const entryNode = nodes.find((node) => node.getID() === getNodeId(NodeTypes.ENTRY_NODE, entryPoint.id));
-            if (entryNode) {
-                nodes
-                    .filter((node) => node instanceof ConnectionNodeModel && node.getID() !== NEW_CONNECTION)
-                    .forEach((connectionNode) => {
-                        const link = createNodesLink(entryNode, connectionNode, {
-                            visible: entryPoint.connections?.includes(getModelId(connectionNode.getID())),
-                        });
-                        if (link) {
-                            links.push(link);
-                        }
-                    });
-            }
+        sortedServices.forEach((service, index) => {
+            const node = new EntryNodeModel(service, "service");
+            // Set initial Y position based on sorted order
+            node.setPosition(0, startY + index * verticalGap);
+            nodes.push(node);
+
+            service.connections.forEach((connectionUuid) => {
+                const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                if (connectionNode) {
+                    const link = createNodesLink(node, connectionNode);
+                    if (link) {
+                        links.push(link);
+                    }
+                }
+            });
         });
 
-        // create link between new entry and connection nodes
-        const newEntryNode = nodes.find((node) => node.getID() === NEW_ENTRY);
-        const newConnectionNode = nodes.find((node) => node.getID() === NEW_CONNECTION);
-        if (newEntryNode && newConnectionNode) {
-            const link = createNodesLink(newEntryNode, newConnectionNode);
-            if (link) {
-                links.push(link);
-            }
+        // create automation
+        const automation = project.automation;
+        if (automation) {
+            const automationNode = new EntryNodeModel(automation, "automation");
+            nodes.push(automationNode);
+            // link connections
+            automation.connections.forEach((connectionUuid) => {
+                const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                if (connectionNode) {
+                    const link = createNodesLink(automationNode, connectionNode);
+                    if (link) {
+                        links.push(link);
+                    }
+                }
+            });
         }
 
-        // create link between new connection and first entry node
-        const firstEntryNode = nodes.find((node) => node instanceof EntryNodeModel);
-        if (newConnectionNode && firstEntryNode && project.connections.length === 0) {
-            const link = createNodesLink(firstEntryNode, newConnectionNode);
-            if (link) {
-                links.push(link);
-            }
-        }
+        // create listeners
+        project.listeners?.forEach((listener) => {
+            const node = new ListenerNodeModel(listener);
+            nodes.push(node);
+            // link services
+            listener.attachedServices.forEach((serviceUuid) => {
+                const serviceNode = nodes.find((node) => node.getID() === serviceUuid);
+                if (serviceNode) {
+                    const link = createNodesLink(node, serviceNode);
+                    if (link) {
+                        links.push(link);
+                    }
+                }
+            });
+        });
 
         return { nodes, links };
     };
@@ -163,20 +144,19 @@ export function Diagram(props: DiagramProps) {
         // registerListeners(diagramEngine);
 
         diagramEngine.setModel(newDiagramModel);
-        // remove loader overlay layer
-        const overlayLayer = diagramEngine
-            .getModel()
-            .getLayers()
-            .find((layer) => layer instanceof OverlayLayerModel);
-        if (overlayLayer) {
-            diagramEngine.getModel().removeLayer(overlayLayer);
-        }
 
         // diagram paint with timeout
         setTimeout(() => {
-            if (diagramEngine && newDiagramModel) {
-                resetDiagramZoomAndPosition();
-                loadDiagramZoomAndPosition(diagramEngine);
+            // remove loader overlay layer
+            const overlayLayer = diagramEngine
+                .getModel()
+                .getLayers()
+                .find((layer) => layer instanceof OverlayLayerModel);
+            if (overlayLayer) {
+                diagramEngine.getModel().removeLayer(overlayLayer);
+            }
+            if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
+                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
             }
             diagramEngine.repaintCanvas();
         }, 200);
@@ -184,11 +164,11 @@ export function Diagram(props: DiagramProps) {
 
     const context: DiagramContextState = {
         project,
-        onAddEntryPoint,
-        onAddConnection,
-        onEntryPointSelect,
+        onListenerSelect,
+        onServiceSelect,
+        onAutomationSelect,
         onConnectionSelect,
-        onDeleteComponent
+        onDeleteComponent,
     };
 
     return (
@@ -199,7 +179,6 @@ export function Diagram(props: DiagramProps) {
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
                         <CanvasWidget engine={diagramEngine} />
-
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}

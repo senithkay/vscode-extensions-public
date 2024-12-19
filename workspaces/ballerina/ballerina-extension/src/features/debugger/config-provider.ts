@@ -14,7 +14,11 @@ import {
     tasks,
     TaskDefinition,
     ShellExecution,
-    TaskExecution
+    TaskExecution,
+    DebugAdapterTrackerFactory,
+    DebugAdapterTracker,
+    ViewColumn,
+    TabInputText
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -41,11 +45,15 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
 import { Disposable } from 'monaco-languageclient';
 import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../../utils/project-utils';
-import { BallerinaProject, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
-import { StateMachine } from '../../stateMachine';
+import { BallerinaProject, BallerinaProjectComponents, BIGetEnclosedFunctionRequest, EVENT_TYPE, MainFunctionParamsResponse } from '@wso2-enterprise/ballerina-core';
+import { openView, StateMachine } from '../../stateMachine';
 import { waitForBallerinaService } from '../tryit/utils';
+import { BreakpointManager } from './breakpoint-manager';
+import { notifyBreakpointChange } from '../../RPCLayer';
+import { VisualizerWebview } from '../../views/visualizer/webview';
+import { URI } from 'vscode-uri';
 
-const BALLERINA_COMMAND = "kolab.command";
+const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
 const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
@@ -140,13 +148,13 @@ async function showInputBox(paramName: string, value: string) {
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
     let debuggeePort = config.debuggeePort;
     if (!debuggeePort) {
-        debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000 });
+        debuggeePort = await findFreePort();
     }
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
-    config[BALLERINA_HOME] = ballerinaHome;
+    config['ballerina.home'] = ballerinaHome;
     config[BALLERINA_COMMAND] = ballerinaExtInstance.getBallerinaCmd();
-    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true };
+    config[EXTENDED_CLIENT_CAPABILITIES] = { supportsReadOnlyEditors: true, supportsFastRun: isFastRunEnabled() };
 
     if (!config.type) {
         config.type = LANGUAGE.BALLERINA;
@@ -241,8 +249,8 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
     config.debuggeePort = debuggeePort.toString();
 
     if (!config.debugServer) {
-        const debugServer = await getPortPromise({ port: 10001, stopPort: 20000 });
-        config.debugServer = debugServer.toString();
+        const debugServerPort = await findFreePort();
+        config.debugServer = debugServerPort.toString();
     }
     return config;
 }
@@ -282,10 +290,181 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 
     const factory = new BallerinaDebugAdapterDescriptorFactory(ballerinaExtInstance);
     context.subscriptions.push(debug.registerDebugAdapterDescriptorFactory('ballerina', factory));
+
+    context.subscriptions.push(debug.registerDebugAdapterTrackerFactory('ballerina', new BallerinaDebugAdapterTrackerFactory()));
+
+    // Listener to support reflect breakpoint changes in diagram when debugger is inactive
+    context.subscriptions.push(debug.onDidChangeBreakpoints((session) => {
+        notifyBreakpointChange();
+    }));
 }
+
+class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory {
+    createDebugAdapterTracker(session: DebugSession): DebugAdapterTracker {
+        return {
+
+            onWillStartSession() {
+                new BreakpointManager();
+            },
+
+            onWillStopSession() {
+                // clear the active breakpoint
+                BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                notifyBreakpointChange();
+                commands.executeCommand('setContext', 'isBIProjectRunning', false);
+            },
+
+            // Debug Adapter -> VS Code
+            onDidSendMessage: async (message: DebugProtocol.ProtocolMessage) => {
+                console.log("=====onDidSendMessage", message);
+                if (message.type === "response") {
+                    const msg = <DebugProtocol.Response>message;
+
+                    if (msg.command === "setBreakpoints") {
+                        const breakpoints = msg.body.breakpoints;
+                        // convert debug points to client breakpoints
+                        if (breakpoints) {
+                            console.log("!=====breakpoints in setBreakpoints tracker", breakpoints);
+                            const clientBreakpoints = breakpoints.map(bp => ({
+                                ...bp,
+                                line: bp.line - 1
+                            }));
+                            // set the breakpoints in the diagram
+                            BreakpointManager.getInstance().addBreakpoints(clientBreakpoints);
+                            notifyBreakpointChange();
+                        }
+                    } else if (msg.command === "stackTrace") {
+                        const uri = Uri.parse(msg.body.stackFrames[0].source.path);
+
+                        const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
+
+                        // Filter for tabs that are editor tabs and the tab with the debug hit
+                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
+
+                        for (const tab of editorTabs) {
+                            await window.tabGroups.close(tab);
+                        }
+
+                        // get the current stack trace
+                        const hitBreakpoint = msg.body.stackFrames[0];
+                        console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
+
+                        const clientBreakpoint = {
+                            ...hitBreakpoint,
+                            line: Math.max(0, hitBreakpoint.line - 1),
+                            column: Math.max(0, hitBreakpoint.column - 1)
+                        };
+
+                        BreakpointManager.getInstance().setActiveBreakpoint(clientBreakpoint);
+
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+
+                        if (isWebviewPresent) {
+                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
+                            await handleBreakpointVisualization(uri, clientBreakpoint);
+                        }
+
+                    } else if (msg.command === "continue" || msg.command === "next" || msg.command === "stepIn" || msg.command === "stepOut") {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
+                    }
+                }
+
+                if (message.type === "event") {
+                    const msg = <DebugProtocol.Event>message;
+                    if (msg.event === "startFastRun") {
+                        // clear the active breakpoint
+                        BreakpointManager.getInstance().setActiveBreakpoint(undefined);
+                        notifyBreakpointChange();
+
+                        // restart the fast-run
+                        getCurrentRoot().then(async (root) => {
+                            const didStop = await stopRunFast(root);
+                            if (didStop) {
+                                runFast(root, msg.body);
+                            }
+                        });
+                    } else if (msg.event === "stopped") {
+                        const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+
+                        if (isWebviewPresent) {
+                            VisualizerWebview?.currentPanel?.getWebview()?.reveal(ViewColumn.One, true);
+                        }
+                    } else if (msg.event === "output") {
+                        if (msg.body.output === "Running executable\n") {
+                            const workspaceRoot = workspace.workspaceFolders && workspace.workspaceFolders[0].uri.fsPath;
+                            if (workspaceRoot) {
+                                // Get the component list
+                                const components: BallerinaProjectComponents = await ballerinaExtInstance?.langClient?.getBallerinaProjectComponents({
+                                    documentIdentifiers: [{ uri: URI.file(workspaceRoot).toString() }]
+                                });
+
+                                // Iterate and extract the services
+                                const services = components.packages
+                                    ?.flatMap(pkg => pkg.modules)
+                                    .flatMap(module => module.services);
+
+                                if (services && services.length > 0) {
+                                    commands.executeCommand('setContext', 'isBIProjectRunning', true);
+                                }
+                            }
+
+                        }
+                    }
+                }
+            },
+        };
+    }
+}
+
+async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugProtocol.StackFrame) {
+    const newContext = StateMachine.context();
+
+    // Check if breakpoint is in a different project
+    if (!uri.fsPath.startsWith(newContext.projectUri)) {
+        console.log("Breakpoint is in a different project");
+        window.showInformationMessage("Cannot visualize breakpoint since it belongs to a different project");
+        openView(EVENT_TYPE.OPEN_VIEW, newContext);
+        notifyBreakpointChange();
+        return;
+    }
+
+    // Get enclosed function definition
+    const req: BIGetEnclosedFunctionRequest = {
+        filePath: uri.fsPath,
+        position: {
+            line: clientBreakpoint.line,
+            offset: clientBreakpoint.column
+        }
+    };
+
+    const res = await StateMachine.langClient().getEnclosedFunctionDef(req);
+
+    if (!res?.startLine || !res?.endLine) {
+        window.showInformationMessage("Failed to open the respective view for the breakpoint. Please manually navigate to the respective view.");
+        notifyBreakpointChange();
+        return;
+    }
+
+    // Update context with new position
+    newContext.documentUri = uri.fsPath;
+    newContext.view = undefined;
+    newContext.position = {
+        startLine: res.startLine.line,
+        startColumn: res.startLine.offset,
+        endLine: res.endLine.line,
+        endColumn: res.endLine.offset
+    };
+    openView(EVENT_TYPE.OPEN_VIEW, newContext);
+    notifyBreakpointChange();
+}
+
+
 
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     private ballerinaExtInstance: BallerinaExtension;
+    private notificationHandler: Disposable | null = null;
     constructor(ballerinaExtInstance: BallerinaExtension) {
         this.ballerinaExtInstance = ballerinaExtInstance;
     }
@@ -330,11 +509,26 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             });
         }).then(() => {
             sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER);
+            this.registerLogTraceNotificationHandler(session);
             return new DebugAdapterServer(port);
         }).catch((error) => {
             sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
             return Promise.reject(error);
         });
+    }
+    private registerLogTraceNotificationHandler(session: DebugSession) {
+        const langClient = ballerinaExtInstance.langClient;
+        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
+            if (params.verbose === "stopped") {
+                // do nothing
+            } else {
+                if (params && params.message) {
+                    const category = params.verbose === 'err' ? 'stderr' : 'stdout';
+                    session.customRequest('output', { output: params.message, category: category });
+                }
+            }
+        });
+        this.notificationHandler = notificationHandler;
     }
     getScriptPath(args: string[]): string {
         args.push('start-debugger-adapter');
@@ -349,7 +543,7 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     notificationHandler: Disposable | null = null;
     root: string | null = null;
-    prgramArgs: string[] = [];
+    programArgs: string[] = [];
 
     protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
         const langClient = ballerinaExtInstance.langClient;
@@ -363,10 +557,10 @@ class FastRunDebugAdapter extends LoggingDebugSession {
             }
         });
         this.notificationHandler = notificationHandler;
-        this.prgramArgs = (args as any).programArgs;
+        this.programArgs = (args as any).programArgs;
         getCurrentRoot().then((root) => {
             this.root = root;
-            runFast(root, this.prgramArgs).then((didRan) => {
+            runFast(root, { programArgs: this.programArgs }).then((didRan) => {
                 response.success = didRan;
                 this.sendResponse(response);
             });
@@ -375,13 +569,12 @@ class FastRunDebugAdapter extends LoggingDebugSession {
 
     protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
         const notificationHandler = this.notificationHandler;
-        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
+        stopRunFast(this.root).then((didStop) => {
             response.success = didStop;
             notificationHandler!.dispose();
             this.sendResponse(response);
         });
     }
-
 }
 
 const outputChannel = window.createOutputChannel("Ballerina Integrator Executor");
@@ -468,13 +661,33 @@ class BIRunAdapter extends LoggingDebugSession {
     }
 }
 
-async function runFast(root: string, args: string[]): Promise<boolean> {
-    if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
-        await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+async function runFast(root: string, options: { debugPort?: number; env?: Map<string, string>; programArgs?: string[]; } = {}): Promise<boolean> {
+    try {
+        if (window.activeTextEditor?.document.isDirty) {
+            await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+        }
+        const { debugPort, env = new Map(), programArgs = [] } = options;
+        const commandArguments = [
+            { key: "path", value: root },
+            { key: "debugPort", value: debugPort },
+            { key: "env", value: env },
+            { key: "programArgs", value: programArgs }
+        ];
+
+        return await ballerinaExtInstance.langClient.executeCommand({
+            command: "RUN",
+            arguments: commandArguments,
+        });
+    } catch (error) {
+        console.error('Error while executing the fast-run command:', error);
+        return false;
     }
+}
+
+async function stopRunFast(root: string): Promise<boolean> {
     return await ballerinaExtInstance.langClient.executeCommand({
-        command: "RUN", arguments: [
-            { key: "path", value: root }, { key: "args", value: args }]
+        command: "STOP", arguments: [
+            { key: "path", value: root! }]
     });
 }
 
@@ -482,4 +695,13 @@ async function getCurrentRoot(): Promise<string> {
     const file = getCurrentBallerinaFile();
     const currentProject = await getCurrentBallerinaProject(file);
     return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
+}
+
+function findFreePort(): Promise<number> {
+    return getPortPromise({ port: 5010, stopPort: 20000 });
+}
+
+function isFastRunEnabled(): boolean {
+    const config = workspace.getConfiguration('kolab');
+    return config.get<boolean>('enableRunFast');
 }

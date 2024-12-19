@@ -74,35 +74,30 @@ export const Colors = {
 };
 
 export enum NodeTypes {
+    LISTENER_NODE = "listener-node",
     ENTRY_NODE = "entry-node",
     CONNECTION_NODE = "connection-node",
-    ACTOR_NODE = "actor-node",
-    BUTTON_NODE = "button-node",
 }
 
 export const NODE_LINK = "node-link";
 export const NODE_PORT = "node-port";
 export const LOADING_OVERLAY = "loading-overlay";
 
-export const NEW_ENTRY = "new-entry";
-export const NEW_CONNECTION = "new-connection";
-export const NEW_COMPONENT = "new-component";
-export const ACTOR_SUFFIX = "-actor";
+export const AUTOMATION_LISTENER = "automation-listener";
 
-export const NODE_LOCKED = true;
+export const NODE_LOCKED = false;
 
 // sizing
-export const ENTRY_NODE_WIDTH = 180;
-export const ENTRY_NODE_HEIGHT = ENTRY_NODE_WIDTH / 3;
-export const CON_NODE_WIDTH = 200;
-export const CON_NODE_HEIGHT = CON_NODE_WIDTH / 3;
-export const ACTOR_NODE_WIDTH = 50;
+export const ENTRY_NODE_WIDTH = 240;
+export const ENTRY_NODE_HEIGHT = 64;
+export const CON_NODE_WIDTH = ENTRY_NODE_WIDTH - 40;
+export const CON_NODE_HEIGHT = ENTRY_NODE_HEIGHT;
+export const LISTENER_NODE_WIDTH = CON_NODE_WIDTH;
+export const LISTENER_NODE_HEIGHT = CON_NODE_HEIGHT;
+
 export const NODE_BORDER_WIDTH = 1.5;
 export const NODE_PADDING = 8;
 
 // position
 export const NODE_GAP_Y = 100;
-export const NODE_GAP_X = 60;
-
-// HACK
-export const VSCODE_MARGIN = 20;
+export const NODE_GAP_X = 160;

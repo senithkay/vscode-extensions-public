@@ -12,17 +12,19 @@ import { Item } from "@wso2-enterprise/ui-toolkit";
 
 export interface ResponseConfig {
     id: number;
-    code?: number;
+    code?: number | string;
     type?: string;
     isTypeArray?: boolean;
     source?: string;
     isNew?: boolean;
     defaultCode?: number;
     namedRecord?: string;
+    description?: string;
 }
 
 export enum PARAM_TYPES {
     DEFAULT = 'Query',
+    PARAM = 'Param',
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
     CALLER = 'Caller',
@@ -42,6 +44,7 @@ export interface ParameterConfig {
 export interface ServiceData {
     path: string;
     port: number;
+    listener?: string;
 }
 
 export interface Resource {
@@ -54,6 +57,7 @@ export interface Resource {
     payloadConfig?: ParameterConfig;
     responses?: ResponseConfig[];
     expandable?: boolean;
+    isOpen?: boolean;
     updatePosition?: NodePosition; // Insert or Edit position of the resource
     position?: NodePosition; // Actual position of the resource which is used to render the resource
     addtionalInfo?: JSX.Element; // Addtional information to be displayed in the resource expanded view
@@ -68,7 +72,9 @@ export interface PathConfig {
 export interface Service {
     path: string;
     port?: number;
+    listener?: string;
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;
+    triggerModel?: any;
 }

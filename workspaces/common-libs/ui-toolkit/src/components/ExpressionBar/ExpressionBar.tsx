@@ -66,6 +66,7 @@ export type CompletionItem = {
     args?: string[];
     replacementSpan?: number;
     sortText?: string;
+    cursorOffset?: number;
 };
 
 export type ExpressionBarBaseProps = {
@@ -82,8 +83,7 @@ export type ExpressionBarBaseProps = {
     onSave?: (value: string) => void | Promise<void>;
     onCancel: () => void;
     onClose?: () => void;
-    useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
-    shouldDisableOnSave?: boolean;
+    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
 
     // Completion item props
     // - The list of completions to be displayed
@@ -100,6 +100,8 @@ export type ExpressionBarBaseProps = {
     onCompletionSelect?: (value: string) => void | Promise<void>;
     // - The function to be called when the default completion is selected
     onDefaultCompletionSelect?: () => void | Promise<void>;
+    // - The function to be called when a manual completion request is made (when ctrl+space pressed)
+    onManualCompletionRequest?: () => void | Promise<void>;
 
     // Function signature props
     // - Returns information about the function that is currently being edited
@@ -125,7 +127,6 @@ export type ExpressionBarRef = {
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
-    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components
@@ -135,7 +136,7 @@ namespace Ex {
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
-        min-height: 32px;
+        min-height: 28px;
         gap: 8px;
         box-sizing: border-box;
 
