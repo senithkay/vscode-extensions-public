@@ -17,7 +17,8 @@ import {
     VisualizerLocation,
     TRIGGER_CHARACTERS,
     TriggerCharacter,
-    FormDiagnostics
+    FormDiagnostics,
+    ConfigVariable
 } from "@wso2-enterprise/ballerina-core";
 import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
 import {
@@ -505,11 +506,79 @@ export function FormGenerator(props: FormProps) {
     };
 
     function handleSaveConfigurables(values: any): void {
+
+        const variable: ConfigVariable = {
+            "id": "",
+            "metadata": {
+                "label": "Config",
+                "description": "Create a configurable variable"
+            },
+            "codedata": {
+                "node": "CONFIG_VARIABLE",
+                "lineRange": {
+                    "fileName": "config.bal",
+                    "startLine": {
+                        "line": 0,
+                        "offset": 0
+                    },
+                    "endLine": {
+                        "line": 0,
+                        "offset": 0
+                    }
+                }
+            },
+            "returning": false,
+            "properties": {
+                "type": {
+                    "metadata": {
+                        "label": "Type",
+                        "description": "Type of the variable"
+                    },
+                    "valueType": "TYPE",
+                    "value": "",
+                    "optional": false,
+                    "advanced": false,
+                    "editable": true
+                },
+                "variable": {
+                    "metadata": {
+                        "label": "Variable",
+                        "description": "Name of the variable"
+                    },
+                    "valueType": "IDENTIFIER",
+                    "value": "",
+                    "optional": false,
+                    "advanced": false,
+                    "editable": true,
+                },
+                "defaultable": {
+                    "metadata": {
+                        "label": "Default value",
+                        "description": "Default value for the config, if empty your need to provide a value at runtime"
+                    },
+                    "valueType": "EXPRESSION",
+                    "value": "",
+                    "optional": true,
+                    "advanced": true,
+                    "editable": true
+                }
+            },
+            branches: []
+        };
+
+        variable.properties.variable.value = values.confName;
+        variable.properties.defaultable.value =
+        values.confValue === "" || values.confValue === null ?
+                "?"
+                : '"' + values.confValue + '"';
+        variable.properties.defaultable.optional = true;
+        variable.properties.type.value = "anydata";
+
         rpcClient.getVisualizerLocation().then((location) => {
             rpcClient
                 .getBIDiagramRpcClient()
                 .updateConfigVariables({
-                    configVariable: values,
+                    configVariable: variable,
                     configFilePath: Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath
                 })
                 .then((response: any) => {
@@ -604,6 +673,3 @@ export function FormGenerator(props: FormProps) {
 }
 
 export default FormGenerator;
-
-
-

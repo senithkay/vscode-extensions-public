@@ -12,7 +12,6 @@ import { Button, Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, TextField }
 import { HelperPaneVariableInfo } from '../../../Form/types';
 import styled from '@emotion/styled';
 import { Colors } from '../../../../resources/constants';
-import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 
 type ConfigurablePageProps = {
     isLoading: boolean;
@@ -63,75 +62,14 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
         setSearchValue(searchText);
     };
 
-    const variable: ConfigVariable = {
-        "id": "",
-        "metadata": {
-            "label": "Config",
-            "description": "Create a configurable variable"
-        },
-        "codedata": {
-            "node": "CONFIG_VARIABLE",
-            "lineRange": {
-                "fileName": "config.bal",
-                "startLine": {
-                    "line": 0,
-                    "offset": 0
-                },
-                "endLine": {
-                    "line": 0,
-                    "offset": 0
-                }
-            }
-        },
-        "returning": false,
-        "properties": {
-            "type": {
-                "metadata": {
-                    "label": "Type",
-                    "description": "Type of the variable"
-                },
-                "valueType": "TYPE",
-                "value": "",
-                "optional": false,
-                "advanced": false,
-                "editable": true
-            },
-            "variable": {
-                "metadata": {
-                    "label": "Variable",
-                    "description": "Name of the variable"
-                },
-                "valueType": "IDENTIFIER",
-                "value": "",
-                "optional": false,
-                "advanced": false,
-                "editable": true,
-            },
-            "defaultable": {
-                "metadata": {
-                    "label": "Default value",
-                    "description": "Default value for the config, if empty your need to provide a value at runtime"
-                },
-                "valueType": "EXPRESSION",
-                "value": "",
-                "optional": true,
-                "advanced": true,
-                "editable": true
-            }
-        },
-        branches: []
-    };
-
     const handleSave = () => {
-        variable.properties.variable.value = confName;
-        variable.properties.defaultable.value =
-            confValue === "" || confValue === null ?
-                "?"
-                : '"' + confValue + '"';
-        variable.properties.defaultable.optional = true;
-        variable.properties.type.value = "anydata";
 
-        onSave(variable as any)
+        const confData = {
+            confName: confName,
+            confValue: confValue
+        }
+
+        onSave(confData as any)
             .then(() => {
             setIsFormVisible(false);
             setCurrentPage(3);
