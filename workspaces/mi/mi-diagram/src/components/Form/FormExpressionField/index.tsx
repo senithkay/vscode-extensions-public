@@ -337,11 +337,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
+                {labelAdornment}
             </S.Header>
             <div>
                 <FormExpressionEditor
                     ref={expressionRef}
-                    labelAdornment={labelAdornment}
                     disabled={disabled}
                     value={extractExpressionValue(value.value)}
                     placeholder={placeholder}
