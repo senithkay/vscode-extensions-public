@@ -39,7 +39,7 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, startAdornment, endAdornment, ...rest } = props;
 
     const handleHelperPaneToggle = () => {
         props.changeHelperPaneState?.(!props.isHelperPaneOpen);
@@ -48,7 +48,9 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
+                {startAdornment}
                 <ExpressionEditor ref={ref} {...rest} />
+                {endAdornment}
             </Ex.ExpressionBox>
             {getExpressionEditorIcon ? getExpressionEditorIcon() : (
                 props.changeHelperPaneState && (
