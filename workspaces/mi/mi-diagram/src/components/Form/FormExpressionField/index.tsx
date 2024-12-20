@@ -25,7 +25,7 @@ import {
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from './HelperPane';
-import { filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, modifyCompletion } from './utils';
+import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, modifyCompletion } from './utils';
 
 type EXProps = {
     isActive: boolean;
@@ -51,6 +51,7 @@ type StyleProps = {
  * @param onBlur - Callback function to be called when the expression is blurred
  * @param onCancel - Callback function to be called when the completions dropdown is closed
  * @param openExpressionEditor - Callback function to be called when the expression editor is opened
+ * @param expressionType - Whether the expression is of type xpath/jsonPath or synapse
  * @param errorMsg - The error message to display
  * @param sx - The style to apply to the container
  */
@@ -69,6 +70,7 @@ type FormExpressionFieldProps = {
     onBlur?: (e?: any) => void | Promise<void>;
     onCancel?: () => void;
     openExpressionEditor: (value: FormExpressionFieldValue, setValue: (value: FormExpressionFieldValue) => void) => void;
+    expressionType?: 'xpath/jsonPath' | 'synapse';
     errorMsg: string;
     sx?: CSSProperties;
 };
@@ -89,10 +91,20 @@ export namespace S {
         textTransform: 'capitalize',
     });
 
-    export const LabelEndAdornment = styled.div({
+    export const ExpressionIconContainer = styled.div({
         marginLeft: 'auto',
         marginRight: '44px'
     });
+
+    export const AdornmentContainer = styled.div({
+        marginTop: '3.75px',
+        marginBottom: '2.5px',
+        width: '22px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'var(--vscode-inputOption-activeBackground)'
+    })
 
     export const EX = styled.div<EXProps>(({ isActive }: EXProps) => ({
         display: 'flex',
@@ -138,6 +150,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         errorMsg,
         onFocus,
         onBlur,
+        expressionType = 'synapse',
         openExpressionEditor,
         sx
     } = params;
@@ -163,7 +176,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             const machineView = await rpcClient.getVisualizerState();
             const completions = await rpcClient.getMiDiagramRpcClient().getExpressionCompletions({
                 documentUri: machineView.documentUri,
-                expression,
+                expression: expression,
                 position: nodeRange.start,
                 offset: cursorPosition,
             });
@@ -181,7 +194,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     ]);
 
     const handleExpressionChange = async (expression: string, updatedCursorPosition: number) => {
-        onChange({ ...value, value: expression });
+        onChange({ ...value, value: enrichExpressionValue(expression, expressionType) });
         cursorPositionRef.current = updatedCursorPosition;
 
         // Only retrieve completions if the value is an expression
@@ -314,7 +327,7 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
-                <S.LabelEndAdornment>
+                <S.ExpressionIconContainer>
                     {value.isExpression && (
                         <>
                             {isExActive && (
@@ -337,21 +350,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                             </Button>
                         </>
                     )}
-                </S.LabelEndAdornment>
+                </S.ExpressionIconContainer>
             </S.Header>
             <div>
                 <FormExpressionEditor
                     ref={expressionRef}
                     labelAdornment={labelAdornment}
                     disabled={disabled}
-                    value={value.value}
+                    value={extractExpressionValue(value.value)}
                     placeholder={placeholder}
                     onChange={handleExpressionChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     onCancel={handleCancel}
                     getExpressionEditorIcon={handleGetExpressionEditorIcon}
-                    {...(value.isExpression && {
+                    {...(expressionType === 'synapse' && {
+                        startAdornment: <S.AdornmentContainer>
+                            <Typography variant='h4' sx={{ margin: 0 }}>{'${'}</Typography>
+                        </S.AdornmentContainer>,
+                        endAdornment: <S.AdornmentContainer>
+                            <Typography variant='h4' sx={{ margin: 0 }}>{'}'}</Typography>
+                        </S.AdornmentContainer>
+                    })}
+                    {...(expressionType !== 'xpath/jsonPath' && value.isExpression && {
                         completions,
                         isHelperPaneOpen,
                         changeHelperPaneState: handleChangeHelperPaneState,
