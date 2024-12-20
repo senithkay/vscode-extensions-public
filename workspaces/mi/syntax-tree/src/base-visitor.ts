@@ -420,6 +420,9 @@ export interface Visitor {
     beginVisitVariable?(node: Synapse.Variable): void;
     endVisitVariable?(node: Synapse.Variable): void;
 
+    beginVisitThrowError?(node: Synapse.ThrowError): void;
+    endVisitThrowError?(node: Synapse.ThrowError): void;
+
     beginVisitAPIHandlersHandlerProperty?(node: Synapse.APIHandlersHandlerProperty): void;
     endVisitAPIHandlersHandlerProperty?(node: Synapse.APIHandlersHandlerProperty): void;
 
