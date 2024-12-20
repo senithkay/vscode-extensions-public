@@ -127,7 +127,6 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 					id={"recordfield-" + id}
 					onMouseEnter={onMouseEnter}
 					onMouseLeave={onMouseLeave}
-					// className={isExprBarFocused ? classes.treeLabelPortExprFocused : ""}
 				>
 					<span className={classes.inPort}>
 						{portIn && (

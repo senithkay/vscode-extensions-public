@@ -112,17 +112,10 @@ export function hasNoOutputMatchFound(outputType: IOType, filteredOutputType: IO
 	} else if (outputType.kind === TypeKind.Record && filteredOutputType.kind === TypeKind.Record) {
 		return filteredOutputType?.fields.length === 0;
 	} else if (outputType.kind === TypeKind.Array && filteredOutputType.kind === TypeKind.Array) {
-		// return hasNoMatchFoundInArray(filteredOutputType?.elements, searchValue);
+		// Handle array output
 	}
 	return false;
 }
-
-// export function getFilteredMappings(mappings: Mapping[], searchValue: string) {
-// 	return mappings.filter(mapping => {
-// 		const outputField = mapping.output.split(".").pop();
-// 		return searchValue === "" || outputField.toLowerCase().includes(searchValue.toLowerCase());
-// 	});
-// }
 
 export function getFilteredMappings(mappings: Mapping[], searchValue: string): Mapping[] {
     return mappings.flatMap(mapping => {

@@ -122,14 +122,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
                 lm.addLabel(new ExpressionLabelModel({
                     value: mapping.expression,
                     link: lm,
-                    context: this.context,
-                    // field: Node.isPropertyAssignment(field)
-                    //     ? field.getInitializer()
-                    //     : field,
-                    // editorLabel: Node.isPropertyAssignment(field)
-                    //     ? field.getName()
-                    //     : outPort.fieldFQN  && `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-                    // deleteLink: () => this.deleteField(field, true)
+                    context: this.context
                 }));
 
                 lm.registerListener({

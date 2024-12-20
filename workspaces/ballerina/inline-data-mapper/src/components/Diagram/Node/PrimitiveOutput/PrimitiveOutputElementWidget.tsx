@@ -73,8 +73,6 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     const portIn = getPort(`${fieldId}.IN`);
     const isExprBarFocused = exprBarFocusedPort?.getName() === portIn?.getName();
     const mapping = portIn && portIn.value;
-    // const parentMappings = findMappingByOutput(context.model.mappings, field.id);
-    // const mapping = findMappingByOutput(parentMappings?.elements || context.model.mappings, `${field.id}.${fieldIndex}`);
     const { expression, diagnostics } = mapping || {};
 
     const handleEditValue = () => {

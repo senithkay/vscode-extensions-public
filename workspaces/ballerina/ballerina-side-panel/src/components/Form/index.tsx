@@ -246,25 +246,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     useEffect(() => {
         if (updatedExpressionField) {
-
-            if (subPanelView === SubPanelView.HELPER_PANEL) {
-                const currentValue = getValues(updatedExpressionField.key);
-
-                if (currentValue !== undefined) {
-                    let newValue;
-                    if (updatedExpressionField?.isConfigured) {
-                        newValue = updatedExpressionField.value;
-                    } else {
-                        const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                        newValue = currentValue.slice(0, cursorPosition) +
-                            updatedExpressionField.value +
-                            currentValue.slice(cursorPosition);
-                    }
-
-                    setValue(updatedExpressionField.key, newValue);
-                    resetUpdatedExpressionField && resetUpdatedExpressionField();
-                }
-            } else if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+            if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
                 const { key, value } = updatedExpressionField;
                 // Update the form field value
                 setValue(key, value);
@@ -286,7 +268,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
                     }
                 });
             }
-
         }
     }, [updatedExpressionField]);
 

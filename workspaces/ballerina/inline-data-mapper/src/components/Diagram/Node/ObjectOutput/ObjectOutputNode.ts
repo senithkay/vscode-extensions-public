@@ -105,8 +105,7 @@ export class ObjectOutputNode extends DataMapperNodeModel {
                 lm.addLabel(
                     new ExpressionLabelModel({
                         value: mapping.expression,
-                        link: lm,
-                        // deleteLink: () => this.deleteField(field, keepDefault),
+                        link: lm
                     }
                 ));
 

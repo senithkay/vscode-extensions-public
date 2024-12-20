@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
+
 import { InputNode, ObjectOutputNode } from "../Node";
 import { InputOutputPortModel } from "../Port";
 import { ARRAY_OUTPUT_TARGET_PORT_PREFIX, OBJECT_OUTPUT_TARGET_PORT_PREFIX } from "./constants";

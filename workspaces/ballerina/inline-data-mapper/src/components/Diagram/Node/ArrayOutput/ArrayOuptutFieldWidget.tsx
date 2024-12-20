@@ -175,7 +175,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const arrayElements = useMemo(() => {
         return elements && (
             elements.map((element, index) => {
-                // const { expression } = element;
                 if (arrayField?.kind === TypeKind.Record) {
                     return (
                         <>
@@ -275,7 +274,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const handleArrayDeletion = async () => {
         setLoading(true);
         try {
-            // await deleteField(field.value);
+            // TODO: Implement
         } finally {
             setLoading(false);
         }

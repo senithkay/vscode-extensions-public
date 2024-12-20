@@ -52,7 +52,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
 
-    // let fieldName = field.variableName || '';
     let indentation = treeDepth * 16;
     let expanded = true;
 
@@ -61,9 +60,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const isArray = typeKind === TypeKind.Array;
     const isRecord = typeKind === TypeKind.Record;
 
-    // const fieldId = fieldIndex !== undefined
-    //     ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
-    //     : `${parentId}${fieldName && `.${fieldName}`}`;
     let updatedParentId = parentId;
     if (fieldIndex !== undefined) {
         updatedParentId = `${parentId}.${fieldIndex}`
@@ -153,8 +149,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelParentHovered : "",
-                        // isExprBarFocused ? classes.treeLabelPortExprFocused : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}

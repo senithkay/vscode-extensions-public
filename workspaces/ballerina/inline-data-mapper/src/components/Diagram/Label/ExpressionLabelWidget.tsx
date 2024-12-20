@@ -19,7 +19,6 @@ import { InputOutputPortModel } from '../Port';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { useDMCollapsedFieldsStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
 
 export interface ExpressionLabelWidgetProps {
@@ -109,8 +108,6 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
-    const collapsedFieldsStore = useDMCollapsedFieldsStore();
-
     const classes = useStyles();
     const { link, value, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
@@ -143,8 +140,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: MouseEvent<HTMLDivElement>) => {
-        // const range = getEditorLineAndColumn(field);
-        // context.goToSource(range);
+        // TODO: Implement
     };
 
     const loadingScreen = (
@@ -183,16 +179,11 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     ];
 
     const onClickMapViaArrayFn = async () => {
-        if (target instanceof InputOutputPortModel) {
-            const targetPortField = target.field;
-
-            if (targetPortField.kind === TypeKind.Array && targetPortField?.member) {
-                // await applyArrayFunction(link, targetPortField.member);
-            }
-        }
+        // TODO: Implement
     };
 
     const applyArrayFunction = async (linkModel: DataMapperLinkModel, targetType: IDMType) => {
+        // TODO: Implement
     };
 
     const codeActions = [];
@@ -230,30 +221,8 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
         );
     }
 
-    let isSourceCollapsed = false;
-    let isTargetCollapsed = false;
-    const collapsedFields = collapsedFieldsStore.collapsedFields;
-
     const source = link?.getSourcePort();
     const target = link?.getTargetPort();
-
-    if (source instanceof InputOutputPortModel) {
-        // if (source?.parentId) {
-        //     const fieldName = source.field.fieldName;
-        //     isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
-        // } else {
-        //     isSourceCollapsed = collapsedFields?.includes(source.portName)
-        // }
-    }
-
-    if (target instanceof InputOutputPortModel) {
-        // if (target?.parentId) {
-        //     const fieldName = target.field.fieldName;
-        //     isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
-        // } else {
-        //     isTargetCollapsed = collapsedFields?.includes(target.portName)
-        // }
-    }
 
     return linkStatus === LinkState.TemporaryLink
         ? (
