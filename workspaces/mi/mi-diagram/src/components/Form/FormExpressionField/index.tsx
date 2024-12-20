@@ -327,7 +327,10 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                 tooltip: 'Open Helper Pane',
                 iconType: 'icon' as any,
                 name: 'function-icon',
-                onClick: () => handleChangeHelperPaneState(!isHelperPaneOpen)
+                onClick: () => {
+                    expressionRef.current?.focus();
+                    handleChangeHelperPaneState(!isHelperPaneOpen)
+                }
             }
         ];
     }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
