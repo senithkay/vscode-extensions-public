@@ -4015,12 +4015,14 @@ ${keyValuesXML}`;
     }
 
     async logoutFromMIAccount(): Promise<void> {
+        const config = vscode.workspace.getConfiguration('MI');
         const confirm = await window.showInformationMessage('Are you sure you want to logout?', 'Yes', 'No');
         if (confirm === 'Yes') {
             const token = await extension.context.secrets.get('MIAIUser');
-            const clientId = 'i42PUygaucczvuPmhZFw5x8Lmswa';
+            const clientId = config.get('authClientID') as string;
+            const authOrg = config.get('authOrg') as string;
 
-            let response = await fetch('https://api.asgardeo.io/t/wso2midev/oauth2/revoke', {
+            let response = await fetch(`https://api.asgardeo.io/t/${authOrg}/oauth2/revoke`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
