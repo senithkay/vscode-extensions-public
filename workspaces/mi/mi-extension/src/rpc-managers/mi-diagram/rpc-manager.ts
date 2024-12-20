@@ -344,6 +344,14 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
+    async shutDownTryoutServer(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.shutdownTryoutServer();
+            resolve(res);
+        });
+    }
+
     async getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return new Promise(async (resolve) => {
             const projectUri = StateMachine.context().projectUri!;
