@@ -229,6 +229,7 @@ export const MEDIATORS = {
     BUILDER: "syn:builder",
     PUBLISHEVENT: "PublishEvent",
     NTLM: "NTLM",
+    THROWERROR: "ThrowError",
 }
 
 export const ENDPOINTS = {
