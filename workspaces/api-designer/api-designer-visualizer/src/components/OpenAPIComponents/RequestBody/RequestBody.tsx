@@ -132,14 +132,19 @@ export function RequestBody(props: RequestBodyProps) {
                     <>
                         {!isRefereceObject(requestBody) && (
                             <>
-                                <Button tooltip='Import from JSON' onClick={handleImportJSON} appearance='icon'>
-                                    <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
-                                </Button>
-                                <Dropdown
-                                    id="media-type-dropdown"
-                                    value={selectedMediaType || "application/json"}
-                                    items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
-                                    onValueChange={(value) => setSelectedMediaType(value)} />
+                                {allMediaTypes?.length > 0 && (
+                                    <>
+                                        <Button tooltip='Import from JSON' onClick={handleImportJSON} appearance='icon'>
+                                            <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
+                                        </Button>
+                                        <Dropdown
+                                            id="media-type-dropdown"
+                                            value={selectedMediaType || "application/json"}
+                                            items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
+                                            onValueChange={(value) => setSelectedMediaType(value)} 
+                                        />
+                                    </>
+                                )}
                                 <Button tooltip='Configure Content Types' onClick={onConfigureRequestClick} appearance='icon'>
                                     <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
                                 </Button>
@@ -160,7 +165,7 @@ export function RequestBody(props: RequestBodyProps) {
                     }
                 />
             )}
-            {selectedMediaType && requestBody.content && (
+            {selectedMediaType && requestBody?.content && (
                 <MediaType
                     mediaType={requestBody.content[selectedMediaType]}
                     onMediaTypeChange={handleMediaTypeChange}

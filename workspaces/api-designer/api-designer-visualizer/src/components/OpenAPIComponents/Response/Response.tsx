@@ -39,7 +39,7 @@ export function Response(props: ResponseProps) {
         const newResponse: R = {
             ...response,
             content: options.reduce((acc, item) => {
-                acc[item] = response.content[item] || { schema: { type: "object" } };
+                acc[item] = (response?.content && response?.content[item]) || { schema: { type: "object" } };
                 return acc;
             }, {} as Content)
         };
@@ -50,7 +50,7 @@ export function Response(props: ResponseProps) {
     const handleConfigureClick = () => {
         rpcClient.selectQuickPickItems({
             title: "Select Types",
-            items: MediaTypes.map(item => ({ label: item, picked: responseMediaTypes.includes(item) }))
+            items: MediaTypes.map(item => ({ label: item, picked: responseMediaTypes?.includes(item) }))
         }).then(resp => {
             if (resp) {
                 handleOptionChange(resp.map(item => item.label))
@@ -68,9 +68,11 @@ export function Response(props: ResponseProps) {
                 const schema: Schema = resp;
                 const newResponse: R = {
                     ...response,
-                    [selectedMediaType]: {
-                        ...response[selectedMediaType],
-                        schema: schema
+                    content: {
+                        ...response.content,
+                        [selectedMediaType]: {
+                            schema
+                        }
                     }
                 };
                 handleResponsesChange(newResponse);
@@ -115,22 +117,26 @@ export function Response(props: ResponseProps) {
                 variant='h3'
                 actionButtons={
                     <>
-                        <Button tooltip='Import from JSON' onClick={handleImportJSON} appearance='icon'>
-                            <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
-                        </Button>
-                        <Dropdown
-                            id="media-type-dropdown"
-                            value={selectedMediaType}
-                            items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
-                            onValueChange={(value) => setSelectedMediaType(value)}
-                        />
+                        {allMediaTypes?.length > 0 && (
+                            <>
+                                <Button tooltip='Import from JSON' onClick={handleImportJSON} appearance='icon'>
+                                    <Codicon name='arrow-circle-down' sx={{ marginRight: "4px" }} /> Import JSON
+                                </Button>
+                                <Dropdown
+                                    id="media-type-dropdown"
+                                    value={selectedMediaType}
+                                    items={allMediaTypes?.map(mediaType => ({ label: mediaType, value: mediaType }))}
+                                    onValueChange={(value) => setSelectedMediaType(value)}
+                                />
+                            </>
+                        )}
                         <Button tooltip='Configure Content Types' onClick={handleConfigureClick} appearance='icon'>
                             <Codicon name='gear' sx={{ marginRight: "4px" }} /> Configure
                         </Button>
                     </>
                 }
             />
-            {selectedMediaType && (
+            {selectedMediaType && response?.content && (
                 <MediaType
                     mediaType={response?.content[selectedMediaType]}
                     onMediaTypeChange={handleMediaTypeChange}
