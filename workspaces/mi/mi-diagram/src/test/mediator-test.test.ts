@@ -280,6 +280,11 @@ export const mediatorTestCases: MediatorTestCase[] = [
         type: "Variable",
         expectedDescription: "Variable Description",
         expectedDefaultDescription: undefined
+    },
+    {
+        type: "ThrowError",
+        expectedDescription: "Throw Error Description",
+        expectedDefaultDescription: undefined
     }
     // Add more test cases as needed
 ];

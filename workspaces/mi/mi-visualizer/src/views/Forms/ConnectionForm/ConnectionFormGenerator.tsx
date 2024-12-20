@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, FormActions, FormView, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormActions, FormView, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -24,10 +24,10 @@ const ParamManagerContainer = styled.div`
 
 export interface AddConnectionProps {
     path: string;
-    allowedConnectionTypes?: string[];
+    connectionType?: string;
     connector?: any;
     connectionName?: string;
-    changeConnector?: () => void;
+    changeConnectionType?: () => void;
     fromSidePanel?: boolean;
     isPopup?: boolean;
     handlePopupClose?: () => void;
@@ -36,17 +36,20 @@ export interface AddConnectionProps {
 const expressionFieldTypes = ['stringOrExpression', 'integerOrExpression', 'textAreaOrExpression', 'textOrExpression', 'stringOrExpresion'];
 
 export function AddConnection(props: AddConnectionProps) {
-    const { allowedConnectionTypes, handlePopupClose } = props;
+    const { handlePopupClose } = props;
     const { rpcClient } = useVisualizerContext();
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
+    const [connectionSuccess, setConnectionSuccess] = useState(null);
+    const [isTesting, setIsTesting] = useState(false);
+    const [connectionErrorMessage, setConnectionErrorMessage] = useState(null);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? ""
         }
     });
-    const [connectionType, setConnectionType] = useState(allowedConnectionTypes ? allowedConnectionTypes[0] : "");
+    const [connectionType, setConnectionType] = useState(props.connectionType ?? "");
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -106,7 +109,6 @@ export function AddConnection(props: AddConnectionProps) {
                 });
                 props.connector.name = connector.name;
 
-                const connectionUiSchema = connector.connectionUiSchema[connectionFound.connectionType];
                 const connectionSchema = await rpcClient.getMiDiagramRpcClient().getConnectionSchema({
                     documentUri: props.path  });
                 setConnectionType(connectionFound.connectionType);
@@ -220,9 +222,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 namespaces.forEach((namespace: any) => {
                                     element.att(`xmlns:${namespace.prefix}`, namespace.uri);
                                 });
-                                element.txt(`\${${value}}`);
+                                element.txt(`{${value}}`);
                             } else {
-                                connectorTag.ele(key).txt(`\${${value}}`);
+                                connectorTag.ele(key).txt(`{${value}}`);
                             }
                         } else {
                             connectorTag.ele(key).txt(value);
@@ -328,10 +330,33 @@ export function AddConnection(props: AddConnectionProps) {
     const handleOnClose = () => {
         if (props.fromSidePanel) {
             handlePopupClose();
-        } else if (props.changeConnector) {
-            props.changeConnector();
+        } else if (props.changeConnectionType) {
+            props.changeConnectionType();
         } else {
             rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
+        }
+    }
+
+    const testConnection = async (values: any) => {
+        setIsTesting(true);
+        setConnectionSuccess(null);
+        setConnectionErrorMessage(null);
+        try {
+            const testResponse = await rpcClient.getMiDiagramRpcClient().testConnectorConnection({
+                connectorName: props.connector.name,
+                connectionType: connectionType,
+                parameters: getValues()
+            });
+            setConnectionSuccess(testResponse.isConnectionValid);
+            if (testResponse.errorMessage) {
+                setConnectionErrorMessage(testResponse.errorMessage);
+            }
+        } catch (error) {
+            console.error("Error in testing connection", error);
+            setConnectionSuccess(false);
+            setConnectionErrorMessage("Connection failed. Please check your settings and try again.");
+        } finally {
+            setIsTesting(false);
         }
     }
 
@@ -360,7 +385,7 @@ export function AddConnection(props: AddConnectionProps) {
         <FormView title={`Add New Connection`} onClose={handlePopupClose ?? handleOnClose}>
             {!props.fromSidePanel && <TypeChip
                 type={connectionType}
-                onClick={props.changeConnector}
+                onClick={props.changeConnectionType}
                 showButton={!props.connectionName}
                 id='Connection:'
             />}
@@ -379,6 +404,32 @@ export function AddConnection(props: AddConnectionProps) {
                             skipGeneralHeading={true}
                             ignoreFields={["connectionName"]} />
                         <FormActions>
+                            {formData.testConnectionEnabled && <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
+                                <Button
+                                    appearance='secondary'
+                                    onClick={testConnection}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    disabled={isTesting}
+                                >
+                                    Test Connection
+                                    {isTesting && (
+                                        <span style={{ display: 'flex', alignItems: 'center', marginLeft: '8px' }}>
+                                            <Codicon name="loading" iconSx={{ color: 'white' }} />
+                                        </span>
+                                    )}
+                                </Button>
+                                {connectionSuccess !== null && (
+                                    connectionSuccess ? (
+                                        <Codicon name="pass" iconSx={{ color: 'green' }} sx={{ marginLeft: '10px' }} />
+                                    ) : (
+                                        <Codicon name="error" iconSx={{ color: 'red' }} sx={{ marginLeft: '10px' }} />
+                                    )
+                                )}
+                            </div>}
                             <Button
                                 appearance="primary"
                                 onClick={handleSubmit(onAddConnection)}
@@ -392,6 +443,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 Cancel
                             </Button>
                         </FormActions>
+                        { connectionErrorMessage && <span style={{ color: 'red' }}>
+                            {connectionErrorMessage}
+                        </span>}
                     </>
                 </>
             ) : (

@@ -219,7 +219,9 @@ import {
     RemoveConnectorRequest,
     RemoveConnectorResponse,
     GetHelperPaneInfoRequest,
-    GetHelperPaneInfoResponse
+    GetHelperPaneInfoResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse
 } from "./types";
 
 export interface MiDiagramAPI {
@@ -359,6 +361,7 @@ export interface MiDiagramAPI {
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    shutDownTryoutServer: () => Promise<boolean>;
     saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
     getInputPayload: (params:GetPayloadRequest) => Promise<GetPayloadResponse>;
     getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
@@ -368,4 +371,5 @@ export interface MiDiagramAPI {
     getConnectionSchema: (param: GetConnectionSchemaRequest) => Promise<GetConnectionSchemaResponse>;
     getExpressionCompletions: (params: ExpressionCompletionsRequest) => Promise<ExpressionCompletionsResponse>;
     getHelperPaneInfo: (params: GetHelperPaneInfoRequest) => Promise<GetHelperPaneInfoResponse>;
+    testConnectorConnection: (params: TestConnectorConnectionRequest) => Promise<TestConnectorConnectionResponse>;
 }

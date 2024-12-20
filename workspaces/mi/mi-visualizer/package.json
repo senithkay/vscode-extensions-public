@@ -56,7 +56,7 @@
     "react-hot-loader": "~4.13.1",
     "@pmmmwh/react-refresh-webpack-plugin": "~0.5.15",
     "upath": "~2.0.1",
-    "@wso2-enterprise/component-diagram": "workspace:*",
+    "@wso2-enterprise/mi-component-diagram": "workspace:*",
     "lodash": "~4.17.21"
   },
   "devDependencies": {

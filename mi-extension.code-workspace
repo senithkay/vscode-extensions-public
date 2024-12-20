@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "workspaces/common-libs/service-designer"
+		},
+		{
+			"path": "workspaces/mi/mi-component-diagram"
 		}
 	]
 }

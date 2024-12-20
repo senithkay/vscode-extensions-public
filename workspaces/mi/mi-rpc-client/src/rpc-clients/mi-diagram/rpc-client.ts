@@ -367,7 +367,11 @@ import {
     askOpenAPIDirPath,
     RemoveConnectorRequest,
     removeConnector,
-    RemoveConnectorResponse
+    RemoveConnectorResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse,
+    testConnectorConnection,
+    shutDownTryoutServer
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -923,6 +927,10 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(tryOutMediator, HOST_EXTENSION, params);
     }
 
+    shutDownTryoutServer(): Promise<boolean> {
+        return this._messenger.sendRequest(shutDownTryoutServer, HOST_EXTENSION);
+    }
+
     getMediatorInputOutputSchema(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return this._messenger.sendRequest(getMediatorInputOutputSchema, HOST_EXTENSION, params);
     }
@@ -956,5 +964,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
         return this._messenger.sendRequest(getHelperPaneInfo, HOST_EXTENSION, params);
+    }
+
+    testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
+        return this._messenger.sendRequest(testConnectorConnection, HOST_EXTENSION, params);
     }
 }

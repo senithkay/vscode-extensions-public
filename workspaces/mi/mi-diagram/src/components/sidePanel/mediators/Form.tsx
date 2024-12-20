@@ -14,7 +14,6 @@ import styled from "@emotion/styled";
 import { sidepanelGoBack } from "..";
 import SidePanelContext, { clearSidePanelState } from "../SidePanelContexProvider";
 import { useVisualizerContext, } from "@wso2-enterprise/mi-rpc-client";
-import { getParamManagerValues } from "../../Form/common";
 import { GetMediatorResponse } from "@wso2-enterprise/mi-core";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ERROR_MESSAGES } from "../../../resources/constants";
@@ -47,8 +46,18 @@ export function MediatorForm(props: MediatorFormProps) {
     const handleOnSubmit = async (values: any) => {
         setDiagramLoading(true);
         for (const key in values) {
-            if (values[key]?.paramValues) {
-                values[key] = getParamManagerValues(values[key]);
+            // Handle paramerter manager
+            if (Array.isArray(values[key])) {
+                values[key] = values[key].map((item: any) => {
+                    const extractValues: any = (obj: any) => {
+                        return Object.values(obj).map((value: any) =>
+                            Array.isArray(value) ? value.map((subItem: any) =>
+                                (subItem instanceof Object) ? extractValues(subItem) : subItem
+                            ) : value
+                        );
+                    };
+                    return extractValues(item);
+                });
             }
         }
         rpcClient.getMiDiagramRpcClient().updateMediator({
