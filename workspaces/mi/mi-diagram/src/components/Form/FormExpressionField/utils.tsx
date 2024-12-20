@@ -168,7 +168,7 @@ export const getHelperPaneCompletionItem = (
  */
 export const extractExpressionValue = (expression: string) => {
     const synapseExRegex = /^\$\{(.*)\}$/;
-    const match = expression.match(synapseExRegex);
+    const match = expression?.match(synapseExRegex);
     if (match) {
         return match[1];
     }

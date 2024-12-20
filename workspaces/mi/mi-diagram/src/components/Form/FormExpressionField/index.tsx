@@ -8,7 +8,7 @@
  */
 
 import { debounce } from 'lodash';
-import React, { CSSProperties, ReactNode, useCallback, useRef, useState } from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { Range } from 'vscode-languageserver-types';
 import styled from '@emotion/styled';
 import { HelperPaneCompletionItem, HelperPaneFunctionInfo, FormExpressionFieldValue } from '@wso2-enterprise/mi-core';
@@ -89,11 +89,6 @@ export namespace S {
     export const Label = styled.label({
         color: 'var(--vscode-editor-foreground)',
         textTransform: 'capitalize',
-    });
-
-    export const ExpressionIconContainer = styled.div({
-        marginLeft: 'auto',
-        marginRight: '44px'
     });
 
     export const AdornmentContainer = styled.div({
@@ -272,12 +267,6 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     }, [getHelperPaneInfo]);
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
-        if (isOpen) {
-            expressionRef.current?.focus();
-        } else {
-            expressionRef.current?.blur();
-        }
-
         setIsHelperPaneOpen(isOpen);
     }
 
@@ -322,40 +311,40 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
         );
     }
 
+    const actionButtons = useMemo(() => {
+        if (!value.isExpression) {
+            return [];
+        }
+
+        return [
+            ...(isExActive ? [{
+                tooltip: 'Open Expression Editor',
+                iconType: 'codicon' as any,
+                name: 'edit',
+                onClick: () => openExpressionEditor(value, onChange)
+            }] : []),
+            {
+                tooltip: 'Open Helper Pane',
+                iconType: 'icon' as any,
+                name: 'function-icon',
+                onClick: () => {
+                    expressionRef.current?.focus();
+                    handleChangeHelperPaneState(!isHelperPaneOpen)
+                }
+            }
+        ];
+    }, [isExActive, isHelperPaneOpen, value, handleChangeHelperPaneState, openExpressionEditor, onChange]);
+
     return (
         <S.Container id={id} sx={sx}>
             <S.Header>
                 <S.Label>{label}</S.Label>
                 {required && <RequiredFormInput />}
-                <S.ExpressionIconContainer>
-                    {value.isExpression && (
-                        <>
-                            {isExActive && (
-                                <Button
-                                    tooltip="Open Expression editor"
-                                    appearance='icon'
-                                    onClick={() => openExpressionEditor(value, onChange)}
-                                    sx={{ height: '14px', width: '12px' }}
-                                >
-                                    <Codicon name="edit" iconSx={{ fontSize: '12px' }} sx={{ height: '12px', width: '12px' }} />
-                                </Button>
-                            )}
-                            <Button
-                                tooltip="Open Helper Pane"
-                                appearance='icon'
-                                onClick={() => handleChangeHelperPaneState(!isHelperPaneOpen)}
-                                sx={{ height: '14px', width: '12px' }}
-                            >
-                                <Icon name="function-icon" sx={{ color: 'var(--vscode-button-background)' }} />
-                            </Button>
-                        </>
-                    )}
-                </S.ExpressionIconContainer>
+                {labelAdornment}
             </S.Header>
             <div>
                 <FormExpressionEditor
                     ref={expressionRef}
-                    labelAdornment={labelAdornment}
                     disabled={disabled}
                     value={extractExpressionValue(value.value)}
                     placeholder={placeholder}
@@ -374,10 +363,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     })}
                     {...(expressionType !== 'xpath/jsonPath' && value.isExpression && {
                         completions,
+                        actionButtons,
                         isHelperPaneOpen,
                         changeHelperPaneState: handleChangeHelperPaneState,
                         getHelperPane: handleGetHelperPane,
-                        onFunctionEdit: handleFunctionEdit,
+                        onFunctionEdit: handleFunctionEdit
                     })}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}

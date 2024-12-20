@@ -82,7 +82,6 @@ export type CompletionItem = {
 /* <------ Types related to the expression editor ------> */
 
 type ExpressionEditorBaseProps = {
-    labelAdornment?: ReactNode;
     autoFocus?: boolean;
     disabled?: boolean;
     value: string;
