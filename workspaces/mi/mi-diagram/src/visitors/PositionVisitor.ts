@@ -71,7 +71,8 @@ import {
     ProxyTarget,
     DbMediator,
     Rewrite,
-    Query
+    Query,
+    ThrowError
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { ADD_NEW_SEQUENCE_TAG, NODE_DIMENSIONS, NODE_GAP, NodeTypes } from "../resources/constants";
 
@@ -230,6 +231,7 @@ export class PositionVisitor implements Visitor {
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.setBasicMediatorPosition(node);
     beginVisitProperty = (node: Property): void => this.setBasicMediatorPosition(node);
     beginVisitVariable = (node: Variable): void => this.setBasicMediatorPosition(node);
+    beginVisitThrowError = (node: ThrowError): void => this.setBasicMediatorPosition(node);
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.setBasicMediatorPosition(node);

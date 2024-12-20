@@ -73,7 +73,8 @@ import {
     Target,
     DbMediator,
     Rewrite,
-    Query
+    Query,
+    ThrowError
 } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { MediatorNodeModel } from "../components/nodes/MediatorNode/MediatorNodeModel";
@@ -450,6 +451,7 @@ export class NodeFactoryVisitor implements Visitor {
     beginVisitPayloadFactory = (node: PayloadFactory): void => this.createNodeAndLinks({ node, name: MEDIATORS.PAYLOAD });
     beginVisitProperty = (node: Property): void => this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTY });
     beginVisitVariable = (node: Variable): void => this.createNodeAndLinks({ node, name: MEDIATORS.VARIABLE });
+    beginVisitThrowError = (node: ThrowError): void => this.createNodeAndLinks({ node, name: MEDIATORS.THROWERROR });
 
     beginVisitPropertyGroup = (node: PropertyGroup): void => {
         this.createNodeAndLinks({ node, name: MEDIATORS.PROPERTYGROUP });
@@ -619,6 +621,10 @@ export class NodeFactoryVisitor implements Visitor {
         this.skipChildrenVisit = true;
     }
     endVisitScatterGather(node: ScatterGather): void {
+        this.parents.pop();
+        this.skipChildrenVisit = false;
+    }
+    endVisitThrowError(node: ThrowError): void {
         this.parents.pop();
         this.skipChildrenVisit = false;
     }
