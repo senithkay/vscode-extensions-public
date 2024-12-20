@@ -25,7 +25,7 @@ import {
     Typography,
 } from '@wso2-enterprise/ui-toolkit';
 import { getHelperPane } from './HelperPane';
-import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, modifyCompletion } from './utils';
+import { enrichExpressionValue, extractExpressionValue, filterHelperPaneCompletionItems, filterHelperPaneFunctionCompletionItems, getExpressionValue, modifyCompletion } from './utils';
 
 type EXProps = {
     isActive: boolean;
@@ -189,7 +189,13 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     ]);
 
     const handleExpressionChange = async (expression: string, updatedCursorPosition: number) => {
-        onChange({ ...value, value: enrichExpressionValue(expression, expressionType) });
+        onChange({
+            ...value,
+            value:
+                value.isExpression && expressionType !== "xpath/jsonPath"
+                    ? enrichExpressionValue(expression)
+                    : expression,
+        });
         cursorPositionRef.current = updatedCursorPosition;
 
         // Only retrieve completions if the value is an expression
@@ -300,7 +306,11 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
     const handleGetExpressionEditorIcon = () => {
         const handleClick = () => {
             if (canChange) {
-                onChange({ ...value, isExpression: !value.isExpression });
+                onChange({
+                    ...value,
+                    isExpression: !value.isExpression,
+                    value: getExpressionValue(value.value, !value.isExpression)
+                });
             }
         }
 
@@ -353,22 +363,29 @@ export const FormExpressionField = (params: FormExpressionFieldProps) => {
                     onBlur={handleBlur}
                     onCancel={handleCancel}
                     getExpressionEditorIcon={handleGetExpressionEditorIcon}
-                    {...(expressionType === 'synapse' && {
-                        startAdornment: <S.AdornmentContainer>
-                            <Typography variant='h4' sx={{ margin: 0 }}>{'${'}</Typography>
-                        </S.AdornmentContainer>,
-                        endAdornment: <S.AdornmentContainer>
-                            <Typography variant='h4' sx={{ margin: 0 }}>{'}'}</Typography>
-                        </S.AdornmentContainer>
-                    })}
-                    {...(expressionType !== 'xpath/jsonPath' && value.isExpression && {
-                        completions,
-                        actionButtons,
-                        isHelperPaneOpen,
-                        changeHelperPaneState: handleChangeHelperPaneState,
-                        getHelperPane: handleGetHelperPane,
-                        onFunctionEdit: handleFunctionEdit
-                    })}
+                    {...(expressionType !== "xpath/jsonPath" &&
+                        value.isExpression && {
+                            completions,
+                            actionButtons,
+                            isHelperPaneOpen,
+                            changeHelperPaneState: handleChangeHelperPaneState,
+                            getHelperPane: handleGetHelperPane,
+                            onFunctionEdit: handleFunctionEdit,
+                            startAdornment: (
+                                <S.AdornmentContainer>
+                                    <Typography variant="h4" sx={{ margin: 0 }}>
+                                        {"${"}
+                                    </Typography>
+                                </S.AdornmentContainer>
+                            ),
+                            endAdornment: (
+                                <S.AdornmentContainer>
+                                    <Typography variant="h4" sx={{ margin: 0 }}>
+                                        {"}"}
+                                    </Typography>
+                                </S.AdornmentContainer>
+                            ),
+                        })}
                 />
                 {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
             </div>
