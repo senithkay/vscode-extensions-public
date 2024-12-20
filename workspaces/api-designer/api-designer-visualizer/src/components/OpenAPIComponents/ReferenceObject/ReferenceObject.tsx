@@ -48,29 +48,29 @@ export function ReferenceObject(props: ReferenceObjectsProps) {
     } = useContext(APIDesignerContext);
 
     const existingComponents: string[] = [];
-    if (type === "query") {
+    if (type === "query" && openAPI?.components?.parameters) {
         Object.keys(openAPI.components.parameters).forEach((key) => {
             if (openAPI.components.parameters[key].in === "query") {
                 existingComponents.push(key as string);
             }
         });
-    } else if (type === "header") {
+    } else if (type === "header" && openAPI?.components?.parameters) {
         Object.keys(openAPI.components.parameters).forEach((key) => {
             if (openAPI.components.parameters[key].in === "header") {
                 existingComponents.push(key as string);
             }
         });
-    } else if (type === "path") {
+    } else if (type === "path" && openAPI?.components?.parameters) {
         Object.keys(openAPI.components.parameters).forEach((key) => {
             if (openAPI.components.parameters[key].in === "path") {
                 existingComponents.push(key as string);
             }
         });
-    } else if (type === "response") {
+    } else if (type === "response" && openAPI?.components.responses) {
         Object.keys(openAPI.components.responses).forEach((key) => {
             existingComponents.push(key as string);
         });
-    } else if (type === "requestBody") {
+    } else if (type === "requestBody" && openAPI?.components.requestBodies) {
         Object.keys(openAPI.components.requestBodies).forEach((key) => {
             existingComponents.push(key as string);
         });
