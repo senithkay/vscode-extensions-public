@@ -98,6 +98,7 @@ export const generateProxyData = (model: Proxy): EditProxyForm => {
         startOnLoad: model.startOnLoad,
         inSequenceEdited: false,
         outSequenceEdited: false,
+        faultSequenceEdited: false,
         statistics: model.statistics === "enable" ? true : false,
         trace: model.trace === "enable" ? true : false,
     };
@@ -288,45 +289,68 @@ export const onProxyEdit = async (
         ...(data.trace && { trace: "enable" }),
         ...(data.statistics && { statistics: "enable" }),
     }
-    const tags = [ "other" , "target" , "proxy"];
+    const tags = ["other", "target", "proxy-to-target", "proxy"];
+    const edits = [];
     for (const tag of tags) {
         formValues.tag = tag;
-        const xml = getXML(ARTIFACT_TEMPLATES.EDIT_PROXY, formValues);
-        const ranges:Range = proxyRange(model,tag);
-        await rpcClient.getMiDiagramRpcClient().applyEdit({
+        const xml = tag === "proxy-to-target" ? "" : getXML(ARTIFACT_TEMPLATES.EDIT_PROXY, formValues);
+        const ranges: Range = proxyRange(model, tag);
+        edits.push({
             text: xml,
             documentUri: documentUri,
-            range: ranges
+            range: ranges,
+            disableFormatting: true
         });
     }
-    const sequences = ["out" , "in"]
+    edits.sort((a, b) => b.range.start.line - a.range.start.line);
+    for (let i = 0; i < edits.length; i++) {
+        await rpcClient.getMiDiagramRpcClient().applyEdit(edits[i]);
+    }
+    await rpcClient.getMiDiagramRpcClient().rangeFormat({
+        uri: documentUri
+    });
+    const sequences = ["fault", "in"];
+    let isInSequenceUpdated = false;
     for(const sequence of sequences){
-        if(data[`${sequence}SequenceEdited` as keyof typeof data]) { 
+        if(data[`${sequence}SequenceEdited` as keyof typeof data]) {
             if(formValues[`${sequence}Sequence` as keyof typeof formValues] !== ""){
-            const range:Range = {
-                start:sequence === "in"?model.target.inSequence.range.startTagRange.start:model.target.outSequence.range.startTagRange.start,
-                end:sequence === "in"?model.target.inSequence.range.endTagRange.end:model.target.outSequence.range.endTagRange.end
-            }
-            await rpcClient.getMiDiagramRpcClient().applyEdit({
-                text:` `,
-                documentUri:documentUri,
-                range:range
-            })
+                if (isInSequenceUpdated) {
+                    await rpcClient.getMiDiagramRpcClient().rangeFormat({
+                        uri: documentUri
+                    });
+                    const updatedST = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: documentUri });
+                    model = updatedST.syntaxTree.proxy;
+                }
+                if (sequence === "in") {
+                    isInSequenceUpdated = true;
+                }
+                let range:Range = {
+                    start:sequence === "in" ? model.target.inSequence.range.startTagRange.start : model.target.faultSequence.range.startTagRange.start,
+                    end:sequence === "in" ? model.target.inSequence.range.endTagRange.end : model.target.faultSequence.range.startTagRange.end
+                };
+                await rpcClient.getMiDiagramRpcClient().applyEdit({
+                    text:` `,
+                    documentUri:documentUri,
+                    range:range
+                });
             } else {
                 const range:Range = {
-                    start:model.target.range.startTagRange.end,
-                    end:model.target.range.startTagRange.end
-                }
+                    start:sequence === "in" ? model.target.range.startTagRange.end : model.target.range.endTagRange.start,
+                    end:sequence === "in" ? model.target.range.startTagRange.end : model.target.range.endTagRange.start
+                };
                 await rpcClient.getMiDiagramRpcClient().applyEdit({
-                    text:`<${sequence}Sequence>
-                    </${sequence}Sequence>`,
+                    text:sequence === "in" ?
+                        `<inSequence>
+                         </inSequence>` : "<faultSequence/>",
                     documentUri:documentUri,
                     range:range
                 })
-            } 
+            }
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({
+                uri: documentUri
+            });
         }
     }
-    
 }
 
 const proxyRange = (model:Proxy,tag:string):Range => {
@@ -345,7 +369,12 @@ const proxyRange = (model:Proxy,tag:string):Range => {
             return {
                 start: model.target?.range?.endTagRange?.end ?? model.range.endTagRange.start,
                 end: model.range.endTagRange.start ?? model.range.endTagRange.start,
-            }    
+            }
+        case "proxy-to-target":
+            return {
+                start: model.range.startTagRange.end,
+                end: model.target?.range?.startTagRange?.start ?? model.range.endTagRange.start
+            }
         default:
             return {
                 start: model.range.startTagRange.start,

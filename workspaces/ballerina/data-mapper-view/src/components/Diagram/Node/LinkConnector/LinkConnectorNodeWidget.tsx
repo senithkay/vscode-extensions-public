@@ -10,112 +10,21 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { HistoryEntry } from "@wso2-enterprise/ballerina-core";
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { HistoryEntry, MACHINE_VIEW } from "@wso2-enterprise/ballerina-core";
+import { FunctionCall, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-import { css } from '@emotion/css'
 import classnames from "classnames";
 
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
-import { DataMapperPortWidget } from '../../Port';
-import { getFieldLabel } from '../../utils/dm-utils';
+import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { getCollectClauseActions, getFieldLabel, getMappedFnNames } from '../../utils/dm-utils';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-
-const styles = () => ({
-    root: css({
-        width: '100%',
-        backgroundColor: "var(--vscode-sideBar-background)",
-        padding: "2px",
-        borderRadius: "2px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        color: "var(--vscode-checkbox-border)",
-        alignItems: "center",
-        border: "1px solid var(--vscode-welcomePage-tileBorder)",
-    }),
-    element: css({
-        backgroundColor: 'var(--vscode-input-background)',
-        padding: '5px',
-        cursor: 'pointer',
-        transitionDuration: '0.2s',
-        userSelect: 'none',
-        pointerEvents: 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        '&:hover': {
-            filter: 'brightness(0.95)',
-        },
-    }),
-    iconWrapper: css({
-        height: '22px',
-        width: '22px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    }),
-    fromClause: css({
-        padding: '5px',
-        fontFamily: 'monospace',
-    }),
-    mappingPane: css({
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    }),
-    header: css({
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        "& > *": {
-            margin: "0 2px"
-        }
-    }),
-    icons: css({
-        padding: '8px',
-        '&:hover': {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
-        },
-    }),
-    expandIcon: css({
-        height: '15px',
-        width: '15px',
-        marginTop: '-7px',
-    }),
-    buttonWrapper: css({
-        border: '1px solid var(--vscode-editorWidget-background)',
-        borderRadius: '8px',
-        position: 'absolute',
-        right: '35px',
-    }),
-    separator: css({
-        height: "22px",
-        width: "1px",
-        backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
-    }),
-    editIcon: css({
-        color: "var(--vscode-pickerGroup-border)",
-        padding: "5px",
-        height: "32px",
-        width: "32px"
-    }),
-    functionIcon: css({
-        padding: "3px"
-    }),
-    deleteIcon: css({
-        color: "var(--vscode-editor-selectionBackground)"
-    }),
-    loadingContainer: css({
-        padding: "10px"
-    }),
-    circularProgress: css({
-        color: "var(--vscode-input-background)"
-    })
-});
+import { useRpcContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { QueryExprMappingType } from '../QueryExpression';
+import { CodeActionWidget } from '../../CodeAction/CodeAction';
+import { AggregationFunctions } from '../../Label';
+import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -123,14 +32,17 @@ export interface LinkConnectorNodeWidgetProps {
 }
 
 export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
-    const node = props.node;
-    const classes = styles();
-    const engine = props.engine;
+    const { node, engine } = props;
+    const { context } = node;
+    const { rpcClient } = useRpcContext();
+
+    const classes = useIntermediateNodeStyles();
     const hasError = node.hasError();
     const diagnostic = hasError ? node.diagnostics[0] : null;
     const fnDef = node.fnDefForFnCall;
     const isTnfFunctionCall = fnDef && fnDef.isExprBodiedFn;
-    const { rpcClient } = useVisualizerContext();
+    const connectedViaCollectClause = context?.selection.selectedST?.mappingType
+        && context.selection.selectedST.mappingType === QueryExprMappingType.A2SWithCollect;
 
     const {
         enableStatementEditor,
@@ -138,29 +50,27 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         referenceManager: {
             handleCurrentReferences
         }
-    } = node.context;
+    } = context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
-        const valueNode = props.node.valueNode;
+        const valueNode = node.valueNode;
         const currentReferences = node.sourcePorts.map((port) => port.fieldFQN);
         handleCurrentReferences(currentReferences)
         if (STKindChecker.isSpecificField(valueNode)) {
             enableStatementEditor({
                 valuePosition: valueNode.valueExpr.position as NodePosition,
                 value: valueNode.valueExpr.source,
-                label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
-                    : props.node.editorLabel)
+                label: (node.isPrimitiveTypeArrayElement ? getFieldLabel(node.targetPort.parentId) : node.editorLabel)
             });
         } else if (STKindChecker.isBinaryExpression(valueNode)) {
             enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
-                label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
-                    : props.node.editorLabel)
+                label: (node.isPrimitiveTypeArrayElement ? getFieldLabel(node.targetPort.portName) : node.editorLabel)
             });
         } else {
-            props.node.context.enableStatementEditor({
+            context.enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: "Expression"
@@ -184,12 +94,31 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             location: {
                 documentUri: fnDefFilePath,
                 position: fnDefPosition,
-                view: "DataMapper",
+                view: MACHINE_VIEW.DataMapper,
                 identifier: fnName
             },
             dataMapperDepth: history[history.length - 1].dataMapperDepth + 1
         }
         updateSelectedComponent(entry);
+    };
+
+    let aggrFnConfigurations: React.ReactNode = null;
+    if (connectedViaCollectClause) {
+        const target = node.targetMappedPort;
+        const fnNames = getMappedFnNames(target);
+        if (fnNames.length === 1 && AggregationFunctions.includes(fnNames[0])) {
+            const mappedExpr = (target as RecordFieldPortModel)?.editableRecordField?.value;
+            const actions = getCollectClauseActions(fnNames[0], mappedExpr as FunctionCall, context.applyModifications);
+            aggrFnConfigurations = (
+                <CodeActionWidget
+                    context={context}
+                    additionalActions={actions}
+                    isConfiguration={true}
+                    btnSx={{ margin: "0 2px" }}
+                />
+            );
+        }
+        // TODO: Add support for multiple aggregation functions
     }
 
     const loadingScreen = (
@@ -218,6 +147,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         <Codicon name="chevron-right" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                     </Button>
                 )}
+                {aggrFnConfigurations !== null && aggrFnConfigurations}
                 <Button
                     appearance="icon"
                     onClick={onClickEdit}
@@ -240,7 +170,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 { diagnostic && (
                     <DiagnosticWidget
                         diagnostic={diagnostic}
-                        value={props.node.valueNode.source}
+                        value={node.valueNode.source}
                         onClick={onClickEdit}
                         btnSx={{ margin: "0 2px" }}
                     />

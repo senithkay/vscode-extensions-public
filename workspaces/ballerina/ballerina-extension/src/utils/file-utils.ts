@@ -6,8 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages, Range, TextEditorRevealType, Selection } from "vscode";
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages, Range, Selection, ViewColumn } from "vscode";
+import { SyntaxTree } from "@wso2-enterprise/ballerina-core";
 import axios from "axios";
 import { createHash } from "crypto";
 import * as fs from 'fs';
@@ -26,7 +26,7 @@ import {
     TM_EVENT_OPEN_REPO_NEW_FOLDER,
     TM_EVENT_OPEN_REPO_SAME_FOLDER,
     sendTelemetryEvent
-} from "../telemetry";
+} from "../features/telemetry";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { existsSync } from "fs";
 interface ProgressMessage {
@@ -397,8 +397,8 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
                 documentIdentifier: {
                     uri: uriString
                 }
-            }, cancellationToken);
-            const response = dependenciesResponse as GetSyntaxTreeResponse;
+            });
+            const response = dependenciesResponse as SyntaxTree;
             if (response.parseSuccess) {
                 progress.report({ increment: 60 });
                 // Rebuild the file to update the LS.
@@ -505,26 +505,19 @@ function urlToUniqueID(url) {
     return hash.digest('hex');
 }
 
-export function goToSource(nodePosition: NodePosition, filePath: string) {
-    const { startLine, startColumn } = nodePosition;
-    if (!existsSync(filePath)) {
+export async function goToSource(nodePosition: NodePosition, documentUri: string) {
+    const { startLine, startColumn, endLine, endColumn } = nodePosition;
+    if (!existsSync(documentUri)) {
         return;
     }
-    workspace.openTextDocument(filePath).then((sourceFile) => {
-        const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
-        if (openedDocument) {
-            const range: Range = new Range(startLine, startColumn, startLine!, startColumn!);
-            window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter);
-            window.showTextDocument(
-                openedDocument.document,
-                { preview: false, viewColumn: openedDocument.viewColumn, preserveFocus: false }
-            );
-        } else {
-            window.showTextDocument(sourceFile, { preview: false, preserveFocus: false }).then((textEditor) => {
-                const range: Range = new Range(startLine, startColumn, startLine!, startColumn!);
-                textEditor.revealRange(range, TextEditorRevealType.InCenter);
-                textEditor.selection = new Selection(range.start, range.start);
-            });
-        }
-    });
+    let editor = window.visibleTextEditors.find(editor => editor.document.uri.fsPath === documentUri);
+    if (!editor && documentUri) {
+        const document = await workspace.openTextDocument(Uri.file(documentUri));
+        editor = await window.showTextDocument(document, ViewColumn.Beside);
+    }
+    if (editor) {
+        const range = new Range(startLine, startColumn, endLine, endColumn);
+        editor.selection = new Selection(range.start, range.end);
+        editor.revealRange(range);
+    }
 }

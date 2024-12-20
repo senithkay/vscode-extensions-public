@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { DMType } from "@wso2-enterprise/mi-core";
+import { DMType, IOType } from "@wso2-enterprise/mi-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from './Search';
@@ -64,7 +64,7 @@ export function PrimitiveTypeInputWidget(props: PrimitiveTypeItemWidgetProps) {
 
     const onRightClick = (event: React.MouseEvent) => {
         event.preventDefault(); 
-        setIOConfigPanelType("Input");
+        setIOConfigPanelType(IOType.Input);
         setIsSchemaOverridden(true);
         setIsIOConfigPanelOpen(true);
     };

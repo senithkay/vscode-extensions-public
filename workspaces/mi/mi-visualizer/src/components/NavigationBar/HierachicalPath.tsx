@@ -37,7 +37,7 @@ export function HierachicalPath(props: HierachicalPathProps) {
     }, []);
 
     useEffect(() => {
-        if (!machineView?.projectUri || !machineView?.documentUri || machineView.view === MACHINE_VIEW.Overview) {
+        if (!machineView?.projectUri || !machineView?.documentUri || machineView.view === MACHINE_VIEW.Overview || !machineView?.pathSeparator) {
             return;
         }
 
@@ -47,10 +47,14 @@ export function HierachicalPath(props: HierachicalPathProps) {
 
         const projectSrc = path.join(normalizedProjectUri, "src");
         const filePath = normalizedDocumentUri.split(projectSrc)[1];   
-        const pathItems = filePath?.substring(1).split(path.sep);
+        const pathItems = filePath?.substring(1).split(machineView.pathSeparator);
 
         const segments: Segment[] = [];
         const updateSegments = async () => {
+
+            if (!pathItems || pathItems.length === 0) {
+                return;
+            }
 
             for (const pathItem of pathItems) {
                 if (pathItem.endsWith(".xml")) {

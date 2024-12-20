@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -16,6 +17,10 @@ async function getInsertTemplate(insertTempName: string) {
 const hbsInstance = hbs.create();
 hbsInstance.registerHelper('checkConfigurable', (listenerParam: Parameter[]) => {
     const data = listenerParam.find((params) => params.name === 'listenerConfig');
+    return !!data;
+});
+hbsInstance.registerHelper('checkBootstrapServers', (listenerParam: Parameter[]) => {
+    const data = listenerParam?.find((params) => params.name === 'bootstrapServers');
     return !!data;
 });
 

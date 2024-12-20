@@ -95,9 +95,15 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                         return !(artifactNames.includes(value) && savedMPName !== value)
                     }),
         messageProcessorType: yup.string().default(""),
-        messageStoreType: yup.string(),
+        messageStoreType: yup.string().when('messageProcessorType', {
+            is: (messageProcessorType: string) => messageProcessorType !== "Scheduled Failover Message Forwarding Processor",
+            then: (schema) => schema.required("Message Store is required"),
+        }),
         failMessageStoreType: yup.string().notRequired().default(""),
-        sourceMessageStoreType: yup.string(),
+        sourceMessageStoreType: yup.string().when('messageProcessorType', {
+            is: "Scheduled Failover Message Forwarding Processor",
+            then: (schema) => schema.required("Source Message Store is required"),
+        }),
         targetMessageStoreType: yup.string(),
         processorState: yup.string().default("Activate"),
         dropMessageOption: yup.string().default("Disabled"),
@@ -163,14 +169,16 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                 id: 0,
                 type: "TextField",
                 label: "Name",
-                defaultValue: "parameter_key",
+                defaultValue: "",
+                placeholder: "parameter_key",
                 isRequired: true
             },
             {
                 id: 1,
                 type: "TextField",
                 label: "Value",
-                defaultValue: "parameter_value",
+                defaultValue: "",
+                placeholder: "parameter_value",
                 isRequired: true
             }]
     }
@@ -304,6 +312,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                             name="messageStoreType"
                             filterType="messageStore"
                             path={props.path}
+                            required
                             errorMsg={errors.messageStoreType?.message.toString()}
                             {...register("messageStoreType")}
                         />
@@ -316,6 +325,7 @@ export function MessageProcessorWizard(props: MessageProcessorWizardProps) {
                                 name="sourceMessageStoreType"
                                 filterType="messageStore"
                                 path={props.path}
+                                required
                                 errorMsg={errors.sourceMessageStoreType?.message.toString()}
                                 {...register("sourceMessageStoreType")}
                             />

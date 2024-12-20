@@ -11,8 +11,8 @@ import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
-import { TypeKind } from "@wso2-enterprise/mi-core";
-import { Block, Node } from "ts-morph";
+import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
+import { Block, InterfaceDeclaration, Node, PropertySignature } from "ts-morph";
 import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -22,12 +22,13 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { ValueConfigMenu, ValueConfigOption } from "../commons/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/ValueConfigButton/ValueConfigMenuItem";
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
-import { createSourceForUserInput } from "../../utils/modification-utils";
+import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { ArrayOutputFieldWidget } from "../ArrayOutput/ArrayOuptutFieldWidget";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ObjectOutputFieldWidgetProps {
     parentId: string;
@@ -61,7 +62,12 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+        exprBarFocusedPort: state.focusedPort,
+        setExprBarFocusedPort: state.setFocusedPort
+    }));
+    const viewsStore = useDMViewsStore();
 
     let fieldName = field.type.fieldName || '';
     let indentation = treeDepth * 16;
@@ -115,10 +121,24 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleEditValue = () => {
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            const initializer = field.value.getInitializer();
-            const range = getEditorLineAndColumn(initializer);
-            context.goToSource(range);
+        if (portIn)
+            setExprBarFocusedPort(portIn);
+    };
+
+    const handleModifyFieldOptionality = async () => {
+        viewsStore.setViews(context.views);
+        try {
+            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+        try {
+            await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -132,7 +152,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
             collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
         } else {
@@ -207,7 +227,6 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                         >
                             <Button
                                 appearance="icon"
-                                onClick={handleEditValue}
                                 data-testid={`object-output-field-${portIn?.getName()}`}
                             >
                                 {initializer.getText()}
@@ -241,9 +260,27 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         onClick: handleDeleteValue
     };
 
+    const modifyFieldOptionalityMenuItem: ValueConfigMenuItem = {
+        title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
+        onClick: handleModifyFieldOptionality
+    };
+
+    const makeChildFieldsOptionalMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsOptional,
+        onClick: () => handleModifyChildFieldsOptionality(true)
+    };
+
+    const makeChildFieldsRequiredMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsRequired,
+        onClick: () => handleModifyChildFieldsOptionality(false)
+    };
+
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
+        !isWithinArray && modifyFieldOptionalityMenuItem,
+        !isWithinArray && isInterface && makeChildFieldsOptionalMenuItem,
+        !isWithinArray && isInterface && makeChildFieldsRequiredMenuItem
     ];
 
     return (
@@ -273,15 +310,18 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                     </span>
                     <span className={classes.label}>
                         {fields && (
-                            <Button
-                                appearance="icon"
-                                tooltip="Expand/Collapse"
-                                sx={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                                data-testid={`${portIn?.getName()}-expand-icon-element`}
-                            >
-                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                            </Button>
+                            <FieldActionWrapper>
+                                <Button
+                                    id={"expand-or-collapse-" + fieldId} 
+                                    appearance="icon"
+                                    tooltip="Expand/Collapse"
+                                    sx={{ marginLeft: indentation }}
+                                    onClick={handleExpand}
+                                    data-testid={`${portIn?.getName()}-expand-icon-element`}
+                                >
+                                    {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                                </Button>
+                            </FieldActionWrapper>
                         )}
                         {label}
                     </span>
@@ -290,7 +330,9 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
                             {(isLoading) ? (
                                 <ProgressRing sx={{ height: '16px', width: '16px' }} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                                <FieldActionWrapper>
+                                    <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                                </FieldActionWrapper>
                             )}
                         </>
                     )}

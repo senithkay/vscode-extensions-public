@@ -7,29 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { IOType } from "@wso2-enterprise/mi-core";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const DATA_IMPORT_NODE = "data-import-node";
 
 export class DataImportNodeModel extends DataMapperNodeModel {
     public configName: string = 'DataMapperConfig';
-    public ioType: string = '';
-    
+    public ioType: IOType = IOType.Other;
+
     constructor() {
         super(undefined, undefined, DATA_IMPORT_NODE);
     }
 
     initLinks(): void {
-        
+
     }
 
     initPorts(): void {
-        
+
     }
 }
 
 export class InputDataImportNodeModel extends DataImportNodeModel {
-    public ioType: string = 'Input';
+    public ioType: IOType = IOType.Input;
 
     constructor() {
         super();
@@ -38,7 +39,7 @@ export class InputDataImportNodeModel extends DataImportNodeModel {
 }
 
 export class OutputDataImportNodeModel extends DataImportNodeModel {
-    public ioType: string = 'Output';
+    public ioType: IOType = IOType.Output;
 
     constructor() {
         super();

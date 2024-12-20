@@ -101,10 +101,12 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     LISTENER_DECLARATION: `
 listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
+    TRIGGER_LISTENER_DECLARATION: `
+listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ LISTENER_CONFIG }}});
+`,
     FUNCTION_DEFINITION: `
-{{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {{#if IS_EXPRESSION_BODIED}} => {{{ EXPRESSION_BODY }}}; {{else}} {
-
-}{{/if}}`,
+{{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {{#if IS_EXPRESSION_BODIED}} => {{{ EXPRESSION_BODY }}}; {{else}} {{{ EXPRESSION_BODY }}}
+{{/if}}`,
     FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}}({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
     SERVICE_WITH_LISTENER_DECLARATION_UPDATE: `
 listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
@@ -133,21 +135,51 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     {{/if}}
 
         {{#if httpBased }}listener http:Listener httpListener = new(8090);{{/if}}
+    {{#if (checkConfigurable listenerParams)}}
         listener {{triggerType}}:Listener webhookListener =  new({{#if (checkConfigurable listenerParams)}}config{{/if}}{{#if (checkConfigurable listenerParams)}}{{#if httpBased }},{{/if}}{{/if}}{{#if httpBased }}httpListener{{/if}});
-
-        {{#each serviceTypes}}
+    {{/if}}
+    {{#if (checkBootstrapServers listenerParams)}}
+        listener {{triggerType}}:Listener webhookListener =  new({{triggerType}}:DEFAULT_URL);
+    {{/if}}
+    {{#each serviceTypes}}
+    {{#if (checkConfigurable ../listenerParams)}}
         service {{../triggerType}}:{{ this.name }} on webhookListener {
-
+    {{/if}}
+    {{#if (checkBootstrapServers ../listenerParams)}}
+        service on webhookListener {
+    {{/if}}
+    {{#unless (checkConfigurable ../listenerParams)}}
+    {{#unless (checkBootstrapServers ../listenerParams)}}
+        service {{../triggerType}}:{{ this.name }} on webhookListener {
+    {{/unless}}
+    {{/unless}}
           {{#each this.functions}}
-            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}},
-            {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}} {{/each}}) returns error? {
-              //Not Implemented
+            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{#if this.defaultTypeName}}{{this.defaultTypeName}}{{else}}{{../../../triggerType}}:{{this.typeInfo.name}}{{/if}} {{this.name}} {{/each}}) returns error? {
+                do {
+                    // Not Implemented
+                } on fail error e {
+                    return e;
+                }
             }
           {{/each}}
         }
-        {{/each}}
+    {{/each}}
 
         {{#if httpBased }}service /ignore on httpListener {}{{/if}}`,
+    TRIGGER_NEW: `
+    listener {{{triggerType}}}:Listener {{{listenerVariableName}}} =  new({{{listenerConfig}}});
+
+    service {{#if basePath}}{{{basePath}}} {{/if}}on {{{listenerVariableName}}} {
+            {{#each functions}}
+            remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{#if this.defaultTypeName}}{{this.defaultTypeName}}{{else}}{{{../../triggerType}}}:{{this.typeInfo.name}}{{/if}} {{this.name}} {{/each}}) returns error? {
+                do {
+                    // Not Implemented
+                } on fail error e {
+                    return e;
+                }
+            }
+            {{/each}}
+    }`,
     TRIGGER_UPDATE: `
     service {{{ TRIGGER_CHANNEL }}} on {{{ LISTENER_NAME }}}`,
 
@@ -178,7 +210,18 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     `,
     FLUSH_STATEMENT: `
     error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
-    `
+    `,
+    KAFKA: `
+service on new kafka:Listener({{{ ENDPOINT }}}) {
+    {{#each FUNCTIONS}}
+    remote function {{{ NAME }}}({{#each PARAMS}}{{#if @first}}{{/if}}{{{ TYPE }}} {{{ NAME }}}{{#unless @last}}, {{/unless}}{{/each}}) returns error? {
+        do {
+        } on fail error e {
+            return e;
+        }
+    }
+    {{/each}}
+}`
 };
 
 export default templates;

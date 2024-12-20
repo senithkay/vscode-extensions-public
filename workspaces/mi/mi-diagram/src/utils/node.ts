@@ -9,15 +9,6 @@
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { MEDIATORS, NODE_GAP } from "../resources/constants";
-import { getLogDescription } from "./template-engine/mustach-templates/core/log";
-import { getFilterDescription } from "./template-engine/mustach-templates/filter/filter";
-import { getPropertyDescription } from "./template-engine/mustach-templates/core/property";
-import { getSwitchDescription } from "./template-engine/mustach-templates/filter/switch";
-import { getSequenceDescription } from "./template-engine/mustach-templates/core/sequence";
-import { getDataMapperDescription } from "./template-engine/mustach-templates/transformation/datamapper";
-import { getDSCallDescription } from "./template-engine/mustach-templates/data/dataServiceCall";
-import { getAggregateDescription } from "./template-engine/mustach-templates/eip/aggregate";
-import { getTargetDescription } from "./template-engine/mustach-templates/advanced/clone";
 
 export function getNodeIdFromModel(model: STNode, prefix?: string) {
     if (model.viewState?.id) {
@@ -33,12 +24,13 @@ export function getNodeIdFromModel(model: STNode, prefix?: string) {
     return Date.now().toString();
 }
 
-export function getNodeDescription(name: string, stNode: any): string {
+export function getNodeDescription(stNode: any): string {
     if (stNode.description) {
         return stNode.description;
     }
 
-    switch (name) {
+    // TODO: Move to LS
+    switch (stNode.tag.toLowerCase()) {
         case "endpoint": {
             if (stNode.key) {
                 return stNode.key;
@@ -48,33 +40,63 @@ export function getNodeDescription(name: string, stNode: any): string {
             }
             return;
         }
-        case (MEDIATORS.FILTER): {
-            return getFilterDescription(stNode);
+        case (MEDIATORS.FILTER.toLowerCase()): {
+            if (stNode.regex && stNode.source) {
+                return `${stNode.source} matches ${stNode.regex}`;
+            }
+            if (stNode.regex) {
+                return stNode.regex;
+            } else if (stNode.source) {
+                return stNode.source;
+            } else if (stNode.xpath) {
+                return stNode.xpath;
+            }
+            return;
         }
-        case (MEDIATORS.LOG): {
-            return getLogDescription(stNode);
+        case (MEDIATORS.LOG.toLowerCase()): {
+            if (stNode.property) {
+                return stNode.property.map((property: any) => {
+                    return property.name;
+                }).join(", ");
+            }
+            return;
         }
-        case (MEDIATORS.PROPERTY): {
-            return getPropertyDescription(stNode);
+        case (MEDIATORS.PROPERTY.toLowerCase()): {
+            if (stNode.name) {
+                return stNode.name;
+            }
+            return;
         }
-        case (MEDIATORS.SEQUENCE): {
+        case (MEDIATORS.SEQUENCE.toLowerCase()): {
             if (stNode.tag === "target") {
-                return getTargetDescription(stNode);
+                return stNode.sequenceAttribute;
             }
 
-            return getSequenceDescription(stNode);
+            const description = stNode.staticReferenceKey || stNode.dynamicReferenceKey || stNode.key;
+            if (description) {
+                return description.split(".")[0];
+            }
+            return;
         }
-        case (MEDIATORS.SWITCH): {
-            return getSwitchDescription(stNode);
+        case (MEDIATORS.SWITCH.toLowerCase()): {
+            return stNode.source;
         }
-        case (MEDIATORS.DATAMAPPER): {
-            return getDataMapperDescription(stNode);
+        case (MEDIATORS.DATAMAPPER.toLowerCase()): {
+            const description = stNode.config;
+            if (description) {
+                const match = description.match(/\/([^\/]+)\.dmc$/);
+                return match ? match[1] : null;
+            }
+            return;
         }
-        case (MEDIATORS.DATASERVICECALL): {
-            return getDSCallDescription(stNode);
+        case (MEDIATORS.DATASERVICECALL.toLowerCase()): {
+            return stNode.serviceName;
         }
-        case (MEDIATORS.AGGREGATE): {
-            return getAggregateDescription(stNode);
+        case (MEDIATORS.AGGREGATE.toLowerCase()): {
+            const onComplete = stNode?.correlateOnOrCompleteConditionOrOnComplete?.onComplete;
+            const isSequnceReference = onComplete.sequenceAttribute !== undefined;
+
+            return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
         }
         default:
             return;

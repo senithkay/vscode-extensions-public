@@ -8,31 +8,17 @@
  */
 
 import styled from "@emotion/styled";
-
-import { Colors } from "../../resources/model";
+import { ThemeColors } from "@wso2-enterprise/ui-toolkit";
 
 interface StyleProps {
     isSelected?: boolean;
 }
 
-export const RecordNode: React.FC<any> = styled.div`
-  background-color: ${Colors.SECONDARY};
-  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
-  border-radius: 2px !important;
-  color: ${Colors.PRIMARY};
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  min-height: 32px;
-  min-width: 160px;
-  opacity: 1;
-`;
-
 export const RecordFieldContainer: React.FC<any> = styled.div`
   align-items: center;
-  background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-  border-bottom: 0.5px solid #cccde3;
-  color: #000000;
+  background-color: ${(props: StyleProps) => props.isSelected ? ThemeColors.ON_SECONDARY : ThemeColors.SURFACE_DIM};
+  border-bottom: 0.5px solid ${ThemeColors.OUTLINE_VARIANT};
+  color:${ThemeColors.ON_SURFACE};
   display: flex;
   flex-direction: row;
   font-family: GilmerRegular;
@@ -43,13 +29,4 @@ export const RecordFieldContainer: React.FC<any> = styled.div`
   min-width: calc(100% - 16px);
   padding: 8px 8px 8px 8px;
   text-align: center;
-`;
-
-export const RecordName: React.FC<any> = styled.div`
-  display: flex;
-  flex: 1;
-  height: 30px;
-  line-height: 30px;
-  text-align: left;
-  white-space: nowrap;
 `;

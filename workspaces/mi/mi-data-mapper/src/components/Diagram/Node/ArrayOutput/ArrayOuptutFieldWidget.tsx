@@ -10,13 +10,13 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, LinkButton, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { TypeKind } from "@wso2-enterprise/mi-core";
 import { ArrayLiteralExpression, Block, Node, ObjectLiteralExpression, ReturnStatement } from "ts-morph";
 import classnames from "classnames";
 
 import { useIONodesStyles } from "../../../styles";
-import { useDMCollapsedFieldsStore } from '../../../../store/store';
+import { useDMCollapsedFieldsStore, useDMExpressionBarStore, useDMViewsStore } from '../../../../store/store';
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
@@ -29,8 +29,9 @@ import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { getDefaultValue, getEditorLineAndColumn, getTypeName, isConnectedViaLink } from "../../utils/common-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { TreeBody } from "../commons/Tree/Tree";
-import { createSourceForUserInput } from "../../utils/modification-utils";
+import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -42,7 +43,7 @@ export interface ArrayOutputFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: Node) => Promise<void>;
-    asOutput ?: boolean;
+    asOutput?: boolean;
     hasHoveredParent?: boolean;
 }
 
@@ -66,7 +67,10 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isAddingElement, setIsAddingElement] = useState(false);
+    
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
+    const viewsStore = useDMViewsStore();
 
     const typeName = getTypeName(field.type);
     const fieldName = field.type.fieldName || '';
@@ -123,19 +127,15 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     }
 
+    const isMemberTypeInterface = field.type.memberType.kind === TypeKind.Interface;
+
     const handlePortState = (state: PortState) => {
         setPortState(state)
     };
 
     const handleEditValue = () => {
-        let value = field.value;
-    
-        if (field.value && Node.isPropertyAssignment(field.value)) {
-            value = field.value.getInitializer();
-        }
-
-        const range = getEditorLineAndColumn(value);
-        context.goToSource(range);
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const onAddElementClick = async () => {
@@ -263,26 +263,24 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
 
     const addElementButton = useMemo(() => {
         return (
-            <Button
+            <LinkButton
                 key={`array-widget-${portIn?.getName()}-add-element`}
                 className={classes.addArrayElementButton}
-                appearance="icon"
                 aria-label="add"
-                onClick={onAddElementClick}
-                disabled={isAddingElement}
+                onClick={isAddingElement ? () => { } : onAddElementClick}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
                 {isAddingElement
                     ? <ProgressRing sx={{ height: '16px', width: '16px' }} />
-                    : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)" }} />
+                    : <Codicon name="add" iconSx={{ color: "var(--vscode-textLink-foreground)", height: "12px" }} />
                 }
                 Add Element
-            </Button>
+            </LinkButton>
         );
     }, [isAddingElement]);
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
             collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
         } else {
@@ -328,6 +326,23 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         }
     };
 
+    const handleModifyFieldOptionality = async () => {
+        viewsStore.setViews(context.views);
+        try {
+            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+        try {
+            await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const onMouseEnter = () => {
         setIsHovered(true);
     };
@@ -336,14 +351,34 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
         setIsHovered(false);
     };
 
-    const valConfigMenuItems: ValueConfigMenuItem[] = hasValue || hasDefaultValue
-        ? [
-            { title: ValueConfigOption.EditValue, onClick: handleEditValue },
-            { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
-        ]
-        : [
-            { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
-        ];
+    const modifyFieldOptionalityMenuItem: ValueConfigMenuItem = {
+        title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
+        onClick: handleModifyFieldOptionality
+    };
+
+    const makeChildFieldsOptionalMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsOptional,
+        onClick: () => handleModifyChildFieldsOptionality(true)
+    };
+
+    const makeChildFieldsRequiredMenuItem: ValueConfigMenuItem = {
+        title: ValueConfigOption.MakeChildFieldsRequired,
+        onClick: () => handleModifyChildFieldsOptionality(false)
+    };
+
+    const valConfigMenuItems: ValueConfigMenuItem[] = [
+        ...(hasValue || hasDefaultValue
+            ? [
+                { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+                { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
+            ]
+            : [
+                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+            ]),
+        modifyFieldOptionalityMenuItem,
+        isMemberTypeInterface && makeChildFieldsOptionalMenuItem,
+        isMemberTypeInterface && makeChildFieldsRequiredMenuItem
+    ];
 
     return (
         <div
@@ -373,33 +408,33 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     </span>
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
-                            <Button
-                                appearance="icon"
-                                sx={{ marginLeft: indentation }}
-                                onClick={handleExpand}
-                                data-testid={`${portIn?.getName()}-expand-icon-array-field`}
-                            >
-                                {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
-                            </Button>
+                            <FieldActionWrapper>
+                                <Button
+                                    appearance="icon"
+                                    sx={{ marginLeft: indentation }}
+                                    onClick={handleExpand}
+                                    data-testid={`${portIn?.getName()}-expand-icon-array-field`}
+                                >
+                                    {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
+                                </Button>
+                            </FieldActionWrapper>
                         )}
                         {label}
                     </span>
                     {(isLoading) ? (
                         <ProgressRing />
-                    ) : (
-                        <>
-                            {((hasValue && !connectedViaLink) || !isDisabled) && (
-                                <ValueConfigMenu
-                                    menuItems={valConfigMenuItems}
-                                    isDisabled={!typeName}
-                                    portName={portIn?.getName()}
-                                />
-                            )}
-                        </>
-                    )}
+                    ) : (((hasValue && !connectedViaLink) || !isDisabled) && (
+                        <FieldActionWrapper>
+                            <ValueConfigMenu
+                                menuItems={valConfigMenuItems}
+                                isDisabled={!typeName}
+                                portName={portIn?.getName()}
+                            />
+                        </FieldActionWrapper>
+                    ))}
                 </div>
             )}
-            {((expanded && hasValue && arrayLitExpr) || isReturnStmtMissing) && (
+            {(((expanded && hasValue && arrayLitExpr) || isReturnStmtMissing) && (elements?.length || !asOutput)) && (
                 <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>
                         <span>[</span>

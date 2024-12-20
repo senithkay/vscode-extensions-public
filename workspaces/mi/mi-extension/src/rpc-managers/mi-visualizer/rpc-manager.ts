@@ -8,56 +8,72 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import * as vscode from 'vscode';
 import {
-    AIVisualizerLocation,
     ColorThemeKind,
+    EVENT_TYPE,
     GettingStartedCategory,
     GettingStartedData,
     GettingStartedSample,
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
+    JavaAndMIPathRequest,
+    JavaAndMIPathResponse,
     LogRequest,
+    MACHINE_VIEW,
+    MIDetails,
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
     OpenExternalRequest,
     OpenExternalResponse,
     OpenViewRequest,
+    POPUP_EVENT_TYPE,
+    PopupVisualizerLocation,
+    ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    ReadmeContentResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
+    ToggleDisplayOverviewRequest,
     UpdateContextRequest,
     VisualizerLocation,
     WorkspaceFolder,
     WorkspacesResponse,
-    ToggleDisplayOverviewRequest,
-    POPUP_EVENT_TYPE,
-    PopupVisualizerLocation,
-    EVENT_TYPE,
-    MACHINE_VIEW,
+    ProjectDetailsResponse,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    ImportOpenAPISpecRequest,
 } from "@wso2-enterprise/mi-core";
+import * as https from "https";
+import Mustache from "mustache";
 import fetch from 'node-fetch';
-import { workspace, window, commands, env, Uri } from "vscode";
+import * as vscode from 'vscode';
+import { Position, Uri, ViewColumn, WorkspaceEdit, commands, env, window, workspace, Range } from "vscode";
+import * as os from 'os';
+import { extension } from "../../MIExtensionContext";
+import { DebuggerConfig } from "../../debugger/config";
 import { history } from "../../history";
 import { StateMachine, navigate, openView } from "../../stateMachine";
-import { goToSource, handleOpenFile } from "../../util/fileOperations";
+import { goToSource, handleOpenFile, appendContent, selectFolderDialog } from "../../util/fileOperations";
 import { openAIWebview } from "../../ai-panel/aiMachine";
-import { extension } from "../../MIExtensionContext";
 import { openPopupView } from "../../stateMachinePopup";
-import { log, outputChannel } from "../../util/logger";
-import axios from "axios";
-import * as https from "https";
-import { DebuggerConfig } from "../../debugger/config";
 import { SwaggerServer } from "../../swagger/server";
-import Mustache from "mustache";
+import { log, outputChannel } from "../../util/logger";
 import { escapeXml } from '../../util/templates';
+import path from "path";
+import { copy } from 'fs-extra';
+
+const fs = require('fs');
+import { TextEdit } from "vscode-languageclient";
+import { downloadJava, downloadMI, getJavaAndMIPathsFromWorkspace, getMIDetailsFromPom, getSupportedMIVersions, setJavaAndMIPathsInWorkspace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -89,6 +105,70 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         });
     }
 
+    async getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getProjectDetails();
+            resolve(res);
+        });
+    }
+
+    async updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+
+            const projectDetails = await langClient.getProjectDetails();
+            const existingDependencies = projectDetails.dependencies || [];
+            const newDependencies = params.dependencies.filter(dep => {
+                const dependenciesToCheck = dep.type === 'zip' ? existingDependencies.connectorDependencies : existingDependencies.otherDependencies;
+                return !dependenciesToCheck.some(existingDep =>
+                    existingDep.groupId === dep.groupId &&
+                    existingDep.artifact === dep.artifact &&
+                    existingDep.version === dep.version
+                )
+            }
+            );
+
+            if (newDependencies.length > 0) {
+                const res = await langClient.updateDependencies({ dependencies: newDependencies });
+                await this.updatePom(res.textEdits);
+            }
+            resolve(true);
+        });
+    }
+
+    async updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const textEdits = params.pomValues.map((pomValue) => {
+                return {
+                    newText: pomValue.value,
+                    range: pomValue.range! as Range
+                };
+
+            });
+            this.updatePom(textEdits);
+            resolve(true);
+        });
+    }
+
+    async updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConfigFileValues(params.configValues);
+
+            await this.updatePom(res.textEdits);
+            resolve(true);
+        });
+    }
+
+    async updateConnectorDependencies(): Promise<string> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.updateConnectorDependencies();
+            resolve(res);
+        });
+    }
+
     openView(params: OpenViewRequest): void {
         if (params.isPopup) {
             const view = params.location.view;
@@ -104,8 +184,12 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     }
 
     goBack(): void {
-        const entry = history.pop();
-        navigate(entry);
+        if (!StateMachine.context().view?.includes("Form")) {
+            const entry = history.pop();
+            navigate(entry);
+        } else {
+            navigate();
+        }
     }
 
     async fetchSamplesFromGithub(): Promise<GettingStartedData> {
@@ -158,6 +242,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         const url = 'https://mi-connectors.wso2.com/samples/samples/';
         handleOpenFile(params.zipFileName, url);
+    }
+
+    async addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        const projectUri = vscode.workspace.workspaceFolders![0].uri.fsPath;
+        const configPropertiesFilePath = [projectUri, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+        const envFilePath = [projectUri, '.env'].join(path.sep);
+        await appendContent(configPropertiesFilePath, `${params.configurableName}:${params.configurableType}\n`);
+        await appendContent(envFilePath, `${params.configurableName}\n`);
     }
 
     async getHistory(): Promise<HistoryEntryResponse> {
@@ -259,7 +351,7 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         return new Promise(async (resolve) => {
             const username = DebuggerConfig.getManagementUserName();
             const password = DebuggerConfig.getManagementPassword();
-            
+
             const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
             const authHeader = `Basic ${token}`;
             // Create an HTTPS agent that ignores SSL certificate verification
@@ -369,4 +461,150 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             resolve({ success: isSuccess });
         });
     }
+    async downloadJava(miVersion: string): Promise<string> {
+        const javaPath = await downloadJava(miVersion);
+        return javaPath;
+    }
+    async downloadMI(miVersion: string): Promise<string> {
+        const miPath = await downloadMI(miVersion);
+        return miPath;
+    }
+    async getSupportedMIVersions(): Promise<string[]> {
+        return getSupportedMIVersions();
+    }
+
+    async getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
+        return await getJavaAndMIPathsFromWorkspace();
+
+    }
+    async setJavaAndMIPaths(request: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
+        return await setJavaAndMIPathsInWorkspace(request);
+    }
+
+    async selectFolder(title: string): Promise<string | undefined> {
+        try {
+            const selectedFolder = await selectFolderDialog(title, vscode.Uri.file(os.homedir()));
+
+            if (selectedFolder) {
+                const folderPath = selectedFolder.fsPath;
+                return folderPath;
+            } else {
+                vscode.window.showInformationMessage('No folder selected.');
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error selecting folder: ${error}`);
+        }
+    }
+
+    async getMIDetailsFromPom(): Promise<MIDetails> {
+        return getMIDetailsFromPom();
+    }
+    async updateRuntimeVersionsInPom(version: string): Promise<boolean> {
+        try {
+            await updateRuntimeVersionsInPom(version);
+            return true;
+        } catch (e) {
+            vscode.window.showErrorMessage('Error updating the runtime versions in the pom.xml file');
+            return false;
+        }
+    }
+    async getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getOverviewModel();
+            resolve(res);
+        });
+    }
+
+    openReadme(): void {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            window.showErrorMessage("No workspace folder is open.");
+            return;
+        }
+
+        const projectRoot = workspaceFolders[0].uri.fsPath;
+        const readmePath = path.join(projectRoot, "README.md");
+
+        if (!fs.existsSync(readmePath)) {
+            // Create README.md if it doesn't exist
+            fs.writeFileSync(readmePath, "# Project Overview\n\nAdd your project description here.");
+        }
+
+        // Open README.md in the editor
+        workspace.openTextDocument(readmePath).then((doc) => {
+            window.showTextDocument(doc, ViewColumn.Beside);
+        });
+    }
+
+    async getReadmeContent(): Promise<ReadmeContentResponse> {
+        return new Promise((resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (!workspaceFolders || workspaceFolders.length === 0) {
+                resolve({ content: "" });
+                return;
+            }
+
+            const projectRoot = workspaceFolders[0].uri.fsPath;
+            const readmePath = path.join(projectRoot, "README.md");
+
+            if (!fs.existsSync(readmePath)) {
+                resolve({ content: "" });
+                return;
+            }
+
+            fs.readFile(readmePath, "utf8", (err, data) => {
+                if (err) {
+                    console.error("Error reading README.md:", err);
+                    resolve({ content: "" });
+                } else {
+                    resolve({ content: data });
+                }
+            });
+        });
+    }
+
+    private async updatePom(textEdits: TextEdit[]) {
+        const projectRoom = StateMachine.context().projectUri!;
+        const pomPath = path.join(projectRoom, 'pom.xml');
+
+        if (!fs.existsSync(pomPath)) {
+            throw new Error("pom.xml not found");
+        }
+
+        const edit = new WorkspaceEdit();
+        for (const textEdit of textEdits) {
+            const content = textEdit.newText;
+
+            const range = new Range(new Position(textEdit.range.start.line - 1, textEdit.range.start.character - 1),
+                new Position(textEdit.range.end.line - 1, textEdit.range.end.character - 1));
+
+            edit.replace(Uri.file(pomPath), range, content);
+        }
+        await workspace.applyEdit(edit);
+    }
+
+    async importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
+        const { filePath } = params;
+        const langClient = StateMachine.context().langClient!;
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error('No workspace is currently open');
+        }
+        const workspaceFolder = workspaceFolders[0].uri.fsPath;
+        if (filePath && filePath.length > 0) {
+            const connectorGenRequest = {
+                openAPIPath: filePath,
+                connectorProjectPath: path.join(workspaceFolder, 'target')
+            };
+            const { buildStatus, connectorPath } = await langClient.generateConnector(connectorGenRequest);
+            if (buildStatus) {
+                await copy(connectorPath, path.join(workspaceFolder, 'src', 'main', 'wso2mi', 'resources', 'connectors', path.basename(connectorPath)));
+                vscode.window.showInformationMessage("Connector generated successfully");
+            } else {
+                vscode.window.showErrorMessage("Error while generating connector");
+            }
+        }
+    }
+
 }

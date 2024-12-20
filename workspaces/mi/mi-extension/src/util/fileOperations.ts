@@ -15,13 +15,21 @@ import * as path from 'path';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { COMMANDS } from "../constants";
 import * as unzipper from 'unzipper';
-import { ListRegistryArtifactsResponse, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
+import { DownloadProgressData, ListRegistryArtifactsResponse, onDownloadProgress, Range, RegistryArtifact, UpdateRegistryMetadataRequest } from "@wso2-enterprise/mi-core";
 import { rm } from 'node:fs/promises';
 import { existsSync } from "fs";
+import { spawn } from "child_process";
+import { RPCLayer } from "../RPCLayer";
+import { VisualizerWebview } from "../visualizer/webview";
 
 interface ProgressMessage {
     message: string;
     increment?: number;
+}
+
+export function getFileName(filePath: string): string {
+    const fileNameWithExt = filePath.split('/').pop();
+    return fileNameWithExt?.split('.')[0] || '';
 }
 
 async function selectFileDownloadPath(): Promise<string> {
@@ -33,7 +41,7 @@ async function selectFileDownloadPath(): Promise<string> {
     return "";
 }
 
-async function downloadFile(url, filePath, progressCallback) {
+async function downloadFile(url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
     const writer = fs.createWriteStream(filePath);
     let totalBytes = 0;
     try {
@@ -41,10 +49,28 @@ async function downloadFile(url, filePath, progressCallback) {
             responseType: 'stream',
             onDownloadProgress: (progressEvent) => {
                 totalBytes = progressEvent.total!;
-                const progress = (progressEvent.loaded / totalBytes) * 100;
+                const formatSize = (sizeInBytes: number) => {
+                    const sizeInKB = sizeInBytes / 1024;
+                    if (sizeInKB < 1024) {
+                        return `${Math.floor(sizeInKB)} KB`;
+                    } else {
+                        return `${Math.floor(sizeInKB / 1024)} MB`;
+                    }
+                };
+                const progress: DownloadProgressData = {
+                    percentage: Math.round((progressEvent.loaded * 100) / totalBytes),
+                    downloadedAmount: formatSize(progressEvent.loaded),
+                    downloadSize: formatSize(totalBytes)
+                };
                 if (progressCallback) {
                     progressCallback(progress);
                 }
+                // Notify the visualizer
+                RPCLayer._messenger.sendNotification(
+                    onDownloadProgress,
+                    { type: 'webview', webviewType: VisualizerWebview.viewType },
+                    progress
+                );
             }
         });
         response.data.pipe(writer);
@@ -74,6 +100,18 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
         window.showErrorMessage(`Failed to download file: ${error}`);
     }
     progress.report({ message: "Download finished" });
+}
+
+export function appendContent(path: string, content: string): Promise<boolean> {
+    return new Promise((resolve) => {
+        try {
+            fs.writeFileSync(path, content, { flag: 'a' }); 
+            resolve(true);
+        } catch (error) {
+            console.error('Error appending content:', error);
+            resolve(false);
+        }
+    });
 }
 
 export async function handleOpenFile(sampleName: string, repoUrl: string) {
@@ -134,7 +172,16 @@ export async function handleOpenFile(sampleName: string, repoUrl: string) {
         }).on("close", () => {
             console.log("Extraction complete!");
             let uri = Uri.file(path.join(selectedPath, sampleName));
-            commands.executeCommand("vscode.openFolder", uri, true);
+            window.showInformationMessage('Where would you like to open the project?',
+                { modal: true },
+                'This Window',
+                'New Window'
+            ).then((selection) => {
+                if (selection === undefined) {
+                    return;
+                }
+                commands.executeCommand("vscode.openFolder", uri, selection === 'New Window');
+            });
         });
         window.showInformationMessage(
             successMsg,
@@ -159,7 +206,7 @@ export async function addNewEntryToArtifactXML(projectDir: string, artifactName:
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             fs.writeFileSync(artifactXMLPath, `<?xml version="1.0" encoding="UTF-8"?><artifacts></artifacts>`);
         }
@@ -225,7 +272,7 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             format: true,
         };
         const parser = new XMLParser(options);
-        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'artifact.xml');
+        const artifactXMLPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'artifact.xml');
         if (!fs.existsSync(artifactXMLPath)) {
             resolve(false);
         }
@@ -237,7 +284,7 @@ export async function removeEntryFromArtifactXML(projectDir: string, artifactPat
             var artifacts = artifactXMLData.artifacts.artifact;
             if (fileName) {
                 artifacts = artifacts.filter((artifact) => {
-                    return artifact.collection || (artifact.item && artifact.item.file !== fileName && artifact.item.path !== artifactPath);
+                    return artifact.collection || !(artifact.item && artifact.item.file === fileName && artifact.item.path === artifactPath);
                 });
             } else {
                 artifacts = artifactXMLData.artifacts.artifact.filter((artifact) => {
@@ -368,6 +415,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
             mediaType = '';
             fileExtension = 'sql';
             break;
+        case "RB File":
+            mediaType = '';
+            fileExtension = 'rb';
+            break;
+        case "GROOVY File":
+            mediaType = '';
+            fileExtension = 'groovy';
+            break;
         case "JSON File":
             mediaType = 'application/json';
             fileExtension = 'json';
@@ -375,6 +430,14 @@ export function getMediatypeAndFileExtension(templateType: string): { mediaType:
         case "YAML File":
             mediaType = 'application/yaml';
             fileExtension = 'yaml';
+            break;
+        case "TEXT File":
+            mediaType = 'text/plain';
+            fileExtension = 'txt';
+            break;
+        case "XML File":
+            mediaType = 'application/xml';
+            fileExtension = 'xml';
             break;
         case "Local Entry":
             mediaType = 'application/vnd.wso2.esb.localentry';
@@ -465,15 +528,8 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
             if (platform === 'win32') {
                 tempPath = tempPath.replace(/\\/g, '/');
             }
-            tempPath = tempPath.replace('/src/main/wso2mi/resources/registry/', '');
-            var regPath = "";
-            if (tempPath.startsWith('gov')) {
-                regPath = '/_system/governance/';
-                regPath = regPath + tempPath.replace('gov/', '');
-            } else {
-                regPath = '/_system/config/';
-                regPath = regPath + tempPath.replace('conf/', '');
-            }
+            tempPath = tempPath.replace('/src/main/wso2mi/resources/', '');
+            var regPath = "/_system/governance/mi-resources/" + tempPath;
             if (fs.lstatSync(filePath).isDirectory()) {
                 removeEntryFromArtifactXML(workspaceFolder, regPath, "");
                 await rm(filePath, { recursive: true, force: true });
@@ -483,9 +539,27 @@ export async function deleteRegistryResource(filePath: string): Promise<{ status
                 removeEntryFromArtifactXML(workspaceFolder, regPath, fileName);
                 fs.unlinkSync(filePath);
             }
-            resolve({ status: true, info: "Registry resource removed" });
+            resolve({ status: true, info: "Resource removed" });
         } else {
             resolve({ status: false, info: "Workspace not found" });
+        }
+    });
+}
+
+export function deleteDataMapperResources(filePath: string): Promise<{ status: boolean, info: string }> {
+    return new Promise(async (resolve) => {
+        const projectDir = workspace.getWorkspaceFolder(Uri.file(filePath))?.uri.fsPath;
+        const fileName = path.basename(filePath);
+        if (projectDir && fileName.endsWith('.ts')) {
+            const dmName = fileName.replace('.ts', '');
+            const inputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
+            const outputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
+            const configFileRegpath = '/_system/governance/datamapper/' + dmName;
+            removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
+            removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
+            removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
+            workspace.fs.delete(Uri.parse(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName)), { recursive: true, useTrash: true });
+            resolve({ status: true, info: "Datamapper resources removed" });
         }
     });
 }
@@ -541,7 +615,7 @@ export function getAvailableRegistryResources(projectDir: string): ListRegistryA
         const fileUri = Uri.file(projectDir);
         const workspaceFolder = workspace.getWorkspaceFolder(fileUri);
         if (workspaceFolder) {
-            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources', 'registry');
+            projectDir = path.join(workspaceFolder.uri.fsPath, 'src', 'main', 'wso2mi', 'resources');
             artifactXMLPath = path.join(projectDir, 'artifact.xml');
         }
     }
@@ -575,6 +649,7 @@ export function getAvailableRegistryResources(projectDir: string): ListRegistryA
                     name: artifact["@name"],
                     path: artifact.item.path,
                     file: artifact.item.file,
+                    mediaType: artifact.item.mediaType,
                     isCollection: false
                 };
                 result.push(registryArtifact);
@@ -635,6 +710,7 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
     const artifactXMLData = artifactData[0];
     const artifacts = artifactData[1];
     let updated = false;
+    let updatedArtifact: { artifact: any, properties: { key: string, value: string }[] } = { artifact: null, properties: [] };
     if (artifacts) {
         for (const artifact of artifacts) {
             if (artifact.item && (artifact.item.path.endsWith("/") ? artifact.item.path +
@@ -645,8 +721,10 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
                 const propertiesArray = Object.entries(request.properties);
                 for (const [key, value] of propertiesArray) {
                     artifact.item.properties.property.push({ "@key": key, "@value": value });
+                    updatedArtifact.properties.push({ "key": key, "value": value });
                 }
                 updated = true;
+                updatedArtifact.artifact = artifact;
                 break;
             } else if (artifact.collection && artifact.collection.path === request.registryPath) {
                 artifact.collection.properties = {};
@@ -654,8 +732,10 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
                 const propertiesArray = Object.entries(request.properties);
                 for (const [key, value] of propertiesArray) {
                     artifact.collection.properties.property.push({ "@key": key, "@value": value });
+                    updatedArtifact.properties.push({ "key": key, "value": value });
                 }
                 updated = true;
+                updatedArtifact.artifact = artifact;
                 break;
             }
         }
@@ -669,12 +749,21 @@ export function updateRegistryResourceMetadata(request: UpdateRegistryMetadataRe
             const builder = new XMLBuilder(options);
             const updatedXmlString = builder.build(artifactXMLData);
             fs.writeFileSync(artifactData[2], updatedXmlString);
+            updatePropertiesFileForRegistry(request.projectDirectory, updatedArtifact);
             return "Metadata updated successfully";
         } else {
             window.showErrorMessage("Could not update the registry resource metadata. Please check the artifact.xml file");
         }
     }
     return "Could not read the artifact.xml file";
+}
+function updatePropertiesFileForRegistry(projectDir: string, artifact: { artifact: any, properties: { key: string, value: string }[] }) {
+    const properties = artifact.properties;
+    const propertiesFilePath = projectDir + '.properties';
+    if (properties.length > 0) {
+        const propertiesContent = properties.map((property) => property.key + "=" + property.value).join('\n');
+        fs.writeFileSync(propertiesFilePath, propertiesContent);
+    }
 }
 
 function getArtifactData(projectDir: string): [any, any[], string] {
@@ -708,6 +797,11 @@ function getArtifactData(projectDir: string): [any, any[], string] {
 export function findJavaFiles(folderPath): Map<string, string> {
     const results = new Map();
     function traverse(currentPath) {
+        if (!fs.existsSync(currentPath)) {
+            console.error(`Directory does not exist: ${currentPath}`);
+            return results;
+        }
+        
         const files = fs.readdirSync(currentPath);
         for (const file of files) {
             const filePath = path.join(currentPath, file);
@@ -844,4 +938,131 @@ export function goToSource(filePath: string, position?: Range) {
         textEditor.revealRange(range, TextEditorRevealType.InCenter);
         textEditor.selection = new Selection(range.start, range.start);
     }
+}
+
+export async function downloadWithProgress(url: string, downloadPath: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async (progress) => {
+        let lastPercentageReported = 0;
+        const handleProgress = (downloadProgress: DownloadProgressData) => {
+            const percentCompleted = downloadProgress.percentage;
+            if (percentCompleted > lastPercentageReported) {
+                progress.report({ increment: percentCompleted - lastPercentageReported, message: `${percentCompleted}% of ${downloadProgress.downloadSize}` });
+                lastPercentageReported = percentCompleted;
+            }
+        };
+        await downloadFile(url, downloadPath, handleProgress).catch((error) => {
+            if (fs.existsSync(downloadPath)) {
+                fs.unlinkSync(downloadPath);
+            }
+        });
+    });
+}
+
+export async function extractWithProgress(filePath: string, destination: string, title: string) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: false
+    }, async () => {
+        await extractArchive(filePath, destination);
+    });
+}
+export async function performTaskWithProgress(
+    task: () => Promise<void>,
+    title: string,
+    cancellable = false
+) {
+    await window.withProgress({
+        location: ProgressLocation.Notification,
+        title: title,
+        cancellable: cancellable,
+    }, async (progress, cancellationToken) => {
+
+        let cancelled = false;
+        cancellationToken.onCancellationRequested(() => {
+            cancelled = true;
+        });
+
+        try {
+            await task();
+        } catch (error) {
+            window.showErrorMessage(`Error while performing the task: ${error}`);
+        }
+    });
+}
+
+async function extractArchive(filePath: string, destination: string) {
+    const platform = process.platform;
+
+    function runCommand(command: string, args: string[] = [], options = {}) {
+        return new Promise<void>((resolve, reject) => {
+            const child = spawn(command, args, options);
+
+            child.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            child.stderr.on('data', (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            child.on('error', (error) => {
+                reject(error);
+            });
+
+            child.on('close', (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`Unzip failed with code ${code}`));
+                }
+            });
+        });
+    }
+
+    try {
+        if (filePath.endsWith('.zip')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path "${filePath}" -DestinationPath "${destination}" -Force`]);
+            } else {
+                await runCommand('unzip', ['-o', filePath, '-d', destination]);
+            }
+        } else if (filePath.endsWith('.tar') || filePath.endsWith('.tar.gz') || filePath.endsWith('.tgz')) {
+            if (platform === 'win32') {
+                await runCommand('powershell.exe', ['-NoProfile', '-Command', `tar -xf "${filePath}" -C "${destination}"`]);
+            } else {
+                await runCommand('tar', ['-xf', filePath, '-C', destination]);
+            }
+        } else {
+            throw new Error('Unsupported file type');
+        }
+    } catch (error) {
+        const errorMessage = (error instanceof Error) ? error.message : String(error);
+        
+        if (errorMessage.includes("Unzip failed with code") && fs.existsSync(destination)) {
+            fs.unlinkSync(filePath);
+        }
+        
+        if (errorMessage.includes("ENOENT")) {
+            window.showErrorMessage('unzip or tar command not found. Please install these to extract the archive.'); 
+        }
+
+        throw new Error(`Error while extracting the archive: ${errorMessage}`);
+    }
+}
+export async function selectFolderDialog(title: string, defaultUri?: Uri): Promise<Uri | undefined> {
+    return window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: defaultUri,
+        openLabel: 'Select',
+        title: title
+    }).then((uris) => {
+        return uris ? uris[0] : undefined;
+    });
 }

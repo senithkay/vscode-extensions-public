@@ -25,7 +25,7 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import styled from "@emotion/styled";
 import { Button, Codicon, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import { EmptyLocalVarPanel } from "./EmptyLocalVarPanel";
@@ -42,7 +42,7 @@ export interface LocalVarConfigPanelProps {
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
     applyModifications: (modifications: STModification[]) => Promise<void>;
-    langServerRpcClient: LangServerRpcClient,
+    langServerRpcClient: LangClientRpcClient,
     filePath: string;
 }
 
@@ -177,7 +177,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         <SidePanel
             isOpen={true}
             alignment="right"
-            sx={{transition: "all 0.3s ease-in-out", width: 600}}
+            sx={{ transition: "all 0.3s ease-in-out", width: 600, zIndex: 1000 }}
         >
             <SidePanelTitleContainer>
                 <div>Local Variables</div>
@@ -230,6 +230,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     appearance="primary"
                                     onClick={!hasDiagnostics ? onCancel : undefined}
                                     disabled={hasDiagnostics}
+                                    tooltip={hasDiagnostics ? "Fix errors to continue" : ""}
                                 >
                                     <div className={overlayClasses.doneButton}>Done</div>
                                 </Button>

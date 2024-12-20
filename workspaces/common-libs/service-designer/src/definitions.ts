@@ -7,18 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, Diagnostic } from "@wso2-enterprise/syntax-tree";
 import { Item } from "@wso2-enterprise/ui-toolkit";
 
 export interface ResponseConfig {
     id: number;
     code?: number;
     type?: string;
+    isTypeArray?: boolean;
     source?: string;
+    isNew?: boolean;
+    defaultCode?: number;
+    namedRecord?: string;
 }
 
 export enum PARAM_TYPES {
     DEFAULT = 'Query',
+    PARAM = 'Param',
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
     CALLER = 'Caller',
@@ -32,15 +37,18 @@ export interface ParameterConfig {
     option?: PARAM_TYPES;
     defaultValue?: string;
     isRequired?: boolean;
+    isNew?: boolean;
 }
 
 export interface ServiceData {
     path: string;
     port: number;
+    listener?: string;
 }
 
 export interface Resource {
     methods: string[];
+    errors?: Diagnostic[];
     path: string;
     pathSegments?: ParameterConfig[];
     params?: ParameterConfig[];
@@ -62,7 +70,9 @@ export interface PathConfig {
 export interface Service {
     path: string;
     port?: number;
+    listener?: string;
     serviceType?: string;
     resources: Resource[];
     position?: NodePosition;
+    triggerModel?: any;
 }

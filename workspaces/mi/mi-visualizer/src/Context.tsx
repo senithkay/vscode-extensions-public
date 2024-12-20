@@ -8,7 +8,7 @@
  */
 
 import React, { ReactNode, useState } from "react";
-import { Context, VisualizerContext} from "@wso2-enterprise/mi-rpc-client";
+import { Context, VisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client/lib/RpcClient";
 import { MACHINE_VIEW, VisualizerLocation } from "@wso2-enterprise/mi-core";
 
@@ -28,13 +28,22 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
       isLoggedIn: isLoggedIn,
     }));
   }
-  
+
+  const setIsLoading = (isLoading: boolean) => {
+    setVisualizerState((prevState: VisualizerContext) => ({
+      ...prevState,
+      isLoading
+    }));
+  }
+
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
     viewLocation: { view: MACHINE_VIEW.Overview },
     setViewLocation: setView,
     rpcClient: new RpcClient(), // Create the root RPC layer client object
     isLoggedIn: false,
-    setIsLoggedIn: setLogin
+    setIsLoggedIn: setLogin,
+    isLoading: true,
+    setIsLoading: setIsLoading,
   });
 
   return (

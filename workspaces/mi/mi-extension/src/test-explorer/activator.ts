@@ -18,6 +18,7 @@ import { StateMachine, openView } from '../stateMachine';
 import { activateMockServiceTreeView } from "./mock-services/activator";
 import { TagRange, TestCase, UnitTest } from "../../../syntax-tree/lib/src";
 import { ExtendedLanguageClient } from "../lang-client/ExtendedLanguageClient";
+import { normalize } from "upath";
 
 export let testController: TestController;
 const testDirNodes: string[] = [];
@@ -110,11 +111,11 @@ export async function activateTestExplorer(extensionContext: ExtensionContext, l
             name: unitTestST.name,
             assertions: unitTestST?.assertions?.assertions.map((assertion) => { return [assertion.tag, assertion?.actual?.textNode, assertion?.expected?.textNode, assertion?.message?.textNode] }),
             input: {
-                requestPath: unitTestST?.input?.requestPath?.textNode,
-                requestMethod: unitTestST?.input?.requestMethod?.textNode,
-                requestProtocol: unitTestST?.input?.requestProtocol?.textNode,
-                payload: unitTestST?.input?.payload?.textNode,
-                // properties: unitTestST?.input?.properties?.map((property) => { return [property.name, property.value.textNode] }),
+                requestPath: unitTestST?.input?.requestPath?.textNode ?? "",
+                requestMethod: unitTestST?.input?.requestMethod?.textNode ?? "GET",
+                requestProtocol: unitTestST?.input?.requestProtocol?.textNode ?? "HTTP",
+                payload: unitTestST?.input?.payload?.textNode ?? "",
+                properties: unitTestST?.input?.properties?.properties?.map((property) => { return [property.name, property.scope, property.value] }),
             },
         };
 
@@ -241,7 +242,11 @@ async function getTestCaseNamesAndTestSuiteType(uri: Uri) {
     const templates = artifacts?.templates?.map((template: ProjectStructureArtifactResponse) => { return { name: template.name, path: template.path.split(projectUri)[1], type: "Template" } });
     const allArtifacts = [...apis, ...sequences, ...templates];
 
-    const testSuiteType = allArtifacts.find(artifact => path.relative(artifact.path, testArtifact) === "")?.type;
+    const testSuiteType = allArtifacts.find(artifact => {
+        const aPath = normalize(artifact.path).substring(1);
+        const artifactPath = normalize(testArtifact);
+        return path.relative(aPath, artifactPath) === "";
+    })?.type;
 
     if (!testSuiteType) {
         window.showErrorMessage('Cannot find the test suite');

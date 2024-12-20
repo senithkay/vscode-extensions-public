@@ -85,9 +85,9 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     const fetchConnectors = async () => {
         setIsFetchingConnectors(true);
         try {
-            const response = await fetch(APIS.CONNECTOR);
-            const data = await response.json();
-            setConnectors(data['inbound-connector-data'])
+            const response = rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+            const data = (await response).inboundConnectors;
+            setConnectors(data)
         } catch (e) {
             console.error("Error fetching connectors", e);
         }
@@ -116,29 +116,38 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
     }
 
     const selectConnector = async (connector: any) => {
-        // Download connector from store
-        setIsDownloading(true);
-        let downloadSuccess = false;
-        let attempts = 0;
-        let uischema;
+        // Check if uiSchema is available
+        const response = await rpcClient.getMiDiagramRpcClient().getInboundEPUischema({
+            connectorName: connector.name
+        });
 
-        while (!downloadSuccess && attempts < 3) {
-            try {
-                uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
-                    url: connector.download_url
-                });
-                await rpcClient.getMiDiagramRpcClient().saveInboundEPUischema({
-                    connectorName: uischema.uischema.name,
-                    uiSchema: JSON.stringify(uischema.uischema)
-                })
-                setConnectorSchema(uischema?.uischema);
-                downloadSuccess = true;
-            } catch (error) {
-                console.error('Error occurred while downloading connector:', error);
-                attempts++;
+        if (response?.uiSchema) {
+            setConnectorSchema(response?.uiSchema);
+        } else {
+            // Download connector from store
+            setIsDownloading(true);
+            let downloadSuccess = false;
+            let attempts = 0;
+            let uischema;
+
+            while (!downloadSuccess && attempts < 3) {
+                try {
+                    uischema = await rpcClient.getMiDiagramRpcClient().downloadInboundConnector({
+                        url: connector.download_url
+                    });
+                    await rpcClient.getMiDiagramRpcClient().saveInboundEPUischema({
+                        connectorName: uischema.uischema.name,
+                        uiSchema: JSON.stringify(uischema.uischema)
+                    })
+                    setConnectorSchema(uischema?.uischema);
+                    downloadSuccess = true;
+                } catch (error) {
+                    console.error('Error occurred while downloading connector:', error);
+                    attempts++;
+                }
             }
+            setIsDownloading(false);
         }
-        setIsDownloading(false);
     }
 
     const handleCreateInboundEP = async (values: any) => {
@@ -164,7 +173,7 @@ export function InboundEPWizard(props: InboundEPWizardProps) {
 
     const openSourceView = () => {
         rpcClient.getMiDiagramRpcClient().closeWebView();
-        rpcClient.getMiDiagramRpcClient().openFile({path: props.path});
+        rpcClient.getMiDiagramRpcClient().openFile({ path: props.path });
     };
 
     const openOverview = () => {

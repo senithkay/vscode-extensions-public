@@ -16,7 +16,7 @@ import {
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { SidePanel } from '@wso2-enterprise/ui-toolkit';
 import { URI } from "vscode-uri";
@@ -29,7 +29,7 @@ import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
-    langServerRpcClient: LangServerRpcClient;
+    langServerRpcClient: LangClientRpcClient;
     libraryBrowserRpcClient: LibraryBrowserRpcClient;
     applyModifications: (modifications: STModification[]) => void;
     currentFile: {
@@ -57,7 +57,7 @@ export interface LowCodeEditorProps {
     modelTargetSource?: NodePosition;
     ballerinaVersion?: string;
     isCodeServerInstance?: boolean;
-    openExternalUrl?: (url: string) => Promise<boolean>;
+    openExternalUrl?: (url: string) => void;
 }
 
 export interface StatementEditorWrapperProps extends LowCodeEditorProps {

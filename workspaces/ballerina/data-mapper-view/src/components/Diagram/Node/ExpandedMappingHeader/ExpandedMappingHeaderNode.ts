@@ -7,20 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
+import { DefaultPortModel, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { QueryExpression } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { RightAnglePortModel } from "../../Port/RightAnglePort/RightAnglePortModel";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
+import { ArrowLinkModel } from "../../Link";
 
 export const EXPANDED_MAPPING_HEADER_NODE_TYPE = "datamapper-node-expanded-mapping-header";
+const NODE_ID = "expanded-mapping-header-node";
 
 export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
 
     public x: number;
     public y: number;
-    public sourcePort: RightAnglePortModel;
+    public sourcePort: DefaultPortModel;
     public targetPorts: PortModel<PortModelGenerics>[];
 
     constructor(
@@ -28,19 +29,22 @@ export class ExpandedMappingHeaderNode extends DataMapperNodeModel {
         public queryExpr: QueryExpression
     ) {
         super(
+            NODE_ID,
             context,
             EXPANDED_MAPPING_HEADER_NODE_TYPE
         );
     }
 
     initPorts() {
-        this.sourcePort = new RightAnglePortModel(false, EXPANDED_MAPPING_HEADER_NODE_TYPE)
+        this.sourcePort = new DefaultPortModel(false, EXPANDED_MAPPING_HEADER_NODE_TYPE)
         this.addPort(this.sourcePort);
     }
 
     initLinks() {
         for (const targetPort of this.targetPorts) {
-            const link = this.sourcePort.link(targetPort)
+            const link = new ArrowLinkModel();
+            link.setSourcePort(this.sourcePort);
+            link.setTargetPort(targetPort);
             this.getModel().addAll(link);
         }
     }

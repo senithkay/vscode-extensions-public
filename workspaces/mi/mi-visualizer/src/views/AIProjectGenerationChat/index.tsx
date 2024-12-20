@@ -14,11 +14,12 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { TextArea, Button, Switch, Icon, ProgressRing, Codicon } from "@wso2-enterprise/ui-toolkit";
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL } from "../../constants";
+import { MI_ARTIFACT_EDIT_BACKEND_URL, MI_ARTIFACT_GENERATION_BACKEND_URL, MI_SUGGESTIVE_QUESTIONS_BACKEND_URL, COPILOT_ERROR_MESSAGES } from "../../constants";
 import { Collapse } from 'react-collapse';
 import { AI_MACHINE_VIEW } from '@wso2-enterprise/mi-core';
 import { VSCodeButton, VSCodeTextArea, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import styled from "@emotion/styled";
+import { handleFileAttach } from "../../utils/fileAttach";
 
 import {
     materialDark,
@@ -157,6 +158,8 @@ export function AIProjectGenerationChat() {
     const [images, setImages] = useState([]);
     const [fileUploadStatus, setFileUploadStatus] = useState({ type: '', text: '' });
     const [initialPromptLoaded, setInitialPromptLoaded] = useState(false);
+    const [isAtBottom, setIsAtBottom] = useState(true);
+    const mainContainerRef = React.useRef(null);
 
     async function fetchBackendUrl() {
         try {
@@ -167,9 +170,7 @@ export function AIProjectGenerationChat() {
         }
     }
     useEffect(() => {
-
         fetchBackendUrl();
-
     }, []);
 
     useEffect(() => {
@@ -226,7 +227,6 @@ export function AIProjectGenerationChat() {
                             const codeBlocksFromStorage = JSON.parse(storedCodeBlocks);
                             codeBlocks.push(...codeBlocksFromStorage);
                         }
-                        console.log("Code Blocks: " + codeBlocks);
                         const chatArrayFromStorage = JSON.parse(storedChatArray);
                         chatArray = chatArrayFromStorage;
 
@@ -262,7 +262,6 @@ export function AIProjectGenerationChat() {
                                     { role: "", content: storedQuestion, type: "question" },
                                 ]);
                             } else {
-                                console.log("Fetching initial questions");
                                 generateSuggestions();
                             }
                         }
@@ -290,17 +289,35 @@ export function AIProjectGenerationChat() {
 
     }
 
-    useEffect(() => {
-        // This code will run after isCodeLoading updates
-        console.log(isCodeLoading);
-    }, [isCodeLoading]); // The dependency array ensures this effect runs whenever isCodeLoading changes
+    const handleScroll = () => {
+        const container = mainContainerRef.current;
+        if (container) {
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            if (scrollHeight - scrollTop <= clientHeight + 50) {
+                setIsAtBottom(true);
+            } else {
+                setIsAtBottom(false);
+            }
+        }
+    };
 
     useEffect(() => {
-        // Step 2: Scroll into view when messages state changes
-        if (messagesEndRef.current) {
+        if (isAtBottom && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
         }
-    }, [messages]);
+    }, [messages, isAtBottom]);
+
+    useEffect(() => {
+        const container = mainContainerRef.current;
+        if (container) {
+            container.addEventListener('scroll', handleScroll);
+        }
+        return () => {
+            if (container) {
+                container.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         if (rpcClient) {
@@ -310,21 +327,13 @@ export function AIProjectGenerationChat() {
         }
     }, [rpcClient]);
 
-    useEffect(() => {
-        console.log("Suggestions: " + isSuggestionLoading);
-    }, [isSuggestionLoading]);
-
-    useEffect(() => {
-        console.log("is Loading: " + isLoading);
-    }, [isLoading]);
-
     function getStatusText(status: number) {
         switch (status) {
-            case 400: return 'Bad Request';
-            case 401: return 'Unauthorized';
-            case 403: return 'Forbidden';
-            case 404: return 'Not Found';
-            case 429: return 'Token Count Exceeded';
+            case 400: return COPILOT_ERROR_MESSAGES.BAD_REQUEST;
+            case 401: return COPILOT_ERROR_MESSAGES.UNAUTHORIZED;
+            case 403: return COPILOT_ERROR_MESSAGES.FORBIDDEN;
+            case 404: return COPILOT_ERROR_MESSAGES.NOT_FOUND;
+            case 429: return COPILOT_ERROR_MESSAGES.TOKEN_COUNT_EXCEEDED;
             // Add more status codes as needed
             default: return '';
         }
@@ -340,6 +349,8 @@ export function AIProjectGenerationChat() {
                 response.json().then(body => {
                     error += body.detail;
                 });
+            } else if (response.status == 422) {
+                error = COPILOT_ERROR_MESSAGES.ERROR_422;
             }
             newMessages[newMessages.length - 1].content += error;
             newMessages[newMessages.length - 1].type = 'Error';
@@ -362,12 +373,10 @@ export function AIProjectGenerationChat() {
                     });
                     break;
                 default:
-                    console.log("Other");
                     await rpcClient?.getMiDiagramRpcClient()?.getSelectiveWorkspaceContext().then((response) => {
                         context = [response]; // Wrap the response in an array
                     });
             }
-            console.log(JSON.stringify({ messages: chatArray, context: context[0].context }));
             const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
             let retryCount = 0;
             const maxRetries = 2;
@@ -426,7 +435,7 @@ export function AIProjectGenerationChat() {
         if (userInput === "" && !isQuestion && !isInitialPrompt) {
             return;
         }
-        console.log(chatArray);
+        setIsAtBottom(true);
         var context: GetWorkspaceContextResponse[] = [];
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'label'));
         setMessages(prevMessages => prevMessages.filter((message, index) => message.type !== 'question'));
@@ -463,7 +472,7 @@ export function AIProjectGenerationChat() {
         //Get machine view
         const machineView = await rpcClient.getVisualizerState();
         switch (machineView?.view) {
-            case MACHINE_VIEW.Overview:
+            case MACHINE_VIEW.Overview:      
             case MACHINE_VIEW.ADD_ARTIFACT:
                 backendUrl = MI_ARTIFACT_GENERATION_BACKEND_URL;
                 view = "Overview";
@@ -471,7 +480,6 @@ export function AIProjectGenerationChat() {
             default:
                 backendUrl = MI_ARTIFACT_EDIT_BACKEND_URL;
                 view = "Artifact";
-
         }
         if (view == "Overview") {
             await rpcClient?.getMiDiagramRpcClient()?.getWorkspaceContext().then((response) => {
@@ -482,7 +490,6 @@ export function AIProjectGenerationChat() {
                 context = [response]; // Wrap the response in an array
             });
         }
-        console.log(context[0].context);
         const token = await rpcClient.getMiDiagramRpcClient().getUserAccessToken();
         const stringifiedUploadedFiles = files.map(file => JSON.stringify(file));
         const imageBase64Array = images.map(image => image.imageBase64);
@@ -528,7 +535,6 @@ export function AIProjectGenerationChat() {
                 }
             } else if (!response.ok) {
                 handleFetchError(response);
-                throw new Error('Failed to fetch response');
             }
             return response;
         };
@@ -689,6 +695,9 @@ export function AIProjectGenerationChat() {
     }
 
     function splitContent(content: string) {
+        if (!content) {
+            return [];
+        }
         const segments = [];
         let match;
         const regex = /```xml([\s\S]*?)```/g;
@@ -767,34 +776,6 @@ export function AIProjectGenerationChat() {
         }
     };
 
-    const handleFileAttach = (e: any) => {
-        const file = e.target.files[0];
-        const validFileTypes = ["text/plain", "application/json", "application/x-yaml", "application/xml", "text/xml"];
-        const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
-
-        if (file && validFileTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const fileContents = event.target.result;
-                setFiles(prevFiles => [...prevFiles, { fileName: file.name, fileContent: fileContents }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsText(file);
-        } else if (file && validImageTypes.includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (event: any) => {
-                const imageBase64 = event.target.result;
-                setImages(prevImages => [...prevImages, { imageName: file.name, imageBase64: imageBase64 }]);
-                setFileUploadStatus({ type: 'success', text: 'File uploaded successfully.' });
-            };
-            reader.readAsDataURL(file);
-
-        } else {
-            setFileUploadStatus({ type: 'error', text: 'File format not supported' });
-        }
-        e.target.value = '';
-    };
-
     const handleRemoveFile = (index: number) => {
         setFiles(prevFiles => prevFiles.filter((file, i) => i !== index));
     };
@@ -850,9 +831,9 @@ export function AIProjectGenerationChat() {
                     </Button>
                 </HeaderButtons>
             </Header>
-            <main style={{ flex: 1, overflowY: "auto" }}>
+            <main style={{ flex: 1, overflowY: "auto" }} ref={mainContainerRef}>
                 {Array.isArray(otherMessages) && otherMessages.length === 0 && (<Welcome>
-                    <h3>Welcome to MI Copilot <PreviewContainer>Preview</PreviewContainer></h3>
+                    <h3>Welcome to MI Copilot</h3>
                     <p>
                         You may use this chat to generate new artifacts
                         or to make changes to existing artifacts simply using text-based prompts.
@@ -872,7 +853,6 @@ export function AIProjectGenerationChat() {
                                 :
                                 <>
                                     <h3 style={{ margin: 0 }}>{message.role}</h3>
-                                    <PreviewContainer>Preview</PreviewContainer>
                                 </>
                             }
                         </RoleContainer>
@@ -964,7 +944,8 @@ export function AIProjectGenerationChat() {
                         id="fileInput"
                         type="file"
                         style={{ display: "none" }}
-                        onChange={(e: any) => handleFileAttach(e)}
+                        multiple
+                        onChange={(e: any) => handleFileAttach(e, setFiles, setImages, setFileUploadStatus)}
                     />
                     <VSCodeTextArea
                         value={userInput}

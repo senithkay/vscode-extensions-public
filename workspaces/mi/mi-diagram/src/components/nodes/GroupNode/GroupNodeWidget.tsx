@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { GroupNodeModel } from "./GroupNodeModel";
@@ -90,21 +90,21 @@ namespace S {
     export type ContainerStyleProp = {
         height: number;
         width: number;
+        left: number;
+        right: number;
     };
     export const ChildNodeContainer = styled.div<ContainerStyleProp>`
         position: absolute;
         top: ${NODE_DIMENSIONS.GROUP.HEIGHT / 2}px;
-        left: ${(props: ContainerStyleProp) => ((NODE_DIMENSIONS.GROUP.WIDTH - props.width) / 2) - NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING}px;
-        width: ${(props: ContainerStyleProp) => props.width - (NODE_DIMENSIONS.BORDER * 2)}px;
+        left: ${(props: ContainerStyleProp) => (NODE_DIMENSIONS.GROUP.WIDTH / 2) - props.left}px;
+        width: ${(props: ContainerStyleProp) => props.left + props.right}px;
         height: ${(props: ContainerStyleProp) => props.height - (NODE_DIMENSIONS.GROUP.HEIGHT / 2) - (NODE_DIMENSIONS.BORDER * 2)}px;
-        padding: 0 ${NODE_GAP.GROUP_NODE_HORIZONTAL_PADDING}px;
         border: ${NODE_DIMENSIONS.BORDER}px dashed ${Colors.OUTLINE_VARIANT};
         border-radius: 10px;
         background-color: transparent;
         z-index: -1;
         display: flex;
         align-items: flex-end;
-        justify-content: center;
         pointer-events: none;
     `;
 
@@ -131,11 +131,11 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     const tooltip = hasDiagnotics
         ? node
@@ -153,6 +153,10 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
     };
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -188,7 +192,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name>{node.mediatorName}</Name>
+                                    <Name>{node.stNode.displayName || node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >
@@ -201,8 +205,10 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     <S.EmptyEl />
                 </S.Node>
             </Tooltip>
-            <S.ChildNodeContainer width={node.stNode.viewState.fw} height={node.stNode.viewState.fh}>
-                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
+            <S.ChildNodeContainer width={node.stNode.viewState.fw} height={node.stNode.viewState.fh} left={node.stNode.viewState.l} right={node.stNode.viewState.r}>
+                <S.BottomPortWidget port={node.getPort("out")!} engine={engine} style={{
+                    marginLeft: node.stNode.viewState.l
+                }} />
             </S.ChildNodeContainer>
             <Popover
                 anchorEl={popoverAnchorEl}
@@ -217,7 +223,7 @@ export function GroupNodeWidget(props: CallNodeWidgetProps) {
                     <Menu>
                         <MenuItem
                             key={"delete-btn"}
-                            item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient) }}
+                            item={{ label: "Delete", id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }}
                         />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>

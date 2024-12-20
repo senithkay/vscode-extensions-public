@@ -14,6 +14,8 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { ExpressionLabelWidget } from './ExpressionLabelWidget';
 import { ArrayMappingOptionsWidget } from './ArrayMappingOptionsWidget';
+import { MappingType } from '../Port';
+import { SubLinkLabelWidget } from './SubLinkLabelWidget';
 
 export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabelModel, DiagramEngine> {
 	constructor() {
@@ -25,13 +27,16 @@ export class ExpressionLabelFactory extends AbstractReactFactory<ExpressionLabel
 	}
 
 	generateReactWidget(event: GenerateWidgetEvent<ExpressionLabelModel>): JSX.Element {
-		const { link, pendingArrayToArray } = event.model;
+		const { pendingMappingType, isSubLinkLabel } = event.model;
 
-		if (pendingArrayToArray) {
-			return (
-				<ArrayMappingOptionsWidget link={link} />
-			);
+		if (pendingMappingType == MappingType.ArrayToArray) {
+			return <ArrayMappingOptionsWidget model={event.model}/>;
 		}
+
+		if (isSubLinkLabel) {
+			return <SubLinkLabelWidget model={event.model}  />;
+		}
+
 		return <ExpressionLabelWidget model={event.model} />;
 	}
 }

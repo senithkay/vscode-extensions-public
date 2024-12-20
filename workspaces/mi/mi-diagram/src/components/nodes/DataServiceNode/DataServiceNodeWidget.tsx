@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataServiceNodeModel } from "./DataServiceNodeModel";
@@ -111,7 +111,7 @@ export function DataServiceNodeWidget(props: DataServiceNodeWidgetProps) {
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     // datasource node
     const [isHoveredDataSource, setIsHoveredDataSource] = React.useState(false);
@@ -142,6 +142,10 @@ export function DataServiceNodeWidget(props: DataServiceNodeWidgetProps) {
             }
         });
     };
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (

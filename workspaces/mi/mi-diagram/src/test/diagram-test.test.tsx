@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { LanguageClient } from './lang-service/client';
 import path from 'path';
 import fs from 'fs';
@@ -16,6 +16,9 @@ import { log } from "console";
 import { prettyDOM, waitFor, waitForElementToBeRemoved } from "@testing-library/dom";
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom';
+import { MACHINE_VIEW } from '@wso2-enterprise/mi-core';
+import { VisualizerContext, Context } from '@wso2-enterprise/mi-rpc-client';
+import { generateJsonFromXml } from './testJsonGenerator';
 
 // Error Boundary Component
 interface ErrorBoundaryProps {
@@ -42,10 +45,38 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
     }
 }
 
+function DiagramTest({ model, uri }: { model: any, uri: string }) {
+    const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
+        viewLocation: { view: MACHINE_VIEW.Overview },
+        isLoggedIn: false,
+        isLoading: true,
+        setIsLoading: (isLoading: boolean) => {
+            setVisualizerState((prevState: VisualizerContext) => ({
+                ...prevState,
+                isLoading
+            }));
+        }
+    });
+
+    return (
+        <Context.Provider value={visualizerState}>
+            <ErrorBoundary>
+                <Diagram model={model} documentUri={uri} />
+            </ErrorBoundary>
+        </Context.Provider>
+    );
+
+}
+
+// Enable to generate test data
+// describe('Generate Test data', () => {
+//     test('Test json', async () => {
+//         await generateJsonFromXml();
+//     });
+// });
+
 describe('Diagram component', () => {
     let langClient: LanguageClient;
-    let dataRoot: string;
-    let files: string[];
 
     beforeAll(async () => {
         const client = new LanguageClient();
@@ -60,42 +91,46 @@ describe('Diagram component', () => {
 
     describe('renders correctly with valid XML files', () => {
         const dataRoot = path.join(__dirname, 'data', 'input-xml');
-        const files = fs.readdirSync(dataRoot);
-        test.each(files)('Diagram work correctly for resource - %s', async (file) => {
-            if (file.endsWith('.xml')) {
+        const testJson = path.join(__dirname, 'data', 'files.json');
+        const json = JSON.parse(fs.readFileSync(testJson, 'utf-8'));
+
+        const files: any[] = (json.map((file: any) => [file.file, file.resources]));
+
+        describe.each(files)('Diagram work correctly for resource - %s', (file: string, resources: any[]) => {
+            resources = resources.map((resource: any) => { return { path: resource.path, methods: resource.methods.toString() } });
+
+            test.each(resources)('- $methods $path', async ({ path: resourcePath, methods }) => {
                 const uri = path.join(dataRoot, file);
                 const syntaxTree = await langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri
                     }
                 });
+                const resources = syntaxTree.syntaxTree.api.resource;
+                expect(resources).toBeDefined();
+                expect(resources.length).toBeGreaterThan(0);
+                const resource = resources.find((resource: any) => resource.uriTemplate === resourcePath || resource.urlMapping === resourcePath);
+                expect(resource).toBeDefined();
 
-                if (syntaxTree.syntaxTree.api.resource && syntaxTree.syntaxTree.api.resource.length > 0) {
-                    const model = syntaxTree.syntaxTree.api.resource[0];
-                    await renderAndCheckSnapshot(model, uri);
-                } else {
-                    throw new Error("Resource is undefined or empty.");
-                }
-            }
+                await renderAndCheckSnapshot(resource, uri);
+            }, 20000);
         }, 20000);
 
         const dssDataRoot = path.join(__dirname, 'data', 'input-xml', 'data-services');
         const dssFiles = fs.readdirSync(dssDataRoot);
         test.each(dssFiles)('Diagram work correctly for data service - %s', async (file) => {
-            if (file.endsWith('.xml')) {
-                const uri = path.join(dssDataRoot, file);
-                const syntaxTree = await langClient.getSyntaxTree({
-                    documentIdentifier: {
-                        uri
-                    }
-                });
-
-                if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
-                    const model = syntaxTree.syntaxTree?.data?.queries[0];
-                    await renderAndCheckSnapshot(model, uri);
-                } else {
-                    throw new Error("Resource is undefined or empty.");
+            const uri = path.join(dssDataRoot, file);
+            const syntaxTree = await langClient.getSyntaxTree({
+                documentIdentifier: {
+                    uri
                 }
+            });
+
+            if (syntaxTree.syntaxTree?.data?.queries && syntaxTree.syntaxTree?.data?.queries.length > 0) {
+                const model = syntaxTree.syntaxTree?.data?.queries[0];
+                await renderAndCheckSnapshot(model, uri);
+            } else {
+                throw new Error("Resource is undefined or empty.");
             }
         }, 20000);
     });
@@ -103,9 +138,8 @@ describe('Diagram component', () => {
 
 async function renderAndCheckSnapshot(model: any, uri: string) {
     const dom = render(
-        <ErrorBoundary>
-            <Diagram model={model} documentUri={uri} />
-        </ErrorBoundary>);
+        <DiagramTest model={model} uri={uri} />
+    );
 
     await waitFor(async () => {
         expect(await screen.findByTestId(/^diagram-canvas-/)).toBeInTheDocument();

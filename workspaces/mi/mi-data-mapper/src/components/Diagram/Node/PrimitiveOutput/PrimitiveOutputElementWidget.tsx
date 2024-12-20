@@ -25,6 +25,7 @@ import { useDMExpressionBarStore } from "../../../../store/store";
 import { filterDiagnosticsForNode } from "../../utils/diagnostics-utils";
 import { DiagnosticTooltip } from "../../Diagnostic/DiagnosticTooltip";
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import FieldActionWrapper from "../commons/FieldActionWrapper";
 
 export interface PrimitiveOutputElementWidgetWidgetProps {
     parentId: string;
@@ -51,7 +52,11 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
         hasHoveredParent
     } = props;
     const classes = useIONodesStyles();
-    const exprBarFocusedPort = useDMExpressionBarStore(state => state.focusedPort);
+    
+    const { exprBarFocusedPort, setExprBarFocusedPort } = useDMExpressionBarStore(state => ({
+        exprBarFocusedPort: state.focusedPort,
+        setExprBarFocusedPort: state.setFocusedPort
+    }));
 
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -62,7 +67,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     let fieldId = parentId;
 
     if (fieldIndex !== undefined) {
-        fieldId =`${parentId}.${fieldIndex}${fieldName !== '' ? `.${fieldName}` : ''}`;
+        fieldId = `${parentId}.${fieldIndex}${fieldName !== '' ? `.${fieldName}` : ''}`;
     } else if (fieldName) {
         fieldId = `${parentId}.${typeName}.${fieldName}`;
     } else {
@@ -74,10 +79,8 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     const diagnostic = value && filterDiagnosticsForNode(context.diagnostics, field.value)[0];
 
     const handleEditValue = () => {
-        if (field.value) {
-            const range = getEditorLineAndColumn(field.value);
-            context.goToSource(range);
-        }
+        if (portIn)
+            setExprBarFocusedPort(portIn);
     };
 
     const handleDelete = async () => {
@@ -85,7 +88,7 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     };
 
     const valueConfigMenuItems = useMemo(() => {
-        const items =  [{
+        const items = [{
             title: ValueConfigOption.EditValue,
             onClick: handleEditValue
         }];
@@ -108,36 +111,35 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
     };
 
     const label = (
-        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn?.getName()}`}>
+        <span style={{ marginRight: "auto" }} data-testid={`primitive-array-element-${portIn?.getName()}`}>
             <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
                 {diagnostic ? (
-                        <DiagnosticTooltip
-                            diagnostic={diagnostic}
-                            value={value}
-                            onClick={handleEditValue}
-                        >
-                            <Button
-                                appearance="icon"
-                                onClick={handleEditValue}
-                                data-testid={`object-output-field-${portIn?.getName()}`}
-                            >
-                                {value}
-                                <Icon
-                                    name="error-icon"
-                                    sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
-                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
-                                />
-                            </Button>
-                        </DiagnosticTooltip>
-                    ) : (
-                        <span
-                            className={classes.outputNodeValue}
-                            onClick={handleEditValue}
+                    <DiagnosticTooltip
+                        diagnostic={diagnostic}
+                        value={value}
+                        onClick={handleEditValue}
+                    >
+                        <Button
+                            appearance="icon"
                             data-testid={`object-output-field-${portIn?.getName()}`}
                         >
-                            <OutputSearchHighlight>{value}</OutputSearchHighlight>
-                        </span>
-                    )
+                            {value}
+                            <Icon
+                                name="error-icon"
+                                sx={{ height: "14px", width: "14px", marginLeft: "4px" }}
+                                iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                            />
+                        </Button>
+                    </DiagnosticTooltip>
+                ) : (
+                    <span
+                        className={classes.outputNodeValue}
+                        onClick={handleEditValue}
+                        data-testid={`object-output-field-${portIn?.getName()}`}
+                    >
+                        <OutputSearchHighlight>{value}</OutputSearchHighlight>
+                    </span>
+                )
                 }
             </span>
         </span>
@@ -160,10 +162,12 @@ export function PrimitiveOutputElementWidget(props: PrimitiveOutputElementWidget
                         }
                     </span>
                     <span className={classes.label}>{label}</span>
-                    <ValueConfigMenu
-                        menuItems={valueConfigMenuItems}
-                        portName={portIn?.getName()}
-                    />
+                    <FieldActionWrapper>
+                        <ValueConfigMenu
+                            menuItems={valueConfigMenuItems}
+                            portName={portIn?.getName()}
+                        />
+                    </FieldActionWrapper>
                 </div>
             )}
         </>

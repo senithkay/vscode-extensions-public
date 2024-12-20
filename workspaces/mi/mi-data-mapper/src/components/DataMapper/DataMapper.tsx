@@ -21,7 +21,7 @@ import { NodeInitVisitor } from "../Visitors/NodeInitVisitor";
 import { getFocusedST, traversNode } from "../Diagram/utils/st-utils";
 import { ImportDataForm } from "./SidePanel/ImportData/ImportDataForm";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
-import { useDMExpressionBarStore, useDMSearchStore } from "../../store/store";
+import { useDMExpressionBarStore, useDMSearchStore, useDMViewsStore } from "../../store/store";
 import { getTypeName } from "../Diagram/utils/common-utils";
 import { getSubMappingTypes } from "../Diagram/utils/type-utils";
 import { SubMappingConfigForm } from "./SidePanel/SubMappingConfig/SubMappingConfigForm";
@@ -29,14 +29,59 @@ import { isInputNode } from "../Diagram/Actions/utils";
 import { SourceNodeType, View } from "./Views/DataMapperView";
 import { KeyboardNavigationManager } from "../../utils/keyboard-navigation-manager";
 import { buildNodeListForSubMappings, initializeSubMappingContext } from "../Diagram/utils/sub-mapping-utils";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 const classes = {
     root: css({
         flexGrow: 1,
         height: "100vh",
         overflow: "hidden",
-    })
-}
+    }),
+    overlay: css({
+        zIndex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        background: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
+        opacity: 0.8,
+    }),
+    overlayWithLoader: css({
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        zIndex: 1,
+        position: 'fixed',
+        backdropFilter: "blur(3px)",
+        backgroundColor: 'rgba(var(--vscode-editor-background-rgb), 0.8)',
+    }),
+    autoMapInProgressMsg: css({
+        marginTop: '0px'
+    }),
+    autoMapStopButton: css({
+        textTransform: 'none',
+        background: 'var(--vscode-button-background)',
+        marginTop: '15px',
+        border: 'none',
+        borderRadius: '5px',
+    }),
+    spinner: css({
+        margin: '20px auto',
+        width: '20px',
+        height: '20px',
+        borderRadius: '50%',
+        border: '3px solid var(--vscode-editor-background)',
+        borderTop: '3px solid var(--vscode-editor-foreground)',
+        animation: 'spin 2s linear infinite',
+        '@keyframes spin': {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' }
+        }
+    }),
+};
+
 export interface MIDataMapperProps {
     fnST: FunctionDeclaration;
     inputTrees: DMType[];
@@ -45,6 +90,10 @@ export interface MIDataMapperProps {
     filePath: string;
     configName: string;
     applyModifications: (fileContent: string) => Promise<void>;
+    isLoading: boolean;
+    setIsLoading: (loading: boolean) => void;
+    isMapping: boolean;
+    setIsMapping: (mapping: boolean) => void;
 }
 
 enum ActionType {
@@ -52,8 +101,6 @@ enum ActionType {
     SWITCH_VIEW,
     EDIT_VIEW
 }
-
-type ViewState = View[];
 
 type ViewAction = {
     type: ActionType,
@@ -63,7 +110,7 @@ type ViewAction = {
     },
 }
 
-function viewsReducer(state: ViewState, action: ViewAction) {
+function viewsReducer(state: View[], action: ViewAction) {
     switch (action.type) {
         case ActionType.ADD_VIEW:
             return [...state, action.payload.view];
@@ -76,17 +123,55 @@ function viewsReducer(state: ViewState, action: ViewAction) {
     }
 }
 
-export function MIDataMapper(props: MIDataMapperProps) {
-    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications } = props;
+function MappingInProgressMessage() {
+    const [message, setMessage] = useState("Mapping is in progress...");
 
-    const initialView = [{
+    useEffect(() => {
+        const messages = [
+            "Mapping is in progress...",
+            "Please wait...",
+            "This may take a few seconds, depending on the size of your schema."
+        ];
+        let index = 0;
+
+        const interval = setInterval(() => {
+            index = (index + 1) % messages.length;
+            setMessage(messages[index]);
+        }, 10000); // 10 seconds
+
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, []);
+
+    return (
+        <div className={classes.autoMapInProgressMsg}>
+            {message}
+        </div>
+    );
+}
+
+export function MIDataMapper(props: MIDataMapperProps) {
+    const { fnST, inputTrees, outputTree, fileContent, filePath, configName, applyModifications, isLoading, setIsLoading, isMapping, setIsMapping } = props;
+
+    const initialViews = [{
         targetFieldFQN: "",
         sourceFieldFQN: "",
         sourceNodeType: SourceNodeType.InputNode,
         label: `${getTypeName(inputTrees[0])} -> ${getTypeName(outputTree)}`
     }];
 
-    const [views, dispatch] = useReducer(viewsReducer, initialView);
+    const viewsStore = useDMViewsStore();
+
+    const initializeViews = (views: View[]) => {
+        if (viewsStore.views.length > 0) {
+            const storeViews = viewsStore.views.slice(0);
+            viewsStore.setViews([]);
+            return storeViews;
+        } else {
+            return views;
+        }
+    };
+
+    const [views, dispatch] = useReducer(viewsReducer, initialViews, initializeViews);
     const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
 
     const { rpcClient } = useVisualizerContext();
@@ -194,13 +279,32 @@ export function MIDataMapper(props: MIDataMapperProps) {
         <div className={classes.root}>
             {fnST && (
                 <DataMapperHeader
+                    fnST={fnST}
+                    inputTrees={inputTrees}
+                    outputTree={outputTree}
                     filePath={filePath}
                     views={views}
                     switchView={switchView}
                     hasEditDisabled={false}
                     onClose={undefined}
                     applyModifications={applyModifications}
+                    setIsLoading={setIsLoading}
+                    isLoading={isLoading}
+                    setIsMapping={setIsMapping}
+                    isMapping={isMapping}
                 />
+            )}
+            {isLoading && (
+                <div className={classes.overlayWithLoader}>
+                    <div className={classes.spinner} />
+                    {isMapping && <MappingInProgressMessage />}
+                    <Button
+                        onClick={() => setIsMapping(false)}
+                        className={classes.autoMapStopButton}
+                    >
+                        {'Stop'}
+                    </Button>
+                </div>
             )}
             {nodes.length > 0 && (
                 <DataMapperDiagram
@@ -216,6 +320,8 @@ export function MIDataMapper(props: MIDataMapperProps) {
                 <SubMappingConfigForm
                     functionST={fnST}
                     inputNode={inputNode}
+                    configName={configName}
+                    documentUri={filePath}
                     addView={addView}
                     updateView={editView}
                     applyModifications={applyModifications}
@@ -224,3 +330,5 @@ export function MIDataMapper(props: MIDataMapperProps) {
         </div>
     )
 }
+
+

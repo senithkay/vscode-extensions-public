@@ -18,20 +18,19 @@ import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 import { VisualizerWebview } from './visualizer/webview';
 import { RPCLayer } from './RPCLayer';
 import { history } from './history/activator';
-import { APIS, COMMANDS } from './constants';
-import { openAIWebview } from './ai-panel/aiMachine';
-import { AiPanelWebview } from './ai-panel/webview';
+import { COMMANDS } from './constants';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { StateMachineAI } from './ai-panel/aiMachine';
-import { getSources } from './util/dataMapper';
+import { getFunctionIOTypes, getSources } from './util/dataMapper';
 import { StateMachinePopup } from './stateMachinePopup';
-import { MockService, STNode, UnitTest, Task, NamedSequence, InboundEndpoint } from '../../syntax-tree/lib/src';
+import { MockService, STNode, UnitTest, Task, InboundEndpoint } from '../../syntax-tree/lib/src';
 import { log } from './util/logger';
 import { deriveConfigName } from './util/dataMapper';
 import { fileURLToPath } from 'url';
 import path = require('path');
 import { activateTestExplorer } from './test-explorer/activator';
 import { DMProject } from './datamapper/DMProject';
+import { setupEnvironment } from './util/onboardingUtils';
 
 interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
@@ -54,28 +53,8 @@ const stateMachine = createMachine<MachineContext>({
                 src: checkIfMiProject,
                 onDone: [
                     {
-                        target: 'connectorInit',
-                        cond: (context, event) =>
-                            // Assuming true means project detected
-                            event.data.isProject === true && event.data.emptyProject === true,
-                        actions: assign({
-                            view: (context, event) => MACHINE_VIEW.ADD_ARTIFACT,
-                            projectUri: (context, event) => event.data.projectUri,
-                            isOldProject: (context, event) => false,
-                            displayOverview: (context, event) => true,
-                        })
-                    },
-                    {
-                        target: 'connectorInit',
-                        cond: (context, event) =>
-                            // Assuming true means project detected
-                            event.data.isProject === true && event.data.emptyProject === false,
-                        actions: assign({
-                            view: (context, event) => MACHINE_VIEW.Overview,
-                            projectUri: (context, event) => event.data.projectUri,
-                            isOldProject: (context, event) => false,
-                            displayOverview: (context, event) => true,
-                        })
+                        target: 'environmentSetup',
+                        cond: (context, event) => (event.data.isProject === true || event.data.isOldProject === true)&& event.data.isEnvironmentSetUp === false,
                     },
                     {
                         target: 'oldProjectDetected',
@@ -92,9 +71,10 @@ const stateMachine = createMachine<MachineContext>({
                     {
                         target: 'lsInit',
                         cond: (context, event) =>
-                            // Integration Studio project with disabled overview
-                            event.data.isOldProject === true && event.data.displayOverview === false,
+                            event.data.isOldProject || event.data.isProject,
                         actions: assign({
+                            view: (context, event) => event.data.emptyProject ? MACHINE_VIEW.ADD_ARTIFACT : MACHINE_VIEW.Overview,
+                            projectUri: (context, event) => event.data.projectUri,
                             isOldProject: (context, event) => event.data.isOldProject,
                             displayOverview: (context, event) => event.data.displayOverview
                         })
@@ -116,19 +96,6 @@ const stateMachine = createMachine<MachineContext>({
                         errors: (context, event) => event.data
                     })
                 }
-            }
-        },
-        connectorInit: {
-            invoke: {
-                src: 'waitForConnectorData',
-                onDone: [
-                    {
-                        target: 'projectDetected',
-                        actions: assign({
-                            connectorData: (context, event) => event.data
-                        })
-                    }
-                ]
             }
         },
         projectDetected: {
@@ -324,6 +291,34 @@ const stateMachine = createMachine<MachineContext>({
                     }
                 }
             }
+        },
+        environmentSetup: {
+            initial: "viewLoading",
+            states: {
+                viewLoading: {
+                    invoke: [
+                        {
+                            src: 'openWebPanel',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        },
+                        {
+                            src: 'focusProjectExplorer',
+                            onDone: {
+                                target: 'viewReady'
+                            }
+                        }
+                    ]
+                },
+                viewReady: {
+                    on: {
+                        REFRESH_ENVIRONMENT: {
+                            target: '#mi.initialize'
+                        }
+                    }
+                }
+            }
         }
     }
 }, {
@@ -334,6 +329,7 @@ const stateMachine = createMachine<MachineContext>({
         waitForLS: (context, event) => {
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
+                log("Waiting for LS to be ready " + new Date().toLocaleTimeString());
                 try {
                     vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
                     const instance = await MILanguageClient.getInstance(extension.context);
@@ -348,32 +344,30 @@ const stateMachine = createMachine<MachineContext>({
                     StateMachinePopup.initialize();
 
                     resolve(ls);
+                    log("LS is ready " + new Date().toLocaleTimeString());
                 } catch (error) {
+                    log("Error occured while waiting for LS to be ready " + new Date().toLocaleTimeString());
                     reject(error);
                 }
             });
         },
-        waitForConnectorData: (context, event) => {
-            return new Promise(async (resolve, reject) => {
-                fetchConnectorData().then(data => {
-                    if (data) {
-                        resolve(data);
-                    } else {
-                        resolve([]);
-                    }
-                });
-            });
-        },
         openWebPanel: (context, event) => {
             // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 if (!VisualizerWebview.currentPanel) {
                     VisualizerWebview.currentPanel = new VisualizerWebview(context.view!, extension.webviewReveal);
                     RPCLayer._messenger.onNotification(webviewReady, () => {
                         resolve(true);
                     });
                 } else {
-                    VisualizerWebview.currentPanel!.getWebview()?.reveal(ViewColumn.Active);
+                    const webview = VisualizerWebview.currentPanel!.getWebview();
+                    webview?.reveal(ViewColumn.Active);
+
+                    // wait until webview is ready
+                    const start = Date.now();
+                    while (!webview?.visible && Date.now() - start < 5000) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
                     resolve(true);
                 }
             });
@@ -383,7 +377,7 @@ const stateMachine = createMachine<MachineContext>({
                 const langClient = StateMachine.context().langClient!;
                 const viewLocation = context;
 
-                if (context.view?.includes("Form")) {
+                if (context.view?.includes("Form") && !context.view.includes("Test") && !context.view.includes("Mock")) {
                     return resolve(viewLocation);
                 }
                 if (context.view === MACHINE_VIEW.DataMapperView) {
@@ -392,9 +386,11 @@ const stateMachine = createMachine<MachineContext>({
                         const functionName = DM_FUNCTION_NAME;
                         DMProject.refreshProject(filePath);
                         const [fnSource, interfacesSrc] = getSources(filePath);
+                        const functionIOTypes = getFunctionIOTypes(filePath, functionName);
                         viewLocation.dataMapperProps = {
                             filePath: filePath,
                             functionName: functionName,
+                            functionIOTypes: functionIOTypes,
                             fileContent: fnSource,
                             interfacesSource: interfacesSrc,
                             configName: deriveConfigName(filePath)
@@ -533,6 +529,12 @@ const stateMachine = createMachine<MachineContext>({
                 updateProjectExplorer(context);
                 resolve(true);
             });
+        },
+        focusProjectExplorer: (context, event) => {
+            return new Promise(async (resolve, reject) => {
+                vscode.commands.executeCommand(COMMANDS.FOCUS_PROJECT_EXPLORER);
+                resolve(true);
+            });
         }
     }
 });
@@ -573,7 +575,7 @@ export function navigate(entry?: HistoryEntry) {
             stateService.send({ type: "NAVIGATE", viewLocation: { view: MACHINE_VIEW.Overview } });
         }
     } else {
-        const location = historyStack[historyStack.length - 1].location;
+        const location = entry ? entry.location : historyStack[historyStack.length - 1].location;
         stateService.send({ type: "NAVIGATE", viewLocation: location });
     }
 }
@@ -606,24 +608,10 @@ function updateProjectExplorer(location: VisualizerLocation | undefined) {
     }
 }
 
-async function fetchConnectorData() {
-    try {
-        const response = await fetch(APIS.CONNECTOR);
-        const data = await response.json();
-        if (data) {
-            return data['outbound-connector-data'];
-        } else {
-            console.log("Failed to fetch data, but user is connected.");
-            return null;
-        }
-    } catch (error) {
-        console.log("User is offline.", error);
-        return null;
-    }
-}
-
 async function checkIfMiProject() {
-    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false;
+    log('Detecting project ' + new Date().toLocaleTimeString());
+
+    let isProject = false, isOldProject = false, displayOverview = true, emptyProject = false, isEnvironmentSetUp = false;
     let projectUri = '';
     try {
         // Check for pom.xml files excluding node_modules directory
@@ -675,23 +663,30 @@ async function checkIfMiProject() {
     }
 
     if (projectUri) {
+        isEnvironmentSetUp = await setupEnvironment(projectUri);
+        if (!isEnvironmentSetUp) {
+            vscode.commands.executeCommand('setContext', 'MI.status', 'notSetUp');
+        }
         // Log project path
         log(`Current workspace path: ${projectUri}`);
     }
 
     // Register Project Creation command in any of the above cases
-    vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
-        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
-        console.log('Create New Project');
-        log('Create New Project');
-    });
-
+    if (!(await vscode.commands.getCommands()).includes(COMMANDS.CREATE_PROJECT_COMMAND)) {
+        vscode.commands.registerCommand(COMMANDS.CREATE_PROJECT_COMMAND, () => {
+            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ProjectCreationForm });
+            log('Create New Project');
+        });
+    }
+    
+    log('Project detection completed ' + new Date().toLocaleTimeString());
     return {
         isProject,
         isOldProject,
         displayOverview,
         projectUri, // Return the path of the detected project
-        emptyProject
+        emptyProject,
+        isEnvironmentSetUp
     };
 }
 

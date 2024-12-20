@@ -31,7 +31,7 @@
               "displayName": "Case Regex",
               "inputType": "string",
               "defaultValue": "",
-              "required": false,
+              "required": true,
               "helpTip": ".*+"
             }
           },

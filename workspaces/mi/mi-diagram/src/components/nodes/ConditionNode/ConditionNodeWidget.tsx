@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { ConditionNodeModel } from "./ConditionNodeModel";
@@ -78,11 +78,11 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const [isHovered, setIsHovered] = React.useState(false);
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : (node.getStNode() as any).description;
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
 
@@ -95,6 +95,10 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
     const handlePopoverClose = () => {
         setIsPopoverOpen(false);
     }
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -147,7 +151,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
                     )}
 
                     <S.Header showBorder={description !== undefined}>
-                        <Name>{FirstCharToUpperCase(node.stNode.tag)}</Name>
+                        <Name>{node.stNode.displayName || node.mediatorName}</Name>
                     </S.Header>
                     <S.Body>
                         <Tooltip content={description} position={'bottom'} >
@@ -168,7 +172,7 @@ export function ConditionNodeWidget(props: CallNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>

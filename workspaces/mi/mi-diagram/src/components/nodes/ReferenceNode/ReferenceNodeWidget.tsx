@@ -83,12 +83,12 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const [definition, setDefinition] = useState<GetDefinitionResponse>(undefined);
     const [canOpenView, setCanOpenView] = useState(false);
-    const description = getNodeDescription(node.mediatorName, node.stNode);
+    const description = getNodeDescription(node.stNode);
 
     useEffect(() => {
         if (node.mediatorName === MEDIATORS.DATAMAPPER) {
@@ -97,6 +97,10 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
             getDefinition();
         }
     }, []);
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const getDefinition = async () => {
         let range;
@@ -201,7 +205,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 >
                     <S.TopPortWidget port={node.getPort("in")!} engine={engine} />
                     <div style={{ display: "flex", flexDirection: "row", width: NODE_DIMENSIONS.DEFAULT.WIDTH }}>
-                        <S.IconContainer>{getMediatorIconsFromFont(node.mediatorName)}</S.IconContainer>
+                        <S.IconContainer>{getMediatorIconsFromFont(node.stNode.tag)}</S.IconContainer>
                         <div>
                             {isHovered && (
                                 <OptionsMenu appearance="icon" onClick={handleOnClickMenu}>
@@ -210,7 +214,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                             )}
                             <Content>
                                 <Header showBorder={description !== undefined}>
-                                    <Name>{node.mediatorName}</Name>
+                                    <Name>{node.stNode.displayName || node.mediatorName}</Name>
                                 </Header>
                                 <Body>
                                     <Tooltip content={description} position={'bottom'} >
@@ -235,7 +239,7 @@ export function ReferenceNodeWidget(props: ReferenceNodeWidgetProps) {
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
                         {canOpenView && <MenuItem key={'share-btn'} item={{ label: node.openViewName || 'Open View', id: "open-view", onClick: handleOpenView }} />}
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                     </Menu>
                 </ClickAwayListener>
             </Popover>

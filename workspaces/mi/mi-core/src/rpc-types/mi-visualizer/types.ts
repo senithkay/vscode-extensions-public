@@ -8,6 +8,8 @@
  */
 import { HistoryEntry } from "../../history";
 import { AIVisualizerLocation, EVENT_TYPE, POPUP_EVENT_TYPE, PopupVisualizerLocation, VisualizerLocation } from "../../state-machine-types";
+import { Range as STRange } from "../../../../syntax-tree/lib/src"
+import { TextEdit } from "vscode-languageserver-types";
 
 export interface WorkspacesResponse {
     workspaces: WorkspaceFolder[];
@@ -65,10 +67,134 @@ export interface ProjectStructureResponse {
     };
 }
 
+export interface TreeViewStructureArtifactsResponse {
+    APIs: ProjectStructureArtifactResponse[],
+    Triggers: ProjectStructureArtifactResponse[],
+    'Scheduled Tasks': ProjectStructureArtifactResponse[],
+    'Data Integration': DataIntegrationResponse,
+    'Common Artifacts': CommonArtifactsResponse[],
+    'Advanced Artifacts': AdvancedArtifactsResponse[]
+}
+
 export interface ProjectStructureArtifactResponse {
     name: string;
     path: string;
     type: string;
+}
+
+export interface ProjectDetailsResponse {
+    primaryDetails: PrimaryDetails;
+    buildDetails: BuildDetails;
+    dependencies: DependenciesDetails;
+    unitTest: UnitTestDetails;
+    configs: PomNodeDetails[];
+}
+
+export interface PomNodeDetails {
+    value: string;
+    key?: string;
+    range?: STRange | STRange[];
+}
+
+export interface PrimaryDetails {
+    projectName: PomNodeDetails;
+    projectVersion: PomNodeDetails;
+    projectDescription: PomNodeDetails;
+    runtimeVersion: PomNodeDetails;
+}
+
+export interface BuildDetails {
+    dockerDetails: DockerDetails;
+    advanceDetatils: AdvanceDetails;
+}
+
+export interface DockerDetails {
+    dockerFileBaseImage: PomNodeDetails;
+    dockerName: PomNodeDetails;
+    cipherToolEnable: PomNodeDetails;
+    keyStoreName: PomNodeDetails;
+    keyStorePassword: PomNodeDetails;
+    keyStoreAlias: PomNodeDetails;
+    keyStoreType: PomNodeDetails;
+}
+
+export interface AdvanceDetails {
+    projectGroupId: PomNodeDetails;
+    projectArtifactId: PomNodeDetails;
+    pluginDetatils: PluginDetatils;
+}
+
+export interface PluginDetatils {
+    projectBuildPluginVersion: PomNodeDetails;
+    miContainerPluginVersion: PomNodeDetails;
+    unitTestPluginVersion: PomNodeDetails;
+}
+
+export interface DependenciesDetails {
+    connectorDependencies: DependencyDetails[];
+    otherDependencies: DependencyDetails[];
+}
+
+export interface DependencyDetails {
+    groupId: string;
+    artifact: string;
+    version: string;
+    type?: "zip" | "jar";
+    range?: STRange;
+}
+
+export interface UnitTestDetails {
+    skipTest: PomNodeDetails;
+    serverPath: PomNodeDetails;
+    serverPort: PomNodeDetails;
+    serverVersion: PomNodeDetails;
+    serverHost: PomNodeDetails;
+    serverType: PomNodeDetails;
+    serverDownloadLink: PomNodeDetails;
+}
+
+export interface UpdatePomValuesRequest {
+    pomValues: PomNodeDetails[];
+}
+
+export interface UpdateConfigValuesRequest {
+    configValues: PomNodeDetails[];
+}
+
+export interface UpdateDependenciesRequest {
+    dependencies: DependencyDetails[];
+}
+
+export interface UpdateConfigValuesResponse {
+    textEdits: TextEdit[];
+}
+
+export interface UpdateDependenciesResponse {
+    textEdits: TextEdit[];
+}
+
+export interface DataIntegrationResponse {
+    'Data Sources': ProjectStructureArtifactResponse[];
+    'Data Servies': ProjectStructureArtifactResponse[];
+    path: string;
+}
+
+export interface CommonArtifactsResponse {
+    'Sequences': ProjectStructureArtifactResponse[];
+    'Connections': ProjectStructureArtifactResponse[];
+    'Data Mappers': ProjectStructureArtifactResponse[];
+    'Class Mediators': ProjectStructureArtifactResponse[];
+    path: string;
+}
+
+export interface AdvancedArtifactsResponse {
+    'Proxy Services': ProjectStructureArtifactResponse[];
+    'Endpoints': ProjectStructureArtifactResponse[];
+    'Message Stores': ProjectStructureArtifactResponse[];
+    'Message Processors': ProjectStructureArtifactResponse[];
+    'Local Entries': ProjectStructureArtifactResponse[];
+    'Templates': ProjectStructureArtifactResponse[];
+    path: string;
 }
 
 export interface ProjectDirectoryMap {
@@ -139,6 +265,12 @@ export interface SampleDownloadRequest {
     zipFileName: string;
 }
 
+export interface AddConfigurableRequest {
+    projectUri: string;
+    configurableName: string;
+    configurableType: string;
+}
+
 export interface OpenViewRequest {
     type: EVENT_TYPE | POPUP_EVENT_TYPE;
     location: VisualizerLocation | AIVisualizerLocation | PopupVisualizerLocation;
@@ -207,7 +339,7 @@ export interface Response {
     body?: string;
     obj?: string;
     headers?: Record<string, string>;
-  }
+}
 
 export interface SwaggerProxyRequest {
     command: string;
@@ -217,6 +349,10 @@ export interface SwaggerProxyRequest {
 export interface SwaggerProxyResponse {
     isResponse: boolean;
     response?: Response;
+}
+
+export interface ImportOpenAPISpecRequest {
+    filePath: string;
 }
 
 export interface RuntimeServicesResponse {
@@ -235,4 +371,44 @@ export interface OpenExternalRequest {
 
 export interface OpenExternalResponse {
     success: boolean;
+}
+
+export interface ProjectOverviewResponse {
+    name: string;
+    connections: Connection[];
+    entrypoints: Entrypoint[];
+    projectDetails: ProjectDetailsResponse;
+}
+
+export interface Connection {
+    name: string;
+}
+
+export interface Entrypoint {
+    id: string;
+    name: string;
+    type: string;
+    path: string;
+    dependencies: string[];
+    connections: string[];
+}
+export interface ReadmeContentResponse {
+    content: string;
+}
+export interface PathResponse {
+    path?: string;
+    status: "valid" | "suggest" | "mismatch" | "not-found";
+    version?: string;
+}
+export interface JavaAndMIPathResponse {
+    javaPath?: PathResponse;
+    miPath?: PathResponse;
+}
+export interface JavaAndMIPathRequest {
+    javaPath?: string;
+    miPath?: string;
+}
+export interface MIDetails {
+    miVersion: string;
+    javaVersion: string;
 }

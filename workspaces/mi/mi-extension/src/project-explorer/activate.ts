@@ -13,12 +13,12 @@ import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/m
 import { COMMANDS } from '../constants';
 import { ExtensionContext, TreeItem, Uri, ViewColumn, commands, window, workspace } from 'vscode';
 import path = require("path");
-import { deleteRegistryResource } from '../util/fileOperations';
+import { deleteRegistryResource, deleteDataMapperResources } from '../util/fileOperations';
 import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
-import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
+import { deleteSwagger } from '../util/swagger';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
@@ -26,12 +26,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	await projectExplorerDataProvider.refresh(lsClient);
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
-	const registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
-	await registryExplorerDataProvider.refresh(lsClient);
-	window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
-
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
 	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
 		window.showQuickPick([
 			{ label: 'New Project', description: 'Create new project' }
@@ -51,13 +46,18 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
             );
             return;
         }
-        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'artifacts', 'registry');
+        const registryPath = path.join(projectUri, 'src', 'main', 'wso2mi', 'resources');
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: registryPath });
         console.log('Add Registry Resource');
 	});
 	commands.registerCommand(COMMANDS.ADD_API_COMMAND, async (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.APIForm, documentUri: entry.info?.path });
 		console.log('Add API');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_RESOURCE_COMMAND, async (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.RegistryResourceForm, documentUri: entry.info?.path });
+		console.log('Add Resource');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -68,6 +68,11 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	commands.registerCommand(COMMANDS.ADD_SEQUENCE_COMMAND, (entry: ProjectExplorerEntry) => {
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.SequenceForm, documentUri: entry.info?.path });
 		console.log('Add Sequence');
+	});
+
+	commands.registerCommand(COMMANDS.ADD_DATAMAPPER_COMMAND, (entry: ProjectExplorerEntry) => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DatamapperForm, documentUri: entry.info?.path });
+		console.log('Add Datamapper');
 	});
 
 	commands.registerCommand(COMMANDS.ADD_INBOUND_ENDPOINT_COMMAND, (entry: ProjectExplorerEntry) => {
@@ -168,17 +173,39 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 					if (!projectResources) return;
 
 					for (const projectResource of projectResources) {
-						const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
-						if (fileEntry) {
-							projectTree.reveal(fileEntry, { select: true });
+						if (projectResource.label === "Data Integration" || projectResource.label === "Common Artifacts" ||
+							projectResource.label === "Advanced Artifacts") {
+							const projectArtifacts = projectResource?.children;
+							if (projectArtifacts) {
+								for (const artifact of projectArtifacts) {
+									const fileEntry = artifact.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+									if (fileEntry) {
+										projectTree.reveal(fileEntry, { select: true });
 
-							if (viewLocation.identifier !== undefined) {
-								const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
-								if (resourceEntry) {
-									projectTree.reveal(resourceEntry, { select: true });
+										if (viewLocation.identifier !== undefined) {
+											const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+											if (resourceEntry) {
+												projectTree.reveal(resourceEntry, { select: true });
+											}
+										}
+										break;
+									}
 								}
 							}
-							break;
+
+						} else {
+							const fileEntry = projectResource.children?.find((file) => file !== undefined && file.info?.path === viewLocation.documentUri);
+							if (fileEntry) {
+								projectTree.reveal(fileEntry, { select: true });
+
+								if (viewLocation.identifier !== undefined) {
+									const resourceEntry = fileEntry.children?.find((file) => file.info?.path === `${viewLocation.documentUri}/${viewLocation.identifier}`);
+									if (resourceEntry) {
+										projectTree.reveal(resourceEntry, { select: true });
+									}
+								}
+								break;
+							}
 						}
 					}
 				}
@@ -308,9 +335,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 		revealWebviewPanel(false);
 		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ServiceDesigner, documentUri: entry.info?.path });
 	});
-	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry) => {
+	commands.registerCommand(COMMANDS.OPEN_DSS_SERVICE_DESIGNER, async (entry: ProjectExplorerEntry | Uri) => {
 		revealWebviewPanel(false);
-		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri: entry.info?.path });
+		const documentUri = entry instanceof ProjectExplorerEntry ? entry.info?.path : entry.fsPath;
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.DSSServiceDesigner, documentUri });
 	});
 
 	// delete
@@ -327,7 +355,8 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			case 'localEntry':
 			case 'template':
 			case 'dataSource':
-			case 'dataService':
+			case 'connection':
+			case 'data-service':
 				{
 					const fileUri = item.command?.arguments?.[0] || (item as any)?.info?.path;
 					if (!fileUri) {
@@ -344,6 +373,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							await workspace.fs.delete(Uri.parse(fileUri), { recursive: true, useTrash: true });
 							window.showInformationMessage(`${item.label} has been deleted.`);
+
+							if (item.contextValue === 'api') {
+								deleteSwagger(fileUri);
+							}
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
 						}
@@ -367,7 +400,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 						try {
 							// delete the file and the residing folder
 							const folderPath = path.dirname(fileUri);
-							await workspace.fs.delete(Uri.parse(folderPath), { recursive: true, useTrash: true });
+							await deleteDataMapperResources(fileUri);
 							window.showInformationMessage(`${item.label} has been deleted.`);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);
@@ -437,7 +470,10 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 				}
 				if (filePath !== "") {
 					const fileName = path.basename(filePath);
-					window.showInformationMessage("Do you want to delete : " + fileName, { modal: true }, "Yes", "No")
+					const langClient = StateMachine.context().langClient;
+					const fileUsageIdentifiers = await langClient?.getResourceUsages(filePath);
+					const fileUsageMessage = fileUsageIdentifiers?.length && fileUsageIdentifiers?.length > 0 ? "It is used in:\n" + fileUsageIdentifiers.join(", ") : "No usage found";
+					window.showInformationMessage("Do you want to delete : " + fileName + "\n\n" + fileUsageMessage, { modal: true }, "Yes")
 						.then(async answer => {
 							if (answer === "Yes") {
 								const res = await deleteRegistryResource(filePath);
@@ -460,4 +496,3 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 function revealWebviewPanel(beside: boolean = true) {
 	extension.webviewReveal = beside;
 }
-

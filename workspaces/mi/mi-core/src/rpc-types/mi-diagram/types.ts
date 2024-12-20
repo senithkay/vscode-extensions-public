@@ -9,7 +9,8 @@
  */
 
 import { Range, TagRange } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { Diagnostic, Position, TextDocumentIdentifier } from "vscode-languageserver-types";
+import { Diagnostic, Position, TextDocumentIdentifier, TextEdit } from "vscode-languageserver-types";
+import { HelperPaneData } from '../../interfaces/mi-diagram';
 
 interface Record {
     name: string;
@@ -21,6 +22,14 @@ export interface ApplyEditRequest {
     documentUri: string;
     range: Range;
     disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
+}
+
+export interface ApplyEditsRequest {
+    documentUri: string;
+    edits: TextEdit[];
+    disableFormatting?: boolean;
+    disableUndoRedo?: boolean;
 }
 
 export interface ApplyEditResponse {
@@ -338,6 +347,7 @@ export interface CreateProjectRequest {
     groupID?: string;
     artifactID?: string;
     version?: string;
+    miVersion: string;
 }
 
 export interface ImportProjectRequest {
@@ -356,8 +366,25 @@ export interface Connector {
     description: string;
     icon: string;
 }
+
+export interface ConnectorOperation {
+    name: string;
+    description: string;
+    isHidden: boolean;
+}
 export interface ConnectorsResponse {
     data: Connector[];
+}
+
+export interface UpdatePOMRequest {
+    documentUri: string;
+    groupId: string;
+    artifactId: string;
+    version: string;
+}
+
+export interface UpdatePOMResponse {
+    textEdits: TextEdit[];
 }
 
 export interface ESBConfigsResponse {
@@ -372,9 +399,19 @@ export interface CommandsResponse {
     data: string;
 }
 
-export interface getSTRequest {
+export interface GetSTFromUriRequest {
     documentUri: string;
 }
+
+export type ArtifactType = "api" | "data-services" | "data-sources" | "endpoints" | "inbound-endpoints" | "local-entries" | "message-processors" | "message-stores" | "proxy-services" | "sequences" | "tasks" | "templates";
+
+export type GetSTFromArtifactRequest = {
+    artifactType: ArtifactType;
+    artifactName: string;
+}
+
+export type getSTRequest = GetSTFromUriRequest | GetSTFromArtifactRequest;
+
 export interface getSTResponse {
     syntaxTree: any;
     defFilePath: string;
@@ -885,6 +922,7 @@ export interface CreateTaskRequest {
     triggerInterval: number;
     triggerCron: string;
     taskProperties: taskProperty[];
+    customProperties: any[];
     sequence: CreateSequenceRequest | undefined;
 }
 
@@ -1026,6 +1064,18 @@ export interface Datasource {
     dynamicUserAuthClass?: string;
     datasourceProperties: Property[];
     datasourceConfigurations: Configuration[];
+}
+
+export interface DriverPathResponse {
+    path: string;
+}
+
+export interface AddDriverToLibRequest {
+    url: string;
+}
+
+export interface AddDriverToLibResponse {
+    path: string;
 }
 
 export interface Property {
@@ -1291,6 +1341,7 @@ export interface BrowseFileRequest {
     defaultUri: string;
     title: string;
     openLabel?: string;
+    filters?: { [key: string]: string[] };
 }
 
 export type ResourceType =
@@ -1317,6 +1368,7 @@ export type ResourceType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry";
 
 export interface MultipleResourceType {
@@ -1348,12 +1400,14 @@ export interface GetBackendRootUrlResponse {
 }
 export interface ListRegistryArtifactsRequest {
     path: string;
+    withAdditionalData?: boolean
 }
 export interface ListRegistryArtifactsResponse {
     artifacts: RegistryArtifact[];
 }
 export interface RegistryArtifactNamesResponse {
     artifacts: string[];
+    artifactsWithAdditionalData: RegistryArtifact[];
 }
 export interface RegistryArtifact {
     name: string;
@@ -1365,7 +1419,7 @@ export interface RegistryArtifact {
 }
 export interface RangeFormatRequest {
     uri: string;
-    range: Range
+    range?: Range
 }
 
 export interface DownloadConnectorRequest {
@@ -1427,7 +1481,17 @@ export interface GetConnectionFormResponse {
 }
 
 export interface StoreConnectorJsonResponse {
-    data: any[];
+    outboundConnectors?: any[];
+    inboundConnectors?: any[];
+    connectors?: any[];
+}
+
+export interface RemoveConnectorRequest {
+    connectorPath: string;
+}
+
+export interface RemoveConnectorResponse {
+    success: boolean;
 }
 
 export interface CreateDataSourceResponse {
@@ -1478,6 +1542,7 @@ export interface CreateConnectionRequest {
     connectionName: string;
     keyValuesXML: string;
     directory: string;
+    filePath?: string;
 }
 
 export interface CreateConnectionResponse {
@@ -1500,8 +1565,8 @@ export interface GetConnectorConnectionsResponse {
 }
 
 export interface SaveInboundEPUischemaRequest {
-    connectorName:string;
-    uiSchema:string;
+    connectorName: string;
+    uiSchema: string;
 }
 
 export interface GetInboundEPUischemaRequest {
@@ -1521,6 +1586,19 @@ export interface GetAllRegistryPathsRequest {
 export interface GetAllRegistryPathsResponse {
     registryPaths: string[];
 }
+
+export interface GetAllResourcePathsResponse {
+    resourcePaths: string[];
+}
+
+export interface GetConfigurableEntriesRequest {
+    configurableEntryType: string;
+}
+
+export interface GetConfigurableEntriesResponse {
+    configurableEntries: { name: string; type: string }[];
+}
+
 export interface GetAllArtifactsRequest {
     path: string;
 }
@@ -1532,6 +1610,10 @@ export interface GetAllArtifactsResponse {
 export interface DeleteArtifactRequest {
     path: string;
     enableUndo?: boolean;
+}
+
+export interface APIContextsResponse {
+    contexts: string[]
 }
 
 export interface ExportProjectRequest {
@@ -1638,10 +1720,6 @@ export interface Dependency {
     range?: Range;
 }
 
-export interface UpdateDependencyInPomRequest extends Dependency {
-    file: string
-}
-
 export interface OpenDependencyPomRequest {
     name: string;
     file: string
@@ -1657,17 +1735,60 @@ export interface GetAllDependenciesResponse {
 
 export interface TestDbConnectionRequest {
     dbType: string;
-    version: string;
     username: string;
     password: string;
     host: string;
     port: string;
     dbName: string;
-    dbDriverFolder: string;
+    url: string;
+    className: string;
 }
 
 export interface TestDbConnectionResponse {
     success: boolean;
+}
+
+export interface AddDriverRequest {
+    className: string;
+    driverPath: string;
+}
+
+export interface CopyConnectorZipRequest {
+    connectorPath: string;
+}
+
+export interface CopyConnectorZipResponse {
+    success: boolean;
+    connectorPath?: string;
+}
+
+export interface DSSQueryGenRequest {
+    className: string;
+    username: string;
+    password: string;
+    url: string;
+    tableData: string;
+    datasourceName: string;
+}
+
+export interface ExtendedDSSQueryGenRequest extends DSSQueryGenRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface DSSQueryGenResponse {
+    [tableName: string]: boolean[];
+}
+
+export interface DSSFetchTablesRequest {
+    className: string;
+    username: string;
+    password: string;
+    url: string;
+}
+
+export interface DSSFetchTablesResponse {
+    [tableName: string]: boolean[];
 }
 
 export interface MarkAsDefaultSequenceRequest {
@@ -1686,4 +1807,169 @@ export interface GetSubFoldersResponse {
 export interface FileRenameRequest {
     existingPath: string;
     newPath: string;
+}
+
+export interface MediatorTryOutRequest {
+    file: string;
+    line: number;
+    column: number;
+    inputPayload?: string;
+    mediatorType?: string;
+    mediatorInfo?: MediatorTryOutInfo,
+    tryoutId?: string;
+    isServerLess: boolean;
+    edits?: {
+        text: string;
+        range: Range;
+    }[]
+}
+
+export interface MediatorTryOutResponse {
+    id: string,
+    input: MediatorTryOutInfo;
+    output: MediatorTryOutInfo;
+    error?: string;
+}
+
+export interface MediatorTryOutInfo {
+    payload: string;
+    headers: Header[];
+    params: Params;
+    variables: { [key: string]: string };
+    properties: MediatorProperties;
+}
+
+export interface MediatorProperties {
+    synapse: { [key: string]: any };
+    axis2: { [key: string]: any };
+    axis2Client: { [key: string]: any };
+    axis2Transport: { [key: string]: any };
+    axis2Operation: { [key: string]: any };
+}
+
+export interface Header {
+    key: string;
+    value: string;
+}
+
+export interface Params {
+    functionParams: string[];
+    queryParams: string[];
+    uriParams: string[];
+}
+
+export interface SavePayloadRequest {
+    payload: string;
+}
+
+export interface GetPayloadRequest {
+    documentUri: string;
+}
+
+export interface GetPayloadResponse {
+    hasPayload: boolean;
+    payload?: string;
+}
+
+export interface GetMediatorsRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export interface GetMediatorsResponse {
+    [key: string]: Mediator[];
+}
+
+export interface Mediator {
+    title: string;
+    tag: string;
+    type: string;
+    description: string;
+    icon: string;
+    operationName?: string;
+    iconPath?: string;
+}
+
+export interface GetMediatorRequest {
+    mediatorType: string;
+    documentUri?: string;
+    range?: Range;
+}
+
+export interface GetMediatorResponse {
+    form?: any;
+    title: string;
+    onSubmit?: string;
+}
+
+export interface UpdateMediatorRequest {
+    documentUri: string;
+    range: Range;
+    mediatorType: string;
+    oldValues?: any;
+    values: any;
+    dirtyFields?: string[];
+    trailingSpace?: string;
+}
+
+export interface UpdateMediatorResponse {
+    textEdits: TextEdit[];
+}
+
+export interface GetConnectionSchemaRequest {
+    connectorName?: string;
+    connectionType?: string;
+    documentUri?: string;
+}
+
+export interface GetConnectionSchemaResponse {
+    form?: any;
+}
+export interface ExpressionCompletionsRequest {
+    documentUri: string;
+    expression: string;
+    position: Position;
+    offset: number;
+}
+
+export interface ExpressionCompletionItem {
+    label: string;
+    kind: number;
+    detail: string;
+    sortText: string;
+    filterText: string;
+    insertText: string;
+    insertTextFormat: number;
+}
+
+export type ExpressionCompletionsResponse = {
+    isIncomplete: boolean;
+    items: ExpressionCompletionItem[];
+};
+
+export interface GenerateConnectorRequest {
+    openAPIPath: string;
+    connectorProjectPath: string;
+}
+export interface GenerateConnectorResponse {
+    buildStatus: boolean;
+    connectorPath: string;
+}
+
+export interface GetHelperPaneInfoRequest {
+    documentUri: string;
+    position: Position;
+}
+
+export type GetHelperPaneInfoResponse = HelperPaneData;
+
+export interface TestConnectorConnectionRequest {
+    connectorName: string;
+    connectionType: string;
+    parameters: any;
+}
+export interface TestConnectorConnectionResponse {
+    isConnectionTested: boolean;
+    isConnectionValid: boolean;
+    errorMessage: string;
 }

@@ -6,23 +6,22 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import { LangClientRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import {
-    DiagramEngine,
 	DiagramModel,
     DiagramModelGenerics
 } from "@projectstorm/react-diagrams";
 import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
-import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
+import { ErrorNodeKind } from '../DataMapper/Error/RenderingError';
 import { useDMSearchStore } from '../../store/store';
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
-import { OFFSETS } from '../Diagram/utils/constants';
+import { GAP_BETWEEN_INPUT_NODES, IO_NODE_DEFAULT_WIDTH, OFFSETS, VISUALIZER_PADDING } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
 import { UnionTypeNode } from '../Diagram/Node/UnionType';
 import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
@@ -35,8 +34,10 @@ import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 import { isDMSupported } from '../DataMapper/utils';
 import { FunctionDefinition, ModulePart } from '@wso2-enterprise/syntax-tree';
+import { getExpandedMappingHeaderNodeHeight, getIONodeHeight, isSameView } from '../Diagram/utils/diagram-utils';
+import { isInputNode, isOutputNode } from '../Diagram/Actions/utils';
 
-export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
+export const useProjectComponents = (langServerRpcClient: LangClientRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
     isFetching: boolean;
     isError: boolean;
@@ -62,7 +63,7 @@ export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, f
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), {});
+    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), { networkMode: 'always' });
 
     return { projectComponents, isFetching, isError, refetch };
 };
@@ -70,23 +71,40 @@ export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, f
 export const useDiagramModel = (
     nodes: DataMapperNodeModel[],
     diagramModel: DiagramModel,
-    onError:(kind: ErrorNodeKind) => void
+    onError:(kind: ErrorNodeKind) => void,
+    zoomLevel: number,
+    screenWidth: number,
 ): {
     updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    const zoomLevel = diagramModel.getZoomLevel();
     const offSetX = diagramModel.getOffsetX();
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
     const context = nodes.find(node => node.context)?.context;
 	const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
+    const fieldPath = context?.selection.selectedST.fieldPath;
+    const queryExprPosition = context?.selection.selectedST?.position;
     const collapsedFields = context?.collapsedFields;
     const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevScreenWidth = useRef(screenWidth);
 
     const genModel = async () => {
+        if (prevScreenWidth.current !== screenWidth && diagramModel.getNodes().length > 0) {
+            const diagModelNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+            diagModelNodes.forEach(diagModelNode => {
+                const repositionedNode = nodes.find(newNode => newNode.id === diagModelNode.id);
+                if (repositionedNode) {
+                    diagModelNode.setPosition(repositionedNode.getX(), repositionedNode.getY());
+                }
+            });
+            diagramModel.setZoomLevel(zoomLevel);
+            diagramModel.setOffset(offSetX, offSetY);
+            prevScreenWidth.current = screenWidth;
+            return diagramModel;
+        }
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
@@ -99,6 +117,13 @@ export const useDiagramModel = (
             newModel.addNode(inputSearchNotFoundNode);
         }
         newModel.addAll(...nodes);
+        for (const node of nodes) {
+            const existingNode = diagramModel.getNodes().find(n => (n as DataMapperNodeModel).id === node.id);
+            const sameView = isSameView(node, existingNode as DataMapperNodeModel);
+            if (sameView && existingNode && existingNode.getY() !== 0) {
+                node.setPosition(existingNode.getX(), existingNode.getY());
+            }
+        }
         for (const node of nodes) {
             try {
                 if (node instanceof RequiredParamNode && !node.getSearchFilteredType()) {
@@ -113,6 +138,7 @@ export const useDiagramModel = (
                 node.initLinks();
             } catch (e) {
                 const errorNodeKind = getErrorKind(node);
+                console.log(e);
                 onError(errorNodeKind);
             }
         }
@@ -126,58 +152,68 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch, collapsedFields}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, fieldPath, queryExprPosition, noOfNodes, inputSearch, outputSearch, collapsedFields, screenWidth}], () => genModel(), { networkMode: 'always' });
 
     return { updatedModel, isFetching, isError, refetch };
 };
 
-
-export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
+export const useRepositionedNodes = (nodes: DataMapperNodeModel[], zoomLevel: number, diagramModel: DiagramModel) => {
     const nodesClone = [...nodes];
-    let requiredParamFields = 0;
-    let numberOfRequiredParamNodes = 0;
-    let additionalSpace = 0;
-    nodesClone.forEach((node) => {
+    const prevNodes = diagramModel.getNodes() as DataMapperNodeModel[];
+
+    let prevBottomY = 0;
+
+    nodesClone.forEach(node => {
+        const existingNode = prevNodes.find(prevNode => prevNode.id === node.id);
+        const sameView = isSameView(node, existingNode);
+
         if (node instanceof MappingConstructorNode
             || node instanceof ListConstructorNode
             || node instanceof PrimitiveTypeNode
             || node instanceof UnionTypeNode
-            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-                if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-                    node.setPosition(OFFSETS.TARGET_NODE.X, 0);
-                } else {
-                    // Bring mapping constructor node close to input node, if it doesn't have any links
-                    node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
-                }
+            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)
+        ) {
+            const x = (window.innerWidth - VISUALIZER_PADDING) * (100 / zoomLevel) - IO_NODE_DEFAULT_WIDTH;
+            const y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : 0;
+            node.setPosition(x, y);
         }
         if (node instanceof RequiredParamNode
             || node instanceof LetClauseNode
             || node instanceof JoinClauseNode
             || node instanceof LetExpressionNode
             || node instanceof ModuleVariableNode
-            || node instanceof EnumTypeNode)
-        {
-            node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-            const isLetExprNode = node instanceof LetExpressionNode;
-            const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
-            requiredParamFields = requiredParamFields
-                + (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-            additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
+            || node instanceof EnumTypeNode
+            || node instanceof ExpandedMappingHeaderNode
+        ) {
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+
+            if (node instanceof RequiredParamNode) {
+                const nodeHeight = getIONodeHeight(node.numberOfFields);
+                prevBottomY = computedY + nodeHeight;
+            } else if (node instanceof ExpandedMappingHeaderNode) {
+                const nodeHeight = getExpandedMappingHeaderNodeHeight(node);
+                prevBottomY = computedY + (nodeHeight * (100/zoomLevel)) + 10;
+            }
         }
         if (node instanceof FromClauseNode) {
-            requiredParamFields = requiredParamFields + node.numberOfFields;
-            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-        }
-        if (node instanceof ExpandedMappingHeaderNode) {
-            additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+            const x = OFFSETS.SOURCE_NODE.X;
+            const computedY = prevBottomY + (prevBottomY ? GAP_BETWEEN_INPUT_NODES : 0);
+            let y = existingNode && sameView && existingNode.getY() !== 0 ? existingNode.getY() : computedY;
+
+            node.setPosition(x, y);
+            const nodeHeight = getIONodeHeight(node.numberOfFields);
+            prevBottomY = computedY + nodeHeight;
         }
     });
 
     return nodesClone;
 }
 
-export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
+export const useDMMetaData = (langServerRpcClient: LangClientRpcClient): {
     ballerinaVersion: string;
     dMSupported: boolean;
     dMUnsupportedMessage: string;
@@ -203,12 +239,12 @@ export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), {});
+    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), { networkMode: 'always' });
 
     return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
 };
 
-export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePath: string, fnST: FunctionDefinition): {
+export const useFileContent = (langServerRpcClient: LangClientRpcClient, filePath: string, fnST: FunctionDefinition): {
     content: [string, string[]];
     isFetching: boolean;
     isError: boolean;
@@ -236,7 +272,34 @@ export const useFileContent = (langServerRpcClient: LangServerRpcClient, filePat
         isFetching,
         isError,
         refetch,
-    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), {});
+    } = useQuery(['fetchContent', {filePath, source, position}], () => fetchContent(), { networkMode: 'always' });
 
     return { content, isFetching, isError, refetch };
 };
+
+export const useSearchScrollReset = (
+    diagramModel: DiagramModel<DiagramModelGenerics>
+) => {
+    const { inputSearch, outputSearch } = useDMSearchStore();
+    const prevInSearchTermRef = useRef<string>("");
+    const prevOutSearchTermRef = useRef<string>("");
+
+    useEffect(() => {
+        const nodes = diagramModel.getNodes() as DataMapperNodeModel[];
+        const inputNode = nodes.find((node) => (isInputNode(node) && !(node instanceof LetExpressionNode)));
+        const letExpressionNode = nodes.find((node) => (node instanceof LetExpressionNode));
+        const outputNode = nodes.find(isOutputNode);
+
+        if (inputNode && prevInSearchTermRef.current != inputSearch) {
+            inputNode.setPosition(inputNode.getX(), 0);
+            letExpressionNode?.setPosition(letExpressionNode.getX(), inputNode.height + GAP_BETWEEN_INPUT_NODES);
+            prevInSearchTermRef.current = inputSearch;
+        }
+
+        if (outputNode && prevOutSearchTermRef.current != outputSearch) {
+            outputNode.setPosition(outputNode.getX(), 0);
+            prevOutSearchTermRef.current = outputSearch;
+        }
+
+    }, [diagramModel]);
+}

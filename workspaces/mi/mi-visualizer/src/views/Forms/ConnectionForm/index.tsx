@@ -7,14 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentCard, IconLabel, FormView, TextField, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, IconLabel, FormView, TextField, Codicon, Typography, FormActions, Button } from "@wso2-enterprise/ui-toolkit";
 import { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { ConnectorStatus, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import AddConnection from "./ConnectionFormGenerator";
-import { APIS } from "../../../constants";
+import { connectorFailoverIconUrl } from "../../../constants";
+import { ImportConnectorForm } from "./ImportConnector";
+import path from "path";
 
 const LoaderWrapper = styled.div`
     display: flex;
@@ -63,9 +64,24 @@ const CardLabel = styled.div`
     width: 100%;
 `;
 
+const LabelContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 130px;
+    & > * {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+`;
 const SampleGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 `;
 
@@ -84,25 +100,64 @@ const NameLabel = styled(IconLabel)`
     font-size: 1.2em;
 `;
 
+const connectorCardStyle = {
+    border: '1px solid var(--vscode-dropdown-border)',
+    backgroundColor: 'var(--vscode-dropdown-background)',
+    padding: '10px',
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'left',
+    borderRadius: 1,
+    transition: '0.3s',
+    width: '176px',
+    '&:hover': {
+        backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)'
+    },
+    fontSize: '15px'
+};
+
+const IconWrapper = styled.div`
+    height: 20px;
+    width: 20px;
+`;
+
+const TextWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+`;
+
+const BrowseBtnStyles = {
+    gap: 10,
+    display: "flex",
+    flexDirection: "row"
+};
+
 export interface ConnectionStoreProps {
     path: string;
     isPopup?: boolean;
     handlePopupClose?: () => void;
+    allowedConnectionTypes?: string[];
 }
 
 const searchIcon = (<Codicon name="search" sx={{ cursor: "auto" }} />);
 
-export function ConnectorStore(props: ConnectionStoreProps) {
+export function ConnectionWizard(props: ConnectionStoreProps) {
     const { rpcClient } = useVisualizerContext();
+    const { allowedConnectionTypes } = props;
     const [localConnectors, setLocalConnectors] = useState<any[]>(undefined);
     const [storeConnectors, setStoreConnectors] = useState<any[]>(undefined);
+    const [isFetchingStoreConnectors, setIsFetchingStoreConnectors] = useState(false);
     const [isGeneratingForm, setIsGeneratingForm] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
-    const [selectedConnector, setSelectedConnector] = useState<any>(undefined);
+    const [isImportingConnector, setIsImportingConnector] = useState(false);
+    const [conOnconfirmation, setConOnconfirmation] = useState(undefined);
+    const [selectedConnectionType, setSelectedConnectionType] = useState<any>(undefined);
     const [searchValue, setSearchValue] = useState<string>('');
-    const [filteredLocalConnectors, setFilteredLocalConnectors] = useState<any[]>([]);
-    const [filteredStoreConnectors, setFilteredStoreConnectors] = useState<any[]>([]);
-    const connectionStatus = useRef(null);
+    const [isFailedDownload, setIsFailedDownload] = useState(false);
 
     const fetchLocalConnectorData = async () => {
         const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: "" });
@@ -118,120 +173,117 @@ export function ConnectorStore(props: ConnectionStoreProps) {
     };
 
     const fetchStoreConnectors = async () => {
+        setIsFetchingStoreConnectors(true);
         try {
-            const response = await fetch(APIS.CONNECTOR);
-            const data = await response.json();
-            if (data) {
-                setStoreConnectors(data['outbound-connector-data']);
+            if (navigator.onLine) {
+                const response = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
+                const data = response.connectors;
+
+                if (data) {
+                    setStoreConnectors(data);
+                } else {
+                    setStoreConnectors(null);
+                }
             } else {
-                setStoreConnectors([]);
+                setStoreConnectors(null);
             }
         } catch (e) {
+            setStoreConnectors(null);
             console.error("Error fetching connectors", e);
         }
+        setIsFetchingStoreConnectors(false);
     };
 
     useEffect(() => {
-
-        rpcClient?.onConnectorStatusUpdate((connectorStatus: ConnectorStatus) => {
-            connectionStatus.current = connectorStatus;
-        });
-
         fetchLocalConnectorData();
         fetchStoreConnectors();
     }, []);
 
-    useEffect(() => {
-        if (localConnectors && storeConnectors) {
-            setFilteredLocalConnectors(searchConnectors(localConnectors));
-            setFilteredStoreConnectors(searchConnectors(storeConnectors));
-        }
-    }, [searchValue]);
+    const searchConnectors = () => {
+        const searchTerm = searchValue.toLowerCase();
 
-    const waitForEvent = () => {
-        return new Promise((resolve, reject) => {
-            const checkInterval = setInterval(() => {
-                if (connectionStatus.current) {
-                    clearInterval(checkInterval);
-                    resolve(connectionStatus.current);
+        return localConnectors.reduce((acc: any[], connector) => {
+            // Check if the connector name matches the search term (case insensitive)
+            const connectorMatches = connector.name.toLowerCase().includes(searchTerm);
+
+            // Find matching connection names within the connector's UI schema
+            const matchingConnections = Object.keys(connector.connectionUiSchema).filter(
+                (key) => key.toLowerCase().includes(searchTerm)
+            );
+
+            if (connectorMatches || matchingConnections.length > 0) {
+
+                const filteredConnector = {
+                    ...connector,
+                    // If there are matching connections, reduce the UI schema to only include filtered connection types
+                    connectionUiSchema: matchingConnections.length > 0 ?
+                        matchingConnections.reduce((acc: any, key) => {
+                            acc[key] = connector.connectionUiSchema[key];
+                            return acc;
+                        }, {}) : connector.connectionUiSchema
+                };
+                acc.push(filteredConnector);
+            }
+
+            return acc;
+        }, []);
+    }
+
+    const searchStoreConnectors = (filteredConnectors: any) => {
+        const searchTerm = searchValue.toLowerCase();
+
+        if (filteredConnectors) {
+            return filteredConnectors.reduce((acc: any[], connector: any) => {
+                // Check if the connector name matches the search term (case insensitive)
+                const connectorMatches = connector.connectorName.toLowerCase().includes(searchTerm);
+
+                // Find matching connection names within the connector's version connections
+                const matchingConnections = connector.version.connections.filter(
+                    (connection: any) => connection.name.toLowerCase().includes(searchTerm)
+                );
+
+                if (connectorMatches || matchingConnections.length > 0) {
+                    const filteredConnector = {
+                        ...connector,
+                        // If there are matching connections, reduce the connections to only include filtered connection types
+                        version: {
+                            ...connector.version,
+                            connections: matchingConnections.length > 0 ? matchingConnections : connector.version.connections
+                        }
+                    };
+                    acc.push(filteredConnector);
                 }
-            }, 200);
 
-            // Reject the promise after 10 seconds
-            setTimeout(() => {
-                clearInterval(checkInterval);
-                reject(new Error('Event did not occur within 10 seconds'));
-            }, 10000);
-        });
+                return acc;
+            }, []);
+        }
+
+        return [];
+
     };
 
-    const searchConnectors = (connectors: any[]) => {
-        return connectors?.filter(connector => connector.name.toLowerCase().includes(searchValue.toLowerCase()));
+    function checkStoreConnectionsAvailable(displayedStoreConnectors: any, displayedLocalConnectors: any) {
+
+        return displayedStoreConnectors && Array.isArray(displayedStoreConnectors) && displayedLocalConnectors &&
+            displayedStoreConnectors.some((connector: any) => connector.version.connections.length > 0);
     }
 
-
-    const selectConnector = async (connector: any) => {
-        setSelectedConnector(connector);
+    function filterStoreConnectionsFromLocal(displayedStoreConnectors: any, displayedLocalConnectors: any) {
+        return displayedStoreConnectors.filter((connector: any) =>
+            !displayedLocalConnectors.some((c: any) =>
+                c.name.toLowerCase() === connector.connectorName.toLowerCase() &&
+                c.version === connector.version.tagName
+            )
+        );
     }
 
-    const selectStoreConnector = async (connector: any) => {
-        setIsDownloading(true);
-        let downloadSuccess = false;
-        let attempts = 0;
-
-        while (!downloadSuccess && attempts < 3) {
-            try {
-                await rpcClient.getMiDiagramRpcClient().downloadConnector({
-                    url: connector.download_url
-                });
-                downloadSuccess = true;
-            } catch (error) {
-                console.error('Error occurred while downloading connector:', error);
-                attempts++;
-            }
-        }
-
-        if (downloadSuccess) {
-            try {
-                const status: any = await waitForEvent();
-
-                if (status.connector === connector.name && status.isSuccess) {
-                    // Get Connector Data from LS
-                    const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-                        documentUri: props.path,
-                        connectorName: connector.name.toLowerCase().replace(/\s/g, '')
-                    });
-
-
-                    if (connectorData) {
-                        selectConnector(connectorData);
-                    } else {
-                        fetchLocalConnectorData();
-                    }
-                } else {
-                    fetchLocalConnectorData();
-                    console.log(status.message);
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        } else {
-            console.error('Failed to download connector after 3 attempts');
-        }
-        setIsDownloading(false);
+    const selectConnectionType = async (connector: any, connectionType: string) => {
+        setSelectedConnectionType({ connector, connectionType });
     }
 
-    const findAllowedConnectionTypes = (elements: any[]): string[] | undefined => {
-        for (let element of elements) {
-            if (element.type === 'attribute' && element.value.inputType === 'connection') {
-                return element.value.allowedConnectionTypes;
-            }
-            if (element.type === 'attributeGroup') {
-                const result: any[] = findAllowedConnectionTypes(element.value.elements);
-                if (result) return result;
-            }
-        }
-    };
+    const selectStoreConnectionType = async (connector: any, connectionType: string) => {
+        setConOnconfirmation({ connector, connectionType });
+    }
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
@@ -242,13 +294,91 @@ export function ConnectorStore(props: ConnectionStoreProps) {
         return name.charAt(0).toUpperCase() + name.slice(1);
     }
 
-    function existsInLocalConnectors(connector: any) {
-        return localConnectors?.some(localConnector =>
-            localConnector.name.toLowerCase() === connector.name.toLowerCase().replace(/\s/g, '') && localConnector.version === connector.version);
+    const changeConnectionType = () => {
+        setSelectedConnectionType(undefined);
     }
 
-    const changeConnector = () => {
-        setSelectedConnector(undefined);
+    const handleDependencyResponse = async (response: boolean) => {
+        if (response) {
+            // Add dependencies to pom
+            setIsDownloading(true);
+
+            const updateDependencies = async () => {
+                const dependencies = [];
+                dependencies.push({
+                    groupId: conOnconfirmation.connector.mavenGroupId,
+                    artifact: conOnconfirmation.connector.mavenArtifactId,
+                    version: conOnconfirmation.connector.version.tagName,
+                    type: 'zip' as 'zip'
+                });
+                await rpcClient.getMiVisualizerRpcClient().updateDependencies({
+                    dependencies
+                });
+            }
+
+            await updateDependencies();
+
+            // Format pom
+            const projectDir = (await rpcClient.getMiDiagramRpcClient().getProjectRoot({ path: props.path })).path;
+            const pomPath = path.join(projectDir, 'pom.xml');
+            await rpcClient.getMiDiagramRpcClient().rangeFormat({ uri: pomPath });
+
+            // Download Connector
+            const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+            setIsDownloading(false);
+
+            // Render connection form
+            setIsGeneratingForm(true);
+
+            if (response === "Success") {
+                const connectorName = conOnconfirmation.connector.connectorName;
+                const connectionType = conOnconfirmation.connectionType.toUpperCase();
+                const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
+
+                setSelectedConnectionType({ connector, connectionType });
+                fetchLocalConnectorData();
+                setConOnconfirmation(undefined);
+            } else {
+                setIsFailedDownload(true);
+            }
+            setIsGeneratingForm(false);
+        } else {
+            setIsFailedDownload(false);
+            setConOnconfirmation(undefined);
+        }
+    }
+
+    const retryDownload = async () => {
+        setIsFailedDownload(true);
+        // Download Connector
+        const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
+
+        if (response === "Success") {
+            const connectorName = conOnconfirmation.connector.connectorName;
+            const connectionType = conOnconfirmation.connectionType.toUpperCase();
+            const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
+
+            setSelectedConnectionType({ connector, connectionType });
+            fetchLocalConnectorData();
+            setConOnconfirmation(undefined);
+        } else {
+            setIsFailedDownload(true);
+        }
+        setIsDownloading(false);
+    }
+
+    const handleImportConnector = () => {
+        setIsImportingConnector(true);
+    };
+
+    const onImportSuccess = () => {
+        setIsImportingConnector(false);
+        fetchLocalConnectorData();
+    }
+
+    const cancelImportConnector = () => {
+        setIsImportingConnector(false);
     }
 
     const handleOnClose = () => {
@@ -257,11 +387,11 @@ export function ConnectorStore(props: ConnectionStoreProps) {
 
     const ConnectorList = () => {
         let displayedLocalConnectors = localConnectors;
-        let displayedStoreConnectors = storeConnectors;
+        let displayedStoreConnectors = localConnectors && storeConnectors && filterStoreConnectionsFromLocal(storeConnectors, localConnectors);
 
         if (searchValue) {
-            displayedLocalConnectors = filteredLocalConnectors;
-            displayedStoreConnectors = filteredStoreConnectors;
+            displayedLocalConnectors = searchConnectors();
+            displayedStoreConnectors = searchStoreConnectors(displayedStoreConnectors);
         }
 
         return (
@@ -271,121 +401,100 @@ export function ConnectorStore(props: ConnectionStoreProps) {
                         <ProgressRing />
                         Loading connectors...
                     </LoaderWrapper>
-                ) : storeConnectors && storeConnectors.length === 0 ? (
-                    <LoaderWrapper>
-                        Error loading connectors. Please retry...
-                    </LoaderWrapper>
                 ) : (
-                    <SampleGrid>
-                        {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
-                            <ComponentCard
-                                key={connector.name}
-                                onClick={() => selectConnector(connector)}
-                                sx={{
-                                    border: '1px solid var(--vscode-dropdown-border)',
-                                    backgroundColor: 'var(--vscode-dropdown-background)',
-                                    padding: '10px',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'left',
-                                    borderRadius: 1,
-                                    transition: '0.3s',
-                                    width: '176px',
-                                    height: '40px',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--vscode-button-background)'
-                                    },
-                                    fontSize: '15px'
-                                }}
-                            >
-                                <CardContent>
-                                    <IconContainer>
-                                        <img
-                                            src={connector.iconPathUri.uri}
-                                            alt="Icon"
-                                        />
-                                    </IconContainer>
-                                    <CardLabel>
-                                        <div style={{
-                                            width: '140px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            textAlign: 'center',
-                                            paddingBottom: '10px'
-                                        }}>
-                                            <NameLabel>
-                                                {capitalizeFirstChar(connector.name)}
-                                            </NameLabel>
-                                            <VersionTag>
-                                                {connector.version}
-                                            </VersionTag>
-                                        </div>
-                                    </CardLabel>
-                                </CardContent>
-                            </ComponentCard>
-                        ))}
-                        {displayedStoreConnectors && displayedLocalConnectors &&
-                            displayedStoreConnectors.sort((a: any, b: any) => a.rank - b.rank).map((connector: any) => (
-                                displayedLocalConnectors.some(c => (c.name === connector.name) &&
-                                    (c.version === connector.version)) ? null : (
-                                    <ComponentCard
-                                        key={connector.name}
-                                        onClick={() => selectStoreConnector(connector)}
-                                        sx={{
-                                            border: '1px solid var(--vscode-dropdown-border)',
-                                            backgroundColor: 'var(--vscode-dropdown-background)',
-                                            padding: '10px',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'left',
-                                            borderRadius: 1,
-                                            transition: '0.3s',
-                                            width: '176px',
-                                            height: '40px',
-                                            '&:hover': {
-                                                backgroundColor: 'var(--vscode-button-background)'
-                                            },
-                                            fontSize: '15px'
-                                        }}
-                                    >
-                                        <CardContent>
-                                            <IconContainer>
-                                                <img
-                                                    src={connector.icon_url}
-                                                    alt="Icon"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.src = 'https://mi-connectors.wso2.com/icons/wordpress.gif'
-                                                    }}
-                                                />
-                                            </IconContainer>
-                                            <CardLabel>
-                                                <div style={{
-                                                    width: '140px',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap',
-                                                    textAlign: 'center',
-                                                    paddingBottom: '10px'
-                                                }}>
-                                                    <NameLabel>
-                                                        {capitalizeFirstChar(connector.name)}
-                                                    </NameLabel>
-                                                    <VersionTag>
-                                                        {connector.version}
-                                                    </VersionTag>
-                                                </div>
-                                            </CardLabel>
-                                        </CardContent>
-                                    </ComponentCard>
-                                )
-                            ))}
-                    </SampleGrid>
+                    <>
+                        <SampleGrid>
+                            {displayedLocalConnectors && displayedLocalConnectors.map((connector: any) => (
+                                Object.entries(connector.connectionUiSchema).map(([connectionType, schemaPath]) => (
+                                    (allowedConnectionTypes && !allowedConnectionTypes.includes(connectionType)) ? null : (
+                                        <ComponentCard
+                                            key={connectionType}
+                                            onClick={() => selectConnectionType(connector, connectionType)}
+                                            sx={connectorCardStyle}
+                                        >
+                                            <CardContent>
+                                                <IconContainer>
+                                                    <img
+                                                        src={connector.iconPathUri.uri}
+                                                        alt="Icon"
+                                                    />
+                                                </IconContainer>
+                                                <CardLabel>
+                                                    <LabelContainer>
+                                                        <NameLabel>
+                                                            {capitalizeFirstChar(connectionType)}
+                                                        </NameLabel>
+                                                        <VersionTag>
+                                                            {`${capitalizeFirstChar(connector.name)} Connector`}
+                                                        </VersionTag>
+                                                        <VersionTag>
+                                                            {connector.version}
+                                                        </VersionTag>
+                                                    </LabelContainer>
+                                                </CardLabel>
+                                            </CardContent>
+                                        </ComponentCard>
+                                    )))))}
+                        </SampleGrid>
+                        {!allowedConnectionTypes && checkStoreConnectionsAvailable(displayedStoreConnectors, displayedLocalConnectors) &&
+                            <>
+                                <h4>In Store: </h4>
+                                <SampleGrid>
+                                    {displayedStoreConnectors.sort((a: any, b: any) => a.connectorRank - b.connectorRank).map((connector: any) => (
+                                        (connector.version.connections).map((connection: any) => (
+                                            <ComponentCard
+                                                key={connection.name}
+                                                onClick={() => selectStoreConnectionType(connector, connection.name)}
+                                                sx={connectorCardStyle}
+                                            >
+                                                <CardContent>
+                                                    <IconContainer>
+                                                        <img
+                                                            src={connector.iconUrl}
+                                                            alt="Icon"
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.src = connectorFailoverIconUrl
+                                                            }}
+                                                        />
+                                                    </IconContainer>
+                                                    <CardLabel>
+                                                        <LabelContainer>
+                                                            <NameLabel>
+                                                                {capitalizeFirstChar(connection.name)}
+                                                            </NameLabel>
+                                                            <VersionTag>
+                                                                {`${capitalizeFirstChar(connector.connectorName)} Connector`}
+                                                            </VersionTag>
+                                                            <VersionTag>
+                                                                {connector.version.tagName}
+                                                            </VersionTag>
+                                                        </LabelContainer>
+                                                    </CardLabel>
+                                                </CardContent>
+                                            </ComponentCard>
+                                        ))
+                                    )
+                                    )}
+                                </SampleGrid>
+                            </>
+                        }
+                        {displayedStoreConnectors === undefined ? (
+                            <LoaderWrapper>
+                                <ProgressRing />
+                                Fetching Connectors...
+                            </LoaderWrapper>
+                        ) : displayedStoreConnectors === null && (
+                            <LoaderWrapper>
+                                {isFetchingStoreConnectors ? (
+                                    <span>Fetching connectors...</span>
+                                ) : (
+                                    <span>Failed to fetch store connectors. Please <VSCodeLink onClick={fetchStoreConnectors}>retry</VSCodeLink></span>
+
+                                )}
+                            </LoaderWrapper>
+                        )}
+                    </>
                 )}
             </div>
         );
@@ -393,47 +502,105 @@ export function ConnectorStore(props: ConnectionStoreProps) {
 
     return (
         <>
-            {selectedConnector ? (
-                <AddConnection
-                    allowedConnectionTypes={Object.keys(selectedConnector.connectionUiSchema)}
-                    connector={selectedConnector}
-                    isPopup={props.isPopup}
-                    changeConnector={changeConnector}
-                    path={props.path}
-                    handlePopupClose={props.handlePopupClose}
-                />
-            ) : (
-                <FormView title={`Add New Connection`} onClose={props.handlePopupClose ?? handleOnClose} hideClose={props.isPopup}>
-                    <span>Please select a connector to create a connection.</span>
-                    {isGeneratingForm ? (
-                        <LoaderWrapper>
-                            <ProgressRing />
-                            Generating options...
-                        </LoaderWrapper>
-                    ) : isDownloading ? (
-                        <LoaderWrapper>
-                            <ProgressRing />
-                            Downloading connector...
-                        </LoaderWrapper>
+            {
+                isImportingConnector ? (
+                    <ImportConnectorForm
+                        handlePopupClose={props.handlePopupClose}
+                        goBack={cancelImportConnector}
+                        onImportSuccess={onImportSuccess} />
+                ) : (
+                    selectedConnectionType ? (
+                        <AddConnection
+                            connectionType={selectedConnectionType.connectionType}
+                            connector={selectedConnectionType.connector}
+                            isPopup={props.isPopup}
+                            changeConnectionType={changeConnectionType}
+                            path={props.path}
+                            handlePopupClose={props.handlePopupClose}
+                        />
                     ) : (
-                        <>
-                            {/* Search bar */}
-                            <TextField
-                                sx={SearchStyle}
-                                placeholder="Search"
-                                value={searchValue}
-                                onTextChange={handleSearch}
-                                icon={{
-                                    iconComponent: searchIcon,
-                                    position: 'start',
-                                }}
-                                autoFocus={true}
-                            />
-                            <ConnectorList />
-                        </>
-                    )}
-                </FormView >
-            )}
+                        <FormView title={`Add New Connection`} onClose={props.handlePopupClose ?? handleOnClose}>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <span>Please select a connector to create a connection.</span>
+                                {!conOnconfirmation && !allowedConnectionTypes &&
+                                    <Button appearance="secondary" onClick={() => handleImportConnector()}>
+                                        <div style={BrowseBtnStyles}>
+                                            <IconWrapper>
+                                                <Codicon name="go-to-file" iconSx={{ fontSize: 20 }} />
+                                            </IconWrapper>
+                                            <TextWrapper>Import Connector</TextWrapper>
+                                        </div>
+                                    </Button>}
+                            </div>
+                            {isGeneratingForm ? (
+                                <LoaderWrapper>
+                                    <ProgressRing />
+                                    Generating options...
+                                </LoaderWrapper>
+                            ) : isDownloading ? (
+                                <LoaderWrapper>
+                                    <ProgressRing />
+                                    Downloading connector...
+                                </LoaderWrapper>
+                            ) : conOnconfirmation ? (
+                                isFailedDownload ? (
+                                    <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
+                                        <Typography variant="body2">Error downloading module. Please try again...</Typography>
+                                        <FormActions>
+                                            <Button
+                                                appearance="primary"
+                                                onClick={() => retryDownload()}
+                                            >
+                                                Retry
+                                            </Button>
+                                            <Button
+                                                appearance="secondary"
+                                                onClick={() => handleDependencyResponse(false)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </FormActions>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: "flex", flexDirection: "column", padding: "40px", gap: "15px" }}>
+                                        <Typography variant="body2">Dependencies will be added to the project. Do you want to continue?</Typography>
+                                        <FormActions>
+                                            <Button
+                                                appearance="primary"
+                                                onClick={() => handleDependencyResponse(true)}
+                                            >
+                                                Yes
+                                            </Button>
+                                            <Button
+                                                appearance="secondary"
+                                                onClick={() => handleDependencyResponse(false)}
+                                            >
+                                                No
+                                            </Button>
+                                        </FormActions>
+                                    </div>
+                                )) : (
+                                <>
+                                    {/* Search bar */}
+                                    <TextField
+                                        sx={SearchStyle}
+                                        placeholder="Search"
+                                        value={searchValue}
+                                        onTextChange={handleSearch}
+                                        icon={{
+                                            iconComponent: searchIcon,
+                                            position: 'start',
+                                        }}
+                                        autoFocus={true}
+                                    />
+                                    <ConnectorList />
+                                </>
+                            )}
+                        </FormView >
+                    )
+                )
+            }
+
         </>
     );
 }

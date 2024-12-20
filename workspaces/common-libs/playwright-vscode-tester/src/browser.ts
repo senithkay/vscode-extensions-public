@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import { compareVersions } from 'compare-versions';
 import { CodeUtil, ReleaseQuality } from './codeUtil';
+const os = require('os');
 
 export class VSBrowser {
     static readonly baseVersion = '1.37.0';
@@ -15,8 +16,8 @@ export class VSBrowser {
     private releaseType: ReleaseQuality;
     private static _instance: VSBrowser;
 
-    constructor(codeVersion: string, releaseType: ReleaseQuality, customSettings: object = {}) {
-        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : path.resolve('test-resources');
+    constructor(codeVersion: string, releaseType: ReleaseQuality, private resources: string[], customSettings: object = {}) {
+        this.storagePath = process.env.TEST_RESOURCES ? process.env.TEST_RESOURCES : os.tmpdir();
         this.extensionsFolder = process.env.EXTENSIONS_FOLDER ? process.env.EXTENSIONS_FOLDER : undefined;
         this.customSettings = customSettings;
         this.codeVersion = codeVersion;
@@ -31,12 +32,13 @@ export class VSBrowser {
 
     async getLaunchArgs() {
         const userSettings = await this.writeSettings();
-        
+
         const args = [
-            '--no-sandbox', 
+            this.resources[0],
+            '--no-sandbox',
             '--enable-logging',
             '--log-level=0',
-            `--log-file=${path.join(this.storagePath, 'settings', 'chromium-log')}`, 
+            `--log-file=${path.join(this.storagePath, 'settings', 'chromium-log')}`,
             `--crash-reporter-directory=${path.join(this.storagePath, 'settings', 'crash-reports')}`,
             '--enable-blink-features=ShadowDOMV0',
             '--disable-renderer-backgrounding',
@@ -47,7 +49,9 @@ export class VSBrowser {
             '--disable-site-isolation-trials',
             '--disable-dev-shm-usage',
             '--disable-ipc-flooding-protection',
-            '--enable-precise-memory-info'
+            '--enable-precise-memory-info',
+            '--disable-workspace-trust',
+            `--user-data-dir=${path.join(this.storagePath, 'settings', 'Code')}`,
         ];
 
         if (this.extensionsFolder) {

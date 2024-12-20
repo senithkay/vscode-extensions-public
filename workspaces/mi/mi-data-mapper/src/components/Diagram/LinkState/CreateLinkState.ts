@@ -8,42 +8,53 @@
  */
 import { KeyboardEvent, MouseEvent } from 'react';
 
-import { Action, ActionEvent, DragCanvasState, InputType, State } from '@projectstorm/react-canvas-core';
+import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canvas-core';
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
 import { LinkConnectorNode } from '../Node';
-import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
+import { InputOutputPortModel, MappingType } from '../Port/model/InputOutputPortModel';
 import { IntermediatePortModel } from '../Port/IntermediatePort';
-import { isInputNode, isOutputNode } from '../Actions/utils';
+import { isInputNode, isLinkModel, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';
-import { isConnectingArrays } from '../utils/common-utils';
+import { getMappingType, isConnectingArrays } from '../utils/common-utils';
 import { DataMapperLinkModel } from '../Link/DataMapperLink';
-import { removeArrayToArrayTempLinkIfExists } from '../utils/link-utils';
+import { removePendingMappingTempLinkIfExists } from '../utils/link-utils';
+import { DataMapperNodeModel } from '../Node/commons/DataMapperNode';
 /**
  * This state is controlling the creation of a link.
  */
 export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
-	a2aTemporayLink: LinkModel;
+	temporaryLink: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					const isExpandOrCollapse = (actionEvent.event.target as Element)
+						.closest('div[id^="expand-or-collapse"]');
 					const { focusedPort, focusedFilter } = useDMExpressionBarStore.getState();
 					const isExprBarFocused = focusedPort || focusedFilter;
 
-					if (!(element instanceof PortModel)) {
+					if (element === null || isExpandOrCollapse) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (isOutputNode(element)) {
-							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]');
-							if (recordFieldElement) {
+							const targetElement = event.target as Element;
+							const recordFieldElement = targetElement.closest('div[id^="recordfield"]');
+							const isNotFieldAction = targetElement.closest('[data-field-action]') == null;
+							if (recordFieldElement && isNotFieldAction) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
 								const portModel = (element as any).getPort(fieldId) as InputOutputPortModel;
 								if (portModel) {
@@ -65,11 +76,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 							}
 						}
+
+						if (isLinkModel(element)) {
+							element = (element as DataMapperLinkModel).getTargetPort();
+						}
 					}
 
-					if (this.a2aTemporayLink) {
-						removeArrayToArrayTempLinkIfExists(this.a2aTemporayLink);
-						this.a2aTemporayLink = undefined;
+					if (this.temporaryLink) {
+						removePendingMappingTempLinkIfExists(this.temporaryLink);
+						this.temporaryLink = undefined;
 					}
 
 					if (isExprBarFocused && element instanceof InputOutputPortModel && element.portType === "OUT") {
@@ -89,7 +104,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								link.addLabel(new ExpressionLabelModel({
 									link: link as DataMapperLinkModel,
 									value: undefined,
-									context: undefined
+									context: (element.getNode() as DataMapperNodeModel).context
 								}));
 								this.link = link;
 							} else {
@@ -118,12 +133,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 										this.link?.setTargetPort(element);
 
-										const connectingArrays = isConnectingArrays(this.sourcePort, element);
-										if (connectingArrays) {
+										const connectingMappingType = getMappingType(this.sourcePort, element);
+										if (isConnectingArrays(connectingMappingType)) {
 											const label = this.link.getLabels()
-											.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
-											label.setIsPendingArrayToArray(true);
-											this.a2aTemporayLink = this.link;
+												.find(label => label instanceof ExpressionLabelModel) as ExpressionLabelModel;
+											label.setPendingMappingType(connectingMappingType);
+											this.temporaryLink = this.link;
 										}
 
 										this.engine.getModel().addAll(this.link)

@@ -19,6 +19,8 @@ import styled from '@emotion/styled';
 import { RequiredFormInput } from '../Commons/RequiredInput';
 import { Control, Controller } from 'react-hook-form';
 import { ErrorBanner } from '../Commons/ErrorBanner';
+import { Codicon } from '../Codicon/Codicon';
+import { LinkButton } from '../LinkButton/LinkButton';
 
 export interface ComboboxOptionProps {
     active?: boolean;
@@ -90,8 +92,8 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
     font-size: var(--vscode-font-size);
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: ${hideDropdown ? '100%' : '22px'};
-    width: ${hideDropdown ? '100%' : 'calc(100% - 5px)'};
+    height: ${hideDropdown ? '100%' : '26px'};
+    width: ${hideDropdown ? '100%' : 'calc(100% - 35px)'};
     padding-left: 9px;
     padding-block: ${hideDropdown ? '5px' : '1px'};
     border-left: 1px solid var(--vscode-dropdown-border);
@@ -110,7 +112,7 @@ export const SearchableInput = (hideDropdown: boolean) => cx(css`
 const LabelContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 `;
 
 const ComboboxInputWrapper = styled.div<DropdownProps>`
@@ -154,7 +156,7 @@ export const NothingFound = styled.div`
     background-color: var(--vscode-editor-background);
 `;
 
-const DropdownContainer: React.FC<DropdownContainerProps> = styled.div`
+const DropdownContainer = styled.div<DropdownContainerProps>`
     position: absolute;
     top: 100%;
     max-height: 100px;
@@ -206,6 +208,7 @@ interface BaseProps {
     notItemsFoundMessage?: string;
     hideDropdown?: boolean;
     errorMsg?: string;
+    labelAdornment?: ReactNode
 }
 
 // Define the conditional properties
@@ -223,7 +226,7 @@ const ComboboxContent: React.FC = styled.div`
     height: 100%;
 `;
 
-const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
+const ComboboxOption = styled.div<ComboboxOptionProps>`
     position: relative;
     cursor: default;
     user-select: none;
@@ -231,18 +234,6 @@ const ComboboxOption: React.FC<ComboboxOptionProps> = styled.div`
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
         'var(--vscode-editor-background)')};
     list-style: none;
-    display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
-`;
-
-const ComboboxOptionButton: React.FC<ComboboxOptionProps> = styled.div`
-    position: relative;
-    cursor: default;
-    user-select: none;
-    color: var(--vscode-editor-foreground);
-    background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
-        'var(--vscode-editor-background)')};
-    list-style: none;
-    border-bottom: 1px solid var(--vscode-list-dropBackground);
     display: ${(props: ComboboxOptionProps) => (props.display === undefined ? 'block' : props.display ? 'block' : 'none')};
 `;
 
@@ -270,6 +261,7 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         actionBtns,
         required,
         label,
+        labelAdornment,
         notItemsFoundMessage,
         widthOffset = 157,
         nullable,
@@ -292,7 +284,8 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
     const btnId = useMemo(() => name || label || identifier || getItemKey(items[0]), [name, items, label, identifier]);
 
     const handleChange = (item: string | ItemComponent) => {
-        onValueChange && onValueChange(getItemKey(item));
+        const index = items.findIndex(i => i === item);
+        onValueChange && onValueChange(getItemKey(item), index);
     };
     const handleTextFieldFocused = () => {
         setIsTextFieldFocused(true);
@@ -347,15 +340,25 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
         setDropdownWidth(inputWrapperRef.current?.clientWidth);
     }, []);
 
+    useEffect(() => {
+        setDropdownWidth(inputRef.current?.clientWidth);
+    }, []);
+
     return (
         <Container sx={sx}>
             <Combobox value={value} onChange={handleChange} name={name} {...(nullable && { nullable })}>
-                {label && (
-                    <LabelContainer>
-                        <label htmlFor={id}>{label}</label>
-                        {(required && label) && (<RequiredFormInput />)}
-                    </LabelContainer>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {label && (
+                        <LabelContainer>
+                            <label htmlFor={id}>{label}</label>
+                            {(required && label) && (<RequiredFormInput />)}
+                            {labelAdornment && labelAdornment}
+                        </LabelContainer>
+                    )}
+                    {allowItemCreate && onCreateButtonClick && <LinkButton onClick={onCreateButtonClick}>
+                        <Codicon name="plus" />Add new
+                    </LinkButton>}
+                </div>
                 <ComboboxContent>
                     <ComboboxInputWrapper ref={inputWrapperRef} hideDropdown={hideDropdown}>
                         <Combobox.Input
@@ -444,12 +447,11 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         )}
                                         {filteredResults.map((filteredItem: string | ItemComponent, i: number) => {
                                             const item = getItem(filteredItem);
-                                            const itemKey = getItemKey(filteredItem);
                                             return (
                                                 <ComboboxOption key={i + indexOffset}>
                                                     <Combobox.Option
                                                         className={ComboboxOptionContainer}
-                                                        value={itemKey}
+                                                        value={filteredItem}
                                                         key={i}
                                                     >
                                                         {item}
@@ -459,19 +461,6 @@ export const AutoComplete = React.forwardRef<HTMLInputElement, AutoCompleteProps
                                         })}
                                     </Fragment>
                                 )}
-
-                                {onCreateButtonClick &&
-                                    <ComboboxOptionButton>
-                                        <Combobox.Button onClick={onCreateButtonClick} style={{
-                                            "color": "var(--vscode-editor-foreground)",
-                                            "background-color": "var(--vscode-editor-background)",
-                                            "padding": "3px 5px 3px 5px",
-                                            "border": "none",
-                                            "cursor": "pointer",
-                                        }}>
-                                            {"Create New"}
-                                        </Combobox.Button>
-                                    </ComboboxOptionButton>}
                             </Combobox.Options>
                         </DropdownContainer>
                     </Transition>

@@ -7,30 +7,33 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri, TextEditor, extensions } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
-import { activate as activateDiagram } from './diagram';
-import { activate as activateBBE } from './bbe';
+import { activate as activateBBE } from './views/bbe';
 import {
     activate as activateTelemetryListener, CMP_EXTENSION_CORE, sendTelemetryEvent,
     TM_EVENT_EXTENSION_ACTIVATE
-} from './telemetry';
-import { activateDebugConfigProvider } from './debugger';
-import { activate as activateProjectFeatures } from './project';
-import { activate as activateEditorSupport } from './editor-support';
-import { activate as activateTesting } from './testing/activator';
+} from './features/telemetry';
+import { activateDebugConfigProvider } from './features/debugger';
+import { activate as activateProjectFeatures } from './features/project';
+import { activate as activateEditorSupport } from './features/editor-support';
+import { activate as activateTesting } from './features/testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
-import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
-import { activate as activatePerformanceForecaster } from './forecaster';
-import { activate as activateTryIt } from './tryIt/tryit';
-import { activate as activateNotebook } from './notebook';
-import { activate as activateLibraryBrowser } from './library-browser';
-import { activate as activateERDiagram } from './persist-layer-diagram';
+import { ExtendedLangClient } from './core/extended-language-client';
+import { activate as activateNotebook } from './views/notebook';
+import { activate as activateLibraryBrowser } from './features/library-browser';
+import { activate as activateBIFeatures } from './features/bi';
+import { activate as activateERDiagram } from './views/persist-layer-diagram';
+import { activateAiPanel } from './views/ai-panel';
 import { debug, handleResolveMissingDependencies, log } from './utils';
-import { activateUriHandlers } from './uri-handlers';
+import { activateUriHandlers } from './utils/uri-handlers';
 import { StateMachine } from './stateMachine';
-import { activateSubscriptions } from './visualizer/activate';
+import { activateSubscriptions } from './views/visualizer/activate';
 import { extension } from './BalExtensionContext';
+import { ExtendedClientCapabilities } from '@wso2-enterprise/ballerina-core';
+import { RPCLayer } from './RPCLayer';
+import { activateAIFeatures } from './features/ai/activator';
+import { activateTryItCommand } from './features/tryit/activator';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -74,8 +77,10 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export async function activate(context: ExtensionContext) { 
+export async function activate(context: ExtensionContext) {
     extension.context = context;
+    // Init RPC Layer methods
+    RPCLayer.init();
     // Wait for the ballerina extension to be ready
     await StateMachine.initialize();
     // Then return the ballerina extension context
@@ -88,30 +93,55 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
     ballerinaExtInstance.setContext(extension.context);
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
+    // Activate Subscription Commands
+    activateSubscriptions();
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
+        // <------------ CORE FUNCTIONS ----------->
+        // Activate Library Browser
         activateLibraryBrowser(ballerinaExtInstance);
-        activateSubscriptions();
-        // start the features.
-        // Enable Ballerina diagram
-        // activateDiagram(ballerinaExtInstance);
-        // Enable Ballerina by examples
-        activateBBE(ballerinaExtInstance);
-        // Enable Ballerina Debug Config Provider
-        activateDebugConfigProvider(ballerinaExtInstance);
+
         // Enable Ballerina Project related features
         activateProjectFeatures();
+
+        // Enable Ballerina Debug Config Provider
+        activateDebugConfigProvider(ballerinaExtInstance);
+
+        // Activate editor support
         activateEditorSupport(ballerinaExtInstance);
-        // // Enable performance forecaster
-        // activatePerformanceForecaster(ballerinaExtInstance);
-        // Enable try it views
-        activateTryIt(ballerinaExtInstance);
-        // Enable Ballerina Telemetry listener
-        activateTelemetryListener(ballerinaExtInstance);
+
+        // Activate Ballerina Testing
         activateTesting(ballerinaExtInstance);
-        // // Enable Ballerina Notebook
-        // activateNotebook(ballerinaExtInstance);
+
+        // <------------ MAIN FEATURES ----------->
+        // Enable Ballerina by examples
+        activateBBE(ballerinaExtInstance);
+
+        if (StateMachine.context().isBI) {
+            //Enable BI Feature
+            activateBIFeatures(ballerinaExtInstance);
+        }
+
+        // Enable Ballerina Notebook
+        activateNotebook(ballerinaExtInstance);
+
         // activateDesignDiagramView(ballerinaExtInstance);
         activateERDiagram(ballerinaExtInstance);
+
+        // <------------ OTHER FEATURES ----------->
+        // Enable Ballerina Telemetry listener
+        activateTelemetryListener(ballerinaExtInstance);
+
+        //TOOD: Remove. Temp workaround to disable auth
+        extension.context.secrets.store('BallerinaAIUser', 'abc');
+        extension.context.secrets.store('BallerinaAIRefreshToken', 'abc');
+        //activate ai panel
+        activateAiPanel(ballerinaExtInstance);
+
+        // Activate AI features
+        activateAIFeatures(ballerinaExtInstance);
+
+        // Activate Try It command
+        activateTryItCommand(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener
@@ -125,38 +155,51 @@ export async function activateBallerina(): Promise<BallerinaExtension> {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
 
+        // LS Extension fails
+        commands.executeCommand('setContext', 'BI.status', 'noLS');
+
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
-            cmds.forEach((cmd) => {
-                const cmdID: string = cmd.command;
-                commands.registerCommand(cmdID, () => {
-                    ballerinaExtInstance.showMessageInstallBallerina();
-                });
-            });
+            // TODO: Fix this properly
+            // cmds.forEach((cmd) => {
+            //     const cmdID: string = cmd.command;
+            //     // This is to skip the command un-registration
+            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //         commands.registerCommand(cmdID, () => {
+            //             ballerinaExtInstance.showMessageInstallBallerina();
+            //         });
+            //     }
+            // });
         }
         // When plugins fails to start, provide a warning upon each command execution
         else if (!ballerinaExtInstance.langClient) {
-            cmds.forEach((cmd) => {
-                const cmdID: string = cmd.command;
-                commands.registerCommand(cmdID, () => {
-                    const actionViewLogs = "View Logs";
-                    window.showWarningMessage("Ballerina extension did not start properly."
-                        + " Please check extension logs for more info.", actionViewLogs)
-                        .then((action) => {
-                            if (action === actionViewLogs) {
-                                const logs = ballerinaExtInstance.getOutPutChannel();
-                                if (logs) {
-                                    logs.show();
-                                }
-                            }
-                        });
-                });
-            });
+            // TODO: Fix this properly
+            // cmds.forEach((cmd) => {
+            //     const cmdID: string = cmd.command;
+            //     // This is to skip the command un-registration
+            //     if (!(cmdID.includes("kolab-setup") || cmdID.includes(SHARED_COMMANDS.OPEN_BI_WELCOME))) {
+            //         commands.registerCommand(cmdID, () => {
+            //             const actionViewLogs = "View Logs";
+            //             window.showWarningMessage("Ballerina extension did not start properly."
+            //                 + " Please check extension logs for more info.", actionViewLogs)
+            //                 .then((action) => {
+            //                     if (action === actionViewLogs) {
+            //                         const logs = ballerinaExtInstance.getOutPutChannel();
+            //                         if (logs) {
+            //                             logs.show();
+            //                         }
+            //                     }
+            //                 });
+            //         });
+            //     }
+            // });
         }
     }).finally(() => {
-        handleResolveMissingDependencies(ballerinaExtInstance);
+        if (ballerinaExtInstance.langClient) {
+            handleResolveMissingDependencies(ballerinaExtInstance);
+        }
     });
     return ballerinaExtInstance;
 }

@@ -15,7 +15,7 @@ import {
     getSource,
     ListenerConfigFormState,
     STSymbolInfo
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import {
     ListenerDeclaration,
     NodePosition,

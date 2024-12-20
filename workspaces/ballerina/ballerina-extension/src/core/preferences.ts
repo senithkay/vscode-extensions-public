@@ -7,16 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export const BALLERINA_HOME = "ballerina.home";
-export const OVERRIDE_BALLERINA_HOME = "ballerina.pluginDevMode";
-export const ENABLE_TELEMETRY = "ballerina.enableTelemetry";
-export const ENABLE_ALL_CODELENS = "ballerina.codeLens.all.enabled";
-export const ENABLE_SEMANTIC_HIGHLIGHTING = "ballerina.enableSemanticHighlighting";
-export const ENABLE_PERFORMANCE_FORECAST = "ballerina.enablePerformanceForecast";
-export const ENABLE_DEBUG_LOG = "ballerina.debugLog";
-export const ENABLE_BALLERINA_LS_DEBUG = "ballerina.enableLanguageServerDebug";
-export const ENABLE_EXPERIMENTAL_FEATURES = "ballerina.experimental";
-export const ENABLE_NOTEBOOK_DEBUG = "ballerina.enableNotebookDebug";
-export const ENABLE_RUN_FAST = "ballerina.enableRunFast";
-export const FILE_DOWNLOAD_PATH = "ballerina.samplesDownloadDirectory";
-export const ENABLE_INLAY_HINTS = "ballerina.enableInlayHints";
+export const BALLERINA_HOME = "kolab.home";
+export const OVERRIDE_BALLERINA_HOME = "kolab.pluginDevMode";
+export const ENABLE_TELEMETRY = "kolab.enableTelemetry";
+export const ENABLE_ALL_CODELENS = "kolab.codeLens.all.enabled";
+export const ENABLE_SEMANTIC_HIGHLIGHTING = "kolab.enableSemanticHighlighting";
+export const ENABLE_PERFORMANCE_FORECAST = "kolab.enablePerformanceForecast";
+export const ENABLE_DEBUG_LOG = "kolab.debugLog";
+export const ENABLE_LIVE_RELOAD = "kolab.enableLiveReload";
+export const ENABLE_BALLERINA_LS_DEBUG = "kolab.enableLanguageServerDebug";
+export const ENABLE_EXPERIMENTAL_FEATURES = "kolab.experimental";
+export const ENABLE_NOTEBOOK_DEBUG = "kolab.enableNotebookDebug";
+export const ENABLE_RUN_FAST = "kolab.enableRunFast";
+export const FILE_DOWNLOAD_PATH = "kolab.samplesDownloadDirectory";
+export const ENABLE_INLAY_HINTS = "kolab.enableInlayHints";
+
+export const ENABLE_SEQUENCE_DIAGRAM_VIEW = "kolab.enableSequenceDiagramView";
+export const ENABLE_AI_SUGGESTIONS = "kolab.enableAiSuggestions";

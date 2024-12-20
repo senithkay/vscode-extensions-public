@@ -10,6 +10,7 @@
 import { FileStructure } from '@wso2-enterprise/mi-core';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { ExtensionContext, Uri, Webview } from "vscode";
 import { getInboundEndpointdXml, GetInboundTemplatesArgs } from './template-engine/mustach-templates/inboundEndpoints';
 import { getRegistryResource } from './template-engine/mustach-templates/registryResources';
@@ -61,6 +62,77 @@ export function copyDockerResources(resourcePath: string, targetPath: string) {
 	fs.copyFileSync(path.join(resourcePath, 'deployment.toml'), path.join(commonResourcesPath, 'deployment.toml'));
 	fs.copyFileSync(path.join(resourcePath, 'client-truststore.jks'), path.join(dockerResourcesPath, 'client-truststore.jks'));
 	fs.copyFileSync(path.join(resourcePath, 'wso2carbon.jks'), path.join(dockerResourcesPath, 'wso2carbon.jks'));
+}
+
+export function copyMavenWrapper(resourcePath: string, targetPath: string) {
+	const mavenWrapperPropertiesPath = path.join(targetPath, '.mvn', 'wrapper');
+
+	fs.mkdirSync(mavenWrapperPropertiesPath, { recursive: true });
+	fs.copyFileSync(path.join(resourcePath, 'maven-wrapper.properties'), path.join(mavenWrapperPropertiesPath, 'maven-wrapper.properties'));
+	fs.copyFileSync(path.join(resourcePath, 'mvnw.cmd'), path.join(targetPath, 'mvnw.cmd'));
+	fs.copyFileSync(path.join(resourcePath, 'mvnw'), path.join(targetPath, 'mvnw'));
+}
+
+export function createGitignoreFile(targetPath: string): Promise<void> {
+	return new Promise((resolve, reject) => {
+		const gitignorePath = path.join(targetPath, '.gitignore');
+
+		// Common .gitignore patterns
+		const gitignoreContent = `
+.wso2mi/
+##############################
+## Java
+##############################
+.mtj.tmp/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+##############################
+## Maven
+##############################
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+##############################
+## Visual Studio Code
+##############################
+.vscode/
+.code-workspace
+
+##############################
+## OS X
+##############################
+.DS_Store
+
+##############################
+## Miscellaneous
+##############################
+*.log
+		`;
+
+		fs.writeFile(gitignorePath, gitignoreContent, (err) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+			console.log('.gitignore file created');
+			resolve();
+		});
+	});
 }
 
 export function getInboundEndpointXmlWrapper(props: GetInboundTemplatesArgs) {

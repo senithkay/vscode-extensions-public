@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -8,19 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BallerinaConstructRequest, BallerinaModuleResponse, BallerinaTriggerInfo, Trigger } from "../../interfaces/ballerina";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { Trigger } from "../../interfaces/extended-lang-client";
 
-export interface TriggerRequest {
-    id: string
+export interface ServicesByListenerRequest {
+    position?: NodePosition;
 }
 
-export interface TriggerResponse extends BallerinaTriggerInfo {
-    error?: string;
+export interface ServicesByListenerResponse {
+    trigger?: Trigger;
+    listener: ListenerDeclaration;
+    services: ListenerService[]
 }
 
-export interface TriggersRequest extends BallerinaConstructRequest { }
-
-export interface TriggersResponse extends BallerinaModuleResponse {
-    central: Trigger[];
-    error?: string;
+export interface ListenerService {
+    name: string;
+    filePath: string;
+    service: ServiceDeclaration;
 }

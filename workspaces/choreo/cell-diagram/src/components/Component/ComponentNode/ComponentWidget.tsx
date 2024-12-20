@@ -8,13 +8,17 @@
  */
 
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, LinkModel, PortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { ComponentModel } from "./ComponentModel";
 import { ComponentLinkModel } from "../ComponentLink/ComponentLinkModel";
 import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { Tooltip } from "@mui/material";
+import { ExternalConsumerLinkSelectEvent } from "../../../types";
+import { CellBounds } from "../../Cell/CellNode/CellModel";
+
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -29,6 +33,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.component.label || node.component.id;
+    const isDisabled = node.component.disabled?.status;
 
     useEffect(() => {
         const listener = node.registerListener({
@@ -43,8 +48,31 @@ export function ComponentWidget(props: ComponentWidgetProps) {
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
 
+        const handleExternalConsumerLink = (evt: ExternalConsumerLinkSelectEvent, action: 'SELECT' | 'UNSELECT') => {
+            setIsHovered(action === 'SELECT');
+            const portId = evt.cellBound === CellBounds.NorthBound ? 'top' : 'left';
+            const alignment = evt.cellBound === CellBounds.NorthBound ? PortModelAlignment.TOP : PortModelAlignment.LEFT;
+            const port = node.getPort(`${portId}-${node.getID()}`);
+            const portLinks: Map<string, LinkModel> = new Map(Object.entries(port.links));
+            portLinks.forEach((link) => {
+                if (link.getTargetPort().getOptions().alignment === alignment) {
+                    link.fireEvent({}, action);
+                }
+            });
+        };
+
+        const externalConsumerListener = node.registerListener({
+            EXTERNAL_CONSUMER_LINK_SELECT: (evt: ExternalConsumerLinkSelectEvent) => {
+                handleExternalConsumerLink(evt, 'SELECT');
+            },
+            EXTERNAL_CONSUMER_LINK_UNSELECT: (evt: ExternalConsumerLinkSelectEvent) => {
+                handleExternalConsumerLink(evt, 'UNSELECT');
+            },
+        });
+
         return () => {
             node.deregisterListener(listener);
+            node.deregisterListener(externalConsumerListener);
         };
     }, [node]);
 
@@ -76,8 +104,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     return (
         <ComponentNode
-            isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-            isFocused={node.getID() === focusedNodeId}
             onMouseOver={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onDoubleClick={handleOnWidgetDoubleClick}
@@ -89,8 +115,11 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isFocused={node.getID() === focusedNodeId || isHovered}
                 menuItems={componentMenu}
+                onFocusOut={handleMouseLeave}
             />
-            <ComponentName>{displayName}</ComponentName>
+            <Tooltip title={displayName} placement="bottom" enterNextDelay={500} arrow>
+                <ComponentName disabled={isDisabled}>{displayName}</ComponentName>
+            </Tooltip>
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
                 <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />

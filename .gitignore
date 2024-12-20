@@ -19,7 +19,6 @@ test-resources
 # gradle
 .gradle
 !gradle-wrapper.jar
-build
 
 # Compiled class file
 *.class
@@ -74,3 +73,5 @@ playwright-report/
 # storybook
 .storybook-out/
 **/storybook-static/
+
+extensions.json

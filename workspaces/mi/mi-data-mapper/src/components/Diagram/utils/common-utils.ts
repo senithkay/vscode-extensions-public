@@ -29,7 +29,7 @@ import { InputAccessNodeFindingVisitor } from "../../Visitors/InputAccessNodeFin
 import { NodePosition, getPosition, isPositionsEquals, traversNode } from "./st-utils";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { ArrayOutputNode, InputNode, ObjectOutputNode, SubMappingNode } from "../Node";
-import { InputOutputPortModel, ValueType } from "../Port";
+import { InputOutputPortModel, MappingType, ValueType } from "../Port";
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
 import { useDMSearchStore } from "../../../store/store";
 import {
@@ -42,8 +42,11 @@ import {
 } from "./constants";
 import { FocusedInputNode } from "../Node/FocusedInput";
 import { PrimitiveOutputNode } from "../Node/PrimitiveOutput";
-import { View } from "../../../components/DataMapper/Views/DataMapperView";
+import { SubMappingInfo, View } from "../../../components/DataMapper/Views/DataMapperView";
 import { DataMapperLinkModel } from "../Link";
+import { getDMTypeDim } from "./type-utils";
+import { IDataMapperContext } from "src/utils/DataMapperContext/DataMapperContext";
+import { getSourceNodeType } from "./node-utils";
 
 export function getInputAccessNodes(node: Node): (Identifier | ElementAccessExpression | PropertyAccessExpression)[] {
     const ipnutAccessNodeVisitor: InputAccessNodeFindingVisitor = new InputAccessNodeFindingVisitor();
@@ -404,12 +407,8 @@ export function getDefaultValue(typeKind: TypeKind): string {
 		case TypeKind.Array:
 			draftParameter = `[]`;
 			break;
-		case TypeKind.Interface:
-		case TypeKind.Object:
-			draftParameter = `{}`;
-			break;
 		default:
-			draftParameter = `""`;
+			draftParameter = `{}`;
 			break;
 	}
 	return draftParameter;
@@ -511,11 +510,16 @@ export function canConnectWithLinkConnector(
 ): boolean {
     const noOfPropAccessNodes = inputAccessNodes.length;
     const isCallExpr = noOfPropAccessNodes === 1 && isNodeCallExpression(inputAccessNodes[0]);
-    return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr));
+    const isBinaryExpr = Node.isBinaryExpression(expr);
+    return noOfPropAccessNodes > 1 || (noOfPropAccessNodes === 1  && (isConditionalExpression(expr) || isCallExpr)) || isBinaryExpr;
 }
 
-export function hasCallExpressions(node: Node): boolean {
+export function hasCallExpression(node: Node): boolean {
     return Node.isPropertyAssignment(node) && Node.isCallExpression(node.getInitializer());
+}
+
+export function hasElementAccessExpression(node: Node): boolean {
+    return Node.isPropertyAssignment(node) && Node.isElementAccessExpression(node.getInitializer());
 }
 
 export function isNodeCallExpression(node: Node): boolean {
@@ -739,14 +743,27 @@ export function isFunctionArgument(identifier: string, sourceFile: SourceFile): 
     return false;
 }
 
-export function isConnectingArrays(sourcePort: PortModel, targetPort: PortModel): boolean {
-    if (!(sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel)) {
-        return false;
-    }
-    const sourceKind = sourcePort.field.kind;
-    const targetKind = targetPort.field.kind;
+export function isConnectingArrays(mappingType: MappingType): boolean {
+    return mappingType === MappingType.ArrayToArray || mappingType === MappingType.ArrayToSingleton;
+}
 
-    return sourceKind === TypeKind.Array && targetKind === TypeKind.Array;
+export function getMappingType(sourcePort: PortModel, targetPort: PortModel): MappingType {
+
+    if (sourcePort instanceof InputOutputPortModel
+        && targetPort instanceof InputOutputPortModel
+        && targetPort.field && sourcePort.field) {
+            
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+
+        if (sourceDim > 0) {
+            const dimDelta = sourceDim - targetDim;
+            if (dimDelta == 0) return MappingType.ArrayToArray;
+            if (dimDelta > 0) return MappingType.ArrayToSingleton;
+        }
+    }
+
+    return MappingType.Default;
 }
 
 export function getValueType(lm: DataMapperLinkModel): ValueType {
@@ -755,16 +772,108 @@ export function getValueType(lm: DataMapperLinkModel): ValueType {
     if (typeWithValue?.value) {
         let expr = typeWithValue.value;
 
-        if (Node.isPropertyAssignment(expr)) {
+        if (!expr?.wasForgotten() && Node.isPropertyAssignment(expr)) {
             expr = expr.getInitializer();
         }
-        const value = expr?.getText();
+        const value = expr?.wasForgotten() ? undefined : expr?.getText();
         if (value !== undefined) {
             return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
         }
     }
 
     return ValueType.Empty;
+}
+
+export function genArrayElementAccessRepr(initializer: Expression): string {
+    let accessors: string[] = [];
+    while (Node.isElementAccessExpression(initializer) && initializer.getExpression()?.getType().isArray()) {
+        const argExpr = initializer.getArgumentExpression().getText();
+        accessors.push(argExpr);
+        initializer = initializer.getExpression();
+    }
+    accessors.reverse();
+    return `[${accessors.join(",")}]`;
+}
+
+export function genArrayElementAccessSuffix(sourcePort: PortModel, targetPort: PortModel) {
+    if (sourcePort instanceof InputOutputPortModel && targetPort instanceof InputOutputPortModel) {
+        let suffix = '';
+        const sourceDim = getDMTypeDim(sourcePort.field);
+        const targetDim = getDMTypeDim(targetPort.field);
+        const dimDelta = sourceDim - targetDim;
+        for (let i = 0; i < dimDelta; i++) {
+            suffix += '[0]';
+        }
+        return suffix;
+    }
+    return '';
+};
+
+export function expandArrayFn(sourcePort: InputOutputPortModel, targetPort: InputOutputPortModel, context: IDataMapperContext){
+    
+    const { addView, views } = context;
+    
+    let label = getMapFnViewLabel(targetPort, views);
+    let targetFieldFQN = targetPort.fieldFQN;
+    const isSourcePortSubMapping = sourcePort.portName.startsWith(SUB_MAPPING_INPUT_SOURCE_PORT_PREFIX);
+
+    let sourceFieldFQN = isSourcePortSubMapping
+        ? sourcePort.fieldFQN
+        : sourcePort.fieldFQN.split('.').slice(1).join('.');
+    let mapFnIndex: number | undefined = undefined;
+    let prevViewSubMappingInfo: SubMappingInfo = undefined;
+
+    if (views.length > 1) {
+        const prevView = views[views.length - 1];
+
+        if (prevView.subMappingInfo) {
+            // Navigating into map function within focused sub-mapping view
+            prevViewSubMappingInfo = prevView.subMappingInfo;
+            const { mappingName: prevViewMappingName, mapFnIndex: prevViewMapFnIndex } = prevViewSubMappingInfo;
+            targetFieldFQN = targetFieldFQN ?? prevViewMappingName;
+        } else {
+            // Navigating into another map function within the current map function
+            if (!prevView.targetFieldFQN) {
+                // The visiting map function is declaired at the return statement of the current map function
+                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    // The root of the current map function is the return statement of the transformation function
+                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                }
+            } else {
+                if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+                    // The visiting map function is declaired at the return statement of the current map function
+                    targetFieldFQN = prevView.targetFieldFQN;
+                    mapFnIndex = getMapFnIndex(views, prevView.targetFieldFQN);
+                } else {
+                    targetFieldFQN = `${prevView.targetFieldFQN}.${targetFieldFQN}`;
+                }
+            }
+        }
+        if (!!prevView.sourceFieldFQN) {
+            sourceFieldFQN = `${prevView.sourceFieldFQN}${sourceFieldFQN ? `.${sourceFieldFQN}` : ''}`;
+        }
+    } else {
+        // Navigating into the root map function
+        if (!targetFieldFQN && targetPort.field.kind === TypeKind.Array) {
+            // The visiting map function is the return statement of the transformation function
+            mapFnIndex = 0;
+        }
+    }
+
+    const sourceNodeType = getSourceNodeType(sourcePort);
+
+    const newView: View = { targetFieldFQN, sourceFieldFQN, sourceNodeType, label, mapFnIndex };
+
+    if (prevViewSubMappingInfo) {
+        const newViewSubMappingInfo = {
+            ...prevViewSubMappingInfo,
+            focusedOnSubMappingRoot: false,
+            mapFnIndex: prevViewSubMappingInfo.mapFnIndex !== undefined ? prevViewSubMappingInfo.mapFnIndex + 1 : 0
+        };
+        newView.subMappingInfo = newViewSubMappingInfo;
+    }
+
+    addView(newView);
 }
 
 function getRootInputAccessExpr(node: ElementAccessExpression | PropertyAccessExpression): Node {

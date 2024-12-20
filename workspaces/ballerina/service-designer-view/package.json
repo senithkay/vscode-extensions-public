@@ -16,6 +16,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.200",
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.5",
@@ -27,8 +28,10 @@
     "@vscode/codicons": "0.0.33",
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2-enterprise/ballerina-side-panel": "workspace:*",
     "@headlessui/react": "^1.7.15",
     "handlebars": "^4.7.8",
+    "lodash": "^4.17.21",
     "monaco-editor": "0.44.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

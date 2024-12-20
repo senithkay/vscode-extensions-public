@@ -121,12 +121,16 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
     const [isHoveredConnector, setIsHoveredConnector] = React.useState(false);
     const [isConnectorSelected, setIsConnectorSelected] = React.useState(false);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const description = node.stNode.tag.split(".")[1];
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -176,7 +180,14 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 connectorName: node.stNode.tag.split(".")[0]
             });
 
-            const formJSON = await rpcClient.getMiDiagramRpcClient().getConnectorForm({ uiSchemaPath: connectorData.uiSchemaPath, operation: node.stNode.tag.split(".")[1] });
+            const operationName = node.stNode.tag.split(/\.(.+)/)[1];
+            const connectorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
+                mediatorType: node.stNode.tag,
+                range: nodeRange,
+                documentUri: node.documentUri
+            });
+
+            const formJSON = connectorDetails;
 
             sidePanelContext.setSidePanelState({
                 isOpen: true,
@@ -184,16 +195,17 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 nodeRange: nodeRange,
                 isEditing: true,
                 formValues: {
-                    form: formJSON.formJSON,
-                    title: `${connectorData.name} - ${node.stNode.tag.split(".")[1]}`,
+                    form: formJSON,
+                    title: `${connectorData.name} - ${operationName}`,
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
-                    operationName: (node).stNode.tag.split(".")[1],
+                    operationName: operationName,
                     connectionName: (node.stNode as Connector).configKey
                 },
                 iconPath: iconPath,
-                parentNode: node.mediatorName
+                parentNode: node.mediatorName,
+                node: node,
             });
         }
     }
@@ -241,59 +253,61 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                     <S.BottomPortWidget port={node.getPort("out")!} engine={engine} />
                 </S.Node>
             </Tooltip>
-            <S.CircleContainer
-                onMouseEnter={() => setIsHoveredConnector(true)}
-                onMouseLeave={() => setIsHoveredConnector(false)}
-                onClick={(e) => handleOnClick(e)}
-            >
-                <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
-                    <svg width="110" height="50" viewBox="0 0 103 40">
-                        <circle
-                            cx="80"
-                            cy="20"
-                            r="22"
-                            fill={Colors.SURFACE_BRIGHT}
-                            stroke={(isHoveredConnector || isConnectorSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
-                            strokeWidth={2}
-                        />
+            {(node.stNode as Connector).configKey &&
+                <S.CircleContainer
+                    onMouseEnter={() => setIsHoveredConnector(true)}
+                    onMouseLeave={() => setIsHoveredConnector(false)}
+                    onClick={(e) => handleOnClick(e)}
+                >
+                    <Tooltip content={!isPopoverOpen && tooltip ? <TooltipEl /> : ""} position={'bottom'} >
+                        <svg width="110" height="50" viewBox="0 0 103 40">
+                            <circle
+                                cx="80"
+                                cy="20"
+                                r="22"
+                                fill={Colors.SURFACE_BRIGHT}
+                                stroke={(isHoveredConnector || isConnectorSelected) ? Colors.SECONDARY : Colors.OUTLINE_VARIANT}
+                                strokeWidth={2}
+                            />
 
-                        {iconPath && <g transform="translate(68,7)">
-                            <foreignObject width="25" height="25">
-                                <img src={iconPath} alt="Icon" />
-                            </foreignObject>
-                        </g>}
+                            {iconPath && <g transform="translate(68,7)">
+                                <foreignObject width="25" height="25">
+                                    <img src={iconPath} alt="Icon" />
+                                </foreignObject>
+                            </g>}
 
-                        <line
-                            x1="0"
-                            y1="20"
-                            x2="57"
-                            y2="20"
-                            style={{
-                                stroke: Colors.PRIMARY,
-                                strokeWidth: 2,
-                                markerEnd: `url(#${node.getID()}-arrow-head)`,
-                            }}
-                        />
-                        <defs>
-                            <marker
-                                markerWidth="4"
-                                markerHeight="4"
-                                refX="3"
-                                refY="2"
-                                viewBox="0 0 4 4"
-                                orient="auto"
-                                id={`${node.getID()}-arrow-head`}
-                            >
-                                <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
-                            </marker>
-                        </defs>
-                    </svg>
-                </Tooltip>
-            </S.CircleContainer>
+                            <line
+                                x1="0"
+                                y1="20"
+                                x2="57"
+                                y2="20"
+                                style={{
+                                    stroke: Colors.PRIMARY,
+                                    strokeWidth: 2,
+                                    markerEnd: `url(#${node.getID()}-arrow-head)`,
+                                }}
+                            />
+                            <defs>
+                                <marker
+                                    markerWidth="4"
+                                    markerHeight="4"
+                                    refX="3"
+                                    refY="2"
+                                    viewBox="0 0 4 4"
+                                    orient="auto"
+                                    id={`${node.getID()}-arrow-head`}
+                                >
+                                    <polygon points="0,4 0,0 4,2" fill={Colors.PRIMARY}></polygon>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </Tooltip>
+                </S.CircleContainer>
+            }
             {(node.stNode as Connector).configKey &&
                 <S.ConnectionContainer>
                     <S.ConnectionText>
-                        {FirstCharToUpperCase((node.stNode as Connector).configKey)}
+                        {(node.stNode as Connector).configKey}
                     </S.ConnectionText>
                 </S.ConnectionContainer>}
             <Popover
@@ -307,7 +321,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>
                 </ClickAwayListener>

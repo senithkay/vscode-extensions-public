@@ -21,6 +21,7 @@ export * from './components/Typography/Typography';
 export * from './components/Button/Button';
 export * from './components/ActionButtons/ActionButtons';
 export * from './components/Popover/Popover';
+export * from './components/ParamManager/ParamManager';
 export * from './components/SidePanel/SidePanel';
 export * from './components/TextArea/TextArea';
 export * from './components/Divider/Divider';
@@ -48,7 +49,9 @@ export * from './components/Accordion/Accordion';
 export * from './components/SyntaxHighlighter/SyntaxHighlighter';
 export * from './components/Drawer/Drawer';
 export * from './components/Alert/Alert';
-export * from './components/ExpressionBar/ExpressionBar';
+export * from './components/MultiSelect/MultiSelect';
+export * from './components/Toggle/Toggle';
+export * from './components/ExpressionEditorV2';
 
 export * from './components/SampleForm/Header/Header';
 export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
@@ -63,3 +66,9 @@ export * from './components/Commons/RequiredInput';
 export * from './components/FormView/FormView';
 
 export * from './styles';
+
+export * from './components/Alert/Alert';
+
+export * from './components/View';
+
+export * from './components/Commons/Overlay';

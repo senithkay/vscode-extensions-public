@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { AutoComplete, ErrorBanner, getItemKey, ItemComponent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import styled from "@emotion/styled";
@@ -17,7 +17,7 @@ import { Colors } from "../../../resources/constants";
 import fsPath from "path";
 import { ExpressionField, ExpressionFieldValue } from "../ExpressionField/ExpressionInput";
 import { getValue, isExpressionFieldValue } from "./utils";
-import { ResourceType, MultipleResourceType } from "@wso2-enterprise/mi-core";
+import { ResourceType, MultipleResourceType, Platform } from "@wso2-enterprise/mi-core";
 
 export type FilterType =
     | "sequence"
@@ -42,16 +42,19 @@ export type FilterType =
     | "xsl"
     | "xslt"
     | "yaml"
+    | "crt"
     | "registry"
     | "mockService"
     | "dssQuery"
     | "dssDataSource"
+    | "configurable"
 
 // Interfaces
 interface IKeylookupBase {
     // AutoComplete props
     id?: string;
     label?: string;
+    labelAdornment?: ReactNode;
     placeholder?: string;
     disabled?: boolean;
     required?: boolean;
@@ -63,7 +66,7 @@ interface IKeylookupBase {
     borderBox?: boolean;
     errorMsg?: string;
     value?: string | ExpressionFieldValue;
-    onValueChange?: (value: string | ExpressionFieldValue) => void;
+    onValueChange?: (value: string | ExpressionFieldValue, additionalData?: any) => void;
     onBlur?: React.FocusEventHandler<HTMLInputElement>;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     // Document path
@@ -74,6 +77,7 @@ interface IKeylookupBase {
     filter?: (value: string) => boolean;
     onCreateButtonClick?: (fetchItems: any, handleValueChange: any) => void;
     additionalItems?: string[];
+    artifactTypes?: { registryArtifacts: boolean, artifacts: boolean };
 }
 
 // Define the conditional properties for the ExpressionField
@@ -117,10 +121,6 @@ const Container = styled.div({
     display: "flex",
     flexDirection: "column",
     gap: "2px",
-
-    "*": {
-        boxSizing: "border-box"
-    }
 });
 
 const ItemContainer = styled.div({
@@ -161,7 +161,7 @@ namespace ExBtn {
 `;
 }
 
-const getItemComponent = (item: string, type?: "reg:") => {
+const getItemComponent = (item: string, type?: string) => {
     return (
         <ItemContainer>
             {type && <StyledTag>{type}</StyledTag>}
@@ -183,6 +183,7 @@ export const Keylookup = (props: IKeylookup) => {
         canChangeEx,
         openExpressionEditor,
         sx,
+        artifactTypes = { registryArtifacts: true, artifacts: true },
         ...rest
     } = props;
     const [items, setItems] = useState<(string | ItemComponent)[]>([]);
@@ -190,7 +191,7 @@ export const Keylookup = (props: IKeylookup) => {
 
     useEffect(() => {
         fetchItems();
-    }, []);
+    }, [filterType]);
 
     const fetchItems = async () => {
         if (filterType === "mockService") {
@@ -199,9 +200,8 @@ export const Keylookup = (props: IKeylookup) => {
             if (result?.mockServices) {
                 const machineView = await rpcClient.getVisualizerState();
                 const projectUri = machineView.projectUri;
-                const isWindows = navigator.platform.toLowerCase().includes("win");
                 const mockServicesDirs = [projectUri, "src", "test", "resources", "mock-services"];
-                const mockServicesRoot = isWindows ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
+                const mockServicesRoot = machineView.platform === Platform.WINDOWS ? fsPath.win32.join(...mockServicesDirs) : fsPath.join(...mockServicesDirs);
 
                 result.mockServices.forEach((mockService) => {
                     const fileName = mockService.path.split(mockServicesRoot)[1];
@@ -247,6 +247,17 @@ export const Keylookup = (props: IKeylookup) => {
             return;
         }
 
+        if (filterType === "configurable") {
+            const fetchedConfigurableEntries = await rpcClient.getMiDiagramRpcClient().getConfigurableEntries();
+            const items = fetchedConfigurableEntries.configurableEntries;
+            let result = items.map(item => item.name);
+            if (filter) {
+                result = items.filter((item) => filter(item.type)).map(item => item.name) || [];
+            }
+            setItems(result);
+            return;
+        }
+
         let resourceType: ResourceType | MultipleResourceType[];
         if (Array.isArray(filterType)) {
             resourceType = filterType.map((type) => {
@@ -263,9 +274,11 @@ export const Keylookup = (props: IKeylookup) => {
         let workspaceItems: ItemComponent[] = [];
         let registryItems: ItemComponent[] = [];
         let initialItem: ItemComponent;
-        if (result?.resources) {
+        const registryResources = artifactTypes.registryArtifacts;
+        const resources = artifactTypes.artifacts;
+        if (resources && result?.resources) {
             result.resources.forEach((resource) => {
-                const item = { key: resource.name, item: getItemComponent(resource.name) };
+                const item = { key: resource.name, item: getItemComponent(resource.name, resource.type), path: resource.absolutePath };
                 if (resource.name === getValue(value)) {
                     initialItem = item;
                     return;
@@ -273,9 +286,10 @@ export const Keylookup = (props: IKeylookup) => {
                 workspaceItems.push(item);
             });
         }
-        if (result?.registryResources) {
+        if (registryResources && result?.registryResources) {
             result.registryResources.forEach((resource) => {
-                const item = { key: resource.registryKey, item: getItemComponent(resource.registryKey, "reg:") };
+                const [type, pathKey] = resource.registryKey.split(":");
+                const item = { key: resource.registryKey, item: getItemComponent(pathKey, `${type}:`), path: resource.registryPath };
                 if (resource.registryKey === getValue(value)) {
                     initialItem = item;
                     return;
@@ -299,15 +313,15 @@ export const Keylookup = (props: IKeylookup) => {
         setItems(items);
     };
 
-    const handleValueChange = (val: string) => {
+    const handleValueChange = (val: string, index?: number) => {
+        const path = (items[index] as any)?.path;
         if (isExpressionFieldValue(value)) {
             onValueChange && onValueChange({ ...value, value: val });
         } else {
-            onValueChange && onValueChange(val);
+            onValueChange && onValueChange(val, { path });
         }
     };
 
-    
     const ExButton = (props: { isActive: boolean; onClick: () => void }) => {
         return (
             <ExBtn.Container>
@@ -317,11 +331,11 @@ export const Keylookup = (props: IKeylookup) => {
             </ExBtn.Container>
         );
     }
-    
+
     return (
         <Container>
-            {((exprToggleEnabled && isExpressionFieldValue(value) && !value.isExpression) ||
-            !isExpressionFieldValue(value)) ? (
+            {((isExpressionFieldValue(value) && !value.isExpression) ||
+                !isExpressionFieldValue(value)) ? (
                 <AutoComplete
                     {...rest}
                     value={getValue(value)}
@@ -348,10 +362,11 @@ export const Keylookup = (props: IKeylookup) => {
                             />
                         ],
                     }}
-                /> 
+                />
             ) : (
                 <ExpressionField
                     label={props.label}
+                    labelAdornment={props.labelAdornment}
                     placeholder={props.placeholder}
                     required={props.required}
                     disabled={props.disabled}

@@ -9,7 +9,7 @@
 
 import _ from "lodash";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
-import { Colors, NODE_LINK, NodeTypes } from "../../resources/constants";
+import { Colors, NODE_DIMENSIONS, NODE_LINK, NodeTypes } from "../../resources/constants";
 import { SourceNodeModel, TargetNodeModel } from "../../utils/diagram";
 import { Position, Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -18,6 +18,7 @@ import { EmptyNodeModel } from "../nodes/EmptyNode/EmptyNodeModel";
 export const LINK_BOTTOM_OFFSET = 10;
 
 export interface NodeLinkModelOptions {
+    id: string;
     label?: string;
     showAddButton?: boolean; // default true
     showArrow?: boolean; // default true
@@ -47,13 +48,12 @@ export class NodeLinkModel extends DefaultLinkModel {
     nextNode: string;
     onAddClick?: () => void;
     diagnostics?: Diagnostic[];
+    readonly nodeWidth = NODE_DIMENSIONS.PLUS.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.PLUS.HEIGHT;
 
-    constructor(label?: string);
-    constructor(options: NodeLinkModelOptions);
-    constructor(options: NodeLinkModelOptions | string) {
-        const stRange = (options as NodeLinkModelOptions)?.stRange as Position;
+    constructor(options: NodeLinkModelOptions) {
         super({
-            id: stRange?.line && stRange?.character ? `${stRange.line},${stRange.character}${(options as any)?.label ? `,${(options as any).label}` : ''}` : `link-${Date.now()}`,
+            id: options.id,
             type: NODE_LINK,
             width: 10,
             color: Colors.PRIMARY,
@@ -61,44 +61,39 @@ export class NodeLinkModel extends DefaultLinkModel {
             curvyness: 0,
         });
         if (options) {
-            if (typeof options === "string" && options.length > 0) {
-                this.label = options;
+            const nodeOptions = options as NodeLinkModelOptions;
+            if (nodeOptions.label) {
+                this.label = nodeOptions.label;
                 this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
-            } else {
-                const nodeOptions = options as NodeLinkModelOptions;
-                if (nodeOptions.label) {
-                    this.label = nodeOptions.label;
-                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 80;
-                } else if (nodeOptions.label === "") {
-                    this.linkBottomOffset = LINK_BOTTOM_OFFSET + 32;
-                }
-                if (nodeOptions.showAddButton === false) {
-                    this.showAddButton = nodeOptions.showAddButton;
-                }
-                if (nodeOptions.showArrow === false) {
-                    this.showArrow = nodeOptions.showArrow;
-                }
-                if (nodeOptions.brokenLine === true) {
-                    this.brokenLine = nodeOptions.brokenLine;
-                }
-                if (nodeOptions.stRange) {
-                    this.stRange = nodeOptions.stRange;
-                }
-                if (nodeOptions.parentNode) {
-                    this.parentNode = nodeOptions.parentNode;
-                }
-                if (nodeOptions.previousNode) {
-                    this.previousNode = nodeOptions.previousNode;
-                }
-                if (nodeOptions.nextNode) {
-                    this.nextNode = nodeOptions.nextNode;
-                }
-                if (nodeOptions.diagnostics) {
-                    this.diagnostics = nodeOptions.diagnostics;
-                }
-                if (nodeOptions.trailingSpace !== undefined) {
-                    this.trailingSpace = nodeOptions.trailingSpace;
-                }
+            } else if (nodeOptions.label === "") {
+                this.linkBottomOffset = LINK_BOTTOM_OFFSET + 32;
+            }
+            if (nodeOptions.showAddButton === false) {
+                this.showAddButton = nodeOptions.showAddButton;
+            }
+            if (nodeOptions.showArrow === false) {
+                this.showArrow = nodeOptions.showArrow;
+            }
+            if (nodeOptions.brokenLine === true) {
+                this.brokenLine = nodeOptions.brokenLine;
+            }
+            if (nodeOptions.stRange) {
+                this.stRange = nodeOptions.stRange;
+            }
+            if (nodeOptions.parentNode) {
+                this.parentNode = nodeOptions.parentNode;
+            }
+            if (nodeOptions.previousNode) {
+                this.previousNode = nodeOptions.previousNode;
+            }
+            if (nodeOptions.nextNode) {
+                this.nextNode = nodeOptions.nextNode;
+            }
+            if (nodeOptions.diagnostics) {
+                this.diagnostics = nodeOptions.diagnostics;
+            }
+            if (nodeOptions.trailingSpace !== undefined) {
+                this.trailingSpace = nodeOptions.trailingSpace;
             }
             if ((options as NodeLinkModelOptions).onAddClick) {
                 this.onAddClick = (options as NodeLinkModelOptions).onAddClick;

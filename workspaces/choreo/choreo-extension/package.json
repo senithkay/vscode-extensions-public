@@ -1,12 +1,15 @@
 {
   "name": "choreo",
   "displayName": "Choreo",
-  "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.6.3",
+  "description": "An extension for managing your Choreo projects and components",
+  "license": "Apache-2.0",
+  "version": "2.1.3",
+  "cliVersion": "v1.2.62411071200",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
   },
+  "repository": "https://github.com/wso2/choreo-vscode",
   "icon": "resources/icons/choreo.png",
   "engines": {
     "vscode": "^1.83.1"
@@ -15,10 +18,6 @@
     "Other"
   ],
   "activationEvents": [
-    "workspaceContains:.choreo-project",
-    "workspaceContains:**/component.yaml",
-    "onView:choreo-projects",
-    "onView:choreo-account",
     "onStartupFinished"
   ],
   "extensionDependencies": [
@@ -26,92 +25,102 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "languages": [
-      {
-        "id": "yaml",
-        "aliases": [
-          "Component Configuration"
-        ],
-        "extensions": [
-          ".yaml"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
     "commands": [
-      {
-        "command": "wso2.choreo.sign.in",
-        "title": "Sign In",
-        "category": "Choreo"
-      },
-      {
-        "command": "wso2.choreo.sign.out",
-        "title": "Sign Out",
-        "category": "Choreo"
-      },
-      {
-        "command": "wso2.choreo.project.clone",
-        "title": "Clone to new Workspace"
-      },
-      {
-        "command": "wso2.choreo.project.repo.clone",
-        "title": "Clone a repo to current Project Workspace"
-      },
-      {
-        "command": "wso2.choreo.project.create",
-        "title": "Create New Project",
-        "category": "Choreo",
-        "icon": "$(add)"
-      },
-      {
-        "command": "wso2.choreo.component.create",
-        "title": "Create New Component",
-        "category": "Choreo",
-        "icon": "$(add)"
-      },
-      {
-        "command": "wso2.choreo.project.open",
-        "title": "Open Choreo Project",
-        "category": "Choreo",
-        "icon": "$(link-external)"
-      },
-      {
-        "command": "wso2.choreo.org.change",
-        "title": "Change Choreo Organization",
-        "category": "Choreo",
-        "icon": "$(link-external)"
-      },
-      {
-        "command": "wso2.choreo.project.delete",
-        "title": "Delete Choreo Project",
-        "category": "Choreo",
-        "icon": "$(trash)"
-      },
-      {
-        "command": "wso2.choreo.project.open.external",
-        "title": "Open Project in Choreo Console",
-        "category": "Choreo",
-        "icon": "$(list-selection)"
-      },
-      {
-        "command": "wso2.choreo.architecture.view",
-        "title": "View Choreo Project Architecture",
-        "category": "Choreo"
-      },
-      {
-        "command": "wso2.choreo.cell.view",
-        "title": "View Choreo Cell Diagram",
-        "category": "Choreo"
-      },
-      {
-        "command": "wso2.choreo.sign.in.with.authCode",
-        "title": "Sign In with Auth Code",
-        "category": "Choreo"
-      },
       {
         "command": "wso2.choreo.getStarted",
         "title": "Get Started",
         "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.sign.in",
+        "title": "Sign In",
+        "category": "Choreo",
+        "icon": "${sign-in}",
+        "enablement": "!isLoggedIn"
+      },
+      {
+        "command": "wso2.choreo.sign.in.with.authCode",
+        "title": "Sign In with Auth Code",
+        "category": "Choreo",
+        "enablement": "!isLoggedIn"
+      },
+      {
+        "command": "wso2.choreo.sign.out",
+        "title": "Sign Out",
+        "category": "Choreo",
+        "icon": "${sign-out}",
+        "enablement": "isLoggedIn"
+      },
+      {
+        "command": "wso2.choreo.create.component",
+        "title": "Create Component",
+        "category": "Choreo",
+        "icon": "$(add)"
+      },
+      {
+        "command": "wso2.choreo.open.external",
+        "title": "Open in Console",
+        "category": "Choreo",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "wso2.choreo.delete.component",
+        "title": "Delete Component",
+        "category": "Choreo",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "wso2.choreo.component.view",
+        "title": "View Component Details",
+        "category": "Choreo",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "wso2.choreo.project.clone",
+        "title": "Clone Repository",
+        "category": "Choreo",
+        "icon": "$(repo-clone)"
+      },
+      {
+        "command": "wso2.choreo.project.create.context",
+        "title": "Select Project",
+        "category": "Choreo",
+        "icon": "$(link)"
+      },
+      {
+        "command": "wso2.choreo.project.manage.context",
+        "title": "Manage Project",
+        "category": "Choreo",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "wso2.choreo.project.refresh",
+        "title": "Refresh Workspace",
+        "category": "Choreo",
+        "icon": "$(refresh)",
+        "enablement": "!isLoadingContextDirs"
+      },
+      {
+        "command": "wso2.choreo.project.create.workspace",
+        "title": "Open Project in a Multi-root Workspace",
+        "shortTitle": "Create workspace file",
+        "category": "Choreo",
+        "icon": "$(new-file)",
+        "enablement": "isLoggedIn && hasSelectedProject && notUsingWorkspaceFile"
+      },
+      {
+        "command": "wso2.choreo.component.create.dependency",
+        "title": "Create component dependency",
+        "shortTitle": "Create dependency",
+        "category": "Choreo",
+        "icon": "$(link)"
+      },
+      {
+        "command": "wso2.choreo.component.view.dependency",
+        "title": "View dependency documentation",
+        "shortTitle": "View dependency",
+        "category": "Choreo",
+        "icon": "$(preview)"
       }
     ],
     "viewsContainers": {
@@ -119,7 +128,7 @@
         {
           "id": "wso2-choreo",
           "title": "Choreo",
-          "icon": "$(distro-choreo-2)"
+          "icon": "resources/icons/choreo-2.svg"
         }
       ]
     },
@@ -129,26 +138,47 @@
           "id": "choreo.activity.project",
           "name": "Project",
           "type": "webview"
-        },
-        {
-          "id": "choreo.activity.account",
-          "name": "Account",
-          "type": "webview"
         }
       ]
     },
     "menus": {
       "view/title": [
         {
-          "command": "wso2.choreo.project.open",
-          "when": "view == choreo.activity.project && choreoLoginStatus == 'LoggedIn'",
+          "command": "wso2.choreo.create.component",
+          "when": "view == choreo.activity.project && isLoggedIn",
           "group": "navigation"
+        },
+        {
+          "command": "wso2.choreo.project.refresh",
+          "when": "view == choreo.activity.project && isLoggedIn",
+          "group": "navigation"
+        },
+        {
+          "command": "wso2.choreo.project.manage.context",
+          "when": "view == choreo.activity.project && isLoggedIn",
+          "group": "project"
+        },
+        {
+          "command": "wso2.choreo.open.external",
+          "when": "view == choreo.activity.project && isLoggedIn && hasSelectedProject",
+          "group": "project"
+        },
+        {
+          "command": "wso2.choreo.sign.out",
+          "when": "view == choreo.activity.project && isLoggedIn",
+          "group": "sign-out"
         }
       ],
-      "commandPalette": [
+      "webview/context": [
         {
-          "command": "wso2.choreo.architecture.view",
-          "when": "false"
+          "command": "wso2.choreo.open.external",
+          "when": "webviewId == choreo.activity.project && webviewSection == 'componentListItem'",
+          "group": "access"
+        },
+        {
+          "command": "wso2.choreo.delete.component",
+          "when": "webviewSection == 'componentListItem'",
+          "group": "destructive"
         }
       ]
     },
@@ -189,6 +219,18 @@
           "default": "prod",
           "description": "The Choreo Enviornment to use",
           "scope": "window"
+        },
+        "Advanced.RpcPath": {
+          "type": "string",
+          "default": "",
+          "description": "The path to Choreo RPC server",
+          "scope": "window"
+        },
+        "FeaturePreview.ProxyCreation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable proxy creation from GH repository",
+          "scope": "window"
         }
       }
     },
@@ -196,46 +238,30 @@
       {
         "id": "choreo.getStarted",
         "title": "Getting started with Choreo",
-        "description": "Use the Choreo VSCode extension to speedup and empower your developer experience with Choreo projects. Refer to the Choreo panel on the left activity bar to conveniently access features.",
+        "description": "Utilize the Choreo VSCode extension to enhance and streamline your developer experience with Choreo components. Easily access and manage components associated with your currently opened VSCode workspace through the Choreo panel on the left activity bar.",
         "steps": [
           {
-            "id": "openProject",
-            "title": "Open a project",
-            "description": "Sign in to begin your developer experience with the Choreo VSCode extension. \n[Sign in](command:wso2.choreo.sign.in)\nOnce signed in, conveniently switch between your Choreo projects from the [Choreo activity panel](command:choreo.activity.project.focus). For projects that are not yet in your local environment, you can opt to clone the project to a location of your preference. \n[Open Project](command:wso2.choreo.project.open)",
-            "media": {
-              "markdown": "resources/walkthrough/openProject.md"
-            }
-          },
-          {
-            "id": "createProject",
-            "title": "Create a project",
-            "description": "Create new projects, mono-repo and multi-repo, directly from the Choreo extension. Upon configuring basic project details and repository (for mono-repos), proceed to clone the project to your local environment. \n[Create new project](command:wso2.choreo.project.create)",
-            "media": {
-              "markdown": "resources/walkthrough/createProject.md"
-            }
-          },
-          {
             "id": "createComponent",
-            "title": "Create a component",
-            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n[Create New Component](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)",
+            "title": "Create components",
+            "description": "A Choreo component is a self-contained unit associated with your source code, designed to be built and deployed in the Choreo cloud platform.\nVarious types of components are supported, including Services, Manual Triggers, Cron Jobs, Web Applications, and more.\n[Create Component](command:wso2.choreo.create.component)\n Once created, you will be able to easily access your components from the [Choreo activity panel](command:choreo.activity.project.focus).",
             "media": {
-              "markdown": "resources/walkthrough/createComponent.md"
+              "markdown": "resources/walkthrough/comp-create.md"
             }
           },
           {
-            "id": "visualizeProjects",
-            "title": "Visualize Choreo projects",
-            "description": "Visualize different aspects of your Choreo projects for a range of valuable information, all from a single click.\n  **Cell View** \n An enriched version of the architecture view, the cell view provides insights into the accessibility of your project components. \n[Open Cell View](command:ballerina.view.cellView)",
+            "id": "projectDirectory",
+            "title": "Project directory",
+            "description": "Upon creating a component or linking a directory with a project, a `.choreo/context.yaml` will be created in the root of the Git repository, establishing an association between the directory and the Choreo project.\nA directory can be associated with multiple projects, and you have the ability to switch between these projects.\nIf the `context.yaml` file is not available, you can generate it by [linking the directory](command:wso2.choreo.project.create.context) with the project.\n[Manage Project](command:wso2.choreo.project.manage.context)",
             "media": {
-              "markdown": "resources/walkthrough/visualize.md"
+              "markdown": "resources/walkthrough/link-dir.md"
             }
           },
           {
-            "id": "publishProject",
-            "title": "Publish your project",
-            "description": "To leverage the capabilities of Choreo, sync your local changes with Choreo.",
+            "id": "manageComponent",
+            "title": "Manage your components",
+            "description": "Access the component details view to manage a selected component. This view is accessible by selecting a component in the [Choreo activity panel](command:choreo.activity.project.focus) or by running the [View Component Details](command:wso2.choreo.component.view) command.\n**Build component**: Initiate a new build by selecting the commit you wish to build. In case of build failures, diagnose them by reviewing the build logs.\n**Deploy component**: Once a component's commit has been successfully built, deploy the build onto any available environment (e.g., Development, Production, etc.).\n**Test component**: Depending on the component type, you can test it using an Open API view, manually triggering functions, or accessing publicly available URLs.\n**View Logs**: After successful deployment, monitor real-time application and gateway logs of the component within VSCode's integrated terminal.",
             "media": {
-              "markdown": "resources/walkthrough/pushToChoreo.md"
+              "markdown": "resources/walkthrough/comp-details.md"
             }
           }
         ]
@@ -246,7 +272,7 @@
         "description": "choreo-2",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f119"
+          "fontCharacter": "\\f128"
         }
       }
     }
@@ -254,97 +280,70 @@
   "scripts": {
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
-    "watch-choreo": "npx webpack --watch",
-    "build": "pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run postbuild",
-    "rebuild": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run postbuild",
+    "watch-choreo": "webpack --watch",
+    "build": "pnpm run compile && pnpm run copy-webview-lib && pnpm run postbuild",
+    "rebuild": "pnpm run clean && pnpm run compile && pnpm run copy-webview-lib && pnpm run postbuild",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../choreo-webviews/build/* ./resources/jslibs",
-    "copy-cellview-lib": "mkdir -p ./resources/jslibs && copyfiles -u 3 \"../cell-diagram/lib/**/*\" ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
-    "e2e-test-setup": "npx extest get-vscode -c 1.83.1 && npx extest get-chromedriver -c 1.83.1 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../../ballerina-*.vsix)",
+    "e2e-test-setup": "npx extest get-vscode -c 1.83.1 && npx extest get-chromedriver -c 1.83.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
     "e2e-test": "pnpm run compile-tests && npx extest run-tests 'dist/src/tests/e2e-tests/*.test.js' --mocha_config src/tests/e2e-tests/.mocharc.js -o src/tests/e2e-tests/settings.json",
     "e2e-playwright": "pnpm run compile-tests && pnpm exec playwright test",
     "e2e-pw-record": "pnpm run compile-tests && node ./dist/tests/e2e-playwright/recorder.js",
     "integration-test": "pnpm run compile-tests && npx extest run-tests 'dist/tests/integration-tests/*.test.js' --mocha_config src/tests/integration-tests/.mocharc.js -o src/tests/integration-tests/settings.json",
-    "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run lint && pnpm run copy-webview-lib && pnpm run copy-cellview-lib",
-    "lint": "eslint src --ext ts",
+    "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run copy-webview-lib",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write . ",
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
     "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/; fi",
-    "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
-    "postbuild": "pnpm -r run postbuild && pnpm run copyFonts && pnpm run package && pnpm run copyVSIX"
+    "postbuild": "pnpm run package && pnpm run copyVSIX"
   },
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@playwright/test": "~1.37.0",
     "@types/byline": "^4.2.33",
-    "@types/glob": "^8.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "~10.0.1",
-    "@types/nock": "~11.1.0",
     "@types/node": "^18.18.2",
-    "@types/sinon": "^10.0.0",
     "@types/vscode": "^1.73.0",
     "@types/which": "^2.0.2",
-    "@typescript-eslint/eslint-plugin": "~5.48.2",
-    "@typescript-eslint/parser": "~5.48.2",
-    "@vscode/test-electron": "^2.2.0",
-    "@vscode/vsce": "~2.21.0",
+    "@vscode/vsce": "^2.30.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
-    "axios": "^1.2.2",
-    "copy-webpack-plugin": "^11.0.0",
+    "axios": "^1.7.2",
     "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
-    "eslint": "^8.32.0",
-    "glob": "^7.2.0",
     "mocha": "^10.2.0",
-    "nock": "~13.3.2",
-    "nyc": "^15.1.0",
-    "sinon": "^15.0.1",
-    "source-map-support": "^0.5.21",
-    "ts-loader": "^9.4.1",
     "typescript": "^4.9.4",
     "vscode-extension-tester": "^5.9.1",
+    "ts-loader": "~9.4.4",
     "webpack": "^5.56.0",
     "webpack-cli": "^4.10.0",
     "webpack-permissions-plugin": "^1.0.9",
-    "yarn": "^1.22.19"
+    "copy-webpack-plugin": "^11.0.0",
+    "@biomejs/biome": "^1.8.3",
+    "terser-webpack-plugin": "^5.3.10"
   },
   "dependencies": {
-    "@types/chai": "^4.2.18",
-    "@types/lodash": "^4.14.189",
     "@vscode-logging/logger": "^1.2.3",
     "@vscode-logging/types": "^0.1.4",
     "@vscode-logging/wrapper": "^1.0.2",
-    "@vscode/extension-telemetry": "~0.7.7",
+    "@vscode/extension-telemetry": "~0.9.4",
     "@vscode/iconv-lite-umd": "^0.7.0",
-    "@vscode/webview-ui-toolkit": "~1.2.2",
-    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
-    "@wso2-enterprise/choreo-client": "workspace:*",
+    "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",
-    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
     "byline": "^5.0.0",
-    "chai": "^4.3.4",
     "dotenv": "^16.0.3",
     "file-type": "^18.2.1",
-    "gql-query-builder": "^3.8.0",
-    "graphql": "^16.6.0",
-    "graphql-request": "~5.1.0",
     "js-yaml": "^4.1.0",
+    "yaml": "^2.6.0",
     "jschardet": "^3.0.0",
-    "jwt-decode": "^3.1.2",
-    "lodash": "^4.17.11",
-    "simple-git": "^3.15.1",
     "vscode-messenger": "^0.4.4",
     "vscode-messenger-common": "^0.4.3",
     "which": "^3.0.0",
-    "@wso2-enterprise/cell-diagram": "workspace:*"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    "vscode-jsonrpc": "^6.0.0",
+    "zustand": "^4.5.2"
   }
 }

@@ -24,10 +24,15 @@ const useStyles = () => ({
 export enum ValueConfigOption {
     InitializeWithValue = "Initialize With Default Value",
     EditValue = "Edit Value",
+    AddElement = "Add Element",
     InitializeArray = "Initialize Array",
     DeleteValue = "Delete Value",
     DeleteElement = "Delete Element",
-    DeleteArray = "Delete Array"
+    DeleteArray = "Delete Array",
+    MakeFieldOptional = "Make This Field Optional",
+    MakeFieldRequired = "Make This Field Required",
+    MakeChildFieldsOptional = "Make All Child Fields Optional",
+    MakeChildFieldsRequired = "Make All Child Fields Required",
 }
 
 export interface ValueConfigMenuItem {

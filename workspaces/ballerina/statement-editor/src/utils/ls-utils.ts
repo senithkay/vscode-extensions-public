@@ -10,10 +10,10 @@ import {
     Completion,
     CompletionParams,
     DiagnosticData,
-    PartialSTRequest,
-    SymbolInfoResponse
+    PartialSTParams,
+    SymbolInfo
 } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     NodePosition,
     STKindChecker,
@@ -33,16 +33,16 @@ import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 
 export async function getPartialSTForStatement(
-    partialSTRequest: PartialSTRequest,
-    langServerRpcClient: LangServerRpcClient
+    partialSTRequest: PartialSTParams,
+    langServerRpcClient: LangClientRpcClient
 ): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForSingleStatement(partialSTRequest);
     return resp.syntaxTree;
 }
 
 export async function getPartialSTForModuleMembers(
-    partialSTRequest: PartialSTRequest,
-    langServerRpcClient: LangServerRpcClient, isResource?: boolean
+    partialSTRequest: PartialSTParams,
+    langServerRpcClient: LangClientRpcClient, isResource?: boolean
 ): Promise<STNode> {
     const resp = isResource ? await langServerRpcClient.getSTForResource(partialSTRequest) :
         await langServerRpcClient.getSTForModuleMembers(partialSTRequest);
@@ -50,16 +50,16 @@ export async function getPartialSTForModuleMembers(
 }
 
 export async function getPartialSTForModulePart(
-    partialSTRequest: PartialSTRequest,
-    langServerRpcClient: LangServerRpcClient
+    partialSTRequest: PartialSTParams,
+    langServerRpcClient: LangClientRpcClient
 ): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;
 }
 
 export async function getPartialSTForExpression(
-    partialSTRequest: PartialSTRequest,
-    langServerRpcClient: LangServerRpcClient
+    partialSTRequest: PartialSTParams,
+    langServerRpcClient: LangClientRpcClient
 ): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
@@ -69,7 +69,7 @@ export async function getRenameEdits(
     fileURI: string,
     newName: string,
     position: NodePosition,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): Promise<WorkspaceEdit> {
     const renameEdits = await langServerRpcClient.rename({
         textDocument: { uri: URI.file(fileURI).toString() },
@@ -87,7 +87,7 @@ export async function getCompletions(
     targetPosition: NodePosition,
     completeModel: STNode,
     currentModel: CurrentModel,
-    langServerRpcClient: LangServerRpcClient,
+    langServerRpcClient: LangClientRpcClient,
     userInput: string = ''
 ): Promise<SuggestionItem[]> {
 
@@ -167,7 +167,7 @@ export async function getCompletions(
 
 export async function getCompletionsForType(
     docUri: string,
-    langServerRpcClient: LangServerRpcClient,
+    langServerRpcClient: LangClientRpcClient,
     completionKinds: number[] = []
 ): Promise<SuggestionItem[]> {
 
@@ -216,7 +216,7 @@ export async function getCompletionsForType(
 export async function sendDidOpen(
     docUri: string,
     content: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ) {
     langServerRpcClient.didOpen({
         textDocument: {
@@ -230,7 +230,7 @@ export async function sendDidOpen(
 
 export async function sendDidClose(
     docUri: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ) {
     langServerRpcClient.didClose({
         textDocument: {
@@ -242,7 +242,7 @@ export async function sendDidClose(
 export async function sendDidChange(
     docUri: string,
     content: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ) {
     langServerRpcClient.didChange({
         contentChanges: [
@@ -259,7 +259,7 @@ export async function sendDidChange(
 
 export async function getDiagnostics(
     docUri: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): Promise<DiagnosticData[]> {
     const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
@@ -273,7 +273,7 @@ export async function getDiagnostics(
 export async function getCodeAction(
     filePath: string,
     diagnostic: Diagnostic,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ): Promise<CodeAction[]> {
     const codeAction = await langServerRpcClient.codeAction({
         context: {
@@ -318,9 +318,9 @@ export async function getSymbolDocumentation(
     docUri: string,
     targetPosition: NodePosition,
     currentModel: STNode,
-    langServerRpcClient: LangServerRpcClient,
+    langServerRpcClient: LangClientRpcClient,
     userInput: string = ''
-): Promise<SymbolInfoResponse> {
+): Promise<SymbolInfo> {
     const symbolPos = getSymbolPosition(targetPosition, currentModel, userInput);
     const symbolDoc = await langServerRpcClient.getSymbolDocumentation({
         textDocumentIdentifier: {
@@ -338,11 +338,11 @@ export async function getSymbolDocumentation(
 export async function updateFileContent(
     fileUri: string,
     content: string,
-    langServerRpcClient: LangServerRpcClient,
+    langServerRpcClient: LangClientRpcClient,
     skipForceSave?: boolean,
 ): Promise<boolean> {
     const response = await langServerRpcClient.updateFileContent({
-        fileUri,
+        filePath: fileUri,
         content,
         skipForceSave
     });
@@ -351,7 +351,7 @@ export async function updateFileContent(
 
 export const handleDiagnostics = async (
     fileURI: string,
-    langServerRpcClient: LangServerRpcClient
+    langServerRpcClient: LangClientRpcClient
 ):
     Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(fileURI, langServerRpcClient);

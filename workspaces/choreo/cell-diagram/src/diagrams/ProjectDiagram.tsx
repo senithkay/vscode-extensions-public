@@ -9,6 +9,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import CircularProgress from "@mui/material/CircularProgress";
 import {
     generateEngine,
@@ -22,7 +23,6 @@ import {
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "../components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "../resources";
 import { Container, DiagramContainer, useStyles } from "../utils/CanvasStyles";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "../types";
 import { CellModel } from "../components/Cell/CellNode/CellModel";
 import { DiagramLayers } from "../components/Controls/DiagramLayers";
@@ -38,11 +38,21 @@ export interface ProjectDiagramProps {
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
     customTooltips?: CustomTooltips;
+    modelVersion?: string;
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function ProjectDiagram(props: ProjectDiagramProps) {
-    const { project, componentMenu, showControls = true, animation = true, defaultDiagramLayer = DiagramLayer.ARCHITECTURE, customTooltips, onComponentDoubleClick } = props;
+    const {
+        project,
+        componentMenu,
+        showControls = true,
+        animation = true,
+        defaultDiagramLayer = DiagramLayer.ARCHITECTURE,
+        customTooltips,
+        modelVersion,
+        onComponentDoubleClick,
+    } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -61,20 +71,22 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         if (diagramEngine) {
             drawDiagram();
         }
+        return () => {
+            diagramEngine
+                .getModel()
+                ?.getNodes()
+                .forEach((node) => {
+                    if (isRenderInsideCell(node)) {
+                        node.clearListeners();
+                    }
+                });
+        };
     }, [props]);
 
     useEffect(() => {
         if (diagramEngine && animation && isDiagramLoaded) {
             animateProjectDiagram();
             diagramEngine.repaintCanvas();
-        }
-        
-        return () => {
-            diagramEngine.getModel()?.getNodes().forEach((node) => {
-                if (isRenderInsideCell(node)) {
-                    node.clearListeners();
-                }
-            });
         }
     }, [isDiagramLoaded, diagramEngine]);
 
@@ -139,7 +151,8 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
             ...diagramData.links.connectorLinks.values(),
             ...diagramData.links.externalLinks.values(),
             ...diagramData.links.componentLinks.values(),
-            ...diagramData.links.cellLinks.values()
+            ...diagramData.links.cellLinks.values(),
+            ...diagramData.links.externalConnectionLinks.values()
         );
 
         models.forEach((item) => {
@@ -218,6 +231,7 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
         zoomLevel,
         observationSummary: observationSummary.current,
         defaultDiagramLayer,
+        modelVersion : modelVersion || "v1", 
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
@@ -235,13 +249,14 @@ export function ProjectDiagram(props: ProjectDiagramProps) {
                 <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine}
+                            <CanvasWidget
+                                engine={diagramEngine}
                                 className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
-                            {showDiagramLayers && <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />}
+                            {showDiagramLayers && (
+                                <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />
+                            )}
                             {showDiagramLayers && <DiagramLegend animation={animation} />}
                         </>
                     ) : userMessage ? (

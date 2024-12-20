@@ -3,7 +3,7 @@
   "displayName": "Micro Integrator",
   "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
   "icon": "resources/images/wso2-micro-integrator-image.png",
-  "version": "1.0.4",
+  "version": "1.1.6",
   "publisher": "wso2",
   "engines": {
     "vscode": "^1.81.0"
@@ -123,6 +123,18 @@
             "type": "number",
             "default": 8290,
             "description": "Port to check the readiness of the MI server"
+          },
+          "MI.SERVER_PATH": {
+            "type": "string",
+            "default": "",
+            "description": "Location to store MI archives, considering the user's home directory",
+            "scope": "resource"
+          },
+          "MI.JAVA_HOME": {
+            "type": "string",
+            "default": "${env:JAVA_HOME}",
+            "description": "Java Home path",
+            "scope": "resource"
           }
         }
       }
@@ -141,11 +153,6 @@
         {
           "id": "MI.project-explorer",
           "name": "Project Explorer"
-        },
-        {
-          "id": "MI.registry-explorer",
-          "name": "Registry Explorer",
-          "visibility": "collapsed"
         }
       ],
       "test": [
@@ -159,7 +166,7 @@
       {
         "view": "MI.project-explorer",
         "contents": "Loading...",
-        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled'"
+        "when": "MI.status != 'unknownProject' && MI.status != 'projectLoaded' && MI.status != 'disabled' && MI.status != 'notSetUp'"
       },
       {
         "view": "MI.project-explorer",
@@ -173,18 +180,28 @@
       },
       {
         "view": "MI.project-explorer",
-        "contents": "Some errors occured while activating the extension. Please check the output channel for more information.",
+        "contents": "Some errors occurred while activating the extension. Please check the output channel for more information.",
         "when": "MI.status == 'disabled'"
       },
       {
         "view": "testing",
-        "contents": "[Add new test suite](command:MI.test.add.suite)"
+        "contents": "[Add Unit Test](command:MI.test.add.suite)"
+      },
+      {
+        "view": "MI.project-explorer",
+        "contents": "Micro Integrator is not set up. Please set up the MI server and Java home to continue.",
+        "when": "MI.status == 'notSetUp'"
       }
     ],
     "commands": [
       {
         "command": "MI.openProject",
         "title": "Open Project",
+        "category": "MI"
+      },
+      {
+        "command": "MI.importCAPP",
+        "title": "Import project from car file(CAPP)",
         "category": "MI"
       },
       {
@@ -218,7 +235,7 @@
       },
       {
         "command": "MI.registry-explorer.add",
-        "title": "Add to Registry",
+        "title": "Add to Resource",
         "icon": "$(add)",
         "category": "MI"
       },
@@ -237,6 +254,13 @@
       {
         "command": "MI.project-explorer.add-api",
         "title": "Add API",
+        "icon": "$(add)",
+        "group": "navigation",
+        "category": "MI"
+      },
+      {
+        "command": "MI.project-explorer.add-resource",
+        "title": "Add Resource",
         "icon": "$(add)",
         "group": "navigation",
         "category": "MI"
@@ -336,7 +360,7 @@
         "category": "MI"
       },
       {
-        "command": "MI.project-explorer.edit-reg-metadata",
+        "command": "MI.registry-explorer.edit-reg-metadata",
         "title": "Edit Registry Metadata",
         "icon": "$(notebook-edit)",
         "group": "navigation",
@@ -404,6 +428,11 @@
         "category": "MI"
       },
       {
+        "command": "MI.change.java",
+        "title": "Set Java Home",
+        "category": "MI"
+      },
+      {
         "command": "MI.build-project",
         "title": "Build",
         "category": "MI"
@@ -416,7 +445,7 @@
       },
       {
         "command": "MI.test.add.suite",
-        "title": "Add test suite",
+        "title": "Add unit test",
         "icon": "$(add)",
         "category": "MI"
       },
@@ -460,7 +489,15 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "MI.importCAPP",
+          "when": "!projectOpened"
+        },
+        {
           "command": "MI.project-explorer.add-api",
+          "when": "false"
+        },
+        {
+          "command": "MI.project-explorer.add-resource",
           "when": "false"
         },
         {
@@ -488,7 +525,7 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.edit-reg-metadata",
+          "command": "MI.registry-explorer.edit-reg-metadata",
           "when": "false"
         },
         {
@@ -673,6 +710,11 @@
           "group": "inline"
         },
         {
+          "command": "MI.project-explorer.add-resource",
+          "when": "view == MI.project-explorer && viewItem == resources",
+          "group": "inline"
+        },
+        {
           "command": "MI.project-explorer.open-service-designer",
           "when": "viewItem == api",
           "group": "inline"
@@ -708,8 +750,8 @@
           "group": "inline"
         },
         {
-          "command": "MI.project-explorer.edit-reg-metadata",
-          "when": "view == MI.project-explorer && (viewItem == registry-with-metadata)",
+          "command": "MI.registry-explorer.edit-reg-metadata",
+          "when": "view == MI.registry-explorer && (viewItem == registry-with-metadata)",
           "group": "inline"
         },
         {
@@ -753,13 +795,8 @@
           "group": "inline"
         },
         {
-          "command": "MI.project-explorer.open-dss-service-designer",
-          "when": "viewItem == data-service",
-          "group": "inline"
-        },
-        {
           "command": "MI.project-explorer.delete",
-          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == dataService || viewItem == data-mapper || viewItem == registry-with-metadata || viewItem == registry-without-metadata",
+          "when": "view == MI.project-explorer && viewItem == api || viewItem == resource || viewItem == endpoint || viewItem == sequence || viewItem == proxy-service || viewItem == inboundEndpoint || viewItem == messageStore || viewItem == message-processor || viewItem == task || viewItem == localEntry || viewItem == template  || viewItem == dataSource || viewItem == data-service || viewItem == data-mapper || viewItem == connection || viewItem == registry-with-metadata || viewItem == registry-without-metadata",
           "key": "delete"
         },
         {
@@ -803,7 +840,7 @@
         "description": "design-view",
         "default": {
           "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-          "fontCharacter": "\\f133"
+          "fontCharacter": "\\f142"
         }
       }
     }
@@ -813,15 +850,15 @@
     "compile": "tsc -p .",
     "watch": "tsc -p . -w",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-    "build": "pnpm clean && pnpm run copyLSLibs && pnpm run copyFonts && pnpm run copyDMUtils && pnpm run renameDMUtils && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "build": "pnpm clean && pnpm run copyJSLibs && pnpm run copyLSLibs && pnpm run copyFonts && pnpm run copyDMUtils && pnpm run renameDMUtils && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
     "compile-tests": "pnpm run compile",
     "watch-tests": "pnpm run watch",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "pnpm run pretest && node ./out/test/runTest.js",
-    "e2e-test-setup": "npx extest get-vscode -c 1.81.1 && npx extest get-chromedriver -c 1.81.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
+    "copyJSLibs": "copyfiles -f ../mi-visualizer/build/*.js resources/jslibs",
     "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
     "copyDMUtils": "copyfiles -f ./node_modules/@wso2-enterprise/mi-data-mapper-utils/src/* ./resources/data-mapper-utils/",
     "renameDMUtils": "node -e \"require('fs').rename('./resources/data-mapper-utils/dm-utils.ts', './resources/data-mapper-utils/dm-utils.ts.lib', function(err) { if (err) console.log(err); else console.log('DMUtils successfully renamed!') })\"",
@@ -859,7 +896,7 @@
     "vscode-messenger-common": "^0.4.5",
     "@wso2-enterprise/mi-core": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
-    "@playwright/test": "~1.37.1",
+    "@playwright/test": "~1.46.0",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~5.9.1",
     "vscode-languageclient": "^8.0.2",
@@ -899,6 +936,7 @@
     "cors-anywhere": "^0.4.4",
     "@apidevtools/json-schema-ref-parser": "11.6.1",
     "adm-zip": "~0.5.14",
-    "@wso2-enterprise/mi-diagram": "workspace:*"
+    "@wso2-enterprise/mi-diagram": "workspace:*",
+    "upath": "~2.0.1"
   }
 }

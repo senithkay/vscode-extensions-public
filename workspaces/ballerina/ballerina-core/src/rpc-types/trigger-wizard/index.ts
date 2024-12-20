@@ -7,9 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { TriggerRequest, TriggerResponse, TriggersRequest, TriggersResponse } from "./interfaces";
+import { TriggerParams, TriggersParams, Triggers, Trigger, TriggerModelRequest, TriggerModelResponse, TriggerModelsRequest, TriggerModelsResponse, TriggerSourceCodeRequest, TriggerSourceCodeResponse, TriggerModelFromCodeRequest, TriggerModelFromCodeResponse, TriggerFunctionRequest, TriggerFunctionResponse } from "../../interfaces/extended-lang-client";
+import { ServicesByListenerRequest, ServicesByListenerResponse } from "./interfaces";
 
 export interface TriggerWizardAPI {
-    getTriggers: (params: TriggersRequest) => Promise<TriggersResponse>;
-    getTrigger: (params: TriggerRequest) => Promise<TriggerResponse>;
+    getTriggers: (params: TriggersParams) => Promise<Triggers>;
+    getTrigger: (params: TriggerParams) => Promise<Trigger>;
+    getServicesByListener: (params: ServicesByListenerRequest) => Promise<ServicesByListenerResponse>;
+    getTriggerModels: (params: TriggerModelsRequest) => Promise<TriggerModelsResponse>;
+    getTriggerModel: (params: TriggerModelRequest) => Promise<TriggerModelResponse>;
+    getTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    updateTriggerSourceCode: (params: TriggerSourceCodeRequest) => Promise<TriggerSourceCodeResponse>;
+    getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
+    addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+    updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
 }

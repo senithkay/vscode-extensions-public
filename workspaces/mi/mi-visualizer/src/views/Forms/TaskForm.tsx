@@ -15,7 +15,7 @@ import { CreateTaskRequest, CreateSequenceRequest, EVENT_TYPE, MACHINE_VIEW } fr
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { FormKeylookup } from "@wso2-enterprise/mi-diagram";
+import {FormKeylookup, ParamConfig, ParamManager} from "@wso2-enterprise/mi-diagram";
 import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -51,7 +51,7 @@ type InputsFields = {
     isCountUndefined?: boolean;
 };
 
-const initialInboundEndpoint: InputsFields = {
+const newTask: InputsFields = {
     name: "",
     group: "synapse.simple.quartz",
     implementation: "org.apache.synapse.startup.tasks.MessageInjector",
@@ -90,6 +90,29 @@ export function TaskForm(props: TaskFormProps) {
         isError: false,
         text: ""
     });
+    const [isCustomPropsUpdated, setIsCustomPropsUpdated] = useState(false);
+
+    const paramConfigs: ParamConfig = {
+        paramValues: [],
+        paramFields: [
+            {
+                id: 0,
+                type: "TextField",
+                label: "Name",
+                defaultValue: "",
+                placeholder: "property_name",
+                isRequired: true
+            },
+            {
+                id: 1,
+                type: "TextField",
+                label: "Value",
+                defaultValue: "",
+                placeholder: "property_value",
+                isRequired: true
+            }]
+    }
+    const [params, setParams] = useState(paramConfigs);
 
     const formTitle = isNewTask
         ? "Create New Scheduled Task"
@@ -151,7 +174,7 @@ export function TaskForm(props: TaskFormProps) {
         control,
         watch,
     } = useForm({
-        defaultValues: initialInboundEndpoint,
+        defaultValues: newTask,
         resolver: yupResolver(schema),
         mode: "onChange"
     });
@@ -175,7 +198,35 @@ export function TaskForm(props: TaskFormProps) {
                         setValue("proxyName", taskRes.taskProperties.find((prop: any) => prop.key === "proxyName")?.value);
                         setValue("sequenceName", taskRes.taskProperties.find((prop: any) => prop.key === "sequenceName")?.value);
                     }
+
+                    const keysToRemove = ["format", "message", "soapAction", "injectTo", "registryKey", "invokeHandlers", "proxyName", "sequenceName"];
+                    const filteredProperties = taskRes.taskProperties.filter((prop: any) => !keysToRemove.includes(prop.key));
+                    paramConfigs.paramValues = [];
+                    setParams(paramConfigs);
+                    filteredProperties.map((param: any) => {
+                        setParams((prev: any) => {
+                            return {
+                                ...prev,
+                                paramValues: [...prev.paramValues, {
+                                    id: prev.paramValues.length,
+                                    paramValues: [
+                                        { value: param.key },
+                                        { value: param.value }
+                                    ],
+                                    key: param.key,
+                                    value: param.value,
+                                }
+                                ]
+                            }
+                        });
+                    });
                 }
+            } else {
+                paramConfigs.paramValues = [];
+                setParams(paramConfigs);
+                reset(newTask);
+                setIsNewTask(true);
+                setIsCustomPropsUpdated(false);
             }
         })();
     }, [props.path]);
@@ -193,6 +244,20 @@ export function TaskForm(props: TaskFormProps) {
         })();
     }, []);
 
+    const handlePropertiesOnChange = (params: any) => {
+        const modifiedParams = {
+            ...params, paramValues: params.paramValues.map((param: any) => {
+                return {
+                    ...param,
+                    key: param.paramValues[0].value,
+                    value: param.paramValues[1].value,
+                }
+            })
+        };
+        setParams(modifiedParams);
+        setIsCustomPropsUpdated(true);
+    };
+
     const handleCreateTask = async (values: any) => {
         let taskProperties = [];
         taskProperties.push({ key: "format", value: values.format, isLiteral: true });
@@ -204,9 +269,14 @@ export function TaskForm(props: TaskFormProps) {
         }
         taskProperties.push({ key: "registryKey", value: values.registryKey, isLiteral: true });
         taskProperties.push({ key: "invokeHandlers", value: values.invokeHandlers, isLiteral: true });
+        let customProperties: any = [];
+        params.paramValues.map((param: any) => {
+            customProperties.push({ key: param.paramValues[0].value, value: param.paramValues[1].value });
+        })
         const taskRequest: CreateTaskRequest = {
             ...values,
             taskProperties: taskProperties,
+            customProperties: customProperties,
             directory: props.path
         };
         // Hanlde the case where user do not secify a sequence 
@@ -226,7 +296,7 @@ export function TaskForm(props: TaskFormProps) {
                 };
                 taskRequest.sequence = sequenceRequest;
             }
-            taskProperties.push({ key: "sequenceName", value: generateSequenceName(values.name), isLiteral: true });
+            taskProperties.push({ key: "sequenceName", value: values.sequenceName ?? generateSequenceName(values.name), isLiteral: true });
         }
         const response = await rpcClient.getMiDiagramRpcClient().createTask(taskRequest);
     };
@@ -312,16 +382,16 @@ export function TaskForm(props: TaskFormProps) {
                         />
                     </>
                 ) : (
-                    <>
-                        <TextField
-                            id="triggerCron"
-                            required
-                            label="Cron"
-                            errorMsg={errors.triggerCron?.message}
-                            {...register("triggerCron")}
-                        />
-                    </>
+                    <TextField
+                        id="triggerCron"
+                        required
+                        label="Cron"
+                        errorMsg={errors.triggerCron?.message}
+                        {...register("triggerCron")}
+                    />
                 )}
+                <ParamManager paramConfigs={params} readonly={false}
+                              addParamText={"Custom Property"} onChange={handlePropertiesOnChange} />
             </FormGroup>
             <FormGroup title="Task Implementation" isCollapsed={true}>
                 <Dropdown
@@ -443,17 +513,17 @@ export function TaskForm(props: TaskFormProps) {
             </FormGroup>
             <FormActions>
                 <Button
-                    appearance="primary"
-                    onClick={handleSubmit(handleCreateTask)}
-                    disabled={!isDirty}
-                >
-                    {isNewTask ? "Create" : "Update"}
-                </Button>
-                <Button
                     appearance="secondary"
                     onClick={cancelHandler}
                 >
                     Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleSubmit(handleCreateTask)}
+                    disabled={!(isDirty || isCustomPropsUpdated)}
+                >
+                    {isNewTask ? "Create" : "Update"}
                 </Button>
             </FormActions>
         </FormView >

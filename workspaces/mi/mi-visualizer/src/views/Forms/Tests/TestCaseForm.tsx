@@ -59,7 +59,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
 
     const [isLoaded, setIsLoaded] = useState(false);
     const requestMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'];
-    const requestProtocols = ['HTTP', 'HTTPS'];
+    const requestProtocols = ['http', 'https'];
     const isUpdate = !!props.testCase;
     const availableTestCases = props.availableTestCases || [];
     const testSuiteType = props.testSuiteType;
@@ -68,7 +68,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
     // Schema
     const schema = yup.object({
         name: yup.string().required("Test case name is required").matches(/^[a-zA-Z0-9_-]*$/, "Invalid characters in test case name")
-            .notOneOf(availableTestCases, "Test case name already exists"),
+            .notOneOf(availableTestCases.filter(c => c !== props?.testCase?.name), "Test case name already exists"),
         input: yup.object({
             requestPath: !isSequence ? yup.string().required("Resource path is required") : yup.string(),
             requestMethod: !isSequence ? yup.string().oneOf(requestMethods).required("Resource method is required") : yup.string(),
@@ -132,7 +132,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     "type": "TextArea",
                     "label": "Expected Value",
                     "defaultValue": "",
-                    "isRequired": true,
+                    "isRequired": false,
                     "enableCondition": [
                         { 0: "Assert Equals" }
                     ]
@@ -146,26 +146,29 @@ export function TestCaseForm(props: TestCaseFormProps) {
             ];
 
             if (isUpdate) {
-                if (props?.testCase?.input?.payload?.startsWith("<![CDATA[")) {
-                    props.testCase.input.payload = props.testCase.input.payload.substring(9, props.testCase.input.payload.length - 3);
+                const testCase = structuredClone(props?.testCase);
+                if (testCase.input?.payload?.startsWith("<![CDATA[")) {
+                    testCase.input.payload = testCase.input.payload.substring(9, testCase.input.payload.length - 3);
                 }
-                if (props?.testCase?.assertions) {
-                    props.testCase.assertions = props.testCase.assertions.map((assertion: string[]) => {
-                        if (assertion[2].startsWith("<![CDATA[")) {
+                if (testCase.assertions) {
+                    testCase.assertions = testCase.assertions.map((assertion: string[]) => {
+                        assertion[0] = assertion[0]?.toLowerCase() === "assertequals" ? "Assert Equals" : "Assert Not Null";
+                        if (assertion[2]?.startsWith("<![CDATA[")) {
                             assertion[2] = assertion[2].substring(9, assertion[2].length - 3);
                         }
                         return assertion;
                     });
                 }
-                props.testCase.input.properties = {
-                    paramValues: props.testCase.input.properties ? getParamManagerFromValues(props.testCase.input.properties) : [],
+                testCase.input.properties = {
+                    paramValues: testCase.input.properties ? getParamManagerFromValues(testCase.input.properties, 0, 2) : [],
                     paramFields: inputPropertiesFields
                 } as any;
+                testCase.input.requestProtocol = testCase?.input?.requestProtocol?.toLowerCase() ?? "http";
 
                 reset({
-                    ...props.testCase,
+                    ...testCase,
                     assertions: {
-                        paramValues: props.testCase.assertions ? getParamManagerFromValues(props.testCase.assertions, 0) : [],
+                        paramValues: testCase.assertions ? getParamManagerFromValues(testCase.assertions, 0) : [],
                         paramFields: assertionsFields
                     },
                 });
@@ -174,10 +177,12 @@ export function TestCaseForm(props: TestCaseFormProps) {
             }
 
             reset({
+                name: "",
                 input: {
                     requestPath: !isSequence ? "/" : undefined,
                     requestMethod: !isSequence ? "GET" : undefined,
-                    requestProtocol: !isSequence ? "HTTP" : undefined,
+                    requestProtocol: !isSequence ? "http" : undefined,
+                    payload: "",
                     properties: {
                         paramValues: [],
                         paramFields: inputPropertiesFields
@@ -190,7 +195,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
             });
             setIsLoaded(true);
         })();
-    }, []);
+    }, [props.filePath, props.testCase]);
 
     const handleGoBack = () => {
         if (props.onGoBack) {
@@ -205,7 +210,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
     };
 
     const submitForm = async (values: any) => {
-        values.input.properties.properties = getParamManagerValues(values.input.properties);
+        values.input.properties = getParamManagerValues(values.input.properties);
         values.assertions = getParamManagerValues(values.assertions);
 
         if (props.onSubmit) {
@@ -252,7 +257,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                     <Dropdown
                         id="requestProtocol"
                         label="Resource Protocol"
-                        items={requestProtocols.map((method) => ({ value: method, content: method }))}
+                        items={requestProtocols.map((method) => ({ value: method, content: method.toUpperCase() }))}
                         errorMsg={errors.input?.requestProtocol?.message.toString()}
                         {...register('input.requestProtocol')} />
                 </>
@@ -281,7 +286,7 @@ export function TestCaseForm(props: TestCaseFormProps) {
                                 values.paramValues = values.paramValues.map((param: any) => {
                                     const property: ParamValue[] = param.paramValues;
                                     param.key = property[0].value;
-                                    param.value = property[1].value;
+                                    param.value = property[2].value;
                                     param.icon = 'query';
                                     return param;
                                 });

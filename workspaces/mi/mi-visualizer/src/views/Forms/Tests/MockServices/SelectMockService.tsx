@@ -18,6 +18,7 @@ import { MockServiceForm } from "./MockServiceForm";
 export interface SelectMockServiceProps {
     name?: string;
     availableMockServices?: string[];
+    isWindows: boolean;
     onGoBack: () => void;
     onSubmit: (values: any) => void;
 }
@@ -55,7 +56,7 @@ export function SelectMockService(props: SelectMockServiceProps) {
     }
 
     if (showAddMockService) {
-        return <MockServiceForm onGoBack={handleGoBack} onSubmit={submitForm} availableMockServices={props.availableMockServices} />
+        return <MockServiceForm onGoBack={handleGoBack} onSubmit={submitForm} availableMockServices={props.availableMockServices} isWindows={props.isWindows}/>
     }
 
     return (

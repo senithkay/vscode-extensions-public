@@ -7,20 +7,33 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../Button/Button';
 import { Typography } from '../Typography/Typography';
 import { Codicon } from '../Codicon/Codicon';
-
+import styled from '@emotion/styled';
 
 interface FormViewProps {
     title: string;
     children: React.ReactNode;
     onClose: () => void; // Added onClose prop
     hideClose?: boolean;
+    sx?: any;
 }
 
-export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose }) => {
+interface FormViewContainerProps {
+    sx?: any;
+}
+
+const FormViewContainer = styled.div<FormViewContainerProps & { className?: string }>`
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: -webkit-fill-available;
+    max-height: ${(props: FormViewProps) => !props.hideClose ? 'calc(100vh - 22px)' : 'fit-content'};
+    ${(props: FormViewContainerProps) => props.sx};
+`;
+
+export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hideClose, sx }) => {
     const [isScrolling, setIsScrolling] = useState(false);
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -32,11 +45,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
     };
 
     return (
-        <div onScroll={handleScroll} style={{
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            maxHeight: !hideClose ? 'calc(100vh - 22px)' : 'fit-content',
-        }} className="form-view">
+        <FormViewContainer onScroll={handleScroll} className="form-view" sx={sx}>
             <div style={{ maxWidth: '52em', margin: '0 auto' }}>
                 <div style={{ margin: '0 15px' }}>
                     <div style={{
@@ -61,7 +70,7 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
                     </div>
                 </div>
             </div>
-        </div>
+        </FormViewContainer>
     );
 };
 
@@ -89,12 +98,23 @@ interface FormGroupProps {
     title: string;
     children?: React.ReactNode;
     isCollapsed?: boolean;
+    onToggle?: (collapsed: boolean) => void;
+    sx?: any;
 }
 
-export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
+export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true, sx, onToggle }) => {
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
-    const toggleCollapse = () => setCollapsed(!collapsed);
+    useEffect(() => {
+        setCollapsed(isCollapsed);
+    }, [isCollapsed]);
+
+    const toggleCollapse = () => {
+        if (onToggle) {
+            onToggle(!collapsed);
+        }
+        setCollapsed(!collapsed);
+    }
 
     return (
         <div className="form-group">
@@ -106,7 +126,7 @@ export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollaps
                 </Button>
             </div>
             {!collapsed &&
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px', ...sx }}>
                     {children}
                 </div>
             }

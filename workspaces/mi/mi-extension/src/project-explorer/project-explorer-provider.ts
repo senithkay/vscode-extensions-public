@@ -8,15 +8,14 @@
  */
 
 import * as vscode from 'vscode';
-import { MILanguageClient } from '../lang-client/activator';
-import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, RegistryArtifact, ListRegistryArtifactsResponse, getInboundEndpoint, getMessageProcessor } from '@wso2-enterprise/mi-core';
+import { ProjectStructureResponse, ProjectStructureEntry, RegistryResourcesFolder, ListRegistryArtifactsResponse, DataIntegrationResponse, CommonArtifactsResponse, AdvancedArtifactsResponse } from '@wso2-enterprise/mi-core';
 import { COMMANDS, EndpointTypes, InboundEndpointTypes, MessageProcessorTypes, MessageStoreTypes, TemplateTypes } from '../constants';
 import { window } from 'vscode';
 import path = require('path');
-import { findJavaFiles, getAvailableRegistryResources } from '../util/fileOperations';
+import { findJavaFiles } from '../util/fileOperations';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 
-let registryDetails: ListRegistryArtifactsResponse;
+let resourceDetails: ListRegistryArtifactsResponse;
 let extensionContext: vscode.ExtensionContext;
 export class ProjectExplorerEntry extends vscode.TreeItem {
 	children: ProjectExplorerEntry[] | undefined;
@@ -122,8 +121,7 @@ async function getProjectStructureData(langClient: ExtendedLanguageClient): Prom
 			for (const workspace of workspaceFolders) {
 				const rootPath = workspace.uri.fsPath;
 
-				const resp = await langClient.getProjectStructure(rootPath);
-				registryDetails = getAvailableRegistryResources(rootPath);
+				const resp = await langClient.getProjectExplorerModel(rootPath);
 				const projectTree = generateTreeData(workspace, resp);
 				if (projectTree) {
 					data.push(projectTree);
@@ -154,159 +152,422 @@ function generateTreeData(project: vscode.WorkspaceFolder, data: ProjectStructur
 
 		projectRoot.contextValue = 'project';
 		generateTreeDataOfArtifacts(project, data, projectRoot);
-		generateTreeDataOfClassMediator(project, data, projectRoot);
-		generateTreeDataOfDataMappings(project, data, projectRoot);
 		return projectRoot;
 	}
 }
 
-function generateTreeDataOfDataMappings(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
-	const directoryMap = data.directoryMap;
-	const resources = (directoryMap as any)?.src?.main?.wso2mi.resources.registry;
-	const govResources = resources['gov'];
-	if (govResources && govResources.folders.length > 0) {
-		const dataMapperResources = govResources.folders.find((folder: any) => folder.name === 'datamapper');
-		if (dataMapperResources) {
-			const parentEntry = new ProjectExplorerEntry(
-				'Data Mappers',
-				isCollapsibleState(dataMapperResources.folders.length > 0),
-				{ name: 'datamapper', path: dataMapperResources.path, type: 'datamapper' }
-			);
-			parentEntry.contextValue = 'data-mappers';
-			parentEntry.id = 'data-mapper';
-			parentEntry.children = parentEntry.children ?? [];
-			for (const folder of dataMapperResources.folders) {
-				for (const file of folder.files) {
-					if (!file.name.endsWith('.ts') || file.name.substring(0, file.name.length - 3) !== folder.name) {
-						continue;
-					}
-					const configName = file.name.replace('.ts', '');
-					const dataMapperEntry = new ProjectExplorerEntry(
-						configName,
-						isCollapsibleState(false),
-						{ name: configName, path: file.path, type: 'dataMapper' },
-						'dataMapper'
-					);
-					dataMapperEntry.contextValue = 'data-mapper';
-					dataMapperEntry.command = {
-						"title": "Open Data Mapper",
-						"command": COMMANDS.SHOW_DATA_MAPPER,
-						"arguments": [file.path]
-					};
-					parentEntry.children.push(dataMapperEntry);
+function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+	const artifacts = (data.directoryMap as any)?.src?.main?.wso2mi?.artifacts;
+	if (!artifacts) {
+		return;
+	}
+
+	projectRoot.children = projectRoot.children ?? [];
+
+	for (const key in artifacts) {
+		const artifactConfig = getArtifactConfig(key);
+		const folderPath = artifactConfig.folderName ?
+			path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...artifactConfig.folderName.split("/")) :
+			'';
+
+		artifacts[key].path = folderPath;
+
+		const parentEntry = new ProjectExplorerEntry(
+			key,
+			isCollapsibleState(artifacts[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts', 'Resources'].includes(key)),
+			artifacts[key]
+		);
+
+		let children;
+		if (['APIs', 'Triggers', 'Scheduled Tasks'].includes(key)) {
+			children = genProjectStructureEntry(artifacts[key]);
+		} else if (key === 'Resources') {
+			children = generateResources(artifacts[key]);
+		} else {
+			children = generateArtifacts(artifacts[key], data, project);
+		}
+
+		parentEntry.children = children;
+		parentEntry.contextValue = artifactConfig.contextValue;
+		parentEntry.id = `${project.name}/${artifactConfig.contextValue}`;
+
+		projectRoot.children.push(parentEntry);
+	}
+}
+
+function getArtifactConfig(key: string) {
+	const configs: { [key: string]: { folderName: string, contextValue: string } } = {
+		'APIs': {
+			folderName: 'artifacts/apis',
+			contextValue: 'apis'
+		},
+		'Triggers': {
+			folderName: 'artifacts/inbound-endpoints',
+			contextValue: 'inboundEndpoints'
+		},
+		'Scheduled Tasks': {
+			folderName: 'artifacts/tasks',
+			contextValue: 'tasks'
+		},
+		'Common Artifacts': {
+			folderName: '',
+			contextValue: 'Common Artifacts'
+		},
+		'Data Integration': {
+			folderName: '',
+			contextValue: 'Data Integration'
+		},
+		'Advanced Artifacts': {
+			folderName: '',
+			contextValue: 'Advanced Artifacts'
+		},
+		'Resources': {
+			folderName: 'resources',
+			contextValue: 'resources'
+		}
+	};
+
+	return configs[key] || {
+		icon: 'folder',
+		label: key,
+		folderName: '',
+		contextValue: key
+	};
+}
+
+function generateResources(data: RegistryResourcesFolder): ProjectExplorerEntry[] {
+	const result: ProjectExplorerEntry[] = [];
+	const resPathPrefix = path.join("wso2mi", "resources");
+	if (data) {
+		if (data.files) {
+			for (const entry of data.files) {
+				const explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), {
+					name: entry.name,
+					type: 'resource',
+					path: `${entry.path}`
+				}, 'code', true);
+				explorerEntry.id = entry.path;
+				explorerEntry.command = {
+					"title": "Edit Resource",
+					"command": COMMANDS.EDIT_REGISTERY_RESOURCE_COMMAND,
+					"arguments": [vscode.Uri.file(entry.path)]
+				};
+				result.push(explorerEntry);
+				const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+				const resourcePath = entry.path.substring(lastIndex);
+				if (checkExistenceOfResource(resourcePath)) {
+					explorerEntry.contextValue = "registry-with-metadata";
+				} else {
+					explorerEntry.contextValue = "registry-without-metadata";
 				}
 			}
-			projectRoot.children?.push(parentEntry);
 		}
-	}
-}
-
-function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
-	const directoryMap = data.directoryMap;
-	const artifacts = (directoryMap as any)?.src?.main?.wso2mi?.artifacts;
-	if (artifacts) {
-		for (const key in artifacts) {
-
-			artifacts[key].path = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key);
-			let icon = 'folder';
-			let label = key;
-			let connectionEntry;
-
-			switch (key) {
-				case 'apis':
-					icon = 'APIResource';
-					label = 'APIs';
-					break;
-				case 'endpoints':
-					icon = 'endpoint';
-					label = 'Endpoints';
-					break;
-				case 'inboundEndpoints':
-					icon = 'inbound-endpoint';
-					label = 'Inbound Endpoints';
-					break;
-				case 'localEntries':
-					icon = 'local-entry';
-					label = 'Local Entries';
-					break;
-				case 'connections':
-					icon = 'vm-connect';
-					label = 'Connections';
-					break;
-				case 'messageStores':
-					icon = 'message-store';
-					label = 'Message Stores';
-					break;
-				case 'messageProcessors':
-					icon = 'message-processor';
-					label = 'Message Processors';
-					break;
-				case 'proxyServices':
-					icon = 'arrow-swap';
-					label = 'Proxy Services';
-					break;
-				case 'sequences':
-					icon = 'Sequence';
-					label = 'Sequences';
-					break;
-				case 'tasks':
-					icon = 'task';
-					label = 'Tasks';
-					break;
-				case 'templates':
-					icon = 'template';
-					label = 'Templates';
-					break;
-				case 'resources':
-					icon = 'APIResource';
-					label = 'Resources';
-					break;
-				case 'dataServices':
-					icon = 'data-service';
-					label = 'Data Services';
-					break;
-				case 'dataSources':
-					icon = 'data-source';
-					label = 'Data Sources';
-					break;
-				default:
+		if (data.folders) {
+			for (const entry of data.folders) {
+				if (![".meta", "datamapper", "datamappers"].includes(entry.name)) {
+					const explorerEntry = new ProjectExplorerEntry(entry.name,
+						isCollapsibleState(entry.files.length > 0 || entry.folders.length > 0),
+						{
+							name: entry.name,
+							type: 'resource',
+							path: `${entry.path}`
+						}, 'folder', true);
+					explorerEntry.children = generateResources(entry);
+					result.push(explorerEntry);
+					const lastIndex = entry.path.indexOf(resPathPrefix) !== -1 ? entry.path.indexOf(resPathPrefix) + resPathPrefix.length : 0;
+					const resourcePath = entry.path.substring(lastIndex);
+					if (checkExistenceOfResource(resourcePath)) {
+						explorerEntry.contextValue = "registry-with-metadata";
+					} else {
+						explorerEntry.contextValue = "registry-without-metadata";
+					}
+				}
 			}
-			// TODO: Will introduce back when both data services and data sources are supported
-			// if (key === 'dataServices' || key === 'dataSources') {
-			// 	continue;
-			// }
-
-			const parentEntry = new ProjectExplorerEntry(
-				label,
-				isCollapsibleState(artifacts[key].length > 0 || key === "localEntries"),
-				artifacts[key]
-			);
-			const children = genProjectStructureEntry(artifacts[key]);
-
-			parentEntry.children = children;
-			parentEntry.contextValue = key;
-			parentEntry.id = `${project.name}/${key}`;
-
-			projectRoot.children = projectRoot.children ?? [];
-			projectRoot.children.push(parentEntry);
 		}
 	}
+	return result;
 }
 
-function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: ProjectStructureResponse, projectRoot: ProjectExplorerEntry) {
+function checkExistenceOfResource(resourcePath: string): boolean {
+	if (resourceDetails?.artifacts) {
+		for (const artifact of resourceDetails.artifacts) {
+			let transformedPath = artifact.path.replace("/_system/governance/mi-resources", '/resources');
+			if (!artifact.isCollection) {
+				transformedPath = transformedPath.endsWith('/') ? transformedPath + artifact.file : transformedPath + "/" + artifact.file;
+			}
+			if (transformedPath === resourcePath) {
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
+}
+
+function generateArtifacts(
+	data: DataIntegrationResponse | CommonArtifactsResponse | AdvancedArtifactsResponse,
+	projectStructure: ProjectStructureResponse,
+	project: vscode.WorkspaceFolder
+): ProjectExplorerEntry[] {
+	const result: ProjectExplorerEntry[] = [];
+
+	for (const key in data) {
+		if (key === 'path') continue;
+
+		const artifactPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key.toLowerCase());
+		data[key].path = artifactPath;
+
+		const parentEntry = new ProjectExplorerEntry(
+			key,
+			isCollapsibleState(data[key].length > 0),
+			data[key]
+		);
+
+		switch (key) {
+			case 'Endpoints': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						getEndpointIcon(entry.subType as EndpointTypes)
+					);
+					explorerEntry.contextValue = 'endpoint';
+					explorerEntry.command = {
+						title: "Show Endpoint",
+						command: getViewCommand(entry.subType),
+						arguments: [vscode.Uri.file(entry.path), 'endpoint', undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'endpoints';
+				break;
+			}
+			case 'Local Entries': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const icon = entry.isRegistryResource ? 'file-code' : 'local-entry';
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						icon,
+						entry.isRegistryResource
+					);
+					explorerEntry.contextValue = 'localEntry';
+					explorerEntry.command = {
+						title: "Show Local Entry",
+						command: COMMANDS.SHOW_LOCAL_ENTRY,
+						arguments: [vscode.Uri.file(entry.path), undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'localEntries';
+				break;
+			}
+			case 'Connections': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name,
+						isCollapsibleState(false),
+						entry,
+						'vm-connect',
+						true
+					);
+					explorerEntry.contextValue = 'connection';
+					explorerEntry.id = entry.name;
+					explorerEntry.command = {
+						title: "Show Connection",
+						command: COMMANDS.SHOW_CONNECTION,
+						arguments: [vscode.Uri.file(entry.path), entry.name, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'connections';
+				break;
+			}
+			case 'Message Stores': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						getMesaaageStoreIcon(entry.subType as MessageStoreTypes)
+					);
+					explorerEntry.contextValue = 'messageStore';
+					explorerEntry.command = {
+						title: "Show Message Store",
+						command: COMMANDS.SHOW_MESSAGE_STORE,
+						arguments: [vscode.Uri.file(entry.path), undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'messageStores';
+				break;
+			}
+			case 'Message Processors': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						getMessageProcessorIcon(entry.subType as MessageProcessorTypes)
+					);
+					explorerEntry.contextValue = 'message-processor';
+					explorerEntry.command = {
+						title: "Show Message Processor",
+						command: COMMANDS.SHOW_MESSAGE_PROCESSOR,
+						arguments: [vscode.Uri.file(entry.path), undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'messageProcessors';
+				break;
+			}
+			case 'Proxy Services': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						'arrow-swap',
+						true
+					);
+					explorerEntry.contextValue = 'proxy-service';
+					explorerEntry.command = {
+						title: "Show Diagram",
+						command: COMMANDS.SHOW_PROXY_VIEW,
+						arguments: [vscode.Uri.file(entry.path), undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'proxyServices';
+				break;
+			}
+			case 'Sequences': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const icon = entry.isRegistryResource ? 'file-code' : 'Sequence';
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						icon,
+						entry.isRegistryResource
+					);
+					explorerEntry.contextValue = 'sequence';
+					explorerEntry.command = {
+						title: "Show Diagram",
+						command: COMMANDS.SHOW_SEQUENCE_VIEW,
+						arguments: [vscode.Uri.file(entry.path), undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'sequences';
+				break;
+			}
+			case 'Templates': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const icon = entry.isRegistryResource ? 'file-code' : getTemplateIcon(entry.subType as TemplateTypes);
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						icon,
+						entry.isRegistryResource
+					);
+					explorerEntry.contextValue = 'template';
+					explorerEntry.command = {
+						title: "Show Template",
+						command: getViewCommand(entry.subType),
+						arguments: [vscode.Uri.file(entry.path), 'template', undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'templates';
+				break;
+			}
+			case 'Data Services': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						"data-service"
+					);
+					explorerEntry.contextValue = 'data-service';
+					explorerEntry.command = {
+						title: "Show Data Service",
+						command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
+						arguments: [vscode.Uri.file(entry.path)]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'dataServices';
+				break;
+			}
+			case 'Data Sources': {
+				parentEntry.children = data[key].map((entry: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						entry.name.replace(".xml", ""),
+						isCollapsibleState(false),
+						entry,
+						"data-source"
+					);
+					explorerEntry.contextValue = 'dataSource';
+					explorerEntry.command = {
+						title: "Show Data Source",
+						command: COMMANDS.SHOW_DATA_SOURCE,
+						arguments: [vscode.Uri.file(entry.path), undefined, false]
+					};
+					return explorerEntry;
+				});
+				parentEntry.contextValue = 'dataSources';
+				break;
+			}
+			case 'Class Mediators': {
+				const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
+				const mediators = findJavaFiles(javaPath);
+				parentEntry.id = 'class-mediator';
+				parentEntry.children = generateTreeDataOfClassMediator(project, projectStructure);
+				parentEntry.contextValue = 'class-mediator';
+				break;
+			}
+			case 'Data Mappers': {
+				parentEntry.contextValue = 'data-mappers';
+				parentEntry.id = 'data-mapper';
+				parentEntry.children = data[key].map((folder: any) => {
+					const explorerEntry = new ProjectExplorerEntry(
+						folder.name,
+						isCollapsibleState(false),
+						folder,
+						'dataMapper'
+					);
+					explorerEntry.contextValue = 'data-mapper';
+					explorerEntry.command = {
+						title: "Open Data Mapper",
+						command: COMMANDS.SHOW_DATA_MAPPER,
+						arguments: [folder.files.find((file: any) => !file.name.endsWith("utils.ts"))?.path]
+					};
+					return explorerEntry;
+				});
+				break;
+			}
+		}
+
+		if (parentEntry) {
+			result.push(parentEntry);
+		}
+	}
+
+	return result;
+}
+
+function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: ProjectStructureResponse): ProjectExplorerEntry[] {
 	const directoryMap = data.directoryMap;
 	const main = (directoryMap as any)?.src?.main;
+	const result: ProjectExplorerEntry[] = [];
 	if (main && main['java']) {
 		const javaPath = path.join(project.uri.fsPath, 'src', 'main', 'java');
 		const mediators = findJavaFiles(javaPath);
-		const parentEntry = new ProjectExplorerEntry(
-			'Class Mediators',
-			isCollapsibleState(mediators.size > 0),
-			{ name: 'java', path: javaPath, type: 'java' },
-		);
-		parentEntry.contextValue = 'class-mediator';
-		parentEntry.id = 'class-mediator';
-		parentEntry.children = parentEntry.children ?? [];
 		for (var entry of mediators.entries()) {
 			const filePath = entry[0];
 			const packageName = entry[1];
@@ -321,10 +582,10 @@ function generateTreeDataOfClassMediator(project: vscode.WorkspaceFolder, data: 
 				"command": COMMANDS.EDIT_CLASS_MEDIATOR_COMMAND,
 				"arguments": [vscode.Uri.file(filePath)]
 			};
-			parentEntry.children.push(resourceEntry);
+			result.push(resourceEntry);
 		}
-		projectRoot.children?.push(parentEntry);
 	}
+	return result;
 }
 
 function isCollapsibleState(state: boolean): vscode.TreeItemCollapsibleState {
@@ -513,60 +774,6 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 			}
 			explorerEntry = apiEntry;
 
-		} else if (entry.type === "ENDPOINT") {
-			const icon = entry.isRegistryResource ? 'file-code' : 'code';
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getEndpointIcon(entry.subType as EndpointTypes));
-			explorerEntry.contextValue = 'endpoint';
-			explorerEntry.command = {
-				"title": "Show Endpoint",
-				"command": getViewCommand(entry.subType),
-				"arguments": [vscode.Uri.file(entry.path), 'endpoint', undefined, false]
-			};
-
-		} else if (entry.type === "SEQUENCE") {
-			let icon = 'Sequence';
-			let isCodicon = false;
-			if (entry.isRegistryResource) {
-				icon = 'file-code';
-				isCodicon = true;
-			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
-			explorerEntry.contextValue = 'sequence';
-			explorerEntry.command = {
-				"title": "Show Diagram",
-				"command": COMMANDS.SHOW_SEQUENCE_VIEW,
-				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-
-		} else if (entry.type === "MESSAGE_PROCESSOR") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getMessageProcessorIcon(entry.subType as MessageProcessorTypes));
-			explorerEntry.contextValue = 'message-processor';
-			explorerEntry.command = {
-				"title": "Show Message Processor",
-				"command": COMMANDS.SHOW_MESSAGE_PROCESSOR,
-				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-
-		} else if (entry.type === "PROXY_SERVICE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, 'arrow-swap', true);
-			explorerEntry.contextValue = 'proxy-service';
-			explorerEntry.command = {
-				"title": "Show Diagram",
-				"command": COMMANDS.SHOW_PROXY_VIEW,
-				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-
-		} else if (entry.type === "TEMPLATE") {
-			const icon = entry.isRegistryResource ? 'file-code' : getTemplateIcon(entry.subType as TemplateTypes);
-			const isCodicon = entry.isRegistryResource ? true : false;
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
-			explorerEntry.contextValue = 'template';
-			explorerEntry.command = {
-				"title": "Show Template",
-				"command": getViewCommand(entry.subType),
-				"arguments": [vscode.Uri.file(entry.path), 'template', undefined, false]
-			};
-
 		} else if (entry.type === "TASK") {
 			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, entry.type);
 			explorerEntry.contextValue = 'task';
@@ -582,66 +789,6 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"title": "Show Inbound Endpoint",
 				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-		}
-		else if (entry.type === "MESSAGE_STORE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, getMesaaageStoreIcon(entry.subType as MessageStoreTypes));
-			explorerEntry.contextValue = 'messageStore';
-			explorerEntry.command = {
-				"title": "Show Message Store",
-				"command": COMMANDS.SHOW_MESSAGE_STORE,
-				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-
-		} else if (entry.type === "LOCAL_ENTRY") {
-			let icon = 'local-entry';
-			let isCodicon = false;
-			if (entry.isRegistryResource) {
-				icon = 'file-code';
-				isCodicon = true;
-			}
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, icon, isCodicon);
-			explorerEntry.contextValue = 'localEntry';
-			explorerEntry.command = {
-				"title": "Show Local Entry",
-				"command": COMMANDS.SHOW_LOCAL_ENTRY,
-				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-
-		}
-		// TODO: Update type to connections
-		else if (entry.type === "localEntry") {
-			explorerEntry = new ProjectExplorerEntry(
-				entry.name,
-				isCollapsibleState(false),
-				entry,
-				'vm-connect',
-				true
-			);
-			explorerEntry.contextValue = 'connection';
-			explorerEntry.id = entry.name;
-			explorerEntry.command = {
-				"title": "Show Connection",
-				"command": COMMANDS.SHOW_CONNECTION,
-				"arguments": [vscode.Uri.file(entry.path), entry.name, false]
-			};
-		}
-		// TODO: Will introduce back when both datasource and dataservice functionalities are completely supported
-		else if (entry.type === "DATA_SOURCE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, "data-source");
-			explorerEntry.contextValue = 'dataSource';
-			explorerEntry.command = {
-				"title": "Show Data Source",
-				"command": COMMANDS.SHOW_DATA_SOURCE,
-				"arguments": [vscode.Uri.file(entry.path), undefined, false]
-			};
-		} else if (entry.type === "DATA_SERVICE") {
-			explorerEntry = new ProjectExplorerEntry(entry.name.replace(".xml", ""), isCollapsibleState(false), entry, "data-service");
-			explorerEntry.contextValue = 'data-service';
-			explorerEntry.command = {
-				"title": "Show Data Service",
-				"command": COMMANDS.SHOW_DATA_SERVICE,
-				"arguments": [vscode.Uri.parse(entry.path), undefined, false]
 			};
 		}
 		else {

@@ -156,6 +156,8 @@ import {
     GetConnectorConnectionsResponse,
     GetAllRegistryPathsRequest,
     GetAllRegistryPathsResponse,
+    GetAllResourcePathsResponse,
+    GetConfigurableEntriesResponse,
     GetAllArtifactsRequest,
     GetAllArtifactsResponse,
     GetConnectionFormRequest,
@@ -175,7 +177,6 @@ import {
     UpdateMockServiceRequest,
     UpdateMockServiceResponse,
     GetAllMockServicesResponse,
-    UpdateDependencyInPomRequest,
     SwaggerFromAPIResponse,
     StoreConnectorJsonResponse,
     OpenDependencyPomRequest,
@@ -191,7 +192,38 @@ import {
     FileRenameRequest,
     SaveInboundEPUischemaRequest,
     GetInboundEPUischemaRequest,
-    GetInboundEPUischemaResponse
+    GetInboundEPUischemaResponse,
+    AddDriverRequest,
+    ExtendedDSSQueryGenRequest,
+    DSSFetchTablesRequest,
+    DSSFetchTablesResponse,
+    DriverPathResponse,
+    AddDriverToLibRequest,
+    AddDriverToLibResponse,
+    APIContextsResponse,
+    MediatorTryOutRequest,
+    MediatorTryOutResponse,
+    SavePayloadRequest,
+    GetPayloadRequest,
+    GetPayloadResponse,
+    GetMediatorsRequest,
+    GetMediatorsResponse,
+    GetMediatorRequest,
+    GetMediatorResponse,
+    UpdateMediatorRequest,
+    ExpressionCompletionsRequest,
+    ExpressionCompletionsResponse,
+    GetConnectionSchemaRequest,
+    GetConnectionSchemaResponse,
+    CopyConnectorZipRequest,
+    CopyConnectorZipResponse,
+    ApplyEditsRequest,
+    RemoveConnectorRequest,
+    RemoveConnectorResponse,
+    GetHelperPaneInfoRequest,
+    GetHelperPaneInfoResponse,
+    TestConnectorConnectionResponse,
+    TestConnectorConnectionRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -199,7 +231,7 @@ const _preFix = "mi-diagram";
 export const executeCommand: RequestType<CommandsRequest, CommandsResponse> = { method: `${_preFix}/executeCommand` };
 export const showErrorMessage: NotificationType<ShowErrorMessageRequest> = { method: `${_preFix}/showErrorMessage` };
 export const getSyntaxTree: RequestType<getSTRequest, getSTResponse> = { method: `${_preFix}/getSyntaxTree` };
-export const applyEdit: RequestType<ApplyEditRequest, ApplyEditResponse> = { method: `${_preFix}/applyEdit` };
+export const applyEdit: RequestType<ApplyEditRequest | ApplyEditsRequest, ApplyEditResponse> = { method: `${_preFix}/applyEdit` };
 export const getESBConfigs: RequestType<void, ESBConfigsResponse> = { method: `${_preFix}/getESBConfigs` };
 export const getConnectors: RequestType<void, ConnectorsResponse> = { method: `${_preFix}/getConnectors` };
 export const getConnector: RequestType<ConnectorRequest, ConnectorResponse> = { method: `${_preFix}/getConnector` };
@@ -244,6 +276,9 @@ export const getDefaultEndpoint: RequestType<RetrieveDefaultEndpointRequest, Ret
 export const createDataService: RequestType<CreateDataServiceRequest, CreateDataServiceResponse> = { method: `${_preFix}/createDataService` };
 export const createDssDataSource: RequestType<CreateDssDataSourceRequest, CreateDssDataSourceResponse> = { method: `${_preFix}/createDssDataSource` };
 export const getDataService: RequestType<RetrieveDataServiceRequest, RetrieveDataServiceResponse> = { method: `${_preFix}/getDataService` };
+export const askDriverPath: RequestType<void, DriverPathResponse> = { method: `${_preFix}/askDriverPath` };
+export const addDriverToLib: RequestType<AddDriverToLibRequest, AddDriverToLibResponse> = { method: `${_preFix}/addDriverToLib` };
+export const deleteDriverFromLib: NotificationType<AddDriverToLibRequest> = { method: `${_preFix}/deleteDriverFromLib` };
 export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeWebView` };
 export const openDiagram: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openDiagram` };
 export const openFile: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openFile` };
@@ -253,6 +288,7 @@ export const getProjectRoot: RequestType<GetProjectRootRequest, ProjectRootRespo
 export const askProjectDirPath: RequestType<void, ProjectDirResponse> = { method: `${_preFix}/askProjectDirPath` };
 export const askProjectImportDirPath: RequestType<void, ProjectDirResponse> = { method: `${_preFix}/askProjectImportDirPath` };
 export const askFileDirPath: RequestType<void, FileDirResponse> = { method: `${_preFix}/askFileDirPath` };
+export const askOpenAPIDirPath: RequestType<void, FileDirResponse> = { method: `${_preFix}/askOpenAPIDirPath` };
 export const createProject: RequestType<CreateProjectRequest, CreateProjectResponse> = { method: `${_preFix}/createProject` };
 export const importProject: RequestType<ImportProjectRequest, ImportProjectResponse> = { method: `${_preFix}/importProject` };
 export const migrateProject: RequestType<MigrateProjectRequest, MigrateProjectResponse> = { method: `${_preFix}/migrateProject` };
@@ -261,9 +297,9 @@ export const writeContentToFile: RequestType<WriteContentToFileRequest, WriteCon
 export const highlightCode: NotificationType<HighlightCodeRequest> = { method: `${_preFix}/highlightCode` };
 export const getWorkspaceContext: RequestType<void, GetWorkspaceContextResponse> = { method: `${_preFix}/getWorkspaceContext` };
 export const getProjectUuid: RequestType<void, GetProjectUuidResponse> = { method: `${_preFix}/getProjectUuid` };
-export const initUndoRedoManager: RequestType<UndoRedoParams, void> = { method: `${_preFix}/initUndoRedoManager` };
-export const undo: NotificationType<UndoRedoParams> = { method: `${_preFix}/undo` };
-export const redo: NotificationType<UndoRedoParams> = { method: `${_preFix}/redo` };
+export const initUndoRedoManager: NotificationType<UndoRedoParams> = { method: `${_preFix}/initUndoRedoManager` };
+export const undo: RequestType<UndoRedoParams, boolean> = { method: `${_preFix}/undo` };
+export const redo: RequestType<UndoRedoParams, boolean> = { method: `${_preFix}/redo` };
 export const getDefinition: RequestType<GetDefinitionRequest, GetDefinitionResponse> = { method: `${_preFix}/getDefinition` };
 export const getTextAtRange: RequestType<GetTextAtRangeRequest, GetTextAtRangeResponse> = { method: `${_preFix}/getTextAtRange` };
 export const getDiagnostics: RequestType<GetDiagnosticsReqeust, GetDiagnosticsResponse> = { method: `${_preFix}/getDiagnostics` };
@@ -280,8 +316,10 @@ export const getMetadataOfRegistryResource: RequestType<GetRegistryMetadataReque
 export const rangeFormat: RequestType<RangeFormatRequest, ApplyEditResponse> = { method: `${_preFix}/rangeFormat` };
 export const downloadConnector: RequestType<DownloadConnectorRequest, DownloadConnectorResponse> = { method: `${_preFix}/downloadConnector` };
 export const downloadInboundConnector: RequestType<DownloadInboundConnectorRequest, DownloadInboundConnectorResponse> = { method: `${_preFix}/downloadInboundConnector` };
+export const copyConnectorZip: RequestType<CopyConnectorZipRequest, CopyConnectorZipResponse> = { method: `${_preFix}/copyConnectorZip` };
 export const getAvailableConnectors: RequestType<GetAvailableConnectorRequest, GetAvailableConnectorResponse> = { method: `${_preFix}/getAvailableConnectors` };
 export const updateConnectors: NotificationType<UpdateConnectorRequest> = { method: `${_preFix}/updateConnectors` };
+export const removeConnector: RequestType<RemoveConnectorRequest, RemoveConnectorResponse> = { method: `${_preFix}/removeConnector` };
 export const getConnectorForm: RequestType<GetConnectorFormRequest, GetConnectorFormResponse> = { method: `${_preFix}/getConnectorForm` };
 export const getConnectionForm: RequestType<GetConnectionFormRequest, GetConnectionFormResponse> = { method: `${_preFix}/getConnectionForm` };
 export const getStoreConnectorJSON: RequestType<void, StoreConnectorJsonResponse> = { method: `${_preFix}/getStoreConnectorJSON` };
@@ -295,8 +333,11 @@ export const createConnection: RequestType<CreateConnectionRequest, CreateConnec
 export const getConnectorConnections: RequestType<GetConnectorConnectionsRequest, GetConnectorConnectionsResponse> = { method: `${_preFix}/getConnectorConnections` };
 export const logoutFromMIAccount: NotificationType<void> = { method: `${_preFix}/logoutFromMIAccount` };
 export const getAllRegistryPaths: RequestType<GetAllRegistryPathsRequest, GetAllRegistryPathsResponse> = { method: `${_preFix}/getAllRegistryPaths` };
+export const getAllResourcePaths: RequestType<void, GetAllResourcePathsResponse> = { method: `${_preFix}/getAllResourcePaths` };
+export const getConfigurableEntries: RequestType<void, GetConfigurableEntriesResponse> = { method: `${_preFix}/getConfigurableEntries` };
 export const getAllArtifacts: RequestType<GetAllArtifactsRequest, GetAllArtifactsResponse> = { method: `${_preFix}/getAllArtifacts` };
 export const deleteArtifact: NotificationType<DeleteArtifactRequest> = { method: `${_preFix}/deleteArtifact` };
+export const getAllAPIcontexts: RequestType<void, APIContextsResponse> = { method: `${_preFix}/getAllAPIcontexts` };
 export const buildProject: NotificationType<void> = { method: `${_preFix}/buildProject` };
 export const exportProject: NotificationType<ExportProjectRequest> = { method: `${_preFix}/exportProject` };
 export const checkOldProject: RequestType<void, boolean> = { method: `${_preFix}/checkOldProject` };
@@ -311,11 +352,26 @@ export const updateTestCase: RequestType<UpdateTestCaseRequest, UpdateTestCaseRe
 export const updateMockService: RequestType<UpdateMockServiceRequest, UpdateMockServiceResponse> = { method: `${_preFix}/updateMockService` };
 export const getAllTestSuites: RequestType<void, GetAllTestSuitsResponse> = { method: `${_preFix}/getAllTestSuites` };
 export const getAllMockServices: RequestType<void, GetAllMockServicesResponse> = { method: `${_preFix}/getAllMockServices` };
-export const updateDependencyInPom: NotificationType<UpdateDependencyInPomRequest> = { method: `${_preFix}/updateDependencyInPom` };
 export const openDependencyPom: NotificationType<OpenDependencyPomRequest> = { method: `${_preFix}/openDependencyPom` };
 export const getAllDependencies: RequestType<getAllDependenciesRequest, GetAllDependenciesResponse> = { method: `${_preFix}/getAllDependencies` };
 export const testDbConnection: RequestType<TestDbConnectionRequest, TestDbConnectionResponse> = { method: `${_preFix}/testDbConnection` };
 export const markAsDefaultSequence: NotificationType<MarkAsDefaultSequenceRequest> = { method: `${_preFix}/markAsDefaultSequence` };
 export const getSubFolderNames: RequestType<GetSubFoldersRequest, GetSubFoldersResponse> = { method: `${_preFix}/getSubFolderNames` };
-export const renameFile: RequestType<FileRenameRequest, void> = { method: `${_preFix}/renameFile` };
+export const renameFile: NotificationType<FileRenameRequest> = { method: `${_preFix}/renameFile` };
 export const openUpdateExtensionPage: NotificationType<void> = { method: `${_preFix}/openUpdateExtensionPage` };
+export const checkDBDriver: RequestType<string, boolean> = { method: `${_preFix}/checkDBDriver` };
+export const addDBDriver: RequestType<AddDriverRequest, boolean> = { method: `${_preFix}/addDBDriver` };
+export const generateDSSQueries: RequestType<ExtendedDSSQueryGenRequest, boolean> = { method: `${_preFix}/generateDSSQueries` };
+export const fetchDSSTables: RequestType<DSSFetchTablesRequest, DSSFetchTablesResponse> = { method: `${_preFix}/fetchDSSTables` };
+export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/tryOutMediator` };
+export const shutDownTryoutServer: RequestType<void, boolean> = { method: `${_preFix}/shutDownTryoutServer` };
+export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
+export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
+export const getInputPayload: RequestType<GetPayloadRequest,GetPayloadResponse> = { method: `${_preFix}/getInputPayload` };
+export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
+export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
+export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };
+export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetConnectionSchemaResponse> = { method: `${_preFix}/getConnectionSchema` };
+export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
+export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
+export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };

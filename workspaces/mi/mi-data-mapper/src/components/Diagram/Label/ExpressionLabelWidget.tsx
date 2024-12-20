@@ -16,10 +16,10 @@ import classNames from "classnames";
 import { Node } from "ts-morph";
 
 import { DiagnosticWidget } from '../Diagnostic/DiagnosticWidget';
-import { InputOutputPortModel } from '../Port';
-import { isInputAccessExpr } from '../utils/common-utils';
+import { InputOutputPortModel, MappingType } from '../Port';
+import { expandArrayFn, getMappingType, isInputAccessExpr } from '../utils/common-utils';
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { generateArrayMapFunction, isSourcePortArray, isTargetPortArray } from '../utils/link-utils';
+import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
 import { useDMCollapsedFieldsStore, useDMExpressionBarStore } from '../../../store/store';
 import { CodeActionWidget } from '../CodeAction/CodeAction';
@@ -80,11 +80,6 @@ export enum LinkState {
     LinkNotSelected
 }
 
-export enum ArrayMappingType {
-    ArrayToArray,
-    ArrayToSingleton
-}
-
 export interface ExpressionLabelWidgetProps {
     model: ExpressionLabelModel;
 }
@@ -92,7 +87,7 @@ export interface ExpressionLabelWidgetProps {
 // now we can render all what we want in the label
 export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = useState<LinkState>(LinkState.LinkNotSelected);
-    const [arrayMappingType, setArrayMappingType] = React.useState<ArrayMappingType>(undefined);
+    const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Default);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
     const collapsedFieldsStore = useDMCollapsedFieldsStore();
@@ -100,8 +95,10 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     const classes = useStyles();
     const { link, value, valueNode, context, deleteLink } = props.model;
-    const source = link?.getSourcePort();
-    const target = link?.getTargetPort();
+    const { addView, views } = context;
+
+    const source = link?.getSourcePort() as InputOutputPortModel;
+    const target = link?.getTargetPort() as InputOutputPortModel;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] || link.diagnostics[0] : null;
 
     useEffect(() => {
@@ -111,10 +108,9 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
                 },
             });
-            const isSourceArray = isSourcePortArray(source);
-            const isTargetArray = isTargetPortArray(target);
-            const mappingType = getArrayMappingType(isSourceArray, isTargetArray);
-            setArrayMappingType(mappingType);
+            
+            const mappingType = getMappingType(source, target);
+            setMappingType(mappingType);
         } else {
             setLinkStatus(LinkState.TemporaryLink);
         }
@@ -154,7 +150,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
                 >
                     <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                 </Button>
-                <div className={classes.separator}/>
+                <div className={classes.separator} />
                 {deleteInProgress ? (
                     loadingScreen
                 ) : (
@@ -204,23 +200,25 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
             const mapFnSrc = generateArrayMapFunction(linkModelValue.getText(), targetType, isSourceOptional);
 
-                const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
-                await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+            expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
+
+            const updatedTargetExpr = targetExpr.replaceWithText(mapFnSrc);
+            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
         }
     };
 
     const codeActions = [];
-    if (arrayMappingType === ArrayMappingType.ArrayToArray) {
+    if (mappingType === MappingType.ArrayToArray) {
         codeActions.push({
             title: "Map array elements individually",
             onClick: onClickMapViaArrayFn
         });
-    } else if (arrayMappingType === ArrayMappingType.ArrayToSingleton) {
+    } else if (mappingType === MappingType.ArrayToSingleton) {
         // TODO: Add impl
     }
 
     if (codeActions.length > 0) {
-        elements.push(<div className={classes.separator}/>);
+        elements.push(<div className={classes.separator} />);
         elements.push(
             <CodeActionWidget
                 key={`expression-label-code-action-${value}`}
@@ -231,7 +229,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     }
 
     if (diagnostic) {
-        elements.push(<div className={classes.separator}/>);
+        elements.push(<div className={classes.separator} />);
         elements.push(
             <DiagnosticWidget
                 key={`expression-label-diagnostic-${value}`}
@@ -295,15 +293,4 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
             {elements}
         </div>
     );
-}
-
-export function getArrayMappingType(isSourceArray: boolean, isTargetArray: boolean): ArrayMappingType {
-	let mappingType: ArrayMappingType;
-	if (isSourceArray && isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToArray;
-	} else if (isSourceArray && !isTargetArray) {
-		mappingType = ArrayMappingType.ArrayToSingleton;
-	}
-
-	return mappingType;
 }

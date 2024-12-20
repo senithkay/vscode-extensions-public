@@ -58,9 +58,9 @@ const ViewHeader: React.FC<ViewHeaderProps> = ({ title, children, codicon, icon,
     return (
         <Header>
             <HeaderContentWrapper>
-                <TitleContainer>
+                <TitleContainer data-testid="diagram-title">
                     {codicon && <Codicon name={codicon} />}
-                    {icon && <Icon iconSx={iconSx} name={icon} />}
+                    {icon && <div style={{ marginRight: "12px" }}><Icon iconSx={iconSx} name={icon} /></div>}
                     {typeof title === 'string' ? <Title>{title}</Title> : title}
                     {onEdit && (
                         <Button

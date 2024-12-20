@@ -11,56 +11,50 @@ import React, { RefObject } from 'react';
 import { COMPLETION_ITEM_KIND, CompletionItemKind } from './ExpressionBar';
 import { Codicon } from '../Codicon/Codicon';
 
-export const getExpressionInfo = (text: string, cursorPosition: number) => {
-    const openBrackets = text.substring(0, cursorPosition).match(/\(/g);
-    const closeBrackets = text.substring(0, cursorPosition).match(/\)/g);
-    const isCursorInFunction = !!(openBrackets && openBrackets.length > (closeBrackets?.length ?? 0));
-    let currentFnContent;
-    if (isCursorInFunction) {
-        const openBracketIndex = text.substring(0, cursorPosition).lastIndexOf('(');
-        currentFnContent = text.substring(openBracketIndex + 1, cursorPosition);
-    }
+export const checkCursorInFunction = (text: string, cursorPosition: number) => {
+    const effectiveText = text.substring(0, cursorPosition);
+    const effectiveOpenBracketCount = (effectiveText.match(/\(/g) || []).length;
+    const effectiveCloseBracketCount = (effectiveText.match(/\)/g) || []).length;
+    const cursorInFunction = effectiveOpenBracketCount > effectiveCloseBracketCount;
 
-    return { isCursorInFunction, currentFnContent };
+    return cursorInFunction;
 };
 
-export const addClosingBracketIfNeeded = (inputRef: RefObject<HTMLInputElement>, text: string) => {
+export const addClosingBracketIfNeeded = (text: string) => {
     let updatedText = text;
-    let cursorPosition = inputRef.current!.shadowRoot.querySelector('input').selectionStart;
 
     const closingBracket = updatedText.includes('(') && !updatedText.includes(')');
 
     // Add a closing bracket if the expression has an opening bracket but no closing bracket
     if (closingBracket) {
         updatedText += ')';
-        cursorPosition++;
     } else {
         const openBrackets = (updatedText.match(/\(/g) || []).length;
         const closeBrackets = (updatedText.match(/\)/g) || []).length;
         if (openBrackets > closeBrackets) {
             updatedText += ')';
-            cursorPosition++;
         }
     }
 
-    return { updatedText, cursorPosition };
+    return updatedText;
 };
 
-export const setCursor = (inputRef: RefObject<HTMLInputElement>, position: number) => {
-    inputRef.current.focus();
-    inputRef.current.shadowRoot.querySelector('input').setSelectionRange(position, position);
+export const setCursor = (
+    inputRef: RefObject<HTMLTextAreaElement | HTMLInputElement>,
+    inputElementType: 'input' | 'textarea',
+    value: string,
+    position: number
+) => {
+    const inputElement = inputRef.current.shadowRoot.querySelector(inputElementType);
+    inputElement.focus();
+    inputElement.value = value;
+    inputElement.setSelectionRange(position, position);
 };
 
 export const getIcon = (kind: CompletionItemKind) => {
-    switch (kind) {
-        case COMPLETION_ITEM_KIND.Function:
-            return <Codicon name="symbol-constructor" />;
-        case COMPLETION_ITEM_KIND.Method:
-            return <Codicon name="symbol-constructor" />;
-        case COMPLETION_ITEM_KIND.Parameter:
-            return <Codicon name="symbol-variable" />;
-        case COMPLETION_ITEM_KIND.Property:
-            return <Codicon name="symbol-field" />;
+    if (Object.values(COMPLETION_ITEM_KIND).includes(kind)) {
+        return <Codicon name={`symbol-${kind}`} />;
     }
-};
 
+    return <Codicon name="symbol-variable" />;
+};

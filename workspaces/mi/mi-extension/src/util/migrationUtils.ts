@@ -17,6 +17,7 @@ import { createFolderStructure, copyDockerResources } from '.';
 import { commands, Uri, window } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
+import { LATEST_MI_VERSION } from './onboardingUtils';
 
 enum Nature {
     MULTIMODULE,
@@ -36,9 +37,10 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version),
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version,LATEST_MI_VERSION),
             'src': {
                 'main': {
+                    'java': '',
                     'wso2mi': {
                         'artifacts': {
                             'apis': '',
@@ -445,6 +447,9 @@ function updateRegistryArtifactPath(registryResource: any) {
 }
 
 function copy(source: string, target: string) {
+    if (!fs.existsSync(source)) {
+        return;
+    }
     const files = fs.readdirSync(source);
     files.forEach(file => {
         const sourceItemPath = path.join(source, file);

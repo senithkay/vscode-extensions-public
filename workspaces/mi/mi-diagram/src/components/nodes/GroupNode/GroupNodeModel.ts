@@ -8,10 +8,13 @@
  */
 
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/src";
-import { NodeTypes } from "../../../resources/constants";
+import { NODE_DIMENSIONS, NodeTypes } from "../../../resources/constants";
 import { BaseNodeModel } from "../BaseNodeModel";
 
 export class GroupNodeModel extends BaseNodeModel {
+    readonly nodeWidth = NODE_DIMENSIONS.GROUP.WIDTH;
+    readonly nodeHeight = NODE_DIMENSIONS.GROUP.HEIGHT;
+
     constructor(
         stNode: STNode,
         mediatorName: string,

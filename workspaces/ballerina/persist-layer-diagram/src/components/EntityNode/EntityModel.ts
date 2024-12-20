@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
+import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
 import { SharedNodeModel } from '../shared-node/shared-node';
 import { EntityPortModel } from '../EntityPort/EntityPortModel';
 

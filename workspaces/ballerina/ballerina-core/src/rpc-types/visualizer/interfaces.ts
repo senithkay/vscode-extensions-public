@@ -6,7 +6,20 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+
+import { EVENT_TYPE, VisualizerLocation } from "../../state-machine-types";
+
 export interface UpdateUndoRedoMangerRequest {
     filePath: string;
     fileContent: string;
+}
+
+export interface OpenViewRequest {
+    type: EVENT_TYPE;
+    location: VisualizerLocation;
+    isPopup?: boolean;
+}
+
+export interface GetWorkspaceContextResponse {
+    context: string[];
 }

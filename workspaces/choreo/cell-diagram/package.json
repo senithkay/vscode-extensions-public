@@ -1,12 +1,12 @@
 {
     "name": "@wso2-enterprise/cell-diagram",
-    "version": "3.0.0",
+    "version": "3.2.24050304",
     "description": "Generate the cell diagram for Choreo projects.",
     "files": [
         "lib"
     ],
-    "main": "lib/Diagram.js",
-    "types": "lib/Diagram.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "scripts": {
         "start": "webpack-dev-server --progress --mode=development",
         "build": "tsc --pretty && npm run copy:assets && webpack && pnpm run postbuild",
@@ -31,19 +31,13 @@
         "@projectstorm/react-diagrams-routing": "^6.7.4",
         "@types/lodash": "^4.14.189",
         "@types/node": "^18.11.19",
-        "closest": "^0.0.1",
         "dagre": "^0.8.5",
-        "file-loader": "^5.0.2",
-        "html-to-image": "^1.10.8",
         "lodash": "^4.17.11",
-        "pathfinding": "^0.4.18",
-        "paths-js": "^0.4.11",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "resize-observer-polyfill": "^1.5.1",
         "typescript": "^4.9.4",
-        "@wso2-enterprise/ui-toolkit": "workspace:*",
-        "gsap": "~3.12.2"
+        "gsap": "~3.12.2",
+        "@mui/icons-material": "~5.15.19"
     },
     "devDependencies": {
         "@babel/core": "^7.20.12",
@@ -57,7 +51,6 @@
         "@storybook/testing-library": "^0.0.13",
         "@types/react": "^17.0.37",
         "@types/react-dom": "17.0.14",
-        "@wso2-enterprise/ballerina-languageclient": "workspace:*",
         "babel-loader": "^8.2.5",
         "copyfiles": "^2.4.1",
         "css-loader": "^6.7.1",

@@ -15,6 +15,12 @@ export enum DMDiagnosticCategory {
     Message = 3,
 }
 
+export enum IOType {
+    Input = "input",
+    Output = "output",
+    Other = "other"
+}
+
 export interface DMDiagnostic {
     messageText: string;
     code: number;
@@ -57,10 +63,11 @@ export interface BrowseSchemaRequest {
     documentUri: string;
     overwriteSchema?: boolean;
     content: string;
-    resourceName: string;
-    ioType: string;
+    ioType: IOType;
     schemaType: string;
     configName: string;
+    typeName?: string;
+    csvDelimiter?: string;
 }
 
 export interface BrowseSchemaResponse {
@@ -124,4 +131,8 @@ export interface GetDMDiagnosticsRequest {
 
 export interface GetDMDiagnosticsResponse {
     diagnostics: DMDiagnostic[];
+}
+
+export interface DataMapWriteRequest {
+    dataMapping: string;
 }

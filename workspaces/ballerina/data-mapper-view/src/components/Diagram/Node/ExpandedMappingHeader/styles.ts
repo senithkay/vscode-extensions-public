@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { css } from "@emotion/css";
+import { GAP_BETWEEN_INTERMEDIATE_CLAUSES, QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT } from "../../utils/constants";
 
 export const useStyles = () => ({
     clauseItem: css({
@@ -24,12 +25,12 @@ export const useStyles = () => ({
     clauseItemBody: css({
         display: "flex",
         alignItems: "center",
-        background: "var(--vscode-sideBar-background)",
-        marginLeft: "25px",
+        background: "var(--vscode-editorWidget-background)",
+        marginLeft: "25px"
     }),
     lineWrap: css({
         width: "80px",
-        height: "25px",
+        height: `${GAP_BETWEEN_INTERMEDIATE_CLAUSES}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -43,7 +44,7 @@ export const useStyles = () => ({
     }),
     clauseKeyWrap: css({
         border: "1px solid var(--vscode-input-background)",
-        height: "40px",
+        height: `${QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -57,8 +58,8 @@ export const useStyles = () => ({
         border: "1px solid var(--vscode-pickergroup-border)"
     }),
     clauseWrap: css({
-        background: "var(--vscode-sideBar-background)",
-        height: "40px",
+        background: "var(--vscode-editorWidget-background)",
+        height: `${QUERY_EXPR_INTERMEDIATE_CLAUSE_HEIGHT}px`,
         display: "flex",
         alignItems: "center",
         padding: "26px 10px",
@@ -90,16 +91,17 @@ export const useStyles = () => ({
         }
     }),
     clauseExpression: css({
-        background: "var(--vscode-editorHoverWidget-background)",
         cursor: "pointer",
         padding: "5px",
         marginLeft: "5px",
         marginRight: "5px",
         transition: "border 0.2s",
-        border: "1px solid transparent",
         width: "max-content",
+        border: "1px solid var(--vscode-pickerGroup-border)",
         '&:hover': {
-            border: "1px solid var(--vscode-pickerGroup-border)"
+            border: "1px solid var(--vscode-welcomePage-tileBorder)",
+            background: "var(--vscode-input-background)",
+            color: "var(--vscode-input-foreground)"
         }
     }),
     clauseDiagnostics: css({
@@ -176,7 +178,7 @@ export const useStyles = () => ({
         top: 0,
     }),
     queryInputInputPortWrap: css({
-        width: 80,
+        width: 85,
         display: 'flex',
         justifyContent: 'center'
     }),

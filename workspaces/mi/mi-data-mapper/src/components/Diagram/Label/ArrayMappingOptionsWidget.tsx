@@ -13,11 +13,13 @@ import { TypeKind } from '@wso2-enterprise/mi-core';
 import { Codicon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
-import { InputOutputPortModel, ValueType } from '../Port';
-import { getValueType } from '../utils/common-utils';
+import { InputOutputPortModel, MappingType, ValueType } from '../Port';
+import { genArrayElementAccessSuffix, getMapFnIndex, getMapFnViewLabel, getValueType } from '../utils/common-utils';
 import { generateArrayMapFunction } from '../utils/link-utils';
 import { DataMapperLinkModel } from '../Link';
-import { buildInputAccessExpr, createSourceForMapping, updateExisitingValue } from '../utils/modification-utils';
+import { buildInputAccessExpr, createSourceForMapping, updateExistingValue } from '../utils/modification-utils';
+import { ExpressionLabelModel } from './ExpressionLabelModel';
+import { expandArrayFn } from '../utils/common-utils';
 
 export const useStyles = () => ({
     arrayMappingMenu: css({
@@ -43,12 +45,12 @@ const codiconStyles = {
 }
 
 export interface ArrayMappingOptionsWidgetProps {
-    link: DataMapperLinkModel;
+    model: ExpressionLabelModel;
 }
 
 export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps) {
     const classes = useStyles();
-    const { link } = props;
+    const { link, pendingMappingType, context } = props.model;
 
     const sourcePort = link.getSourcePort();
     const targetPort = link?.getTargetPort();
@@ -58,10 +60,10 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
 
     const isValueModifiable = valueType === ValueType.Default
         || (valueType === ValueType.NonEmpty && !targetPortHasLinks);
-
+    
     const onClickMapArrays = async () => {
         if (isValueModifiable) {
-           await updateExisitingValue(sourcePort, targetPort);
+            await updateExistingValue(sourcePort, targetPort);
         } else {
             await createSourceForMapping(link);
         }
@@ -76,34 +78,43 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
                 let isSourceOptional = sourcePort instanceof InputOutputPortModel && sourcePort.field.optional;
                 const mapFnSrc = generateArrayMapFunction(inputAccessExpr, targetPortField.memberType, isSourceOptional);
 
+               expandArrayFn(sourcePort as InputOutputPortModel, targetPort as InputOutputPortModel, context);
+
                 if (isValueModifiable) {
-                    await updateExisitingValue(sourcePort, targetPort, mapFnSrc);
-                 } else {
-                     await createSourceForMapping(link, mapFnSrc);
-                 }
-                await createSourceForMapping(link, mapFnSrc);
+                    await updateExistingValue(sourcePort, targetPort, mapFnSrc);
+                } else {
+                    await createSourceForMapping(link, mapFnSrc);
+                }
             }
         }
     };
-    
+
+    const onClickMapArraysAccessSingleton = async () => {
+        if (isValueModifiable) {
+            await updateExistingValue(sourcePort, targetPort, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
+        } else {
+            await createSourceForMapping(link, undefined, genArrayElementAccessSuffix(sourcePort, targetPort));
+        }
+    }
+
     const getItemElement = (id: string, label: string) => {
         return (
             <div
                 className={classes.itemContainer}
                 key={id}
             >
-                <Codicon name="lightbulb" sx={codiconStyles}/>
+                <Codicon name="lightbulb" sx={codiconStyles} />
                 {label}
             </div>
         );
     }
 
-    const menuItems: Item[] = [
+    const a2aMenuItems: Item[] = [
         {
             id: "a2a-direct",
             label: getItemElement("a2a-direct", "Map Input Array to Output Array"),
             onClick: onClickMapArrays
-        }, 
+        },
         {
             id: "a2a-inner",
             label: getItemElement("a2a-inner", "Map Array Elements Individually"),
@@ -111,10 +122,20 @@ export function ArrayMappingOptionsWidget(props: ArrayMappingOptionsWidgetProps)
         }
     ];
 
+    const a2sMenuItems: Item[] = [
+        {
+            id: "a2s-direct",
+            label: getItemElement("a2s-direct", "Access Singleton"),
+            onClick: onClickMapArraysAccessSingleton
+        }
+    ];
+
+    const menuItems = pendingMappingType === MappingType.ArrayToArray ? a2aMenuItems : a2sMenuItems;
+
     return (
         <div className={classes.arrayMappingMenu}>
-            <Menu sx={a2aMenuStyles}> 
-                {menuItems.map((item: Item) => 
+            <Menu sx={a2aMenuStyles}>
+                {menuItems.map((item: Item) =>
                     <MenuItem
                         key={`item ${item.id}`}
                         item={item}

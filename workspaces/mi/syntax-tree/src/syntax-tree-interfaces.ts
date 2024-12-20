@@ -9,6 +9,7 @@
 import { Diagnostic } from "vscode-languageserver-types";
 
 export interface STNode {
+    displayName: string;
     hasTextNode: boolean;
     selfClosed: boolean;
     textNode: string;
@@ -180,6 +181,12 @@ export interface Foreach extends STNode {
     sequenceAttribute: string;
     id: string;
     description: string;
+    version: string;
+    collection: string;
+    executeParallel: boolean;
+    resultTarget: string;
+    resultType: string;
+    counterVariableName: string;
 }
 
 export interface PayloadFactoryFormat extends STNode {
@@ -693,8 +700,11 @@ export interface EndpointType extends ExtensibleDocumentedType, STNode {
 
 export interface Resource extends STNode {
     inSequenceAttribute?: string;
+    inSequence?: Sequence;
     outSequenceAttribute?: string;
+    outSequence?: Sequence;
     faultSequenceAttribute?: string;
+    faultSequence?: Sequence;
     location: string;
     key: string;
 }
@@ -1003,6 +1013,29 @@ export interface Property extends STNode {
     action: string;
     value: string;
     expression: string;
+}
+
+export interface Variable extends STNode {
+    type: string;
+    description: string;
+    name: string;
+    action: string;
+    value: string;
+    expression: string;
+}
+
+export interface ScatterGather extends STNode {
+    targets: CloneTarget[];
+    executeParallel: boolean;
+    description: string;
+    valueExpression: string;
+    condition: string;
+    resultTarget: string;
+    variableName: string;
+    contentType: string;
+    completeTimeout: string;
+    minMessages: string;
+    maxMessages: string;
 }
 
 export interface APIHandlersHandlerProperty extends STNode {
@@ -1822,9 +1855,17 @@ export interface UnitTest extends STNode {
 
 export interface UnitTestArtifacts {
     testArtifact: TestArtifact;
-    supportiveArtifacts: STNode;
-    registryResources: STNode;
+    supportiveArtifacts: SupportiveArtifacts;
+    registryResources: RegistryResources;
     connectorResources: STNode;
+}
+
+export interface SupportiveArtifacts extends STNode {
+    artifacts: Artifact[];
+}
+
+export interface RegistryResources extends STNode {
+    registryResources: Artifact[];
 }
 
 export interface TestArtifact extends STNode {
@@ -1854,6 +1895,11 @@ export interface TestCaseInput extends STNode {
     requestMethod: STNode;
     requestProtocol: STNode;
     payload: STNode;
+    properties?: TestCaseInputProperties;
+}
+
+export interface TestCaseInputProperties extends STNode {
+    properties: Property[];
 }
 
 export interface Assertion extends STNode {

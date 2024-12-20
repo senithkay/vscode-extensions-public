@@ -133,6 +133,13 @@
                       "json"
                     ],
                     "required": false,
+                    "enableCondition": [
+                      {
+                        "argumentValue": {
+                          "isExpression": true
+                        }
+                      }
+                    ],
                     "helpTip": ""
                   }
                 },

@@ -15,6 +15,8 @@ import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
+import { isLinkModel } from '../utils/dm-utils';
+import { DataMapperLinkModel } from '../Link';
 
 /**
  * This state is controlling the creation of a link.
@@ -23,8 +25,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 	sourcePort: PortModel;
 	link: LinkModel;
 
-	constructor() {
+	constructor(resetState: boolean = false) {
 		super({ name: 'create-new-link' });
+
+		if (resetState) {
+			this.clearState();
+		}
 
 		this.registerAction(
 			new Action({
@@ -32,7 +38,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 
-					if (!(element instanceof PortModel)) {
+					if (element === null) {
+						this.clearState();
+					} else if (!(element instanceof PortModel)) {
 						if (element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode
@@ -65,11 +73,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 							}
 						}
+
+						if (isLinkModel(element)) {
+							element = (element as DataMapperLinkModel).getTargetPort();
+						}
 					}
 
 					if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof RecordFieldPortModel) {
-							if (element.portType === "OUT") {
+							if (element.portType === "OUT" && !element.isDisabled()) {
 								this.sourcePort = element;
 								element.fireEvent({}, "mappingStartedFrom");
 								element.linkedPorts.forEach((linkedPort) => {
@@ -122,13 +134,15 @@ export class CreateLinkState extends State<DiagramEngine> {
 									})
 								}
 								this.sourcePort.removeLink(this.link);
-								this.sourcePort = element;
-								this.link?.setSourcePort(element);
-								element.fireEvent({}, "mappingStartedFrom");
-								if (element instanceof RecordFieldPortModel) {
-									element.linkedPorts.forEach((linkedPort) => {
-										linkedPort.fireEvent({}, "disableNewLinking")
-									})
+								if (!(element instanceof RecordFieldPortModel) || !element.isDisabled()) {
+									this.sourcePort = element;
+									this.link?.setSourcePort(element);
+									element.fireEvent({}, "mappingStartedFrom");
+									if (element instanceof RecordFieldPortModel) {
+										element.linkedPorts.forEach((linkedPort) => {
+											linkedPort.fireEvent({}, "disableNewLinking")
+										})
+									}
 								}
 							}
 						}
@@ -178,6 +192,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 	}
 
 	clearState() {
+		if (this.sourcePort) {
+			this.sourcePort.fireEvent({}, "link-unselected");
+			this.sourcePort.removeLink(this.link);
+		}
 		this.link = undefined;
 		this.sourcePort = undefined;
 	}

@@ -7,14 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { create } from "zustand";
-import { Node } from "ts-morph"; 
+import { Node } from "ts-morph";
 
 import { InputOutputPortModel } from "../components/Diagram/Port";
+import { SubMappingConfigForm } from "src/components/DataMapper/SidePanel/SubMappingConfig/SubMappingConfigForm";
+import { IOType } from "@wso2-enterprise/mi-core";
+import { View } from "src/components/DataMapper/Views/DataMapperView";
 
 interface SubMappingConfig {
     isSMConfigPanelOpen: boolean;
     nextSubMappingIndex: number;
     suggestedNextSubMappingName: string;
+}
+
+export interface SubMappingConfigFormData {
+    mappingName: string;
+    mappingType: string | undefined;
+    isArray: boolean;
 }
 
 export interface DataMapperSearchState {
@@ -33,8 +42,8 @@ export interface DataMapperCollapsedFieldsState {
 export interface DataMapperIOConfigPanelState {
     isIOConfigPanelOpen: boolean;
     setIsIOConfigPanelOpen: (isIOConfigPanelOpen: boolean) => void;
-    ioConfigPanelType: string;
-    setIOConfigPanelType: (ioConfigPanelType: string) => void;
+    ioConfigPanelType: IOType;
+    setIOConfigPanelType: (ioConfigPanelType: IOType) => void;
     isSchemaOverridden: boolean;
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => void;
 }
@@ -43,17 +52,31 @@ export interface DataMapperSubMappingConfigPanelState {
     subMappingConfig: SubMappingConfig;
     setSubMappingConfig: (subMappingConfig: SubMappingConfig) => void;
     resetSubMappingConfig: () => void;
+    subMappingConfigFormData: SubMappingConfigFormData;
+    setSubMappingConfigFormData: (subMappingConfigFormData: SubMappingConfigFormData) => void
 }
 
 export interface DataMapperExpressionBarState {
     focusedPort: InputOutputPortModel;
+    lastFocusedPort: InputOutputPortModel;
     focusedFilter: Node;
+    lastFocusedFilter: Node;
     inputPort: InputOutputPortModel;
+    savedNodeValue: string;
+    lastSavedNodeValue: string;
     setFocusedPort: (port: InputOutputPortModel) => void;
     setFocusedFilter: (port: Node) => void;
+    setLastFocusedPort: (port: InputOutputPortModel) => void;
+    setLastFocusedFilter: (port: Node) => void;
     setInputPort: (port: InputOutputPortModel) => void;
+    setSavedNodeValue: (value: string) => void;
+    setLastSavedNodeValue: (value: string) => void;
     resetFocus: () => void;
     resetInputPort: () => void;
+    resetLastFocusedPort: () => void;
+    resetLastFocusedFilter: () => void;
+    resetSavedNodeValue: () => void;
+    resetLastSavedNodeValue: () => void;
 }
 
 export interface DataMapperArrayFiltersState {
@@ -63,9 +86,9 @@ export interface DataMapperArrayFiltersState {
     setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
-export interface DataMapperRegenerateNodesState {
-    regenerateNodesState: boolean;
-    regenerateNodes: () => void;
+export interface DataMapperViewState {
+    views: View[];
+    setViews: (newViews: View[]) => void;
 }
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
@@ -78,14 +101,14 @@ export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
 
 export const useDMCollapsedFieldsStore = create<DataMapperCollapsedFieldsState>((set) => ({
     collapsedFields: [],
-    setCollapsedFields: (collapsedFields: string[])  => set({ collapsedFields }),
+    setCollapsedFields: (collapsedFields: string[]) => set({ collapsedFields }),
 }));
 
 export const useDMIOConfigPanelStore = create<DataMapperIOConfigPanelState>((set) => ({
     isIOConfigPanelOpen: false,
     setIsIOConfigPanelOpen: (isIOConfigPanelOpen: boolean) => set({ isIOConfigPanelOpen }),
-    ioConfigPanelType: 'input',
-    setIOConfigPanelType: (ioConfigPanelType: string) => set({ ioConfigPanelType }),
+    ioConfigPanelType: IOType.Input,
+    setIOConfigPanelType: (ioConfigPanelType: IOType) => set({ ioConfigPanelType }),
     isSchemaOverridden: false,
     setIsSchemaOverridden: (isSchemaOverridden: boolean) => set({ isSchemaOverridden }),
 }));
@@ -96,33 +119,50 @@ export const useDMSubMappingConfigPanelStore = create<DataMapperSubMappingConfig
         nextSubMappingIndex: -1,
         suggestedNextSubMappingName: undefined
     },
-    setSubMappingConfig: (subMappingConfig: SubMappingConfig)  => set({ subMappingConfig }),
-    resetSubMappingConfig: ()  => set({ subMappingConfig: {
-        isSMConfigPanelOpen: false,
-        nextSubMappingIndex: -1,
-        suggestedNextSubMappingName: undefined
-    }}),
+    setSubMappingConfig: (subMappingConfig: SubMappingConfig) => set({ subMappingConfig }),
+    resetSubMappingConfig: () => set({
+        subMappingConfig: {
+            isSMConfigPanelOpen: false,
+            nextSubMappingIndex: -1,
+            suggestedNextSubMappingName: undefined
+        },
+        subMappingConfigFormData: undefined
+    }),
+    subMappingConfigFormData: undefined,
+    setSubMappingConfigFormData: (subMappingConfigFormData: SubMappingConfigFormData) => set({ subMappingConfigFormData })
 }));
 
 export const useDMExpressionBarStore = create<DataMapperExpressionBarState>((set) => ({
     focusedPort: undefined,
     focusedFilter: undefined,
+    lastFocusedPort: undefined,
+    lastFocusedFilter: undefined,
+    savedNodeValue: undefined,
+    lastSavedNodeValue: undefined,
+    inputPort: undefined,
     setFocusedPort: (focusedPort: InputOutputPortModel) => set({ focusedPort }),
     setFocusedFilter: (focusedFilter: Node) => set({ focusedFilter }),
-    inputPort: undefined,
+    setLastFocusedPort: (lastFocusedPort: InputOutputPortModel) => set({ lastFocusedPort }),
+    setLastFocusedFilter: (lastFocusedFilter: Node) => set({ lastFocusedFilter }),
+    setSavedNodeValue: (savedNodeValue: string) => set({ savedNodeValue }),
+    setLastSavedNodeValue: (lastSavedNodeValue: string) => set({ lastSavedNodeValue }),
     setInputPort: (inputPort: InputOutputPortModel) => set({ inputPort }),
     resetFocus: () => set({ focusedPort: undefined, focusedFilter: undefined }),
-    resetInputPort: () => set({ inputPort: undefined })
+    resetInputPort: () => set({ inputPort: undefined }),
+    resetLastFocusedPort: () => set({ lastFocusedPort: undefined }),
+    resetLastFocusedFilter: () => set({ lastFocusedFilter: undefined }),
+    resetSavedNodeValue: () => set({ savedNodeValue: undefined }),
+    resetLastSavedNodeValue: () => set({ lastSavedNodeValue: undefined }),
 }));
 
 export const useDMArrayFilterStore = create<DataMapperArrayFiltersState>((set) => ({
     addedNewFilter: false,
-    setAddedNewFilter: (addedNewFilter: boolean)  => set({ addedNewFilter }),
+    setAddedNewFilter: (addedNewFilter: boolean) => set({ addedNewFilter }),
     isCollapsed: false,
-    setIsCollapsed: (isCollapsed: boolean)  => set({ isCollapsed }),
+    setIsCollapsed: (isCollapsed: boolean) => set({ isCollapsed }),
 }));
 
-export const useDMRegenerateNodesStore = create<DataMapperRegenerateNodesState>((set, get) => ({
-    regenerateNodesState: false,
-    regenerateNodes: () => set({ regenerateNodesState: !get().regenerateNodesState }),
+export const useDMViewsStore = create<DataMapperViewState>((set) => ({
+    views: [],
+    setViews: (newViews: View[]) => set({ views: newViews })
 }));

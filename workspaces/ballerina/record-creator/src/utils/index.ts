@@ -9,17 +9,17 @@
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import {
     DIAGNOSTIC_SEVERITY,
-    JsonToRecordResponse,
+    JsonToRecord,
     NOT_SUPPORTED_TYPE,
-    PartialSTRequest,
+    PartialSTParams,
     STModification,
-    XMLToRecordResponse,
+    XMLToRecord,
     getComponentSource,
 } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient, RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangClientRpcClient, RecordCreatorRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordItemModel } from "../types";
 
-export const isNotSupportedType = (resp: JsonToRecordResponse | NOT_SUPPORTED_TYPE): resp is NOT_SUPPORTED_TYPE => {
+export const isNotSupportedType = (resp: JsonToRecord | NOT_SUPPORTED_TYPE): resp is NOT_SUPPORTED_TYPE => {
     return  !("diagnostics" in resp);
 };
 
@@ -29,8 +29,8 @@ export async function convertJsonToRecordUtil(
     isClosed: boolean,
     isSeparateDefinitions: boolean,
     recordCreatorRpcClient: RecordCreatorRpcClient
-): Promise<JsonToRecordResponse> {
-    const resp: JsonToRecordResponse | NOT_SUPPORTED_TYPE = await recordCreatorRpcClient.convertJsonToRecord({
+): Promise<JsonToRecord> {
+    const resp: JsonToRecord | NOT_SUPPORTED_TYPE = await recordCreatorRpcClient.convertJsonToRecord({
         jsonString: json,
         recordName: name,
         isClosed,
@@ -42,12 +42,12 @@ export async function convertJsonToRecordUtil(
             codeBlock: "",
         };
     }
-    if ((resp as JsonToRecordResponse).diagnostics === undefined) {
+    if ((resp as JsonToRecord).diagnostics === undefined) {
         try {
             JSON.parse(json);
-            (resp as JsonToRecordResponse).diagnostics = [];
+            (resp as JsonToRecord).diagnostics = [];
         } catch (e) {
-            (resp as JsonToRecordResponse).diagnostics = [
+            (resp as JsonToRecord).diagnostics = [
                 { message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR },
             ];
         }
@@ -58,8 +58,8 @@ export async function convertJsonToRecordUtil(
 export async function convertXmlToRecordUtil(
     xml: string,
     recordCreatorRpcClient: RecordCreatorRpcClient
-): Promise<XMLToRecordResponse> {
-    const resp: XMLToRecordResponse | NOT_SUPPORTED_TYPE = await recordCreatorRpcClient.convertXMLToRecord({
+): Promise<XMLToRecord> {
+    const resp: XMLToRecord | NOT_SUPPORTED_TYPE = await recordCreatorRpcClient.convertXMLToRecord({
         xmlValue: xml,
         isClosed: false,
         forceFormatRecordFields: false,
@@ -72,13 +72,13 @@ export async function convertXmlToRecordUtil(
         };
     }
 
-    if ((resp as XMLToRecordResponse).diagnostics === undefined) {
+    if ((resp as XMLToRecord).diagnostics === undefined) {
         try {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xml, "text/xml");
-            (resp as XMLToRecordResponse).diagnostics = [];
+            (resp as XMLToRecord).diagnostics = [];
         } catch (e) {
-            (resp as XMLToRecordResponse).diagnostics = [
+            (resp as XMLToRecord).diagnostics = [
                 { message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR },
             ];
         }
@@ -87,8 +87,8 @@ export async function convertXmlToRecordUtil(
 }
 
 export async function getRecordST(
-    partialSTRequest: PartialSTRequest,
-    langServerRpcClient: LangServerRpcClient
+    partialSTRequest: PartialSTParams,
+    langServerRpcClient: LangClientRpcClient
 ): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForModuleMembers(partialSTRequest);
     return resp.syntaxTree;
@@ -101,8 +101,8 @@ export function getRootRecord(modulePartSt: ModulePart, name: string): TypeDefin
 }
 
 export async function getModulePartST(
-    partialSTRequest: PartialSTRequest,
-    langServerRpcClient: LangServerRpcClient
+    partialSTRequest: PartialSTParams,
+    langServerRpcClient: LangClientRpcClient
 ): Promise<STNode> {
     const resp = await langServerRpcClient.getSTForModulePart(partialSTRequest);
     return resp.syntaxTree;

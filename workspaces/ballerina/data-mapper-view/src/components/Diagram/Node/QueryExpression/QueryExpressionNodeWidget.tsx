@@ -9,98 +9,23 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { css } from "@emotion/css";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
-import { FUNCTION_BODY_QUERY } from "../../utils/constants";
-import { isRepresentFnBody } from "../../utils/dm-utils";
+import { FUNCTION_BODY_QUERY, SELECT_CALUSE_QUERY } from "../../utils/constants";
+import { getQueryExprMappingType, hasCollectClauseExpr, hasIndexedQueryExpr, isRepresentFnBody } from "../../utils/dm-utils";
 import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
 import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
-
-export const useStyles = () => ({
-    root: css({
-        width: '100%',
-        backgroundColor: "var(--vscode-sideBar-background)",
-        padding: "2px",
-        borderRadius: "2px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        color: "var(--vscode-checkbox-border)",
-        alignItems: "center",
-        border: "1px solid var(--vscode-welcomePage-tileBorder)",
-    }),
-    element: css({
-        backgroundColor: "var(--vscode-input-background)",
-        padding: "5px",
-        cursor: "pointer",
-        transitionDuration: "0.2s",
-        userSelect: "none",
-        pointerEvents: "auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        "&:hover": {
-            filter: "brightness(0.95)",
-        },
-    }),
-    iconWrapper: css({
-        height: "22px",
-        width: "22px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-    }),
-    fromClause: css({
-        padding: "5px",
-        fontWeight: 600,
-        marginRight: '10px'
-    }),
-    mappingPane: css({
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between"
-    }),
-    header: css({
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        "& > *": {
-            margin: "0 2px"
-        }
-    }),
-    icons: css({
-        padding: '5px'
-    }),
-    openQueryIcon: css({
-        color: "var(--vscode-pickerGroup-border)",
-        padding: "5px",
-        height: "32px",
-        width: "32px"
-    }),
-    editIcon: css({
-        color: "var(--vscode-pickerGroup-border)",
-    }),
-    deleteIcon: css({
-        color: "var(--vscode-errorForeground)"
-    }),
-    loadingContainer: css({
-        padding: "10px"
-    }),
-    circularProgress: css({
-        color: "var(--vscode-input-background)",
-        display: "block"
-    })
-});
+import { isPositionsEquals } from '../../../../utils/st-utils';
+import { QueryExprFindingVisitorByPosition } from '../../visitors/QueryExprFindingVisitorByPosition';
+import { useIntermediateNodeStyles } from '../../../styles';
 
 export interface QueryExprAsSFVNodeWidgetProps {
     node: QueryExpressionNode;
@@ -114,12 +39,13 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
         exprFnBody = selectedST.functionBody;
     }
-    const classes = useStyles();
+    const classes = useIntermediateNodeStyles();
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickOnExpand = () => {
         let isExprBodyQuery: boolean;
+        let isSelectClauseQuery: boolean;
 
         if (STKindChecker.isBracedExpression(node.parentNode)) {
             // Handle scenarios where user tries to expand into
@@ -132,13 +58,32 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             }
         } else if (exprFnBody && isRepresentFnBody(node.parentNode, exprFnBody)) {
             isExprBodyQuery = true;
+        } else if (STKindChecker.isSelectClause(node.parentNode)
+            || (STKindChecker.isSpecificField(node.parentNode)
+                && STKindChecker.isQueryExpression(node.parentNode.valueExpr)
+                && !isPositionsEquals(node.value.position, node.parentNode.valueExpr.position))
+        ) {
+            isSelectClauseQuery = true;
         }
+        let selectClauseIndex: number;
+        if (isSelectClauseQuery) {
+            const queryExprFindingVisitor = new QueryExprFindingVisitorByPosition(node.value.position);
+            traversNode(selectedST, queryExprFindingVisitor);
+            selectClauseIndex = queryExprFindingVisitor.getSelectClauseIndex();
+        }
+
+        const hasIndexedQuery = hasIndexedQueryExpr(node.parentNode);
+        const hasCollectClause = hasCollectClauseExpr(node.value);
+        const mappingType = getQueryExprMappingType(hasIndexedQuery, hasCollectClause);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,
                 selectedST: {
-                    stNode: isExprBodyQuery ? node.context.selection.selectedST.stNode : node.parentNode,
-                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : node.targetFieldFQN
+                    stNode: isExprBodyQuery || isSelectClauseQuery ? node.context.selection.selectedST.stNode : node.parentNode,
+                    fieldPath: isExprBodyQuery ? FUNCTION_BODY_QUERY : isSelectClauseQuery ? SELECT_CALUSE_QUERY : node.targetFieldFQN,
+                    position: node.value.position,
+                    index: selectClauseIndex,
+                    mappingType: mappingType,
                 }
             })
     }
@@ -163,7 +108,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                         </Tooltip>
                         <Button
                             appearance="icon"
-                            tooltip="Edit"
+                            tooltip="Go to query"
                             onClick={onClickOnExpand}
                             data-testid={`expand-query-${node?.targetFieldFQN}`}
                         >

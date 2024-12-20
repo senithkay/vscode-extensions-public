@@ -11,12 +11,11 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { Button, Dropdown, TextField, FormView, FormGroup, FormActions, FormCheckBox } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { EVENT_TYPE, MACHINE_VIEW } from "@wso2-enterprise/mi-core";
+import { EVENT_TYPE, MACHINE_VIEW, POPUP_EVENT_TYPE } from "@wso2-enterprise/mi-core";
 import { Endpoint, EndpointList, InlineButtonGroup, TypeChip } from "./Commons";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import AddToRegistry, { getArtifactNamesAndRegistryPaths, formatRegistryPath, saveToRegistry } from "./AddToRegistry";
 import { ParamManager } from "@wso2-enterprise/mi-diagram";
 
 const FieldGroup = styled.div`
@@ -52,11 +51,6 @@ type InputsFields = {
     description?: string;
     endpoints?: Endpoint[];
     properties?: any[];
-    //reg form
-    saveInReg?: boolean;
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 };
 
 const initialEndpoint: InputsFields = {
@@ -65,11 +59,6 @@ const initialEndpoint: InputsFields = {
     description: '',
     endpoints: [],
     properties: [],
-    //reg form
-    saveInReg: false,
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
 };
 
 export function FailoverWizard(props: FailoverWizardProps) {
@@ -77,8 +66,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const { rpcClient } = useVisualizerContext();
 
     const isNewEndpoint = !props.path.endsWith(".xml");
-    const [artifactNames, setArtifactNames] = useState([]);
-    const [registryPaths, setRegistryPaths] = useState([]);
     const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
     const [expandEndpointsView, setExpandEndpointsView] = useState<boolean>(false);
     const [showAddNewEndpointView, setShowAddNewEndpointView] = useState<boolean>(false);
@@ -94,44 +81,11 @@ export function FailoverWizard(props: FailoverWizardProps) {
             .test('validateEndpointName',
                 'An artifact with same name already exists', value => {
                     return !isNewEndpoint ? !(workspaceFileNames.includes(value) && value !== savedEPName) : !workspaceFileNames.includes(value);
-                })
-            .test('validateEndpointArtifactName',
-                'A registry resource with this artifact name already exists', value => {
-                    return !isNewEndpoint ? !(artifactNames.includes(value) && value !== savedEPName) : !artifactNames.includes(value);
                 }),
         buildMessage: yup.string().required("Build Message is required"),
         description: yup.string(),
         endpoints: yup.array(),
         properties: yup.array(),
-        saveInReg: yup.boolean().default(false),
-        artifactName: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Artifact Name is required")
-                    .test('validateArtifactName',
-                        'Artifact name already exists', value => {
-                            return !artifactNames.includes(value);
-                        })
-                    .test('validateFileName',
-                        'A file already exists in the workspace with this artifact name', value => {
-                            return !workspaceFileNames.includes(value);
-                        }),
-        }),
-        registryPath: yup.string().when('saveInReg', {
-            is: false,
-            then: () =>
-                yup.string().notRequired(),
-            otherwise: () =>
-                yup.string().required("Registry Path is required")
-                    .test('validateRegistryPath', 'Resource already exists in registry', value => {
-                    const formattedPath = formatRegistryPath(value, getValues("registryType"), getValues("name"));
-                    if (formattedPath === undefined) return true;
-                    return !(registryPaths.includes(formattedPath) || registryPaths.includes(formattedPath + "/"));
-                }),
-        }),
-        registryType: yup.mixed<"gov" | "conf">().oneOf(["gov", "conf"]),
     });
 
     const {
@@ -152,8 +106,8 @@ export function FailoverWizard(props: FailoverWizardProps) {
     const [paramConfigs, setParamConfigs] = useState<any>({
         paramValues: [],
         paramFields: [
-            { id: 1, type: "TextField", label: "Name", defaultValue: "", isRequired: true },
-            { id: 2, type: "TextField", label: "Value", defaultValue: "", isRequired: true },
+            { id: 1, type: "TextField", label: "Name", placeholder: "parameter_key", defaultValue: "", isRequired: true },
+            { id: 2, type: "TextField", label: "Value", placeholder: "parameter_value", defaultValue: "", isRequired: true },
             { id: 3, type: "Dropdown", label: "Scope", defaultValue: "default", values: ["default", "transport", "axis2", "axis2-client"], isRequired: true },
         ]
     });
@@ -191,9 +145,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
             })();
         }
         (async () => {
-            const result = await getArtifactNamesAndRegistryPaths(props.path, rpcClient);
-            setArtifactNames(result.artifactNamesArr);
-            setRegistryPaths(result.registryPaths);
             const artifactRes = await rpcClient.getMiDiagramRpcClient().getAllArtifacts({
                 path: props.path,
             });
@@ -203,9 +154,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
 
     useEffect(() => {
         setPrevName(watch("name"));
-        if (prevName === watch("artifactName")) {
-            setValue("artifactName", watch("name"));
-        }
     }, [watch("name")]);
 
     const buildMessageOptions = [
@@ -262,14 +210,20 @@ export function FailoverWizard(props: FailoverWizardProps) {
         const updateEndpointParams = {
             directory: props.path,
             ...values,
-            getContentOnly: watch("saveInReg") && isNewEndpoint,
+            getContentOnly: false,
             endpoints,
         }
-        const result = await rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
-        if (watch("saveInReg") && isNewEndpoint) {
-            await saveToRegistry(rpcClient, props.path, values.registryType, values.name, result.content, values.registryPath, values.artifactName);
+        await rpcClient.getMiDiagramRpcClient().updateFailoverEndpoint(updateEndpointParams);
+        
+        if (props.isPopup) {
+            rpcClient.getMiVisualizerRpcClient().openView({
+                type: POPUP_EVENT_TYPE.CLOSE_VIEW,
+                location: { view: null, recentIdentifier: getValues("name") },
+                isPopup: true
+            });
+        } else {
+            openOverview();
         }
-        openOverview();
     };
 
     const openOverview = () => {
@@ -289,7 +243,7 @@ export function FailoverWizard(props: FailoverWizardProps) {
     }
 
     return (
-        <FormView title="Endpoint Artifact" onClose={props.handlePopupClose ?? openOverview}>
+        <FormView title="Endpoint" onClose={props.handlePopupClose ?? openOverview}>
             <TypeChip
                 type={"Failover Endpoint"}
                 onClick={changeType}
@@ -349,16 +303,6 @@ export function FailoverWizard(props: FailoverWizardProps) {
                     <ParamManager paramConfigs={paramConfigs} onChange={handleParamChange} />
                 </FieldGroup>
             </FormGroup>
-            {isNewEndpoint && (<>
-                <FormCheckBox
-                    label="Save the endpoint in registry"
-                    {...register("saveInReg")}
-                    control={control}
-                />
-                {watch("saveInReg") && (<>
-                    <AddToRegistry path={props.path} fileName={watch("name")} register={register} errors={errors} getValues={getValues} />
-                </>)}
-            </>)}
             <FormActions>
                 <Button
                     appearance="secondary"

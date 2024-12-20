@@ -59,11 +59,6 @@ export type InputsFields = {
     clientSecretExpression: boolean;
     tokenUrlExpression: boolean;
     refreshTokenExpression: boolean;
-    saveInReg?: boolean;
-    //reg form
-    artifactName?: string;
-    registryPath?: string
-    registryType?: "gov" | "conf";
 }
 
 export const initialEndpoint: InputsFields = {
@@ -134,12 +129,6 @@ export const initialEndpoint: InputsFields = {
     clientSecretExpression: false,
     tokenUrlExpression: false,
     refreshTokenExpression: false,
-
-    saveInReg: false,
-    //reg form
-    artifactName: "",
-    registryPath: "/",
-    registryType: "gov"
 }
 
 export const paramTemplateConfigs: ParamConfig = {
@@ -162,14 +151,16 @@ export const propertiesConfigs: ParamConfig = {
             id: 0,
             type: "TextField",
             label: "Name",
-            defaultValue: "parameter_key",
+            placeholder: "parameter_key",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Value",
-            defaultValue: "parameter_value",
+            placeholder: "parameter_value",
+            defaultValue: "",
             isRequired: true
         },
         {
@@ -190,14 +181,16 @@ export const oauthPropertiesConfigs: ParamConfig = {
             id: 0,
             type: "TextField",
             label: "Name",
-            defaultValue: "parameter_key",
+            placeholder: "parameter_key",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Value",
-            defaultValue: "parameter_value",
+            placeholder: "parameter_value",
+            defaultValue: "",
             isRequired: true
         }
     ]

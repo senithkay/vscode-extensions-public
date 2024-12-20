@@ -114,14 +114,18 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { rpcClient } = useVisualizerContext();
+    const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const hasDiagnotics = node.hasDiagnotics();
     const tooltip = hasDiagnotics ? node.getDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
     const endpointHasDiagnotics = node.endpointHasDiagnostics();
     const endpointTooltip = endpointHasDiagnotics ? node.getEndpointDiagnostics().map(diagnostic => diagnostic.message).join("\n") : undefined;
-    const nodeDescription = getNodeDescription(node.mediatorName, node.stNode);
+    const nodeDescription = getNodeDescription(node.stNode);
     const hasBreakpoint = node.hasBreakpoint();
     const isActiveBreakpoint = node.isActiveBreakpoint();
+
+    useEffect(() => {
+        node.setSelected(sidePanelContext?.node === node);
+    }, [sidePanelContext?.node]);
 
     const TooltipEl = useMemo(() => {
         return () => (
@@ -284,7 +288,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             </S.CircleContainer>
 
             {node.endpoint ? (
-                <S.EndpointTextWrapper>{getNodeDescription(node.mediatorName, node.endpoint)}</S.EndpointTextWrapper>
+                <S.EndpointTextWrapper>{getNodeDescription(node.endpoint)}</S.EndpointTextWrapper>
             ) : (
                 <S.EndpointContainer>
                     {/* <MediatorIcon appearance="icon" onClick={handlePlusNode}>
@@ -303,7 +307,7 @@ export function CallNodeWidget(props: CallNodeWidgetProps) {
             >
                 <ClickAwayListener onClickAway={handlePopoverClose}>
                     <Menu>
-                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient) }} />
+                        <MenuItem key={'delete-btn'} item={{ label: 'Delete', id: "delete", onClick: () => node.delete(rpcClient, setDiagramLoading) }} />
                         <MenuItem key={'delete-endpoint-btn'} item={{ label: 'Delete Endpoint', id: "delete-endpoint", onClick: handleOnDeleteEndpointClick }} />
                         <BreakpointMenu hasBreakpoint={hasBreakpoint} node={node} rpcClient={rpcClient} />
                     </Menu>

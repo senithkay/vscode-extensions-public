@@ -12,9 +12,11 @@ import * as path from 'path';
 export const SAMPLE_ICONS_GITHUB_URL = "https://raw.githubusercontent.com/wso2/integration-studio/main/SamplesForVSCode/icons/";
 export const MI_COPILOT_BACKEND_URL = "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/miaideployments/micopilot/mi-copilot-backend-be2/v1.0";
 export const USER_CHECK_BACKEND_URL = '/user/usage';
+export const DATAMAP_BACKEND_URL = '/data-mapper/map';
 
 export const COMMANDS = {
     OPEN_PROJECT: "MI.openProject",
+    IMPORT_CAPP: "MI.importCAPP",
     MIGRATE_PROJECT: "MI.migrateProject",
     SHOW_OVERVIEW: "MI.showOverview",
     DISABLE_OVERVIEW: "MI.disableOverview",
@@ -53,8 +55,10 @@ export const COMMANDS = {
     ADD_COMMAND: 'MI.project-explorer.add',
     ADD_TO_REGISTRY_COMMAND: 'MI.registry-explorer.add',
     ADD_API_COMMAND: 'MI.project-explorer.add-api',
+    ADD_RESOURCE_COMMAND: 'MI.project-explorer.add-resource',
     ADD_ENDPOINT_COMMAND: 'MI.project-explorer.add-endpoint',
     ADD_SEQUENCE_COMMAND: 'MI.project-explorer.add-sequence',
+    ADD_DATAMAPPER_COMMAND: 'MI.project-explorer.add-datamapper',
     ADD_INBOUND_ENDPOINT_COMMAND: 'MI.project-explorer.add-inbound-endpoint',
     ADD_PROXY_SERVICE_COMMAND: 'MI.project-explorer.add-proxy-service',
     ADD_TASK_COMMAND: 'MI.project-explorer.add-task',
@@ -72,11 +76,12 @@ export const COMMANDS = {
     OPEN_PROJECT_OVERVIEW: 'MI.project-explorer.open-project-overview',
     ADD_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.add-registry-resource',
     EDIT_REGISTERY_RESOURCE_COMMAND: 'MI.project-explorer.edit-reg-resource',
-    EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.project-explorer.edit-reg-metadata',
+    EDIT_REGISTRY_RESOURCE_METADATA_COMMAND: 'MI.registry-explorer.edit-reg-metadata',
     ADD_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.add-class-mediator',
     EDIT_CLASS_MEDIATOR_COMMAND: 'MI.project-explorer.edit-class-mediator',
     DELETE_PROJECT_EXPLORER_ITEM: 'MI.project-explorer.delete',
     CHANGE_SERVER_PATH: 'MI.change.server',
+    CHANGE_JAVA_HOME: 'MI.change.java',
     BUILD_PROJECT: 'MI.build-project',
     CREATE_DOCKER_IMAGE: 'MI.create-docker-image',
     BUILD_AND_RUN_PROJECT: 'MI.build-and-run',
@@ -97,7 +102,9 @@ export const COMMANDS = {
 
 export const DEFAULT_PROJECT_VERSION = "1.0.0";
 
-export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript"];
+export const READONLY_MAPPING_FUNCTION_NAME = "mapFunction";
+
+export const REFRESH_ENABLED_DOCUMENTS = ["SynapseXml", "typescript", "markdown"];
 
 export enum EndpointTypes {
     DEFAULT_ENDPOINT = "DEFAULT_ENDPOINT",
@@ -154,8 +161,11 @@ export enum MessageStoreTypes {
 export * from "./swagger";
 
 export const APIS = {
-    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details"
+    CONNECTOR: "https://apis.wso2.com/connector-store/connector-details",
+    CONNECTORS_STORE: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?offset=0&product=MI&type=Connector",
+    CONNECTOR_SEARCH: "https://apis-stg.wso2.com/qgpf/connector-store-backend/endpoint-9090-803/v1.0/connectors/details?limit=10&offset=0&searchQuery=${searchValue}&type=Connector&product=MI"
 }
 
 export const DM_OPERATORS_FILE_NAME="dm-utils";
 export const DM_OPERATORS_IMPORT_NAME="dmUtils";
+export const LAST_EXPORTED_CAR_PATH = "last-exported-car-path";

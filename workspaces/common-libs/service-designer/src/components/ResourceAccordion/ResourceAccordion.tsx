@@ -20,6 +20,7 @@ type MethodProp = {
 
 type ContainerProps = {
     borderColor?: string;
+    haveErrors?: boolean;
 };
 
 type ButtonSectionProps = {
@@ -38,6 +39,7 @@ const AccordionContainer = styled.div<ContainerProps>`
         background-color: var(--vscode-list-hoverBackground);
         cursor: pointer;
     }
+    border: ${(p: ContainerProps) => p.haveErrors ? "1px solid red" : "none"};
 `;
 
 const AccordionHeader = styled.div<HeaderProps>`
@@ -220,7 +222,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     }
 
     return (
-        <AccordionContainer>
+        <AccordionContainer data-testid="service-design-view-resource">
             <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
                     {resource?.methods?.map((method, index) => {

@@ -9,14 +9,31 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaDiagnosticsRequest,
+    BallerinaDiagnosticsResponse,
+    CommandsRequest,
+    CommandsResponse,
     CommonRPCAPI,
+    FileOrDirRequest,
+    FileOrDirResponse,
     GoToSourceRequest,
+    OpenExternalUrlRequest,
+    RunExternalCommandRequest,
+    RunExternalCommandResponse,
     TypeResponse,
     WorkspaceFileRequest,
+    WorkspaceRootResponse,
     WorkspacesFileResponse,
+    executeCommand,
+    experimentalEnabled,
+    getBallerinaDiagnostics,
     getTypes,
     getWorkspaceFiles,
-    goToSource
+    getWorkspaceRoot,
+    goToSource,
+    openExternalUrl,
+    runBackgroundTerminalCommand,
+    selectFileOrDirPath
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -38,5 +55,33 @@ export class CommonRpcClient implements CommonRPCAPI {
 
     getWorkspaceFiles(params: WorkspaceFileRequest): Promise<WorkspacesFileResponse> {
         return this._messenger.sendRequest(getWorkspaceFiles, HOST_EXTENSION, params);
+    }
+
+    getBallerinaDiagnostics(params: BallerinaDiagnosticsRequest): Promise<BallerinaDiagnosticsResponse> {
+        return this._messenger.sendRequest(getBallerinaDiagnostics, HOST_EXTENSION, params);
+    }
+
+    executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
+        return this._messenger.sendRequest(executeCommand, HOST_EXTENSION, params);
+    }
+
+    runBackgroundTerminalCommand(params: RunExternalCommandRequest): Promise<RunExternalCommandResponse> {
+        return this._messenger.sendRequest(runBackgroundTerminalCommand, HOST_EXTENSION, params);
+    }
+
+    openExternalUrl(params: OpenExternalUrlRequest): void {
+        return this._messenger.sendNotification(openExternalUrl, HOST_EXTENSION, params);
+    }
+
+    selectFileOrDirPath(params: FileOrDirRequest): Promise<FileOrDirResponse> {
+        return this._messenger.sendRequest(selectFileOrDirPath, HOST_EXTENSION, params);
+    }
+
+    experimentalEnabled(): Promise<boolean> {
+        return this._messenger.sendRequest(experimentalEnabled, HOST_EXTENSION);
+    }
+
+    getWorkspaceRoot(): Promise<WorkspaceRootResponse> {
+        return this._messenger.sendRequest(getWorkspaceRoot, HOST_EXTENSION);
     }
 }

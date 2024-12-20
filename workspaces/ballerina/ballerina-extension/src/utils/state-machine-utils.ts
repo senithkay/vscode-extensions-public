@@ -7,28 +7,84 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { HistoryEntry, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
+import { HistoryEntry, MACHINE_VIEW, SyntaxTreeResponse } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { StateMachine } from "../stateMachine";
 import { Uri } from "vscode";
-import { UIDGenerationVisitor } from "../history/uid-generation-visitor";
-import { FindNodeByUidVisitor } from "../history/find-node-by-uid";
-import { FindConstructByNameVisitor } from "../history/find-construct-by-name-visitor";
-import { FindConstructByIndexVisitor } from "../history/find-construct-by-index-visitor";
-import { getConstructBodyString } from "../history/util";
+import { UIDGenerationVisitor } from "./history/uid-generation-visitor";
+import { FindNodeByUidVisitor } from "./history/find-node-by-uid";
+import { FindConstructByNameVisitor } from "./history/find-construct-by-name-visitor";
+import { FindConstructByIndexVisitor } from "./history/find-construct-by-index-visitor";
+import { getConstructBodyString } from "./history/util";
+import { ballerinaExtInstance } from "../core";
 
 export async function getView(documentUri: string, position: NodePosition): Promise<HistoryEntry> {
 
     const req = getSTByRangeReq(documentUri, position);
     const node = await StateMachine.langClient().getSTByRange(req) as SyntaxTreeResponse;
-
     if (node.parseSuccess) {
+        if (STKindChecker.isTypeDefinition(node.syntaxTree)) {
+            const recordST = node.syntaxTree;
+            const name = recordST.typeName?.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!name || !module) {
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to render composition view', recordST);
+            } else {
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`;
+                return {
+                    location: {
+                        view: MACHINE_VIEW.TypeDiagram,
+                        documentUri: documentUri,
+                        position: position,
+                        identifier: nodeId
+                    }
+                };
+            }
+        }
+        if (
+            STKindChecker.isModuleVarDecl(node.syntaxTree) &&
+            STKindChecker.isQualifiedNameReference(node.syntaxTree.typedBindingPattern.typeDescriptor) &&
+            node.syntaxTree.typedBindingPattern.typeDescriptor.identifier.value === "Client" &&
+            STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)
+        ) {
+            // connection
+            const connectionName = node.syntaxTree.typedBindingPattern.bindingPattern.variableName.value;
+            if (!connectionName) {
+                // tslint:disable-next-line
+                console.error("Couldn't capture connection from STNode", { STNode: node.syntaxTree });
+            } else {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.EditConnectionWizard,
+                        identifier: connectionName,
+                    },
+                };
+            }
+        }
+
+        if (STKindChecker.isListenerDeclaration(node.syntaxTree)) {
+            const listenerST = node.syntaxTree;
+            const variablePosition = listenerST.variableName.position;
+            return {
+                location: {
+                    view: MACHINE_VIEW.ListenerConfigView,
+                    documentUri: documentUri,
+                    position: variablePosition
+                }
+            };
+        }
+
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             const expr = node.syntaxTree.expressions[0];
+            let haveServiceType = false;
+            if (node.syntaxTree.typeDescriptor && STKindChecker.isSimpleNameReference(node.syntaxTree.typeDescriptor)) {
+                haveServiceType = true;
+            }
             if (expr?.typeData?.typeSymbol?.signature?.includes("graphql")) {
                 return {
                     location: {
-                        view: "GraphQLDiagram",
+                        view: MACHINE_VIEW.GraphQLDiagram,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
                         position: position
@@ -37,10 +93,11 @@ export async function getView(documentUri: string, position: NodePosition): Prom
             } else {
                 return {
                     location: {
-                        view: "ServiceDesigner",
+                        view: MACHINE_VIEW.ServiceDesigner,
                         identifier: node.syntaxTree.absoluteResourcePath.map((path) => path.value).join(''),
                         documentUri: documentUri,
-                        position: position
+                        position: position,
+                        haveServiceType: haveServiceType
                     }
                 };
             }
@@ -50,7 +107,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         ) {
             return {
                 location: {
-                    view: "DataMapper",
+                    view: MACHINE_VIEW.DataMapper,
                     identifier: node.syntaxTree.functionName.value,
                     documentUri: documentUri,
                     position: position
@@ -60,19 +117,47 @@ export async function getView(documentUri: string, position: NodePosition): Prom
         } else if (
             STKindChecker.isFunctionDefinition(node.syntaxTree)
             || STKindChecker.isResourceAccessorDefinition(node.syntaxTree)
+            || STKindChecker.isObjectMethodDefinition(node.syntaxTree)
         ) {
+            if (StateMachine.context().isBI) {
+                return {
+                    location: {
+                        view: MACHINE_VIEW.BIDiagram,
+                        documentUri: documentUri,
+                        position: node.syntaxTree.position,
+                        metadata: {
+                            enableSequenceDiagram: ballerinaExtInstance.enableSequenceDiagramView(),
+                        }
+                    },
+                    dataMapperDepth: 0
+                };
+            }
             return {
                 location: {
-                    view: "SequenceDiagram",
+                    view: MACHINE_VIEW.SequenceDiagram,
                     documentUri: documentUri,
                     position: position
                 },
                 dataMapperDepth: 0
             };
+
+        }
+
+        // config variables
+
+        if (STKindChecker.isConfigurableKeyword(node.syntaxTree.qualifiers[0]) &&
+            STKindChecker.isCaptureBindingPattern(node.syntaxTree.typedBindingPattern.bindingPattern)) {
+            return {
+                location: {
+                    view: MACHINE_VIEW.EditConfigVariables,
+                    documentUri: documentUri,
+                    position: position
+                },
+            };
         }
     }
 
-    return {location: { view: "Overview", documentUri: documentUri }};
+    return { location: { view: MACHINE_VIEW.Overview, documentUri: documentUri } };
 }
 
 export function getComponentIdentifier(node: STNode): string {
@@ -123,3 +208,4 @@ function getSTByRangeReq(documentUri: string, position: NodePosition) {
         }
     };
 }
+

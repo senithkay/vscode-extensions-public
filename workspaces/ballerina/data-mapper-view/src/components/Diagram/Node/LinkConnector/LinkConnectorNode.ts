@@ -44,6 +44,7 @@ import { PrimitiveTypeNode } from "../PrimitiveType";
 import { UnionTypeNode } from "../UnionType";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
+const NODE_ID = "link-connector-node";
 
 export class LinkConnectorNode extends DataMapperNodeModel {
 
@@ -57,6 +58,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public value: string;
     public diagnostics: Diagnostic[];
     public hidden: boolean;
+    public hasInitialized: boolean;
 
     constructor(
         public context: IDataMapperContext,
@@ -68,6 +70,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public fnDefForFnCall?: FnDefInfo,
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
+            NODE_ID,
             context,
             LINK_CONNECTOR_NODE_TYPE
         );
@@ -111,6 +114,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     const targetPortPrefix = getTargetPortPrefix(node);
                     if (STKindChecker.isFunctionDefinition(this.parentNode)
                         || STKindChecker.isQueryExpression(this.parentNode)
+                        || STKindChecker.isSpecificField(this.parentNode)
                         || STKindChecker.isBracedExpression(this.parentNode))
                     {
                         if (!(node instanceof MappingConstructorNode)) {
@@ -132,9 +136,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                             node.recordField, targetPortPrefix,
                             (portId: string) =>  node.getPort(portId) as RecordFieldPortModel,
                             rootName);
-                    }
-                    if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
-                        this.hidden = true;
+                        const previouslyHidden = this.hidden;
+                        this.hidden = this.targetMappedPort?.portName !== this.targetPort?.portName;
+                        if (this.hidden !== previouslyHidden) {
+                            this.hasInitialized = false;
+                        }
                     }
                 }
             });
@@ -142,6 +148,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        if (this.hasInitialized) {
+            return;
+        }
         if (!this.hidden) {
             this.sourcePorts.forEach((sourcePort) => {
                 const inPort = this.inPort;
@@ -221,6 +230,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 })
             }
         }
+        this.hasInitialized = true;
     }
 
     updateSource(): void {

@@ -21,39 +21,68 @@ import {
     OpenExternalRequest,
     OpenExternalResponse,
     OpenViewRequest,
+    ProjectOverviewResponse,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    ReadmeContentResponse,
     RetrieveContextRequest,
     RetrieveContextResponse,
     RuntimeServicesResponse,
     SampleDownloadRequest,
+    AddConfigurableRequest,
     SwaggerProxyRequest,
     SwaggerProxyResponse,
+    ToggleDisplayOverviewRequest,
     UpdateContextRequest,
     WorkspacesResponse,
     addToHistory,
-    toggleDisplayOverview,
-    ToggleDisplayOverviewRequest,
     downloadSelectedSampleFromGithub,
     fetchSamplesFromGithub,
+    focusOutput,
+    getAvailableRuntimeServices,
     getCurrentThemeKind,
+    addConfigurable,
     getHistory,
+    getProjectOverview,
     getProjectStructure,
+    getReadmeContent,
     getWorkspaces,
     goBack,
     goHome,
     goSelected,
+    goToSource,
     log,
     openExternal,
+    openReadme,
     openView,
     reloadWindow,
-    focusOutput,
-    goToSource,
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
+    downloadJava,
+    downloadMI,
+    selectFolder,
+    MIDetails,
+    JavaAndMIPathResponse,
+    JavaAndMIPathRequest,
+    getJavaAndMIPaths,
+    setJavaAndMIPaths,
+    getSupportedMIVersions,
+    getMIDetailsFromPom,
+    toggleDisplayOverview,
     updateContext,
-    getAvailableRuntimeServices
+    getProjectDetails,
+    updateDependencies,
+    updatePomValues,
+    updateConfigFileValues,
+    ProjectDetailsResponse,
+    importOpenAPISpec,
+    UpdateDependenciesRequest,
+    UpdatePomValuesRequest,
+    UpdateConfigValuesRequest,
+    updateConnectorDependencies,
+    ImportOpenAPISpecRequest,
+    updateRuntimeVersionsInPom
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -71,6 +100,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
+    }
+
+    getProjectOverview(params: ProjectStructureRequest): Promise<ProjectOverviewResponse> {
+        return this._messenger.sendRequest(getProjectOverview, HOST_EXTENSION, params);
     }
 
     getCurrentThemeKind(): Promise<ColorThemeKind> {
@@ -95,6 +128,10 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     downloadSelectedSampleFromGithub(params: SampleDownloadRequest): void {
         return this._messenger.sendNotification(downloadSelectedSampleFromGithub, HOST_EXTENSION, params);
+    }
+
+    addConfigurable(params: AddConfigurableRequest): Promise<void> {
+        return this._messenger.sendRequest(addConfigurable, HOST_EXTENSION, params);
     }
 
     getHistory(): Promise<HistoryEntryResponse> {
@@ -151,5 +188,62 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     openExternal(params: OpenExternalRequest): Promise<OpenExternalResponse> {
         return this._messenger.sendRequest(openExternal, HOST_EXTENSION, params);
+    }
+
+    getReadmeContent(): Promise<ReadmeContentResponse> {
+        return this._messenger.sendRequest(getReadmeContent, HOST_EXTENSION);
+    }
+
+    openReadme(): void {
+        return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
+    }
+
+    downloadJava(params: string): Promise<string> {
+        return this._messenger.sendRequest(downloadJava, HOST_EXTENSION, params);
+    }
+
+    downloadMI(params: string): Promise<string> {
+        return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
+    }
+
+    getSupportedMIVersions(): Promise<string[]> {
+        return this._messenger.sendRequest(getSupportedMIVersions, HOST_EXTENSION);
+    }
+
+    getMIDetailsFromPom(): Promise<MIDetails> {
+        return this._messenger.sendRequest(getMIDetailsFromPom, HOST_EXTENSION);
+    }
+    updateRuntimeVersionsInPom(params:string): Promise<boolean> {
+        return this._messenger.sendRequest(updateRuntimeVersionsInPom, HOST_EXTENSION, params);
+    }
+
+    getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
+        return this._messenger.sendRequest(getJavaAndMIPaths, HOST_EXTENSION);
+    }
+
+    setJavaAndMIPaths(params: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
+        return this._messenger.sendRequest(setJavaAndMIPaths, HOST_EXTENSION, params);
+    }
+    
+    selectFolder(params:string): Promise<string|undefined> {
+        return this._messenger.sendRequest(selectFolder, HOST_EXTENSION, params);
+    }
+    getProjectDetails(): Promise<ProjectDetailsResponse> {
+        return this._messenger.sendRequest(getProjectDetails, HOST_EXTENSION);
+    }
+    updateDependencies(params: UpdateDependenciesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateDependencies, HOST_EXTENSION, params);
+    }
+    updatePomValues(params: UpdatePomValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updatePomValues, HOST_EXTENSION, params);
+    }
+    updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateConfigFileValues, HOST_EXTENSION, params);
+    }
+    updateConnectorDependencies(): Promise<string> {
+        return this._messenger.sendRequest(updateConnectorDependencies, HOST_EXTENSION);
+    }
+    importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
+        return this._messenger.sendRequest(importOpenAPISpec, HOST_EXTENSION, params);
     }
 }

@@ -8,7 +8,7 @@
  */
 import { DMType } from "@wso2-enterprise/mi-core";
 import md5 from "blueimp-md5";
-import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression } from "ts-morph";
+import { CallExpression, ElementAccessExpression, Identifier, Node, PropertyAccessExpression, PropertyAssignment, SyntaxKind } from "ts-morph";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperLinkModel } from "../../Link";
@@ -121,7 +121,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
         const fieldName = Node.isPropertyAssignment(innerMostExpr) && innerMostExpr.getNameNode();
         const fieldNamePosition = fieldName && getPosition(fieldName);
         const returnStmt = getTnfFnReturnStatement(this.context.functionST);
-        const isRerurnStmtMapFn = Node.isReturnStatement(this.parentNode);
+        const isReturnStmtMapFn = Node.isReturnStatement(this.parentNode);
         const outputSearchValue = useDMSearchStore.getState().outputSearch;
         const shouldFindTargetPort = outputSearchValue === ""
             || fieldName?.getText().toLowerCase().includes(outputSearchValue.toLowerCase());
@@ -147,7 +147,7 @@ export class ArrayFnConnectorNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isRerurnStmtMapFn) {
+        } else if (representsTnfFnReturnStmt(this.parentNode, returnStmt) || isReturnStmtMapFn) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ArrayOutputNode) {
                     const ports = Object.entries(node.getPorts());

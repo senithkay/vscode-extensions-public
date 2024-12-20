@@ -1,13 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
 import { CELL_LINK, Colors, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
-import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { DiagramLayer } from "../../../types";
 import { SharedLink } from "../../SharedLink/SharedLink";
+import Popper from "@mui/material/Popper";
+import Box from "@mui/material/Box";
+import { CellBounds } from "../CellNode/CellModel";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -67,6 +69,17 @@ export function CellLinkWidget(props: WidgetProps) {
             link.deregisterListener(listener);
         };
     }, [link, hideLink]);
+
+    useEffect(() => {
+        if (link.getIsExternalConsumerLink()) {
+            const destinationNode = link.getDestinationNode();
+            if (destinationNode) {
+                destinationNode.fireEvent({
+                    cellBound: link.getTargetPort().getOptions().alignment === PortModelAlignment.TOP ? CellBounds.NorthBound : CellBounds.WestBound,
+                }, isSelected ? "EXTERNAL_CONSUMER_LINK_SELECT" : "EXTERNAL_CONSUMER_LINK_UNSELECT");
+            }
+        }
+    }, [link, isSelected]);
 
     const selectPath = () => {
         if (hideLink) {
@@ -165,15 +178,12 @@ export function CellLinkWidget(props: WidgetProps) {
                 {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
             </g>
             {(hasObservabilityLayer || link.tooltip) && (
-                <Popover
-                    id={link.getID()}
-                    open={open}
-                    anchorEl={anchorEl}
-                    sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}
-                >
-                    {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
-                    {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
-                </Popover>
+                <Popper id={link.getID()} open={open} anchorEl={anchorEl}>
+                    <Box sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}>
+                        {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
+                        {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
+                    </Box>
+                </Popper>
             )}
         </>
     );

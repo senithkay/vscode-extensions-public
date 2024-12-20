@@ -61,6 +61,7 @@ type InputsFields = {
     endpoint?: string;
     faultSequenceType?: string;
     faultSequence?: string;
+    faultSequenceEdited?: boolean;
     inSequenceType?: string;
     inSequence?: string;
     inSequenceEdited?: boolean;
@@ -135,6 +136,7 @@ export type EditProxyForm  = {
     trace: boolean;
     inSequenceEdited: boolean;
     outSequenceEdited: boolean;
+    faultSequenceEdited: boolean;
 };
 
 export type SequenceOption = "inline" | "named";
@@ -274,6 +276,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         endpoint: proxyData.target?.endpointAttribute ,
         faultSequenceType: proxyData.target?.faultSequenceAttribute ? "named" : "inline",
         faultSequence: proxyData.target?.faultSequenceAttribute,
+        faultSequenceEdited: false,
         inSequenceType: proxyData.target?.inSequenceAttribute ? "named" : "inline",
         inSequenceEdited: false,
         inSequence: proxyData.target?.inSequenceAttribute,
@@ -315,6 +318,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
     const [validationMessage, setValidationMessage] = useState<boolean>(true);
     const intialInSequenceType = proxyData.target?.inSequenceAttribute ? "named" : "inline";
     const intialOutSequenceType = proxyData.target?.outSequenceAttribute ? "named" : "inline";
+    const initialFaultSequenceType = proxyData.target?.faultSequenceAttribute ? "named" : "inline";
     const [message , setMessage] = useState({
         isError: false,
         text: ""
@@ -326,14 +330,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             id: 0,
             type: "TextField",
             label: "Name",
-            defaultValue: "Parameter Name",
+            placeholder: "Parameter Name",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Value",
-            defaultValue: "Parameter Value",
+            placeholder: "Parameter Value",
+            defaultValue: "",
             isRequired: true
         }]
     }
@@ -345,7 +351,8 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             id: 0,
             type: "AutoComplete",
             label: "Service Policy",
-            defaultValue: "value",
+            placeholder: "Policy",
+            defaultValue: "",
             isRequired: true,
             values: [],
             allowItemCreate: true}]
@@ -358,14 +365,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
             id: 0,
             type: "TextField",
             label: "Location",
-            defaultValue: "Resource Location",
+            placeholder: "Resource Location",
+            defaultValue: "",
             isRequired: true
         },
         {
             id: 1,
             type: "TextField",
             label: "Key",
-            defaultValue: "Resource Key",
+            placeholder: "Resource Key",
+            defaultValue: "",
             isRequired: true
         }]
     }
@@ -528,15 +537,16 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
         const parser = new XMLParser(options);
         const builder = new XMLBuilder(options);
         const jsonData = parser.parse(getValues("wsdlInLine"));
-        if(jsonData["wsdl:definitions"]["@_"]["xmlns"] || jsonData["wsdl:definitions"]["@_"]["xmlns:wsdl"]) {
-            if (jsonData["wsdl:definitions"]["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
-                delete jsonData["wsdl:definitions"]["@_"]["xmlns"];
+        if (jsonData["wsdl:definitions"]?.["@_"]) {
+            if (jsonData["wsdl:definitions"]["@_"]["xmlns"] || jsonData["wsdl:definitions"]["@_"]["xmlns:wsdl"]) {
+                if (jsonData["wsdl:definitions"]["@_"]["xmlns"] === "http://ws.apache.org/ns/synapse") {
+                    delete jsonData["wsdl:definitions"]["@_"]["xmlns"];
+                }
+            }
+            else {
+                jsonData["wsdl:definitions"]["@_"]["xmlns"] = "";
             }
         }
-        else {
-             jsonData["wsdl:definitions"]["@_"]["xmlns"] = "";
-        }
-        console.log(jsonData);
         return builder.build(jsonData) as string;
     }
 
@@ -793,7 +803,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                         paramConfigs={resources}
                                         readonly={false}
                                         onChange={(param)=>handleOnChange(param,"resources")}
-                                        addParamText="Add WSDL Policy" />
+                                        addParamText="Add WSDL Resource" />
                                 </>
                             )}
                         </React.Fragment>
@@ -841,6 +851,7 @@ export function EditProxyForm({ proxyData, isOpen, documentUri, onCancel, onSave
                                     trace: values.trace,
                                     inSequenceEdited: intialInSequenceType !== values.inSequenceType,
                                     outSequenceEdited: intialOutSequenceType !== values.outSequenceType,
+                                    faultSequenceEdited: initialFaultSequenceType !== values.faultSequenceType,
                                     parameters: parametersParser(),
                                 },
                                 )

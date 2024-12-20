@@ -9,8 +9,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Colors } from '../../resources';
 import { NodeCollapser } from '../Controls/NodeCollapser';
+import { ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
 interface HeaderProps {
     collapsedMode: boolean;
@@ -19,7 +19,7 @@ interface HeaderProps {
 
 const HeaderContainer = styled.div`
     align-items: center;
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${ThemeColors.ON_SURFACE};
     display: flex;
     flex-direction: row;
     font-family: GilmerBold;
@@ -32,7 +32,7 @@ const HeaderContainer = styled.div`
 `;
 
 export const Title = styled.div(() => ({
-    color: 'var(--vscode-sideBarSectionHeader-foreground)'
+    color: ThemeColors.ON_SURFACE
 }));
 
 export function HeaderWidget(props: HeaderProps) {
