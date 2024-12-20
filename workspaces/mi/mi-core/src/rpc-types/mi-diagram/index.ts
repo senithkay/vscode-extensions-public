@@ -361,6 +361,7 @@ export interface MiDiagramAPI {
     generateDSSQueries: (params: ExtendedDSSQueryGenRequest) => Promise<boolean>;
     fetchDSSTables: (params: DSSFetchTablesRequest) => Promise<DSSFetchTablesResponse>;
     tryOutMediator: (params: MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;
+    shutDownTryoutServer: () => Promise<boolean>;
     saveInputPayload: (params:SavePayloadRequest) => Promise<boolean>;
     getInputPayload: (params:GetPayloadRequest) => Promise<GetPayloadResponse>;
     getMediatorInputOutputSchema: (params:MediatorTryOutRequest) => Promise<MediatorTryOutResponse>;

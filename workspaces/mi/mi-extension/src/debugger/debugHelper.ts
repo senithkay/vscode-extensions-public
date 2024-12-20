@@ -340,6 +340,10 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
     const maxTimeout = 15000;
     return new Promise<void>(async (resolve, reject) => {
+        const isTerminated = await StateMachine.context().langClient?.shutdownTryoutServer();
+        if (!isTerminated) {
+            reject('Failed to terminate the tryout server. Kill the server manually and try again.');
+        }
         executeBuildTask(serverPath).then(async () => {
             const isServerRunning = await checkServerLiveness();
             if (!isServerRunning) {
