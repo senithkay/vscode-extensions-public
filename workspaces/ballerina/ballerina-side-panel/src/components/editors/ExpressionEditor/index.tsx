@@ -142,6 +142,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         watch,
         isLoadingHelperPaneInfo,
         variableInfo,
+        configVariableInfo,
         functionInfo,
         libraryBrowserInfo,
         completions,
@@ -158,6 +159,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         onRemove,
         openSubPanel,
         handleOnFieldFocus,
+        onSaveConfigurables,
         subPanelView,
         targetLineRange,
         fileName,
@@ -255,12 +257,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             exprRef,
             isLoadingHelperPaneInfo,
             variableInfo,
+            configVariableInfo,
             functionInfo,
             libraryBrowserInfo,
             () => setIsHelperPaneOpen(false),
             getHelperPaneData,
             value,
-            onChange
+            onChange,
+            onSaveConfigurables
         );
     }
 

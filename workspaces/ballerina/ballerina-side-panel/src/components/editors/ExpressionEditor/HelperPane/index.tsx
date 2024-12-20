@@ -22,24 +22,28 @@ export type HelperPaneProps = {
     exprRef: React.RefObject<FormExpressionEditorRef>;
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
+    configVariableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     onClose: () => void;
     setFilterText: (type: string, filterText: string) => void;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
+    onSave: (values: any) => void;
 };
 
 const HelperPaneEl = ({
     exprRef,
     isLoadingHelperPaneInfo,
     variableInfo,
+    configVariableInfo,
     functionInfo,
     libraryBrowserInfo,
     onClose,
     setFilterText,
     currentValue,
-    onChange
+    onChange,
+    onSave,
 }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
@@ -57,6 +61,13 @@ const HelperPaneEl = ({
         // Close the helper pane
         onClose();
     };
+
+    function addConfigVariables(values: any): Promise<void> {
+        return new Promise((resolve) => {
+            onSave(values);
+            resolve();
+        });
+    }
 
     return (
         <HelperPane>
@@ -81,13 +92,17 @@ const HelperPaneEl = ({
                     onChange={handleChange}
                 />
             )}
-            {/* {currentPage === 3 && (
+            {currentPage === 3 && (
                 <ConfigurablePage
+                    isLoading={isLoadingHelperPaneInfo}
+                    variableInfo={configVariableInfo as HelperPaneVariableInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('configurable', filterText)}
                     onClose={onClose}
+                    onChange={handleChange}
+                    onSave={addConfigVariables}
                 />
-            )} */}
+            )} 
             {currentPage === 4 && (
                 <LibraryBrowser
                     isLoading={isLoadingHelperPaneInfo}
@@ -106,24 +121,33 @@ export const getHelperPane = (
     exprRef: React.RefObject<FormExpressionEditorRef>,
     isLoadingHelperPaneInfo: boolean,
     variableInfo: HelperPaneData,
+    configVariableInfo: HelperPaneData,
     functionInfo: HelperPaneData,
     libraryBrowserInfo: HelperPaneData,
     onClose: () => void,
     setFilterText: (type: string, filterText: string) => void,
     currentValue: string,
-    onChange: (value: string, updatedCursorPosition: number) => void
+    onChange: (value: string, updatedCursorPosition: number) => void,
+    onSave: (values: any) => void
 ) => {
+    
+    function saveConfigVariables(values: any): void {
+        onSave(values);
+    }
+
     return (
         <HelperPaneEl
             exprRef={exprRef}
             isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
             variableInfo={variableInfo}
+            configVariableInfo={configVariableInfo}
             libraryBrowserInfo={libraryBrowserInfo}
             functionInfo={functionInfo}
             onClose={onClose}
             setFilterText={setFilterText}
             currentValue={currentValue}
             onChange={onChange}
+            onSave={saveConfigVariables}
         />
     );
 };

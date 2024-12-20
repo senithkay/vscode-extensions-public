@@ -53,25 +53,50 @@ export function ApiDesigner(props: ApiDesignerProps) {
                 if (component === "Paths#-Resources") {
                     // Get the first path item and set it as the selected item
                     const paths = openApi?.paths ? Object.keys(openApi.paths) : [];
-                    const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
-                        && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
-                    setSelectedComponentID(openApi?.paths && `paths#-component#-${sanitizedPaths[0]}`);
-                } else if (component === "Components#-Components" || component === "Schemas#-Components") {
+                    if (paths.length > 0) {
+                        const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
+                            && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
+                        setSelectedComponentID(openApi?.paths && `paths#-component#-${sanitizedPaths[0]}`);
+                    }
+                } else if (component === "Components#-Components") {
                     // Get the first schema item and set it as the selected item
-                    const schemas = openApi?.components?.schemas ? Object.keys(openApi.components.schemas) : [];
-                    setSelectedComponentID(schemas && `schemas#-component#-${schemas[0]}`);
+                    if (openApi?.components?.schemas && Object.keys(openApi.components.schemas).length > 0) {
+                        const schemas = Object.keys(openApi.components.schemas);
+                        setSelectedComponentID(schemas && `schemas#-component#-${schemas[0]}`);
+                    } else if (openApi?.components?.parameters && Object.keys(openApi.components.parameters).length > 0) {
+                        const parameters = Object.keys(openApi.components.parameters);
+                        setSelectedComponentID(parameters && `parameters#-component#-${parameters[0]}`);
+                    } else if (openApi?.components?.requestBodies && Object.keys(openApi.components.requestBodies).length > 0) {
+                        const requestBodies = Object.keys(openApi.components.requestBodies);
+                        setSelectedComponentID(requestBodies && `requestBody#-component#-${requestBodies[0]}`);
+                    } else if (openApi?.components?.responses && Object.keys(openApi.components.responses).length > 0) {
+                        const responses = Object.keys(openApi.components.responses);
+                        setSelectedComponentID(responses && `responses#-component#-${responses[0]}`);
+                    }
+                } else if (component === "Schemas#-Components") {
+                    // Get the first schema item and set it as the selected item
+                    if (openApi?.components?.schemas && Object.keys(openApi.components.schemas).length > 0) {
+                        const schemas = Object.keys(openApi.components.schemas);
+                        setSelectedComponentID(schemas && `schemas#-component#-${schemas[0]}`);
+                    }
                 } else if (component === "Paramters#-Components") {
                     // Get the first parameter item and set it as the selected item
-                    const parameters = openApi?.components?.parameters ? Object.keys(openApi.components.parameters) : [];
-                    setSelectedComponentID(parameters && `parameters#-component#-${parameters[0]}`);
+                    if (openApi?.components?.parameters && Object.keys(openApi.components.parameters).length > 0) {
+                        const parameters = Object.keys(openApi.components.parameters);
+                        setSelectedComponentID(parameters && `parameters#-component#-${parameters[0]}`);
+                    }
                 } else if (component === "RequestBody#-Components") {
                     // Get the first request body item and set it as the selected item
-                    const requestBodies = openApi?.components?.requestBodies ? Object.keys(openApi.components.requestBodies) : [];
-                    setSelectedComponentID(requestBodies && `requestBody#-component#-${requestBodies[0]}`);
+                    if (openApi?.components?.requestBodies && Object.keys(openApi.components.requestBodies).length > 0) {
+                        const requestBodies = Object.keys(openApi.components.requestBodies);
+                        setSelectedComponentID(requestBodies && `requestBody#-component#-${requestBodies[0]}`);
+                    }
                 } else if (component === "Responses#-Components") {
                     // Get the first response item and set it as the selected item
-                    const responses = openApi?.components?.responses ? Object.keys(openApi.components.responses) : [];
-                    setSelectedComponentID(responses && `responses#-component#-${responses[0]}`);
+                    if (openApi?.components?.responses && Object.keys(openApi.components.responses).length > 0) {
+                        const responses = Object.keys(openApi.components.responses);
+                        setSelectedComponentID(responses && `responses#-component#-${responses[0]}`);
+                    }
                 } else {
                     setSelectedComponentID(component);
                 }

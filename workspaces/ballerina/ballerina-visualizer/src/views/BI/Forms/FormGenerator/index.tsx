@@ -15,8 +15,10 @@ import {
     NodePosition,
     SubPanel,
     VisualizerLocation,
-   TRIGGER_CHARACTERS,
-    TriggerCharacter, FormDiagnostics,
+    TRIGGER_CHARACTERS,
+    TriggerCharacter,
+    FormDiagnostics,
+    ConfigVariable,
     SubPanelView,
     LinePosition
 } from "@wso2-enterprise/ballerina-core";
@@ -25,6 +27,7 @@ import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
     convertToFnSignature,
+    convertToHelperPaneConfigurableVariable,
     convertToHelperPaneFunction,
     convertToHelperPaneVariable,
     convertToVisibleTypes,
@@ -35,7 +38,8 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { RecordEditor } from "../../../RecordEditor/RecordEditor";
 import IfForm from "../IfForm";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
-import { cloneDeep, debounce } from "lodash";
+import { cloneDeep, debounce, set } from "lodash";
+import { URI, Utils } from "vscode-uri";
 import {
     createNodeWithUpdatedLineRange,
     processFormData,
@@ -89,6 +93,7 @@ export function FormGenerator(props: FormProps) {
     const [filteredTypes, setFilteredTypes] = useState<CompletionItem[]>([]);
     const [isLoadingHelperPaneInfo, setIsLoadingHelperPaneInfo] = useState<boolean>(false);
     const [variableInfo, setVariableInfo] = useState<HelperPaneData>();
+    const [configVariableInfo, setConfigVariableInfo] = useState<HelperPaneData>();
     const [functionInfo, setFunctionInfo] = useState<HelperPaneData>();
     const [libraryBrowserInfo, setLibraryBrowserInfo] = useState<HelperPaneData>();
     const triggerCompletionOnNextRequest = useRef<boolean>(false);
@@ -421,6 +426,24 @@ export function FormGenerator(props: FormProps) {
                         .then(() => setIsLoadingHelperPaneInfo(false));
                     break;
                 }
+                case 'configurable': {
+                    rpcClient
+                        .getBIDiagramRpcClient()
+                        .getVisibleVariableTypes({
+                            filePath: fileName,
+                            position: {
+                                line: targetLineRange.startLine.line,
+                                offset: targetLineRange.startLine.offset
+                            }
+                        })
+                        .then((response) => {
+                            if (response.categories?.length) {
+                                setConfigVariableInfo(convertToHelperPaneConfigurableVariable(response.categories));
+                            }
+                        })
+                        .then(() => setIsLoadingHelperPaneInfo(false));
+                    break;
+                }
                 case 'functions': {
                     rpcClient
                         .getBIDiagramRpcClient()
@@ -479,6 +502,89 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    function handleSaveConfigurables(values: any): void {
+
+        const variable: ConfigVariable = {
+            "id": "",
+            "metadata": {
+                "label": "Config",
+                "description": "Create a configurable variable"
+            },
+            "codedata": {
+                "node": "CONFIG_VARIABLE",
+                "lineRange": {
+                    "fileName": "config.bal",
+                    "startLine": {
+                        "line": 0,
+                        "offset": 0
+                    },
+                    "endLine": {
+                        "line": 0,
+                        "offset": 0
+                    }
+                }
+            },
+            "returning": false,
+            "properties": {
+                "type": {
+                    "metadata": {
+                        "label": "Type",
+                        "description": "Type of the variable"
+                    },
+                    "valueType": "TYPE",
+                    "value": "",
+                    "optional": false,
+                    "advanced": false,
+                    "editable": true
+                },
+                "variable": {
+                    "metadata": {
+                        "label": "Variable",
+                        "description": "Name of the variable"
+                    },
+                    "valueType": "IDENTIFIER",
+                    "value": "",
+                    "optional": false,
+                    "advanced": false,
+                    "editable": true,
+                },
+                "defaultable": {
+                    "metadata": {
+                        "label": "Default value",
+                        "description": "Default value for the config, if empty your need to provide a value at runtime"
+                    },
+                    "valueType": "EXPRESSION",
+                    "value": "",
+                    "optional": true,
+                    "advanced": true,
+                    "editable": true
+                }
+            },
+            branches: []
+        };
+
+        variable.properties.variable.value = values.confName;
+        variable.properties.defaultable.value =
+        values.confValue === "" || values.confValue === null ?
+                "?"
+                : '"' + values.confValue + '"';
+        variable.properties.defaultable.optional = true;
+        variable.properties.type.value = "anydata";
+
+        rpcClient.getVisualizerLocation().then((location) => {
+            rpcClient
+                .getBIDiagramRpcClient()
+                .updateConfigVariables({
+                    configVariable: variable,
+                    configFilePath: Utils.joinPath(URI.file(location.projectUri), 'config.bal').fsPath
+                })
+                .then((response: any) => {
+                    console.log(">>> Config variables------", response);
+                    getHelperPaneData('configurable', '');
+                });
+        });
+    }
+
     const expressionEditor = useMemo(() => {
         return {
             completions: filteredCompletions,
@@ -489,19 +595,22 @@ export function FormGenerator(props: FormProps) {
             retrieveVisibleTypes: handleGetVisibleTypes,
             isLoadingHelperPaneInfo: isLoadingHelperPaneInfo,
             variableInfo: variableInfo,
+            configVariableInfo: configVariableInfo,
             functionInfo: functionInfo,
             libraryBrowserInfo: libraryBrowserInfo,
             getHelperPaneData: handleGetHelperPaneData,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
-            onCancel: handleExpressionEditorCancel
+            onCancel: handleExpressionEditorCancel,
+            onSaveConfigurables: handleSaveConfigurables,
         } as FormExpressionEditorProps;
     }, [
         filteredCompletions,
         filteredTypes,
         isLoadingHelperPaneInfo,
         variableInfo,
+        configVariableInfo,
         functionInfo,
         libraryBrowserInfo,
         handleRetrieveCompletions,
