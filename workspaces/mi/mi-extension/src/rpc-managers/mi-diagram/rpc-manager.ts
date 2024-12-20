@@ -2270,8 +2270,8 @@ ${endpointAttributes}
                 const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
                 filePath = path.join(directory, `${dataServiceName}.dbs`);
-                if (filePath.includes('dataServices')) {
-                    filePath = filePath.replace('dataServices', 'data-services');
+                if (filePath.includes('dataServices') || filePath.includes('data services')) {
+                    filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
                 }
 
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -2304,8 +2304,8 @@ ${endpointAttributes}
             };
 
             let filePath = params.directory;
-            if (filePath.includes('dataServices')) {
-                filePath = filePath.replace('dataServices', 'data-services');
+            if (filePath.includes('dataServices') || filePath.includes('data services')) {
+                filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
             }
 
             const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
@@ -2361,8 +2361,8 @@ ${endpointAttributes}
             }
 
             let filePath = directory;
-            if (filePath.includes('dataServices')) {
-                filePath = filePath.replace('dataServices', 'data-services');
+            if (filePath.includes('dataServices') || filePath.includes('data services')) {
+                filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
             }
 
             const xmlData = getDssDataSourceXmlWrapper(getDssDataSourceParams);
