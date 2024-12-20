@@ -40,6 +40,11 @@ interface TestGenAPIRequest {
     projectDiagnostics?: ProjectDiagnostics;
 }
 
+interface TestGenerationResponse {
+    code: string;
+    configToml?: string;
+}
+
 // ----------- TEST GENERATOR -----------
 export async function generateTest(
     projectRoot: string,
@@ -84,22 +89,21 @@ export async function generateTest(
     const openApiSpec = await getOpenAPISpecification(serviceDocFilePath);
 
     if (typeof generateTestRequest.existingSource === 'undefined' || typeof generateTestRequest.diagnostics === 'undefined') {
-        const code: string | ErrorCode = await getUnitTests({ backendUri: backendUri, token: token, serviceName: serviceName, project: projectSource, openApiSpec: openApiSpec });
-        if (isErrorCode(code)) {
-            throw new Error((code as ErrorCode).message);
+        const unitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests({ backendUri: backendUri, token: token, serviceName: serviceName, project: projectSource, openApiSpec: openApiSpec });
+        if (isErrorCode(unitTestResp)) {
+            throw new Error((unitTestResp as ErrorCode).message);
         }
         return {
-            testContent: code as string,
-            configContent: ""
+            testContent: (unitTestResp as TestGenerationResponse).code,
+            configContent: (unitTestResp as TestGenerationResponse).configToml
         };
     } else {
-        const updatedCode: string | ErrorCode = await getUnitTests({ backendUri: backendUri, token: token, project: projectSource, openApiSpec: openApiSpec, testSource: generateTestRequest.existingSource.testContent, projectDiagnostics: generateTestRequest.diagnostics });
-        if (isErrorCode(updatedCode)) {
-            throw new Error((updatedCode as ErrorCode).message);
+        const updatedUnitTestResp: TestGenerationResponse | ErrorCode = await getUnitTests({ backendUri: backendUri, token: token, project: projectSource, openApiSpec: openApiSpec, testSource: generateTestRequest.existingSource.testContent, projectDiagnostics: generateTestRequest.diagnostics });
+        if (isErrorCode(updatedUnitTestResp)) {
+            throw new Error((updatedUnitTestResp as ErrorCode).message);
         }
         return {
-            testContent: updatedCode as string,
-            configContent: ""
+            testContent: (updatedUnitTestResp as TestGenerationResponse).code
         };
     }
 }
@@ -224,7 +228,7 @@ async function getOpenAPISpecification(documentFilePath: string): Promise<string
     }
 }
 
-async function getUnitTests(request: TestGenAPIRequest): Promise<string | ErrorCode> {
+async function getUnitTests(request: TestGenAPIRequest): Promise<TestGenerationResponse | ErrorCode> {
     try {
         let response = await sendTestGeneRequest(request);
         if (isErrorCode(response)) {
@@ -242,44 +246,45 @@ async function sendTestGeneRequest(request: TestGenAPIRequest): Promise<Response
         return filePath.split('/').pop() || filePath.split('\\').pop() || filePath;
     };
 
-    const modules = request.project.projectModules?.map((module) => ({
-        moduleName: module.moduleName,
-        sources: module.sourceFiles.reduce(
-            (acc, file) => ({
-                ...acc,
-                [getFileName(file.filePath)]: file.content,
-            }),
-            {} as { [key: string]: string }
-        ),
-    }));
-
-    const sources = request.project.sourceFiles.reduce(
-        (acc, file) => ({
-            ...acc,
-            [getFileName(file.filePath)]: file.content,
-        }),
-        {} as { [key: string]: string }
-    );
-
     const body =
         (typeof request.testSource === "undefined" ||
             typeof request.projectDiagnostics === "undefined")
             ? {
                 serviceName: request.serviceName,
-                project: {
-                    modules,
-                    sources,
+                projectSource: {
+                    projectModules: request.project.projectModules?.map((module) => ({
+                        moduleName: module.moduleName,
+                        sourceFiles: module.sourceFiles.map((file) => ({
+                            fileName: file.filePath,
+                            content: file.content,
+                        })),
+                    })),
+                    sourceFiles: request.project.sourceFiles.map((file) => ({
+                        fileName: file.filePath,
+                        content: file.content,
+                    })),
                 },
                 openApiSpec: request.openApiSpec
             }
             : {
-                project: {
-                    modules,
-                    sources,
+                projectSource: {
+                    projectModules: request.project.projectModules?.map((module) => ({
+                        moduleName: module.moduleName,
+                        sourceFiles: module.sourceFiles.map((file) => ({
+                            fileName: file.filePath,
+                            content: file.content,
+                        })),
+                    })),
+                    sourceFiles: request.project.sourceFiles.map((file) => ({
+                        fileName: file.filePath,
+                        content: file.content,
+                    })),
                 },
                 openApiSpec: request.openApiSpec,
                 testSource: request.testSource,
-                diagnostics: request.projectDiagnostics.diagnostics
+                diagnostics: request.projectDiagnostics.diagnostics.map((diagnosticEntry) => ({
+                    message: `L${diagnosticEntry.line ?? "unknown"}: ${diagnosticEntry.message}`,
+                })),
             };
 
     const response = await fetchWithTimeout(request.backendUri + "/tests", {
@@ -360,10 +365,13 @@ function getErrorDiagnostics(diagnostics: Diagnostics[], filePath: string): Proj
     };
 }
 
-async function filterTestGenResponse(resp: Response): Promise<string | ErrorCode> {
+async function filterTestGenResponse(resp: Response): Promise<TestGenerationResponse | ErrorCode> {
     if (resp.status == 200 || resp.status == 201) {
         const data = (await resp.json()) as any;
-        return data.code;
+        return {
+            code: data.code,
+            configToml: data.configToml,
+        };
     }
     if (resp.status == 404) {
         return ENDPOINT_REMOVED;
