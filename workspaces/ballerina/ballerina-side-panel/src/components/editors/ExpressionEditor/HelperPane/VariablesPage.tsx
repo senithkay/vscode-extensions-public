@@ -53,10 +53,11 @@ export const VariablesPage = ({
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                {variableInfo?.category.map((category) => (
-                    <HelperPane.Section title={category.label}>
-                        {category.items.map((item) => (
+                {variableInfo?.category.map((category, index) => (
+                    <HelperPane.Section title={category.label} key={index}>
+                        {category.items.map((item, index) => (
                             <HelperPane.CompletionItem
+                                key={index}
                                 label={item.label}
                                 type={item.type}
                                 onClick={() => onChange(item.label)}
