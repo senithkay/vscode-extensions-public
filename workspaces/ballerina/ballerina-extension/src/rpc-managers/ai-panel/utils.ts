@@ -8,7 +8,7 @@
  */
 
 import { FunctionDefinition, ModulePart, QualifiedNameReference, RequiredParam, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree } from "@wso2-enterprise/ballerina-core";
+import { AI_EVENT_TYPE, ErrorCode, FormField, STModification, SyntaxTree, AttachmentResult } from "@wso2-enterprise/ballerina-core";
 import { QuickPickItem, QuickPickOptions, window, workspace } from 'vscode';
 
 import { StateMachine } from "../../stateMachine";
@@ -30,21 +30,27 @@ import axios from "axios";
 import { getPluginConfig } from "../../../src/utils";
 
 export const BACKEND_API_URL_V2 = getPluginConfig().get('rootUrl') as string;
+export const CONTEXT_UPLOAD_URL_V1 = getPluginConfig().get('contextUploadServiceUrl') as string;
 const REQUEST_TIMEOUT = 40000;
 
 let abortController = new AbortController();
 let nestedKeyArray: string[] = [];
+let isCheckError: boolean = false;
 
 export interface ParameterMetadata {
     inputs: object;
     output: object;
     inputMetadata: object;
     outputMetadata: object;
+    mapping_fields?: object;
 }
 
 export interface RecordDefinitonObject {
     recordFields: object;
     recordFieldsMetadata: object;
+}
+export interface MappingFileRecord {
+    mapping_fields: object;
 }
 
 export async function getAccessToken(): Promise<string> {
@@ -220,9 +226,13 @@ export async function getParamDefinitions(
 
 export async function processMappings(
     fnSt: FunctionDefinition,
-    fileUri: string
+    fileUri: string,
+    file?: AttachmentResult
 ): Promise<SyntaxTree | ErrorCode> {
-    const parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+    let parameterDefinitions = await getParamDefinitions(fnSt, fileUri);
+        if(file){
+            parameterDefinitions = await mappingFileParameterDefinitions(file, parameterDefinitions);
+        }
 
     if (isErrorCode(parameterDefinitions)) {
         return parameterDefinitions as ErrorCode;
@@ -233,15 +243,15 @@ export async function processMappings(
         return codeObject as ErrorCode;
     }
 
-    let codeString: string = constructRecord(codeObject);
+    const { recordString, isCheckError } = constructRecord(codeObject);
+    let codeString: string;
     if (fnSt.functionSignature.returnTypeDesc.type.kind === "ArrayTypeDesc") {
-        const parameter = fnSt.functionSignature.parameters[0];
-        const param = parameter as RequiredParam;
-        const paramName = param.paramName.value;
-        codeString = codeString.startsWith(":") ? codeString.substring(1) : codeString;
-        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${codeString};`;
+        const parameter = fnSt.functionSignature.parameters[0] as RequiredParam;
+        const paramName = parameter.paramName.value;
+        const formattedRecordString = recordString.startsWith(":") ? recordString.substring(1) : recordString;
+        codeString = `=> from var ${paramName}Item in ${paramName}\n select ${formattedRecordString};`;
     } else {
-        codeString = `=> ${codeString};`;
+        codeString = isCheckError ? `|error=> ${recordString};` : `=> ${recordString};`;
     }
 
     const modifications: STModification[] = [];
@@ -515,8 +525,8 @@ function navigateTypeInfo(
                     typeInstance: field.name,
                     nullable: isNill,
                     optional: field.optional
-                }
-            };
+                };
+            }
         } else {
             recordFields[field.name] = { type: typeName, comment: "" };
             recordFieldsMetadata[field.name] = {
@@ -573,26 +583,32 @@ export async function getDatamapperCode(parameterDefinitions): Promise<object | 
     }
 }
 
-export function constructRecord(codeObject: object): string {
+export function constructRecord(codeObject: object): { recordString: string; isCheckError: boolean } {
     let recordString: string = ""; 
     let objectKeys = Object.keys(codeObject);
     for (let index = 0; index < objectKeys.length; index++) {
         let key = objectKeys[index];
         let mapping = codeObject[key];
-        if (typeof codeObject[key] == "string") {
-            if (recordString != "") {
+        if (typeof mapping === "string") {
+            if (mapping.includes("check ")) {
+                isCheckError = true; 
+            }
+            if (recordString !== "") {
                 recordString += ",\n";
             }
             recordString += `${key}:${mapping}`;
         } else {
-            let subRecordString = constructRecord(codeObject[key]);
-            if (recordString != "") {
+            let subRecordResult = constructRecord(mapping);
+            if (subRecordResult.isCheckError) {
+                isCheckError = true; 
+            }
+            if (recordString !== "") {
                 recordString += ",\n";
             }
-            recordString += `${key}:${subRecordString}`;
+            recordString += `${key}:${subRecordResult.recordString}`;
         }
     }
-    return `{${recordString}}`;
+    return { recordString: `{${recordString}}`, isCheckError };
 }
 
 export function getFunction(modulePart: ModulePart, functionName: string) {
@@ -621,6 +637,144 @@ async function sendDatamapperRequest(parameterDefinitions, accessToken): Promise
     }, REQUEST_TIMEOUT);
 
     return response;
+}
+
+async function sendMappingFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    // const BACKEND_API_URL = "http://127.0.0.1:8000";
+    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_mapping_instruction", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+async function filterMappingResponse(resp: Response): Promise<string| ErrorCode> {
+    if (resp.status == 200 || resp.status == 201) {
+        const data = (await resp.json()) as any;
+        return data.file_content;
+    }
+    if (resp.status == 404) {
+        return ENDPOINT_REMOVED;
+    }
+    if (resp.status == 400) {
+        const data = (await resp.json()) as any;
+        console.log(data);
+        return PARSING_ERROR;
+    } else {
+        //TODO: Handle more error codes
+        return { code: 4, message: `An unknown error occured. ${resp.statusText}.` };
+    }
+}
+
+export async function getMappingFromFile(file: Blob): Promise<MappingFileRecord | ErrorCode> {
+    try {
+        let response = await sendMappingFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let mappingContent = JSON.parse((await filterMappingResponse(response)) as string);
+        if (isErrorCode(mappingContent)) {
+            return mappingContent as ErrorCode;
+        }
+        console.log("mappingContent",mappingContent);
+        return mappingContent;
+    } catch (error) {
+        console.error(error);
+        return UNKNOWN_ERROR;
+    }
+}
+
+async function sendTypesFileUploadRequest(file: Blob): Promise<Response | ErrorCode> {
+    const formData = new FormData();
+    formData.append("file", file);
+    // const BACKEND_API_URL = "http://127.0.0.1:8000";
+    const response = await fetch(CONTEXT_UPLOAD_URL_V1 + "/file_upload/generate_record", {
+        method: "POST",
+        body: formData
+    });
+    return response;
+}
+
+export async function getTypesFromFile(file: Blob): Promise<string | ErrorCode> {
+    try {
+        let response = await sendTypesFileUploadRequest(file);
+        if (isErrorCode(response)) {
+            return response as ErrorCode;
+        }
+        response = response as Response;
+        let typesContent = await filterMappingResponse(response) as string;
+        return typesContent;
+    } catch (error) {
+        console.error(error);
+        return UNKNOWN_ERROR;
+    }
+}
+
+export async function mappingFileParameterDefinitions(file: AttachmentResult, parameterDefinitions): Promise<ParameterMetadata | ErrorCode> {
+    if (!file) { return parameterDefinitions; }
+
+    const convertedFile = convertBase64ToBlob(file);
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let mappingFile = await getMappingFromFile(convertedFile);
+    if (isErrorCode(mappingFile)) { return mappingFile as ErrorCode; }
+
+    mappingFile = mappingFile as MappingFileRecord;
+
+    return {
+        ...parameterDefinitions,
+        mapping_fields: mappingFile.mapping_fields,
+    };
+}
+
+export async function typesFileParameterDefinitions(file: AttachmentResult): Promise<string | ErrorCode> {
+    if (!file) { throw new Error("File is undefined"); }
+
+    const convertedFile = convertBase64ToBlob(file);
+    if (!convertedFile) { throw new Error("Invalid file content"); }
+
+    let typesFile = await getTypesFromFile(convertedFile);
+    if (isErrorCode(typesFile)) { return typesFile as ErrorCode; }
+
+    return typesFile;
+}
+
+function convertBase64ToBlob(file: AttachmentResult): Blob | null {
+    try {
+        const { content: base64Content, name: fileName } = file;
+        const binaryString = atob(base64Content);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        const mimeType = determineMimeType(fileName);
+        return new Blob([bytes], { type: mimeType });
+    } catch (error) {
+        console.error("Error converting Base64 to Blob", error);
+        return null;
+    }
+}
+
+function determineMimeType(fileName: string): string {
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    switch (extension) {
+        case "pdf": return "application/pdf";
+        case "txt": return "text/plain";
+        case "jpg":
+        case "jpeg": return "image/jpeg";
+        case "png": return "image/png";
+        case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        case "doc": return "application/msword";
+        case "heic":
+        case "heif": return "image/heif";
+        default: return "application/octet-stream";
+    }
 }
 
 async function fetchWithTimeout(url, options, timeout = 100000): Promise<Response | ErrorCode> {

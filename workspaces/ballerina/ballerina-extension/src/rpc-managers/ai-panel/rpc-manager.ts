@@ -13,49 +13,51 @@ import {
     AIVisualizerState,
     AI_EVENT_TYPE,
     AddToProjectRequest,
-    GetFromFileRequest,
+    BIModuleNodesRequest,
+    BISourceCodeResponse,
     DeleteFromProjectRequest,
     DiagnosticEntry,
     Diagnostics,
     ErrorCode,
     GenerateMappingFromRecordResponse,
+    GenerateMappingsFromRecordRequest,
     GenerateMappingsRequest,
     GenerateMappingsResponse,
     GenerateTestRequest,
+    GenerateTypesFromRecordRequest,
+    GenerateTypesFromRecordResponse,
     GeneratedTestSource,
-    GenerteMappingsFromRecordRequest,
+    GetFromFileRequest,
     InitialPrompt,
     NOT_SUPPORTED_TYPE,
     NotifyAIMappingsRequest,
     PostProcessRequest,
     PostProcessResponse,
     ProjectDiagnostics,
+    ProjectModule,
     ProjectSource,
-    SyntaxTree,
-    BIModuleNodesRequest,
-    BISourceCodeResponse,
-    UpdateFileContentRequest,
     STModification,
-    SourceFile
+    SourceFile,
+    SyntaxTree
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import path from "path";
-import { Uri, window, workspace, Position, Range, WorkspaceEdit } from 'vscode';
+import { Uri, window, workspace } from 'vscode';
 
+import { writeFileSync } from "fs";
 import { getPluginConfig } from "../../../src/utils";
 import { extension } from "../../BalExtensionContext";
 import { NOT_SUPPORTED } from "../../core";
-import { generateDataMapping } from "../../features/ai/dataMapping";
+import { generateDataMapping, generateTypeCreation } from "../../features/ai/dataMapping";
 import { generateTest, getDiagnostics } from "../../features/ai/testGenerator";
 import { StateMachine, updateView } from "../../stateMachine";
 import { modifyFileContent, writeBallerinaFileDidOpen } from "../../utils/modification";
 import { StateMachineAI } from '../../views/ai-panel/aiMachine';
 import { MODIFIYING_ERROR, PARSING_ERROR, UNAUTHORIZED, UNKNOWN_ERROR } from "../../views/ai-panel/errorCodes";
 import { getFunction, handleLogin, handleStop, isErrorCode, isLoggedin, notifyNoGeneratedMappings, processMappings, refreshAccessToken } from "./utils";
-import { writeFileSync } from "fs";
 export let hasStopped: boolean = false;
 
 export class AiPanelRpcManager implements AIPanelAPI {
@@ -214,6 +216,25 @@ export class AiPanelRpcManager implements AIPanelAPI {
         updateView();
     }    
 
+    async getFileExists(req: GetFromFileRequest): Promise<boolean> {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (!workspaceFolders) {
+            throw new Error("No workspaces found.");
+        }
+    
+        const workspaceFolderPath = workspaceFolders[0].uri.fsPath;
+        const ballerinaProjectFile = path.join(workspaceFolderPath, 'Ballerina.toml');
+        if (!fs.existsSync(ballerinaProjectFile)) {
+            throw new Error("Not a Ballerina project.");
+        }
+    
+        const balFilePath = path.join(workspaceFolderPath, req.filePath);
+        if (fs.existsSync(balFilePath)) {
+            return true;
+        } 
+        return false;
+    }    
+
     async getRefreshToken(): Promise<string> {
         return new Promise(async (resolve) => {
             const token = await refreshAccessToken();
@@ -228,7 +249,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: UNAUTHORIZED };
         }
 
-        const { filePath, position } = params;
+        let { filePath, position, file } = params;
 
         const fileUri = Uri.file(filePath).toString();
         hasStopped = false;
@@ -266,7 +287,7 @@ export class AiPanelRpcManager implements AIPanelAPI {
             return { error: PARSING_ERROR };
         }
 
-        const st = await processMappings(fnSt, fileUri);
+        const st = await processMappings(fnSt, fileUri, file);
         if (isErrorCode(st)) {
             if ((st as ErrorCode).code === 6) {
                 return { userAborted: true };
@@ -339,7 +360,8 @@ export class AiPanelRpcManager implements AIPanelAPI {
 
         // Initialize the ProjectSource object
         const projectSource: ProjectSource = {
-            sourceFiles: []
+            sourceFiles: [],
+            projectModules: []
         };
 
         // Iterate through root-level sources
@@ -347,15 +369,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
             projectSource.sourceFiles.push({ filePath, content });
         }
 
-        // // Iterate through module sources
-        // if (project.modules) {
-        //     for (const module of project.modules) {
-        //         for (const [fileName, content] of Object.entries(module.sources)) {
-        //             const filePath = `modules/${module.moduleName}/${fileName}`;
-        //             projectSource.sourceFiles.push({ filePath, content });
-        //         }
-        //     }
-        // }
+        // Iterate through module sources
+        if (project.modules) {
+            for (const module of project.modules) {
+                const projectModule: ProjectModule = {
+                    moduleName: module.moduleName,
+                    sourceFiles: []
+                };
+                for (const [fileName, content] of Object.entries(module.sources)) {
+                    // const filePath = `modules/${module.moduleName}/${fileName}`;
+                    // projectSource.sourceFiles.push({ filePath, content });
+                    projectModule.sourceFiles.push({ filePath: fileName, content });
+                }
+                projectSource.projectModules.push(projectModule);
+            }
+        }
 
         return projectSource;
     }
@@ -442,9 +470,14 @@ export class AiPanelRpcManager implements AIPanelAPI {
         return await getDiagnostics(projectRoot, params);
     }
 
-    async getMappingsFromRecord(params: GenerteMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
+    async getMappingsFromRecord(params: GenerateMappingsFromRecordRequest): Promise<GenerateMappingFromRecordResponse> {
         const projectRoot = await getBallerinaProjectRoot();
         return await generateDataMapping(projectRoot, params);
+    }
+
+    async getTypesFromRecord(params: GenerateTypesFromRecordRequest): Promise<GenerateTypesFromRecordResponse> {
+        const projectRoot = await getBallerinaProjectRoot();
+        return await generateTypeCreation(projectRoot, params);
     }
 
     async postProcess(req: PostProcessRequest): Promise<PostProcessResponse> {
@@ -591,6 +624,21 @@ export class AiPanelRpcManager implements AIPanelAPI {
         }
     }
 
+    async getActiveFile(): Promise<string> {    
+        const activeTabGroup = window.tabGroups.all.find(group => {
+            return group.activeTab.isActive && group.activeTab?.input;
+        });
+
+        if (activeTabGroup && activeTabGroup.activeTab && activeTabGroup.activeTab.input) {
+            const activeTabInput = activeTabGroup.activeTab.input as { uri: { fsPath: string } };
+    
+            if (activeTabInput.uri) {
+                const fileUri = activeTabInput.uri;
+                const fileName = fileUri.fsPath.split('/').pop(); 
+                return fileName || '';  
+            }
+        }
+    }
 }
 
 function getModifiedAssistantResponse(originalAssistantResponse: string, tempDir: string, project: ProjectSource) : string {

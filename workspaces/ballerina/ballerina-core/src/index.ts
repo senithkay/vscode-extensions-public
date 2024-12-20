@@ -18,12 +18,14 @@ export * from "./interfaces/ballerina";
 export * from "./interfaces/bi";
 export * from "./interfaces/common";
 export * from "./interfaces/component";
+export * from "./interfaces/component-diagram";
 export * from "./interfaces/constants";
 export * from "./interfaces/config-spec";
 export * from "./interfaces/event";
 export * from "./interfaces/store";
 export * from "./interfaces/performance";
 export * from "./interfaces/extended-lang-client";
+export * from "./interfaces/triggers";
 
 // ------ LS Utils -------->
 export * from "./ls-utils/WSConnection";
@@ -49,6 +51,7 @@ export * from "./rpc-types/service-designer/rpc-type";
 export * from "./rpc-types/service-designer/interfaces";
 export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/trigger-wizard/rpc-type";
+export * from "./rpc-types/trigger-wizard/interfaces";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/visualizer/interfaces";

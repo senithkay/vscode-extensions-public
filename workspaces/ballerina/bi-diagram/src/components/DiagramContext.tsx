@@ -18,10 +18,12 @@ export interface DiagramContextState {
         hide(): void;
     };
     showErrorFlow: boolean;
-    onAddNode: (parent: FlowNode | Branch, target: LineRange) => void;
-    onDeleteNode: (node: FlowNode) => void;
-    onAddComment: (comment: string, target: LineRange) => void;
-    onNodeSelect: (node: FlowNode) => void;
+    onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onDeleteNode?: (node: FlowNode) => void;
+    onAddComment?: (comment: string, target: LineRange) => void;
+    onNodeSelect?: (node: FlowNode) => void;
+    addBreakpoint?: (node: FlowNode) => void;
+    removeBreakpoint?: (node: FlowNode) => void;
     onConnectionSelect?: (connectionName: string) => void;
     goToSource: (node: FlowNode) => void;
     openView: (filePath: string, position: NodePosition) => void;
@@ -31,6 +33,7 @@ export interface DiagramContextState {
         onDiscard(): void;
     };
     projectPath?: string;
+    readOnly?: boolean;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({
@@ -47,6 +50,8 @@ export const DiagramContext = React.createContext<DiagramContextState>({
     onNodeSelect: () => {},
     onConnectionSelect: () => {},
     goToSource: () => {},
+    addBreakpoint: () => {},
+    removeBreakpoint: () => {},
     openView: () => {},
     suggestions: {
         fetching: false,
@@ -54,6 +59,7 @@ export const DiagramContext = React.createContext<DiagramContextState>({
         onDiscard: () => {},
     },
     projectPath: "",
+    readOnly: false,
 });
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

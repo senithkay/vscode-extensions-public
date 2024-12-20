@@ -22,6 +22,8 @@ import {
     BIDiagramAPI,
     BIFlowModelRequest,
     BIFlowModelResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
@@ -34,20 +36,28 @@ import {
     BISourceCodeResponse,
     BISuggestedFlowModelRequest,
     BI_COMMANDS,
+    BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
+    CurrentBreakpointsResponse,
     DIRECTORY_MAP,
+    BIDesignModelResponse,
     EVENT_TYPE,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
     FlowNode,
+    FormDidCloseParams,
+    FormDidOpenParams,
+    ImportStatement,
+    ImportStatements,
     OverviewFlow,
     ProjectComponentsResponse,
+    ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
@@ -62,11 +72,13 @@ import {
     VisibleTypesResponse,
     WorkspaceFolder,
     WorkspacesResponse,
-    buildProjectStructure
+    buildProjectStructure,
 } from "@wso2-enterprise/ballerina-core";
 import * as fs from "fs";
 import { writeFileSync } from "fs";
 import * as path from 'path';
+import * as vscode from "vscode";
+
 import {
     ShellExecution,
     Task,
@@ -75,15 +87,18 @@ import {
     tasks,
     window, workspace
 } from "vscode";
+import { DebugProtocol } from "vscode-debugprotocol";
 import { extension } from "../../BalExtensionContext";
+import { notifyBreakpointChange } from "../../RPCLayer";
 import { ballerinaExtInstance } from "../../core";
+import { BreakpointManager } from "../../features/debugger/breakpoint-manager";
 import { StateMachine, openView, updateView } from "../../stateMachine";
-import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { README_FILE, createBIAutomation, createBIFunction, createBIProjectPure, createBIService, createBITrigger, createBITriggerListener, handleServiceCreation, sanitizeName } from "../../utils/bi";
+import { writeBallerinaFileDidOpen } from "../../utils/modification";
 import { BACKEND_API_URL_V2, refreshAccessToken } from "../ai-panel/utils";
 import { DATA_MAPPING_FILE_NAME, getDataMapperNodePosition } from "./utils";
-import { writeBallerinaFileDidOpen } from "../../utils/modification";
 
-export class BIDiagramRpcManager implements BIDiagramAPI {
+export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getFlowModel(): Promise<BIFlowModelResponse> {
         console.log(">>> requesting bi flow model from ls");
@@ -193,36 +208,36 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
         try {
             for (const [fileUriString, request] of Object.entries(modificationRequests)) {
                 const { parseSuccess, source, syntaxTree } = (await StateMachine.langClient().stModify({
-                documentIdentifier: { uri: fileUriString },
-                astModifications: request.modifications,
-            })) as SyntaxTree;
+                    documentIdentifier: { uri: fileUriString },
+                    astModifications: request.modifications,
+                })) as SyntaxTree;
 
-            if (parseSuccess) {
-                writeFileSync(request.filePath, source);
-                await StateMachine.langClient().didChange({
-                    textDocument: { uri: fileUriString, version: 1 },
-                    contentChanges: [
-                        {
-                            text: source,
-                        },
-                    ],
-                });
+                if (parseSuccess) {
+                    writeFileSync(request.filePath, source);
+                    await StateMachine.langClient().didChange({
+                        textDocument: { uri: fileUriString, version: 1 },
+                        contentChanges: [
+                            {
+                                text: source,
+                            },
+                        ],
+                    });
 
-                if (isConnector) {
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
-                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    await StateMachine.langClient().didOpen({
-                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    });
-                } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
-                    const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
-                    openView(EVENT_TYPE.OPEN_VIEW, {
-                        documentUri: request.filePath,
-                        position: functionPosition,
-                    });
-                }
+                    if (isConnector) {
+                        await StateMachine.langClient().resolveMissingDependencies({
+                            documentIdentifier: { uri: fileUriString },
+                        });
+                        // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                        await StateMachine.langClient().didOpen({
+                            textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                        });
+                    } else if (isDataMapperFormUpdate && fileUriString.endsWith(DATA_MAPPING_FILE_NAME)) {
+                        const functionPosition = getDataMapperNodePosition(flowNode.properties, syntaxTree);
+                        openView(EVENT_TYPE.OPEN_VIEW, {
+                            documentUri: request.filePath,
+                            position: functionPosition,
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -299,6 +314,13 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                     break;
                 case DIRECTORY_MAP.FUNCTIONS:
                     res = await createBIFunction(params);
+                    break;
+                case DIRECTORY_MAP.TRIGGERS:
+                    if (params.triggerType.listenerOnly) {
+                        res = await createBITriggerListener(params);
+                    } else {
+                        res = await createBITrigger(params);
+                    }
                     break;
                 default:
                     break;
@@ -592,6 +614,9 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
 
     async getExpressionCompletions(params: ExpressionCompletionsRequest): Promise<ExpressionCompletionsResponse> {
         return new Promise((resolve, reject) => {
+            if (!params.filePath) {
+                params.filePath = StateMachine.context().documentUri;
+            }
             StateMachine.langClient()
                 .getExpressionCompletions(params)
                 .then((completions) => {
@@ -614,7 +639,6 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
     async updateConfigVariables(params: UpdateConfigVariableRequest): Promise<UpdateConfigVariableResponse> {
         return new Promise(async (resolve) => {
             const req: UpdateConfigVariableRequest = params;
-            params.configFilePath = path.join(StateMachine.context().projectUri, params.configFilePath);
 
             if (!fs.existsSync(params.configFilePath)) {
 
@@ -899,8 +923,173 @@ export class BIDiagramRpcManager implements BIDiagramAPI {
                 });
         });
     }
-}
 
+    async addBreakpointToSource(params: BreakpointRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            console.log(">>> adding breakpoint to source", params);
+            const breakpoint = new vscode.SourceBreakpoint(
+                new vscode.Location(vscode.Uri.file(params.filePath), new vscode.Position(params.breakpoint.line, params.breakpoint?.column)));
+            vscode.debug.addBreakpoints([breakpoint]);
+
+            notifyBreakpointChange();
+        });
+    }
+
+    async removeBreakpointFromSource(params: BreakpointRequest): Promise<void> {
+        return new Promise(async (resolve) => {
+            console.log(">>> removing breakpoint from source", params);
+            const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
+                const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
+                return sourceBreakpoint.location.uri.fsPath === params.filePath;
+            }) as vscode.SourceBreakpoint[];
+
+            const breakpoints = breakpointsForFile.filter((breakpoint) => {
+                return breakpoint.location.range.start.line === params.breakpoint.line &&
+                breakpoint.location.range.start?.character === params.breakpoint?.column;
+            });
+
+            // If there are no breakpoints found,
+            // then it could be due the breakpoint has been added from the sourceCode, where the column is not provided
+            // so we need to check for breakpoint with the same line and remove
+            if (breakpoints.length === 0) {
+                const breakpointsToRemove = breakpointsForFile.filter((breakpoint) => {
+                    return breakpoint.location.range.start.line === params.breakpoint.line;
+                });
+                vscode.debug.removeBreakpoints(breakpointsToRemove);
+            } else {
+                vscode.debug.removeBreakpoints(breakpoints);
+            }
+
+            notifyBreakpointChange();
+        });
+    }
+
+    async getBreakpointInfo(): Promise<CurrentBreakpointsResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+
+            const breakpointsForFile: vscode.SourceBreakpoint[] = vscode.debug.breakpoints.filter((breakpoint) => {
+                const sourceBreakpoint = breakpoint as vscode.SourceBreakpoint;
+                return sourceBreakpoint.location.uri.fsPath === context?.documentUri;
+            }) as vscode.SourceBreakpoint[];
+
+            const breakpoints: DebugProtocol.Breakpoint[] = breakpointsForFile.map((breakpoint) => {
+                return {
+                    verified: true,
+                    line: breakpoint.location.range.start.line,
+                    column: breakpoint.location.range.start?.character
+                };
+            });
+            // TODO: Check the need of using breakpoints with verified status
+            // const breakppoints = BreakpointManager.getInstance().getBreakpoints();
+            // if there is an instance then call get ActiveBreakpoint
+
+            const activeBreakpoint = BreakpointManager.getInstance()?.getActiveBreakpoint();
+            resolve({ breakpoints: breakpoints, activeBreakpoint: activeBreakpoint });
+        });
+    }
+
+    async getAllImports(): Promise<ProjectImports> {
+        const projectUri = StateMachine.context().projectUri;
+        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
+        const imports: ImportStatements[] = [];
+
+        for (const file of ballerinaFiles) {
+            const fileContent = fs.readFileSync(file, "utf8");
+            const fileImports = await extractImports(fileContent, file);
+            imports.push(fileImports);
+        }
+        return {
+            projectPath: projectUri,
+            imports,
+        };
+    }
+
+    async getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        console.log(">>> requesting parent functin definition", params);
+        return new Promise((resolve) => {
+            StateMachine.langClient()
+                .getEnclosedFunctionDef(params)
+                .then((response) => {
+                    if(response?.filePath && response?.startLine && response?.endLine) {
+                        console.log(">>> parent function position ", response);
+                        resolve(response);
+                    } else {
+                        console.log(">>> parent function position not found");
+                        resolve(undefined);
+                    }
+                    
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching parent function position", error);
+                    resolve(undefined);
+                });
+        });
+    }
+
+    async formDidOpen(params: FormDidOpenParams): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const { filePath } = params;
+                const fileUri = Uri.file(filePath);
+                const textDocument = await workspace.openTextDocument(fileUri);
+                const exprFileSchema = fileUri.with({ scheme: 'expr' });
+
+                StateMachine.langClient().didOpen({
+                    textDocument: {
+                        uri: exprFileSchema.toString(),
+                        languageId: textDocument.languageId,
+                        version: textDocument.version,
+                        text: textDocument.getText()
+                    }
+                });
+                resolve();
+            } catch (error) {
+                console.error("Error opening file in didOpen", error);
+                reject(error);
+            }
+        });
+    }
+
+    async formDidClose(params: FormDidCloseParams): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const { filePath } = params;
+                const fileUri = Uri.file(filePath);
+                const exprFileSchema = fileUri.with({ scheme: 'expr' });
+                StateMachine.langClient().didClose({
+                    textDocument: {
+                        uri: exprFileSchema.toString()
+                    }
+                });
+                resolve();
+            } catch (error) {
+                console.error("Error closing file in didClose", error);
+                reject(error);
+            }
+        });
+    }
+
+    async getDesignModel(): Promise<BIDesignModelResponse> {
+        console.log(">>> requesting design model from ls");
+        return new Promise((resolve) => {
+            const projectUri = StateMachine.context().projectUri;
+
+            StateMachine.langClient()
+                .getDesignModel({ projectPath: projectUri })
+                .then((model) => {
+                    console.log(">>> design model from ls", model);
+                    resolve(model);
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching design model from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
+        });
+    }
+}
 
 export async function fetchWithToken(url: string, options: RequestInit) {
     let response = await fetch(url, options);
@@ -918,4 +1107,38 @@ export async function fetchWithToken(url: string, options: RequestInit) {
         }
     }
     return response;
+}
+
+export async function getBallerinaFiles(dir: string): Promise<string[]> {
+    let files: string[] = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            files = files.concat(await getBallerinaFiles(entryPath));
+        } else if (entry.isFile() && entry.name.endsWith(".bal")) {
+            files.push(entryPath);
+        }
+    }
+    return files;
+}
+
+export async function extractImports(content: string, filePath: string): Promise<ImportStatements> {
+    const withoutSingleLineComments = content.replace(/\/\/.*$/gm, "");
+    const withoutComments = withoutSingleLineComments.replace(/\/\*[\s\S]*?\*\//g, "");
+
+    const importRegex = /import\s+([\w\.\/]+)(?:\s+as\s+([\w]+))?;/g;
+    const imports: ImportStatement[] = [];
+    let match;
+
+    while ((match = importRegex.exec(withoutComments)) !== null) {
+        const importStatement: ImportStatement = { moduleName: match[1] };
+        if (match[2]) {
+            importStatement.alias = match[2];
+        }
+        imports.push(importStatement);
+    }
+
+    return { filePath, statements: imports };
 }

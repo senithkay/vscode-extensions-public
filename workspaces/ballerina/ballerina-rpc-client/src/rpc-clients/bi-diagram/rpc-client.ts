@@ -20,6 +20,8 @@ import {
     BIDeleteByComponentInfoResponse,
     BIDiagramAPI,
     BIFlowModelResponse,
+    BIGetEnclosedFunctionRequest,
+    BIGetEnclosedFunctionResponse,
     BIGetFunctionsRequest,
     BIGetFunctionsResponse,
     BIGetVisibleVariableTypesRequest,
@@ -29,16 +31,22 @@ import {
     BINodeTemplateResponse,
     BISourceCodeRequest,
     BISourceCodeResponse,
+    BreakpointRequest,
     ComponentRequest,
     ComponentsRequest,
     ComponentsResponse,
     ConfigVariableResponse,
     CreateComponentResponse,
+    CurrentBreakpointsResponse,
+    BIDesignModelResponse,
     ExpressionCompletionsRequest,
     ExpressionCompletionsResponse,
     ExpressionDiagnosticsRequest,
     ExpressionDiagnosticsResponse,
+    FormDidCloseParams,
+    FormDidOpenParams,
     ProjectComponentsResponse,
+    ProjectImports,
     ProjectRequest,
     ProjectStructureResponse,
     ReadmeContentRequest,
@@ -50,6 +58,7 @@ import {
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
+    addBreakpointToSource,
     buildProject,
     createComponent,
     createComponents,
@@ -57,10 +66,16 @@ import {
     deleteByComponentInfo,
     deleteFlowNode,
     deployProject,
+    formDidClose,
+    formDidOpen,
     getAiSuggestions,
+    getAllImports,
     getAvailableNodes,
     getBIConnectors,
+    getBreakpointInfo,
     getConfigVariables,
+    getDesignModel,
+    getEnclosedFunction,
     getExpressionCompletions,
     getExpressionDiagnostics,
     getFlowModel,
@@ -78,13 +93,14 @@ import {
     handleReadmeContent,
     openAIChat,
     openReadme,
+    removeBreakpointFromSource,
     runProject,
     updateConfigVariables
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
-export class BIDiagramRpcClient implements BIDiagramAPI {
+export class BiDiagramRpcClient implements BIDiagramAPI {
     private _messenger: Messenger;
 
     constructor(messenger: Messenger) {
@@ -113,6 +129,10 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
 
     getFunctions(params: BIGetFunctionsRequest): Promise<BIGetFunctionsResponse> {
         return this._messenger.sendRequest(getFunctions, HOST_EXTENSION, params);
+    }
+
+    getEnclosedFunction(params: BIGetEnclosedFunctionRequest): Promise<BIGetEnclosedFunctionResponse> {
+        return this._messenger.sendRequest(getEnclosedFunction, HOST_EXTENSION, params);
     }
 
     getNodeTemplate(params: BINodeTemplateRequest): Promise<BINodeTemplateResponse> {
@@ -207,7 +227,35 @@ export class BIDiagramRpcClient implements BIDiagramAPI {
         return this._messenger.sendRequest(getVisibleTypes, HOST_EXTENSION, params);
     }
 
+    addBreakpointToSource(params: BreakpointRequest): void {
+        return this._messenger.sendNotification(addBreakpointToSource, HOST_EXTENSION, params);
+    }
+
+    removeBreakpointFromSource(params: BreakpointRequest): void {
+        return this._messenger.sendNotification(removeBreakpointFromSource, HOST_EXTENSION, params);
+    }
+
+    getBreakpointInfo(): Promise<CurrentBreakpointsResponse> {
+        return this._messenger.sendRequest(getBreakpointInfo, HOST_EXTENSION);
+    }
+
     getExpressionDiagnostics(params: ExpressionDiagnosticsRequest): Promise<ExpressionDiagnosticsResponse> {
         return this._messenger.sendRequest(getExpressionDiagnostics, HOST_EXTENSION, params);
+    }
+
+    getAllImports(): Promise<ProjectImports> {
+        return this._messenger.sendRequest(getAllImports, HOST_EXTENSION);
+    }
+
+    formDidOpen(params: FormDidOpenParams): Promise<void> {
+        return this._messenger.sendRequest(formDidOpen, HOST_EXTENSION, params);
+    }
+
+    formDidClose(params: FormDidCloseParams): Promise<void> {
+        return this._messenger.sendRequest(formDidClose, HOST_EXTENSION, params);
+    }
+
+    getDesignModel(): Promise<BIDesignModelResponse> {
+        return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
     }
 }

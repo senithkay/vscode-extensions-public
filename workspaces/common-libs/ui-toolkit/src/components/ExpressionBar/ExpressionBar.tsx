@@ -88,8 +88,7 @@ export type ExpressionBarBaseProps = {
     onCancel: () => void;
     onClose?: () => void;
     onRemove?: () => void;
-    useTransaction: (fn: (...args: any[]) => Promise<any>) => any;
-    shouldDisableOnSave?: boolean;
+    useTransaction?: (fn: (...args: any[]) => Promise<any>) => any;
 
     // Completion item props
     // - The list of completions to be displayed
@@ -133,7 +132,6 @@ export type ExpressionBarRef = {
     focus: () => void;
     blur: (value?: string) => Promise<void>; // Blurs the expression editor and optionally saves the expression with the provided value
     saveExpression: (value?: string, ref?: React.MutableRefObject<string>) => Promise<void>; // Saves the expression with the provided value
-    setCursor: (position: number) => void; // Sets the cursor position in the expression editor
 };
 
 // Styled Components
@@ -143,7 +141,7 @@ namespace Ex {
         display: flex;
         color: var(--vscode-foreground);
         align-items: center;
-        min-height: 32px;
+        min-height: 28px;
         gap: 8px;
         box-sizing: border-box;
 

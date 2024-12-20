@@ -98,14 +98,15 @@ interface FormGroupProps {
     title: string;
     children?: React.ReactNode;
     isCollapsed?: boolean;
+    disableCollapse?: boolean;
 }
 
-export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true }) => {
-    const [collapsed, setCollapsed] = useState(isCollapsed);
+export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollapsed = true, disableCollapse = false }) => {
+    const [collapsed, setCollapsed] = useState(isCollapsed && !disableCollapse);
     
     useEffect(() => {
-        setCollapsed(isCollapsed);
-    }, [isCollapsed]);
+        setCollapsed(isCollapsed && !disableCollapse);
+    }, [isCollapsed, disableCollapse]);
 
     const toggleCollapse = () => setCollapsed(!collapsed);
 
@@ -114,9 +115,11 @@ export const FormGroup: React.FC<FormGroupProps> = ({ title, children, isCollaps
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={toggleCollapse}>
                 <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
                 <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-editorIndentGuide-background)' }} />
-                <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
-                    <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
-                </Button>
+                {!disableCollapse &&
+                    <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
+                        <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
+                    </Button>
+                }
             </div>
             {!collapsed &&
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '15px 15px 25px 15px' }}>
