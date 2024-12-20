@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button, FormActions, FormView, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, FormActions, FormView, TextField, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { create } from 'xmlbuilder2';
@@ -41,6 +41,9 @@ export function AddConnection(props: AddConnectionProps) {
 
     const [formData, setFormData] = useState(undefined);
     const [connections, setConnections] = useState([]);
+    const [connectionSuccess, setConnectionSuccess] = useState(null);
+    const [isTesting, setIsTesting] = useState(false);
+    const [connectionErrorMessage, setConnectionErrorMessage] = useState(null);
     const { control, handleSubmit, setValue, getValues, watch, reset, formState: { errors } } = useForm<any>({
         defaultValues: {
             name: props.connectionName ?? ""
@@ -334,6 +337,29 @@ export function AddConnection(props: AddConnectionProps) {
         }
     }
 
+    const testConnection = async (values: any) => {
+        setIsTesting(true);
+        setConnectionSuccess(null);
+        setConnectionErrorMessage(null);
+        try {
+            const testResponse = await rpcClient.getMiDiagramRpcClient().testConnectorConnection({
+                connectorName: props.connector.name,
+                connectionType: connectionType,
+                parameters: getValues()
+            });
+            setConnectionSuccess(testResponse.isConnectionValid);
+            if (testResponse.errorMessage) {
+                setConnectionErrorMessage(testResponse.errorMessage);
+            }
+        } catch (error) {
+            console.error("Error in testing connection", error);
+            setConnectionSuccess(false);
+            setConnectionErrorMessage("Connection failed. Please check your settings and try again.");
+        } finally {
+            setIsTesting(false);
+        }
+    }
+
     const ConnectionName = <Controller
         name="name"
         control={control}
@@ -378,6 +404,32 @@ export function AddConnection(props: AddConnectionProps) {
                             skipGeneralHeading={true}
                             ignoreFields={["connectionName"]} />
                         <FormActions>
+                            {formData.testConnectionEnabled && <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
+                                <Button
+                                    appearance='secondary'
+                                    onClick={testConnection}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    disabled={isTesting}
+                                >
+                                    Test Connection
+                                    {isTesting && (
+                                        <span style={{ display: 'flex', alignItems: 'center', marginLeft: '8px' }}>
+                                            <Codicon name="loading" iconSx={{ color: 'white' }} />
+                                        </span>
+                                    )}
+                                </Button>
+                                {connectionSuccess !== null && (
+                                    connectionSuccess ? (
+                                        <Codicon name="pass" iconSx={{ color: 'green' }} sx={{ marginLeft: '10px' }} />
+                                    ) : (
+                                        <Codicon name="error" iconSx={{ color: 'red' }} sx={{ marginLeft: '10px' }} />
+                                    )
+                                )}
+                            </div>}
                             <Button
                                 appearance="primary"
                                 onClick={handleSubmit(onAddConnection)}
@@ -391,6 +443,9 @@ export function AddConnection(props: AddConnectionProps) {
                                 Cancel
                             </Button>
                         </FormActions>
+                        { connectionErrorMessage && <span style={{ color: 'red' }}>
+                            {connectionErrorMessage}
+                        </span>}
                     </>
                 </>
             ) : (

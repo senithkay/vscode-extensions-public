@@ -378,9 +378,11 @@ export async function downloadMI(miVersion: string): Promise<string> {
         if (!fs.existsSync(miPath)) {
             fs.mkdirSync(miPath, { recursive: true });
         }
+        const zipName = miDownloadUrls[miVersion].split('/').pop();
+        const extractFolderName = zipName?.replace('.zip', '');
 
-        const miDownloadPath = path.join(miPath, `wso2mi-${miVersion}.zip`);
-        const extractedMIPath = path.join(miPath, `wso2mi-${miVersion}`);
+        const miDownloadPath = path.join(miPath, zipName!);
+        const extractedMIPath = path.join(miPath, extractFolderName!);
 
         if (!fs.existsSync(miDownloadPath)) {
             await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');
