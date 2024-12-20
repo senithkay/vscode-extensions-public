@@ -147,6 +147,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         watch,
         isLoadingHelperPaneInfo,
         variableInfo,
+        configVariableInfo,
         functionInfo,
         libraryBrowserInfo,
         completions,
@@ -162,7 +163,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         onCancel,
         onRemove,
         openSubPanel,
-        handleOnFieldFocus
+        handleOnFieldFocus,
+        onSaveConfigurables
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
@@ -252,12 +254,14 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             exprRef,
             isLoadingHelperPaneInfo,
             variableInfo,
+            configVariableInfo,
             functionInfo,
             libraryBrowserInfo,
             () => setIsHelperPaneOpen(false),
             getHelperPaneData,
             value,
-            onChange
+            onChange,
+            onSaveConfigurables
         );
     }
 
