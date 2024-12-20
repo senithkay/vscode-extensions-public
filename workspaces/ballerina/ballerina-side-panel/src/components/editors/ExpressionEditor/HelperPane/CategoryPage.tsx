@@ -19,7 +19,7 @@ export const CategoryPage = ({ setCurrentPage, onClose }: CategoryPageProps) => 
     return (
         <>
             <HelperPane.Header title="Select Category" onClose={onClose} />
-            <HelperPane.Body>
+            <HelperPane.Body isLoading={false}>
                 <HelperPane.CategoryItem label="Variables" onClick={() => setCurrentPage(1)} />
                 <HelperPane.CategoryItem label="Functions" onClick={() => setCurrentPage(2)} />
                 <HelperPane.CategoryItem label="Configurables" onClick={() => setCurrentPage(3)} />
