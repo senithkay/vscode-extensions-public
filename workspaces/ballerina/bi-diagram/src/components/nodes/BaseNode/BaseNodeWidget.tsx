@@ -43,7 +43,8 @@ export namespace NodeStyles {
         width: ${NODE_WIDTH}px;
         min-height: ${NODE_HEIGHT}px;
         padding: 0 ${NODE_PADDING}px;
-        background-color: ${(props: NodeStyleProp) => props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
+        background-color: ${(props: NodeStyleProp) =>
+            props?.isActiveBreakpoint ? Colors.DEBUGGER_BREAKPOINT_BACKGROUND : Colors.SURFACE_BRIGHT};
         color: ${Colors.ON_SURFACE};
         opacity: ${(props: NodeStyleProp) => (props.disabled ? 0.7 : 1)};
         border: ${(props: NodeStyleProp) => (props.disabled ? DRAFT_NODE_BORDER_WIDTH : NODE_BORDER_WIDTH)}px;
@@ -151,11 +152,12 @@ export interface BaseNodeWidgetProps {
     onClick?: (node: FlowNode) => void;
 }
 
-export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<BaseNodeWidgetProps, "children"> {}
 
 export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const { model, engine, onClick } = props;
-    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode, removeBreakpoint, addBreakpoint } = useDiagramContext();
+    const { projectPath, onNodeSelect, goToSource, openView, onDeleteNode, removeBreakpoint, addBreakpoint, readOnly } =
+        useDiagramContext();
 
     const [isHovered, setIsHovered] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
@@ -197,12 +199,12 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
     const onAddBreakpoint = () => {
         addBreakpoint && addBreakpoint(model.node);
         setMenuAnchorEl(null);
-    }
+    };
 
     const onRemoveBreakpoint = () => {
         removeBreakpoint && removeBreakpoint(model.node);
         setMenuAnchorEl(null);
-    }
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         setMenuAnchorEl(event.currentTarget);
@@ -299,7 +301,16 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
             onMouseLeave={() => setIsHovered(false)}
         >
             {hasBreakpoint && (
-                <div style={{ position: "absolute", left: -5, width: 15, height: 15, borderRadius: "50%", backgroundColor: "red" }} />
+                <div
+                    style={{
+                        position: "absolute",
+                        left: -5,
+                        width: 15,
+                        height: 15,
+                        borderRadius: "50%",
+                        backgroundColor: "red",
+                    }}
+                />
             )}
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Row>
@@ -316,9 +327,11 @@ export function BaseNodeWidget(props: BaseNodeWidgetProps) {
                     </NodeStyles.Header>
                     <NodeStyles.ActionButtonGroup>
                         {hasError && <DiagnosticsPopUp node={model.node} />}
-                        <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                            <MoreVertIcon />
-                        </NodeStyles.MenuButton>
+                        {!readOnly && (
+                            <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                                <MoreVertIcon />
+                            </NodeStyles.MenuButton>
+                        )}
                     </NodeStyles.ActionButtonGroup>
                 </NodeStyles.Row>
                 <Popover

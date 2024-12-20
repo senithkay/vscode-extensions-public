@@ -395,15 +395,6 @@ export function NodeList(props: NodeListProps) {
         if (!category || !category.items || onSearchTextChange) {
             return category;
         }
-        if (category.title === "Connections") {
-            category.items.forEach((item) => {
-                (item as Category).items.forEach((subItem) => {
-                    if ((subItem as Node).metadata.codedata.node === "RESOURCE_ACTION_CALL") {
-                        (subItem as Node).enabled = false;
-                    }
-                });
-            });
-        }
         category.items = filterItems(category.items);
         return category;
     });

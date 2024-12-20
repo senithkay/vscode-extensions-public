@@ -8,12 +8,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ConfigVariable } from '@wso2-enterprise/ballerina-core';
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { PanelContainer, FormField, FormValues } from '@wso2-enterprise/ballerina-side-panel';
-import { convertNodePropertiesToFormFields, getFormProperties } from '../../../../utils/bi';
+import { PanelContainer, FormValues } from '@wso2-enterprise/ballerina-side-panel';
 import FormGenerator from '../../Forms/FormGenerator';
 
 
@@ -30,10 +28,11 @@ export interface ConfigFormProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
+    filename: string;
 }
 
 export function AddForm(props: ConfigFormProps) {
-    const { isOpen, onClose, title } = props;
+    const { isOpen, onClose, title, filename } = props;
 
     const { rpcClient } = useRpcContext();
 
@@ -96,32 +95,21 @@ export function AddForm(props: ConfigFormProps) {
         branches: []
     };
 
-    const [fields, setFields] = useState<FormField[]>([]);
-
-    useEffect(() => {
-        const formProperties = getFormProperties(variable);
-        console.log(">>> Edit config form properties", formProperties);
-        setFields(convertNodePropertiesToFormFields(formProperties));
-    }, []);
-
-    const handleSave = (data: FormValues) => {
-
-        setFields([]);
-
+    const handleSave = async (data: FormValues) => {
         variable.properties.defaultable.value =
-            data.defaultable === "" || data.defaultable === null ?
+            data.properties.defaultable.value === "" || data.properties.defaultable.value === null ?
                 "?"
-                : data.defaultable;
+                : data.properties.defaultable.value;
         variable.properties.defaultable.optional = true;
 
-        variable.properties.type.value = data.type;
-        variable.properties.variable.value = data.variable;
-
+        variable.properties.type.value = data.properties.type.value;
+        variable.properties.variable.value = data.properties.variable.value;
+        
         rpcClient
             .getBIDiagramRpcClient()
             .updateConfigVariables({
                 configVariable: variable,
-                configFilePath: variable.codedata.lineRange.fileName
+                configFilePath: filename
             })
             .then((response: any) => {
                 console.log(">>> Config variables------", response);
@@ -135,11 +123,11 @@ export function AddForm(props: ConfigFormProps) {
         <>
             <PanelContainer
                 title={title}
-                show={props.isOpen}
+                show={isOpen}
                 onClose={onClose}
             >
                 <FormGenerator
-                    fileName={variable.codedata.lineRange.fileName}
+                    fileName={filename}
                     node={variable}
                     targetLineRange={{
                         startLine: variable.codedata.lineRange.startLine,

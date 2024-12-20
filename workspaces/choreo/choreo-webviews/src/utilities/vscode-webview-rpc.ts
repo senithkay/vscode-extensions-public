@@ -47,6 +47,7 @@ import {
 	type OpenComponentViewDrawerReq,
 	type OpenDialogOptions,
 	OpenExternal,
+	OpenExternalChoreo,
 	OpenSubDialogRequest,
 	type OpenTestViewReq,
 	ReadFile,
@@ -285,6 +286,10 @@ export class ChoreoWebViewAPI {
 
 	public async openExternal(url: string): Promise<void> {
 		this._messenger.sendRequest(OpenExternal, HOST_EXTENSION, url);
+	}
+
+	public async openExternalChoreo(choreoPath: string): Promise<void> {
+		this._messenger.sendRequest(OpenExternalChoreo, HOST_EXTENSION, choreoPath);
 	}
 
 	public async openComponentViewDrawer(params: OpenComponentViewDrawerReq): Promise<void> {

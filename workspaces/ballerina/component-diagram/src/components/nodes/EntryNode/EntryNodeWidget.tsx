@@ -12,11 +12,11 @@ import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
 import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { HttpIcon, TaskIcon, WebhookIcon } from "../../../resources";
+import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
-
+import { CDAutomation, CDService } from "@wso2-enterprise/ballerina-core";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
@@ -27,8 +27,6 @@ export namespace NodeStyles {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        gap: 8px;
-
         color: ${Colors.ON_SURFACE};
         cursor: pointer;
     `;
@@ -73,8 +71,8 @@ export namespace NodeStyles {
         }
     `;
 
-    export const Title = styled(StyledText) <NodeStyleProp>`
-        max-width: ${ENTRY_NODE_WIDTH - 100}px;
+    export const Title = styled(StyledText)<NodeStyleProp>`
+        max-width: ${ENTRY_NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -116,8 +114,8 @@ export namespace NodeStyles {
     `;
 
     export const MenuButton = styled(Button)`
-    border-radius: 5px;
-`;
+        border-radius: 5px;
+    `;
 }
 
 interface EntryNodeWidgetProps {
@@ -125,54 +123,54 @@ interface EntryNodeWidgetProps {
     engine: DiagramEngine;
 }
 
-export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> { }
+export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> {}
 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onEntryPointSelect, onDeleteComponent } = useDiagramContext();
+    const { onServiceSelect, onAutomationSelect, onDeleteComponent } = useDiagramContext();
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleOnClick = () => {
-        onEntryPointSelect(model.node);
+        if (model.type === "service") {
+            onServiceSelect(model.node as CDService);
+        } else {
+            onAutomationSelect(model.node as CDAutomation);
+        }
     };
 
     const getNodeIcon = () => {
-        if (model.node.icon) {
-            return model.node.icon;
-        }
-
-        switch (model.node.type) {
-            case "trigger":
-                return <WebhookIcon />;
-            case "task":
-            case "schedule-task":
+        switch (model.type) {
+            case "automation":
                 return <TaskIcon />;
             case "service":
-                return <HttpIcon />;
+                return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:
                 return <HttpIcon />;
         }
     };
 
+    const getNodeTitle = () => {
+        if (model.node.displayName) {
+            return model.node.displayName;
+        }
+        if ((model.node as CDService).absolutePath) {
+            return (model.node as CDService).absolutePath;
+        }
+        return "";
+    };
+
     const getNodeDescription = () => {
-        if (model.node.description) {
-            return model.node.description;
+        if (model.type === "automation") {
+            return "Automation";
         }
-        // show type if no description
-        switch (model.node.type) {
-            case "trigger":
-                return "Webhook";
-            case "task":
-            case "schedule-task":
-                return "Automation";
-            case "service":
-                return "Service";
-            default:
-                return model.node.type;
+        // Service
+        if ((model.node as CDService).type) {
+            return (model.node as CDService).type.replace(":Listener", ":Service");
         }
-    }
+        return "Service";
+    };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {
         event.stopPropagation();
@@ -185,7 +183,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
 
     const menuItems: Item[] = [
         { id: "edit", label: "Edit", onClick: () => handleOnClick() },
-        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
+        { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
     ];
 
     return (
@@ -199,7 +197,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             <NodeStyles.Box hovered={isHovered}>
                 <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
                 <NodeStyles.Header hovered={isHovered}>
-                    <NodeStyles.Title hovered={isHovered}>{model.node.label || model.node.name}</NodeStyles.Title>
+                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
                     <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                 </NodeStyles.Header>
                 <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>

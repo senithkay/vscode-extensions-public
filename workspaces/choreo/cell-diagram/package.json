@@ -1,5 +1,5 @@
 {
-    "name": "@wso2-enterprise/cell-diagram",
+    "name": "@wso2-enterprise/choreo-cell-diagram",
     "version": "3.2.24050304",
     "description": "Generate the cell diagram for Choreo projects.",
     "files": [
@@ -65,7 +65,7 @@
     "license": "UNLICENSED",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+        "url": "git+https://github.com/wso2-enterprise/vscode-extensions.git"
     },
     "publishConfig": {
         "registry": "https://npm.pkg.github.com/"
