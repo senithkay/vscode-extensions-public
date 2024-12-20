@@ -99,7 +99,7 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
     return (
         <>
             <Tooltip
-                content={(<span>Please map parent field first. <a href="https://mi.docs.wso2.com/en/latest/reference/mediators/data-mapper-mediator/#array-mapping">Learn more</a></span>)}
+                content={(<span>Please map parent field first. <a href="https://mi.docs.wso2.com/en/4.4.0/reference/mediators/data-mapper-mediator/#array-mapping">Learn more</a></span>)}
                 sx={{ fontSize: "12px" }}
                 containerSx={{ width: "100%" }}
             >
