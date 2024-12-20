@@ -190,7 +190,8 @@ const SectionBody = styled.div<{ columns?: number }>`
 const SectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin-bottom: 8px;
+    gap: 4px;
+    margin-bottom: 16px;
 `;
 
 const ProgressRingContainer = styled.div`
