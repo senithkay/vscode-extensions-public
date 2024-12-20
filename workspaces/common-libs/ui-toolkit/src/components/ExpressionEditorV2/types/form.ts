@@ -26,7 +26,10 @@ type HelperPaneConditionalProps = {
     getExpressionEditorIcon?: never;
 }
 
-export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps;
+export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
+    startAdornment?: ReactNode;
+    endAdornment?: ReactNode;
+};
 
 export type FormExpressionEditorRef = ExpressionEditorRef & {
     inputElement: HTMLTextAreaElement;

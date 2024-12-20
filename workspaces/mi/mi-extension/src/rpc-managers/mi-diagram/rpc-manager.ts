@@ -239,6 +239,8 @@ import {
     ApplyEditsRequest,
     RemoveConnectorRequest,
     RemoveConnectorResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -333,11 +335,19 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         return new Promise(async (resolve) => {
             const projectUri = StateMachine.context().projectUri!;
             const payloadPath = path.join(projectUri, ".tryout", "input.json");
-            const payload = fs.readFileSync(payloadPath, "utf8");
-            // const payloadJson = JSON.parse(payload);
+            const payload = fs.existsSync(payloadPath) ? fs.readFileSync(payloadPath, "utf8") : '';
+
             params.inputPayload = payload
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.tryOutMediator(params);
+            resolve(res);
+        });
+    }
+
+    async shutDownTryoutServer(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.shutdownTryoutServer();
             resolve(res);
         });
     }
@@ -5035,6 +5045,14 @@ ${keyValuesXML}`;
                 console.error(`Error getting helper pane info: ${error}`);
                 reject(error);
             }
+        });
+    }
+
+    async testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.testConnectorConnection(params);
+            resolve(res);
         });
     }
 }

@@ -569,7 +569,7 @@ export function FormGenerator(props: FormGeneratorProps) {
     return (
         formData && formData.elements && formData.elements.length > 0 && !isLoading && (
             <>
-                {formData.help && (
+                {formData.help && !ignoreFields?.includes('connectionName') && (
                     <div style={{
                         padding: "10px",
                         marginBottom: "20px",
