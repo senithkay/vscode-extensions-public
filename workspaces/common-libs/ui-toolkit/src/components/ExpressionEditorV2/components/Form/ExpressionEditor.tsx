@@ -98,6 +98,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
+    const [isFocused, setIsFocused] = useState<boolean>(false);
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
         suffix: /^((?:\w|')*)/,
@@ -374,7 +375,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     }
 
     const handleTextAreaFocus = async () => {
+        // Additional actions to be performed when the expression editor gains focus
+        setIsFocused(true);
         changeHelperPaneState?.(true);
+
         await onFocus?.();
     }
 
@@ -404,7 +408,10 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 !dropdownContainerRef.current?.contains(e.target) &&
                 !helperPaneContainerRef.current?.contains(e.target)
             ) {
+                // Additional actions to be performed when the expression editor loses focus
+                setIsFocused(false);
                 changeHelperPaneState?.(false);
+
                 await onBlur?.(e);
             }
         }
@@ -472,7 +479,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 resize='vertical'
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {createPortal(
+            {isFocused && createPortal(
                 <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
                     <Transition show={showCompletions} {...ANIMATION}>
                         <Codicon
@@ -505,7 +512,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 </DropdownContainer>,
                 document.body
             )}
-            {getHelperPane &&
+            {isFocused && getHelperPane &&
                 createPortal(
                     <DropdownContainer ref={helperPaneContainerRef} sx={{ ...dropdownElPosition }}>
                         <Transition show={isHelperPaneOpen} {...ANIMATION}>
@@ -515,7 +522,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                     document.body
                 )
             }
-            {createPortal(
+            {isFocused && createPortal(
                 <DropdownContainer sx={{ ...fnSignatureElPosition }}>
                     <Transition show={!!fnSignature} {...ANIMATION}>
                         <FnSignatureEl
