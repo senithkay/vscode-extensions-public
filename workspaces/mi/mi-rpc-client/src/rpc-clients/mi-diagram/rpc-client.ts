@@ -367,7 +367,10 @@ import {
     askOpenAPIDirPath,
     RemoveConnectorRequest,
     removeConnector,
-    RemoveConnectorResponse
+    RemoveConnectorResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse,
+    testConnectorConnection
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -956,5 +959,9 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     getHelperPaneInfo(params: GetHelperPaneInfoRequest): Promise<GetHelperPaneInfoResponse> {
         return this._messenger.sendRequest(getHelperPaneInfo, HOST_EXTENSION, params);
+    }
+
+    testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
+        return this._messenger.sendRequest(testConnectorConnection, HOST_EXTENSION, params);
     }
 }

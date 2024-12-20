@@ -239,6 +239,8 @@ import {
     ApplyEditsRequest,
     RemoveConnectorRequest,
     RemoveConnectorResponse,
+    TestConnectorConnectionRequest,
+    TestConnectorConnectionResponse
 } from "@wso2-enterprise/mi-core";
 import axios from 'axios';
 import { error } from "console";
@@ -5035,6 +5037,14 @@ ${keyValuesXML}`;
                 console.error(`Error getting helper pane info: ${error}`);
                 reject(error);
             }
+        });
+    }
+
+    async testConnectorConnection(params: TestConnectorConnectionRequest): Promise<TestConnectorConnectionResponse> {
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.testConnectorConnection(params);
+            resolve(res);
         });
     }
 }

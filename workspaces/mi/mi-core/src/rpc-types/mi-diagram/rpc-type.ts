@@ -221,7 +221,9 @@ import {
     RemoveConnectorRequest,
     RemoveConnectorResponse,
     GetHelperPaneInfoRequest,
-    GetHelperPaneInfoResponse
+    GetHelperPaneInfoResponse,
+    TestConnectorConnectionResponse,
+    TestConnectorConnectionRequest
 } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -371,3 +373,4 @@ export const updateMediator: NotificationType<UpdateMediatorRequest> = { method:
 export const getConnectionSchema: RequestType<GetConnectionSchemaRequest, GetConnectionSchemaResponse> = { method: `${_preFix}/getConnectionSchema` };
 export const getExpressionCompletions: RequestType<ExpressionCompletionsRequest, ExpressionCompletionsResponse> = { method: `${_preFix}/getExpressionCompletions` };
 export const getHelperPaneInfo: RequestType<GetHelperPaneInfoRequest, GetHelperPaneInfoResponse> = { method: `${_preFix}/getHelperPaneInfo` };
+export const testConnectorConnection: RequestType<TestConnectorConnectionRequest, TestConnectorConnectionResponse> = { method: `${_preFix}/testConnectorConnection` };
