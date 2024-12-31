@@ -137,18 +137,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			}
 		} else if (field.type.kind === TypeKind.Array) {
 			const elements: ArrayElement[] = field?.elements;
-			if (elements && !!elements.length) {
+			if (elements && !!elements.length && elements[0].elementNode) {
 				elements.forEach((element, index) => {
 					this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,
 						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
 				});
+			} else {
+				const arrItemField = { ...field.type.memberType, fieldName: `<${field.type.fieldName}Item>` };
+				this.addPortsForPreviewField(
+					arrItemField, type, fieldFQN, fieldFQN, portPrefix, fieldPort,
+					isCollapsedField, isCollapsed || hidden, false
+				);
 			}
-			//TODO: need to conditionally add preview ports
-			const arrItemField = { ...field.type.memberType, fieldName: `<${field.type.fieldName}Item>` };
-			this.addPortsForPreviewField(
-				arrItemField, type, fieldFQN, fieldFQN, portPrefix, fieldPort,
-				isCollapsedField, isCollapsed || hidden, false
-			);
 		}
 	}
 

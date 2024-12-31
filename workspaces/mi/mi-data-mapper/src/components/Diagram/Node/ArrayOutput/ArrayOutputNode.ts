@@ -87,21 +87,26 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             );
 
             if (valueEnrichedType.type.kind === TypeKind.Array) {
-                if (this.dmTypeWithValue?.elements && this.dmTypeWithValue.elements.length > 0) {
+                
+                if (this.dmTypeWithValue?.elements &&
+                    this.dmTypeWithValue.elements.length > 0 &&
+                    this.dmTypeWithValue.elements[0].elementNode) {
                     this.dmTypeWithValue.elements.forEach((field, index) => {
                         this.addPortsForOutputField(
                             field.member, "IN", this.rootName, index, ARRAY_OUTPUT_TARGET_PORT_PREFIX,
                             parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                         );
                     });
+                } else {
+                    this.dmTypeWithValue.type.fieldName = "";
+                    const arrItemField = { ...this.dmTypeWithValue.type.memberType, fieldName: `<${this.dmTypeWithValue.type.fieldName}Item>` };
+                    this.addPortsForPreviewField(
+                        arrItemField, "IN", this.rootName, this.rootName, ARRAY_OUTPUT_TARGET_PORT_PREFIX, parentPort,
+                        isCollapsedField, parentPort.collapsed, this.isMapFn
+                    );
                 }
-                // TODO: Need to add preview ports if not initialized
-                this.dmTypeWithValue.type.fieldName = "";
-                const arrItemField = { ...this.dmTypeWithValue.type.memberType, fieldName: `<${this.dmTypeWithValue.type.fieldName}Item>` };
-                this.addPortsForPreviewField(
-                    arrItemField, "IN", this.rootName, this.rootName, ARRAY_OUTPUT_TARGET_PORT_PREFIX, parentPort,
-                    isCollapsedField, parentPort.collapsed, this.isMapFn
-                );
+               
+                
             }
         }
     }
