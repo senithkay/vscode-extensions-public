@@ -68,6 +68,13 @@ export class FocusedInputNode extends DataMapperNodeModel {
                         parentPort, isCollapsedField, parentPort.collapsed, subField.optional
                     );
                 });
+            } else if (this.dmType.kind === TypeKind.Array) {
+                this.dmType.fieldName = this.nodeLabel;
+                const arrItemField = { ...this.dmType.memberType, fieldName: `<${this.dmType.fieldName}Item>` };
+                this.numberOfFields += this.addPortsForPreviewField(
+                    arrItemField, "OUT", this.nodeLabel, this.nodeLabel, FOCUSED_INPUT_SOURCE_PORT_PREFIX,
+                    parentPort, isCollapsedField, parentPort.collapsed, arrItemField.optional
+                );
             }
         }
     }

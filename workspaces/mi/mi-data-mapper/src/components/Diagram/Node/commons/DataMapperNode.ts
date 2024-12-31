@@ -57,8 +57,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		parent?: InputOutputPortModel,
 		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
 		hidden?: boolean,
-		isOptional?: boolean,
-		isPreview?: boolean
+		isOptional?: boolean
 	): number {
 
 		const fieldName = dmType.fieldName;
@@ -76,7 +75,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const isCollapsed = !hidden && isCollapsedField && isCollapsedField(portName, dmType.kind);
 		const fieldPort = new InputOutputPortModel(
 			dmType, portName, portType, parentId, undefined,
-			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden, false, false, false, isPreview
+			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden, false, false, false, false
 		);
 
 		this.addPort(fieldPort);
@@ -89,15 +88,15 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 				fields.forEach(subField => {
 					numberOfFields += this.addPortsForInputField(
 						subField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
-						isCollapsedField, isCollapsed || hidden, subField.optional || isOptional, isPreview
+						isCollapsedField, isCollapsed || hidden, subField.optional || isOptional
 					);
 				});
 			}
 		} else if (dmType.kind === TypeKind.Array) {
 			const arrItemField = {...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`};
-			numberOfFields += this.addPortsForInputField(
+			numberOfFields += this.addPortsForPreviewField(
 				arrItemField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
-				isCollapsedField, isCollapsed || hidden, isOptional, true
+				isCollapsedField, isCollapsed || hidden, isOptional
 			);
 		}
 		return hidden ? 0 : numberOfFields;
@@ -144,12 +143,67 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
 				});
 			}
+			//TODO: need to conditionally add preview ports
 			const arrItemField = { ...field.type.memberType, fieldName: `<${field.type.fieldName}Item>` };
-			this.addPortsForInputField(
+			this.addPortsForPreviewField(
 				arrItemField, type, fieldFQN, fieldFQN, portPrefix, fieldPort,
-				isCollapsedField, isCollapsed || hidden, false, true
+				isCollapsedField, isCollapsed || hidden, false
 			);
 		}
+	}
+
+	protected addPortsForPreviewField(
+		dmType: DMType,
+		portType: "IN" | "OUT",
+		parentId: string,
+		unsafeParentId: string,
+		portPrefix?: string,
+		parent?: InputOutputPortModel,
+		isCollapsedField?: (fieldId: string, fieldKind: TypeKind) => boolean,
+		hidden?: boolean,
+		isOptional?: boolean
+	): number {
+
+		const fieldName = dmType.fieldName;
+
+		const fieldFQN = parentId
+			? `${parentId}${fieldName && isOptional
+				? `?.${fieldName}`
+				: `.${fieldName}`}`
+			: fieldName && fieldName;
+		const unsafeFieldFQN = unsafeParentId
+			? `${unsafeParentId}.${fieldName}`
+			: fieldName || '';
+
+		const portName = portPrefix ? `${portPrefix}.${unsafeFieldFQN}` : unsafeFieldFQN;
+		const isCollapsed = !hidden && isCollapsedField && isCollapsedField(portName, dmType.kind);
+		const fieldPort = new InputOutputPortModel(
+			dmType, portName, portType, parentId, undefined,
+			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden, false, false, false, true
+		);
+
+		this.addPort(fieldPort);
+
+		let numberOfFields = 1;
+		if (dmType.kind === TypeKind.Interface) {
+			const fields = dmType?.fields;
+
+			if (fields && !!fields.length) {
+				fields.forEach(subField => {
+					numberOfFields += this.addPortsForPreviewField(
+						subField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+						isCollapsedField, isCollapsed || hidden, subField.optional || isOptional
+					);
+				});
+			}
+		} else if (dmType.kind === TypeKind.Array) {
+			const arrItemField = {...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`};
+			numberOfFields += this.addPortsForPreviewField(
+				arrItemField, portType, fieldFQN, unsafeFieldFQN, portPrefix, fieldPort,
+				isCollapsedField, isCollapsed || hidden, isOptional
+			);
+		}
+		return hidden ? 0 : numberOfFields;
 	}
 
 	protected addPortsForHeader(
