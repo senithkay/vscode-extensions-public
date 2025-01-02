@@ -239,7 +239,7 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
     };
 
     return (
-        <FormView title="Local Entry" onClose={handleOnClose}>
+        <FormView title="Create New Local Entry" onClose={handleOnClose}>
             {type === "" ? <CardWrapper cardsType="LOCAL_ENTRY" setType={setLocalEntryType} /> :
                 <>
                     <TypeChip type={type} onClick={handleBackButtonClick} showButton={isNewTask} />
