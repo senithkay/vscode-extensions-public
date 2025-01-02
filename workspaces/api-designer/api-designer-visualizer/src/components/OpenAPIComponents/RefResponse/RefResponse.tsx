@@ -10,6 +10,9 @@ import { TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Response as R } from '../../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Parameters/Parameters';
 import { Response } from '../Response/Response';
+import { APIDesignerContext } from '../../../APIDesignerContext';
+import { useContext } from 'react';
+import { PathID } from '../../../constants';
 
 interface RefRequestBodyProps {
     responseName: string;
@@ -19,11 +22,15 @@ interface RefRequestBodyProps {
 
 export function RefResponse(props: RefRequestBodyProps) {
     const { responseName, response, onResponseChange } = props;
+    const { 
+        api: { onSelectedComponentIDChange }
+    } = useContext(APIDesignerContext);
     const handleResponseChangeChange = (response: R) => {
         onResponseChange(response, responseName, responseName);
     };
     const handleResponseNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onResponseChange(response, e.target.value, responseName);
+        onSelectedComponentIDChange(`${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${e.target.value}`);
     };
 
     return (

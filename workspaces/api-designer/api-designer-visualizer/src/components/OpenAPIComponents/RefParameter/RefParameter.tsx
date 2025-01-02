@@ -9,6 +9,9 @@
 import { Dropdown, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
 import { Parameter, SchemaTypes } from '../../../Definitions/ServiceDefinitions';
 import { PanelBody } from '../Parameters/Parameters';
+import { useContext } from 'react';
+import { APIDesignerContext } from '../../../APIDesignerContext';
+import { PathID } from '../../../constants';
 
 interface RefParamaterProps {
     paramerName: string;
@@ -27,11 +30,15 @@ const DataTypes = [
 
 export function RefParameter(props: RefParamaterProps) {
     const { paramerName, parameter, onParameterChange } = props;
+    const { 
+        api: { onSelectedComponentIDChange }
+    } = useContext(APIDesignerContext);
     const handleParameterChange = (parameter: Parameter) => {
         onParameterChange(parameter, paramerName, paramerName);
     };
     const hanleParameterNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onParameterChange(parameter, e.target.value, paramerName);
+        onSelectedComponentIDChange(`${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${e.target.value}`);
     };
 
     const dataTypes = DataTypes.map((type) => {

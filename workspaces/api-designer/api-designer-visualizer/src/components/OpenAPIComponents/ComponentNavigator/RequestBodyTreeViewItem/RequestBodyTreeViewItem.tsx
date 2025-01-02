@@ -11,6 +11,7 @@ import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
+import { PathID } from '../../../../constants';
 
 const RequestBodyItemWrapper = styled.div`
     display: flex;
@@ -46,7 +47,7 @@ export function RequestBodyTreeViewItem(props: RequestBodyTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`requestBody#-component#-${requestBody}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`${PathID.REQUEST_BODY_COMPONENTS}${PathID.SEPERATOR}${requestBody}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <RequestBodyItemWrapper>
                     <Typography
