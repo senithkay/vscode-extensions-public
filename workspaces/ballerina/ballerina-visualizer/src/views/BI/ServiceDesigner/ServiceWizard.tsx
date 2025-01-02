@@ -119,7 +119,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
         setSaving(true);
         let listenerName;
         if (value) {
-            await rpcClient.getServiceDesignerRpcClient().updateListenerSourceCode({ filePath: "", listener: value });
+            await rpcClient.getServiceDesignerRpcClient().addListenerSourceCode({ filePath: "", listener: value });
             if (value.properties['name'].value) {
                 listenerName = value.properties['name'].value;
             }
@@ -156,7 +156,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
 
     const handlServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
-        const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath: "", service: value });
+        const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {

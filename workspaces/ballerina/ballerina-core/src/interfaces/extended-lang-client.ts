@@ -944,13 +944,13 @@ export interface BIInterface extends BaseLangClientInterface {
     // New Service Designer APIs
     getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
     getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
-    updateListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
     getListenerFromSourceCode: (params: ListenerModelFromCodeRequest) => Promise<ListenerModelFromCodeResponse>;
     getServiceModel: (params: ServiceModelRequest) => Promise<ServiceModelResponse>;
-    updateServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    addServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
     getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
     getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
-    updateResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+    addResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
 
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
 }

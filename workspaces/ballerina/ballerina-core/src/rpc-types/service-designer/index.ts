@@ -21,11 +21,14 @@ export interface ServiceDesignerAPI {
     exportOASFile: (params: ExportOASRequest) => Promise<ExportOASResponse>;
     getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
     getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
+    addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<SourceUpdateResponse>;
     updateListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<SourceUpdateResponse>;
     getListenerModelFromCode: (params: ListenerModelFromCodeRequest) => Promise<ListenerModelFromCodeResponse>;
     getServiceModel: (params: ServiceModelRequest) => Promise<ServiceModelResponse>;
+    addServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<SourceUpdateResponse>;
     updateServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<SourceUpdateResponse>;
     getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
     getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
+    addResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<SourceUpdateResponse>;
     updateResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<SourceUpdateResponse>;
 }

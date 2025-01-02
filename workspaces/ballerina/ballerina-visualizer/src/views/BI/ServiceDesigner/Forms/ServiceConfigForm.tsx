@@ -141,13 +141,13 @@ function convertConfig(listener: ServiceModel): FormField[] {
             type: expression.valueType,
             documentation: expression?.metadata.description || "",
             valueType: expression.valueTypeConstraint,
-            editable: expression.editable,
+            editable: true,
             optional: expression.optional,
-            value: expression.value,
+            value: expression.valueType === "MULTIPLE_SELECT" ? [expression.value] : expression.value,
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],
-            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items,
+            items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items || [expression.value],
             choices: expression.choices,
             placeholder: expression.placeholder
         }

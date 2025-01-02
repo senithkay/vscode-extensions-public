@@ -30,6 +30,9 @@ import {
     ServiceModelResponse,
     ServiceSourceCodeRequest,
     SourceUpdateResponse,
+    addListenerSourceCode,
+    addResourceSourceCode,
+    addServiceSourceCode,
     exportOASFile,
     getHttpResourceModel,
     getListenerModel,
@@ -68,6 +71,10 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getListenerModel, HOST_EXTENSION, params);
     }
 
+    addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(addListenerSourceCode, HOST_EXTENSION, params);
+    }
+
     updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
         return this._messenger.sendRequest(updateListenerSourceCode, HOST_EXTENSION, params);
     }
@@ -80,6 +87,10 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getServiceModel, HOST_EXTENSION, params);
     }
 
+    addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(addServiceSourceCode, HOST_EXTENSION, params);
+    }
+
     updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return this._messenger.sendRequest(updateServiceSourceCode, HOST_EXTENSION, params);
     }
@@ -90,6 +101,10 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     getHttpResourceModel(params: HttpResourceModelRequest): Promise<HttpResourceModelResponse> {
         return this._messenger.sendRequest(getHttpResourceModel, HOST_EXTENSION, params);
+    }
+
+    addResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(addResourceSourceCode, HOST_EXTENSION, params);
     }
 
     updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {

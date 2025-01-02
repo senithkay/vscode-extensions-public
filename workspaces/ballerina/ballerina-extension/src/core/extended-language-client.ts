@@ -243,12 +243,15 @@ enum EXTENDED_APIS {
     BI_SERVICE_GET_LISTENERS = 'serviceDesign/getListeners',
     BI_SERVICE_GET_LISTENER = 'serviceDesign/getListenerModel',
     BI_SERVICE_ADD_LISTENER = 'serviceDesign/addListener',
+    BI_SERVICE_UPDATE_LISTENER = 'serviceDesign/updateListener',
     BI_SERVICE_GET_LISTENER_SOURCE = 'serviceDesign/getListenerFromSource',
     BI_SERVICE_GET_SERVICE = 'serviceDesign/getServiceModel',
     BI_SERVICE_ADD_SERVICE = 'serviceDesign/addService',
+    BI_SERVICE_UPDATE_SERVICE = 'serviceDesign/updateService',
     BI_SERVICE_GET_SERVICE_SOURCE = 'serviceDesign/getServiceFromSource',
     BI_SERVICE_GET_RESOURCE = 'serviceDesign/getHttpResourceModel',
     BI_SERVICE_ADD_RESOURCE = 'serviceDesign/addResource',
+    BI_SERVICE_UPDATE_RESOURCE = 'serviceDesign/updateResource',
     BI_SERVICE_GET_TRIGGERS = 'serviceDesign/getTriggerModels',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel'
 }
@@ -785,8 +788,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ListenerModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_LISTENER, params);
     }
 
-    async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+    async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_LISTENER, params);
+    }
+
+    async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_LISTENER, params);
     }
 
     async getListenerFromSourceCode(params: ListenerModelFromCodeRequest): Promise<ListenerModelFromCodeResponse> {
@@ -797,8 +804,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<ServiceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_SERVICE, params);
     }
 
-    async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+    async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
         return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_SERVICE, params);
+    }
+
+    async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<ListenerSourceCodeResponse> {
+        return this.sendRequest<ListenerSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_SERVICE, params);
     }
 
     async getServiceModelFromCode(params: ServiceModelFromCodeRequest): Promise<ServiceModelFromCodeResponse> {
@@ -809,8 +820,12 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<HttpResourceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_RESOURCE, params);
     }
 
-    async updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+    async addResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
         return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_RESOURCE, params);
+    }
+
+    async updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+        return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_RESOURCE, params);
     }
 
     async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {

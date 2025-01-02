@@ -85,13 +85,13 @@ export function ComponentListView() {
 
     const { setPopupMessage } = useVisualizerContext();
 
-    const handleClick = async (key: DIRECTORY_MAP) => {
+    const handleClick = async (key: DIRECTORY_MAP, serviceType?: string) => {
         if (key === DIRECTORY_MAP.SERVICES) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
                     view: MACHINE_VIEW.BIServiceWizard,
-                    serviceType: "http"
+                    serviceType: serviceType
                 },
             });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {
@@ -233,19 +233,19 @@ export function ComponentListView() {
                                         icon={<Icon name="bi-http-service" />}
                                         title="HTTP Service"
                                         description="Handle web requests and responses."
-                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
+                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "http")}
                                     />
                                     <ButtonCard
                                         icon={<Icon name="bi-graphql" />}
                                         title="GraphQL Service"
                                         description="Flexible and efficient data queries."
-                                        onClick={() => setPopupMessage(true)}
+                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                     />
                                     <ButtonCard
                                         icon={<Icon name="bi-grpc" />}
                                         title="gRPC Service"
                                         description="High-performance, cross-platform communication."
-                                        onClick={() => setPopupMessage(true)}
+                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "grpc")}
                                     />
                                 </CardGrid>
                             </PanelViewMore>
@@ -279,7 +279,7 @@ export function ComponentListView() {
                                                 description={`${item.orgName}/${item.moduleName}`}
                                                 icon={getEntryNodeIcon(item)}
                                                 onClick={() => {
-                                                    handleOnSelect(item);
+                                                    handleClick(DIRECTORY_MAP.SERVICES, item.moduleName)
                                                 }}
                                             />
                                         );

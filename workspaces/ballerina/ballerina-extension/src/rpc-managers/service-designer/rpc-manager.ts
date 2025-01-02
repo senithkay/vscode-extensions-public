@@ -41,11 +41,11 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { ModulePart, NodePosition, STKindChecker, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import * as fs from 'fs';
+import { existsSync, writeFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import * as path from 'path';
 import { Uri, commands, window, workspace } from "vscode";
 import { StateMachine } from "../../stateMachine";
-import { existsSync, writeFileSync } from "fs";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
@@ -121,6 +121,29 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
+    async addListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectDir = path.join(StateMachine.context().projectUri);
+                const targetFile = path.join(projectDir, `main.bal`);
+                params.filePath = targetFile;
+                const res: ListenerSourceCodeResponse = await context.langClient.addListenerSourceCode(params);
+                const position = await this.updateSource(res);
+                const result: SourceUpdateResponse = {
+                    filePath: targetFile,
+                    position: position
+                };
+                if (StateMachine.context().isBI) {
+                    commands.executeCommand("BI.project-explorer.refresh");
+                }
+                resolve(result);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
     async updateListenerSourceCode(params: ListenerSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
@@ -159,6 +182,31 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
+
+    async addServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectDir = path.join(StateMachine.context().projectUri);
+                const targetFile = path.join(projectDir, `main.bal`);
+                params.filePath = targetFile;
+                const listenerName = params.service.properties["listener"].value || params.service.properties["listener"].values[0];
+                const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
+                const position = await this.updateSource(res, listenerName);
+                const result: SourceUpdateResponse = {
+                    filePath: targetFile,
+                    position: position
+                };
+                if (StateMachine.context().isBI) {
+                    commands.executeCommand("BI.project-explorer.refresh");
+                }
+                resolve(result);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
     async updateServiceSourceCode(params: ServiceSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
@@ -166,7 +214,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
-                const listenerName = params.service.properties["listener"].value;
+                const listenerName = params.service.properties["listener"].value || params.service.properties["listener"].values[0];
                 const res: ListenerSourceCodeResponse = await context.langClient.updateServiceSourceCode(params);
                 const position = await this.updateSource(res, listenerName);
                 const result: SourceUpdateResponse = {
@@ -201,6 +249,26 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const res: HttpResourceModelResponse = await context.langClient.getHttpResourceModel(params);
                 resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async addResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectDir = path.join(StateMachine.context().projectUri);
+                const targetFile = path.join(projectDir, `main.bal`);
+                params.filePath = targetFile;
+                const res: ResourceSourceCodeResponse = await context.langClient.addResourceSourceCode(params);
+                const position = await this.updateSource(res);
+                const result: SourceUpdateResponse = {
+                    filePath: targetFile,
+                    position: position
+                };
+                resolve(result);
             } catch (error) {
                 console.log(error);
             }
