@@ -13,6 +13,7 @@ import { PathsTreeView } from './PathsTreeView/PathsTreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../APIDesignerContext';
 import { ComponentTreeView } from './ComponentTreeView/ComponentTreeView';
+import { PathID } from '../../../constants';
 
 interface ContainerProps {
     selected?: boolean;
@@ -102,7 +103,7 @@ export function ComponentNavigator(props: ComponentNavigatorProps) {
 
     return (
         <div>
-            <OverviewTitle selected={selectedComponentID === "overview"} onClick={() => onSelectedComponentIDChange("overview")}>
+            <OverviewTitle selected={selectedComponentID === PathID.OVERVIEW} onClick={() => onSelectedComponentIDChange(PathID.OVERVIEW)}>
                 <Codicon sx={{ marginTop: -1 }} name="globe" />
                 <Typography variant="h4" sx={{ margin: 0, fontWeight: 300 }}>Overview</Typography>
             </OverviewTitle>

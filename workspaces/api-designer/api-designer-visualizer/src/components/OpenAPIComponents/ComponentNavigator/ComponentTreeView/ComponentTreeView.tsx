@@ -15,6 +15,7 @@ import { SchemaTreeView } from '../SchemaTreeView/SchemaTreeView';
 import { ParameterTreeView } from '../ParameterTreeView/ParameterTreeView';
 import { RequestBodyTreeView } from '../RequestBodyTreeView/RequestBodyTreeView';
 import { ResponsesTreeView } from '../ResponsesTreeView/ResponsesTreeView';
+import { PathID } from '../../../../constants';
 
 interface PathTreeViewItemProps {
     openAPI: OpenAPI;
@@ -31,7 +32,7 @@ export function ComponentTreeView(props: PathTreeViewItemProps) {
         <TreeView
             sx={{ paddingBottom: 2 }}
             rootTreeView
-            id="Components#-Components"
+            id={PathID.COMPONENTS_COMPONENTS}
             content={
                 <PathContainer>
                     <LeftPathContainer>

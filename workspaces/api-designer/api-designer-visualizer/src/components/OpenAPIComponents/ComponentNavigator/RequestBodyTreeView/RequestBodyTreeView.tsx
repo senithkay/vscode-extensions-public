@@ -11,7 +11,7 @@ import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
-import { Views } from '../../../../constants';
+import { PathID, Views } from '../../../../constants';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { RequestBodyTreeViewItem } from '../RequestBodyTreeViewItem/RequestBodyTreeViewItem';
 
@@ -41,7 +41,7 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
                     }
                 };
                 onRequestBodyTreeViewChange(updatedOpenAPIDefinition);
-                onSelectedComponentIDChange("overview");
+                onSelectedComponentIDChange(PathID.OVERVIEW);
             }
         });
     };
@@ -54,8 +54,8 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
         if (openAPI.components.parameters === undefined) {
             openAPI.components.parameters = {};
         }
-        const newRequestBodyName = Object.keys(openAPI.components.parameters).find((key) =>
-            key.toLocaleLowerCase() === "requestbody") ? `RequestBody${Object.keys(openAPI.components.parameters).length + 1}` :
+        const newRequestBodyName = Object.keys(openAPI.components.requestBodies).find((key) =>
+            key.toLowerCase().includes("requestbody")) ? `RequestBody${Object.keys(openAPI.components.requestBodies).length + 1}` :
             "RequestBody";
         openAPI.components.requestBodies = {
             ...openAPI.components.requestBodies,
@@ -71,7 +71,7 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
             }
         };
         onRequestBodyTreeViewChange(openAPI);
-        onSelectedComponentIDChange(`requestBody#-component#-${newRequestBodyName}`);
+        onSelectedComponentIDChange(`${PathID.REQUEST_BODY_COMPONENTS}${PathID.SEPERATOR}${newRequestBodyName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
@@ -80,7 +80,7 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
     return (
         <TreeView
             sx={{ paddingBottom: 2 }}
-            id="RequestBody#-Components"
+            id={`${PathID.REQUEST_BODY_COMPONENTS}`}
             content={
                 <PathContainer>
                     <LeftPathContainer>
@@ -108,7 +108,7 @@ export function RequestBodyTreeView(props: RequestBodyTreeViewProps) {
             {requestBodyArray.map((requestBody: string) => {
                 return (
                     <RequestBodyTreeViewItem
-                        id={`requestBody#-component#-${requestBody}`}
+                        id={`${PathID.REQUEST_BODY_COMPONENTS}${PathID.SEPERATOR}${requestBody}`}
                         requestBody={requestBody}
                         onDeleteRequestBody={handleDeleteRequestBody}
                     />
