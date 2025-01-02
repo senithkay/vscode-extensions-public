@@ -26,7 +26,15 @@ type HelperPaneConditionalProps = {
     getExpressionEditorIcon?: never;
 }
 
+type ActionButtonType = {
+    tooltip?: string;
+    iconType: 'codicon' | 'icon';
+    name: string;
+    onClick: () => void;
+}
+
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
+    actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;
 };

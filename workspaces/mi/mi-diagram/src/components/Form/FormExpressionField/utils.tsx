@@ -168,7 +168,7 @@ export const getHelperPaneCompletionItem = (
  */
 export const extractExpressionValue = (expression: string) => {
     const synapseExRegex = /^\$\{(.*)\}$/;
-    const match = expression.match(synapseExRegex);
+    const match = expression?.match(synapseExRegex);
     if (match) {
         return match[1];
     }
@@ -180,13 +180,28 @@ export const extractExpressionValue = (expression: string) => {
  * Enrich the expression value with the given expression type.
  *
  * @param expression - string
- * @param expressionType - 'xpath/jsonPath' | 'synapse'
  * @returns string
  */
-export const enrichExpressionValue = (expression: string, expressionType?: 'xpath/jsonPath' | 'synapse') => {
-    if (expressionType !== 'xpath/jsonPath') {
-        return `\${${expression}}`;
+export const enrichExpressionValue = (expression: string) => {
+    return `\${${expression}}`;
+};
+
+export const getExpressionValue = (expression: string, isExpression: boolean) => {
+    const synapseExRegex = /^\$\{(.*)\}$/;
+    const match = expression?.match(synapseExRegex);
+
+    // If expression, add ${} if not already present
+    if (isExpression) {
+        if (match) {
+            return expression;
+        } else {
+            return enrichExpressionValue(expression);
+        }
     }
-    
+
+    // If not expression, remove ${} if present
+    if (match) {
+        return extractExpressionValue(expression);
+    }
     return expression;
-}
+};

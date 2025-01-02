@@ -19,7 +19,7 @@ export const supportedJavaVersionsForMI: { [key: string]: string } = {
 export const LATEST_MI_VERSION = "4.4.0";
 const COMPATIBLE_JDK_VERSION = "11";
 const miDownloadUrls: { [key: string]: string } = {
-    '4.4.0': 'https://github.com/wso2/product-micro-integrator/releases/download/v4.4.0-prealpha/wso2mi-4.4.0-prealpha.zip',
+    '4.4.0': 'https://github.com/wso2/product-micro-integrator/releases/download/v4.4.0-alpha/wso2mi-4.4.0-alpha.zip',
     '4.3.0': 'https://github.com/wso2/micro-integrator/releases/download/v4.3.0/wso2mi-4.3.0.zip'
 };
 
@@ -378,9 +378,11 @@ export async function downloadMI(miVersion: string): Promise<string> {
         if (!fs.existsSync(miPath)) {
             fs.mkdirSync(miPath, { recursive: true });
         }
+        const zipName = miDownloadUrls[miVersion].split('/').pop();
+        const extractFolderName = zipName?.replace('.zip', '');
 
-        const miDownloadPath = path.join(miPath, `wso2mi-${miVersion}.zip`);
-        const extractedMIPath = path.join(miPath, `wso2mi-${miVersion}`);
+        const miDownloadPath = path.join(miPath, zipName!);
+        const extractedMIPath = path.join(miPath, extractFolderName!);
 
         if (!fs.existsSync(miDownloadPath)) {
             await downloadWithProgress(miDownloadUrls[miVersion], miDownloadPath, 'Downloading Micro Integrator');

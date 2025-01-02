@@ -95,7 +95,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.AGGREGATE.toLowerCase():
             color = "#e0e0d8";
             break;
-
+        case MEDIATORS.THROWERROR.toLowerCase():
+            color = "#fc0303";
+            break;
         default:
             color = "#FFB02E";
     }
@@ -268,6 +270,9 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
             break;
         case MEDIATORS.BAM.toLowerCase():
             icon = (<Icon name="BAM" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
+            break;
+        case MEDIATORS.THROWERROR.toLowerCase():
+            icon = (<Icon name="ThrowError" sx={{ height: 25, width: 25, fontSize: 25, color: color }} />);
             break;
 
         // Endpoints
