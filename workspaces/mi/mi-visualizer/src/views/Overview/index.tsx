@@ -90,10 +90,10 @@ function Overview(props: OverviewProps) {
     const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
     const [projectOverview, setProjectOverview] = React.useState<ProjectOverviewResponse>(undefined);
-    const [activeTab, setActiveTab] = React.useState<'diagram' | 'structure'>('diagram');
     const [readmeContent, setReadmeContent] = React.useState<string>("");
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [pomTimestamp, setPomTimestamp] = React.useState<number>(0);
+    const [errors, setErrors] = React.useState({});
 
     useEffect(() => {
         const fetchWorkspaces = async () => {
@@ -127,6 +127,7 @@ function Overview(props: OverviewProps) {
             }).catch((error) => {
                 console.error('Error getting project structure:', error);
                 setProjectStructure(undefined);
+                setErrors({ ...errors, projectStructure: ERROR_MESSAGES.ERROR_LOADING_PROJECT_STRUCTURE });
             });
 
             rpcClient.getMiVisualizerRpcClient().getProjectOverview({ documentUri: selected }).then((response) => {
@@ -134,6 +135,7 @@ function Overview(props: OverviewProps) {
             }).catch((error) => {
                 console.error('Error getting project overview:', error);
                 setProjectOverview(undefined);
+                setErrors({ ...errors, projectOverview: ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW });
             });
         }
     }, [selected, props]);
@@ -246,12 +248,18 @@ function Overview(props: OverviewProps) {
 
                             <PanelContent id={"component-diagram"} >
                                 <TabContent style={{ height: '400px', overflow: 'hidden', borderRadius: '8px' }}>
-                                    {projectOverview ? (<ComponentDiagram
-                                        projectStructure={projectOverview}
-                                        projectName={activeWorkspaces?.name}
-                                    />) : (
+                                    {projectOverview ?
+                                        <ComponentDiagram
+                                            projectStructure={projectOverview}
+                                            projectName={activeWorkspaces?.name}
+                                        /> :
                                         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                            <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_PROJECT_OVERVIEW} />
+                                            <ProgressRing />
+                                        </div>
+                                    }
+                                    {(errors as any)?.projectOverview && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                            <ErrorBanner errorMsg={(errors as any)?.projectOverview} />
                                         </div>
                                     )
                                     }
@@ -260,12 +268,21 @@ function Overview(props: OverviewProps) {
 
                             <PanelContent id={"project-structure"} >
                                 <TabContent>
-                                    {projectStructure && (
+                                    {projectStructure ?
                                         <ProjectStructureView
                                             projectStructure={projectStructure}
                                             workspaceDir={selected}
-                                        />
-                                    )}
+                                        /> :
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                            <ProgressRing />
+                                        </div>
+                                    }
+                                    {(errors as any)?.projectStructure && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                            <ErrorBanner errorMsg={(errors as any)?.projectStructure} />
+                                        </div>
+                                    )
+                                    }
                                 </TabContent>
                             </PanelContent>
                         </VSCodePanels>
