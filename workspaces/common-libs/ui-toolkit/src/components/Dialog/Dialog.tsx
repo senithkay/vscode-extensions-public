@@ -31,7 +31,7 @@ const Container = styled.div<DialogProps>`
     text-align: center;
     justify-content: center;
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
-    z-index: 200;
+    z-index: 2001;
     ${(props: DialogProps) => props.sx};
 `;
 

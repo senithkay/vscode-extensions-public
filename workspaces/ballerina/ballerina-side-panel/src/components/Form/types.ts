@@ -106,12 +106,14 @@ type FormTypeConditionalProps = {
 type FormHelperPaneConditionalProps = {
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
+    configVariableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     getHelperPaneData?: (type: string, filterText: string) => void;
 } | {
     isLoadingHelperPaneInfo?: never;
     variableInfo?: never;
+    configVariableInfo?: never;
     functionInfo?: never;
     libraryBrowserInfo?: never;
     getHelperPaneData?: never;
@@ -137,6 +139,7 @@ type FormExpressionEditorBaseProps = {
     onCancel?: () => void;
     onSave?: (value: string) => void | Promise<void>;
     onRemove?: () => void;
+    onSaveConfigurables?: (values: any) => void;
 }
 
 export type FormExpressionEditorProps =

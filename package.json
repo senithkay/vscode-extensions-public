@@ -33,6 +33,7 @@
         "build:ballerina": "rush build --to ballerina",
         "build:choreo": "rush build --to choreo",
         "build:mi": "rush build --to micro-integrator",
+        "build:api-designer": "rush build --to api-designer",
         "setup-e2e-test-debug": "workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver",
         "ui-toolkit-stories": "npm run --prefix ./workspaces/common-libs/ui-toolkit serve-storybook"
     }

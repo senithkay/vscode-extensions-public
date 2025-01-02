@@ -459,14 +459,31 @@ export const clearDiagramZoomAndPosition = () => {
 
 export const convertToHelperPaneVariable = (variables: VisibleType[]): HelperPaneVariableInfo => {
     return ({
-        category: variables.map((variable) => ({
-            label: variable.name,
-            items: variable.types.map((item) => ({
-                label: item.name,
-                type: item.type.value,
-                insertText: item.name
+        category: variables
+            .filter(variable => variable.name !== 'Configurable Variables')
+            .map((variable) => ({
+                label: variable.name,
+                items: variable.types.map((item) => ({
+                    label: item.name,
+                    type: item.type.value,
+                    insertText: item.name
+                }))
             }))
-        }))
+    });
+}
+
+export const convertToHelperPaneConfigurableVariable = (variables: VisibleType[]): HelperPaneVariableInfo => {
+    return ({
+        category: variables
+            .filter(variable => variable.name === 'Configurable Variables')
+            .map((variable) => ({
+                label: variable.name,
+                items: variable.types.map((item) => ({
+                    label: item.name,
+                    type: item.type.value,
+                    insertText: item.name
+                }))
+            }))
     });
 }
 
