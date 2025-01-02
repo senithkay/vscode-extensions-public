@@ -7,17 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import {
     autoDistribute,
+    centerDiagram,
     createNodesLink,
     generateEngine,
     getModelId,
     getNodeId,
-    loadDiagramZoomAndPosition,
-    resetDiagramZoomAndPosition,
 } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { Connection, EntryPoint, NodeModel, Project } from "../utils/types";
@@ -177,6 +176,7 @@ export function Diagram(props: DiagramProps) {
             }
             if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+                centerDiagram(diagramEngine);
             }
         }, 200);
     };

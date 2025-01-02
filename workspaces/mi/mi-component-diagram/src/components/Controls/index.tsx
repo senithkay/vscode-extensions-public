@@ -12,10 +12,10 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { loadDiagramZoomAndPosition, resetDiagramZoomAndPosition } from "../../utils/diagram";
 import { FitScreenIcon } from "../../resources/icons/FitScreenIcon";
 import { PlusIcon } from "../../resources/icons/nodes/PlusIcon";
 import { MinusIcon } from "../../resources/icons/MinusIcon";
+import { centerDiagram } from "../../utils/diagram";
 
 export namespace ControlsStyles {
     export const Container = styled.div`
@@ -87,8 +87,8 @@ export function Controls(props: ControlsProps) {
 
     const handleZoomToFit = () => {
         if (engine.getCanvas()?.getBoundingClientRect) {
-            engine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
-            engine.repaintCanvas();
+            engine.zoomToFitNodes({ margin: 0, maxZoom: 1 });
+            centerDiagram(engine);
         }
     };
 
