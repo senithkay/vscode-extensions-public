@@ -86,8 +86,10 @@ const HelperPaneEl = ({
                 <FunctionsPage
                     isLoading={isLoadingHelperPaneInfo}
                     functionInfo={functionInfo as HelperPaneFunctionInfo}
+                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('functions', filterText)}
+                    setFunctionFilterText={(filterText) => setFilterText('functions', filterText)}
+                    setLibraryFilterText={(filterText) => setFilterText('libraries', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
@@ -103,16 +105,6 @@ const HelperPaneEl = ({
                     onSave={addConfigVariables}
                 />
             )} 
-            {currentPage === 4 && (
-                <LibraryBrowser
-                    isLoading={isLoadingHelperPaneInfo}
-                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
-                    setFilterText={(filterText) => setFilterText('libraries', filterText)}
-                    onBack={() => setCurrentPage(2)}
-                    onClose={onClose}
-                    onChange={handleChange}
-                />
-            )}
         </HelperPane>
     );
 };
