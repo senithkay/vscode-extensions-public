@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ReactNode } from 'react';
+import { MutableRefObject, ReactNode } from 'react';
 import { ExpressionEditorProps, ExpressionEditorRef } from './common';
 
 type HelperPaneConditionalProps = {
@@ -34,6 +34,7 @@ type ActionButtonType = {
 }
 
 export type FormExpressionEditorProps = ExpressionEditorProps & HelperPaneConditionalProps & {
+    buttonRef?: MutableRefObject<HTMLDivElement>;
     actionButtons?: ActionButtonType[];
     startAdornment?: ReactNode;
     endAdornment?: ReactNode;

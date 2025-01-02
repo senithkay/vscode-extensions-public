@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { FormExpressionEditorRef, FormExpressionEditorProps } from '../../types/form';
 import { Button } from '../../../Button/Button';
@@ -40,21 +40,29 @@ namespace Ex {
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
     const { id, getExpressionEditorIcon, onRemove, startAdornment, endAdornment, ...rest } = props;
+    const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
+    const buttonRef = useRef<HTMLDivElement>(null)
+
+    useImperativeHandle(ref, () => expressionEditorRef.current);
 
     const handleHelperPaneToggle = () => {
-        props.changeHelperPaneState?.(!props.isHelperPaneOpen);
+        if (!props.isHelperPaneOpen) {
+            expressionEditorRef.current?.focus();
+        } else {
+            props.changeHelperPaneState?.(false);
+        }
     };
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
                 {startAdornment}
-                <ExpressionEditor ref={ref} {...rest} />
+                <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
                 {endAdornment}
             </Ex.ExpressionBox>
             {getExpressionEditorIcon ? getExpressionEditorIcon() : (
                 props.changeHelperPaneState && (
-                    <Button appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
+                    <Button ref={buttonRef} appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
                         <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
                     </Button>
                 )
