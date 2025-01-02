@@ -242,10 +242,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     };
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
-        if (isOpen) {
-            exprRef.current?.focus();
-        }
-
         setIsHelperPaneOpen(isOpen);
     }
 
