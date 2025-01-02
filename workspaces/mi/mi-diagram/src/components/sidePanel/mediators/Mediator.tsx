@@ -41,7 +41,20 @@ export function MediatorPage(props: MediatorPageProps) {
         <div>
             <VSCodePanels activeId={activeTab}>
                 {showMediaotrPanel && <VSCodePanelTab id="form" onClick={() => onChangeTab("form")}>Edit</VSCodePanelTab>}
-                <VSCodePanelTab id="tryout" onClick={() => onChangeTab("tryout")}>Tryout</VSCodePanelTab>
+                <VSCodePanelTab id="tryout" onClick={() => onChangeTab("tryout")} style={{ display: 'flex', alignItems: 'center' }}>
+                    Tryout 
+                    <span style={{ 
+                        marginLeft: '8px', 
+                        backgroundColor: '#007acc',
+                        color: 'white', 
+                        borderRadius: '4px', 
+                        padding: '2px 6px', 
+                        fontWeight: 'bold', 
+                        fontStyle: 'italic' 
+                    }}>
+                        Experimental
+                    </span>
+                </VSCodePanelTab>
 
                 {showMediaotrPanel && <PanelContent id={"form"} >
                     <MediatorForm

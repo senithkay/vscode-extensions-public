@@ -1962,3 +1962,14 @@ export interface GetHelperPaneInfoRequest {
 }
 
 export type GetHelperPaneInfoResponse = HelperPaneData;
+
+export interface TestConnectorConnectionRequest {
+    connectorName: string;
+    connectionType: string;
+    parameters: any;
+}
+export interface TestConnectorConnectionResponse {
+    isConnectionTested: boolean;
+    isConnectionValid: boolean;
+    errorMessage: string;
+}

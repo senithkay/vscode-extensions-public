@@ -159,3 +159,49 @@ export const getHelperPaneCompletionItem = (
     
     return children;
 };
+
+/**
+ * Extract the expression value from the given expression.
+ *
+ * @param expression - string
+ * @returns string
+ */
+export const extractExpressionValue = (expression: string) => {
+    const synapseExRegex = /^\$\{(.*)\}$/;
+    const match = expression?.match(synapseExRegex);
+    if (match) {
+        return match[1];
+    }
+
+    return expression;
+}
+
+/**
+ * Enrich the expression value with the given expression type.
+ *
+ * @param expression - string
+ * @returns string
+ */
+export const enrichExpressionValue = (expression: string) => {
+    return `\${${expression}}`;
+};
+
+export const getExpressionValue = (expression: string, isExpression: boolean) => {
+    const synapseExRegex = /^\$\{(.*)\}$/;
+    const match = expression?.match(synapseExRegex);
+
+    // If expression, add ${} if not already present
+    if (isExpression) {
+        if (match) {
+            return expression;
+        } else {
+            return enrichExpressionValue(expression);
+        }
+    }
+
+    // If not expression, remove ${} if present
+    if (match) {
+        return extractExpressionValue(expression);
+    }
+    return expression;
+};

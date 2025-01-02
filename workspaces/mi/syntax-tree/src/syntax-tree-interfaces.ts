@@ -1038,6 +1038,12 @@ export interface ScatterGather extends STNode {
     maxMessages: string;
 }
 
+export interface ThrowError extends STNode {
+    type: string;
+    description: string;
+    errorMessage: string;
+}
+
 export interface APIHandlersHandlerProperty extends STNode {
     name: string;
     value: string;

@@ -195,6 +195,7 @@ export function FormGenerator(props: FormGeneratorProps) {
         return expressionEditorField !== name ? (
             <FormExpressionField
                 {...field}
+                labelAdornment={helpTipElement}
                 label={element.displayName}
                 required={isRequired}
                 placeholder={element.placeholder}
