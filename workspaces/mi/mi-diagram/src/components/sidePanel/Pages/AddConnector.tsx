@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AutoComplete, Button, LinkButton, ProgressIndicator, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import SidePanelContext from '../SidePanelContexProvider';
+import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { ParamConfig } from '../../Form/ParamManager/ParamManager';
@@ -60,7 +60,7 @@ const AddConnector = (props: AddConnectorProps) => {
     const [connections, setConnections] = useState([] as any);
     const handleOnCancelExprEditorRef = useRef(() => { });
     const [parameters, setParameters] = useState<string[]>(props.parameters);
-    const { control, handleSubmit, setValue, reset, formState: { errors }, getValues, watch } = useForm();
+    const { control, handleSubmit, setValue, reset, formState: { dirtyFields, errors }, getValues, watch } = useForm();
 
     const paramConfigs: ParamConfig = {
         paramValues: [],
@@ -259,8 +259,6 @@ const AddConnector = (props: AddConnectorProps) => {
             setValue(param.key, { "value": param.value });
         });
 
-        const template = create();
-
         const connectorName = props.formData?.connectorName ??
             props.connectorName?.toLowerCase().replace(/\s/g, '') ??
             sidePanelContext.formValues.connectorName;
@@ -273,62 +271,16 @@ const AddConnector = (props: AddConnectorProps) => {
             values = getValues();
         }
 
-        const root = template.ele(`${connectorName}${operationName ? `.${operationName}` : ''}`);
-        root.att('configKey', props.connectionName ?? values['configKey']);
-
-        // Fill the values
-        Object.keys(values).forEach((key: string) => {
-            if (key !== 'configRef' && key !== 'configKey' && values[key]) {
-                if (typeof values[key] === 'object' && values[key] !== null) {
-                    // Handle expression input type
-                    const namespaces = values[key].namespaces;
-                    const value = values[key].value;
-                    const isExpression = values[key].isExpression;
-                    const name = getOriginalName(key);
-
-                    if (value) {
-                        if (isExpression) {
-                            if (namespaces && namespaces.length > 0) {
-                                // Generate XML with namespaces
-                                const element = root.ele(name);
-                                namespaces.forEach((namespace: any) => {
-                                    element.att(`xmlns:${namespace.prefix}`, namespace.uri);
-                                });
-                                element.txt(`{${value}}`);
-                            } else {
-                                root.ele(name).txt(`{${value}}`);
-                            }
-                        } else {
-                            root.ele(name).txt(value);
-                        }
-                    }
-                } else {
-                    const value = values[key];
-                    if (typeof value === 'string' && value.includes('<![CDATA[')) {
-                        // Handle CDATA
-                        const cdataContent = value.replace('<![CDATA[', '').replace(']]>', '');
-                        root.ele(getOriginalName(key)).dat(cdataContent);
-                    } else {
-                        root.ele(getOriginalName(key)).txt(value);
-                    }
-                }
-            }
+        await rpcClient.getMiDiagramRpcClient().updateMediator({
+            mediatorType: `${connectorName}.${operationName}`,
+            values: values as Record<string, any>,
+            oldValues: sidePanelContext.formValues as Record<string, any>,
+            dirtyFields: Object.keys(dirtyFields),
+            documentUri,
+            range: nodePosition
         });
 
-        const modifiedXml = template.end({ prettyPrint: true, headless: true });
-
-        rpcClient.getMiDiagramRpcClient().applyEdit({
-            documentUri: documentUri, range: nodePosition, text: modifiedXml
-        });
-
-        sidePanelContext.setSidePanelState({
-            ...sidePanelContext,
-            isOpen: false,
-            isEditing: false,
-            formValues: undefined,
-            nodeRange: undefined,
-            operationName: undefined
-        });
+        clearSidePanelState(sidePanelContext);
 
     };
 
