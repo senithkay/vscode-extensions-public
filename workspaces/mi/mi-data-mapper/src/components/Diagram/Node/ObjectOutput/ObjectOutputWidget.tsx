@@ -116,11 +116,10 @@ export function ObjectOutputWidget(props: ObjectOutputWidgetProps) {
 	}, []);
 
 	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+			collapsedFieldsStore.expandField(id, dmTypeWithValue.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+			collapsedFieldsStore.collapseField(id, dmTypeWithValue.type.kind);
 		}
 	};
 

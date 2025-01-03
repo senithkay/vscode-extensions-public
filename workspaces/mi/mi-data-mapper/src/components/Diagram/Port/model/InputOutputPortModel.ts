@@ -57,6 +57,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		public descendantHasValue?: boolean,
 		public ancestorHasValue?: boolean,
 		public isWithinMapFunction?: boolean,
+		public isPreview?: boolean
 	) {
 		super({
 			type: INPUT_OUTPUT_PORT,
@@ -122,7 +123,7 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	}
 
 	isDisabled(): boolean {
-		return this.ancestorHasValue || this.descendantHasValue
+		return this.isPreview || this.ancestorHasValue || this.descendantHasValue
 	}
 
 	canLinkToPort(port: InputOutputPortModel): boolean {

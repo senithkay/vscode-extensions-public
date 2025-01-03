@@ -90,7 +90,7 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
     const [mappingType, setMappingType] = React.useState<MappingType>(MappingType.Default);
     const [deleteInProgress, setDeleteInProgress] = useState(false);
 
-    const collapsedFieldsStore = useDMCollapsedFieldsStore();
+    const isCollapsedField = useDMCollapsedFieldsStore(state => state.isCollapsedField);
     const setExprBarFocusedPort = useDMExpressionBarStore(state => state.setFocusedPort);
 
     const classes = useStyles();
@@ -244,30 +244,29 @@ export function ExpressionLabelWidget(props: ExpressionLabelWidgetProps) {
 
     let isSourceCollapsed = false;
     let isTargetCollapsed = false;
-    const collapsedFields = collapsedFieldsStore.collapsedFields;
 
     if (source instanceof InputOutputPortModel) {
         if (source?.parentId) {
             const fieldName = source.field.fieldName;
-            isSourceCollapsed = collapsedFields?.includes(`${source.parentId}.${fieldName}`)
+            isSourceCollapsed = isCollapsedField(`${source.parentId}.${fieldName}`, source.field.kind)
         } else {
-            isSourceCollapsed = collapsedFields?.includes(source.portName)
+            isSourceCollapsed = isCollapsedField(source.portName, source.field.kind)
         }
     }
 
     if (target instanceof InputOutputPortModel) {
         if (target?.parentId) {
             const fieldName = target.field.fieldName;
-            isTargetCollapsed = collapsedFields?.includes(`${target.parentId}.${fieldName}`)
+            isTargetCollapsed = isCollapsedField(`${target.parentId}.${fieldName}`, target.field.kind);
         } else {
-            isTargetCollapsed = collapsedFields?.includes(target.portName)
+            isTargetCollapsed = isCollapsedField(target.portName, target.field.kind);
         }
     }
 
-    if (valueNode && isSourceCollapsed && isTargetCollapsed) {
+    if (valueNode && isSourceCollapsed && isTargetCollapsed && source.field.kind !== TypeKind.Array && target.field.kind !== TypeKind.Array) {
         // for direct links, disable link widgets if both sides are collapsed
         return null
-    } else if (!valueNode && (isSourceCollapsed || isTargetCollapsed)) {
+    } else if (!valueNode && ((isSourceCollapsed && source.field.kind !== TypeKind.Array) || (isTargetCollapsed && target.field.kind !== TypeKind.Array))) {
         // for links with intermediary nodes,
         // disable link widget if either source or target port is collapsed
         return null;

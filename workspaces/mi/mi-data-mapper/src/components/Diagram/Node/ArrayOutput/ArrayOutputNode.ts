@@ -73,7 +73,7 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             const isMapFnAtRootRtn = views.length > 1 && isMapFnAtRootReturn(functionST, focusedST);
             this.isMapFn = isMapFnAtPropAsmt || isMapFnAtRootRtn;
 
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
             const [valueEnrichedType, type] = enrichAndProcessType(this.dmType, this.value);
             this.dmType = type;
             this.typeName = getTypeName(valueEnrichedType.type);
@@ -83,18 +83,30 @@ export class ArrayOutputNode extends DataMapperNodeModel {
 
             const parentPort = this.addPortsForHeader(
                 this.dmType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, valueEnrichedType, this.isMapFn
+                isCollapsedField, valueEnrichedType, this.isMapFn
             );
 
             if (valueEnrichedType.type.kind === TypeKind.Array) {
-                if (this.dmTypeWithValue?.elements && this.dmTypeWithValue.elements.length > 0) {
+                
+                if (this.dmTypeWithValue?.elements &&
+                    this.dmTypeWithValue.elements.length > 0 &&
+                    this.dmTypeWithValue.elements[0].elementNode) {
                     this.dmTypeWithValue.elements.forEach((field, index) => {
                         this.addPortsForOutputField(
                             field.member, "IN", this.rootName, index, ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                            parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                            parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
                         );
                     });
+                } else {
+                    this.dmTypeWithValue.type.fieldName = "";
+                    const arrItemField = { ...this.dmTypeWithValue.type.memberType, fieldName: `<${this.dmTypeWithValue.type.fieldName}Item>` };
+                    this.addPortsForPreviewField(
+                        arrItemField, "IN", this.rootName, this.rootName, ARRAY_OUTPUT_TARGET_PORT_PREFIX, parentPort,
+                        isCollapsedField, parentPort.collapsed, this.isMapFn
+                    );
                 }
+               
+                
             }
         }
     }
