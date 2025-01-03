@@ -59,6 +59,8 @@ export class VisualizerWebview {
 
         vscode.workspace.onDidDeleteFiles(async function (event) {
             const projectRoot = StateMachine.context().projectUri!;
+            refreshDiagram();
+
             const apiDir = path.join(projectRoot, 'src', 'main', "wso2mi", "artifacts", "apis");
             event.files.forEach(file => {
                 const filePath = file?.fsPath;

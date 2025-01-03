@@ -11,7 +11,6 @@ import { Connection, Diagram, EntryPoint, Project } from "@wso2-enterprise/mi-co
 import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { EVENT_TYPE, MACHINE_VIEW, ProjectOverviewResponse } from "@wso2-enterprise/mi-core";
-import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const SpinnerContainer = styled.div`
@@ -40,19 +39,20 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         connections: projectStructure?.connections as any || [],
     };
 
-    const handleAddArtifact = () => {
-    };
-
     const handleGoToEntryPoints = (entryPoint: EntryPoint) => {
         if ((entryPoint as any).path) {
             rpcClient.getMiDiagramRpcClient().executeCommand({ commands: ['MI.show.graphical-view', (entryPoint as any).path] });
         }
     };
 
-    const handleAddConnection = () => {
+    const handleGoToSourceEntryPoints = (entryPoint: EntryPoint) => {
+        if ((entryPoint as any).path) {
+            rpcClient.getMiVisualizerRpcClient().goToSource({ filePath: (entryPoint as any).path });
+        }
     };
 
-    const handleOnDeleteComponent = () => {
+    const handleOnDeleteComponent = (entryPoint: EntryPoint | Connection) => {
+        rpcClient.getMiDiagramRpcClient().deleteArtifact({ path: (entryPoint as any).path, enableUndo: true });
     };
 
     const handleGoToConnection = async (connection: Connection) => {
@@ -63,8 +63,6 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
             });
         }
     };
-
-    const handleDeleteConnection = async (component: EntryPoint | Connection) => { };
 
     if (!projectStructure) {
         return (
@@ -78,14 +76,12 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         <DiagramContainer>
             <Diagram
                 project={model}
-                onAddEntryPoint={handleAddArtifact}
-                onAddConnection={handleAddConnection}
                 onEntryPointSelect={handleGoToEntryPoints}
+                onEntryPointGoToSource={handleGoToSourceEntryPoints}
                 onConnectionSelect={handleGoToConnection}
-                onDeleteComponent={handleDeleteConnection}
+                onDeleteComponent={handleOnDeleteComponent}
             />
         </DiagramContainer>
     );
 }
 
-export default React.memo(ComponentDiagram);

@@ -13,7 +13,7 @@ import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import ProjectStructureView from "./ProjectStructureView";
 import { ViewHeader } from "../../components/View";
 import { Button, Codicon, colors, ErrorBanner, Icon, PanelContent, ProgressRing, Typography } from "@wso2-enterprise/ui-toolkit";
-import ComponentDiagram from "./ComponentDiagram";
+import { ComponentDiagram } from "./ComponentDiagram";
 import styled from "@emotion/styled";
 import ReactMarkdown from "react-markdown";
 import { VSCodeLink, VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
@@ -83,7 +83,7 @@ const Readme = styled.div`
 interface OverviewProps {
 }
 
-function Overview(props: OverviewProps) {
+export function Overview(props: OverviewProps) {
     const { rpcClient } = useVisualizerContext();
     const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
     const [activeWorkspaces, setActiveWorkspaces] = React.useState<WorkspaceFolder>(undefined);
@@ -324,4 +324,4 @@ function Overview(props: OverviewProps) {
         </div>
     );
 }
-export default React.memo(Overview);
+

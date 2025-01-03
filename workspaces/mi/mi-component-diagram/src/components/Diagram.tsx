@@ -31,15 +31,14 @@ import Controls from "./Controls";
 
 export interface DiagramProps {
     project: Project;
-    onAddEntryPoint: () => void;
-    onAddConnection: () => void;
     onEntryPointSelect: (entryPoint: EntryPoint) => void;
+    onEntryPointGoToSource: (entryPoint: EntryPoint) => void;
     onConnectionSelect: (connection: Connection) => void;
     onDeleteComponent: (component: EntryPoint | Connection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onAddEntryPoint, onAddConnection, onEntryPointSelect, onConnectionSelect, onDeleteComponent } =
+    const { project, onEntryPointSelect, onEntryPointGoToSource, onConnectionSelect, onDeleteComponent } =
         props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
@@ -183,9 +182,8 @@ export function Diagram(props: DiagramProps) {
 
     const context: DiagramContextState = {
         project,
-        onAddEntryPoint,
-        onAddConnection,
         onEntryPointSelect,
+        onEntryPointGoToSource,
         onConnectionSelect,
         onDeleteComponent,
     };

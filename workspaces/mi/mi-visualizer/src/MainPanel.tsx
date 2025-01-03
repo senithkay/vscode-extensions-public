@@ -52,7 +52,7 @@ import { SamplesView } from './views/SamplesView';
 import { WelcomeView } from './views/WelcomeView';
 import { TaskView } from './views/Diagram/Task';
 import { InboundEPView } from './views/Diagram/InboundEndpoint';
-import Overview from './views/Overview';
+import { Overview } from './views/Overview';
 import { DatamapperForm } from './views/Forms/DatamapperForm';
 
 const MainContainer = styled.div`

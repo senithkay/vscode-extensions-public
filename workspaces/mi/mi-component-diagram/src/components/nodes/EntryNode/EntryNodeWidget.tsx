@@ -130,13 +130,17 @@ export interface NodeWidgetProps extends Omit<EntryNodeWidgetProps, "children"> 
 export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     const { model, engine } = props;
     const [isHovered, setIsHovered] = React.useState(false);
-    const { onEntryPointSelect, onDeleteComponent } = useDiagramContext();
+    const { onEntryPointSelect, onEntryPointGoToSource, onDeleteComponent } = useDiagramContext();
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | SVGSVGElement>(null);
     const isMenuOpen = Boolean(menuAnchorEl);
 
     const handleOnClick = () => {
         onEntryPointSelect(model.node);
     };
+
+    const handleOnGoToSource = () => {
+        onEntryPointGoToSource(model.node);
+    }
 
     const getNodeIcon = () => {
         if (model.node.icon) {
@@ -184,7 +188,8 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     };
 
     const menuItems: Item[] = [
-        { id: "edit", label: "Edit", onClick: () => handleOnClick() },
+        { id: "view", label: "View", onClick: () => handleOnClick() },
+        { id: "source", label: "Go to Source", onClick: () => handleOnGoToSource() },
         { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) }
     ];
 
