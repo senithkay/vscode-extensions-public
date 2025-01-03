@@ -953,8 +953,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let { directory, name, type, value, URL } = params;
             const xmlData = generateXmlData(name, type, value, URL);
 
-            if (directory.includes('localEntries')) {
-                directory = directory.replace('localEntries', 'local-entries');
+            if (directory.includes('localEntries') || directory.includes('local entries')) {
+                directory = directory.replace('localEntries', 'local-entries').replace('local entries', 'local-entries');
             }
             const filePath = await this.getFilePath(directory, name);
 
@@ -1027,8 +1027,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (getTemplateParams.directory.includes('messageStores')) {
-                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores');
+            if (getTemplateParams.directory.includes('messageStores') || getTemplateParams.directory.includes('message stores')) {
+                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores').replace('message stores', 'message-stores');
             }
             const filePath = await this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
 
@@ -2569,8 +2569,8 @@ ${endpointAttributes}
             const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (directory.includes('messageProcessors')) {
-                directory = directory.replace('messageProcessors', 'message-processors');
+            if (directory.includes('messageProcessors') || directory.includes('message processors')) {
+                directory = directory.replace('messageProcessors', 'message-processors').replace('message processors', 'message-processors');
             }
             const filePath = await this.getFilePath(directory, messageProcessorName);
 
