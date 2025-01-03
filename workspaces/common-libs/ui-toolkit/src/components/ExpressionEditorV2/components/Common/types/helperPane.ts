@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PropsWithChildren, ReactNode } from "react";
+import { CSSProperties, PropsWithChildren, ReactNode } from "react";
 
 export type LibraryBrowserProps = PropsWithChildren<{
     isLoading?: boolean;
@@ -23,7 +23,10 @@ export type HelperPaneIconButtonProps = {
     onClick: () => void;
 }
 
+export type HelperPaneFooterProps = PropsWithChildren<{}>;
+
 export type HelperPaneCompletionItemProps = {
+    level?: number;
     label: string;
     type?: string;
     getIcon?: () => ReactNode;
@@ -45,6 +48,17 @@ type CollapsibleConditionalProps = {
     collapsedItemsCount?: never;
 }
 
+export type PanelViewProps = PropsWithChildren<{
+    id: number;
+}>;
+
+export type PanelTabProps = {
+    id: number;
+    title: string;
+};
+
+export type PanelsProps = PropsWithChildren<{}>;
+
 export type HelperPaneSectionProps = PropsWithChildren<{
     title: string;
     columns?: number;
@@ -63,9 +77,11 @@ export type HelperPaneBodyProps = PropsWithChildren<{
 }>;
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
-    title: string;
+    title?: string;
     onBack?: () => void;
     onClose?: () => void;
 };
 
-export type HelperPaneProps = PropsWithChildren<{}>;
+export type HelperPaneProps = PropsWithChildren<{
+    sx?: CSSProperties;
+}>;
