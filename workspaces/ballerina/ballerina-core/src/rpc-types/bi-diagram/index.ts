@@ -61,7 +61,9 @@ import {
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams
+    FormDidCloseParams,
+    UpdateImportsRequest,
+    UpdateImportsResponse
 } from "./interfaces";
 
 export interface BIDiagramAPI {
@@ -103,4 +105,5 @@ export interface BIDiagramAPI {
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
     getDesignModel: () => Promise<BIDesignModelResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
 }

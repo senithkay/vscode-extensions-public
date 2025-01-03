@@ -58,7 +58,9 @@ import {
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams
+    FormDidCloseParams,
+    UpdateImportsRequest,
+    UpdateImportsResponse
 } from "./interfaces";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
@@ -101,3 +103,4 @@ export const getAllImports: RequestType<void, ProjectImports> = { method: `${_pr
 export const formDidOpen: RequestType<FormDidOpenParams, void> = { method: `${_preFix}/formDidOpen` };
 export const formDidClose: RequestType<FormDidCloseParams, void> = { method: `${_preFix}/formDidClose` };
 export const getDesignModel: RequestType<void, BIDesignModelResponse> = { method: `${_preFix}/getDesignModel` };
+export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };

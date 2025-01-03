@@ -495,6 +495,7 @@ export type BISourceCodeResponse = {
     textEdits: {
         [key: string]: TextEdit[];
     };
+    isExpression?: boolean;
 };
 
 export type BIDeleteByComponentInfoRequest = {

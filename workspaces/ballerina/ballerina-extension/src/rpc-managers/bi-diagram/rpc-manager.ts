@@ -68,6 +68,8 @@ import {
     SyntaxTree,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -174,7 +176,10 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
-            const fileUri = Uri.file(key);
+            let fileUri = Uri.file(key);
+            if (params.isExpression) {
+                fileUri = fileUri.with({ scheme: "expr" });
+            }
             const fileUriString = fileUri.toString();
             const edits = value;
 
@@ -1087,6 +1092,31 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         resolve(undefined);
                     });
                 });
+        });
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return new Promise((resolve, reject) => {
+            const { filePath, importStatement } = params;
+            const trimmedImportStatement = importStatement.trim();
+            const textEdits = {
+                [filePath]: [{
+                    range: {
+                        start: { line: 0, character: 0 },
+                        end: { line: 0, character: 0 }
+                    },
+                    newText: trimmedImportStatement
+                }]
+            };
+            console.log(">>> text edits", textEdits);
+
+            try {
+                this.updateSource({ textEdits, isExpression: true });
+                resolve({ importStatementOffset: trimmedImportStatement.length });
+            } catch (error) {
+                console.error("Error updating imports", error);
+                reject(error);
+            }
         });
     }
 }
