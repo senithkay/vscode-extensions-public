@@ -160,7 +160,11 @@ export function ArrayOutputWidget(props: ArrayOutputWidgetProps) {
 		}
 		const updatedTargetExpr = targetExpr.addElement(defaultValue);
 		await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
-		handleExpand(false);
+		
+		if(!expanded){
+			handleExpand(false);
+		}
+		
 		setIsAddingElement(false);
 
 	};
