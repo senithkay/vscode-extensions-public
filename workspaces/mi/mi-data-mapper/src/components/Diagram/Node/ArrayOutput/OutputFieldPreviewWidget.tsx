@@ -19,6 +19,7 @@ import { OutputSearchHighlight } from "../commons/Search";
 import { useIONodesStyles } from "../../../styles";
 import { useDMCollapsedFieldsStore } from '../../../../store/store';
 import { getTypeName } from "../../utils/common-utils";
+import { DATA_MAPPER_ARRAY_MAPPING_DOC_URL } from "../../utils/constants";
 
 
 export interface OutputFieldPreviewWidgetProps {
@@ -99,7 +100,7 @@ export function OutputFieldPreviewWidget(props: OutputFieldPreviewWidgetProps) {
     return (
         <>
             <Tooltip
-                content={(<span>Please map parent field first. <a href="https://mi.docs.wso2.com/en/4.4.0/reference/mediators/data-mapper-mediator/#array-mapping">Learn more</a></span>)}
+                content={(<span>Please map parent field first. <a href={DATA_MAPPER_ARRAY_MAPPING_DOC_URL}>Learn more</a></span>)}
                 sx={{ fontSize: "12px" }}
                 containerSx={{ width: "100%" }}
             >
