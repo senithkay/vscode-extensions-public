@@ -100,7 +100,7 @@ export function InputNodeTreeItemWidget(props: InputNodeTreeItemWidgetProps) {
     return (
         <>
             <Tooltip
-                content={(portOut && portOut.isPreview) && (<span>Please map parent field first. <a href="https://mi.docs.wso2.com/en/4.4.0/reference/mediators/data-mapper-mediator/#array-mapping">Learn more</a></span>)}
+                content={(portOut && portOut.isPreview) ? (<span>Please map parent field first. <a href="https://mi.docs.wso2.com/en/4.4.0/reference/mediators/data-mapper-mediator/#array-mapping">Learn more</a></span>) : ""}
                 sx={{ fontSize: "12px" }}
                 containerSx={{ width: "100%" }}
             >
