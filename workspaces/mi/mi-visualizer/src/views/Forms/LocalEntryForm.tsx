@@ -238,8 +238,9 @@ export function LocalEntryWizard(props: LocalEntryWizardProps) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: MACHINE_VIEW.Overview } });
     };
 
+    const title = !props.path.endsWith(".xml") ? "Create New Local Entry" : "Edit Local Entry : "  + getValues("name");
     return (
-        <FormView title="Local Entry" onClose={handleOnClose}>
+        <FormView title={title} onClose={handleOnClose}>
             {type === "" ? <CardWrapper cardsType="LOCAL_ENTRY" setType={setLocalEntryType} /> :
                 <>
                     <TypeChip type={type} onClick={handleBackButtonClick} showButton={isNewTask} />
