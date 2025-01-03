@@ -21,12 +21,13 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
+import { StringWithParamManagerComponent } from './StringWithParamManager';
 
 const Field = styled.div`
     margin-bottom: 12px;
 `;
 
-const cardStyle = {
+export const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -52,7 +53,7 @@ export interface FormGeneratorProps {
     range?: Range;
 }
 
-interface Element {
+export interface Element {
     inputType: any;
     name: string | number;
     displayName: any;
@@ -72,6 +73,10 @@ interface Element {
     configurableType?: string;
     addParamText?: string;
     deriveResponseVariable?: boolean;
+    matchPattern?: string;
+    initialSeparator?: string;
+    secondarySeparator?: string;
+    keyValueSeparator?: string;
 }
 
 interface ExpressionValueWithSetter {
@@ -372,6 +377,15 @@ export function FormGenerator(props: FormGeneratorProps) {
                     {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     onCreateButtonClick={onCreateButtonClick}
+                />)
+            }
+            case 'stringWithParamManager': {
+                return (<StringWithParamManagerComponent
+                    element={element}
+                    isRequired={isRequired}
+                    helpTipElement={helpTipElement}
+                    field={field}
+                    errorMsg={errorMsg}
                 />)
             }
             case 'ParamManager': {
