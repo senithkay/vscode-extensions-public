@@ -51,20 +51,6 @@ export function Diagram(props: DiagramProps) {
         }
     }, [project]);
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (diagramEngine?.getCanvas()?.getBoundingClientRect) {
-                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
-                diagramEngine.repaintCanvas();
-            }
-        };
-
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, [diagramEngine, diagramModel]);
-
     const getDiagramData = () => {
         // generate diagram nodes and links
         const nodes: NodeModel[] = [];
