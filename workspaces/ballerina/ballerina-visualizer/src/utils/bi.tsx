@@ -30,12 +30,14 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
+    Item
+} from "@wso2-enterprise/ballerina-core";
+import {
     HelperPaneVariableInfo,
     HelperPaneFunctionInfo,
     HelperPaneFunctionCategory,
-    Item,
     HelperPaneCompletionItem
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/ballerina-side-panel";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
