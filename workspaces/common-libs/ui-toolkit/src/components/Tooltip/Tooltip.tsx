@@ -186,7 +186,7 @@ export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsW
             containerSx={containerSx}
         >
             {children}
-            {content  && createPortal(
+            {content !== undefined && content !== "" && createPortal(
                 <TooltipContent
                     ref={tooltipEl}
                     onMouseEnter={() => setIsHovering(true)}
