@@ -226,12 +226,6 @@ const AddConnector = (props: AddConnectorProps) => {
 
     const addNewConnection = async () => {
 
-        // Get Connector Data from LS
-        const connectorData = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({
-            documentUri: props.documentUri,
-            connectorName: props.connectorName.toLowerCase().replace(/\s/g, '')
-        });
-
         rpcClient.getMiVisualizerRpcClient().openView({
             type: POPUP_EVENT_TYPE.OPEN_VIEW,
             location: {
@@ -269,6 +263,10 @@ const AddConnector = (props: AddConnectorProps) => {
         if (!sidePanelContext.formValues?.form && !sidePanelContext.formValues?.parameters) {
             // Get values set through param manager when no UISchema/template is present
             values = getValues();
+        }
+
+        if (props.connectionName) {
+            values.configKey = props.connectionName;
         }
 
         await rpcClient.getMiDiagramRpcClient().updateMediator({
