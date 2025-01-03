@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { DMType, IOType } from "@wso2-enterprise/mi-core";
+import { DMType, IOType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { DataMapperPortWidget, PortState, InputOutputPortModel } from '../../Port';
 import { InputSearchHighlight } from '../commons/Search';
@@ -49,7 +49,13 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
 
     const portOut = getPort(`${id}.OUT`);
 
-    const hasFields = !!dmType?.fields?.length;
+    let fields: DMType[];
+
+    if (dmType?.kind === TypeKind.Interface) {
+        fields = dmType.fields;
+    } else if (dmType.kind === TypeKind.Array) {
+        fields = [{...dmType.memberType, fieldName: `<${dmType.fieldName}Item>`}];
+    }
 
     let expanded = true;
     if (portOut && portOut.collapsed) {
@@ -74,11 +80,10 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
     );
 
     const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== id));
+            collapsedFieldsStore.expandField(id, dmType.kind);
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, id]);
+            collapsedFieldsStore.collapseField(id, dmType.kind);
         }
     }
 
@@ -113,7 +118,7 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                 onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
-                    {hasFields && (
+                    {fields && (
                         <Button
                             id={"expand-or-collapse-" + id} 
                             appearance="icon"
@@ -133,10 +138,10 @@ export function InputNodeWidget(props: InputNodeWidgetProps) {
                     }
                 </span>
             </TreeHeader>
-            {expanded && hasFields && (
+            {expanded && fields && (
                 <TreeBody>
                     {
-                        dmType.fields.map((field, index) => {
+                        fields.map((field, index) => {
                             return (
                                 <InputNodeTreeItemWidget
                                     key={index}

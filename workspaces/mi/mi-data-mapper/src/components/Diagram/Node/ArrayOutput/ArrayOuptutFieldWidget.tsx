@@ -32,6 +32,7 @@ import { TreeBody } from "../commons/Tree/Tree";
 import { createSourceForUserInput, modifyChildFieldsOptionality, modifyFieldOptionality } from "../../utils/modification-utils";
 import { PrimitiveOutputElementWidget } from "../PrimitiveOutput/PrimitiveOutputElementWidget";
 import FieldActionWrapper from "../commons/FieldActionWrapper";
+import { OutputFieldPreviewWidget } from "./OutputFieldPreviewWidget";
 
 export interface ArrayOutputFieldWidgetProps {
     parentId: string;
@@ -100,6 +101,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     }
 
     const arrayLitExpr = hasValue && Node.isArrayLiteralExpression(valExpr) ? valExpr : null;
+    const showElements = arrayLitExpr && !!elements?.length;
 
     let indentation = treeDepth * 16;
     if (!portIn) {
@@ -138,16 +140,11 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             setExprBarFocusedPort(portIn);
     };
 
-    const onAddElementClick = async () => {
-        await handleAddArrayElement(field.type?.memberType.kind);
-    };
-
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.labelDisabled : "")}
-                style={{ marginLeft: hasValue && !connectedViaLink ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
@@ -192,6 +189,83 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             )}
         </span>
     );
+
+    const handleExpand = (expanded: boolean) => {
+        if (!expanded) {
+            collapsedFieldsStore.expandField(fieldId, field.type.kind);
+        } else {
+            collapsedFieldsStore.collapseField(fieldId, field.type.kind);
+        }
+    };
+
+    const handleArrayInitialization = async () => {
+        setLoading(true);
+        try {
+            const fnBody = context.functionST.getBody() as Block;
+            await createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleArrayDeletion = async () => {
+        setLoading(true);
+        try {
+            await deleteField(field.value);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddArrayElement = async () => {
+        if (isAddingElement) return;
+        setIsAddingElement(true);
+
+        try {
+            const typeKind: TypeKind = field.type?.memberType.kind;
+            const defaultValue = getDefaultValue(typeKind);
+            let targetExpr = arrayLitExpr;
+            if (isReturnStmtMissing) {
+                const fnBody = context.functionST.getBody() as Block;
+                fnBody.addStatements([`return [];`]);
+                const returnStatement = fnBody.getStatements()
+                    .find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
+                targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
+            }
+            const updatedTargetExpr = targetExpr.addElement(defaultValue);
+            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
+        } finally {
+            if(!expanded){
+                handleExpand(false);
+            }
+            setIsAddingElement(false);
+        }
+    };
+
+    const handleModifyFieldOptionality = async () => {
+        viewsStore.setViews(context.views);
+        try {
+            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
+        try {
+            await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
 
     const arrayElements = useMemo(() => {
         return elements && (
@@ -267,7 +341,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                 key={`array-widget-${portIn?.getName()}-add-element`}
                 className={classes.addArrayElementButton}
                 aria-label="add"
-                onClick={isAddingElement ? () => { } : onAddElementClick}
+                onClick={handleAddArrayElement}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
                 {isAddingElement
@@ -278,78 +352,6 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
             </LinkButton>
         );
     }, [isAddingElement]);
-
-    const handleExpand = () => {
-        const collapsedFields = collapsedFieldsStore.collapsedFields;
-        if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldId));
-        } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
-        }
-    };
-
-    const handleArrayInitialization = async () => {
-        setLoading(true);
-        try {
-            const fnBody = context.functionST.getBody() as Block;
-            await createSourceForUserInput(field, parentObjectLiteralExpr, '[]', fnBody, context.applyModifications);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleArrayDeletion = async () => {
-        setLoading(true);
-        try {
-            await deleteField(field.value);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleAddArrayElement = async (typeKind: TypeKind) => {
-        setIsAddingElement(true)
-        try {
-            const defaultValue = getDefaultValue(typeKind);
-            let targetExpr = arrayLitExpr;
-            if (isReturnStmtMissing) {
-                const fnBody = context.functionST.getBody() as Block;
-                fnBody.addStatements([`return [];`]);
-                const returnStatement = fnBody.getStatements()
-                    .find(statement => Node.isReturnStatement(statement)) as ReturnStatement;
-                targetExpr = returnStatement.getExpression() as ArrayLiteralExpression;
-            }
-            const updatedTargetExpr = targetExpr.addElement(defaultValue);
-            await context.applyModifications(updatedTargetExpr.getSourceFile().getFullText());
-        } finally {
-            setIsAddingElement(false);
-        }
-    };
-
-    const handleModifyFieldOptionality = async () => {
-        viewsStore.setViews(context.views);
-        try {
-            await modifyFieldOptionality(field, !field.type.optional, context.functionST.getSourceFile(), context.applyModifications)
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleModifyChildFieldsOptionality = async (isOptional: boolean) => {
-        try {
-            await modifyChildFieldsOptionality(field, isOptional, context.functionST.getSourceFile(), context.applyModifications);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const onMouseEnter = () => {
-        setIsHovered(true);
-    };
-
-    const onMouseLeave = () => {
-        setIsHovered(false);
-    };
 
     const modifyFieldOptionalityMenuItem: ValueConfigMenuItem = {
         title: field.type.optional ? ValueConfigOption.MakeFieldRequired : ValueConfigOption.MakeFieldOptional,
@@ -369,7 +371,8 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     const valConfigMenuItems: ValueConfigMenuItem[] = [
         ...(hasValue || hasDefaultValue
             ? [
-                { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+                { title: ValueConfigOption.AddElement, onClick: handleAddArrayElement },
+                { title: ValueConfigOption.EditArray, onClick: handleEditValue },
                 { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion }
             ]
             : [
@@ -381,6 +384,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
     ];
 
     return (
+        <>
         <div
             className={classnames(classes.treeLabelArray, hasHoveredParent ? classes.treeLabelParentHovered : "")}
         >
@@ -407,12 +411,12 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                         )}
                     </span>
                     <span className={classes.label}>
-                        {(hasValue && !connectedViaLink) && (
+                        {(!connectedViaLink) && (
                             <FieldActionWrapper>
                                 <Button
                                     appearance="icon"
                                     sx={{ marginLeft: indentation }}
-                                    onClick={handleExpand}
+                                    onClick={() => handleExpand(expanded)}
                                     data-testid={`${portIn?.getName()}-expand-icon-array-field`}
                                 >
                                     {expanded ? <Codicon name="chevron-down" /> : <Codicon name="chevron-right" />}
@@ -434,7 +438,7 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     ))}
                 </div>
             )}
-            {(((expanded && hasValue && arrayLitExpr) || isReturnStmtMissing) && (elements?.length || !asOutput)) && (
+            {expanded && showElements && (
                 <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>
                         <span>[</span>
@@ -444,6 +448,18 @@ export function ArrayOutputFieldWidget(props: ArrayOutputFieldWidgetProps) {
                     </div>
                 </div>
             )}
+            
         </div>
+        {expanded && !showElements && (
+                <OutputFieldPreviewWidget
+                    engine={engine}
+                    dmType={{...field.type.memberType, fieldName: `<${field.type.fieldName}Item>`}}
+                    getPort={getPort}
+                    parentId={fieldId}
+                    treeDepth={treeDepth + 2}
+                    hasHoveredParent={isHovered}
+                />
+            )}
+        </>
     );
 }

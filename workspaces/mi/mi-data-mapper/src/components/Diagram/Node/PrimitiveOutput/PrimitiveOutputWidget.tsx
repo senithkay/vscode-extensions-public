@@ -75,11 +75,10 @@ export function PrimitiveOutputWidget(props: PrimitiveOutputWidgetProps) {
 	);
 
 	const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
 		if (!expanded) {
-			collapsedFieldsStore.setCollapsedFields(collapsedFields.filter(element => element !== fieldId));
+			collapsedFieldsStore.expandField(fieldId, field.type.kind);
 		} else {
-			collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldId]);
+			collapsedFieldsStore.collapseField(fieldId, field.type.kind);
 		}
 	};
 

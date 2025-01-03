@@ -63,7 +63,7 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
     async initPorts() {
         if (this.dmType) {
             const { focusedST, functionST, views } = this.context;
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const isCollapsedField = useDMCollapsedFieldsStore.getState().isCollapsedField;
             const valueEnrichedType = getEnrichedDMType(this.dmType, this.value);
             const searchValue = useDMSearchStore.getState().outputSearch;
             const isMapFnAtPropAsmt = isMapFnAtPropAssignment(focusedST);
@@ -79,11 +79,11 @@ export class PrimitiveOutputNode extends DataMapperNodeModel {
             }
             const parentPort = this.addPortsForHeader(
                 this.dmType, '', "IN", PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX,
-                collapsedFields, this.dmTypeWithValue, this.isMapFn
+                isCollapsedField, this.dmTypeWithValue, this.isMapFn
             );
             this.addPortsForOutputField(
                 this.dmTypeWithValue, "IN", this.dmTypeWithValue.type.kind, undefined,
-                PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX, parentPort, collapsedFields, parentPort.collapsed, this.isMapFn
+                PRIMITIVE_OUTPUT_TARGET_PORT_PREFIX, parentPort, isCollapsedField, parentPort.collapsed, this.isMapFn
             );
         }
     }
