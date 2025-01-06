@@ -11,6 +11,7 @@ import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
+import { PathID } from '../../../../constants';
 
 const SchemaItemWrapper = styled.div`
     display: flex;
@@ -46,7 +47,7 @@ export function SchemaTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`schemas#-component#-${schema}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`${PathID.SCHEMA_COMPONENTS}${PathID.SEPERATOR}${schema}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <SchemaItemWrapper>
                     <Typography

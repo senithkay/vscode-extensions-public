@@ -13,7 +13,7 @@ import { SchemaTreeViewItem } from '../SchemaTreeViewItem/SchemaTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
-import { Views } from '../../../../constants';
+import { PathID, Views } from '../../../../constants';
 
 interface PathTreeViewItemProps {
     openAPI: OpenAPI;
@@ -41,7 +41,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
                     }
                 };
                 onSchemaTreeViewChange(updatedOpenAPIDefinition);
-                onSelectedComponentIDChange("overview");
+                onSelectedComponentIDChange(PathID.OVERVIEW);
             }
         });
     };
@@ -62,7 +62,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             properties: {}
         };
         onSchemaTreeViewChange(openAPI);
-        onSelectedComponentIDChange(`schemas#-component#-${newSchemaName}`);
+        onSelectedComponentIDChange(`${PathID.SCHEMA_COMPONENTS}${PathID.SEPERATOR}${newSchemaName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
@@ -71,7 +71,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
     return (
         <TreeView
             sx={{ paddingBottom: 2 }}
-            id="Schemas#-Components"
+            id={PathID.SCHEMA_COMPONENTS}
             content={
                 <PathContainer>
                     <LeftPathContainer>
@@ -99,7 +99,7 @@ export function SchemaTreeView(props: PathTreeViewItemProps) {
             {schemaArray.map((schema: string) => {
                 return (
                     <SchemaTreeViewItem
-                        id={`schemas#-component#-${schema}`}
+                        id={`${PathID.SCHEMA_COMPONENTS}${PathID.SEPERATOR}${schema}`}
                         schema={schema}
                         onDeleteSchema={handleDeleteSchema}
                     />

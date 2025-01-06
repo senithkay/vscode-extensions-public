@@ -408,8 +408,7 @@ export function FormGenerator(props: FormProps) {
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const getHelperPaneData = useCallback(
-        (type: string, searchText: string) => {
-            setIsLoadingHelperPaneInfo(true);
+        debounce((type: string, searchText: string) => {
             switch (type) {
                 case 'variables': {
                     rpcClient
@@ -489,11 +488,14 @@ export function FormGenerator(props: FormProps) {
                     break;
                 }
             }
-        },
+        }, 1100),
         [rpcClient, targetLineRange, fileName]
     );
 
-    const handleGetHelperPaneData = useCallback(debounce(getHelperPaneData, 1100), [getHelperPaneData]);
+    const handleGetHelperPaneData = useCallback((type: string, searchText: string) => {
+        setIsLoadingHelperPaneInfo(true);
+        getHelperPaneData(type, searchText);
+    }, [getHelperPaneData]);
 
     const handleCompletionItemSelect = async () => {
         debouncedRetrieveCompletions.cancel();

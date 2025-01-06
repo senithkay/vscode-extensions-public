@@ -9,12 +9,13 @@
 
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { AvailableNode, Category, Item } from "@wso2-enterprise/ballerina-core";
+import { AvailableNode, Category, FlowNode, Item } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon, ProgressRing, SearchBox, Typography } from "@wso2-enterprise/ui-toolkit";
 import { cloneDeep, debounce } from "lodash";
 import ButtonCard from "../../../../components/ButtonCard";
 import { BodyText } from "../../../styles";
+import { ConnectorIcon } from "@wso2-enterprise/bi-diagram";
 
 const Container = styled.div`
     padding: 0 20px;
@@ -198,11 +199,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                                     }
                                                     icon={
                                                         connector.metadata.icon ? (
-                                                            <img
-                                                                src={connector.metadata.icon}
-                                                                alt={connector.metadata.label}
-                                                                style={{ width: "24px" }}
-                                                            />
+                                                            <ConnectorIcon node={connector as unknown as FlowNode} />
                                                         ) : (
                                                             <Codicon name="package" />
                                                         )
@@ -232,11 +229,7 @@ export function ConnectorView(props: ConnectorViewProps) {
                                         }
                                         icon={
                                             connector.metadata.icon ? (
-                                                <img
-                                                    src={connector.metadata.icon}
-                                                    alt={connector.metadata.label}
-                                                    style={{ width: "24px" }}
-                                                />
+                                                <ConnectorIcon node={connector as unknown as FlowNode} />
                                             ) : (
                                                 <Codicon name="package" />
                                             )

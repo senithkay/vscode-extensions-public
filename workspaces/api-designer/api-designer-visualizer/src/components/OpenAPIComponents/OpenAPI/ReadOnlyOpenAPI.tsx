@@ -20,9 +20,9 @@ interface OverviewProps {
     openAPI: O;
 }
 
-// Path parent component is represented with paths#-component#-path-method, 
-// Overview is represented with overview#-component,
-// Schema is represented with schema#-component#-schema
+// Path parent component is represented with Paths#-Component#-path-method, 
+// Overview is represented with Overview#-Component,
+// Schema is represented with Schema#-Component#-schema
 export function ReadOnlyOpenAPI(props: OverviewProps) {
     const { openAPI } = props;
     const { 
@@ -32,33 +32,33 @@ export function ReadOnlyOpenAPI(props: OverviewProps) {
 
     return (
         <>
-            {componetName === "overview" && (
+            {componetName === "Overview" && (
                 <ReadOnlyOverview openAPIDefinition={openAPI} />
             )}
-            {componetName === "paths" && (
+            {componetName === "Paths" && (
                 <ReadOnlyPaths 
                     paths={openAPI.paths} 
                 />
             )}
-            {componetName === "schemas" && (
+            {componetName === "Schemas" && (
                 <ReadOnlySchemaEditor
                     schema={openAPI.components.schemas[selectedComponentID.split("#-")[2]]}
                     schemaName={selectedComponentID.split("#-")[2]}
                 />
             )}
-            {componetName === "parameters" && (
+            {componetName === "Parameters" && (
                 <ReadOnlyRefParameters
                     parameter={openAPI.components.parameters[selectedComponentID.split("#-")[2]]}
                     name={selectedComponentID.split("#-")[2]}
                 />
             )}
-            {componetName === "requestBody" && (
+            {componetName === "RequestBody" && (
                 <ReadOnlyRefRequestBody
                     requestBody={openAPI.components.requestBodies[selectedComponentID.split("#-")[2]]}
                     name={selectedComponentID.split("#-")[2]}
                 />
             )}
-            {componetName === "responses" && (
+            {componetName === "Responses" && (
                 <ReadOnlyRefResponse
                     response={openAPI.components.responses[selectedComponentID.split("#-")[2]]}
                     name={selectedComponentID.split("#-")[2]}

@@ -11,7 +11,7 @@ import { OpenAPI as O } from '../../../Definitions/ServiceDefinitions';
 import { ComponentNavigator } from '../ComponentNavigator/ComponentNavigator';
 import { OpenAPI } from '../OpenAPI/OpenAPI';
 import styled from '@emotion/styled';
-import { Views } from '../../../constants';
+import { PathID, Views } from '../../../constants';
 import { APIDesignerContext } from '../../../APIDesignerContext';
 import { getAllComponents } from '../../Utils/OpenAPIUtils';
 import { ReadOnlyOpenAPI } from '../OpenAPI/ReadOnlyOpenAPI';
@@ -35,7 +35,7 @@ interface ApiDesignerProps {
 
 export function ApiDesigner(props: ApiDesignerProps) {
     const { openApi, isEditMode, openAPIVersion, onOpenApiChange } = props;
-    const [selectedComponentID, setSelectedComponentID] = useState<string | undefined>("overview");
+    const [selectedComponentID, setSelectedComponentID] = useState<string | undefined>(PathID.OVERVIEW);
     const [currentView, setCurrentView] = useState(isEditMode ? Views.EDIT : Views.READ_ONLY);
     const [pathInitiated, setPathInitiated] = useState(false);
 
@@ -50,52 +50,52 @@ export function ApiDesigner(props: ApiDesignerProps) {
         },
         api: {
             onSelectedComponentIDChange: (component: string) => {
-                if (component === "Paths#-Resources") {
+                if (component === PathID.PATHS_RESOURCES) {
                     // Get the first path item and set it as the selected item
                     const paths = openApi?.paths ? Object.keys(openApi.paths) : [];
                     if (paths.length > 0) {
                         const sanitizedPaths = paths.filter((path) => path !== "servers" && path !== "parameters"
                             && path !== "description" && path !== "summary" && path !== "tags" && path !== "externalDocs");
-                        setSelectedComponentID(openApi?.paths && `paths#-component#-${sanitizedPaths[0]}`);
+                        setSelectedComponentID(openApi?.paths && `${PathID.PATHS_COMPONENTS}${PathID.SEPERATOR}${sanitizedPaths[0]}`);
                     }
-                } else if (component === "Components#-Components") {
+                } else if (component === PathID.COMPONENTS_COMPONENTS) {
                     // Get the first schema item and set it as the selected item
                     if (openApi?.components?.schemas && Object.keys(openApi.components.schemas).length > 0) {
                         const schemas = Object.keys(openApi.components.schemas);
-                        setSelectedComponentID(schemas && `schemas#-component#-${schemas[0]}`);
+                        setSelectedComponentID(schemas && `${PathID.SCHEMA_COMPONENTS}${PathID.SEPERATOR}${schemas[0]}`);
                     } else if (openApi?.components?.parameters && Object.keys(openApi.components.parameters).length > 0) {
                         const parameters = Object.keys(openApi.components.parameters);
-                        setSelectedComponentID(parameters && `parameters#-component#-${parameters[0]}`);
+                        setSelectedComponentID(parameters && `${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${parameters[0]}`);
                     } else if (openApi?.components?.requestBodies && Object.keys(openApi.components.requestBodies).length > 0) {
                         const requestBodies = Object.keys(openApi.components.requestBodies);
-                        setSelectedComponentID(requestBodies && `requestBody#-component#-${requestBodies[0]}`);
+                        setSelectedComponentID(requestBodies && `${PathID.REQUEST_BODY_COMPONENTS}${PathID.SEPERATOR}${requestBodies[0]}`);
                     } else if (openApi?.components?.responses && Object.keys(openApi.components.responses).length > 0) {
                         const responses = Object.keys(openApi.components.responses);
-                        setSelectedComponentID(responses && `responses#-component#-${responses[0]}`);
+                        setSelectedComponentID(responses && `${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${responses[0]}`);
                     }
-                } else if (component === "Schemas#-Components") {
+                } else if (component === PathID.SCHEMA_COMPONENTS) {
                     // Get the first schema item and set it as the selected item
                     if (openApi?.components?.schemas && Object.keys(openApi.components.schemas).length > 0) {
                         const schemas = Object.keys(openApi.components.schemas);
-                        setSelectedComponentID(schemas && `schemas#-component#-${schemas[0]}`);
+                        setSelectedComponentID(schemas && `${PathID.SCHEMA_COMPONENTS}${PathID.SEPERATOR}${schemas[0]}`);
                     }
-                } else if (component === "Paramters#-Components") {
+                } else if (component === PathID.PARAMETERS_COMPONENTS) {
                     // Get the first parameter item and set it as the selected item
                     if (openApi?.components?.parameters && Object.keys(openApi.components.parameters).length > 0) {
                         const parameters = Object.keys(openApi.components.parameters);
-                        setSelectedComponentID(parameters && `parameters#-component#-${parameters[0]}`);
+                        setSelectedComponentID(parameters && `${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${parameters[0]}`);
                     }
-                } else if (component === "RequestBody#-Components") {
+                } else if (component === PathID.REQUEST_BODY_COMPONENTS) {
                     // Get the first request body item and set it as the selected item
                     if (openApi?.components?.requestBodies && Object.keys(openApi.components.requestBodies).length > 0) {
                         const requestBodies = Object.keys(openApi.components.requestBodies);
-                        setSelectedComponentID(requestBodies && `requestBody#-component#-${requestBodies[0]}`);
+                        setSelectedComponentID(requestBodies && `${PathID.REQUEST_BODY_COMPONENTS}${PathID.SEPERATOR}${requestBodies[0]}`);
                     }
-                } else if (component === "Responses#-Components") {
+                } else if (component === PathID.RESPONSE_COMPONENTS) {
                     // Get the first response item and set it as the selected item
                     if (openApi?.components?.responses && Object.keys(openApi.components.responses).length > 0) {
                         const responses = Object.keys(openApi.components.responses);
-                        setSelectedComponentID(responses && `responses#-component#-${responses[0]}`);
+                        setSelectedComponentID(responses && `${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${responses[0]}`);
                     }
                 } else {
                     setSelectedComponentID(component);
