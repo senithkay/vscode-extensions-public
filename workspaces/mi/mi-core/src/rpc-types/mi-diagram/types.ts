@@ -1862,13 +1862,17 @@ export interface SavePayloadRequest {
     payload: string;
 }
 
-export interface GetPayloadRequest {
+export interface GetPayloadsRequest {
     documentUri: string;
 }
 
-export interface GetPayloadResponse {
-    hasPayload: boolean;
-    payload?: string;
+export interface GetPayloadsResponse {
+    payloads: InputPayload[];
+}
+
+export interface InputPayload {
+    name: string;
+    content: string;
 }
 
 export interface GetMediatorsRequest {

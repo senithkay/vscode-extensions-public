@@ -12,8 +12,9 @@ import { VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
 import { PanelContent } from "@wso2-enterprise/ui-toolkit";
 import { MediatorForm } from "./Form";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import TryOutView from "./Tryout";
+import TryOutView from "./tryout/Tryout";
 import { useForm } from "react-hook-form";
+import { Colors } from "../../../resources/constants";
 
 interface MediatorPageProps {
     mediatorData: any;
@@ -41,19 +42,19 @@ export function MediatorPage(props: MediatorPageProps) {
         <div>
             <VSCodePanels activeId={activeTab}>
                 {showMediaotrPanel && <VSCodePanelTab id="form" onClick={() => onChangeTab("form")}>Edit</VSCodePanelTab>}
-                <VSCodePanelTab id="tryout" onClick={() => onChangeTab("tryout")} style={{ display: 'flex', alignItems: 'center' }}>
-                    Tryout 
-                    <span style={{ 
-                        marginLeft: '8px', 
-                        backgroundColor: '#007acc',
-                        color: 'white', 
-                        borderRadius: '4px', 
-                        padding: '2px 6px', 
-                        fontWeight: 'bold', 
-                        fontStyle: 'italic' 
+                <VSCodePanelTab id="tryout" onClick={() => onChangeTab("tryout")} style={{ alignItems: 'center' }}>
+                    Tryout
+                    {activeTab === "tryout" && <span style={{
+                        marginLeft: '4px',
+                        backgroundColor: Colors.SURFACE_CONTAINER,
+                        color: Colors.ON_SURFACE,
+                        borderRadius: '4px',
+                        padding: '2px 6px',
+                        fontSize: '9px',
+                        fontStyle: 'italic'
                     }}>
                         Experimental
-                    </span>
+                    </span>}
                 </VSCodePanelTab>
 
                 {showMediaotrPanel && <PanelContent id={"form"} >

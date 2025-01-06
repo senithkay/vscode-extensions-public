@@ -343,12 +343,12 @@ import {
     getAllAPIcontexts,
     MediatorTryOutRequest,
     tryOutMediator,
-    getInputPayload,
+    getInputPayloads,
     saveInputPayload,
     MediatorTryOutResponse,
     SavePayloadRequest,
-    GetPayloadRequest,
-    GetPayloadResponse,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
     getMediatorInputOutputSchema,
     GetMediatorRequest,
     GetMediatorResponse,
@@ -938,8 +938,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
     saveInputPayload(params: SavePayloadRequest): Promise<boolean> {
         return this._messenger.sendRequest(saveInputPayload, HOST_EXTENSION, params);
     }
-    getInputPayload(params: GetPayloadRequest): Promise<GetPayloadResponse> {
-        return this._messenger.sendRequest(getInputPayload, HOST_EXTENSION, params);
+    getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
+        return this._messenger.sendRequest(getInputPayloads, HOST_EXTENSION, params);
     }
 
     getMediators(params: GetMediatorsRequest): Promise<GetMediatorsResponse> {

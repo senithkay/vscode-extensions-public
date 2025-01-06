@@ -226,8 +226,8 @@ import {
     MediatorTryOutRequest,
     MediatorTryOutResponse,
     SavePayloadRequest,
-    GetPayloadRequest,
-    GetPayloadResponse,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
@@ -318,15 +318,15 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getInputPayload(params: GetPayloadRequest): Promise<GetPayloadResponse> {
+    async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri, ".tryout", "input.json");
             if (fs.existsSync(tryout)) {
-                const payload = fs.readFileSync(tryout, "utf8");
-                resolve({ hasPayload: true, payload });
+                const payloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
+                resolve({ payloads });
             } else {
-                resolve({ hasPayload: false })
+                resolve({ payloads: [] })
             }
         });
     }
