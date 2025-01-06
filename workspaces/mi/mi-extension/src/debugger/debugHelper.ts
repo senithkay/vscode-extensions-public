@@ -83,7 +83,7 @@ function checkServerLiveness(): Promise<boolean> {
 
 export function checkServerReadiness(): Promise<void> {
     const startTime = Date.now();
-    const maxTimeout = 15000;
+    const maxTimeout = 30000;
     const retryInterval = 2000;
 
     return new Promise((resolve, reject) => {
@@ -105,7 +105,7 @@ export function checkServerReadiness(): Promise<void> {
                             setTimeout(checkReadiness, retryInterval);
                         } else {
                             logDebug('Timeout reached while checking server readiness', ERROR_LOG);
-                            reject('CApp has encountered deployment issues. Please refer to the ouput for error logs.');
+                            reject('CApp has encountered deployment issues. Please refer to the output for error logs.');
                         }
                     }
                 })
@@ -149,7 +149,7 @@ export async function executeBuildTask(serverPath: string, shouldCopyTarget: boo
             ...process.env,
             ...setJavaHomeInEnvironmentAndPath()
         };
-        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri,env: envVariables });
+        const buildProcess = child_process.spawn(buildCommand, [], { shell: true, cwd: projectUri, env: envVariables });
         showServerOutputChannel();
 
         buildProcess.stdout.on('data', (data) => {
@@ -246,13 +246,14 @@ export async function startServer(serverPath: string, isDebug: boolean): Promise
             reject('Error getting run command');
         } else {
             const definedEnvVariables = DebuggerConfig.getEnvVariables();
+            const vmArgs = DebuggerConfig.getVmArgs();
             const envVariables = {
                 ...process.env,
                 ...setJavaHomeInEnvironmentAndPath(),
                 ...definedEnvVariables
             };
 
-            serverProcess = child_process.spawn(`${runCommand}`, [], { shell: true, env: envVariables });
+            serverProcess = child_process.spawn(`${runCommand}`, vmArgs, { shell: true, env: envVariables });
             showServerOutputChannel();
 
             if (serverProcess.stdout) {
@@ -338,7 +339,7 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
-    const maxTimeout = 15000;
+    const maxTimeout = 30000;
     return new Promise<void>(async (resolve, reject) => {
         const isTerminated = await StateMachine.context().langClient?.shutdownTryoutServer();
         if (!isTerminated) {

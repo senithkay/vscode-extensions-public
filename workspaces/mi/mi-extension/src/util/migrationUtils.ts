@@ -14,10 +14,11 @@ import { parseString } from 'xml2js';
 import { v4 as uuidv4 } from 'uuid';
 import { dockerfileContent, rootPomXmlContent } from './templates';
 import { createFolderStructure, copyDockerResources } from '.';
-import { commands, Uri, window } from 'vscode';
+import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { LATEST_MI_VERSION } from './onboardingUtils';
+import { addSynapseDependency, changeRootPomPackaging } from './fileOperations';
 
 enum Nature {
     MULTIMODULE,
@@ -26,6 +27,7 @@ enum Nature {
     DATASOURCE,
     CONNECTOR,
     REGISTRY,
+    CLASS
 }
 
 export function importProject(params: ImportProjectRequest): ImportProjectResponse {
@@ -37,7 +39,7 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
 
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
-            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version,LATEST_MI_VERSION),
+            'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, LATEST_MI_VERSION),
             'src': {
                 'main': {
                     'java': '',
@@ -88,7 +90,7 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
         createFolderStructure(directory, folderStructure);
         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
 
-        console.log("Created project structure for project: " + projectName)
+        console.log("Created project structure for project: " + projectName);
         migrateConfigs(path.join(source, ".backup"), directory);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
@@ -130,15 +132,23 @@ export function getProjectDetails(filePath: string) {
 export function migrateConfigs(source: string, target: string) {
     // determine the project type here
     const projectType = determineProjectType(source);
+    let isPomUpdatedForClassMediator = false;
     if (projectType === Nature.MULTIMODULE) {
         const items = fs.readdirSync(source, { withFileTypes: true });
         items.forEach(item => {
             if (item.isDirectory()) {
-                const sourceAbsolutePath = path.join(source, item.name)
+                const sourceAbsolutePath = path.join(source, item.name);
                 const moduleType = determineProjectType(path.join(source, item.name));
                 if (moduleType === Nature.ESB || moduleType === Nature.DS ||
-                    moduleType === Nature.DATASOURCE || moduleType === Nature.CONNECTOR || moduleType === Nature.REGISTRY) {
-                    copyConfigsToNewProjectStructure(moduleType, sourceAbsolutePath, target)
+                    moduleType === Nature.DATASOURCE || moduleType === Nature.CONNECTOR ||
+                    moduleType === Nature.REGISTRY || moduleType === Nature.CLASS) {
+                    copyConfigsToNewProjectStructure(moduleType, sourceAbsolutePath, target);
+                }
+                if (moduleType === Nature.CLASS && !isPomUpdatedForClassMediator) {
+                    const workspaceFolder = workspace.getWorkspaceFolder( Uri.file(target))?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
+                    changeRootPomPackaging(workspaceFolder, "jar");
+                    addSynapseDependency(workspaceFolder);
+                    isPomUpdatedForClassMediator = true;
                 }
             }
         });
@@ -181,6 +191,9 @@ function determineProjectType(source: string): Nature | undefined {
                     case 'org.wso2.developerstudio.eclipse.general.project.nature':
                         configType = Nature.REGISTRY;
                         break;
+                    case 'org.wso2.developerstudio.eclipse.artifact.mediator.project.nature':
+                        configType = Nature.CLASS;
+                        break;
                 }
             }
         });
@@ -193,7 +206,7 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
         case Nature.ESB:
             processArtifactsFolder(source, target);
             processMetaDataFolder(source, target);
-            processTestsFolder(source, target)
+            processTestsFolder(source, target);
             break;
         case Nature.DATASOURCE:
             processDataSourcesFolder(source, target);
@@ -207,6 +220,10 @@ function copyConfigsToNewProjectStructure(nature: Nature, source: string, target
         case Nature.REGISTRY:
             processRegistryResources(source, target);
             break;
+        case Nature.CLASS:
+            processClassMediators(source, target);
+            break;
+
     }
 }
 
@@ -240,9 +257,9 @@ function processArtifactsFolder(source: string, target: string) {
 
     sourceFolders.forEach((sourceFolder, index) => {
         const sourcePath = path.join(synapseConfigsPath, sourceFolder);
-        const targetPath = path.join(artifactsPath, targetFolders[index])
+        const targetPath = path.join(artifactsPath, targetFolders[index]);
 
-        copy(sourcePath, targetPath)
+        copy(sourcePath, targetPath);
     });
 
 }
@@ -251,21 +268,21 @@ function processMetaDataFolder(source: string, target: string) {
     const oldMetaDataPath = path.join(source, 'src', 'main', 'resources', 'metadata');
     const newMetaDataPath = path.join(target, 'src', 'main', 'wso2mi', 'resources', 'metadata');
 
-    copy(oldMetaDataPath, newMetaDataPath)
+    copy(oldMetaDataPath, newMetaDataPath);
 }
 
 function processDataSourcesFolder(source: string, target: string) {
     const oldDataSourcePath = path.join(source, 'datasource');
     const newDataSourcePath = path.join(target, 'src', 'main', 'wso2mi', 'artifacts', 'data-sources');
 
-    copy(oldDataSourcePath, newDataSourcePath)
+    copy(oldDataSourcePath, newDataSourcePath);
 }
 
 function processDataServicesFolder(source: string, target: string) {
     const oldDataServicePath = path.join(source, 'dataservice');
     const newDataServicePath = path.join(target, 'src', 'main', 'wso2mi', 'artifacts', 'data-services');
 
-    copy(oldDataServicePath, newDataServicePath)
+    copy(oldDataServicePath, newDataServicePath);
 }
 
 function processConnectors(source: string, target: string) {
@@ -280,7 +297,7 @@ function processConnectors(source: string, target: string) {
         files.forEach(file => {
             if (file.isFile()) {
                 if (path.extname(file.name).toLowerCase() === '.zip') {
-                    copyFile(path.join(source, file.name), path.join(newConnectorPath, file.name))
+                    copyFile(path.join(source, file.name), path.join(newConnectorPath, file.name));
                 }
             }
         });
@@ -334,6 +351,34 @@ function processTestsFolder(source: string, target: string) {
     const newResPath = path.join(target, 'src', 'test', 'resources', 'mock-services');
     copy(oldResPath, newResPath);
     fixTestFilePaths(target);
+}
+
+function processClassMediators(source: string, target: string) {
+    const oldClassMediatorPath = path.join(source, 'src', 'main', 'java');
+    const newClassMediatorPath = path.join(target, 'src', 'main', 'java');
+
+    copyFilesAndDirectories();
+
+    function copyFilesAndDirectories() {
+        function copyRecursive(source: string, target: string) {
+            if (!fs.existsSync(source)) {
+                return;
+            }
+            const items = fs.readdirSync(source, { withFileTypes: true });
+            items.forEach(item => {
+                const sourceItemPath = path.join(source, item.name);
+                const targetItemPath = path.join(target, item.name);
+                if (item.isDirectory()) {
+                    fs.mkdirSync(targetItemPath, { recursive: true });
+                    copyRecursive(sourceItemPath, targetItemPath);
+                } else {
+                    fs.copyFileSync(sourceItemPath, targetItemPath);
+                }
+            });
+        }
+
+        copyRecursive(oldClassMediatorPath, newClassMediatorPath);
+    }
 }
 
 function fixTestFilePaths(source: string) {
