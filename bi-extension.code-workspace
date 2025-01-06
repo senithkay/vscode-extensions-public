@@ -32,6 +32,12 @@
 		},
 		{
 			"path": "workspaces/ballerina/type-diagram"
+		},
+		{
+			"path": "workspaces/ballerina/record-creator"
+		},
+		{
+			"path": "workspaces/ballerina/record-editor"
 		}
 	],
 	"settings": {}

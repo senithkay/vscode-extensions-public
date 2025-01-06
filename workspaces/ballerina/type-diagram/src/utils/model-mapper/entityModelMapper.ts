@@ -7,29 +7,39 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ComponentModel, CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
+import { ComponentModel, CMEntity as Entity, Type } from '@wso2-enterprise/ballerina-core';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
 
-export function entityModeller(projectComponents: Map<string, ComponentModel>, packageSelection: Map<string, boolean>)
+export function entityModeller(compoenets: Type[])
     : DiagramModel {
     let entityNodes: Map<string, EntityModel> = new Map<string, EntityModel>();
     let entityLinks: EntityLinkModel[] = [];
 
-    // convert entities in the model to nodes
-    packageSelection.forEach((shouldRender, packageName) => {
-        if (shouldRender && projectComponents.has(packageName)) {
-            const entities: Map<string, Entity> = new Map(Object.entries(projectComponents.get(packageName).entities));
-            entityNodes = new Map([...entityNodes, ...generateNodes(entities)]);
-        }
+    // Iterate through components and create entity nodes
+    compoenets.forEach((component) => {
+        const entityNode = new EntityModel(component.name, component);
+        entityNodes.set(component.name, entityNode);
     });
 
-    // convert the associations between entities to links
-    packageSelection.forEach((shouldRender, packageName) => {
-        if (shouldRender && projectComponents.has(packageName)) {
-            const entities: Map<string, Entity> = new Map(Object.entries(projectComponents.get(packageName).entities));
-            entityLinks = entityLinks.concat(generateLinks(entities, entityNodes));
-        }
+    // Iterate through the entity relationships and create links
+    entityNodes.forEach((entityNode) => {
+        Object.entries(entityNode.entityObject.members).forEach(([attributeName, member]) => {
+            if (member.refs && member.refs.length > 0) {
+                // Iterate refs and create links
+                member.refs.forEach((ref) => {
+                    const associatedEntity = entityNodes.get(ref);
+                    if (associatedEntity) {
+                        let sourcePort: EntityPortModel = entityNode.getPort(`right-${entityNode.getID()}/${attributeName}`);
+                        let targetPort: EntityPortModel = associatedEntity.getPort(`left-${ref}`);
+
+                        const linkId = `entity-link-${entityNode.getID()}-${ref}`
+                        let link: EntityLinkModel = new EntityLinkModel({ associate: "1", self: "1" }, linkId);
+                        entityLinks.push(createLinks(sourcePort, targetPort, link));
+                    }
+                });
+            }
+        });
     });
 
     let model = new DiagramModel();
@@ -41,6 +51,7 @@ function generateNodes(entities: Map<string, Entity>): Map<string, EntityModel> 
     let nodes: Map<string, EntityModel> = new Map<string, EntityModel>();
 
     entities.forEach((entity, key) => {
+        // @ts-ignore
         const entityNode = new EntityModel(key, entity);
         nodes.set(key, entityNode);
     });

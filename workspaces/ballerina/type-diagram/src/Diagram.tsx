@@ -22,11 +22,11 @@ import { HeaderWidget } from './components/Header/Header';
 import { DiagramControls } from './components/Controls/DiagramControls';
 import { PromptScreen } from './components/PromptScreen/PromptScreen';
 import { OverlayLayerModel } from './components/OverlayLoader';
-import { ComponentModel, ComponentModelDeprecated, ComponentModels, NodePosition } from '@wso2-enterprise/ballerina-core';
+import { ComponentModel, ComponentModelDeprecated, ComponentModels, NodePosition, Type } from '@wso2-enterprise/ballerina-core';
 import { isVersionBelow, transformToV4Models } from './utils/utils';
 
 interface TypeDiagramProps {
-    getComponentModel: () => Promise<ComponentModels>;
+    getComponentModel: () => Promise<Type[]>;
     selectedRecordId?: string;
     showProblemPanel: () => void;
     addNewType: () => void;
@@ -72,38 +72,36 @@ export function TypeDiagram(props: TypeDiagramProps) {
     }, [diagramModel, diagramEngine.getCanvas()]);
 
     const refreshDiagram = async () => {
-        const response = await getComponentModel();
-        if (response) {
-            const components: Map<string, ComponentModel | ComponentModelDeprecated> =
-                new Map(Object.entries(response?.componentModels));
+        const components: Type[] = await getComponentModel();
+        if (components) {
 
-            setHasDiagnostics(response.diagnostics?.length > 0);
+            //setHasDiagnostics(response.diagnostics?.length > 0);
 
-            if (components && components.size > 0) {
-                const component = [...components][0][1] as any;
-                defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
-            } else if (response.diagnostics?.length && !diagramModel) {
-                setUserMessage(ERRONEOUS_MODEL);
-            } else if (!response.diagnostics?.length) {
-                setDiagramModel(undefined);
-                setUserMessage(NO_ENTITIES_DETECTED);
-            }
+            // if (components && components.size > 0) {
+            //     const component = [...components][0][1] as any;
+            //     defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
+            // } else if (response.diagnostics?.length && !diagramModel) {
+            //     setUserMessage(ERRONEOUS_MODEL);
+            // } else if (!response.diagnostics?.length) {
+            //     setDiagramModel(undefined);
+            //     setUserMessage(NO_ENTITIES_DETECTED);
+            // }
 
-            const workspacePackages = createRenderPackageObject(components.keys());
+            // const workspacePackages = createRenderPackageObject(components.keys());
 
-            let projectComponents: Map<string, ComponentModel>;
-            if (isVersionBelow(components, 0.4)) {
-                projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
-            } else {
-                projectComponents = components as Map<string, ComponentModel>;
-            }
-            const workspaceComponents = projectComponents;
+            // let projectComponents: Map<string, ComponentModel>;
+            // if (isVersionBelow(components, 0.4)) {
+            //     projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
+            // } else {
+            //     projectComponents = components as Map<string, ComponentModel>;
+            // }
+            // const workspaceComponents = projectComponents;
             setFocusedNodeId(undefined);
             let typeModel;
             if (selectedNodeId) {
-                typeModel = generateCompositionModel(workspaceComponents, selectedNodeId);
+                //typeModel = generateCompositionModel(components, selectedNodeId);
             } else {
-                typeModel = entityModeller(workspaceComponents, workspacePackages);
+                typeModel = entityModeller(components);
             }
             if (typeModel) {
                 typeModel.addLayer(new OverlayLayerModel());

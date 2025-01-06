@@ -839,7 +839,7 @@ export interface TypeProperty {
 
 export interface Member {
     kind: string;
-    ref: string;
+    refs: string[];
     type: string;
     name: string;
     docs: string;

@@ -29,13 +29,14 @@ export interface RecordEditorProps {
     width?: string;
     onClose: () => void;
     updateFields?: (fields: FormField[]) => void;
+    recordId?: string;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
     const {
         isRecordEditorOpen,
         fields,
-        rpcClient,  
+        rpcClient,
         onClose,
         updateFields,
         width
@@ -43,11 +44,11 @@ export function RecordEditor(props: RecordEditorProps) {
     const [recordFullST, setRecordFullST] = useState<STNode>();
     const [recordPath, setRecordPath] = useState<string>();
 
-    const handleCloseRecordEditor = () => { 
+    const handleCloseRecordEditor = () => {
         onClose();
     };
 
-    const handleCancelRecordEditor = (recordName: string | undefined) => {   
+    const handleCancelRecordEditor = (recordName: string | undefined) => {
         if (fields) {
             const updatedFormValues = fields.map((formField: FormField) => {
                 // Check if recordName is type of string
@@ -63,7 +64,7 @@ export function RecordEditor(props: RecordEditorProps) {
 
     const applyRecordModifications = async (modifications: STModification[]) => {
         const langServerRPCClient = rpcClient.getLangClientRpcClient();
-        const filePath =  (await rpcClient.getVisualizerLocation()).metadata?.recordFilePath;
+        const filePath = (await rpcClient.getVisualizerLocation()).metadata?.recordFilePath;
         let updatedModifications = modifications;
         if (modifications.length === 1) {
             // Change the start position of the modification to the beginning of the file
@@ -115,7 +116,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     langServerRpcClient={rpcClient.getLangClientRpcClient()}
                     // @ts-ignore
                     libraryBrowserRpcClient={null}
-                    onCancelStatementEditor={() => {}}
+                    onCancelStatementEditor={() => { }}
                     onCancel={handleCancelRecordEditor}
                     recordCreatorRpcClient={rpcClient.getRecordCreatorRpcClient()}
                     targetPosition={{ startLine: 0, startColumn: 0 }}

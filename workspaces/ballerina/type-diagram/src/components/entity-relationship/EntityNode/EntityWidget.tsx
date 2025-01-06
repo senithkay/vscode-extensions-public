@@ -17,6 +17,7 @@ import { EntityHeadWidget } from './EntityHead/EntityHead';
 import { AttributeWidget } from './Attribute/AttributeCard';
 import { EntityNode, InclusionPortsContainer } from './styles';
 import { DiagramContext } from '../../common';
+import { Member } from '@wso2-enterprise/ballerina-core';
 
 interface EntityWidgetProps {
     node: EntityModel;
@@ -27,6 +28,22 @@ export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
     const { focusedNodeId, selectedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
+
+    const renderAttributes = () => {
+        const attributes: React.ReactNode[] = [];
+        Object.entries(node.entityObject.members).forEach(([key, member]) => (
+            attributes.push(
+                <AttributeWidget
+                    key={key}
+                    engine={engine}
+                    node={node}
+                    attribute={member}
+                    isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${member.name}`)}
+                />
+            )
+        ));
+        return attributes;
+    };
 
     useEffect(() => {
         node.registerListener({
@@ -39,7 +56,7 @@ export function EntityWidget(props: EntityWidgetProps) {
 
     return (
         <EntityNode
-            isAnonymous={node.entityObject.isAnonymous}
+            isAnonymous={false}
             isEditMode={false}
             isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
             shouldShade={false}
@@ -51,17 +68,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                 isSelected={node.isNodeSelected(selectedLink, node.getID()) || selectedNodeId === node.getID()}
             />
 
-            {node.entityObject.attributes.map((attribute, index) => {
-                return (
-                    <AttributeWidget
-                        key={index}
-                        engine={engine}
-                        node={node}
-                        attribute={attribute}
-                        isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${attribute.name}`)}
-                    />
-                )
-            })}
+            {renderAttributes()}
 
             <InclusionPortsContainer>
                 <EntityPortWidget

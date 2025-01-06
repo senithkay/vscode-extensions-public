@@ -38,18 +38,20 @@ export function TypeDiagram(props: TypeDiagramProps) {
         if (!rpcClient || !visualizerLocation?.metadata?.recordFilePath) {
             return;
         }
-        rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath }).then((response: any) => {
-            console.log(response);
-            // @ts-ignore
-            response.types.forEach((type) => {
-                console.log(type);
-                rpcClient.getBIDiagramRpcClient().getType({ filePath: type.codedata.lineRange.fileName, linePosition: type.codedata.lineRange.startLine }).then((typeResponse: any) => {
-                    console.log(typeResponse);
-                });
-            });
-        });
-        const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
-        return response;
+        const response = await rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath });
+        console.log(response);
+        // -        rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath }).then((response: any) => {
+        //     -            console.log(response);
+        //     -            // @ts-ignore
+        //     -            response.types.forEach((type) => {
+        //     -                console.log(type);
+        //     -                rpcClient.getBIDiagramRpcClient().getType({ filePath: type.codedata.lineRange.fileName, linePosition: type.codedata.lineRange.startLine }).then((typeResponse: any) => {
+        //     -                    console.log(typeResponse);
+        //     -                });
+        //     -            });
+        //     -        });
+        // const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
+        return response.types;
     };
 
     const showProblemPanel = async () => {
@@ -80,14 +82,13 @@ export function TypeDiagram(props: TypeDiagramProps) {
                 addNewType={addNewType}
                 goToSource={goToSource}
             />
-            {isTypeCreatorOpen && (
-                <RecordEditor
-                    isRecordEditorOpen={isTypeCreatorOpen}
-                    onClose={() => setIsTypeCreatorOpen(false)}
-                    rpcClient={rpcClient}
-                    width="400px"
-                />
-            )}
+            <RecordEditor
+                isRecordEditorOpen={isTypeCreatorOpen}
+                onClose={() => setIsTypeCreatorOpen(false)}
+                rpcClient={rpcClient}
+                width="400px"
+                recordId={selectedRecordId}
+            />
         </>
     );
 }

@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-core';
+import { Type as Entity } from '@wso2-enterprise/ballerina-core';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { EntityPortModel } from '../EntityPort/EntityPortModel';
 
@@ -27,9 +27,9 @@ export class EntityModel extends SharedNodeModel {
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.BOTTOM));
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.TOP));
 
-        this.entityObject.attributes.forEach(attribute => {
-            this.addPort(new EntityPortModel(`${entityName}/${attribute.name}`, PortModelAlignment.LEFT));
-            this.addPort(new EntityPortModel(`${entityName}/${attribute.name}`, PortModelAlignment.RIGHT));
-        })
+        Object.entries(this.entityObject.members).forEach(([attributeName, member]) => {
+            this.addPort(new EntityPortModel(`${entityName}/${attributeName}`, PortModelAlignment.LEFT));
+            this.addPort(new EntityPortModel(`${entityName}/${attributeName}`, PortModelAlignment.RIGHT));
+        });
     }
 }

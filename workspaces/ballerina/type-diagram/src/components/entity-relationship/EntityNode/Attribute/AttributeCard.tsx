@@ -9,7 +9,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-core';
+import { Member } from '@wso2-enterprise/ballerina-core';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 
@@ -20,7 +20,7 @@ import { extractAttributeType } from '../entity-utils';
 interface AttributeProps {
     node: EntityModel;
     engine: DiagramEngine;
-    attribute: Attribute;
+    attribute: Member;
     isSelected: boolean;
 }
 
@@ -44,12 +44,12 @@ export function AttributeWidget(props: AttributeProps) {
     }
 
     const onClickOnType = () => {
-        setFocusedNodeId(attribute?.associations[0]?.associate); 
+        // setFocusedNodeId(attribute?.associations[0]?.associate);
         // TODO: We are adding composition diagram, we need to check if its Type
     }
 
     return (
-        <CtrlClickGo2Source location={attribute.sourceLocation}>
+        <CtrlClickGo2Source location={null}>
             <AttributeContainer
                 isSelected={isSelected || isHovered}
                 onMouseOver={() => handleOnHover('SELECT')}
@@ -59,15 +59,15 @@ export function AttributeWidget(props: AttributeProps) {
                     port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
                     engine={engine}
                 />
-                    <AttributeName>{attribute.name}</AttributeName>
-                    <AttributeType
-                        isAnonymous={node.entityObject.isAnonymous}
-                        isSelected={isSelected || isHovered}
-                        onClick={onClickOnType}
-                    >
-                        {attributeType}
-                    </AttributeType>
-                    {/* {isHovered && attribute.sourceLocation && editingEnabled &&
+                <AttributeName>{attribute.name}</AttributeName>
+                <AttributeType
+                    isAnonymous={false}
+                    isSelected={isSelected || isHovered}
+                    onClick={onClickOnType}
+                >
+                    {attributeType}
+                </AttributeType>
+                {/* {isHovered && attribute.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={Colors.SECONDARY}
                             location={attribute.sourceLocation}
