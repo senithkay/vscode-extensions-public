@@ -16,7 +16,7 @@ interface ConnectorIconProps {
     fallbackIcon?: React.ReactNode;
 }
 
-export function ConnectorIcon(props: ConnectorIconProps) {
+export function ConnectorIcon(props: ConnectorIconProps): React.ReactElement {
     const { node, fallbackIcon } = props;
     const [imageError, setImageError] = React.useState(false);
 
@@ -33,7 +33,7 @@ export function ConnectorIcon(props: ConnectorIconProps) {
     }
 
     if (fallbackIcon && imageError) {
-        return fallbackIcon;
+        return <>{fallbackIcon}</>;
     }
     
     if (databaseClients.includes(node.codedata.module)) {
