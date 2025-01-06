@@ -41,15 +41,8 @@ export function Responses(props: ResponsesProps) {
         onResponsesChange(responses);
     };
 
-    const handleMoreOptionsClick = () => {
-        const newReponse: Ro = {
-            $ref: `#/components/responses/${componentResponseNames[0]}`,
-            summary: "",
-            description: ""
-        };
-        const modifiedResponses = { ...responses, [selectedStatusCode]: newReponse };
-        handleResponsesChange(modifiedResponses);
-    };
+    const hasReferenceObjects = openAPI?.components?.responses ? Object.keys(openAPI?.components?.responses).length > 0 : false;
+
     const statusTabViewItems: ViewItem[] = statusCodes && statusCodes.map(statusCode => ({ 
         id: statusCode,
         name: statusCode
@@ -79,7 +72,7 @@ export function Responses(props: ResponsesProps) {
     const handleStatusCodeChange = (statusCodes: string[]) => {
         const valueRemovedStatusCodes = statusCodes.map((status) => status.split(":")[0]);
         const newResponses: Rs = valueRemovedStatusCodes.reduce((acc, item) => {
-            acc[item] = responses[item] || { description: "", content: {} };
+            acc[item] = responses ? (responses[item] || { description: "", content: {} } ) : { description: "", content: {} };
             return acc;
         }, {} as Rs);
         setSelectedStatusCode(statusCodes[0]);
@@ -131,15 +124,17 @@ export function Responses(props: ResponsesProps) {
                 <Tabs views={statusTabViewItems} childrenSx={{paddingTop: 10}} currentViewId={selectedStatusCode} onViewChange={setSelectedStatusCode}>
                     {responses && Object.keys(responses)?.map((status) => (
                         <div id={status} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                            <CheckBox
-                                label='Is Reference?'
-                                sx={{
-                                    marginTop: 10,
-                                    marginBottom: 0
-                                }}
-                                checked={isRefereceObject(responses[status])}
-                                onChange={(checked) => handleIsReferenceChange(checked)}
-                            />
+                            {hasReferenceObjects && (
+                                <CheckBox
+                                    label='Is Reference?'
+                                    sx={{
+                                        marginTop: 10,
+                                        marginBottom: 0
+                                    }}
+                                    checked={isRefereceObject(responses[status])}
+                                    onChange={(checked) => handleIsReferenceChange(checked)}
+                                />
+                            )}
                             {isRefereceObject(responses[status]) ? (
                                     <ReferenceObject
                                         id={0}

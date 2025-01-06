@@ -27,6 +27,7 @@ import { RPCLayer } from '../RPCLayer';
 interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     /** Env variables setup through launch.json */
     env?: any;
+    vmArgs?: string[];
 }
 
 export class MiDebugAdapter extends LoggingDebugSession {
@@ -268,6 +269,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                         DebuggerConfig.setPortOffset(portOffset);
 
                         DebuggerConfig.setEnvVariables(args?.env ? args?.env : {});
+                        DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
 
                         await setManagementCredentials(serverPath);
 

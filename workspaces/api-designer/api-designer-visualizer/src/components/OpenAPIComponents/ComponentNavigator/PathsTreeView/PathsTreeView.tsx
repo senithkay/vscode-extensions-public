@@ -12,7 +12,7 @@ import { OpenAPI, PathItem, Paths } from '../../../../Definitions/ServiceDefinit
 import { PathTreeView } from '../PathTreeView/PathTreeView';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
-import { Views } from '../../../../constants';
+import { PathID, Views } from '../../../../constants';
 
 interface PathsTreeViewProps {
     openAPI: OpenAPI;
@@ -54,7 +54,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
         onPathTreeViewChange(openAPI);
         onPathInitiatedChange(true);
         onCurrentViewChange(Views.EDIT);
-        onSelectedComponentIDChange(`paths#-component#-${newPathVal}`);
+        onSelectedComponentIDChange(`${PathID.PATHS_COMPONENTS}${PathID.SEPERATOR}${newPathVal}`);
     };
 
     let pathsArray: string[] = [];
@@ -73,7 +73,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
     return (
         <TreeView
             rootTreeView
-            id="Paths-Resources"
+            id={PathID.PATHS_RESOURCES}
             content={
                 <PathContainer>
                     <LeftPathContainer>
@@ -96,7 +96,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                 </PathContainer>
             }
             selectedId={selectedComponentID}
-            onSelect={() => onSelectedComponentIDChange("Paths#-Resources")}
+            onSelect={() => onSelectedComponentIDChange(PathID.PATHS_RESOURCES)}
         >
             {
                 pathsArray.map((path, index) => {
@@ -105,7 +105,7 @@ export function PathsTreeView(props: PathsTreeViewProps) {
                     const sanitizedOperations = operations?.filter((operation) => operation !== "description" && operation !== "summary" && operation !== "parameters" && operation !== "servers");
                     return (
                         <PathTreeView
-                            id={`paths#-component#-${path}`}
+                            id={`${PathID.PATHS_COMPONENTS}${PathID.SEPERATOR}${path}`}
                             openAPI={openAPI}
                             path={path}
                             operations={sanitizedOperations}

@@ -12,7 +12,7 @@ import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
 import { ParameterTreeViewItem } from '../ParameterTreeViewItem/ParameterTreeViewItem';
-import { Views } from '../../../../constants';
+import { PathID, Views } from '../../../../constants';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 
 interface ParameterViewItemProps {
@@ -41,7 +41,7 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
                     }
                 };
                 onParameterTreeViewChange(updatedOpenAPIDefinition);
-                onSelectedComponentIDChange("overview");
+                onSelectedComponentIDChange(PathID.OVERVIEW);
             }
         });
     };
@@ -66,7 +66,7 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
             }
         };
         onParameterTreeViewChange(openAPI);
-        onSelectedComponentIDChange(`parameters#-component#-${newParameterName}`);
+        onSelectedComponentIDChange(`${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${newParameterName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
@@ -75,7 +75,7 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
     return (
         <TreeView
             sx={{ paddingBottom: 2 }}
-            id="Paramters#-Components"
+            id={PathID.PARAMETERS_COMPONENTS}
             content={
                 <PathContainer>
                     <LeftPathContainer>
@@ -101,7 +101,7 @@ export function ParameterTreeView(props: ParameterViewItemProps) {
             {parameterArray.map((parameterName: string) => {
                 return (
                     <ParameterTreeViewItem
-                        id={`parameters#-component#-${parameterName}`}
+                        id={`${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${parameterName}`}
                         parameterName={parameterName}
                         parameterType={openAPI.components?.parameters[parameterName].in}
                         onDeleteParameter={handleDeleteParameter}

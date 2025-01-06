@@ -13,6 +13,7 @@ import { getBackgroundColorByMethod, getColorByMethod } from '../../../Utils/Ope
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
+import { PathID } from '../../../../constants';
 
 interface PathTreeViewItemProps {
     id: string;
@@ -47,7 +48,7 @@ export function PathTreeViewItem(props: PathTreeViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`paths#-component#-${path}#-${operation}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`${PathID.PATHS_COMPONENTS}${PathID.SEPERATOR}${path}${PathID.SEPERATOR}${operation}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <PathItemWrapper>
                     <Tooltip>

@@ -338,13 +338,16 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                     } else if (msg.command === "stackTrace") {
                         const uri = Uri.parse(msg.body.stackFrames[0].source.path);
 
-                        const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
+                        if (VisualizerWebview.currentPanel !== undefined) {
 
-                        // Filter for tabs that are editor tabs and the tab with the debug hit
-                        const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
+                            const allTabs = window.tabGroups.all.flatMap(group => group.tabs);
 
-                        for (const tab of editorTabs) {
-                            await window.tabGroups.close(tab);
+                            // Filter for tabs that are editor tabs and the tab with the debug hit
+                            const editorTabs = allTabs.filter(tab => tab.input instanceof TabInputText && tab.input.uri.fsPath === uri.fsPath);
+
+                            for (const tab of editorTabs) {
+                                await window.tabGroups.close(tab);
+                            }
                         }
 
                         // get the current stack trace

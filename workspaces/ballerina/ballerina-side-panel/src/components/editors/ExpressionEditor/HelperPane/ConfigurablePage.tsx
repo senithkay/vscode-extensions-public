@@ -24,21 +24,11 @@ type ConfigurablePageProps = {
 };
 
 namespace S {
-
-    export const PrimaryButton = styled(Button)`
-        appearance: "primary";
-        background-color: ${Colors.PRIMARY};
-    `;
-
-    export const SecondaryButton = styled(Button)`
-        appearance: "secondary";
-        background-color: ${Colors.SECONDARY};
-        margin-left: 20px;
-    `;
-
     export const ButtonPanel = styled.div`
         display: flex;
         margin-top: 20px;
+        margin-left: auto;
+        gap: 16px;
     `;
 
 }
@@ -122,12 +112,12 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfValue(e.currentTarget.value)}
                         />
                         <S.ButtonPanel>
-                            <S.PrimaryButton onClick={handleSave}>
-                                Save
-                            </S.PrimaryButton>
-                            <S.SecondaryButton onClick={() => setIsFormVisible(false)}>
+                            <Button appearance='secondary' onClick={() => setIsFormVisible(false)}>
                                 Cancel
-                            </S.SecondaryButton>
+                            </Button>
+                            <Button appearance='primary' onClick={handleSave}>
+                                Save
+                            </Button>
                         </S.ButtonPanel>
                     </HelperPane.Section>
                 }

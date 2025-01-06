@@ -10,12 +10,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { LibraryBrowser } from './LibraryBrowser';
 
 type FunctionsPageProps = {
     isLoading: boolean;
     functionInfo: HelperPaneFunctionInfo;
+    libraryBrowserInfo: HelperPaneFunctionInfo;
     setCurrentPage: (page: number) => void;
-    setFilterText: (filterText: string) => void;
+    setFunctionFilterText: (filterText: string) => void;
+    setLibraryFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
@@ -23,23 +26,26 @@ type FunctionsPageProps = {
 export const FunctionsPage = ({
     isLoading,
     functionInfo,
+    libraryBrowserInfo,
     setCurrentPage,
-    setFilterText,
+    setFunctionFilterText,
+    setLibraryFilterText,
     onClose,
     onChange
 }: FunctionsPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
+    const [isLibraryBrowserOpen, setIsLibraryBrowserOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            setFunctionFilterText('');
         }
     }, []);
 
-    const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
+    const handleFunctionSearch = (searchText: string) => {
+        setFunctionFilterText(searchText);
         setSearchValue(searchText);
     };
 
@@ -50,9 +56,9 @@ export const FunctionsPage = ({
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
-                onSearch={handleSearch}
+                onSearch={handleFunctionSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body isLoading={!isLibraryBrowserOpen && isLoading}>
                 {functionInfo?.category.map((category) => (
                     <HelperPane.Section
                         title={category.label}
@@ -95,9 +101,19 @@ export const FunctionsPage = ({
                 <HelperPane.IconButton
                     title="Open library browser"
                     getIcon={() => <Codicon name="library" />}
-                    onClick={() => setCurrentPage(4)}
+                    onClick={() => setIsLibraryBrowserOpen(true)}
                 />
             </HelperPane.Footer>
+            {isLibraryBrowserOpen && (
+                <LibraryBrowser
+                    isLoading={isLoading}
+                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
+                    setFilterText={setLibraryFilterText}
+                    onBack={() => setIsLibraryBrowserOpen(false)}
+                    onClose={onClose}
+                    onChange={onChange}
+                />
+            )}
         </>
     );
 };
