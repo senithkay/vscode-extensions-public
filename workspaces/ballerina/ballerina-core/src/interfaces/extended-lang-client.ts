@@ -683,6 +683,7 @@ export interface ExpressionCompletionItem {
     filterText: string;
     insertText: string;
     insertTextFormat: number;
+    additionalTextEdits?: TextEdit[];
 }
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];

@@ -292,6 +292,7 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
     const value = completion.filterText ?? completion.insertText;
     const description = completion.detail;
     const sortText = completion.sortText;
+    const additionalTextEdits = completion.additionalTextEdits;
 
     return {
         tag,
@@ -300,7 +301,29 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         description,
         kind,
         sortText,
+        additionalTextEdits
     };
+}
+
+export function updateLineRange(lineRange: LineRange, offset: number) {
+    if (
+        lineRange.startLine.line === 0 &&
+        lineRange.startLine.offset === 0 &&
+        lineRange.endLine.line === 0 &&
+        lineRange.endLine.offset === 0
+    ) {
+        return {
+            startLine: {
+                line: lineRange.startLine.line,
+                offset: lineRange.startLine.offset + offset
+            },
+            endLine: {
+                line: lineRange.endLine.line,
+                offset: lineRange.endLine.offset + offset
+            }
+        };
+    }
+    return lineRange;
 }
 
 // TRIGGERS RELATED HELPERS
