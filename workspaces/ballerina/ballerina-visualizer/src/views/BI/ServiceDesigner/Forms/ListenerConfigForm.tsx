@@ -137,8 +137,12 @@ function convertConfig(listener: ListenerModel): FormField[] {
 
 function updateConfig(formFields: FormField[], listener: ListenerModel): ListenerModel {
     formFields.forEach(field => {
-        const value = field.value as string;
-        listener.properties[field.key].value = value;
+        const value = field.value;
+        if (field.type === "MULTIPLE_SELECT" || field.type === "EXPRESSION_SET") {
+            listener.properties[field.key].values = value as string[];
+        } else {
+            listener.properties[field.key].value = value as string;
+        }
         if (value && value.length > 0) {
             listener.properties[field.key].enabled = true;
         }

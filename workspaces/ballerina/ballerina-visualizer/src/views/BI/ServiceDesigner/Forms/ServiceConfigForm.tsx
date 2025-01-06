@@ -160,7 +160,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
 function updateConfig(formFields: FormField[], listener: ServiceModel): ServiceModel {
     formFields.forEach(field => {
         const value = field.value;
-        if (field.type === "MULTIPLE_SELECT") {
+        if (field.type === "MULTIPLE_SELECT" || field.type === "EXPRESSION_SET") {
             listener.properties[field.key].values = value as string[];
         } else {
             listener.properties[field.key].value = value as string;

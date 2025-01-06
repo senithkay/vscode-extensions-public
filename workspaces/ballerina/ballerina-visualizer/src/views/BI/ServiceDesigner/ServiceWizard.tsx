@@ -157,7 +157,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
     const handlServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
-        await rpcClient.getVisualizerRpcClient().openView({
+        rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
                 documentUri: res.filePath,
@@ -194,7 +194,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                 }
                 {listenerModel &&
                     <Container>
-                        {!listeners.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
+                        {!listeners?.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
                         {step === 0 && !saving &&
                             <>
                                 <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} />

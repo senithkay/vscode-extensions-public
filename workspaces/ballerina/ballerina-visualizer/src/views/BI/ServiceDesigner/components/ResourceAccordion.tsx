@@ -207,11 +207,9 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
         <AccordionContainer data-testid="service-design-view-resource">
             <AccordionHeader onClick={handleResourceClick}>
                 <MethodSection>
-                    {functionModel.accessor.enabled &&
-                        <MethodBox color={getColorByMethod(functionModel.accessor.value!)}>
-                            {functionModel.accessor.value}
-                        </MethodBox>
-                    }
+                    <MethodBox color={getColorByMethod(functionModel.accessor?.value || functionModel.kind)}>
+                        {functionModel.accessor?.value || functionModel.kind}
+                    </MethodBox>
                     <MethodPath>{functionModel.name.value}</MethodPath>
                 </MethodSection>
                 <ButtonSection>

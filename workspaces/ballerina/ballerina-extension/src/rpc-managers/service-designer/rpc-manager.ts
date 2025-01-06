@@ -190,9 +190,15 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
-                const listenerName = params.service.properties["listener"].value || params.service.properties["listener"].values[0];
+                const identifiers = [];
+                for (let property in params.service.properties) {
+                    const value = params.service.properties[property].value || params.service.properties[property].values?.at(0);
+                    if (value) {
+                        identifiers.push(value);
+                    }
+                }
                 const res: ListenerSourceCodeResponse = await context.langClient.addServiceSourceCode(params);
-                const position = await this.updateSource(res, listenerName);
+                const position = await this.updateSource(res, identifiers);
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
@@ -214,9 +220,15 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
-                const listenerName = params.service.properties["listener"].value || params.service.properties["listener"].values[0];
+                const identifiers = [];
+                for (let property in params.service.properties) {
+                    const value = params.service.properties[property].value || params.service.properties[property].values?.at(0);
+                    if (value) {
+                        identifiers.push(value);
+                    }
+                }
                 const res: ListenerSourceCodeResponse = await context.langClient.updateServiceSourceCode(params);
-                const position = await this.updateSource(res, listenerName);
+                const position = await this.updateSource(res, identifiers);
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
@@ -295,7 +307,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    private async updateSource(params: ListenerSourceCodeResponse, identifier?: string): Promise<NodePosition> {
+    private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[]): Promise<NodePosition> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         let position: NodePosition;
         for (const [key, value] of Object.entries(params.textEdits)) {
@@ -341,8 +353,8 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
-                    identifier && (syntaxTree as ModulePart).members.forEach(member => {
-                        if (STKindChecker.isServiceDeclaration(member) && member.source.includes(identifier)) {
+                    identifiers && (syntaxTree as ModulePart).members.forEach(member => {
+                        if (STKindChecker.isServiceDeclaration(member) && identifiers.every(id => id && member.source.includes(id))) {
                             position = member.position;
                         }
                     });
@@ -359,10 +371,10 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                     await StateMachine.langClient().resolveMissingDependencies({
                         documentIdentifier: { uri: fileUriString },
                     });
-                    // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
-                    await StateMachine.langClient().didOpen({
-                        textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
-                    });
+                    // // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
+                    // await StateMachine.langClient().didOpen({
+                    //     textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },
+                    // });
                 }
             }
         } catch (error) {
