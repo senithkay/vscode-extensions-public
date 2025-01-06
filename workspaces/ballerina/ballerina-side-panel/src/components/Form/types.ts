@@ -45,6 +45,8 @@ export type HelperPaneCompletionItem = {
     label: string;
     type?: string;
     insertText: string;
+    kind?: string;
+    codedata?: any;
 }
 
 export type HelperPaneCompletionCategory = {

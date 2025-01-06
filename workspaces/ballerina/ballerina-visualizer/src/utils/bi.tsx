@@ -513,14 +513,25 @@ export const convertToHelperPaneConfigurableVariable = (variables: VisibleType[]
 }
 
 const isCategoryType = (item: Item): item is Category => {
-    return !!(item as Category)?.items?.length;
+    return !(item as AvailableNode)?.codedata;
 }
+
+const getFunctionItemKind = (category: string): string => {
+    if (category.includes('Current')) {
+        return 'current';
+    } else if (category.includes('Imported')) {
+        return 'import';
+    } else {
+        return 'available';
+    }
+};
 
 export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFunctionInfo => {
     const response: HelperPaneFunctionInfo = {
         category: []
     };
     for (const category of functions) {
+        const categoryKind = getFunctionItemKind(category.metadata.label);
         const items: HelperPaneCompletionItem[] = [];
         const subCategory: HelperPaneFunctionCategory[] = [];
         for (const categoryItem of category?.items) {
@@ -529,14 +540,18 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
                     label: categoryItem.metadata.label,
                     items: categoryItem.items.map((item) => ({
                         label: item.metadata.label,
-                        insertText: item.metadata.label
+                        insertText: item.metadata.label,
+                        kind: categoryKind,
+                        codedata: !isCategoryType(item) && item.codedata
                     }))
                 });
             } else {
                 items.push({
                     label: categoryItem.metadata.label,
-                    insertText: categoryItem.metadata.label
-                })
+                    insertText: categoryItem.metadata.label,
+                    kind: categoryKind,
+                    codedata: categoryItem.codedata
+                });
             }
         }
 
@@ -544,8 +559,8 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
             label: category.metadata.label,
             items: items.length ? items : undefined,
             subCategory: subCategory.length ? subCategory : undefined
-        }
+        };
         response.category.push(categoryItem);
     }
     return response;
-}
+};
