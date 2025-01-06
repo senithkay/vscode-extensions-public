@@ -58,6 +58,7 @@ export function TryOutView(props: TryoutProps) {
         headers: false,
         params: false,
         variables: false,
+        miscellaneous: false,
     });
 
     const [isOutputExpanded, setIsOutputExpanded] = React.useState({
@@ -65,6 +66,7 @@ export function TryOutView(props: TryoutProps) {
         headers: false,
         params: false,
         variables: false,
+        miscellaneous: false,
     });
 
     useEffect(() => {
@@ -343,9 +345,12 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
         <>
             <Payload payload={data.payload} />
             <Headers headers={data.headers} />
-            <Params params={data.params} />
             <Variables variables={data.variables} />
-            <Properties properties={data.properties} />
+
+            <FormGroup title='Miscellaneous' isCollapsed={!isExpanded.miscellaneous} onToggle={(collapsed) => toggleExpanded('miscellaneous', collapsed)}>
+                <Properties properties={data.properties} />
+                <Params params={data.params} />
+            </FormGroup>
         </>
     );
 }
