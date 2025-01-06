@@ -21,7 +21,6 @@ export function ConnectorIcon(props: ConnectorIconProps) {
     const [imageError, setImageError] = React.useState(false);
 
     const databaseClients = ["mysql", "postgres", "sqlite", "mssql", "oracle", "redis", "cassandra", "mongodb"];
-    console.log(">>> connector icon", {name: node, icon: node.metadata.icon, valid: isValidUrl(node.metadata.icon), imageError});
     if (node.metadata.icon && isValidUrl(node.metadata.icon) && !imageError) {
         return (
             <img 
