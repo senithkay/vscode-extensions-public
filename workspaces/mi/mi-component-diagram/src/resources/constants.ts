@@ -98,10 +98,10 @@ export const CON_NODE_WIDTH = 200;
 export const CON_NODE_HEIGHT = CON_NODE_WIDTH / 3;
 export const ACTOR_NODE_WIDTH = 50;
 export const NODE_BORDER_WIDTH = 1.5;
-export const NODE_PADDING = 8;
+export const NODE_PADDING = 2;
 
 // position
-export const NODE_GAP_Y = 100;
+export const NODE_GAP_Y = 20;
 export const NODE_GAP_X = 60;
 
 // HACK

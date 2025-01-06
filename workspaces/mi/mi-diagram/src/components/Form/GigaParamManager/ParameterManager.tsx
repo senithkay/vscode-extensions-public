@@ -71,7 +71,7 @@ const FormWrapper = styled.div`
     animation: fadeIn 0.2s forwards;
 `;
 
-export interface Param extends Array<any> {
+export interface Param {
 }
 
 export interface ParameterManagerProps {
