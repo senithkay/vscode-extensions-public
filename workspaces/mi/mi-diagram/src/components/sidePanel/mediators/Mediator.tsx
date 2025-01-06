@@ -9,7 +9,7 @@
 
 import React from "react";
 import { VSCodePanels, VSCodePanelTab } from "@vscode/webview-ui-toolkit/react";
-import { PanelContent } from "@wso2-enterprise/ui-toolkit";
+import { Icon, PanelContent, Typography } from "@wso2-enterprise/ui-toolkit";
 import { MediatorForm } from "./Form";
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import TryOutView from "./tryout/Tryout";
@@ -74,13 +74,18 @@ export function MediatorPage(props: MediatorPageProps) {
                         range={nodeRange} />
                 </PanelContent>}
                 <PanelContent id={"tryout"}>
-                    <TryOutView
+                    {mediatorData?.canTryOut && <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showMediaotrPanel}
-                    />
+                    />}
+                    {!mediatorData?.canTryOut && (
+                        <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the tryout feature.
+                        </Typography>
+                    )}
                 </PanelContent>
             </VSCodePanels>
         </div>
