@@ -226,8 +226,8 @@ import {
     MediatorTryOutRequest,
     MediatorTryOutResponse,
     SavePayloadRequest,
-    GetPayloadRequest,
-    GetPayloadResponse,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
     AddDriverToLibResponse,
     AddDriverToLibRequest,
     APIContextsResponse,
@@ -318,26 +318,21 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getInputPayload(params: GetPayloadRequest): Promise<GetPayloadResponse> {
+    async getInputPayloads(params: GetPayloadsRequest): Promise<GetPayloadsResponse> {
         return new Promise((resolve) => {
             const projectUri = StateMachine.context().projectUri!;
             const tryout = path.join(projectUri, ".tryout", "input.json");
             if (fs.existsSync(tryout)) {
-                const payload = fs.readFileSync(tryout, "utf8");
-                resolve({ hasPayload: true, payload });
+                const payloads = JSON.parse(fs.readFileSync(tryout, "utf8"));
+                resolve({ payloads });
             } else {
-                resolve({ hasPayload: false })
+                resolve({ payloads: [] })
             }
         });
     }
 
     async tryOutMediator(params: MediatorTryOutRequest): Promise<MediatorTryOutResponse> {
         return new Promise(async (resolve) => {
-            const projectUri = StateMachine.context().projectUri!;
-            const payloadPath = path.join(projectUri, ".tryout", "input.json");
-            const payload = fs.existsSync(payloadPath) ? fs.readFileSync(payloadPath, "utf8") : '';
-
-            params.inputPayload = payload
             const langClient = StateMachine.context().langClient!;
             const res = await langClient.tryOutMediator(params);
             resolve(res);
