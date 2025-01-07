@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { AutoComplete, Button, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import SidePanelContext, { clearSidePanelState } from "../../SidePanelContexProvider";
 import React, { useEffect } from "react";
-import { CodeTextArea } from "../../../Form";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import ParameterManager from "../../../Form/GigaParamManager/ParameterManager";
 
 const TryoutContainer = styled.div`
     height: 100%;
@@ -33,27 +33,26 @@ export function SetPayloads(props: SetPayloadsProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { documentUri } = props;
     const [isLoading, setIsLoading] = React.useState(true);
-    const [payloads, setPayloads] = React.useState<any[]>([]);
-    const [activePayload, setActivePayload] = React.useState<any>();
+    const [requests, setRequests] = React.useState<any[]>([]);
 
     useEffect(() => {
         rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri }).then((res) => {
-            if (!Array.isArray(res.payloads)) {
-                setPayloads([{ name: 'Default', content: JSON.stringify(res.payloads) }]);
-                setActivePayload('Default');
-            } else {
-                setPayloads(res.payloads.map((payload) => ({ name: payload.name, content: JSON.stringify(payload.content) })));
-                setActivePayload(res.payloads?.[0].name);
-            }
+            const requests = Array.isArray(res.payloads)
+                ? res.payloads.map(payload => ({
+                    name: payload.name,
+                    content: JSON.stringify(payload.content)
+                }))
+                : [{ name: "Default", content: JSON.stringify(res.payloads) }];
+            setRequests(requests);
             setIsLoading(false);
         });
     }, []);
 
     const onSavePayload = async () => {
-        const content = payloads.map((payload) => {
+        const content = requests.map((request) => {
             return {
-                name: payload.name,
-                content: JSON.parse(payload.content)
+                name: request.name,
+                content: JSON.parse(request.content)
             };
         });
         await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: JSON.stringify(content) });
@@ -72,6 +71,39 @@ export function SetPayloads(props: SetPayloadsProps) {
         );
     }
 
+    const parameterManagerConfig = {
+        currentValue: "(1)[Array(2)]",
+        description: 'Key value pairs to be logged in addition to the message',
+        displayName: 'Parameters',
+        elements: [
+            {
+                type: "attribute",
+                value: {
+                    name: "name",
+                    displayName: "Name",
+                    inputType: "string",
+                    required: false,
+                    helpTip: "",
+                },
+            },
+            {
+                type: "attribute",
+                value: {
+                    name: "content",
+                    displayName: "Request body",
+                    inputType: "codeTextArea",
+                    required: false,
+                    helpTip: "",
+                },
+            },
+        ],
+        inputType: 'ParamManager',
+        name: 'properties',
+        tableKey: 'name',
+        tableValue: 'content',
+        addParamText: 'Add request',
+    };
+
     return (
         <TryoutContainer>
             <Typography
@@ -80,38 +112,13 @@ export function SetPayloads(props: SetPayloadsProps) {
                 {`Save the payload to try out the mediators`}
             </Typography>
 
-            <AutoComplete
-                label="Name"
-                items={payloads.map((payload) => payload.name)}
-                value={activePayload}
-                allowItemCreate={true}
-                onValueChange={(value) => {
-                    if (!payloads.find((payload) => payload.name === value)) {
-                        setPayloads([...payloads, { name: value, content: "" }]);
-                    }
-                    setActivePayload(value);
-                }}
+            <ParameterManager
+                formData={parameterManagerConfig}
+                parameters={requests}
+                setParameters={setRequests}
             />
 
-            {activePayload && <CodeTextArea
-                name="Request body"
-                label="Request body"
-                rows={30}
-                value={payloads.find((payload) => payload.name === activePayload)?.content || ""}
-                onChange={(e) => {
-                    const newPayloads = payloads.map((payload) => {
-                        if (payload.name === activePayload) {
-                            return {
-                                name: payload.name,
-                                content: e.target.value
-                            };
-                        }
-                        return payload;
-                    });
-                    setPayloads(newPayloads);
-                }}
-            />}
-            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
                 <Button onClick={closeSidePanel} appearance="secondary">
                     Cancel
                 </Button>
