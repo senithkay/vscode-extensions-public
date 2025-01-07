@@ -196,7 +196,7 @@ export function ConnectorNodeWidget(props: ConnectorNodeWidgetProps) {
                 isEditing: true,
                 formValues: {
                     form: formJSON,
-                    title: `${connectorData.name} - ${operationName}`,
+                    title: `${FirstCharToUpperCase(operationName)} Operation`,
                     uiSchemaPath: connectorData.uiSchemaPath,
                     parameters: (node.stNode as Connector).parameters ?? [],
                     connectorName: connectorData.name,
