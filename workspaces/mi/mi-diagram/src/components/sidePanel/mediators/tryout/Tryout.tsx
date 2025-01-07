@@ -8,7 +8,7 @@
 */
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, TextArea, Dropdown, ProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, TextArea, Dropdown, ProgressRing, Tooltip, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from '../../../Form/CodeTextArea';
@@ -185,6 +185,16 @@ export function TryOutView(props: TryoutProps) {
         );
     }
 
+    const helpTipElement =
+        (<Tooltip
+            content={inputPayloads.length > 0 ?
+                "Select a request to try out the mediator. Select start node to add new requests." :
+                "No requests available to try out the mediator. Select start node to add a request."}
+            position='right'
+        >
+            <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
+        </Tooltip>);
+
     return (
         <TryoutContainer>
             <Typography
@@ -197,6 +207,7 @@ export function TryOutView(props: TryoutProps) {
                 <Dropdown
                     id="request"
                     label="Select a request to try out"
+                    labelAdornment={helpTipElement}
                     disabled={isTryOutInputLoading || isTryOutLoading}
                     items={inputPayloads.map((payload) => { return { value: payload.name } })}
                     value={selectedPayload}
