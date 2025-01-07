@@ -76,10 +76,15 @@ export function TryOutView(props: TryoutProps) {
         const fetchMediatorDetails = async () => {
             await getRequestPayloads();
             setIsLoading(false);
-            await getInputData();
         };
         fetchMediatorDetails();
     }, [props]);
+
+    useEffect(() => {
+        if (selectedPayload) {
+            getInputData();
+        }
+    }, [selectedPayload]);
 
     const getEdits = () => {
         const values = props.getValues();
@@ -118,13 +123,14 @@ export function TryOutView(props: TryoutProps) {
                 return;
             }
 
+            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload)?.content;
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload: selectedPayload,
+                inputPayload,
                 mediatorType: props.mediatorType,
                 edits: []
             });
@@ -149,13 +155,14 @@ export function TryOutView(props: TryoutProps) {
             setTryOutError(null);
             setMediatorOutput(undefined);
 
+            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload)?.content;
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload: selectedPayload,
+                inputPayload,
                 mediatorInfo: mediatorInput
             });
 
@@ -231,7 +238,6 @@ export function TryOutView(props: TryoutProps) {
                     value={selectedPayload}
                     onChange={(e) => {
                         setSelectedPayload(e.target.value);
-                        getInputData();
                     }}
                 />
 
