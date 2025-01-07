@@ -192,21 +192,34 @@ export function TryOutView(props: TryoutProps) {
 
     const helpTipElement =
         (<Tooltip
-            content={inputPayloads.length > 0 ?
-                "Select a request to try out the mediator. Select start node to add new requests." :
-                "No requests available to try out the mediator. Select start node to add a request."}
+            content={"Select a request to try out the mediator. Select start node to add new requests."}
             position='right'
         >
             <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
         </Tooltip>);
 
+    const Header = (
+        <Typography
+            sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
+            variant="body3">
+            {`Try the request flow up to this mediator`}
+        </Typography>
+    );
+
+    if (inputPayloads.length === 0) {
+        return (
+            <TryoutContainer>
+                {Header}
+                <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <Icon name="warning" isCodicon /> No requests available to try out the mediator. Select start node to add a request.
+                </Typography>
+            </TryoutContainer>
+        );
+    };
+
     return (
         <TryoutContainer>
-            <Typography
-                sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
-                variant="body3">
-                {`Try the request flow up to this mediator`}
-            </Typography>
+            {Header}
 
             <Section>
                 <Dropdown

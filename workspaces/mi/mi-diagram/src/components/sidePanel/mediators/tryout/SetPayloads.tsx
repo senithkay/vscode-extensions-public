@@ -72,9 +72,6 @@ export function SetPayloads(props: SetPayloadsProps) {
     }
 
     const parameterManagerConfig = {
-        currentValue: "(1)[Array(2)]",
-        description: 'Key value pairs to be logged in addition to the message',
-        displayName: 'Parameters',
         elements: [
             {
                 type: "attribute",
@@ -82,7 +79,7 @@ export function SetPayloads(props: SetPayloadsProps) {
                     name: "name",
                     displayName: "Name",
                     inputType: "string",
-                    required: false,
+                    required: true,
                     helpTip: "",
                 },
             },
@@ -92,13 +89,11 @@ export function SetPayloads(props: SetPayloadsProps) {
                     name: "content",
                     displayName: "Request body",
                     inputType: "codeTextArea",
-                    required: false,
+                    required: true,
                     helpTip: "",
                 },
             },
         ],
-        inputType: 'ParamManager',
-        name: 'properties',
         tableKey: 'name',
         tableValue: 'content',
         addParamText: 'Add request',
