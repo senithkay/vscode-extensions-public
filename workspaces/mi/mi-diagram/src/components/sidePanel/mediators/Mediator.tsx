@@ -74,14 +74,14 @@ export function MediatorPage(props: MediatorPageProps) {
                         range={nodeRange} />
                 </PanelContent>}
                 <PanelContent id={"tryout"}>
-                    {mediatorData?.canTryOut && <TryOutView
+                    {(!mediatorData || mediatorData.canTryOut) && <TryOutView
                         documentUri={documentUri}
                         nodeRange={nodeRange}
                         mediatorType={mediatorType}
                         getValues={getValues}
                         isActive={activeTab === "tryout" || !showMediaotrPanel}
                     />}
-                    {!mediatorData?.canTryOut && (
+                    {(mediatorData && !mediatorData.canTryOut) && (
                         <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <Icon name="warning" isCodicon /> Please update your MI runtime to the latest version to use the tryout feature.
                         </Typography>

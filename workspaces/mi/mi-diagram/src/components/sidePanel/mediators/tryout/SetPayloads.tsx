@@ -38,12 +38,13 @@ export function SetPayloads(props: SetPayloadsProps) {
 
     useEffect(() => {
         rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri }).then((res) => {
-            if (Array.isArray(res.payloads)) {
-                setPayloads(res.payloads.map((payload) => ({ name: payload.name, content: JSON.stringify(payload.content) })));
-            } else {
+            if (!Array.isArray(res.payloads)) {
                 setPayloads([{ name: 'Default', content: JSON.stringify(res.payloads) }]);
+                setActivePayload('Default');
+            } else {
+                setPayloads(res.payloads.map((payload) => ({ name: payload.name, content: JSON.stringify(payload.content) })));
+                setActivePayload(res.payloads?.[0].name);
             }
-            setActivePayload(res.payloads?.[0].name);
             setIsLoading(false);
         });
     }, []);
