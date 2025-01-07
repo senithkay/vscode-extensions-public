@@ -10,7 +10,6 @@ import { FirstCharToUpperCase } from '../../utils/commons';
 import ExpressionEditor from './expressionEditor/ExpressionEditor';
 import { ExpressionFieldValue } from '../..';
 import { DATA_SERVICE_NODES } from '../../resources/constants';
-import InputPayloadForm from './Pages/InputPayload';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getMediatorIconsFromFont } from '../../resources/icons/mediatorIcons/icons';
 import { MediatorPage } from './mediators/Mediator';
@@ -159,10 +158,6 @@ const SidePanelList = (props: SidePanelListProps) => {
                     />;
                     sidepanelAddPage(sidePanelContext, page, title, icon);
                 }
-            } else if (sidePanelContext.isEditing && sidePanelContext.operationName == "input") {
-
-                const payloadForm = { content: <InputPayloadForm />, title: `Edit Input Payload` };
-                sidepanelAddPage(sidePanelContext, payloadForm.content, payloadForm.title);
             } else {
                 const home = <HomePage nodePosition={props.nodePosition} trailingSpace={props.trailingSpace} documentUri={props.documentUri} />;
                 sidepanelAddPage(sidePanelContext, home);
