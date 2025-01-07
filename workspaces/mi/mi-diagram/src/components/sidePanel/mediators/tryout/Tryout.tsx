@@ -273,7 +273,7 @@ export function TryOutView(props: TryoutProps) {
 
             {tryOutError && <ErrorBanner errorMsg={tryOutError} />}
             {mediatorOutput && mediatorOutput.properties.synapse && <Section>
-                <Typography variant="h2">After running the mediator</Typography>
+                <Typography variant="h2">Mediator Output</Typography>
                 {mediatorOutput && <MediatorDetails
                     data={mediatorOutput}
                     setMediatorInfo={setMediatorOutput}
@@ -287,7 +287,7 @@ export function TryOutView(props: TryoutProps) {
 };
 
 const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isEditable }: { data: MediatorTryOutInfo, setMediatorInfo: React.Dispatch<React.SetStateAction<MediatorTryOutInfo>>, isExpanded: any, setIsExpanded: any, isEditable: boolean }) => {
-    const handleEdit = (type: string, edit: InteractionProps, key?: string) => {
+    const handleEdit = (type: string, edit: any, key?: string) => {
         if (!isEditable) return; // Prevent editing if not editable
         setMediatorInfo((prev) => {
             const updated = { ...prev };
@@ -310,7 +310,14 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
 
     const Payload = ({ payload }: { payload: string }) => (
         <FormGroup title='Payload' isCollapsed={!isExpanded.payload} onToggle={(collapsed) => toggleExpanded('payload', collapsed)}>
-            {isEditable && <CodeTextArea name="Payload" label='Payload' rows={5} value={payload} />}
+            {isEditable &&
+                <CodeTextArea
+                    name="Payload"
+                    label='Payload'
+                    rows={5}
+                    value={payload}
+                    onChange={(e) => handleEdit('payload', { updated_src: e.target.value })}
+                />}
             {!isEditable && <TextArea name="Payload" label='Payload' value={payload} rows={5} readOnly />}
         </FormGroup>
     );
