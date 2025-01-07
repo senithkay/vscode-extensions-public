@@ -130,7 +130,7 @@ export function TryOutView(props: TryoutProps) {
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload,
+                inputPayload: JSON.stringify(inputPayload),
                 mediatorType: props.mediatorType,
                 edits: []
             });
@@ -162,7 +162,7 @@ export function TryOutView(props: TryoutProps) {
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload,
+                inputPayload: JSON.stringify(inputPayload),
                 mediatorInfo: mediatorInput
             });
 
