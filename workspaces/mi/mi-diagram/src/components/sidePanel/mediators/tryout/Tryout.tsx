@@ -233,7 +233,7 @@ export function TryOutView(props: TryoutProps) {
                 {mediatorInput &&
                     <>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="h2">Mediator input</Typography>
+                            <Typography variant="h2">Mediator Input</Typography>
                         </div>
                         <div>
                             <MediatorDetails
