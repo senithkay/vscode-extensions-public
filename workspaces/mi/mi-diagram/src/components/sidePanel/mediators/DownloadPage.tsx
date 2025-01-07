@@ -24,7 +24,7 @@ const ProgressRing = styled(VSCodeProgressRing)`
 
 interface DownloadPageProps {
     module: any;
-    onDownloadSuccess: () => void;
+    onDownloadSuccess: (connectorName: string) => void;
 }
 
 export function DownloadPage(props: DownloadPageProps) {
@@ -58,7 +58,7 @@ export function DownloadPage(props: DownloadPageProps) {
             const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
             if (response === "Success") {
-                onDownloadSuccess();
+                onDownloadSuccess(props.module.connectorName);
                 setIsDownloading(false);
                 sidepanelGoBack(sidePanelContext, 2);
             } else {
@@ -78,7 +78,7 @@ export function DownloadPage(props: DownloadPageProps) {
         const response = await rpcClient.getMiVisualizerRpcClient().updateConnectorDependencies();
 
         if (response === "Success") {
-            onDownloadSuccess();
+            onDownloadSuccess(props.module.connectorName);
             setIsDownloading(false);
             sidepanelGoBack(sidePanelContext, 2);
         } else {

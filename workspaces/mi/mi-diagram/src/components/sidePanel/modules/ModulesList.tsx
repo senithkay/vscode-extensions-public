@@ -49,7 +49,7 @@ interface ModuleProps {
     trailingSpace: string;
     documentUri: string;
     localConnectors: any;
-    reloadMediatorPalette: () => void;
+    reloadMediatorPalette: (connectorName: string) => void;
 }
 export function Modules(props: ModuleProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
