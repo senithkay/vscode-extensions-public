@@ -94,8 +94,13 @@ export function TryOutView(props: TryoutProps) {
     const getRequestPayloads = async () => {
         try {
             const { payloads } = await rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri });
-            setInputPayloads(payloads);
-            setSelectedPayload(payloads?.[0]?.name);
+            if (!Array.isArray(payloads)) {
+                setInputPayloads([{ name: 'Default', content: JSON.stringify(payloads) }]);
+                setSelectedPayload('Default');
+            } else {
+                setInputPayloads(payloads);
+                setSelectedPayload(payloads?.[0]?.name);
+            }
         } catch (error) {
             console.error("Error fetching input payload:", error);
         }
