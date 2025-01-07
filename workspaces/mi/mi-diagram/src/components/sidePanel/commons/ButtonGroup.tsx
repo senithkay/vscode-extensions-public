@@ -52,6 +52,7 @@ const DownloadIconContainer = styled.div`
     border-radius: 2px;
     align-content: center;
     padding: 5px 5px 15px 12px;
+    visibility: hidden;
     &:hover, &.active {
         background-color: var(--vscode-pickerGroup-border);
     }
@@ -98,7 +99,10 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                     borderRadius: 2,
                     padding: '6px 10px',
                     width: 'auto',
-                    height: '32px'
+                    height: '32px',
+                    '&:hover .download-icon': {
+                        visibility: 'visible'
+                    }
                 }}
             >
                 <CardContent>
@@ -127,9 +131,11 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                             </VersionTag>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            {onDownload && <DownloadIconContainer onClick={onDownload}>
-                                <Codicon name="desktop-download" iconSx={{ fontSize: 25 }} />
-                            </DownloadIconContainer>}
+                            {onDownload &&
+                                <DownloadIconContainer onClick={onDownload} className="download-icon">
+                                    <Codicon name="desktop-download" iconSx={{ fontSize: 25 }} />
+                                </DownloadIconContainer>
+                            }
                             <Button appearance="icon" tooltip={collapsed ? 'Expand' : 'Collapse'}>
                                 <Codicon name={collapsed ? 'chevron-down' : 'chevron-up'} />
                             </Button>
@@ -148,7 +154,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
 
 
 const IconContainer = styled.div`
-    width: 30px;
+    width: 36px;
     display: flex;
     align-items: center;
 
