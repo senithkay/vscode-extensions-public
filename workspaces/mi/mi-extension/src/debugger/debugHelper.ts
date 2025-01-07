@@ -83,7 +83,7 @@ function checkServerLiveness(): Promise<boolean> {
 
 export function checkServerReadiness(): Promise<void> {
     const startTime = Date.now();
-    const maxTimeout = 30000;
+    const maxTimeout = 45000;
     const retryInterval = 2000;
 
     return new Promise((resolve, reject) => {
@@ -339,7 +339,7 @@ export async function stopServer(serverPath: string, isWindows?: boolean): Promi
 }
 
 export async function executeTasks(serverPath: string, isDebug: boolean): Promise<void> {
-    const maxTimeout = 30000;
+    const maxTimeout = 45000;
     return new Promise<void>(async (resolve, reject) => {
         const isTerminated = await StateMachine.context().langClient?.shutdownTryoutServer();
         if (!isTerminated) {

@@ -305,6 +305,7 @@ export class MiDebugAdapter extends LoggingDebugSession {
                             })
                             .catch(error => {
                                 vscode.commands.executeCommand('setContext', 'MI.isRunning', 'false');
+                                deleteCopiedCapAndLibs();
                                 const completeError = `Error while launching run and debug: ${error}`;
                                 if (error === INCORRECT_SERVER_PATH_MSG) {
                                     this.showErrorAndExecuteChangeServerPath(completeError);

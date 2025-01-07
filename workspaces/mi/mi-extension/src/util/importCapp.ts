@@ -130,7 +130,7 @@ export async function importCapp(params: ImportProjectRequest): Promise<ImportPr
             },
         };
 
-        createFolderStructure(directory, folderStructure);
+        await createFolderStructure(directory, folderStructure);
         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
 
         console.log("Created project structure for project: " + projectName);

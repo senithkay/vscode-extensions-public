@@ -304,6 +304,26 @@ function checkExistenceOfResource(resourcePath: string): boolean {
 	return false;
 }
 
+function generateArtifactsPath(projectPath: string, key: string): string {
+	switch (key) {
+		case 'Local Entries':
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'local-entries');
+		case 'Message Stores':
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'message-stores');
+		case 'Message Processors':
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'message-processors');
+		case 'Proxy Services':
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'proxy-services');
+		case 'Data Services':
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'data-services');
+		case 'Data Sources':
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', 'data-sources');
+		case 'Class Mediators':
+			return path.join(projectPath, 'src', 'main', 'java');
+		default:
+			return path.join(projectPath, 'src', 'main', 'wso2mi', 'artifacts', key.toLowerCase());
+	}
+}
 function generateArtifacts(
 	data: DataIntegrationResponse | CommonArtifactsResponse | AdvancedArtifactsResponse,
 	projectStructure: ProjectStructureResponse,
@@ -314,7 +334,7 @@ function generateArtifacts(
 	for (const key in data) {
 		if (key === 'path') continue;
 
-		const artifactPath = path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', 'artifacts', key.toLowerCase());
+		const artifactPath = generateArtifactsPath(project.uri.fsPath, key);
 		data[key].path = artifactPath;
 
 		const parentEntry = new ProjectExplorerEntry(

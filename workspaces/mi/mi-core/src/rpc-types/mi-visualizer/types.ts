@@ -101,6 +101,7 @@ export interface PrimaryDetails {
     projectVersion: PomNodeDetails;
     projectDescription: PomNodeDetails;
     runtimeVersion: PomNodeDetails;
+    projectPackaging: PomNodeDetails;
 }
 
 export interface BuildDetails {

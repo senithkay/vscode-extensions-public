@@ -18,7 +18,7 @@ import { commands, Uri, window, workspace } from 'vscode';
 import { extension } from '../MIExtensionContext';
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 import { LATEST_MI_VERSION } from './onboardingUtils';
-import { addSynapseDependency, changeRootPomPackaging } from './fileOperations';
+import { changeRootPomForClassMediator } from './fileOperations';
 
 enum Nature {
     MULTIMODULE,
@@ -30,7 +30,7 @@ enum Nature {
     CLASS
 }
 
-export function importProject(params: ImportProjectRequest): ImportProjectResponse {
+export async function importProject(params: ImportProjectRequest): Promise<ImportProjectResponse> {
     const { source, directory, open } = params;
 
     const projectUuid = uuidv4();
@@ -83,15 +83,18 @@ export function importProject(params: ImportProjectRequest): ImportProjectRespon
                 'libs': '',
             },
         };
+        // Need to close all the opened editors before migrating the project
+        // if not, it will cause issues with the file operations
+        await commands.executeCommand('workbench.action.closeAllEditors');
 
         const destinationFolderPath = path.join(source, ".backup");
         moveFiles(source, destinationFolderPath);
 
-        createFolderStructure(directory, folderStructure);
+        await createFolderStructure(directory, folderStructure);
         copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), directory);
 
         console.log("Created project structure for project: " + projectName);
-        migrateConfigs(path.join(source, ".backup"), directory);
+        await migrateConfigs(path.join(source, ".backup"), directory);
 
         window.showInformationMessage(`Successfully imported ${projectName} project`);
 
@@ -129,10 +132,10 @@ export function getProjectDetails(filePath: string) {
     return { projectName, groupId, artifactId, version };
 }
 
-export function migrateConfigs(source: string, target: string) {
+export async function migrateConfigs(source: string, target: string) {
     // determine the project type here
     const projectType = determineProjectType(source);
-    let isPomUpdatedForClassMediator = false;
+    let hasClassMediatorModule = false;
     if (projectType === Nature.MULTIMODULE) {
         const items = fs.readdirSync(source, { withFileTypes: true });
         items.forEach(item => {
@@ -144,14 +147,14 @@ export function migrateConfigs(source: string, target: string) {
                     moduleType === Nature.REGISTRY || moduleType === Nature.CLASS) {
                     copyConfigsToNewProjectStructure(moduleType, sourceAbsolutePath, target);
                 }
-                if (moduleType === Nature.CLASS && !isPomUpdatedForClassMediator) {
-                    const workspaceFolder = workspace.getWorkspaceFolder( Uri.file(target))?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
-                    changeRootPomPackaging(workspaceFolder, "jar");
-                    addSynapseDependency(workspaceFolder);
-                    isPomUpdatedForClassMediator = true;
+                if (moduleType === Nature.CLASS) {
+                    hasClassMediatorModule = true;
                 }
             }
         });
+    }
+    if (hasClassMediatorModule) {
+        await changeRootPomForClassMediator();
     }
 }
 
