@@ -30,7 +30,10 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
-    Item
+    Item,
+    FunctionKind,
+    functionKinds,
+    TRIGGER_CHARACTERS
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -516,13 +519,13 @@ const isCategoryType = (item: Item): item is Category => {
     return !(item as AvailableNode)?.codedata;
 }
 
-const getFunctionItemKind = (category: string): string => {
+const getFunctionItemKind = (category: string): FunctionKind => {
     if (category.includes('Current')) {
-        return 'current';
+        return functionKinds.CURRENT;
     } else if (category.includes('Imported')) {
-        return 'import';
+        return functionKinds.IMPORTED;
     } else {
-        return 'available';
+        return functionKinds.AVAILABLE;
     }
 };
 
@@ -564,3 +567,15 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
     }
     return response;
 };
+
+export function extractFunctionInsertText(template: string): string {
+    const regex = new RegExp(`(?<label>[a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]+)\\(.*\\)$`);
+    const match = template.match(regex);
+    const label = match?.groups?.label;
+
+    if (!label) {
+        return template;
+    }
+
+    return `${label}(`;
+}

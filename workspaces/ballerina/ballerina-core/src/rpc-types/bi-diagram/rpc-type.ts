@@ -40,6 +40,8 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    AddFunctionRequest,
+    AddFunctionResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -104,3 +106,4 @@ export const formDidOpen: RequestType<FormDidOpenParams, void> = { method: `${_p
 export const formDidClose: RequestType<FormDidCloseParams, void> = { method: `${_preFix}/formDidClose` };
 export const getDesignModel: RequestType<void, BIDesignModelResponse> = { method: `${_preFix}/getDesignModel` };
 export const updateImports: RequestType<UpdateImportsRequest, UpdateImportsResponse> = { method: `${_preFix}/updateImports` };
+export const addFunction: RequestType<AddFunctionRequest, AddFunctionResponse> = { method: `${_preFix}/addFunction` };

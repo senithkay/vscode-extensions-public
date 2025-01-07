@@ -157,6 +157,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         extractArgsFromFunction,
         getExpressionEditorDiagnostics,
         getHelperPaneData,
+        onFunctionItemSelect,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -258,7 +259,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             getHelperPaneData,
             value,
             onChange,
-            onSaveConfigurables
+            onSaveConfigurables,
+            onFunctionItemSelect
         );
     }
 

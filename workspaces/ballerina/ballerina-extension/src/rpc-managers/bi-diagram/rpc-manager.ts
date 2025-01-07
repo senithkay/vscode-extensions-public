@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -1117,6 +1119,19 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 console.error("Error updating imports", error);
                 reject(error);
             }
+        });
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient().addFunction(params)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    console.log(">>> Error adding function", error);
+                    resolve(undefined);
+                });
         });
     }
 }

@@ -754,6 +754,24 @@ export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
 }
 
+export const functionKinds = {
+    CURRENT: 'CURRENT',
+    IMPORTED: 'IMPORTED',
+    AVAILABLE: 'AVAILABLE'
+} as const;
+
+export type FunctionKind = typeof functionKinds[keyof typeof functionKinds];
+
+export interface AddFunctionRequest {
+    filePath: string;
+    codedata: CodeData;
+    kind: FunctionKind;
+}
+
+export interface AddFunctionResponse {
+    template: string;
+}
+
 
 // <-------- Trigger Related ------->
 export interface TriggerModelsRequest {
@@ -855,6 +873,7 @@ export interface BIInterface extends BaseLangClientInterface {
     addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

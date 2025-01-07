@@ -10,6 +10,7 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
     BIAiSuggestionsRequest,
     BIAvailableNodesRequest,
     BIConnectorsRequest,
@@ -33,6 +34,7 @@ import {
     UpdateImportsRequest,
     VisibleTypesRequest,
     addBreakpointToSource,
+    addFunction,
     buildProject,
     createComponent,
     createComponents,
@@ -116,4 +118,5 @@ export function registerBiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onRequest(formDidClose, (args: FormDidCloseParams) => rpcManger.formDidClose(args));
     messenger.onRequest(getDesignModel, () => rpcManger.getDesignModel());
     messenger.onRequest(updateImports, (args: UpdateImportsRequest) => rpcManger.updateImports(args));
+    messenger.onRequest(addFunction, (args: AddFunctionRequest) => rpcManger.addFunction(args));
 }

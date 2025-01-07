@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -61,6 +63,7 @@ import {
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addFunction,
     buildProject,
     createComponent,
     createComponents,
@@ -264,5 +267,9 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
+    }
+
+    addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
     }
 }

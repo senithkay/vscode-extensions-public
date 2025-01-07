@@ -19,9 +19,10 @@ import {
     TriggerCharacter,
     FormDiagnostics,
     ConfigVariable,
-    TextEdit
+    TextEdit,
+    FunctionKind
 } from "@wso2-enterprise/ballerina-core";
-import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData } from "@wso2-enterprise/ballerina-side-panel";
+import { FormField, FormValues, Form, ExpressionFormField, FormExpressionEditorProps, HelperPaneData, HelperPaneCompletionItem } from "@wso2-enterprise/ballerina-side-panel";
 import {
     convertBalCompletion,
     convertNodePropertiesToFormFields,
@@ -31,6 +32,7 @@ import {
     convertToHelperPaneVariable,
     convertToVisibleTypes,
     enrichFormPropertiesWithValueConstraint,
+    extractFunctionInsertText,
     getFormProperties,
     updateLineRange,
     updateNodeProperties,
@@ -514,6 +516,20 @@ export function FormGenerator(props: FormProps) {
         handleExpressionEditorCancel();
     };
 
+    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
+        const response = await rpcClient.getBIDiagramRpcClient().addFunction({
+            filePath: fileName,
+            codedata: item.codedata,
+            kind: item.kind as FunctionKind
+        })
+
+        if (response.template) {
+            return extractFunctionInsertText(response.template);
+        }
+
+        return "";
+    }
+
     const handleExpressionEditorBlur = () => {
         handleExpressionEditorCancel();
     };
@@ -615,6 +631,7 @@ export function FormGenerator(props: FormProps) {
             functionInfo: functionInfo,
             libraryBrowserInfo: libraryBrowserInfo,
             getHelperPaneData: handleGetHelperPaneData,
+            onFunctionItemSelect: handleFunctionItemSelect,
             getExpressionFormDiagnostics: handleExpressionFormDiagnostics,
             onCompletionItemSelect: handleCompletionItemSelect,
             onBlur: handleExpressionEditorBlur,
@@ -632,6 +649,7 @@ export function FormGenerator(props: FormProps) {
         handleRetrieveCompletions,
         handleGetVisibleTypes,
         handleGetHelperPaneData,
+        handleFunctionItemSelect,
         handleExpressionFormDiagnostics
     ]);
 

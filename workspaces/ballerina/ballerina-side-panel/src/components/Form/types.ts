@@ -111,6 +111,7 @@ type FormHelperPaneConditionalProps = {
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     getHelperPaneData?: (type: string, filterText: string) => void;
+    onFunctionItemSelect?: (item: HelperPaneCompletionItem) => Promise<string>;
 } | {
     isLoadingHelperPaneInfo?: never;
     variableInfo?: never;
@@ -118,6 +119,7 @@ type FormHelperPaneConditionalProps = {
     functionInfo?: never;
     libraryBrowserInfo?: never;
     getHelperPaneData?: never;
+    onFunctionItemSelect?: never;
 }
 
 type FormExpressionEditorBaseProps = {
