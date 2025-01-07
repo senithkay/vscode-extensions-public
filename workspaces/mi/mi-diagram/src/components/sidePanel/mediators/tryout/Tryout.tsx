@@ -385,7 +385,7 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
 
     return (
         <>
-            <Payload payload={data.payload} />
+            {Payload({ payload: data.payload })}
             <Headers headers={data.headers} />
             <Variables variables={data.variables} />
 
