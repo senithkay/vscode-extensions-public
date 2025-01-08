@@ -24,7 +24,7 @@ interface ModuleSuggestionProps {
     documentUri: string;
     searchValue?: string;
     localConnectors: any;
-    reloadMediatorPalette: () => void;
+    reloadMediatorPalette: (connectorName: string) => void;
 }
 
 export const OperationsWrapper = styled.div`
