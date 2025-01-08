@@ -40,6 +40,7 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
     if (projectName && groupId && artifactId && version) {
         const folderStructure: FileStructure = {
             'pom.xml': rootPomXmlContent(projectName, groupId, artifactId, projectUuid, version, LATEST_MI_VERSION),
+            '.env':'',
             'src': {
                 'main': {
                     'java': '',
@@ -65,6 +66,9 @@ export async function importProject(params: ImportProjectRequest): Promise<Impor
                             },
                             'metadata': '',
                             'connectors': '',
+                            'conf':{
+                                'config.properties':''
+                            }
                         },
                     },
                 },

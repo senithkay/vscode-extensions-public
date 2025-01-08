@@ -2837,6 +2837,7 @@ ${endpointAttributes}
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
                     'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion),
+                    '.env': '',
                     'src': {
                         'main': {
                             'java': '',
@@ -2858,6 +2859,9 @@ ${endpointAttributes}
                                 'resources': {
                                     'connectors': '',
                                     'metadata': '',
+                                    'conf': {
+                                        'config.properties': ''
+                                    },
                                 },
                             },
                         },
