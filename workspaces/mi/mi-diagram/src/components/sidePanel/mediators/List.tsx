@@ -207,7 +207,6 @@ export function Mediators(props: MediatorProps) {
                 ) : (
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', alignItems: 'center' }}>
-                            <Typography variant="h3" sx={{ margin: '0px' }}>Available Modules</Typography>
                             <LinkButton onClick={() => addModule()}>
                                 <Codicon name="plus" />Add Module
                             </LinkButton>
