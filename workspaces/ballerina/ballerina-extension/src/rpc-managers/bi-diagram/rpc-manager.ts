@@ -178,10 +178,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
 
         for (const [key, value] of Object.entries(params.textEdits)) {
-            let fileUri = Uri.file(key);
-            if (params.isExpression) {
-                fileUri = fileUri.with({ scheme: "expr" });
-            }
+            const fileUri = Uri.file(key);
             const fileUriString = fileUri.toString();
             const edits = value;
 
