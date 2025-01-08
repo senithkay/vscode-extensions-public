@@ -28,3 +28,7 @@ export function isCertificateFileName(value: string): boolean {
     const certificateExtension = ".crt";
     return value.endsWith(certificateExtension);
 }
+
+export function replaceSpecialCharacters(stringValue: string): any {
+    return stringValue.replace(/&/g, '&amp;');
+}
