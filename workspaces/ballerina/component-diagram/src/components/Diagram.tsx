@@ -17,24 +17,39 @@ import { NodeLinkModel } from "./NodeLink";
 import { OverlayLayerModel } from "./OverlayLayer";
 import { DiagramContextProvider, DiagramContextState } from "./DiagramContext";
 import Controls from "./Controls";
-import { CDAutomation, CDConnection, CDListener, CDModel, CDService } from "@wso2-enterprise/ballerina-core";
+import {
+    CDAutomation,
+    CDConnection,
+    CDFunction,
+    CDListener,
+    CDModel,
+    CDService,
+    CDResourceFunction,
+} from "@wso2-enterprise/ballerina-core";
 import { EntryNodeModel } from "./nodes/EntryNode";
 import { ListenerNodeModel } from "./nodes/ListenerNode";
 import { ConnectionNodeModel } from "./nodes/ConnectionNode";
-import { AUTOMATION_LISTENER } from "../resources/constants";
 
 export interface DiagramProps {
     project: CDModel;
     onListenerSelect: (listener: CDListener) => void;
     onServiceSelect: (service: CDService) => void;
+    onFunctionSelect: (func: CDFunction | CDResourceFunction) => void;
     onAutomationSelect: (automation: CDAutomation) => void;
     onConnectionSelect: (connection: CDConnection) => void;
     onDeleteComponent: (component: CDListener | CDService | CDAutomation | CDConnection) => void;
 }
 
 export function Diagram(props: DiagramProps) {
-    const { project, onListenerSelect, onServiceSelect, onAutomationSelect, onConnectionSelect, onDeleteComponent } =
-        props;
+    const {
+        project,
+        onListenerSelect,
+        onServiceSelect,
+        onFunctionSelect,
+        onAutomationSelect,
+        onConnectionSelect,
+        onDeleteComponent,
+    } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -166,6 +181,7 @@ export function Diagram(props: DiagramProps) {
         project,
         onListenerSelect,
         onServiceSelect,
+        onFunctionSelect,
         onAutomationSelect,
         onConnectionSelect,
         onDeleteComponent,
