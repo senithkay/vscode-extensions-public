@@ -26,7 +26,8 @@ export async function buildProjectStructure(projectDir: string, langClient: Exte
             [DIRECTORY_MAP.CONNECTIONS]: [],
             [DIRECTORY_MAP.TYPES]: [],
             [DIRECTORY_MAP.CONFIGURATIONS]: [],
-            [DIRECTORY_MAP.RECORDS]: []
+            [DIRECTORY_MAP.RECORDS]: [],
+            [DIRECTORY_MAP.DATA_MAPPERS]: []
         }
     };
     const components = await langClient.getBallerinaProjectComponents({
@@ -47,6 +48,19 @@ async function traverseComponents(components: BallerinaProjectComponents, respon
             response.directoryMap[DIRECTORY_MAP.TYPES].push(...await getComponents(langClient, module.types, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.RECORDS].push(...await getComponents(langClient, module.records, pkg.filePath, "type"));
             response.directoryMap[DIRECTORY_MAP.CONFIGURATIONS].push(...await getComponents(langClient, module.configurableVariables, pkg.filePath, "config"));
+        }
+    }
+
+    // Move data mappers to a separate category
+    const functions = response.directoryMap[DIRECTORY_MAP.FUNCTIONS];
+    response.directoryMap[DIRECTORY_MAP.FUNCTIONS] = [];
+    for (const func of functions) {
+        const st = func.st;
+        if (STKindChecker.isFunctionDefinition(st) && STKindChecker.isExpressionFunctionBody(st.functionBody)) {
+            func.icon = "dataMapper";
+            response.directoryMap[DIRECTORY_MAP.DATA_MAPPERS].push(func);
+        } else {
+            response.directoryMap[DIRECTORY_MAP.FUNCTIONS].push(func);
         }
     }
 }

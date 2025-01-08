@@ -149,7 +149,8 @@ export enum DIRECTORY_SUB_TYPE {
     CONFIGURATION = "configuration",
     SERVICE = "service",
     AUTOMATION = "automation",
-    TRIGGER = "trigger"
+    TRIGGER = "trigger",
+    DATA_MAPPER = "dataMapper",
 }
 
 export interface ProjectStructureResponse {
@@ -163,6 +164,7 @@ export interface ProjectStructureResponse {
         [DIRECTORY_MAP.TYPES]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.RECORDS]: ProjectStructureArtifactResponse[];
         [DIRECTORY_MAP.CONFIGURATIONS]: ProjectStructureArtifactResponse[];
+        [DIRECTORY_MAP.DATA_MAPPERS]: ProjectStructureArtifactResponse[];
     };
 }
 

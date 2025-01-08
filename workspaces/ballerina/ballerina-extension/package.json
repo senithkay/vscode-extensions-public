@@ -598,6 +598,13 @@
                 "icon": "$(distro-design-view)",
                 "group": "navigation",
                 "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add-data-mapper",
+                "title": "Add Data Mapper",
+                "icon": "$(add)",
+                "group": "navigation",
+                "category": "BI"
             }
         ],
         "views": {

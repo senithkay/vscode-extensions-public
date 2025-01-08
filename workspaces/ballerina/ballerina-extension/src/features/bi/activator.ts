@@ -48,6 +48,10 @@ export function activate(context: BallerinaExtension) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIComponentView });
     });
 
+    commands.registerCommand(BI_COMMANDS.ADD_DATA_MAPPER, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIDataMapperForm });
+    });
+
     commands.registerCommand(BI_COMMANDS.DELETE_COMPONENT, async (item: any) => {
         console.log(">>> delete component", item);
 
