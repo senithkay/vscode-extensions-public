@@ -49,7 +49,7 @@ interface ModuleProps {
     trailingSpace: string;
     documentUri: string;
     localConnectors: any;
-    reloadMediatorPalette: () => void;
+    reloadMediatorPalette: (connectorName: string) => void;
 }
 export function Modules(props: ModuleProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
@@ -134,7 +134,7 @@ export function Modules(props: ModuleProps) {
 
         return Object.keys(modules).length === 0 ? <h3 style={{ textAlign: "center" }}>No modules found</h3> :
             <>
-                {Object.entries(modules).map(([key, values]: [string, any]) => (
+                {Object.entries(modules).sort(([, a], [, b]) => a.connectorRank - b.connectorRank).map(([key, values]: [string, any]) => (
                     localConnectors && localConnectors.some((c: any) =>
                         (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
                         (c.version === values.version.tagName)) ? null : (
