@@ -19,8 +19,7 @@ const Colors = {
 }
 
 const ExButtonWrapper = styled.div<{ isActive: boolean }>`
-    margin-left: -14px;
-    margin-top: -2px;
+    margin-left: -6px;
     padding: 3px;
     cursor: pointer;
     background-color: ${(props: { isActive: any; }) => props.isActive ? Colors.INPUT_OPTION_ACTIVE : Colors.INPUT_OPTION_INACTIVE};
