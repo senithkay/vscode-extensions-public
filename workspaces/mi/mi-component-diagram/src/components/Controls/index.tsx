@@ -24,10 +24,10 @@ export namespace ControlsStyles {
         justify-content: center;
         gap: 8px;
 
-        position: fixed;
-        margin-top: 270px;
-        left: 20px;
-        margin-left: 10px;
+        position: absolute;
+        margin-top: 30px;
+        right: 10px;
+        margin-right: 10px;
         z-index: 1000;
     `;
 
@@ -64,8 +64,8 @@ export namespace ControlsStyles {
         border-radius: 4px;
         background-color: ${Colors.SURFACE};
         fill: ${Colors.ON_SURFACE};
-        width: 32px;
-        height: 32px;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
 
         &:hover {

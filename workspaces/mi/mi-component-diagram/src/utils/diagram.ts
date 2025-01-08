@@ -62,7 +62,7 @@ export function autoDistribute(engine: DiagramEngine) {
                 const entryNodeY = entryNode.getY();
 
                 const newActorNodeY = entryNodeY + (ENTRY_NODE_HEIGHT - ACTOR_NODE_WIDTH) / 2 - NODE_PADDING / 2;
-                actorNode.setPosition(actorNode.getX(), newActorNodeY);
+                actorNode.setPosition(actorNode.getX() + 300, newActorNodeY);
                 return;
             }
         }
@@ -107,8 +107,8 @@ export function genDagreEngine() {
         graph: {
             rankdir: "LR",
             nodesep: ENTRY_NODE_HEIGHT + NODE_GAP_Y,
-            ranksep: 150,
-            marginx: 0,
+            ranksep: 400,
+            marginx: -300,
             marginy: 0,
             ranker: "longest-path",
         },
