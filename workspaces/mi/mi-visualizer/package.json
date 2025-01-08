@@ -57,7 +57,8 @@
     "@pmmmwh/react-refresh-webpack-plugin": "~0.5.15",
     "upath": "~2.0.1",
     "@wso2-enterprise/mi-component-diagram": "workspace:*",
-    "lodash": "~4.17.21"
+    "lodash": "~4.17.21",
+    "cron-expression-validator": "~1.0.20"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",
