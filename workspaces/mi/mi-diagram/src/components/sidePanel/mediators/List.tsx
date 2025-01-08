@@ -206,7 +206,7 @@ export function Mediators(props: MediatorProps) {
                     </div>
                 ) : (
                     <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px', alignItems: 'center' }}>
                             <LinkButton onClick={() => addModule()}>
                                 <Codicon name="plus" />Add Module
                             </LinkButton>
