@@ -1099,26 +1099,14 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
         return new Promise((resolve, reject) => {
-            const { filePath, importStatement } = params;
-            const trimmedImportStatement = importStatement.trim();
-            const textEdits = {
-                [filePath]: [{
-                    range: {
-                        start: { line: 0, character: 0 },
-                        end: { line: 0, character: 0 }
-                    },
-                    newText: trimmedImportStatement
-                }]
-            };
-            console.log(">>> text edits", textEdits);
-
-            try {
-                this.updateSource({ textEdits, isExpression: true });
-                resolve({ importStatementOffset: trimmedImportStatement.length });
-            } catch (error) {
-                console.error("Error updating imports", error);
-                reject(error);
-            }
+            StateMachine.langClient().updateImports(params)
+                .then(() => {
+                    resolve({ importStatementOffset: params.importStatement.length });
+                })
+                .catch((error) => {
+                    console.error("Error updating imports", error);
+                    reject(error);
+                });
         });
     }
 

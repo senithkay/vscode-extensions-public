@@ -135,7 +135,8 @@ import {
     BIDesignModelRequest,
     BIDesignModelResponse,
     AddFunctionRequest,
-    AddFunctionResponse
+    AddFunctionResponse,
+    UpdateImportsRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -226,6 +227,7 @@ enum EXTENDED_APIS {
     BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
     BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
     BI_DESIGN_MODEL = 'designModelService/getDesignModel',
+    BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
     BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
 }
 
@@ -755,6 +757,10 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
         return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<void> {
+        return this.sendRequest<void>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
     }
 
     async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {

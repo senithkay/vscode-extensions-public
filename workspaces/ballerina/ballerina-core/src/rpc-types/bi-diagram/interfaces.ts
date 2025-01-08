@@ -158,12 +158,3 @@ export interface FormDidOpenParams {
 export interface FormDidCloseParams {
     filePath: string;
 }
-
-export interface UpdateImportsRequest {
-    filePath: string;
-    importStatement: string;
-}
-
-export interface UpdateImportsResponse {
-    importStatementOffset: number;
-}

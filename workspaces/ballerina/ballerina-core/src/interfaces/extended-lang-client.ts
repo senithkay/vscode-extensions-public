@@ -754,6 +754,15 @@ export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
 }
 
+export interface UpdateImportsRequest {
+    filePath: string;
+    importStatement: string;
+}
+
+export interface UpdateImportsResponse {
+    importStatementOffset: number;
+}
+
 export const functionKinds = {
     CURRENT: 'CURRENT',
     IMPORTED: 'IMPORTED',
@@ -873,6 +882,7 @@ export interface BIInterface extends BaseLangClientInterface {
     addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<void>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }
 

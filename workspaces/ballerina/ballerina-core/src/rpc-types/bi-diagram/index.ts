@@ -43,6 +43,8 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     AddFunctionRequest,
     AddFunctionResponse
 } from "../../interfaces/extended-lang-client";
@@ -63,9 +65,7 @@ import {
     BreakpointRequest,
     CurrentBreakpointsResponse,
     FormDidOpenParams,
-    FormDidCloseParams,
-    UpdateImportsRequest,
-    UpdateImportsResponse
+    FormDidCloseParams
 } from "./interfaces";
 
 export interface BIDiagramAPI {
