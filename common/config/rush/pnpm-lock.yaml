@@ -2683,7 +2683,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-hook-form: 7.51.2_react@18.2.0
       react-json-view: 1.21.3_jczjbtsmbzi7zofs22bstoer6y
-      react-json-view-lite: 2.0.1_react@18.2.0
+      react-json-view-lite: 2.1.0_react@18.2.0
       vscode-languageserver-types: 3.17.5
       xmlbuilder2: 3.1.1
       yup: 1.4.0
@@ -2933,6 +2933,7 @@ importers:
       '@wso2-enterprise/service-designer': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
+      cron-expression-validator: ~1.0.20
       css-loader: ^5.2.7
       fast-xml-parser: ~4.3.6
       lodash: ~4.17.21
@@ -2989,6 +2990,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/service-designer': link:../../common-libs/service-designer
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      cron-expression-validator: 1.0.20
       fast-xml-parser: 4.3.6
       lodash: 4.17.21
       mustache: 4.2.0
@@ -30829,6 +30831,10 @@ packages:
     resolution: {integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==}
     dev: false
 
+  /cron-expression-validator/1.0.20:
+    resolution: {integrity: sha512-g0osBTdp+1ryDw2vzlG6UpDPaa4fO94ZChF2R0lEnRurbuUEL74XEVX7xZJ13m4Mq/gb3ni6UQu8+Oqt+eocsw==}
+    dev: false
+
   /cron-parser/4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
@@ -46712,8 +46718,8 @@ packages:
   /react-is/18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  /react-json-view-lite/2.0.1_react@18.2.0:
-    resolution: {integrity: sha512-yElNMSzL7UJ9rMDQIbTiBemXbvfAoqpxM/0IQd3nr52CLLBC0HxOSKcta/bayct2QCq7ZVzLzI8CGfuf387hHw==}
+  /react-json-view-lite/2.1.0_react@18.2.0:
+    resolution: {integrity: sha512-4JdlXC+dWPRXPL4fK/NsK6W103+mmpXDeWCHJGhgjPSvuyHnpwQUJ+ClUj4MFlLb4cPxi3T0/PW414JlTKMCJg==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18.0.0
