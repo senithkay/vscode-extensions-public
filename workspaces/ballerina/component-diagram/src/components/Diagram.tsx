@@ -10,7 +10,15 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, calculateEntryNodeHeight, createNodesLink, generateEngine, sortItems } from "../utils/diagram";
+import {
+    autoDistribute,
+    calculateEntryNodeHeight,
+    createNodesLink,
+    createPortNodeLink,
+    generateEngine,
+    getEntryNodeFunctionPortName,
+    sortItems,
+} from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeModel } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -105,14 +113,39 @@ export function Diagram(props: DiagramProps) {
 
             startY += nodeHeight + 16;
 
-            service.connections.forEach((connectionUuid) => {
-                const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
-                if (connectionNode) {
-                    const link = createNodesLink(node, connectionNode);
-                    if (link) {
-                        links.push(link);
+            // create function connections
+            service.remoteFunctions?.forEach((func) => {
+                func.connections?.forEach((connectionUuid) => {
+                    console.log(">>> remoteservice con", { func, connectionUuid });
+                    const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                    if (connectionNode) {
+                        const port = node.getFunctionPort(func);
+                        if (port) {
+                            const link = createPortNodeLink(port, connectionNode);
+                            if (link) {
+                                links.push(link);
+                            }
+                        }
                     }
-                }
+                });
+            });
+
+            // create resource function connections
+            service.resourceFunctions?.forEach((func) => {
+                func.connections?.forEach((connectionUuid) => {
+                    const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
+                    console.log(">>> resource service con", { func, connectionUuid, connectionNode });
+                    if (connectionNode) {
+                        const port = node.getFunctionPort(func);
+                        console.log(">>> resource service con port", { port });
+                        if (port) {
+                            const link = createPortNodeLink(port, connectionNode);
+                            if (link) {
+                                links.push(link);
+                            }
+                        }
+                    }
+                });
             });
         });
 

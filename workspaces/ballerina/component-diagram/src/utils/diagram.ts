@@ -18,7 +18,7 @@ import { ListenerNodeFactory } from "../components/nodes/ListenerNode/ListenerNo
 import { LISTENER_NODE_WIDTH, NodeTypes, NODE_GAP_X, ENTRY_NODE_WIDTH } from "../resources/constants";
 import { ListenerNodeModel } from "../components/nodes/ListenerNode";
 import { ConnectionNodeModel } from "../components/nodes/ConnectionNode";
-import { CDConnection, CDService } from "@wso2-enterprise/ballerina-core";
+import { CDConnection, CDResourceFunction, CDFunction, CDService } from "@wso2-enterprise/ballerina-core";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -137,9 +137,24 @@ export function createPortsLink(sourcePort: NodePortModel, targetPort: NodePortM
 export function createNodesLink(sourceNode: NodeModel, targetNode: NodeModel, options?: NodeLinkModelOptions) {
     const sourcePort = sourceNode.getOutPort();
     const targetPort = targetNode.getInPort();
+    if (!sourcePort || !targetPort) {
+        return null;
+    }
     const link = createPortsLink(sourcePort, targetPort, options);
     link.setSourceNode(sourceNode);
     link.setTargetNode(targetNode);
+    return link;
+}
+
+// create link between port and node
+export function createPortNodeLink(port: NodePortModel, node: NodeModel, options?: NodeLinkModelOptions) {
+    const targetPort = node.getInPort();
+    if (!targetPort) {
+        return null;
+    }
+    const link = createPortsLink(port, targetPort, options);
+    link.setSourceNode(node);
+    link.setTargetNode(node);
     return link;
 }
 
@@ -197,4 +212,11 @@ export const calculateEntryNodeHeight = (numFunctions: number) => {
     const PADDING = 4;
 
     return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING * 2;
+};
+
+export const getEntryNodeFunctionPortName = (func: CDFunction | CDResourceFunction) => {
+    if ((func as CDResourceFunction).accessor) {
+        return (func as CDResourceFunction).accessor + "-" + (func as CDResourceFunction).path;
+    }
+    return (func as CDFunction).name;
 };

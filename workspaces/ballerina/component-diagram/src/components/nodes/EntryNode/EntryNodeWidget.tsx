@@ -17,12 +17,13 @@ import { useDiagramContext } from "../../DiagramContext";
 import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
+import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
         inactive?: boolean;
     };
-    export const Node = styled.div<NodeStyleProp>`
+    export const Node = styled.div`
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -126,8 +127,18 @@ export namespace NodeStyles {
         cursor: pointer;
     `;
 
+    export const FunctionBoxWrapper = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        color: ${Colors.ON_SURFACE};
+        margin-right: -20px;
+    `;
+
     export const FunctionBox = styled(NodeStyles.ServiceBox)<NodeStyleProp>`
         height: 40px;
+        width: ${ENTRY_NODE_WIDTH + 20}px;
         padding: 0 12px;
 
         border: ${NODE_BORDER_WIDTH}px solid
@@ -222,7 +233,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     }
 
     return (
-        <NodeStyles.Node hovered={isHovered}>
+        <NodeStyles.Node>
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Box hovered={isHovered}>
                 <NodeStyles.ServiceBox onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -236,7 +247,12 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
                     </NodeStyles.MenuButton>
                 </NodeStyles.ServiceBox>
                 {serviceFunctions?.map((serviceFunction) => (
-                    <FunctionBox func={serviceFunction} />
+                    <FunctionBox
+                        key={getEntryNodeFunctionPortName(serviceFunction)}
+                        func={serviceFunction}
+                        model={model}
+                        engine={engine}
+                    />
                 ))}
             </NodeStyles.Box>
             <Popover
@@ -259,8 +275,8 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     );
 }
 
-function FunctionBox(props: { func: CDFunction | CDResourceFunction }) {
-    const { func } = props;
+function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: EntryNodeModel; engine: DiagramEngine }) {
+    const { func, model, engine } = props;
     const [isHovered, setIsHovered] = useState(false);
     const { onFunctionSelect } = useDiagramContext();
 
@@ -269,21 +285,24 @@ function FunctionBox(props: { func: CDFunction | CDResourceFunction }) {
     };
 
     return (
-        <NodeStyles.FunctionBox
-            hovered={isHovered}
-            onClick={() => handleOnClick()}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            {(func as CDResourceFunction).accessor && (
-                <NodeStyles.Accessor>{(func as CDResourceFunction).accessor}</NodeStyles.Accessor>
-            )}
-            {(func as CDResourceFunction).path && (
-                <NodeStyles.Title hovered={isHovered}>/{(func as CDResourceFunction).path}</NodeStyles.Title>
-            )}
-            {(func as CDFunction).name && (
-                <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>
-            )}
-        </NodeStyles.FunctionBox>
+        <NodeStyles.FunctionBoxWrapper>
+            <NodeStyles.FunctionBox
+                hovered={isHovered}
+                onClick={() => handleOnClick()}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {(func as CDResourceFunction).accessor && (
+                    <NodeStyles.Accessor>{(func as CDResourceFunction).accessor}</NodeStyles.Accessor>
+                )}
+                {(func as CDResourceFunction).path && (
+                    <NodeStyles.Title hovered={isHovered}>/{(func as CDResourceFunction).path}</NodeStyles.Title>
+                )}
+                {(func as CDFunction).name && (
+                    <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>
+                )}
+            </NodeStyles.FunctionBox>
+            <NodeStyles.BottomPortWidget port={model.getPort(getEntryNodeFunctionPortName(func))!} engine={engine} />
+        </NodeStyles.FunctionBoxWrapper>
     );
 }

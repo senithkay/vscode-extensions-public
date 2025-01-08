@@ -75,6 +75,7 @@ export type CDService = {
 export type CDFunction = {
     name: string;
     location: CDLocation;
+    connections?: string[];
 };
 
 export type CDResourceFunction = {
