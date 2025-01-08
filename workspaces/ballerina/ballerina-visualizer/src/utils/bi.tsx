@@ -33,7 +33,8 @@ import {
     Item,
     FunctionKind,
     functionKinds,
-    TRIGGER_CHARACTERS
+    TRIGGER_CHARACTERS,
+    Diagnostic
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -327,6 +328,27 @@ export function updateLineRange(lineRange: LineRange, offset: number) {
         };
     }
     return lineRange;
+}
+
+/**
+ * Remove duplicate diagnostics based on the range and message
+ * @param diagnostics The diagnostics array to remove duplicates from
+ * @returns The unique diagnostics array
+ */
+export function removeDuplicateDiagnostics(diagnostics: Diagnostic[]) {
+    const uniqueDiagnostics = diagnostics?.filter((diagnostic, index, self) => {
+        return self.findIndex(item => {
+            const itemRange = item.range;
+            const diagnosticRange = diagnostic.range;
+            return itemRange.start.line === diagnosticRange.start.line &&
+                itemRange.start.character === diagnosticRange.start.character &&
+                itemRange.end.line === diagnosticRange.end.line &&
+                itemRange.end.character === diagnosticRange.end.character &&
+                item.message === diagnostic.message;
+        }) === index;
+    });
+
+    return uniqueDiagnostics;
 }
 
 // TRIGGERS RELATED HELPERS

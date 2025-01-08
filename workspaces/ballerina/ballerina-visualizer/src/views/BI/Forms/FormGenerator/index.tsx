@@ -34,6 +34,7 @@ import {
     enrichFormPropertiesWithValueConstraint,
     extractFunctionInsertText,
     getFormProperties,
+    removeDuplicateDiagnostics,
     updateLineRange,
     updateNodeProperties,
 } from "../../../../utils/bi";
@@ -409,7 +410,8 @@ export function FormGenerator(props: FormProps) {
             },
         });
 
-        setDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+        setDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node]);
 
     const getHelperPaneData = useCallback(
