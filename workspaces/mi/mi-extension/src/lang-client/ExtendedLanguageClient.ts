@@ -326,10 +326,6 @@ export class ExtendedLanguageClient extends LanguageClient {
         return this.sendRequest('synapse/updateConnectorDependencies');
     }
 
-    async updateConfigFileValues(req: PomNodeDetails[]): Promise<UpdateConfigValuesResponse> {
-        return this.sendRequest('synapse/updateConfigFileValues', req);
-    }
-
     async getProjectDetails(): Promise<any> {
         return this.sendRequest('synapse/getOverviewPageDetails');
     }
