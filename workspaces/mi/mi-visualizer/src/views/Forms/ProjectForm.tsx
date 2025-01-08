@@ -110,23 +110,6 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         rpcClient.getMiVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { view: cancelView } });
     };
 
-    const getProjectDetails = () => {
-        rpcClient.getMiVisualizerRpcClient().getProjectDetails();
-    };
-
-    const updateDependencyl = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().updateDependencies(params);
-    };
-
-    const updatePomValues = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().updatePomValues(params);
-    };
-
-    const updateConfigFileValues = (params: any) => {
-        rpcClient.getMiVisualizerRpcClient().updateConfigFileValues(params);
-    };
-
-
     const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
