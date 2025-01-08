@@ -125,7 +125,7 @@ export const ButtonGroup: React.FC<ButtonroupProps> = ({ title, children, isColl
                             flexDirection: 'column',
                             justifyContent: 'center'
                         }}>
-                            <Typography variant="h3" sx={{ margin: '0px' }}>{title}</Typography>
+                            <Typography sx={{ margin: '0px' }}>{title}</Typography>
                             <VersionTag>
                                 {versionTag}
                             </VersionTag>
