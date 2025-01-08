@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DependencyDetails, MACHINE_VIEW, POPUP_EVENT_TYPE, ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
+import { DependencyDetails, MACHINE_VIEW, PomNodeDetails, POPUP_EVENT_TYPE, ProjectDetailsResponse } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
@@ -95,11 +95,19 @@ export function ProjectInformation(props: ProjectInformationProps) {
         });
     }
 
+    const openManageConfigs = (configs: PomNodeDetails[]) => {
+        rpcClient.getMiVisualizerRpcClient().openView({
+            type: POPUP_EVENT_TYPE.OPEN_VIEW,
+            location: { view: MACHINE_VIEW.ManageConfigurables, customProps: { configs } },
+            isPopup: true
+        });
+    }
+
     if (!projectDetails) {
         return <ProgressIndicator />;
     }
 
-    const { primaryDetails, buildDetails, dependencies, unitTest } = projectDetails;
+    const { primaryDetails, buildDetails, dependencies, unitTest, configurables } = projectDetails;
 
     function Dependencies(title: string, dependencies: DependencyDetails[], config: ParamConfig, onChange: (values: ParamConfig) => void) {
         return <FormGroup title={title} isCollapsed={false}>
@@ -128,6 +136,52 @@ export function ProjectInformation(props: ProjectInformationProps) {
         </FormGroup>;
     }
 
+    function Configurables(configs: PomNodeDetails[]) {
+        return <>
+            {!configs || configs.length === 0 ? <Typography>No configurables found</Typography> :
+                <ParamManager
+                    paramConfigs={{
+                        paramValues: configurables.map((config, index) => (
+                            {
+                                id: index,
+                                key: config.key,
+                                value: config.value,
+                                icon: 'query',
+                                paramValues: [
+                                    { value: config.key },
+                                    { value: config.value },
+                                ]
+                            }
+                        )) || [],
+                        paramFields: [
+                            {
+                                "type": "TextField",
+                                "label": "Key",
+                                "defaultValue": "",
+                                "isRequired": false,
+                                "canChange": false
+                            },
+                            {
+                                "type": "TextField",
+                                "label": "Value",
+                                "defaultValue": "",
+                                "isRequired": false,
+                                "canChange": false
+                            },
+                        ]
+                    }}
+                    readonly={true}
+                    allowAddItem={false}
+                />}
+            <VSCodeLink onClick={() => openManageConfigs(configs)}>
+                <div style={{
+                    display: 'flex',
+                }}>Manage Configurables <Icon name="link-external" isCodicon sx={{ marginLeft: '5px' }} />
+                </div>
+            </VSCodeLink>
+        </>;
+    }
+
     return (
         <div>
             <FormGroup title="Primary Details" isCollapsed={false}>
@@ -151,7 +205,16 @@ export function ProjectInformation(props: ProjectInformationProps) {
                 </div>
             </FormGroup>
 
-            <FormGroup title="Build Details" isCollapsed={false}>
+            <FormGroup title="Configurables" isCollapsed={false}>
+                {Configurables(configurables)}
+            </FormGroup>
+
+            <FormGroup title="Dependencies" isCollapsed={false}>
+                {Dependencies("Connector Dependencies", dependencies?.connectorDependencies, connectorDependencies, setConnectorDependencies)}
+                {Dependencies("Other Dependencies", dependencies?.otherDependencies, otherDependencies, setOtherDependencies)}
+            </FormGroup>
+
+            <FormGroup title="Build Details" isCollapsed={true}>
                 <div>
                     <Item>
                         <Icon name="file-code" isCodicon sx={{ marginRight: '8px' }} />
@@ -164,12 +227,7 @@ export function ProjectInformation(props: ProjectInformationProps) {
                 </div>
             </FormGroup>
 
-            <FormGroup title="Dependencies" isCollapsed={false}>
-                {Dependencies("Connector Dependencies", dependencies?.connectorDependencies, connectorDependencies, setConnectorDependencies)}
-                {Dependencies("Other Dependencies", dependencies?.otherDependencies, otherDependencies, setOtherDependencies)}
-            </FormGroup>
-
-            <FormGroup title="Unit Tests Configuration" isCollapsed={false}>
+            <FormGroup title="Unit Tests Configuration" isCollapsed={true}>
                 <div>
                     <Item>
                         <Icon name="check" isCodicon sx={{ marginRight: '8px' }} />
