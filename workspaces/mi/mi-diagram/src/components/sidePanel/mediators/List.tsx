@@ -131,7 +131,7 @@ export function Mediators(props: MediatorProps) {
             const filtered = (allMediators as any)[key].filter((mediator: { title: string; operationName: string }) => {
                 if (search) {
                     if (key === "most popular") return null;
-                    return normalizeString(mediator.operationName).includes(searchValue);
+                    return normalizeString(mediator.operationName).includes(searchValue) || normalizeString(mediator.title).includes(searchValue);
                 } else {
                     return normalizeString(mediator.operationName) === searchValue;
                 }
