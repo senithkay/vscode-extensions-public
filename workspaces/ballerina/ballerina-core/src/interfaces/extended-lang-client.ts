@@ -682,6 +682,7 @@ export interface ExpressionCompletionItem {
     filterText: string;
     insertText: string;
     insertTextFormat: number;
+    additionalTextEdits?: TextEdit[];
 }
 
 export type ExpressionCompletionsResponse = ExpressionCompletionItem[];
@@ -750,6 +751,33 @@ export interface ExpressionDiagnosticsRequest {
 
 export interface ExpressionDiagnosticsResponse {
     diagnostics: Diagnostic[];
+}
+
+export interface UpdateImportsRequest {
+    filePath: string;
+    importStatement: string;
+}
+
+export interface UpdateImportsResponse {
+    importStatementOffset: number;
+}
+
+export const functionKinds = {
+    CURRENT: 'CURRENT',
+    IMPORTED: 'IMPORTED',
+    AVAILABLE: 'AVAILABLE'
+} as const;
+
+export type FunctionKind = typeof functionKinds[keyof typeof functionKinds];
+
+export interface AddFunctionRequest {
+    filePath: string;
+    codedata: CodeData;
+    kind: FunctionKind;
+}
+
+export interface AddFunctionResponse {
+    template: string;
 }
 
 
@@ -853,6 +881,8 @@ export interface BIInterface extends BaseLangClientInterface {
     addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<void>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }
 
 export interface ExtendedLangClientInterface extends BIInterface {

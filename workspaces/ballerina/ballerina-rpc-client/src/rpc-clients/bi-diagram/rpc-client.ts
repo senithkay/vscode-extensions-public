@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -55,10 +57,13 @@ import {
     SignatureHelpResponse,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspacesResponse,
     addBreakpointToSource,
+    addFunction,
     buildProject,
     createComponent,
     createComponents,
@@ -95,7 +100,8 @@ import {
     openReadme,
     removeBreakpointFromSource,
     runProject,
-    updateConfigVariables
+    updateConfigVariables,
+    updateImports
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -257,5 +263,13 @@ export class BiDiagramRpcClient implements BIDiagramAPI {
 
     getDesignModel(): Promise<BIDesignModelResponse> {
         return this._messenger.sendRequest(getDesignModel, HOST_EXTENSION);
+    }
+
+    updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return this._messenger.sendRequest(updateImports, HOST_EXTENSION, params);
+    }
+
+    addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return this._messenger.sendRequest(addFunction, HOST_EXTENSION, params);
     }
 }
