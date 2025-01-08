@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -68,6 +70,8 @@ import {
     SyntaxTree,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -1077,6 +1081,32 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().updateImports(params)
+                .then(() => {
+                    resolve({ importStatementOffset: params.importStatement.length });
+                })
+                .catch((error) => {
+                    console.error("Error updating imports", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient().addFunction(params)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    console.log(">>> Error adding function", error);
+                    resolve(undefined);
                 });
         });
     }

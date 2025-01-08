@@ -7,17 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { CSSProperties, useState } from 'react';
 import styled from '@emotion/styled';
 import {
     HelperPaneBodyProps,
     HelperPaneCategoryItemProps,
     HelperPaneCompletionItemProps,
+    HelperPaneFooterProps,
     HelperPaneHeaderProps,
     HelperPaneIconButtonProps,
     HelperPaneProps,
     HelperPaneSectionProps,
-    LibraryBrowserProps
+    LibraryBrowserProps,
+    PanelsProps,
+    PanelTabProps,
+    PanelViewProps
 } from '../types';
 import { Codicon } from '../../../../Codicon/Codicon';
 import { Divider } from '../../../../Divider/Divider';
@@ -25,6 +29,46 @@ import { SearchBox } from '../../../../SeachBox/SearchBox';
 import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
 import ProgressRing from '../../../../ProgressRing/ProgressRing';
+import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
+
+const PanelViewContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+`;
+
+const PanelTabContainer = styled.div<{ isActive: boolean }>`
+    padding: 4px 0;
+    color: var(--panel-tab-foreground);
+    cursor: pointer;
+    ${({ isActive }: { isActive: boolean }) =>
+        isActive &&
+        `
+        color: var(--panel-tab-active-foreground);
+        border-bottom: 1px solid var(--panel-tab-active-border);
+    `}
+`;
+
+const ViewContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    overflow-y: auto;
+`;
+
+const TabContainer = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 32px;
+`;
+
+const PanelContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+`;
 
 const LibraryBrowserSearchBoxContainer = styled.div`
     margin-bottom: 16px;
@@ -87,14 +131,17 @@ const FooterContainer = styled.footer`
     flex-direction: column;
 `;
 
+const CompletionItemOuterContainer = styled.div<{ level: number }>`
+    margin-bottom: 2px;
+    padding-left: ${({ level }: { level: number }) => level * 16}px;
+`;
+
 const CompletionItemContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 2px;
-    border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 4px;
-    margin-bottom: 2px;
     cursor: pointer;
 
     &:hover {
@@ -143,7 +190,7 @@ const SectionBody = styled.div<{ columns?: number }>`
 const SectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 16px;
 `;
 
@@ -164,7 +211,6 @@ const BodyContainer = styled.div`
 `;
 
 const SearchBoxContainer = styled.div`
-    padding-top: 8px;
     padding-inline: 8px;
 `;
 
@@ -189,9 +235,10 @@ const HeaderContainer = styled.header`
 const HeaderContainerWithSearch = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 8px;
 `;
 
-const DropdownBody = styled.div`
+const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
     width: 350px;
@@ -202,7 +249,59 @@ const DropdownBody = styled.div`
     color: var(--input-foreground);
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
+    ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
+
+const PanelView: React.FC<PanelViewProps> = ({ children, id }) => {
+    const { activePanelIndex } = useHelperPanePanelContext();
+    
+    return (
+        <>
+            {activePanelIndex === id && (
+                <PanelViewContainer>
+                    {children}
+                </PanelViewContainer>
+            )}
+        </>
+    );
+};
+PanelView.displayName = 'PanelView';
+
+const PanelTab: React.FC<PanelTabProps> = ({ title, id }) => {
+    const { activePanelIndex, setActivePanelIndex } = useHelperPanePanelContext();
+
+    return (
+        <PanelTabContainer isActive={activePanelIndex === id} onClick={() => setActivePanelIndex(id)}>
+            <Typography variant="body3">{title}</Typography>
+        </PanelTabContainer>
+    );
+};
+PanelTab.displayName = 'PanelTab';
+
+const Panels: React.FC<PanelsProps> = ({ children }) => {
+    const [activePanelIndex, setActivePanelIndex] = useState<number>(0);
+
+    const tabs = React.Children.toArray(children).filter(child => 
+        React.isValidElement(child) && (child.type as any).displayName === 'PanelTab'
+    );
+
+    const views = React.Children.toArray(children).filter(child => 
+        React.isValidElement(child) && (child.type as any).displayName === 'PanelView'
+    );
+    
+    return (
+        <HelperPanePanelProvider activePanelIndex={activePanelIndex} setActivePanelIndex={setActivePanelIndex}>
+            <PanelContainer>
+                <TabContainer>
+                    {tabs}
+                </TabContainer>
+                <ViewContainer>
+                    {views}
+                </ViewContainer>
+            </PanelContainer>
+        </HelperPanePanelProvider>
+    );
+};
 
 const LibraryBrowserSubSection: React.FC<HelperPaneSectionProps> = ({
     title,
@@ -262,7 +361,13 @@ const LibraryBrowserSection: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const LibraryBrowser: React.FC<LibraryBrowserProps> = ({ children, isLoading = false, searchValue, onSearch, onClose }) => {
+const LibraryBrowser: React.FC<LibraryBrowserProps> = ({
+    children,
+    isLoading = true,
+    searchValue,
+    onSearch,
+    onClose
+}) => {
     return (
         <>
             <Overlay
@@ -303,7 +408,7 @@ const IconButton: React.FC<HelperPaneIconButtonProps> = ({ title, getIcon, onCli
     );
 };
 
-const Footer: React.FC = ({ children }) => {
+const Footer: React.FC<HelperPaneFooterProps> = ({ children }) => {
     return (
         <FooterContainer>
             <Divider />
@@ -312,19 +417,21 @@ const Footer: React.FC = ({ children }) => {
     );
 };
 
-const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, label, type, onClick }) => {
+const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, level = 0, label, type, onClick }) => {
     return (
-        <CompletionItemContainer onClick={onClick}>
-            {getIcon && getIcon()}
-            <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {label}
-            </Typography>
-            {type && (
-                <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
-                    {type}
+        <CompletionItemOuterContainer level={level}>
+            <CompletionItemContainer onClick={onClick}>
+                {getIcon && getIcon()}
+                <Typography variant="body3" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {label}
                 </Typography>
-            )}
-        </CompletionItemContainer>
+                {type && (
+                    <Typography variant="body3" sx={{ color: 'var(--vscode-terminal-ansiGreen)' }}>
+                        {type}
+                    </Typography>
+                )}
+            </CompletionItemContainer>
+        </CompletionItemOuterContainer>
     );
 };
 
@@ -395,15 +502,17 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = false }) => {
+const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true }) => {
     return (
         <BodyContainer>
             {isLoading ? (
                 <ProgressRingContainer>
                     <ProgressRing />
                 </ProgressRingContainer>
-            ) : (
+            ) : React.Children.toArray(children).length > 0 ? (
                 children
+            ) : (
+                <Typography variant="body3">No items found.</Typography>
             )}
         </BodyContainer>
     );
@@ -411,25 +520,29 @@ const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = false }) =>
 
 const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searchValue, onSearch }) => {
     return (
-        <HeaderContainerWithSearch>
-            <HeaderContainer>
-                <TitleContainer isLink={!!onBack} onClick={onBack}>
-                    {onBack && <Codicon name="chevron-left" />}
-                    {onBack ? (
-                        <Typography variant="caption">{title}</Typography>
-                    ) : (
-                        <Typography variant="body1">{title}</Typography>
-                    )}
-                </TitleContainer>
-                {onClose && <Codicon name="close" onClick={onClose} />}
-            </HeaderContainer>
-            {onSearch && (
-                <SearchBoxContainer>
-                    <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
-                </SearchBoxContainer>
-            )}
+        <>
+            <HeaderContainerWithSearch>
+                {title && (
+                    <HeaderContainer>
+                        <TitleContainer isLink={!!onBack} onClick={onBack}>
+                            {onBack && <Codicon name="chevron-left" />}
+                            {onBack ? (
+                                <Typography variant="caption">{title}</Typography>
+                            ) : (
+                                <Typography variant="body1">{title}</Typography>
+                            )}
+                        </TitleContainer>
+                        {onClose && <Codicon name="close" onClick={onClose} />}
+                    </HeaderContainer>
+                )}
+                {onSearch && (
+                    <SearchBoxContainer>
+                        <SearchBox placeholder="Search" value={searchValue} onChange={onSearch} />
+                    </SearchBoxContainer>
+                )}
+            </HeaderContainerWithSearch>
             <Divider />
-        </HeaderContainerWithSearch>
+        </>
     );
 };
 
@@ -445,8 +558,11 @@ const HelperPane: React.FC<HelperPaneProps> & {
     LibraryBrowser: typeof LibraryBrowser;
     LibraryBrowserSection: typeof LibraryBrowserSection;
     LibraryBrowserSubSection: typeof LibraryBrowserSubSection;
-} = ({ children }: HelperPaneProps) => {
-    return <DropdownBody>{children}</DropdownBody>;
+    Panels: typeof Panels;
+    PanelTab: typeof PanelTab;
+    PanelView: typeof PanelView;
+} = ({ children, sx }: HelperPaneProps) => {
+    return <DropdownBody sx={sx}>{children}</DropdownBody>;
 };
 
 HelperPane.Header = Header;
@@ -460,5 +576,8 @@ HelperPane.IconButton = IconButton;
 HelperPane.LibraryBrowser = LibraryBrowser;
 HelperPane.LibraryBrowserSection = LibraryBrowserSection;
 HelperPane.LibraryBrowserSubSection = LibraryBrowserSubSection;
+HelperPane.Panels = Panels;
+HelperPane.PanelTab = PanelTab;
+HelperPane.PanelView = PanelView;
 
 export default HelperPane;

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
@@ -45,6 +45,8 @@ export type HelperPaneCompletionItem = {
     label: string;
     type?: string;
     insertText: string;
+    kind?: string;
+    codedata?: any;
 }
 
 export type HelperPaneCompletionCategory = {
@@ -105,15 +107,19 @@ type FormTypeConditionalProps = {
 type FormHelperPaneConditionalProps = { 
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
+    configVariableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     getHelperPaneData?: (type: string, filterText: string) => void;
+    onFunctionItemSelect?: (item: HelperPaneCompletionItem) => Promise<string>;
 } | {
     isLoadingHelperPaneInfo?: never;
     variableInfo?: never;
+    configVariableInfo?: never;
     functionInfo?: never;
     libraryBrowserInfo?: never;
     getHelperPaneData?: never;
+    onFunctionItemSelect?: never;
 }
 
 type FormExpressionEditorBaseProps = {
@@ -130,12 +136,13 @@ type FormExpressionEditorBaseProps = {
         shouldUpdateNode?: boolean,
         variableType?: string
     ) => Promise<void>;
-    onCompletionItemSelect?: (value: string) => Promise<void>;
+    onCompletionItemSelect?: (value: string, additionalTextEdits?: TextEdit[]) => Promise<void>;
     onFocus?: () => void | Promise<void>;
     onBlur?: () => void | Promise<void>;
     onCancel?: () => void;
     onSave?: (value: string) => void | Promise<void>;
     onRemove?: () => void;
+    onSaveConfigurables?: (values: any) => void;
 }
 
 export type FormExpressionEditorProps = 

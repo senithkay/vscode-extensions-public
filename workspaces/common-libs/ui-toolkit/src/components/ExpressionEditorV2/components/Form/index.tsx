@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { FormExpressionEditorRef, FormExpressionEditorProps } from '../../types/form';
 import { Button } from '../../../Button/Button';
@@ -39,25 +39,33 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, startAdornment, endAdornment, ...rest } = props;
+    const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
+    const buttonRef = useRef<HTMLDivElement>(null)
+
+    useImperativeHandle(ref, () => expressionEditorRef.current);
 
     const handleHelperPaneToggle = () => {
-        props.changeHelperPaneState?.(!props.isHelperPaneOpen);
+        if (!props.isHelperPaneOpen) {
+            expressionEditorRef.current?.focus();
+        } else {
+            props.changeHelperPaneState?.(false);
+        }
     };
 
     return (
         <Ex.Container id={id}>
             <Ex.ExpressionBox>
-                <ExpressionEditor ref={ref} {...rest} />
+                {startAdornment}
+                <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
+                {endAdornment}
             </Ex.ExpressionBox>
-            {(props.changeHelperPaneState || getExpressionEditorIcon) && (
-                <Button appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-                    {getExpressionEditorIcon ? (
-                        getExpressionEditorIcon()
-                    ) : (
+            {getExpressionEditorIcon ? getExpressionEditorIcon() : (
+                props.changeHelperPaneState && (
+                    <Button ref={buttonRef} appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
                         <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                    )}
-                </Button>
+                    </Button>
+                )
             )}
             {onRemove && (
                 <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">

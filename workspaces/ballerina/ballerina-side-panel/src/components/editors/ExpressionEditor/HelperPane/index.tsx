@@ -14,7 +14,7 @@ import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { LibraryBrowser } from './LibraryBrowser';
 import { VariablesPage } from './VariablesPage';
-import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
 import { HelperPaneVariableInfo } from '../../../Form/types';
 import { HelperPaneData } from '../../../Form/types';
 
@@ -22,24 +22,30 @@ export type HelperPaneProps = {
     exprRef: React.RefObject<FormExpressionEditorRef>;
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
+    configVariableInfo: HelperPaneData;
     functionInfo: HelperPaneData;
     libraryBrowserInfo: HelperPaneData;
     onClose: () => void;
     setFilterText: (type: string, filterText: string) => void;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
+    onSave: (values: any) => void;
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
 };
 
 const HelperPaneEl = ({
     exprRef,
     isLoadingHelperPaneInfo,
     variableInfo,
+    configVariableInfo,
     functionInfo,
     libraryBrowserInfo,
     onClose,
     setFilterText,
     currentValue,
-    onChange
+    onChange,
+    onSave,
+    onFunctionItemSelect
 }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
@@ -58,6 +64,13 @@ const HelperPaneEl = ({
         onClose();
     };
 
+    function addConfigVariables(values: any): Promise<void> {
+        return new Promise((resolve) => {
+            onSave(values);
+            resolve();
+        });
+    }
+
     return (
         <HelperPane>
             {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
@@ -75,29 +88,26 @@ const HelperPaneEl = ({
                 <FunctionsPage
                     isLoading={isLoadingHelperPaneInfo}
                     functionInfo={functionInfo as HelperPaneFunctionInfo}
+                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('functions', filterText)}
+                    setFunctionFilterText={(filterText) => setFilterText('functions', filterText)}
+                    setLibraryFilterText={(filterText) => setFilterText('libraries', filterText)}
+                    onFunctionItemSelect={onFunctionItemSelect}
                     onClose={onClose}
                     onChange={handleChange}
                 />
             )}
-            {/* {currentPage === 3 && (
+            {currentPage === 3 && (
                 <ConfigurablePage
+                    isLoading={isLoadingHelperPaneInfo}
+                    variableInfo={configVariableInfo as HelperPaneVariableInfo}
                     setCurrentPage={setCurrentPage}
                     setFilterText={(filterText) => setFilterText('configurable', filterText)}
                     onClose={onClose}
-                />
-            )} */}
-            {currentPage === 4 && (
-                <LibraryBrowser
-                    isLoading={isLoadingHelperPaneInfo}
-                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
-                    setFilterText={(filterText) => setFilterText('libraries', filterText)}
-                    onBack={() => setCurrentPage(2)}
-                    onClose={onClose}
                     onChange={handleChange}
+                    onSave={addConfigVariables}
                 />
-            )}
+            )} 
         </HelperPane>
     );
 };
@@ -106,24 +116,35 @@ export const getHelperPane = (
     exprRef: React.RefObject<FormExpressionEditorRef>,
     isLoadingHelperPaneInfo: boolean,
     variableInfo: HelperPaneData,
+    configVariableInfo: HelperPaneData,
     functionInfo: HelperPaneData,
     libraryBrowserInfo: HelperPaneData,
     onClose: () => void,
     setFilterText: (type: string, filterText: string) => void,
     currentValue: string,
-    onChange: (value: string, updatedCursorPosition: number) => void
+    onChange: (value: string, updatedCursorPosition: number) => void,
+    onSave: (values: any) => void,
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>
 ) => {
+    
+    function saveConfigVariables(values: any): void {
+        onSave(values);
+    }
+
     return (
         <HelperPaneEl
             exprRef={exprRef}
             isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
             variableInfo={variableInfo}
+            configVariableInfo={configVariableInfo}
             libraryBrowserInfo={libraryBrowserInfo}
             functionInfo={functionInfo}
             onClose={onClose}
             setFilterText={setFilterText}
             currentValue={currentValue}
             onChange={onChange}
+            onSave={saveConfigVariables}
+            onFunctionItemSelect={onFunctionItemSelect}
         />
     );
 };

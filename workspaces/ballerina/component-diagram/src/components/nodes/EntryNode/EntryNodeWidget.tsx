@@ -11,13 +11,12 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { EntryNodeModel } from "./EntryNodeModel";
-import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT, AUTOMATION_LISTENER } from "../../../resources/constants";
-import { Button, Item, Menu, MenuItem, Popover } from "@wso2-enterprise/ui-toolkit";
+import { Colors, NODE_BORDER_WIDTH, ENTRY_NODE_WIDTH, ENTRY_NODE_HEIGHT } from "../../../resources/constants";
+import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback } from "@wso2-enterprise/ui-toolkit";
 import { useDiagramContext } from "../../DiagramContext";
-import { HttpIcon, TaskIcon, WebhookIcon } from "../../../resources";
+import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
 import { CDAutomation, CDService } from "@wso2-enterprise/ballerina-core";
-
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
@@ -73,7 +72,7 @@ export namespace NodeStyles {
     `;
 
     export const Title = styled(StyledText)<NodeStyleProp>`
-        max-width: ${ENTRY_NODE_WIDTH - 100}px;
+        max-width: ${ENTRY_NODE_WIDTH - 80}px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -146,6 +145,7 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             case "automation":
                 return <TaskIcon />;
             case "service":
+                return <ImageWithFallback imageUrl={(model.node as CDService).icon} fallbackEl={<HttpIcon />} />;
             default:
                 return <HttpIcon />;
         }
@@ -162,13 +162,14 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
     };
 
     const getNodeDescription = () => {
-        switch (model.type) {
-            case "automation":
-                return "Automation";
-            case "service":
-            default:
-                return "Service";
+        if (model.type === "automation") {
+            return "Automation";
         }
+        // Service
+        if ((model.node as CDService).type) {
+            return (model.node as CDService).type.replace(":Listener", ":Service");
+        }
+        return "Service";
     };
 
     const handleOnMenuClick = (event: React.MouseEvent<HTMLElement | SVGSVGElement>) => {

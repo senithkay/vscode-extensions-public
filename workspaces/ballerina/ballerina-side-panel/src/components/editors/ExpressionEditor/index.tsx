@@ -12,6 +12,7 @@ import { FormField, FormExpressionEditorProps } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import {
     Button,
+    CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
@@ -147,6 +148,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         watch,
         isLoadingHelperPaneInfo,
         variableInfo,
+        configVariableInfo,
         functionInfo,
         libraryBrowserInfo,
         completions,
@@ -155,6 +157,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         extractArgsFromFunction,
         getExpressionEditorDiagnostics,
         getHelperPaneData,
+        onFunctionItemSelect,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -162,7 +165,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         onCancel,
         onRemove,
         openSubPanel,
-        handleOnFieldFocus
+        handleOnFieldFocus,
+        onSaveConfigurables
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
@@ -203,9 +207,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         cursorPositionRef.current = undefined;
     };
 
-    const handleCompletionSelect = async (value: string) => {
+    const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -240,10 +244,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     };
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
-        if (isOpen) {
-            exprRef.current?.focus();
-        }
-
         setIsHelperPaneOpen(isOpen);
     }
 
@@ -252,12 +252,15 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             exprRef,
             isLoadingHelperPaneInfo,
             variableInfo,
+            configVariableInfo,
             functionInfo,
             libraryBrowserInfo,
             () => setIsHelperPaneOpen(false),
             getHelperPaneData,
             value,
-            onChange
+            onChange,
+            onSaveConfigurables,
+            onFunctionItemSelect
         );
     }
 
