@@ -60,6 +60,7 @@ export enum MACHINE_VIEW {
     EditConnectionWizard = "Edit Connection Wizard",
     BIMainFunctionForm = "Add Automation",
     BIFunctionForm = "Add Function",
+    BIDataMapperForm = "Add Data Mapper",
 }
 
 export interface MachineEvent {

@@ -93,6 +93,13 @@ export function ComponentListView() {
                     view: MACHINE_VIEW.BIServiceForm,
                 },
             });
+        } else if (key === DIRECTORY_MAP.DATA_MAPPERS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIDataMapperForm,
+                }
+            });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
@@ -325,6 +332,12 @@ export function ComponentListView() {
                                         title="Connections"
                                         description="Set up external service connections, like databases and APIs."
                                         onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
+                                    />
+                                    <ButtonCard
+                                        icon={<Icon name="dataMapper" />}
+                                        title="Data Mappers"
+                                        description="Create data mappings for reusable transformations"
+                                        onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
                                     />
                                     <ButtonCard
                                         icon={<Icon name="bi-type" />}

@@ -47,6 +47,7 @@ export interface ComponentFunctionType {
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;
+    isExpressionBodied?: boolean;
 }
 export interface ComponentTriggerType {
     name: string;

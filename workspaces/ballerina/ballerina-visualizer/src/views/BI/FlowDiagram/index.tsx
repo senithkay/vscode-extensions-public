@@ -89,6 +89,7 @@ export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
     FUNCTION_LIST = "FUNCTION_LIST",
+    DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
 }
 
 export interface BIFlowDiagramProps {
@@ -299,6 +300,24 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     console.log(">>> List of functions", response);
                     setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
                     setSidePanelView(SidePanelView.FUNCTION_LIST);
+                    setShowSidePanel(true);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
+                });
+        } else if (nodeType === "DATA_MAPPER") {
+            setShowProgressIndicator(true);
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFunctions({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                })
+                .then((response) => {
+                    console.log(">>> List of data mappers", response);
+                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                    setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
                     setShowSidePanel(true);
                 })
                 .finally(() => {
@@ -711,6 +730,16 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             onAddFunction={handleOnAddFunction}
                             onClose={handleOnCloseSidePanel}
                             title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.DATA_MAPPER_LIST && categories?.length > 0 && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={undefined}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Data Mappers"}
                             onBack={handleOnFormBack}
                         />
                     )}

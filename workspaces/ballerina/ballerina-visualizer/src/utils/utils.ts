@@ -156,6 +156,17 @@ export const getFunctionParametersList = (params: Parameter[]) => {
     return paramList;
 }
 
+export const getDataMapperParametersList = (params: string[]) => {
+    const paramList: FunctionParameters[] = [];
+    params.forEach(param => {
+        paramList.push({
+            type: param.split(" ")[0],
+            name: param.split(" ")[1]
+        });
+    })
+    return paramList;
+}
+
 export function findRegexMatches(input: string): MatchResult[] {
     // Define the regular expression using a RegExp literal
     const regex = /\<(c(o(d(e((?:[ ]+(f(i(l(e(n(a(m(e(=("([^ "\n]+("(\>)?([ \n]+(`(`(`)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?/g;
