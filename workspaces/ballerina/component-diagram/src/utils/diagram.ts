@@ -186,10 +186,15 @@ export const centerDiagram = (engine: DiagramEngine) => {
     }
 };
 
-// export const getNodeId = (nodeType: string, id: string) => {
-//     return `${nodeType}-${id}`;
-// };
-
 export const getModelId = (nodeId: string) => {
     return nodeId.split("-").pop();
+};
+
+// calculate entry node height based on number of functions
+export const calculateEntryNodeHeight = (numFunctions: number) => {
+    const BASE_HEIGHT = 100;
+    const FUNCTION_HEIGHT = 30;
+    const PADDING = 4;
+
+    return BASE_HEIGHT + numFunctions * FUNCTION_HEIGHT + PADDING * 2;
 };

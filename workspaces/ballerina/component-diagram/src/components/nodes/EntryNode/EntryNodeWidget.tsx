@@ -28,7 +28,6 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: center;
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
     `;
 
     export const Header = styled.div<NodeStyleProp>`
@@ -38,6 +37,7 @@ export namespace NodeStyles {
         align-items: flex-start;
         gap: 6px;
         width: 100%;
+        cursor: pointer;
     `;
 
     export const StyledButton = styled(Button)`
@@ -123,6 +123,7 @@ export namespace NodeStyles {
         gap: 10px;
         width: ${ENTRY_NODE_WIDTH}px;
         height: ${ENTRY_NODE_HEIGHT}px;
+        cursor: pointer;
     `;
 
     export const FunctionBox = styled(NodeStyles.ServiceBox)<NodeStyleProp>`
@@ -224,13 +225,9 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         <NodeStyles.Node hovered={isHovered}>
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Box hovered={isHovered}>
-                <NodeStyles.ServiceBox
-                    onClick={handleOnClick}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
-                >
+                <NodeStyles.ServiceBox onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
                     <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
-                    <NodeStyles.Header hovered={isHovered}>
+                    <NodeStyles.Header hovered={isHovered} onClick={handleOnClick}>
                         <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
                         <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
                     </NodeStyles.Header>
@@ -284,7 +281,9 @@ function FunctionBox(props: { func: CDFunction | CDResourceFunction }) {
             {(func as CDResourceFunction).path && (
                 <NodeStyles.Title hovered={isHovered}>/{(func as CDResourceFunction).path}</NodeStyles.Title>
             )}
-            {(func as CDFunction).name && <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>}
+            {(func as CDFunction).name && (
+                <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>
+            )}
         </NodeStyles.FunctionBox>
     );
 }

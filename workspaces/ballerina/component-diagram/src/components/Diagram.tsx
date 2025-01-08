@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { autoDistribute, createNodesLink, generateEngine, sortItems } from "../utils/diagram";
+import { autoDistribute, calculateEntryNodeHeight, createNodesLink, generateEngine, sortItems } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeModel } from "../utils/types";
 import { NodeLinkModel } from "./NodeLink";
@@ -88,18 +88,22 @@ export function Diagram(props: DiagramProps) {
             nodes.push(node);
         });
 
+        let startY = 100;
+
         // Sort services by sortText before creating nodes
         const sortedServices = sortItems(project.services || []) as CDService[];
-
-        // create services with initial positions
-        const startY = 100;
-        const verticalGap = 100;
-
         sortedServices.forEach((service, index) => {
+            // Calculate height based on number of functions
+            const numFunctions = service.remoteFunctions.length + service.resourceFunctions.length;
+            const nodeHeight = calculateEntryNodeHeight(numFunctions);
+
+            // Create entry node with calculated height
             const node = new EntryNodeModel(service, "service");
-            // Set initial Y position based on sorted order
-            node.setPosition(0, startY + index * verticalGap);
+            node.height = nodeHeight;
+            node.setPosition(0, startY);
             nodes.push(node);
+
+            startY += nodeHeight + 16;
 
             service.connections.forEach((connectionUuid) => {
                 const connectionNode = nodes.find((node) => node.getID() === connectionUuid);
