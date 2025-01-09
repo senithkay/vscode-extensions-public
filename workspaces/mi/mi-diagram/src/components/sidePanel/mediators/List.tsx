@@ -16,7 +16,7 @@ import { sidepanelAddPage } from '..';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { GetMediatorsResponse, Mediator } from '@wso2-enterprise/mi-core';
 import { ButtonGroup, GridButton } from '../commons/ButtonGroup';
-import { ERROR_MESSAGES } from '../../../resources/constants';
+import { DEFAULT_ICON, ERROR_MESSAGES } from '../../../resources/constants';
 import { MediatorPage } from './Mediator';
 import { ModuleSuggestions } from './ModuleSuggestions';
 import { Modules } from '../modules/ModulesList';
@@ -27,6 +27,7 @@ interface MediatorProps {
     trailingSpace: string;
     documentUri: string;
     searchValue?: string;
+    clearSearch?: () => void;
 }
 
 const INBUILT_MODULES = ["most popular", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
@@ -37,11 +38,23 @@ export function Mediators(props: MediatorProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [expandedModules, setExpandedModules] = React.useState<any[]>([]);
+    const mediatorListRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchMediators();
         fetchLocalConnectorData();
     }, [props.documentUri, props.nodePosition, rpcClient]);
+
+    // Scroll to newly added connector
+    React.useEffect(() => {
+        if (expandedModules.length === 1 && mediatorListRef.current) {
+            const targetKey = expandedModules[0];
+            const element = mediatorListRef.current.querySelector(`[data-key="${targetKey}"]`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+        }
+    }, [expandedModules]);
 
     const fetchMediators = async () => {
         try {
@@ -50,6 +63,7 @@ export function Mediators(props: MediatorProps) {
                 position: props.nodePosition.start,
             });
 
+            // Populate connector icons
             const mediatorsWithConnectorIcons: GetMediatorsResponse = {};
             await Promise.all(Object.entries(mediatorsList).map(async ([key, values]) => {
                 const isConnector = !INBUILT_MODULES.includes(key);
@@ -63,8 +77,15 @@ export function Mediators(props: MediatorProps) {
                     });
                 }
 
-                mediatorsWithConnectorIcons[key] = values;
+                if (key !== "other") {
+                    mediatorsWithConnectorIcons[key] = values;
+                }
             }));
+
+            // Add the other mediators at the end
+            if (mediatorsList["other"]) {
+                mediatorsWithConnectorIcons["other"] = mediatorsList["other"];
+            }
 
             setAllMediators(mediatorsWithConnectorIcons);
 
@@ -145,11 +166,11 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
-    const reloadPalette = (connectorName: string) => {
-        fetchMediators();
+    const reloadPalette = async (connectorName: string) => {
+        props.clearSearch();
+        await fetchMediators();
         fetchLocalConnectorData();
-        // Enable when connector display names are added from LS
-        // setExpandedModules([connectorName.toLowerCase()]);
+        setExpandedModules([connectorName]);
     };
 
     const addModule = () => {
@@ -177,26 +198,33 @@ export function Mediators(props: MediatorProps) {
         }
 
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
-            <>
+            <div ref={mediatorListRef}>
                 {Object.entries(mediators).map(([key, values]) => (
-                    <div key={key} style={{ marginTop: '15px' }}>
+                    <div key={key} style={{ marginTop: '15px' }} data-key={key}>
                         <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={!expandedModules.includes(key)}>
                             {values.map((mediator: Mediator) => (
                                 <GridButton
+                                    key={mediator.title}
                                     title={mediator.title}
                                     description={mediator.description}
                                     icon={
-                                        mediator.iconPath ? <img src={mediator.iconPath} alt="Icon" /> : 
-                                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                        mediator.iconPath ? <img src={mediator.iconPath} alt="Icon" /> :
+                                            getMediatorIconsFromFont(mediator.tag, key === "most popular")
                                     }
-                                    onClick={() => getMediator(mediator, key === "most popular", <img src={mediator.iconPath} alt="Icon" />)}
+                                    onClick={() => getMediator(mediator, key === "most popular",
+                                        <img src={mediator.iconPath}
+                                            alt="Icon"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.src = DEFAULT_ICON
+                                            }} />
+                                    )}
                                 />
                             ))}
                         </ButtonGroup >
                     </div>
-                ))
-                }
-            </>
+                ))}
+            </div>
     }
 
     return (

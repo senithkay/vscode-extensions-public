@@ -105,7 +105,12 @@ export function HomePage(props: MediatorPageProps) {
             {isAllMediators && (
                 <ComponentList>
                     {/* Mediator List */}
-                    <Mediators nodePosition={props.nodePosition} documentUri={props.documentUri} trailingSpace={props.trailingSpace} searchValue={searchValue} />
+                    <Mediators
+                        nodePosition={props.nodePosition}
+                        documentUri={props.documentUri}
+                        trailingSpace={props.trailingSpace}
+                        searchValue={searchValue}
+                        clearSearch={clearSearch} />
                 </ComponentList>
             )}
             {isConnections && (
