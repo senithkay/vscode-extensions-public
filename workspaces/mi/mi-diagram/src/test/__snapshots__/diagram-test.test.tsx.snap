@@ -23,7 +23,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47,7 +47,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71,7 +71,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -693,7 +693,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -717,7 +717,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -741,7 +741,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -1242,7 +1242,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -1266,7 +1266,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -1290,7 +1290,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -1791,7 +1791,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -1815,7 +1815,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -1839,7 +1839,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -2197,7 +2197,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -2221,7 +2221,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -2245,7 +2245,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -2605,7 +2605,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -2629,7 +2629,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -2653,7 +2653,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3011,7 +3011,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3035,7 +3035,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3059,7 +3059,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3419,7 +3419,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3443,7 +3443,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3467,7 +3467,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3825,7 +3825,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3849,7 +3849,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -3873,7 +3873,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -4233,7 +4233,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -4257,7 +4257,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -4281,7 +4281,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -4782,7 +4782,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -4806,7 +4806,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -4830,7 +4830,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -5333,7 +5333,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -5357,7 +5357,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -5381,7 +5381,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -5739,7 +5739,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -5763,7 +5763,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -5787,7 +5787,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -6145,7 +6145,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -6169,7 +6169,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -6193,7 +6193,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -6619,7 +6619,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -6643,7 +6643,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -6667,7 +6667,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7095,7 +7095,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7119,7 +7119,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7143,7 +7143,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7501,7 +7501,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7525,7 +7525,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7549,7 +7549,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7909,7 +7909,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7933,7 +7933,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -7957,7 +7957,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -8315,7 +8315,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -8339,7 +8339,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -8363,7 +8363,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -8723,7 +8723,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -8747,7 +8747,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -8771,7 +8771,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -9129,7 +9129,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -9153,7 +9153,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -9177,7 +9177,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -9537,7 +9537,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -9561,7 +9561,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -9585,7 +9585,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -10122,7 +10122,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -10146,7 +10146,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -10170,7 +10170,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -10709,7 +10709,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -10733,7 +10733,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -10757,7 +10757,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11115,7 +11115,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11139,7 +11139,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11163,7 +11163,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11523,7 +11523,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11547,7 +11547,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11571,7 +11571,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11929,7 +11929,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11953,7 +11953,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -11977,7 +11977,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -12337,7 +12337,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -12361,7 +12361,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -12385,7 +12385,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -12743,7 +12743,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -12767,7 +12767,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -12791,7 +12791,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13151,7 +13151,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13175,7 +13175,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13199,7 +13199,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13557,7 +13557,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13581,7 +13581,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13605,7 +13605,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13965,7 +13965,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -13989,7 +13989,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14013,7 +14013,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14371,7 +14371,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14395,7 +14395,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14419,7 +14419,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14777,7 +14777,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14801,7 +14801,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -14825,7 +14825,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15183,7 +15183,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15207,7 +15207,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15231,7 +15231,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15591,7 +15591,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15615,7 +15615,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15639,7 +15639,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -15997,7 +15997,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16021,7 +16021,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16045,7 +16045,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16405,7 +16405,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16429,7 +16429,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16453,7 +16453,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16811,7 +16811,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16835,7 +16835,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -16859,7 +16859,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -17219,7 +17219,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -17243,7 +17243,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -17267,7 +17267,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -17625,7 +17625,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -17649,7 +17649,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -17673,7 +17673,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -18033,7 +18033,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -18057,7 +18057,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -18081,7 +18081,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -18987,7 +18987,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -19011,7 +19011,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -19035,7 +19035,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -19943,7 +19943,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -19967,7 +19967,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -19991,7 +19991,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -20349,7 +20349,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -20373,7 +20373,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -20397,7 +20397,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -20757,7 +20757,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -20781,7 +20781,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -20805,7 +20805,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21163,7 +21163,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21187,7 +21187,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21211,7 +21211,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21571,7 +21571,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21595,7 +21595,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21619,7 +21619,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -21977,7 +21977,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -22001,7 +22001,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -22025,7 +22025,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -22385,7 +22385,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -22409,7 +22409,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -22433,7 +22433,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -23100,7 +23100,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -23124,7 +23124,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -23148,7 +23148,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -23815,7 +23815,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -23839,7 +23839,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -23863,7 +23863,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -24364,7 +24364,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -24388,7 +24388,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -24412,7 +24412,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -25129,7 +25129,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -25153,7 +25153,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -25177,7 +25177,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -25680,7 +25680,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -25704,7 +25704,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -25728,7 +25728,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -26086,7 +26086,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -26110,7 +26110,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -26134,7 +26134,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -26494,7 +26494,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -26518,7 +26518,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -26542,7 +26542,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -27043,7 +27043,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -27067,7 +27067,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -27091,7 +27091,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -27808,7 +27808,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -27832,7 +27832,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -27856,7 +27856,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -28359,7 +28359,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -28383,7 +28383,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -28407,7 +28407,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -28765,7 +28765,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -28789,7 +28789,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -28813,7 +28813,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29173,7 +29173,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29197,7 +29197,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29221,7 +29221,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29581,7 +29581,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29605,7 +29605,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29629,7 +29629,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -29989,7 +29989,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30013,7 +30013,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30037,7 +30037,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30395,7 +30395,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30419,7 +30419,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30443,7 +30443,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30803,7 +30803,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30827,7 +30827,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -30851,7 +30851,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -31209,7 +31209,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -31233,7 +31233,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -31257,7 +31257,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -31617,7 +31617,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -31641,7 +31641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -31665,7 +31665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32023,7 +32023,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32047,7 +32047,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32071,7 +32071,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32431,7 +32431,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32455,7 +32455,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32479,7 +32479,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32837,7 +32837,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32861,7 +32861,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -32885,7 +32885,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -33245,7 +33245,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -33269,7 +33269,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -33293,7 +33293,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -33653,7 +33653,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -33677,7 +33677,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -33701,7 +33701,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34059,7 +34059,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34083,7 +34083,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34107,7 +34107,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34467,7 +34467,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34491,7 +34491,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34515,7 +34515,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34875,7 +34875,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34899,7 +34899,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -34923,7 +34923,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -35281,7 +35281,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -35305,7 +35305,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -35329,7 +35329,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -35689,7 +35689,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -35713,7 +35713,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -35737,7 +35737,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -36039,7 +36039,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -36063,7 +36063,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -36087,7 +36087,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -36641,7 +36641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -36665,7 +36665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -36689,7 +36689,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37243,7 +37243,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37267,7 +37267,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37291,7 +37291,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37593,7 +37593,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37617,7 +37617,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37641,7 +37641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37863,7 +37863,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37887,7 +37887,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -37911,7 +37911,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -38385,7 +38385,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -38409,7 +38409,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -38433,7 +38433,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -38655,7 +38655,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -38679,7 +38679,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -38703,7 +38703,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -39177,7 +39177,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -39201,7 +39201,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -39225,7 +39225,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -39699,7 +39699,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -39723,7 +39723,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -39747,7 +39747,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -40221,7 +40221,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -40245,7 +40245,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -40269,7 +40269,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -40571,7 +40571,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -40595,7 +40595,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -40619,7 +40619,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41173,7 +41173,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41197,7 +41197,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41221,7 +41221,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41615,7 +41615,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41639,7 +41639,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41663,7 +41663,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41885,7 +41885,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41909,7 +41909,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -41933,7 +41933,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -42327,7 +42327,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -42351,7 +42351,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -42375,7 +42375,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -42849,7 +42849,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -42873,7 +42873,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -42897,7 +42897,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -43371,7 +43371,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -43395,7 +43395,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -43419,7 +43419,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -43813,7 +43813,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -43837,7 +43837,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -43861,7 +43861,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -44255,7 +44255,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -44279,7 +44279,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -44303,7 +44303,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -44697,7 +44697,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -44721,7 +44721,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -44745,7 +44745,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -45139,7 +45139,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -45163,7 +45163,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -45187,7 +45187,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -45547,7 +45547,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -45571,7 +45571,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -45595,7 +45595,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -46207,7 +46207,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -46231,7 +46231,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -46255,7 +46255,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -46615,7 +46615,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -46639,7 +46639,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -46663,7 +46663,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47275,7 +47275,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47299,7 +47299,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47323,7 +47323,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47935,7 +47935,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47959,7 +47959,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -47983,7 +47983,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -48595,7 +48595,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -48619,7 +48619,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -48643,7 +48643,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -48945,7 +48945,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -48969,7 +48969,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -48993,7 +48993,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -49547,7 +49547,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -49571,7 +49571,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -49595,7 +49595,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -50265,7 +50265,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -50289,7 +50289,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -50313,7 +50313,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -50673,7 +50673,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -50697,7 +50697,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -50721,7 +50721,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -51391,7 +51391,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -51415,7 +51415,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -51439,7 +51439,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -52051,7 +52051,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -52075,7 +52075,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -52099,7 +52099,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -52711,7 +52711,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -52735,7 +52735,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -52759,7 +52759,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -53429,7 +53429,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -53453,7 +53453,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -53477,7 +53477,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -54147,7 +54147,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -54171,7 +54171,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -54195,7 +54195,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -54865,7 +54865,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -54889,7 +54889,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -54913,7 +54913,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -55583,7 +55583,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -55607,7 +55607,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -55631,7 +55631,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -55989,7 +55989,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56013,7 +56013,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56037,7 +56037,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56397,7 +56397,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56421,7 +56421,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56445,7 +56445,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56803,7 +56803,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56827,7 +56827,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -56851,7 +56851,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -57211,7 +57211,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -57235,7 +57235,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -57259,7 +57259,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -57617,7 +57617,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -57641,7 +57641,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -57665,7 +57665,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -58025,7 +58025,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -58049,7 +58049,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -58073,7 +58073,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -58745,7 +58745,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -58769,7 +58769,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -58793,7 +58793,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -59467,7 +59467,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -59491,7 +59491,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -59515,7 +59515,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -59873,7 +59873,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -59897,7 +59897,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -59921,7 +59921,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -60281,7 +60281,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -60305,7 +60305,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -60329,7 +60329,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -60755,7 +60755,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -60779,7 +60779,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -60803,7 +60803,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -61231,7 +61231,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -61255,7 +61255,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -61279,7 +61279,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -61637,7 +61637,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -61661,7 +61661,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -61685,7 +61685,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62043,7 +62043,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62067,7 +62067,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62091,7 +62091,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62449,7 +62449,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62473,7 +62473,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62497,7 +62497,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62857,7 +62857,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62881,7 +62881,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -62905,7 +62905,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -63263,7 +63263,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -63287,7 +63287,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -63311,7 +63311,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -63671,7 +63671,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -63695,7 +63695,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -63719,7 +63719,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -64077,7 +64077,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -64101,7 +64101,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -64125,7 +64125,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -64485,7 +64485,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -64509,7 +64509,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -64533,7 +64533,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -65236,7 +65236,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -65260,7 +65260,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -65284,7 +65284,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -65987,7 +65987,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -66011,7 +66011,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -66035,7 +66035,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -66700,7 +66700,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -66724,7 +66724,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -66748,7 +66748,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -67415,7 +67415,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -67439,7 +67439,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -67463,7 +67463,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -67711,7 +67711,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-10ukglm"
+                        class="css-14uaptq"
                       >
                         <i
                           class="fw-ThrowError"
@@ -67821,7 +67821,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -67845,7 +67845,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -67869,7 +67869,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -68117,7 +68117,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
                       class="css-1gt6rr1"
                     >
                       <div
-                        class="css-10ukglm"
+                        class="css-14uaptq"
                       >
                         <i
                           class="fw-ThrowError"
@@ -68229,7 +68229,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -68253,7 +68253,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -68277,7 +68277,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -68635,7 +68635,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -68659,7 +68659,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -68683,7 +68683,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -69043,7 +69043,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -69067,7 +69067,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -69091,7 +69091,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -69592,7 +69592,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -69616,7 +69616,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -69640,7 +69640,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70143,7 +70143,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70167,7 +70167,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70191,7 +70191,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70549,7 +70549,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70573,7 +70573,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70597,7 +70597,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70957,7 +70957,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -70981,7 +70981,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71005,7 +71005,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71363,7 +71363,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71387,7 +71387,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71411,7 +71411,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71771,7 +71771,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71795,7 +71795,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -71819,7 +71819,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -72177,7 +72177,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-plus"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -72201,7 +72201,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-dash"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
@@ -72225,7 +72225,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           >
             <i
               class="codicon codicon-layout-centered"
-              style="font-size: 18px;"
+              style="font-size: 18px; width: 18px; height: 18px;"
             />
           </div>
           <input
