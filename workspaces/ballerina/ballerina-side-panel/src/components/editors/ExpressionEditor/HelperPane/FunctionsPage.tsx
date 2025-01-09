@@ -9,38 +9,52 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
+import { LibraryBrowser } from './LibraryBrowser';
 
 type FunctionsPageProps = {
     isLoading: boolean;
     functionInfo: HelperPaneFunctionInfo;
+    libraryBrowserInfo: HelperPaneFunctionInfo;
     setCurrentPage: (page: number) => void;
-    setFilterText: (filterText: string) => void;
+    setFunctionFilterText: (filterText: string) => void;
+    setLibraryFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
 };
 
 export const FunctionsPage = ({
     isLoading,
     functionInfo,
+    libraryBrowserInfo,
     setCurrentPage,
-    setFilterText,
+    setFunctionFilterText,
+    setLibraryFilterText,
     onClose,
-    onChange
+    onChange,
+    onFunctionItemSelect
 }: FunctionsPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
+    const [isLibraryBrowserOpen, setIsLibraryBrowserOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            setFunctionFilterText('');
         }
     }, []);
 
-    const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
+    const handleFunctionSearch = (searchText: string) => {
+        setFunctionFilterText(searchText);
         setSearchValue(searchText);
+    };
+
+    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
+        const insertText = await onFunctionItemSelect(item);
+        onChange(insertText);
+        onClose();
     };
 
     return (
@@ -50,13 +64,14 @@ export const FunctionsPage = ({
                 onBack={() => setCurrentPage(0)}
                 onClose={onClose}
                 searchValue={searchValue}
-                onSearch={handleSearch}
+                onSearch={handleFunctionSearch}
             />
-            <HelperPane.Body isLoading={isLoading}>
+            <HelperPane.Body isLoading={!isLibraryBrowserOpen && isLoading}>
                 {functionInfo?.category.map((category) => (
                     <HelperPane.Section
+                        key={category.label}
                         title={category.label}
-                        {...(category.label === 'Current Integration' && {
+                        {...(category.items?.length > 0 && category.subCategory?.length === 0 && {
                             collapsible: true,
                             defaultCollapsed: true,
                             columns: 2,
@@ -65,14 +80,16 @@ export const FunctionsPage = ({
                     >
                         {category.items?.map((item) => (
                             <HelperPane.CompletionItem
+                                key={`${category.label}-${item.label}`}
                                 label={item.label}
                                 type={item.type}
-                                onClick={() => onChange(`${item.label}(`)}
+                                onClick={async () => await handleFunctionItemSelect(item)}
                                 getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                             />
                         ))}
                         {category.subCategory?.map((subCategory) => (
                             <HelperPane.SubSection
+                                key={`${category.label}-${subCategory.label}`}
                                 title={subCategory.label}
                                 collapsible
                                 defaultCollapsed
@@ -81,8 +98,9 @@ export const FunctionsPage = ({
                             >
                                 {subCategory.items?.map((item) => (
                                     <HelperPane.CompletionItem
+                                        key={`${category.label}-${subCategory.label}-${item.label}`}
                                         label={item.label}
-                                        onClick={() => onChange(`${item.label}(`)}
+                                        onClick={async () => await handleFunctionItemSelect(item)}
                                         getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                                     />
                                 ))}
@@ -95,9 +113,20 @@ export const FunctionsPage = ({
                 <HelperPane.IconButton
                     title="Open library browser"
                     getIcon={() => <Codicon name="library" />}
-                    onClick={() => setCurrentPage(4)}
+                    onClick={() => setIsLibraryBrowserOpen(true)}
                 />
             </HelperPane.Footer>
+            {isLibraryBrowserOpen && (
+                <LibraryBrowser
+                    isLoading={isLoading}
+                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
+                    setFilterText={setLibraryFilterText}
+                    onBack={() => setIsLibraryBrowserOpen(false)}
+                    onClose={onClose}
+                    onChange={onChange}
+                    onFunctionItemSelect={onFunctionItemSelect}
+                />
+            )}
         </>
     );
 };

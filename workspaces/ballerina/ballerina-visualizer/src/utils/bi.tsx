@@ -30,12 +30,18 @@ import {
     SignatureHelpResponse,
     TriggerNode,
     VisibleType,
+    Item,
+    FunctionKind,
+    functionKinds,
+    TRIGGER_CHARACTERS,
+    Diagnostic
+} from "@wso2-enterprise/ballerina-core";
+import {
     HelperPaneVariableInfo,
     HelperPaneFunctionInfo,
     HelperPaneFunctionCategory,
-    Item,
     HelperPaneCompletionItem
-} from "@wso2-enterprise/ballerina-core";
+} from "@wso2-enterprise/ballerina-side-panel";
 import { SidePanelView } from "../views/BI/FlowDiagram";
 import React from "react";
 import { cloneDeep } from "lodash";
@@ -290,6 +296,7 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
     const value = completion.filterText ?? completion.insertText;
     const description = completion.detail;
     const sortText = completion.sortText;
+    const additionalTextEdits = completion.additionalTextEdits;
 
     return {
         tag,
@@ -298,7 +305,50 @@ export function convertBalCompletion(completion: ExpressionCompletionItem): Comp
         description,
         kind,
         sortText,
+        additionalTextEdits
     };
+}
+
+export function updateLineRange(lineRange: LineRange, offset: number) {
+    if (
+        lineRange.startLine.line === 0 &&
+        lineRange.startLine.offset === 0 &&
+        lineRange.endLine.line === 0 &&
+        lineRange.endLine.offset === 0
+    ) {
+        return {
+            startLine: {
+                line: lineRange.startLine.line,
+                offset: lineRange.startLine.offset + offset
+            },
+            endLine: {
+                line: lineRange.endLine.line,
+                offset: lineRange.endLine.offset + offset
+            }
+        };
+    }
+    return lineRange;
+}
+
+/**
+ * Remove duplicate diagnostics based on the range and message
+ * @param diagnostics The diagnostics array to remove duplicates from
+ * @returns The unique diagnostics array
+ */
+export function removeDuplicateDiagnostics(diagnostics: Diagnostic[]) {
+    const uniqueDiagnostics = diagnostics?.filter((diagnostic, index, self) => {
+        return self.findIndex(item => {
+            const itemRange = item.range;
+            const diagnosticRange = diagnostic.range;
+            return itemRange.start.line === diagnosticRange.start.line &&
+                itemRange.start.character === diagnosticRange.start.character &&
+                itemRange.end.line === diagnosticRange.end.line &&
+                itemRange.end.character === diagnosticRange.end.character &&
+                item.message === diagnostic.message;
+        }) === index;
+    });
+
+    return uniqueDiagnostics;
 }
 
 // TRIGGERS RELATED HELPERS
@@ -488,14 +538,25 @@ export const convertToHelperPaneConfigurableVariable = (variables: VisibleType[]
 }
 
 const isCategoryType = (item: Item): item is Category => {
-    return !!(item as Category)?.items?.length;
+    return !(item as AvailableNode)?.codedata;
 }
+
+const getFunctionItemKind = (category: string): FunctionKind => {
+    if (category.includes('Current')) {
+        return functionKinds.CURRENT;
+    } else if (category.includes('Imported')) {
+        return functionKinds.IMPORTED;
+    } else {
+        return functionKinds.AVAILABLE;
+    }
+};
 
 export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFunctionInfo => {
     const response: HelperPaneFunctionInfo = {
         category: []
     };
     for (const category of functions) {
+        const categoryKind = getFunctionItemKind(category.metadata.label);
         const items: HelperPaneCompletionItem[] = [];
         const subCategory: HelperPaneFunctionCategory[] = [];
         for (const categoryItem of category?.items) {
@@ -504,14 +565,18 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
                     label: categoryItem.metadata.label,
                     items: categoryItem.items.map((item) => ({
                         label: item.metadata.label,
-                        insertText: item.metadata.label
+                        insertText: item.metadata.label,
+                        kind: categoryKind,
+                        codedata: !isCategoryType(item) && item.codedata
                     }))
                 });
             } else {
                 items.push({
                     label: categoryItem.metadata.label,
-                    insertText: categoryItem.metadata.label
-                })
+                    insertText: categoryItem.metadata.label,
+                    kind: categoryKind,
+                    codedata: categoryItem.codedata
+                });
             }
         }
 
@@ -519,8 +584,20 @@ export const convertToHelperPaneFunction = (functions: Category[]): HelperPaneFu
             label: category.metadata.label,
             items: items.length ? items : undefined,
             subCategory: subCategory.length ? subCategory : undefined
-        }
+        };
         response.category.push(categoryItem);
     }
     return response;
+};
+
+export function extractFunctionInsertText(template: string): string {
+    const regex = new RegExp(`(?<label>[a-zA-Z0-9_'${TRIGGER_CHARACTERS.join('')}]+)\\(.*\\)$`);
+    const match = template.match(regex);
+    const label = match?.groups?.label;
+
+    if (!label) {
+        return template;
+    }
+
+    return `${label}(`;
 }

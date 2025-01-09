@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { ExpressionEditor } from './ExpressionEditor';
 import { FormExpressionEditorRef, FormExpressionEditorProps } from '../../types/form';
 import { Button } from '../../../Button/Button';
@@ -32,7 +32,7 @@ namespace Ex {
         }
     `;
 
-    export const ActionButtonsContainer = styled.div`
+    export const CodeActionsContainer = styled.div`
         display: flex;
         gap: 8px;
         align-items: center;
@@ -51,35 +51,41 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, actionButtons, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, codeActions, ...rest } = props;
+    const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
+    const buttonRef = useRef<HTMLDivElement>(null)
+
+    useImperativeHandle(ref, () => expressionEditorRef.current);
 
     const handleHelperPaneToggle = () => {
-        props.changeHelperPaneState?.(!props.isHelperPaneOpen);
+        if (!props.isHelperPaneOpen) {
+            expressionEditorRef.current?.focus();
+        } else {
+            props.changeHelperPaneState?.(false);
+        }
     };
 
     return (
         <Ex.Container id={id}>
-            {actionButtons && actionButtons.length > 0 && (
-                <Ex.ActionButtonsContainer>
-                    {actionButtons.map((button, index) => (
+            {codeActions && codeActions.length > 0 && (
+                <Ex.CodeActionsContainer>
+                    {codeActions.map((button, index) => (
                         <React.Fragment key={index}>
                             {button}
                         </React.Fragment>
                     ))}
-                </Ex.ActionButtonsContainer>
+                </Ex.CodeActionsContainer>
             )}
             <Ex.EditorContainer>
                 <Ex.ExpressionBox>
-                    <ExpressionEditor ref={ref} {...rest} />
-                </Ex.ExpressionBox>
-                {(props.changeHelperPaneState || getExpressionEditorIcon) && (
-                    <Button appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-                        {getExpressionEditorIcon ? (
-                            getExpressionEditorIcon()
-                        ) : (
+                    <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
+                </Ex.ExpressionBox>{getExpressionEditorIcon ? getExpressionEditorIcon() : (
+                props.changeHelperPaneState  && (
+                    <Button ref={buttonRef}appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
+
                             <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
-                        )}
-                    </Button>
+                        </Button>
+                    )
                 )}
                 {onRemove && (
                     <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">

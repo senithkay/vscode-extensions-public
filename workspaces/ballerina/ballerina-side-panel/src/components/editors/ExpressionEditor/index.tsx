@@ -12,6 +12,7 @@ import { FormField, FormExpressionEditorProps } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import {
     Button,
+    CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
@@ -151,6 +152,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         extractArgsFromFunction,
         getExpressionEditorDiagnostics,
         getHelperPaneData,
+        onFunctionItemSelect,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -210,9 +212,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         cursorPositionRef.current = undefined;
     };
 
-    const handleCompletionSelect = async (value: string) => {
+    const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -245,10 +247,6 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     };
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
-        if (isOpen) {
-            exprRef.current?.focus();
-        }
-
         setIsHelperPaneOpen(isOpen);
     }
 
@@ -264,7 +262,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             getHelperPaneData,
             value,
             onChange,
-            onSaveConfigurables
+            onSaveConfigurables,
+            onFunctionItemSelect
         );
     }
 
@@ -280,7 +279,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
 
-    const actionButtons = [
+    const codeActions = [
         visualizable && (
             <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
                 <S.DataMapperBtnTxt>Open In Data Mapper</S.DataMapperBtnTxt>
@@ -351,7 +350,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             getHelperPane={getHelperPaneData && handleGetHelperPane} // TODO: Remove this check when all the forms are refactored to use form generator
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
-                            actionButtons={actionButtons}
+                            codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>

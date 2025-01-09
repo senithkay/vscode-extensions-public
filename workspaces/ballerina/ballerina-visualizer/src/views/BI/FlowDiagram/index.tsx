@@ -252,6 +252,33 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         fetchNodesAndAISuggestions(parent, target);
     };
 
+    const handleOnAddNodePrompt = (parent: FlowNode | Branch, target: LineRange, prompt: string) => {
+        // clear previous click if had
+        if (topNodeRef.current || targetRef.current) {
+            handleOnCloseSidePanel();
+            return;
+        }
+        // handle add new node
+        topNodeRef.current = parent;
+        targetRef.current = target;
+        // save original model
+        originalFlowModel.current = model;
+        // get ai suggestions
+        setFetchingAiSuggestions(true);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getAiSuggestions({ position: target, filePath: model.fileName, prompt })
+            .then((model) => {
+                console.log(">>> flow model with ai suggested nodes", { model, length: model.flowModel.nodes.length });
+                if (model?.flowModel?.nodes?.length > 0) {
+                    setSuggestedModel(model.flowModel);
+                    suggestedText.current = model.suggestion;
+                }
+            }).finally(() => {
+                setFetchingAiSuggestions(false);
+            });
+    };
+
     const handleSearchFunction = async (searchText: string) => {
         const request: BIGetFunctionsRequest = {
             position: {
@@ -669,7 +696,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     iconSx={{ fontSize: "16px" }}
                     // onEdit={handleOnFormBack}
                 ></ViewHeader>
-                {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
+                {(showProgressIndicator || fetchingAiSuggestions) && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
                     <Container>
                         {!model && (
@@ -681,6 +708,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             <Diagram
                                 model={flowModel}
                                 onAddNode={handleOnAddNode}
+                                onAddNodePrompt={handleOnAddNodePrompt}
                                 onDeleteNode={handleOnDeleteNode}
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}

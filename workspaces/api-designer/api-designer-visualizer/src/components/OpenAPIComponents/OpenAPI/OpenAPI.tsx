@@ -15,16 +15,17 @@ import { APIDesignerContext } from '../../../APIDesignerContext';
 import { RefParameter } from '../RefParameter/RefParameter';
 import { RefRequestBody } from '../RefRequestBody/RefRequestBody';
 import { RefResponse } from '../RefResponse/RefResponse';
+import { PathID } from '../../../constants';
 
 interface OverviewProps {
     openAPI: O;
     onOpenAPIChange: (openAPIDefinition: O) => void;
 }
 
-// Path parent component ID is represented with paths#-component#-${path},
-// Method component ID is represented with paths#-component#-${path}#-${method},
-// Overview component ID is represented with overview#-component,
-// Schema component ID is represented with schema#-component#-schema
+// Path parent component ID is represented with Paths#-Component#-${path},
+// Method component ID is represented with Paths#-Component#-${path}#-${method},
+// Overview component ID is represented with Overview#-Component,
+// Schema component ID is represented with Schema#-Component#-schema
 export function OpenAPI(props: OverviewProps) {
     const { openAPI, onOpenAPIChange } = props;
     const {
@@ -47,7 +48,7 @@ export function OpenAPI(props: OverviewProps) {
         );
         updatedOpenAPI.components.requestBodies = orderedRequestBodies as RequestBody;
         if (initialName !== name) {
-            onSelectedComponentIDChange(`requestBody#-component#-${name}`);
+            onSelectedComponentIDChange(`${PathID.REQUEST_BODY_COMPONENTS}${PathID.SEPERATOR}${name}`);
         }
         handleOpenAPIChange(updatedOpenAPI);
     };
@@ -62,7 +63,7 @@ export function OpenAPI(props: OverviewProps) {
         );
         updatedOpenAPI.components.parameters = orderedParameters;
         if (initialName !== name) {
-            onSelectedComponentIDChange(`parameters#-component#-${name}`);
+            onSelectedComponentIDChange(`${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${name}`);
         }
         handleOpenAPIChange(updatedOpenAPI);
     };
@@ -77,7 +78,7 @@ export function OpenAPI(props: OverviewProps) {
         );
         updatedOpenAPI.components.responses = orderedResponses;
         if (initialName !== name) {
-            onSelectedComponentIDChange(`responses#-component#-${name}`);
+            onSelectedComponentIDChange(`${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${name}`);
         }
         handleOpenAPIChange(updatedOpenAPI);
     };
@@ -85,16 +86,16 @@ export function OpenAPI(props: OverviewProps) {
 
     return (
         <>
-            {componetName === "overview" && (
+            {componetName === PathID.OVERVIEW && (
                 <Overview openAPIDefinition={openAPI} onOpenApiDefinitionChange={handleOpenAPIChange} />
             )}
-            {componetName === "paths" && (
+            {componetName === PathID.PARAMETERS && (
                 <Paths 
-                    paths={openAPI.paths} 
+                    paths={openAPI.paths}
                     onPathsChange={(paths) => handleOpenAPIChange({ ...openAPI, paths })}
                 />
             )}
-            {componetName === "schemas" && (
+            {componetName === PathID.SCHEMAS && (
                 <SchemaEditor
                     openAPI={openAPI}
                     schema={openAPI.components.schemas[selectedComponentID.split("#-")[2]]}
@@ -111,21 +112,21 @@ export function OpenAPI(props: OverviewProps) {
                 }
                 />
             )}
-            {componetName === "parameters" && (
+            {componetName === PathID.PARAMETERS && (
                 <RefParameter
                     paramerName={selectedComponentID.split("#-")[2]}
                     parameter={openAPI.components.parameters[selectedComponentID.split("#-")[2]]}
                     onParameterChange={handleParameterChange}
                 />
             )}
-            {componetName === "requestBody" && (
+            {componetName === PathID.REQUEST_BODY && (
                 <RefRequestBody
                     requestBodyName={selectedComponentID.split("#-")[2]}
                     requestBody={openAPI.components.requestBodies[selectedComponentID.split("#-")[2]]}
                     onRequestBodyChange={handleRequestBodiesChange}
                 />
             )}
-            {componetName === "responses" && (
+            {componetName === PathID.RESPONSES && (
                 <RefResponse
                     responseName={selectedComponentID.split("#-")[2]}
                     response={openAPI.components.responses[selectedComponentID.split("#-")[2]]}

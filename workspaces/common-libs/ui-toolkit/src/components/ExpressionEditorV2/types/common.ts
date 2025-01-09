@@ -56,6 +56,20 @@ export const COMPLETION_ITEM_KIND = {
 
 export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMPLETION_ITEM_KIND];
 
+type TextEdit = {
+    newText: string;
+    range: {
+        end: {
+            character: number;
+            line: number;
+        };
+        start: {
+            character: number;
+            line: number;
+        };
+    };
+};
+
 /**
  * Represents an item that can appear in the auto-completion dropdown
  *
@@ -67,6 +81,7 @@ export type CompletionItemKind = (typeof COMPLETION_ITEM_KIND)[keyof typeof COMP
  * @param replacementSpan - (Optional) Number of characters to delete after cursor before inserting completion
  * @param sortText - (Optional) Custom text used to control ordering in the completion list
  * @param cursorOffset - (Optional) Where to place cursor after inserting
+ * @param additionalTextEdits - (Optional) Additional text edits to be performed after inserting the completion
  */
 export type CompletionItem = {
     tag?: string;
@@ -77,6 +92,7 @@ export type CompletionItem = {
     replacementSpan?: number;
     sortText?: string;
     cursorOffset?: number;
+    additionalTextEdits?: TextEdit[];
 };
 
 /* <------ Types related to the expression editor ------> */
@@ -108,9 +124,11 @@ type ExpressionEditorBaseProps = {
     // - Should auto select the first completion item in the list
     autoSelectFirstItem?: boolean;
     // - The function to be called when a completion is selected
-    onCompletionSelect?: (value: string) => void | Promise<void>;
+    onCompletionSelect?: (value: string, item: CompletionItem) => void | Promise<void>;
     // - The function to be called when a manual completion request is made (when ctrl+space pressed)
     onManualCompletionRequest?: () => void | Promise<void>;
+    // - The function to be called if a function is being edited
+    onFunctionEdit?: (functionName: string | undefined) => void | Promise<void>;
 
     // Function signature props
     // - Returns information about the function that is currently being edited
@@ -122,7 +140,7 @@ type ExpressionEditorBaseProps = {
         args: string[];
         currentArgIndex: number;
     }>;
-    actionButtons?: ReactNode[];
+    codeActions?: ReactNode[];
 };
 
 type DefaultCompletionConditionalProps =

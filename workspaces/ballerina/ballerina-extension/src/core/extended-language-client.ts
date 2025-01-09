@@ -134,6 +134,9 @@ import {
     BIGetEnclosedFunctionResponse,
     BIDesignModelRequest,
     BIDesignModelResponse,
+    AddFunctionRequest,
+    AddFunctionResponse,
+    UpdateImportsRequest,
     InlineDataMapperModelRequest,
     InlineDataMapperSourceRequest,
     InlineDataMapperSourceResponse,
@@ -234,7 +237,9 @@ enum EXTENDED_APIS {
     BI_TRIGGER_UPDATE_FROM_CODE = 'triggerDesignService/updateTrigger',
     BI_TRIGGER_ADD_FUNCTION = 'triggerDesignService/addTriggerFunction',
     BI_TRIGGER_UPDATE_FUNCTION = 'triggerDesignService/updateTriggerFunction',
-    BI_DESIGN_MODEL = 'designModelService/getDesignModel'
+    BI_DESIGN_MODEL = 'designModelService/getDesignModel',
+    BI_UPDATE_IMPORTS = 'expressionEditor/importModule',
+    BI_ADD_FUNCTION = 'expressionEditor/functionCallTemplate'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -774,6 +779,14 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
 
     async getDesignModel(params: BIDesignModelRequest): Promise<BIDesignModelResponse> {
         return this.sendRequest<BIDesignModelResponse>(EXTENDED_APIS.BI_DESIGN_MODEL, params);
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<void> {
+        return this.sendRequest<void>(EXTENDED_APIS.BI_UPDATE_IMPORTS, params);
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return this.sendRequest<AddFunctionResponse>(EXTENDED_APIS.BI_ADD_FUNCTION, params);
     }
 
     // <------------ BI APIS END --------------->

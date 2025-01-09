@@ -10,6 +10,8 @@
  */
 import {
     AIChatRequest,
+    AddFunctionRequest,
+    AddFunctionResponse,
     BIAiSuggestionsRequest,
     BIAiSuggestionsResponse,
     BIAvailableNodesRequest,
@@ -68,6 +70,8 @@ import {
     SyntaxTree,
     UpdateConfigVariableRequest,
     UpdateConfigVariableResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
     VisibleTypesRequest,
     VisibleTypesResponse,
     WorkspaceFolder,
@@ -368,122 +372,113 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
 
     async getAiSuggestions(params: BIAiSuggestionsRequest): Promise<BIAiSuggestionsResponse> {
         return new Promise(async (resolve) => {
-            const { filePath, position, isOverview } = params;
-            if (isOverview) {
-                const readmeContent = fs.readFileSync(
-                    path.join(StateMachine.context().projectUri, README_FILE),
-                    "utf8"
-                );
-                console.log(">>> readme content", readmeContent);
-                const payload = {
-                    projectDescription: readmeContent,
-                };
-                const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                };
-                console.log(">>> request ai suggestion", { request: payload });
-                const response = await fetch(
-                    "https://e95488c8-8511-4882-967f-ec3ae2a0f86f-dev.e1-us-east-azure.choreoapis.dev/ballerina-copilot/architecture-api/v1.0/generate",
-                    requestOptions
-                );
-                const data = await response.json();
-                console.log(">>> ai suggestion", { response: data });
-                resolve({ flowModel: null, suggestion: null, overviewFlow: data as OverviewFlow });
-            } else {
-                const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
-                if (!enableAiSuggestions) {
-                    resolve(undefined);
-                    return;
-                }
-                const token = await extension.context.secrets.get('BallerinaAIUser');
-                if (!token) {
-                    resolve(undefined);
-                    return;
-                }
-                // get copilot context form ls
-                const copilotContextRequest: BICopilotContextRequest = {
-                    filePath: filePath,
-                    position: position.startLine,
-                };
-                console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
-                const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
-                console.log(">>> copilot context from ls", { response: copilotContext });
+            const { filePath, position, prompt } = params;
 
-                // get suggestions from ai
-                const requestBody = {
-                    ...copilotContext,
-                    singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
-                };
-                const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify(requestBody),
-                };
-                console.log(">>> request ai suggestion", { request: requestBody });
-                let response;
-                try {
-                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
-                } catch (error) {
-                    console.log(">>> error fetching ai suggestion", error);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-                if (!response.ok) {
-                    console.log(">>> ai completion api call failed ", response);
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-                const data = await response.json();
-                console.log(">>> ai suggestion", { response: data });
-                const suggestedContent = (data as any).completions.at(0);
-                if (!suggestedContent) {
-                    console.log(">>> ai suggested content not found");
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-
-                // get flow model from ls
-                const context = StateMachine.context();
-                if (!context.position) {
-                    console.log(">>> position not found in the context");
-                    return new Promise((resolve) => {
-                        resolve(undefined);
-                    });
-                }
-
-                const request: BISuggestedFlowModelRequest = {
-                    filePath: context.documentUri,
-                    startLine: {
-                        line: context.position.startLine ?? 0,
-                        offset: context.position.startColumn ?? 0,
-                    },
-                    endLine: {
-                        line: context.position.endLine ?? 0,
-                        offset: context.position.endColumn ?? 0,
-                    },
-                    text: suggestedContent,
-                    position: position.startLine,
-                };
-                console.log(">>> request bi suggested flow model", request);
-
-                StateMachine.langClient()
-                    .getSuggestedFlowModel(request)
-                    .then((model) => {
-                        console.log(">>> bi suggested flow model from ls", model);
-                        resolve({ flowModel: model.flowModel, suggestion: suggestedContent });
-                    })
-                    .catch((error) => {
-                        console.log(">>> error fetching bi suggested flow model from ls", error);
-                        return new Promise((resolve) => {
-                            resolve(undefined);
-                        });
-                    });
+            const enableAiSuggestions = ballerinaExtInstance.enableAiSuggestions();
+            if (!enableAiSuggestions) {
+                resolve(undefined);
+                return;
             }
+            const token = await extension.context.secrets.get("BallerinaAIUser");
+            if (!token) {
+                resolve(undefined);
+                return;
+            }
+            // get copilot context form ls
+            const copilotContextRequest: BICopilotContextRequest = {
+                filePath: filePath,
+                position: position.startLine,
+            };
+            console.log(">>> request get copilot context from ls", { request: copilotContextRequest });
+            const copilotContext = await StateMachine.langClient().getCopilotContext(copilotContextRequest);
+            console.log(">>> copilot context from ls", { response: copilotContext });
+
+            // get suggestions from ai
+            const requestBody = {
+                ...copilotContext,
+                prompt,
+                singleCompletion: false, // Remove setting and assign constant value since this is handled by the AI BE
+            };
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(requestBody),
+            };
+            console.log(">>> request ai suggestion", { request: requestBody });
+            let response;
+            try {
+                if (prompt) {
+                    // generate new nodes
+                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/inline/generation", requestOptions);
+                } else {
+                    // get next suggestion
+                    response = await fetchWithToken(BACKEND_API_URL_V2 + "/completion", requestOptions);
+                }
+            } catch (error) {
+                console.log(">>> error fetching ai suggestion", error);
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+            if (!response.ok) {
+                console.log(">>> ai completion api call failed ", response);
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+            const data = await response.json();
+            console.log(">>> ai suggestion", { response: data });
+            let suggestedContent;
+            if (prompt) {
+                // get response code
+                suggestedContent = (data as any).code;
+            } else {
+                // get first completion
+                suggestedContent = (data as any).completions.at(0);
+            }
+            if (!suggestedContent) {
+                console.log(">>> ai suggested content not found");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            // get flow model from ls
+            const context = StateMachine.context();
+            if (!context.position) {
+                console.log(">>> position not found in the context");
+                return new Promise((resolve) => {
+                    resolve(undefined);
+                });
+            }
+
+            const request: BISuggestedFlowModelRequest = {
+                filePath: context.documentUri,
+                startLine: {
+                    line: context.position.startLine ?? 0,
+                    offset: context.position.startColumn ?? 0,
+                },
+                endLine: {
+                    line: context.position.endLine ?? 0,
+                    offset: context.position.endColumn ?? 0,
+                },
+                text: suggestedContent,
+                position: position.startLine,
+            };
+            console.log(">>> request bi suggested flow model", request);
+
+            StateMachine.langClient()
+                .getSuggestedFlowModel(request)
+                .then((model) => {
+                    console.log(">>> bi suggested flow model from ls", model);
+                    resolve({ flowModel: model.flowModel, suggestion: suggestedContent });
+                })
+                .catch((error) => {
+                    console.log(">>> error fetching bi suggested flow model from ls", error);
+                    return new Promise((resolve) => {
+                        resolve(undefined);
+                    });
+                });
         });
     }
 
@@ -1086,6 +1081,32 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                     return new Promise((resolve) => {
                         resolve(undefined);
                     });
+                });
+        });
+    }
+
+    async updateImports(params: UpdateImportsRequest): Promise<UpdateImportsResponse> {
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient().updateImports(params)
+                .then(() => {
+                    resolve({ importStatementOffset: params.importStatement.length });
+                })
+                .catch((error) => {
+                    console.error("Error updating imports", error);
+                    reject(error);
+                });
+        });
+    }
+
+    async addFunction(params: AddFunctionRequest): Promise<AddFunctionResponse> {
+        return new Promise((resolve) => {
+            StateMachine.langClient().addFunction(params)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    console.log(">>> Error adding function", error);
+                    resolve(undefined);
                 });
         });
     }
