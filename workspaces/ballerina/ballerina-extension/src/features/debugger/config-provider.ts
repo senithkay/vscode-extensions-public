@@ -321,8 +321,12 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                 console.log("=====onDidSendMessage", message);
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
-
-                    if (msg.command === "setBreakpoints") {
+                    if (msg.command === "launch") {
+                        // Trigger Try-It view after debug launch
+                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
+                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
+                        });
+                    } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
                         if (breakpoints) {
