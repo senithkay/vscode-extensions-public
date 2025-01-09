@@ -35,8 +35,8 @@ export interface DiagramContextState {
     };
     projectPath?: string;
     readOnly?: boolean;
-    lockCanvas: boolean;
-    setLockCanvas: (lock: boolean) => void;
+    lockCanvas?: boolean;
+    setLockCanvas?: (lock: boolean) => void;
 }
 
 export const DiagramContext = React.createContext<DiagramContextState>({

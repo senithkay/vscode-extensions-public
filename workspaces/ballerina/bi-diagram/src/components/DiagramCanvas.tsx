@@ -11,7 +11,7 @@ import React from "react";
 import { css, Global } from "@emotion/react";
 import styled from "@emotion/styled";
 import { Colors } from "../resources/constants";
-import '../resources/assets/font/fonts.css';
+import "../resources/assets/font/fonts.css";
 import { useDiagramContext } from "./DiagramContext";
 
 export interface DiagramCanvasProps {
@@ -21,11 +21,11 @@ export interface DiagramCanvasProps {
 }
 
 export namespace DiagramStyles {
-    export const Container = styled.div<{ color: string; background: string; locked: boolean }>`
+    export const Container = styled.div<{ color: string; background: string; locked?: boolean }>`
         height: 100%;
         background-size: 50px 50px;
         display: flex;
-        pointer-events: ${props => props.locked ? 'none' : 'auto'};
+        pointer-events: ${(props) => (props.locked ? "none" : "auto")};
 
         > * {
             height: 100%;
@@ -51,13 +51,13 @@ export namespace DiagramStyles {
 export function DiagramCanvas(props: DiagramCanvasProps) {
     const { color, background, children } = props;
     const { lockCanvas } = useDiagramContext();
-    
+
     return (
         <>
             <Global styles={DiagramStyles.Expand} />
-            <DiagramStyles.Container 
-                id="bi-diagram-canvas" 
-                background={background || Colors.SURFACE_BRIGHT} 
+            <DiagramStyles.Container
+                id="bi-diagram-canvas"
+                background={background || Colors.SURFACE_BRIGHT}
                 color={color || Colors.ON_SURFACE}
                 locked={lockCanvas}
             >
