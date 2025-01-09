@@ -55,6 +55,9 @@ export type Metadata = {
     icon?: string;
     keywords?: string[];
     draft?: boolean; // for diagram draft nodes
+    data?: {
+        isDataMappedFunction?: boolean;
+    }
 };
 
 export type Property = {
@@ -152,6 +155,12 @@ export enum DIRECTORY_SUB_TYPE {
     TRIGGER = "trigger",
     DATA_MAPPER = "dataMapper",
 }
+
+export enum FUNCTION_TYPE {
+    REGULAR = "regular",
+    EXPRESSION_BODIED = "expressionBodied",
+    ALL = "all",
+} 
 
 export interface ProjectStructureResponse {
     directoryMap: {

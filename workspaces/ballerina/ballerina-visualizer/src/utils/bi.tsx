@@ -34,7 +34,8 @@ import {
     FunctionKind,
     functionKinds,
     TRIGGER_CHARACTERS,
-    Diagnostic
+    Diagnostic,
+    FUNCTION_TYPE
 } from "@wso2-enterprise/ballerina-core";
 import {
     HelperPaneVariableInfo,
@@ -47,7 +48,16 @@ import React from "react";
 import { cloneDeep } from "lodash";
 import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
-function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
+function convertAvailableNodeToPanelNode(node: AvailableNode, functionType: FUNCTION_TYPE): PanelNode {
+    // Check if node should be filtered based on function type
+    if (functionType === FUNCTION_TYPE.REGULAR && node.metadata.data?.isDataMappedFunction) {
+        return undefined;
+    }
+    if (functionType === FUNCTION_TYPE.EXPRESSION_BODIED && !node.metadata.data?.isDataMappedFunction) {
+        return undefined;
+    }
+
+    // Return common panel node structure
     return {
         id: node.codedata.node,
         label: node.metadata.label,
@@ -58,14 +68,18 @@ function convertAvailableNodeToPanelNode(node: AvailableNode): PanelNode {
     };
 }
 
-function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCategory {
+function convertDiagramCategoryToSidePanelCategory(category: Category, functionType?: FUNCTION_TYPE): PanelCategory {
+    if (category.metadata.label !== "Current Integration" && functionType === FUNCTION_TYPE.EXPRESSION_BODIED) {
+        // Skip out of scope data mapping functions
+        return;
+    }
     const items: PanelItem[] = category.items?.map((item) => {
         if ("codedata" in item) {
-            return convertAvailableNodeToPanelNode(item as AvailableNode);
-        } else {
+            return convertAvailableNodeToPanelNode(item as AvailableNode, functionType);
+        } else {            
             return convertDiagramCategoryToSidePanelCategory(item as Category);
         }
-    });
+    }).filter((item) => item !== undefined);
 
     // HACK: use the icon of the first item in the category
     const icon = category.items.at(0)?.metadata.icon;
@@ -79,7 +93,7 @@ function convertDiagramCategoryToSidePanelCategory(category: Category): PanelCat
 }
 
 export function convertBICategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
-    const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+    const panelCategories = categories.map((category) => convertDiagramCategoryToSidePanelCategory(category));
     const connectorCategory = panelCategories.find((category) => category.title === "Connections");
     if (connectorCategory && !connectorCategory.items.length) {
         connectorCategory.description = "No connections available. Click below to add a new connector.";
@@ -87,8 +101,10 @@ export function convertBICategoriesToSidePanelCategories(categories: Category[])
     return panelCategories;
 }
 
-export function convertFunctionCategoriesToSidePanelCategories(categories: Category[]): PanelCategory[] {
-    const panelCategories = categories.map(convertDiagramCategoryToSidePanelCategory);
+export function convertFunctionCategoriesToSidePanelCategories(categories: Category[], functionType: FUNCTION_TYPE): PanelCategory[] {
+    const panelCategories = categories
+        .map((category) => convertDiagramCategoryToSidePanelCategory(category, functionType))
+        .filter((category) => category !== undefined);
     const functionCategory = panelCategories.find((category) => category.title === "Project");
     if (functionCategory && !functionCategory.items.length) {
         functionCategory.description = "No functions defined. Click below to create a new function.";
@@ -191,6 +207,16 @@ export function getFormProperties(flowNode: FlowNode): NodeProperties {
     }
 
     return {};
+}
+
+export function getRegularFunctions(functions: Category[]): Category[] {
+    return functions;
+}
+
+export function getDataMappingFunctions(functions: Category[]): Category[] {
+    return functions
+        .filter((category) => category.metadata.label === "Current Integration")
+        .filter((category) => category.items.length > 0);
 }
 
 export function updateNodeProperties(values: FormValues, nodeProperties: NodeProperties): NodeProperties {
