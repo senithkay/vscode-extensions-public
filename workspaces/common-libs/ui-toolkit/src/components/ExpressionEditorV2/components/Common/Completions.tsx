@@ -31,9 +31,8 @@ const StyledTag = styled(VSCodeTag)`
 
 const DropdownBody = styled.div<StyleBase>`
     width: 350px;
-    margin-block: 2px;
     padding-top: 8px;
-    border-radius: 8px;
+    border-radius: 2px;
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
     ${(props: StyleBase) => props.sx}

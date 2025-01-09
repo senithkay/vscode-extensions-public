@@ -243,9 +243,8 @@ const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     flex-direction: column;
     width: 350px;
     height: 300px;
-    margin-block: 2px;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 2px;
     color: var(--input-foreground);
     background-color: var(--vscode-dropdown-background);
     box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
