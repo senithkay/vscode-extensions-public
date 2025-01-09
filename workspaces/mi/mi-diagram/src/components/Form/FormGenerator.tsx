@@ -594,8 +594,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                         display: "flex",
                         flexDirection: 'row'
                     }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<')
-                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
+                        {typeof formData.help === 'string' && formData.help.includes('<') ? 
+                            // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
+                            null
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
                         {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}
