@@ -14,11 +14,11 @@ import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram"
 import { RecordEditor } from "../RecordEditor/RecordEditor";
 
 interface TypeDiagramProps {
-    selectedRecordId?: string;
+    selectedTypeId?: string;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { selectedRecordId } = props;
+    const [selectedTypeId, setSelectedTypeId] = React.useState<string | undefined>(props.selectedTypeId);
     const { rpcClient } = useRpcContext();
     const langRpcClient = rpcClient.getLangClientRpcClient();
     const commonRpcClient = rpcClient.getCommonRpcClient();
@@ -73,21 +73,31 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     };
 
+    const onTypeSelected = (typeId: string) => {
+        console.log(typeId);
+        setSelectedTypeId(typeId);
+    }
+
+    const onTypeEditorClosed = () => {
+        setSelectedTypeId(undefined);
+    }
+
     return (
         <>
             <TypeDesignDiagram
                 getComponentModel={getComponentModel}
-                selectedRecordId={selectedRecordId}
+                selectedRecordId={selectedTypeId}
                 showProblemPanel={showProblemPanel}
                 addNewType={addNewType}
                 goToSource={goToSource}
+                onTypeSelected={onTypeSelected}
             />
             <RecordEditor
-                isRecordEditorOpen={isTypeCreatorOpen}
-                onClose={() => setIsTypeCreatorOpen(false)}
+                isRecordEditorOpen={!!selectedTypeId}
+                onClose={onTypeEditorClosed}
                 rpcClient={rpcClient}
                 width="400px"
-                recordId={selectedRecordId}
+                recordId={selectedTypeId}
             />
         </>
     );

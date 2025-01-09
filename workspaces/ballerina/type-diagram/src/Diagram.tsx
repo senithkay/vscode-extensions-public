@@ -7,23 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { NavigationWrapperCanvasWidget, ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
-import { createEntitiesEngine, createRenderPackageObject, entityModeller, generateCompositionModel } from './utils';
+import { createEntitiesEngine, entityModeller } from './utils';
 
 import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 
-import { dagreEngine, ERRONEOUS_MODEL, NO_ENTITIES_DETECTED } from './resources/constants';
+import { dagreEngine } from './resources/constants';
 import { DesignDiagramContext } from './components/common';
 import { HeaderWidget } from './components/Header/Header';
 import { DiagramControls } from './components/Controls/DiagramControls';
-import { PromptScreen } from './components/PromptScreen/PromptScreen';
 import { OverlayLayerModel } from './components/OverlayLoader';
-import { ComponentModel, ComponentModelDeprecated, ComponentModels, NodePosition, Type } from '@wso2-enterprise/ballerina-core';
-import { isVersionBelow, transformToV4Models } from './utils/utils';
+import { NodePosition, Type } from '@wso2-enterprise/ballerina-core';
 
 interface TypeDiagramProps {
     getComponentModel: () => Promise<Type[]>;
@@ -31,6 +29,7 @@ interface TypeDiagramProps {
     showProblemPanel: () => void;
     addNewType: () => void;
     goToSource: (filePath: string, position: NodePosition) => void;
+    onTypeSelected: (typeId: string) => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
@@ -40,10 +39,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>(selectedRecordId);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
-    const [userMessage, setUserMessage] = useState<string>(undefined);
     const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
-
-    const defaultOrg = useRef<string>('');
 
     const styles = useStyles();
 
@@ -74,35 +70,9 @@ export function TypeDiagram(props: TypeDiagramProps) {
     const refreshDiagram = async () => {
         const components: Type[] = await getComponentModel();
         if (components) {
-
-            //setHasDiagnostics(response.diagnostics?.length > 0);
-
-            // if (components && components.size > 0) {
-            //     const component = [...components][0][1] as any;
-            //     defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
-            // } else if (response.diagnostics?.length && !diagramModel) {
-            //     setUserMessage(ERRONEOUS_MODEL);
-            // } else if (!response.diagnostics?.length) {
-            //     setDiagramModel(undefined);
-            //     setUserMessage(NO_ENTITIES_DETECTED);
-            // }
-
-            // const workspacePackages = createRenderPackageObject(components.keys());
-
-            // let projectComponents: Map<string, ComponentModel>;
-            // if (isVersionBelow(components, 0.4)) {
-            //     projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
-            // } else {
-            //     projectComponents = components as Map<string, ComponentModel>;
-            // }
-            // const workspaceComponents = projectComponents;
             setFocusedNodeId(undefined);
             let typeModel;
-            if (selectedNodeId) {
-                //typeModel = generateCompositionModel(components, selectedNodeId);
-            } else {
-                typeModel = entityModeller(components);
-            }
+            typeModel = entityModeller(components);
             if (typeModel) {
                 typeModel.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(typeModel);
@@ -122,9 +92,14 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }, 30);
     };
 
+    const onTypeSelected = (typeId: string) => {
+        setSelectedNodeId(typeId);
+        props.onTypeSelected(typeId);
+    }
+
     let ctx = {
         selectedNodeId,
-        setSelectedNodeId,
+        setSelectedNodeId: onTypeSelected,
         setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
@@ -156,12 +131,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                                 showProblemPanel={showProblemPanel}
                             />
                         </> :
-                        userMessage ?
-                            <PromptScreen
-                                userMessage={userMessage}
-                                showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
-                            /> :
-                            <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
+                        <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
                     }
                 </DiagramContainer>
             </DesignDiagramContext>
