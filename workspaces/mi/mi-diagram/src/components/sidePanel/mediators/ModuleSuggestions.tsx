@@ -85,7 +85,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                 <h4>In Store: </h4>
                 {Object.entries(modules).map(([key, values]: [string, any]) => (
                     localConnectors && localConnectors.some((c: any) =>
-                        (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
+                        ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
                         (c.version === values.version.tagName)) ? null : (
                         <div key={key}>
                             <ButtonGroup
