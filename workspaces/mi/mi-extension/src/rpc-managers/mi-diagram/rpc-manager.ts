@@ -268,7 +268,7 @@ import { testFileMatchPattern } from "../../test-explorer/discover";
 import { mockSerivesFilesMatchPattern } from "../../test-explorer/mock-services/activator";
 import { UndoRedoManager } from "../../undoRedoManager";
 import { copyDockerResources, copyMavenWrapper, createFolderStructure, getAPIResourceXmlWrapper, getAddressEndpointXmlWrapper, getDataServiceXmlWrapper, getDefaultEndpointXmlWrapper, getDssDataSourceXmlWrapper, getFailoverXmlWrapper, getHttpEndpointXmlWrapper, getInboundEndpointXmlWrapper, getLoadBalanceXmlWrapper, getMessageProcessorXmlWrapper, getMessageStoreXmlWrapper, getProxyServiceXmlWrapper, getRegistryResourceContent, getTaskXmlWrapper, getTemplateEndpointXmlWrapper, getTemplateXmlWrapper, getWsdlEndpointXmlWrapper, createGitignoreFile } from "../../util";
-import { addNewEntryToArtifactXML, addSynapseDependency, changeRootPomPackaging, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
+import { addNewEntryToArtifactXML, changeRootPomForClassMediator, createMetadataFilesForRegistryCollection, deleteRegistryResource, detectMediaType, getAvailableRegistryResources, getMediatypeAndFileExtension, getRegistryResourceMetadata, updateRegistryResourceMetadata } from "../../util/fileOperations";
 import { log } from "../../util/logger";
 import { importProject } from "../../util/migrationUtils";
 import { getResourceInfo, isEqualSwaggers, mergeSwaggers } from "../../util/swagger";
@@ -948,8 +948,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             let { directory, name, type, value, URL } = params;
             const xmlData = generateXmlData(name, type, value, URL);
 
-            if (directory.includes('localEntries') || directory.includes('local entries')) {
-                directory = directory.replace('localEntries', 'local-entries').replace('local entries', 'local-entries');
+            if (directory.includes('localEntries')) {
+                directory = directory.replace('localEntries', 'local-entries');
             }
             const filePath = await this.getFilePath(directory, name);
 
@@ -1022,8 +1022,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const xmlData = getMessageStoreXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (getTemplateParams.directory.includes('messageStores') || getTemplateParams.directory.includes('message stores')) {
-                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores').replace('message stores', 'message-stores');
+            if (getTemplateParams.directory.includes('messageStores')) {
+                getTemplateParams.directory = getTemplateParams.directory.replace('messageStores', 'message-stores');
             }
             const filePath = await this.getFilePath(getTemplateParams.directory, getTemplateParams.name);
 
@@ -2265,8 +2265,8 @@ ${endpointAttributes}
                 const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
                 filePath = path.join(directory, `${dataServiceName}.dbs`);
-                if (filePath.includes('dataServices') || filePath.includes('data services')) {
-                    filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
+                if (filePath.includes('dataServices')) {
+                    filePath = filePath.replace('dataServices', 'data-services');
                 }
 
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
@@ -2299,8 +2299,8 @@ ${endpointAttributes}
             };
 
             let filePath = params.directory;
-            if (filePath.includes('dataServices') || filePath.includes('data services')) {
-                filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
             }
 
             const xmlData = getDataServiceXmlWrapper({ ...getDataServiceParams, writeType: "edit" });
@@ -2356,8 +2356,8 @@ ${endpointAttributes}
             }
 
             let filePath = directory;
-            if (filePath.includes('dataServices') || filePath.includes('data services')) {
-                filePath = filePath.replace('dataServices', 'data-services').replace('data services', 'data-services');
+            if (filePath.includes('dataServices')) {
+                filePath = filePath.replace('dataServices', 'data-services');
             }
 
             const xmlData = getDssDataSourceXmlWrapper(getDssDataSourceParams);
@@ -2564,8 +2564,8 @@ ${endpointAttributes}
             const xmlData = getMessageProcessorXmlWrapper(getTemplateParams);
             const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
-            if (directory.includes('messageProcessors') || directory.includes('message processors')) {
-                directory = directory.replace('messageProcessors', 'message-processors').replace('message processors', 'message-processors');
+            if (directory.includes('messageProcessors')) {
+                directory = directory.replace('messageProcessors', 'message-processors');
             }
             const filePath = await this.getFilePath(directory, messageProcessorName);
 
@@ -2837,6 +2837,7 @@ ${endpointAttributes}
             const folderStructure: FileStructure = {
                 [name]: { // Project folder
                     'pom.xml': rootPomXmlContent(name, groupID ?? "com.example", artifactID ?? name, projectUuid, version ?? DEFAULT_PROJECT_VERSION, miVersion),
+                    '.env': '',
                     'src': {
                         'main': {
                             'java': '',
@@ -2858,6 +2859,9 @@ ${endpointAttributes}
                                 'resources': {
                                     'connectors': '',
                                     'metadata': '',
+                                    'conf': {
+                                        'config.properties': ''
+                                    },
                                 },
                             },
                         },
@@ -2876,7 +2880,7 @@ ${endpointAttributes}
                 },
             };
 
-            createFolderStructure(directory, folderStructure);
+            await createFolderStructure(directory, folderStructure);
             copyDockerResources(extension.context.asAbsolutePath(path.join('resources', 'docker-resources')), path.join(directory, name));
             copyMavenWrapper(extension.context.asAbsolutePath(path.join('resources', 'maven-wrapper')), path.join(directory, name));
             await createGitignoreFile(path.join(directory, name));
@@ -3609,10 +3613,8 @@ ${endpointAttributes}
             fs.mkdirSync(fullPath, { recursive: true });
             const filePath = path.join(fullPath, `${params.className}.java`);
             await replaceFullContentToFile(filePath, content);
-            const fileUri = Uri.file(params.projectDirectory);
-            const workspaceFolder = workspace.getWorkspaceFolder(fileUri)?.uri.fsPath ?? workspace.getWorkspaceFolder[0].uri.fsPath;
-            changeRootPomPackaging(workspaceFolder, "jar");
-            addSynapseDependency(workspaceFolder);
+
+            await changeRootPomForClassMediator();
             commands.executeCommand(COMMANDS.REFRESH_COMMAND);
             resolve({ path: filePath });
         });
@@ -3685,7 +3687,7 @@ ${endpointAttributes}
     async migrateProject({ source }: MigrateProjectRequest): Promise<MigrateProjectResponse> {
         return new Promise(async (resolve) => {
             if (source) {
-                importProject({ source, directory: source, open: true });
+                await importProject({ source, directory: source, open: true });
                 resolve({ filePath: source });
             }
         });
