@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor } from "vscode";
+import { Progress, window, ProgressLocation, commands, workspace, Uri, TextEditorRevealType, Selection, Range as VSCodeRange, ViewColumn, TextEditor, WorkspaceEdit, Position } from "vscode";
 import * as fs from 'fs';
 import * as os from 'os';
 import axios from "axios";
@@ -21,6 +21,7 @@ import { existsSync } from "fs";
 import { spawn } from "child_process";
 import { RPCLayer } from "../RPCLayer";
 import { VisualizerWebview } from "../visualizer/webview";
+import { MiVisualizerRpcManager } from "../rpc-managers/mi-visualizer/rpc-manager";
 
 interface ProgressMessage {
     message: string;
@@ -830,63 +831,22 @@ export function findJavaFiles(folderPath): Map<string, string> {
  * Change the packaging of the root pom.xml file to the given value.
  * @param projectDir project directory.     
  */
-export function changeRootPomPackaging(projectDir: string, packaging: string) {
-    const pomXMLPath = path.join(projectDir, 'pom.xml');
-    if (fs.existsSync(pomXMLPath)) {
-        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
-        const options = {
-            ignoreAttributes: false,
-            format: true,
-        };
-        const parser = new XMLParser(options);
-        const pomXMLData = parser.parse(pomXML);
-        pomXMLData["project"]["packaging"] = packaging;
-        const builder = new XMLBuilder(options);
-        const updatedXmlString = builder.build(pomXMLData);
-        fs.writeFileSync(pomXMLPath, updatedXmlString);
+export async function changeRootPomForClassMediator() {
+    const rpcManager = new MiVisualizerRpcManager();
+    const pomValues = await rpcManager.getProjectDetails();
+    const packagingValue = pomValues.primaryDetails.projectPackaging;
+    if (packagingValue.range) {
+        await rpcManager.updatePomValues({ pomValues: [{ range: packagingValue.range, value: "jar" }] });
     }
-}
-
-/**
- * Add Synapse depedency to the root pom.
- * @param projectDir project directory.
- */
-export function addSynapseDependency(projectDir: string) {
-    const pomXMLPath = path.join(projectDir, 'pom.xml');
-    if (fs.existsSync(pomXMLPath)) {
-        const pomXML = fs.readFileSync(pomXMLPath, "utf8");
-        const options = {
-            ignoreAttributes: false,
-            format: true,
-        };
-        const parser = new XMLParser(options);
-        const pomXMLData = parser.parse(pomXML);
-        const synapseDep = {
-            dependency: {
-                groupId: "org.apache.synapse",
-                artifactId: "synapse-core",
-                version: "4.0.0-wso2v20",
-            }
-        };
-        if (!pomXMLData.project.dependencies || pomXMLData.project.dependencies === '') {
-            pomXMLData.project.dependencies = [];
-            pomXMLData.project.dependencies.push(synapseDep);
-        } else if (!Array.isArray(pomXMLData.project.dependencies.dependency)) {
-            const dep = pomXMLData.project.dependencies.dependency;
-            if (dep.artifactId !== "synapse-core") {
-                pomXMLData.project.dependencies.dependency = [];
-                pomXMLData.project.dependencies.dependency.push(dep);
-                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
-            }
-        } else {
-            if (pomXMLData.project.dependencies.dependency.filter(dep => dep.artifactId === "synapse-core").length === 0) {
-                pomXMLData.project.dependencies.dependency.push(synapseDep.dependency);
-            }
+    
+    const dependencies = [
+        {
+            groupId: "org.apache.synapse",
+            artifact: "synapse-core",
+            version: "4.0.0-wso2v20"
         }
-        const builder = new XMLBuilder(options);
-        const updatedXmlString = builder.build(pomXMLData);
-        fs.writeFileSync(pomXMLPath, updatedXmlString);
-    }
+    ];
+    await rpcManager.updateDependencies({ dependencies });
 }
 
 /**

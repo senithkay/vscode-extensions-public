@@ -594,7 +594,14 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
             edit.replace(Uri.file(pomPath), range, content);
         }
-        await workspace.applyEdit(edit);
+        const success = await workspace.applyEdit(edit);
+        // Make sure to save the document after applying the edits
+        if (success) {
+            const document = await workspace.openTextDocument(pomPath);
+            await document.save();
+        } else {
+            throw new Error("Failed to apply edits to pom.xml");
+        }
     }
 
     async importOpenAPISpec(params: ImportOpenAPISpecRequest): Promise<void> {
