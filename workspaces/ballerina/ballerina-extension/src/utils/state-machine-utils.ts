@@ -37,7 +37,7 @@ export async function getView(documentUri: string, position: NodePosition): Prom
                         view: MACHINE_VIEW.TypeDiagram,
                         documentUri: documentUri,
                         position: position,
-                        identifier: nodeId
+                        identifier: name
                     }
                 };
             }

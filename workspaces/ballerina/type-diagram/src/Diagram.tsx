@@ -12,49 +12,78 @@ import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { NavigationWrapperCanvasWidget, ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 import { createEntitiesEngine, entityModeller } from './utils';
 
-import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
+import { DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 
 import { dagreEngine } from './resources/constants';
 import { DesignDiagramContext } from './components/common';
-import { HeaderWidget } from './components/Header/Header';
 import { DiagramControls } from './components/Controls/DiagramControls';
 import { OverlayLayerModel } from './components/OverlayLoader';
 import { NodePosition, Type } from '@wso2-enterprise/ballerina-core';
+import { focusToNode } from './utils/utils';
 
 interface TypeDiagramProps {
-    getComponentModel: () => Promise<Type[]>;
+    typeModel: Type[];
     selectedRecordId?: string;
     showProblemPanel: () => void;
-    addNewType: () => void;
     goToSource: (filePath: string, position: NodePosition) => void;
-    onTypeSelected: (typeId: string) => void;
+    onTypeEdit: (typeId: string) => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { getComponentModel, showProblemPanel, selectedRecordId, addNewType, goToSource } = props;
+    const { typeModel, showProblemPanel, selectedRecordId, goToSource } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>(selectedRecordId);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
-    const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
+    const [focusedNodeId, setFocusedNodeId] = useState<string>(selectedRecordId);
 
-    const styles = useStyles();
+    useEffect(() => {
+        drawDiagram();
+    }, [typeModel]);
 
     useEffect(() => {
         if (selectedRecordId !== selectedNodeId) {
             setSelectedNodeId(selectedRecordId);
         }
         setFocusedNodeId(undefined);
-        refreshDiagram();
+    }, [selectedRecordId]);
 
-    }, [props]);
+    const drawDiagram = async () => {
+        if (typeModel) {
+            setFocusedNodeId(undefined);
+            const diagramModel = entityModeller(typeModel);
 
-    useEffect(() => {
-        refreshDiagram();
-    }, [selectedNodeId]);
+            if (diagramModel) {
+                diagramModel.addLayer(new OverlayLayerModel());
+                diagramEngine.setModel(diagramModel);
+                setDiagramModel(diagramModel);
+
+                // Always distribute first to properly layout the diagram
+                setTimeout(() => {
+                    dagreEngine.redistribute(diagramEngine.getModel());
+
+                    if (selectedNodeId) {
+                        const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
+                        focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+                    } else {
+                        diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+                    }
+
+                    // Remove overlay and update model
+                    diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
+                    diagramEngine.setModel(diagramModel);
+                    diagramEngine.repaintCanvas();
+                }, 200);
+            }
+        }
+    }
+
+    // const defaultOrg = useRef<string>('');
+
+    const styles = useStyles();
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
@@ -67,43 +96,20 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }
     }, [diagramModel, diagramEngine.getCanvas()]);
 
-    const refreshDiagram = async () => {
-        const components: Type[] = await getComponentModel();
-        if (components) {
-            setFocusedNodeId(undefined);
-            let typeModel;
-            typeModel = entityModeller(components);
-            if (typeModel) {
-                typeModel.addLayer(new OverlayLayerModel());
-                diagramEngine.setModel(typeModel);
-                setDiagramModel(typeModel);
-                autoDistribute(typeModel);
-            }
-        }
-    }
-
-
-    const autoDistribute = (model: DiagramModel) => {
-        setTimeout(() => {
-            dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-            diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
-            diagramEngine.setModel(model);
-        }, 30);
-    };
-
-    const onTypeSelected = (typeId: string) => {
+    const onTypeEdit = (typeId: string) => {
+        console.log("Editing type: ", typeId);
         setSelectedNodeId(typeId);
-        props.onTypeSelected(typeId);
+        props.onTypeEdit(typeId);
     }
 
     let ctx = {
         selectedNodeId,
-        setSelectedNodeId: onTypeSelected,
+        setSelectedNodeId,
         setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
         setFocusedNodeId,
+        onEditNode: onTypeEdit,
         goToSource
     }
 
@@ -114,27 +120,24 @@ export function TypeDiagram(props: TypeDiagramProps) {
     };
 
     return (
-        <Container>
-            <DesignDiagramContext {...ctx}>
-                <HeaderWidget addNewType={addNewType} />
-                <DiagramContainer onClick={handleCanvasClick}>
-                    {diagramEngine?.getModel() && diagramModel ?
-                        <>
-                            <NavigationWrapperCanvasWidget
-                                diagramEngine={diagramEngine}
-                                className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
-                            />
-                            <DiagramControls
-                                engine={diagramEngine}
-                                refreshDiagram={refreshDiagram}
-                                showProblemPanel={showProblemPanel}
-                            />
-                        </> :
-                        <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
-                    }
-                </DiagramContainer>
-            </DesignDiagramContext>
-        </Container>
+        <DesignDiagramContext {...ctx}>
+            {diagramEngine?.getModel() && diagramModel ?
+                <>
+                    <DiagramContainer onClick={handleCanvasClick}>
+                        <NavigationWrapperCanvasWidget
+                            diagramEngine={diagramEngine}
+                            className={styles.canvas}
+                            focusedNode={diagramEngine?.getModel()?.getNode(selectedNodeId)}
+                        />
+                    </DiagramContainer>
+                    <DiagramControls
+                        engine={diagramEngine}
+                        refreshDiagram={drawDiagram}
+                        showProblemPanel={showProblemPanel}
+                    />
+                </> :
+                <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
+            }
+        </DesignDiagramContext>
     );
 }

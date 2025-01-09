@@ -17,6 +17,7 @@ interface DiagramContextProps {
     setFocusedNodeId?: (id: string) => void;
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
+    onEditNode?: (id: string) => void;
     goToSource?: (filePath: string, position: NodePosition) => void;
 }
 
@@ -26,6 +27,7 @@ interface IDiagramContext {
     setFocusedNodeId?: (id: string) => void;
     selectedNodeId?: string;
     setSelectedNodeId?: (id: string) => void;
+    onEditNode?: (id: string) => void;
     goToSource?: (filePath: string, position: NodePosition) => void;
 }
 
@@ -40,6 +42,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setFocusedNodeId,
         selectedNodeId,
         setSelectedNodeId,
+        onEditNode,
         goToSource
     } = props;
 
@@ -49,6 +52,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setFocusedNodeId,
         selectedNodeId,
         setSelectedNodeId,
+        onEditNode,
         goToSource
     }
 
