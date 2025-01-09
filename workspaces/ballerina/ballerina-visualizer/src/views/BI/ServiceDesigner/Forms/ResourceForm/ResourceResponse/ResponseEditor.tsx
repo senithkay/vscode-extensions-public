@@ -10,8 +10,8 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { ActionButtons, AutoComplete, TextField, Codicon, CheckBox } from '@wso2-enterprise/ui-toolkit';
-import { EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../styles';
+import { ActionButtons, AutoComplete, TextField, Codicon, CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
+import { EditorContentColumn, EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../styles';
 import { CommonRPCAPI, STModification, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
 import { getTitleFromResponseCode } from '../utils';
 import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
@@ -21,21 +21,36 @@ export interface ParamProps {
     index: number;
     response: StatusCodeResponse;
     isEdit: boolean;
+    schema: StatusCodeResponse;
     onChange: (param: StatusCodeResponse) => void;
     onSave: (param: StatusCodeResponse, index: number) => void;
     onCancel?: (id?: number) => void;
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { index, response, isEdit, onSave, onChange, onCancel } = props;
+    const { index, response, isEdit, onSave, onChange, onCancel, schema } = props;
+
+    useEffect(() => {
+        if (!response.createStatusCodeResponse) {
+            response.createStatusCodeResponse = schema.createStatusCodeResponse;
+        }
+    }, [response]);
 
     const handleCodeChange = (value: string) => {
         const code = responseCodes.find(code => code.title === value).code;
+        response.statusCode.enabled = !!value;
         response.statusCode.value = String(code);
         onChange(response);
     };
 
+    const handleNTypeChange = (value: string, isArray: boolean) => {
+        response.type.enabled = !!value;
+        response.type.value = isArray ? `${value}[]` : value;
+        onChange(response);
+    };
+
     const handleTypeChange = (value: string, isArray: boolean) => {
+        response.body.enabled = !!value;
         response.body.value = isArray ? `${value}[]` : value;
         onChange(response);
     };
@@ -62,46 +77,73 @@ export function ResponseEditor(props: ParamProps) {
 
     return (
         <EditorContainer>
-            <EditorContent>
-                <AutoComplete
-                    sx={{ zIndex: 1, position: "relative", marginTop: "3px" }}
-                    label="Code"
-                    value={getTitleFromResponseCode(Number(response.statusCode.value))}
-                    items={responseCodes.map(code => code.title)}
-                    onValueChange={handleCodeChange}
-                />
-                <TypeBrowser
-                    sx={{ zIndex: 1, position: "relative" }}
-                    isOptional={true}
-                    label="Type"
-                    handleArray={true}
-                    selectedItem={response.body.value}
-                    onChange={handleTypeChange}
-                />
-            </EditorContent>
-            {response.createStatusCodeResponse &&
+            <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Response Configuration</Typography>
+            <Divider />
+            {!isEdit &&
                 <>
                     <CheckBox
-                        label={response.createStatusCodeResponse.metadata.description}
-                        value={response.createStatusCodeResponse.metadata.description}
-                        checked={response.createStatusCodeResponse.value === "true"}
+                        label={response.createStatusCodeResponse?.metadata.description}
+                        value={response.createStatusCodeResponse?.metadata.description}
+                        checked={response.createStatusCodeResponse?.value === "true"}
                         onChange={handleNamedTypeChange}
                     />
-                    {response.createStatusCodeResponse.value === "true" &&
-                        <TextField
-                            sx={{ marginTop: 10, marginBottom: 15, flexGrow: 1 }}
-                            errorMsg={""}
-                            label={response.name.metadata.description}
-                            size={50}
-                            onTextChange={(input) => {
-                                const trimmedInput = input.trim();
-                                handleNameValueChange(trimmedInput);
-                            }}
-                            placeholder=""
-                            value={response.name.value}
-                        />
-                    }
+                    <EditorContentColumn>
+                        {response.createStatusCodeResponse?.value === "true" &&
+                            <>
+                                <AutoComplete
+                                    sx={{ zIndex: 99, position: "relative", marginTop: "3px" }}
+                                    label="Code"
+                                    value={getTitleFromResponseCode(Number(response.statusCode.value))}
+                                    items={responseCodes.map(code => code.title)}
+                                    onValueChange={handleCodeChange}
+                                />
+                                <TypeBrowser
+                                    id='body'
+                                    sx={{ zIndex: 1, position: "relative" }}
+                                    isOptional={true}
+                                    label="Body"
+                                    handleArray={true}
+                                    selectedItem={response.body.value}
+                                    onChange={handleTypeChange}
+                                />
+                                <TextField
+                                    sx={{ flexGrow: 1 }}
+                                    errorMsg={""}
+                                    label={response.name.metadata.label}
+                                    size={50}
+                                    onTextChange={(input) => {
+                                        const trimmedInput = input.trim();
+                                        handleNameValueChange(trimmedInput);
+                                    }}
+                                    placeholder=""
+                                    value={response.name.value}
+                                />
+                            </>
+                        }
+                        {(!response.createStatusCodeResponse.value || response.createStatusCodeResponse.value === "false") &&
+                            <TypeBrowser
+                                id='namedType'
+                                sx={{ zIndex: 1, position: "relative" }}
+                                label="Named Type"
+                                handleArray={true}
+                                selectedItem={response.type.value}
+                                onChange={handleNTypeChange}
+                            />
+                        }
+                    </EditorContentColumn>
                 </>
+            }
+            {isEdit &&
+                <EditorContentColumn>
+                    <TypeBrowser
+                        id='namedType'
+                        sx={{ zIndex: 1, position: "relative" }}
+                        label="Named Type"
+                        handleArray={true}
+                        selectedItem={response.type.value}
+                        onChange={handleNTypeChange}
+                    />
+                </EditorContentColumn>
             }
             <ActionButtons
                 primaryButton={{ text: isEdit ? "Save" : "Add", onClick: handleOnSave }}

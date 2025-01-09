@@ -71,6 +71,7 @@ export interface StatusCodeResponse extends PropertyModel {
     statusCode: PropertyModel;
     body: PropertyModel;
     name: PropertyModel;
+    type: PropertyModel;
     createStatusCodeResponse: PropertyModel;
 }
 

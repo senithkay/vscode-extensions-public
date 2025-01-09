@@ -49,7 +49,7 @@ export function ResponseItem(props: ParamItemProps) {
                     className={readonly ? disabledHeaderLabel : headerLabelStyles}
                     onClick={handleEdit}
                 >
-                    {response.body.value}
+                    {response.body.value || response.type.value}
                 </div>
                 {!readonly && (
                     <ActionIconWrapper>

@@ -28,6 +28,14 @@ export const EditorContent = styled.div<CSSObject>`
     gap: 10px;
 `;
 
+export const EditorContentColumn = styled.div<CSSObject>`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 0;
+    gap: 10px;
+`;
+
 export const ContentSection = styled.div<CSSObject>`
     display: flex;
     flex-direction: row;

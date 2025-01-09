@@ -52,6 +52,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
     const [isNew, setIsNew] = useState<boolean>(false);
+    const [showForm, setShowForm] = useState<boolean>(false);
 
     const fetchService = () => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
@@ -88,12 +89,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             console.log("New Function Model: ", res.resource);
             setFunctionModel(res.resource);
             setIsNew(true);
+            setShowForm(true);
         })
     };
 
     const handleNewFunctionClose = () => {
         setIsNew(false);
-        setFunctionModel(undefined);
+        setShowForm(false);
+    };
+
+    const handleFunctionEdit = (value: FunctionModel) => {
+        setFunctionModel(value);
+        setIsNew(false);
+        setShowForm(true);
     };
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
@@ -165,7 +173,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     key={index}
                                     functionModel={functionModel}
                                     goToSource={() => { }}
-                                    onEditResource={(model) => { setFunctionModel(model) }}
+                                    onEditResource={handleFunctionEdit}
                                     onDeleteResource={() => { }}
                                     onResourceImplement={handleOpenDiagram}
                                 />
@@ -173,17 +181,15 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         </FunctionSection>
                     </>
                 }
-                {functionModel &&
-                    <>
-                        <PanelContainer
-                            title={"Function Configuration"}
-                            show={!!functionModel}
-                            onClose={handleNewFunctionClose}
-                            width={600}
-                        >
-                            <ResourceForm model={functionModel} onSave={handleFunctionSubmit} onClose={handleNewFunctionClose} />
-                        </PanelContainer>
-                    </>
+                {functionModel && functionModel.kind === "RESOURCE" &&
+                    <PanelContainer
+                        title={"Resource Configuration"}
+                        show={showForm}
+                        onClose={handleNewFunctionClose}
+                        width={600}
+                    >
+                        <ResourceForm model={functionModel} onSave={handleFunctionSubmit} onClose={handleNewFunctionClose} />
+                    </PanelContainer>
                 }
             </ViewContent>
         </View>

@@ -58,6 +58,7 @@ export function ResourceForm(props: ResourceFormProps) {
 	};
 
 	const handleResponseChange = (response: ReturnTypeModel) => {
+		response.value = "";
 		const updatedFunctionModel = {
 			...functionModel,
 			returnType: response

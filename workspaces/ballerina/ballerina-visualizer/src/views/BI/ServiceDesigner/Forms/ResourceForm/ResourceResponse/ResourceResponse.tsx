@@ -104,6 +104,7 @@ export function ResourceResponse(props: ResourceParamProps) {
                     index={editingSegmentId}
                     response={{ ...editModel }}
                     isEdit={editingSegmentId !== 999}
+                    schema={_.cloneDeep(response.schema["statusCodeResponse"]) as StatusCodeResponse}
                     onChange={onChangeParam}
                     onSave={onSaveParam}
                     onCancel={onParamEditCancel}
