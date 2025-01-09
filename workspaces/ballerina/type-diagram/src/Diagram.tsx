@@ -30,6 +30,7 @@ interface TypeDiagramProps {
     showProblemPanel: () => void;
     addNewType: () => void;
     goToSource: (filePath: string, position: NodePosition) => void;
+    onTypeSelected: (typeId: string) => void;
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
@@ -169,9 +170,14 @@ export function TypeDiagram(props: TypeDiagramProps) {
     //     }, 30);
     // };
 
+    const onTypeSelected = (typeId: string) => {
+        setSelectedNodeId(typeId);
+        props.onTypeSelected(typeId);
+    }
+
     let ctx = {
         selectedNodeId,
-        setSelectedNodeId,
+        setSelectedNodeId: onTypeSelected,
         setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
