@@ -22,6 +22,7 @@ import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
 import { StringWithParamManagerComponent } from './StringWithParamManager';
+import { isValueExpression } from './utils';
 
 const Field = styled.div`
     margin-bottom: 12px;
@@ -166,7 +167,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             return valueObj;
         } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
-            return { isExpression: inputType === "expression", value: currentValue ?? "" };
+            const isExpression = inputType === "expression" || isValueExpression(currentValue);
+            return { isExpression: isExpression, value: currentValue ?? "" };
         } else if (inputType === 'checkbox') {
             return currentValue ?? false;
         } else {
