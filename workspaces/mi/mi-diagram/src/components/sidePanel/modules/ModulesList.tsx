@@ -82,33 +82,35 @@ export function Modules(props: ModuleProps) {
         setIsLoading(false);
     };
 
-    React.useEffect(() => {
-        const debouncedSearchModules = debounce(async () => {
-            if (searchValue) {
-                const modules = await searchModules();
-                setFilteredModules(modules);
+    const debouncedSearchModules = React.useMemo(
+        () => debounce(async (value: string) => {
+            if (value) {
+                try {
+                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value)}`);
+                    const data = await response.json();
+                    setFilteredModules(data);
+                } catch (e) {
+                    console.error("Error fetching modules", e);
+                    setFilteredModules(undefined);
+                }
             } else {
                 setFilteredModules([]);
             }
-        }, 300);
+        }, 300),
+        []
+    );
 
-        debouncedSearchModules();
-    }, [searchValue]);
+    React.useEffect(() => {
+        debouncedSearchModules(searchValue);
+
+        return () => {
+            debouncedSearchModules.cancel();
+        };
+    }, [searchValue, debouncedSearchModules]);
 
     const handleSearch = (e: string) => {
         setSearchValue(e);
     }
-
-    const searchModules = async () => {
-        try {
-            const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', searchValue)}`);
-            const data = await response.json();
-            return (data);
-        } catch (e) {
-            console.error("Error fetching modules", e);
-            return (undefined);
-        }
-    };
 
     const downloadModule = (module: any) => {
         const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} />;
@@ -136,7 +138,7 @@ export function Modules(props: ModuleProps) {
             <>
                 {Object.entries(modules).sort(([, a], [, b]) => a.connectorRank - b.connectorRank).map(([key, values]: [string, any]) => (
                     localConnectors && localConnectors.some((c: any) =>
-                        (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
+                        ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
                         (c.version === values.version.tagName)) ? null : (
                         <div key={key}>
                             <ButtonGroup
