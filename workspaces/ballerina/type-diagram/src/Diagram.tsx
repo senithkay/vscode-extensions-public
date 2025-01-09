@@ -96,59 +96,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }
     }, [diagramModel, diagramEngine.getCanvas()]);
 
-    // const refreshDiagram = async () => {
-    //     const components: Type[] = await getComponentModel();
-    //     if (components) {
-    //         setComponentModel(components);
-
-    //         //setHasDiagnostics(response.diagnostics?.length > 0);
-
-    //         // if (components && components.size > 0) {
-    //         //     const component = [...components][0][1] as any;
-    //         //     defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
-    //         // } else if (response.diagnostics?.length && !diagramModel) {
-    //         //     setUserMessage(ERRONEOUS_MODEL);
-    //         // } else if (!response.diagnostics?.length) {
-    //         //     setDiagramModel(undefined);
-    //         //     setUserMessage(NO_ENTITIES_DETECTED);
-    //         // }
-
-    //         // const workspacePackages = createRenderPackageObject(components.keys());
-
-    //         // let projectComponents: Map<string, ComponentModel>;
-    //         // if (isVersionBelow(components, 0.4)) {
-    //         //     projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
-    //         // } else {
-    //         //     projectComponents = components as Map<string, ComponentModel>;
-    //         // }
-    //         // const workspaceComponents = projectComponents;
-    //         setFocusedNodeId(undefined);
-    //         let typeModel;
-    //         if (selectedNodeId) {
-    //             //typeModel = generateCompositionModel(components, selectedNodeId);
-    //             typeModel = entityModeller(components);
-    //         } else {
-    //             typeModel = entityModeller(components);
-    //         }
-    //         if (typeModel) {
-    //             typeModel.addLayer(new OverlayLayerModel());
-    //             diagramEngine.setModel(typeModel);
-    //             setDiagramModel(typeModel);
-    //             autoDistribute(typeModel);
-    //         }
-    //     }
-    // }
-
-
-    // const autoDistribute = (model: DiagramModel) => {
-    //     setTimeout(() => {
-    //         dagreEngine.redistribute(diagramEngine.getModel());
-    //         diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-    //         diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
-    //         diagramEngine.setModel(model);
-    //     }, 30);
-    // };
-
     const onTypeEdit = (typeId: string) => {
         console.log("Editing type: ", typeId);
         setSelectedNodeId(typeId);

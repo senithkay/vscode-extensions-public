@@ -20,7 +20,6 @@ import { DiagramContext } from '../../common';
 import styled from '@emotion/styled';
 import { Button, Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
 
-// import { Member } from '@wso2-enterprise/ballerina-core';
 
 interface EntityWidgetProps {
     node: EntityModel;

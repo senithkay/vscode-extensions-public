@@ -26,7 +26,6 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
-    // const { setFocusedNodeId } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);

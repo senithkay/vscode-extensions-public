@@ -21,7 +21,6 @@ interface ServiceHeadProps {
     isSelected: boolean;
 }
 
-// const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;

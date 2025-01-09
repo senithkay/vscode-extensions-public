@@ -78,7 +78,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
         //     -            });
         //     -        });
         // const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
-        // return response.types;
     };
 
     const showProblemPanel = async () => {
