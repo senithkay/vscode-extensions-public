@@ -270,10 +270,11 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
 
     function filterStoreConnectionsFromLocal(displayedStoreConnectors: any, displayedLocalConnectors: any) {
         return displayedStoreConnectors.filter((connector: any) =>
-            !displayedLocalConnectors.some((c: any) =>
-                c.name.toLowerCase() === connector.connectorName.toLowerCase() &&
-                c.version === connector.version.tagName
-            )
+            !displayedLocalConnectors.some((c: any) => {
+                const displayName = c.displayName ?? c.name;
+                return displayName.toLowerCase() === connector.connectorName.toLowerCase() &&
+                    c.version === connector.version.tagName;
+            })
         );
     }
 
@@ -336,7 +337,9 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                 const connectionType = conOnconfirmation.connectionType.toUpperCase();
                 const connector = await rpcClient.getMiDiagramRpcClient().getAvailableConnectors({ documentUri: props.path, connectorName: connectorName.toLowerCase() });
 
-                setSelectedConnectionType({ connector, connectionType });
+                if (connector) {
+                    setSelectedConnectionType({ connector, connectionType });
+                }
                 fetchLocalConnectorData();
                 setConOnconfirmation(undefined);
             } else {
