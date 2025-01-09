@@ -76,7 +76,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
                     diagramEngine.setModel(diagramModel);
                     diagramEngine.repaintCanvas();
-                }, 40);
+                }, 200);
             }
         }
     }
@@ -84,25 +84,6 @@ export function TypeDiagram(props: TypeDiagramProps) {
     // const defaultOrg = useRef<string>('');
 
     const styles = useStyles();
-
-    // useEffect(() => {
-    //     if (selectedRecordId !== selectedNodeId) {
-    //         setSelectedNodeId(selectedRecordId);
-    //     } 
-    //     setFocusedNodeId(undefined);
-    //     if(!componentMode){
-    //         refreshDiagram();
-    //     }
-    // }, [props]);
-
-    // useEffect(() => {
-    //     // refreshDiagram();
-    //     if (selectedRecordId !== selectedNodeId) {
-    //         setSelectedNodeId(selectedRecordId);
-    //     }  
-    //     // refreshDiagram();
-
-    // }, [selectedNodeId]);
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
@@ -168,11 +149,11 @@ export function TypeDiagram(props: TypeDiagramProps) {
     //     }, 30);
     // };
 
-    // TODO: Enable when editing is supported
-    // const onTypeEdit = (typeId: string) => {
-    //     setSelectedNodeId(typeId);
-    //     props.onTypeEdit(typeId);
-    // }
+    const onTypeEdit = (typeId: string) => {
+        console.log("Editing type: ", typeId);
+        setSelectedNodeId(typeId);
+        props.onTypeEdit(typeId);
+    }
 
     let ctx = {
         selectedNodeId,
@@ -181,6 +162,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
         hasDiagnostics,
         focusedNodeId,
         setFocusedNodeId,
+        onEditNode: onTypeEdit,
         goToSource
     }
 

@@ -17,6 +17,9 @@ import { EntityHeadWidget } from './EntityHead/EntityHead';
 import { AttributeWidget } from './Attribute/AttributeCard';
 import { EntityNode, InclusionPortsContainer } from './styles';
 import { DiagramContext } from '../../common';
+import styled from '@emotion/styled';
+import { Button, Icon, ThemeColors } from '@wso2-enterprise/ui-toolkit';
+
 // import { Member } from '@wso2-enterprise/ballerina-core';
 
 interface EntityWidgetProps {
@@ -24,9 +27,19 @@ interface EntityWidgetProps {
     engine: DiagramEngine;
 }
 
+const EditIconContainer = styled.div`
+    position: absolute;
+    top: -20px;
+    right: 7px;
+    z-index: 1000;
+    cursor: pointer;
+    height: 14px;
+    width: 14px;
+`;
+
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { focusedNodeId, selectedNodeId } = useContext(DiagramContext);
+    const { focusedNodeId, selectedNodeId, onEditNode } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
 
     const renderAttributes = () => {
@@ -62,6 +75,15 @@ export function EntityWidget(props: EntityWidgetProps) {
             shouldShade={false}
             isFocused={node.getID() === focusedNodeId}
         >
+            {selectedNodeId === node.getID() && (
+                <EditIconContainer>
+                    <Button
+                        appearance="icon"
+                        tooltip="Edit">
+                        <Icon name="editIcon" onClick={() => onEditNode(node.getID())} iconSx={{ color: ThemeColors.SECONDARY }} />
+                    </Button>
+                </EditIconContainer>
+            )}
             <EntityHeadWidget
                 engine={engine}
                 node={node}
