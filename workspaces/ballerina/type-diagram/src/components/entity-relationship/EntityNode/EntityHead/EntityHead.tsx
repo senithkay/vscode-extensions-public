@@ -21,7 +21,7 @@ interface ServiceHeadProps {
     isSelected: boolean;
 }
 
-const ANON_RECORD_DISPLAY: string = 'record';
+// const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
@@ -52,9 +52,9 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={node.entityObject.sourceLocation}>
+        <CtrlClickGo2Source location={{filePath: node.entityObject.codedata.lineRange.fileName,
+        startPosition: node.entityObject.codedata.lineRange.startLine, endPosition: node.entityObject.codedata.lineRange.endLine }}>
             <EntityHead
-                isAnonymous={node.entityObject.isAnonymous}
                 isSelected={isSelected}
                 onMouseOver={() => handleOnHover('SELECT')}
                 onMouseLeave={() => handleOnHover('UNSELECT')}
@@ -66,10 +66,9 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 />
                 <EntityName
                     isClickable={isClickable}
-                    isAnonymous={node.entityObject.isAnonymous}
                     onClick={handleOnClickOnEntityName}
                 >
-                    {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
+                    {displayName}
                 </EntityName>
                 {/* {isHovered && node.entityObject.sourceLocation &&
                         <NodeMenuWidget

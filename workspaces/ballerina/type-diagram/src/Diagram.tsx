@@ -7,26 +7,25 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { NavigationWrapperCanvasWidget, ProgressRing, ThemeColors } from '@wso2-enterprise/ui-toolkit';
-import { createEntitiesEngine, createRenderPackageObject, entityModeller, generateCompositionModel } from './utils';
+import { createEntitiesEngine, entityModeller } from './utils';
 
 import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 
-import { dagreEngine, ERRONEOUS_MODEL, NO_ENTITIES_DETECTED } from './resources/constants';
+import { dagreEngine } from './resources/constants';
 import { DesignDiagramContext } from './components/common';
 import { HeaderWidget } from './components/Header/Header';
 import { DiagramControls } from './components/Controls/DiagramControls';
-import { PromptScreen } from './components/PromptScreen/PromptScreen';
 import { OverlayLayerModel } from './components/OverlayLoader';
-import { ComponentModel, ComponentModelDeprecated, ComponentModels, NodePosition, Type } from '@wso2-enterprise/ballerina-core';
-import { isVersionBelow, transformToV4Models } from './utils/utils';
+import {  NodePosition, Type } from '@wso2-enterprise/ballerina-core';
+import { focusToNode } from './utils/utils';
 
 interface TypeDiagramProps {
-    getComponentModel: () => Promise<Type[]>;
+    typeModel: Type[];
     selectedRecordId?: string;
     showProblemPanel: () => void;
     addNewType: () => void;
@@ -34,31 +33,77 @@ interface TypeDiagramProps {
 }
 
 export function TypeDiagram(props: TypeDiagramProps) {
-    const { getComponentModel, showProblemPanel, selectedRecordId, addNewType, goToSource } = props;
+    const { typeModel, showProblemPanel, selectedRecordId, addNewType, goToSource } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createEntitiesEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>(selectedRecordId);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
-    const [userMessage, setUserMessage] = useState<string>(undefined);
-    const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
+    const [focusedNodeId, setFocusedNodeId] = useState<string>(selectedRecordId);
 
-    const defaultOrg = useRef<string>('');
-
-    const styles = useStyles();
+    useEffect(() => {
+        drawDiagram();
+    }, [typeModel]);
 
     useEffect(() => {
         if (selectedRecordId !== selectedNodeId) {
             setSelectedNodeId(selectedRecordId);
         }
         setFocusedNodeId(undefined);
-        refreshDiagram();
+    }, [selectedRecordId]);
 
-    }, [props]);
+    const drawDiagram = async () => {
+        if (typeModel) {
+            setFocusedNodeId(undefined);
+            const diagramModel = entityModeller(typeModel);
 
-    useEffect(() => {
-        refreshDiagram();
-    }, [selectedNodeId]);
+            if (diagramModel) {
+                diagramModel.addLayer(new OverlayLayerModel());
+                diagramEngine.setModel(diagramModel);
+                setDiagramModel(diagramModel);
+                
+                // Always distribute first to properly layout the diagram
+                setTimeout(() => {
+                    dagreEngine.redistribute(diagramEngine.getModel());
+                    
+                    if (selectedNodeId) {
+                        const selectedModel = diagramEngine.getModel().getNode(selectedNodeId);
+                        focusToNode(selectedModel, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+                    } else {
+                        diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+                    }
+                    
+                    // Remove overlay and update model
+                    diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
+                    diagramEngine.setModel(diagramModel);
+                    diagramEngine.repaintCanvas();
+                }, 30);
+            }
+        }
+    }
+
+    // const defaultOrg = useRef<string>('');
+
+    const styles = useStyles();
+
+    // useEffect(() => {
+    //     if (selectedRecordId !== selectedNodeId) {
+    //         setSelectedNodeId(selectedRecordId);
+    //     } 
+    //     setFocusedNodeId(undefined);
+    //     if(!componentMode){
+    //         refreshDiagram();
+    //     }
+    // }, [props]);
+
+    // useEffect(() => {
+    //     // refreshDiagram();
+    //     if (selectedRecordId !== selectedNodeId) {
+    //         setSelectedNodeId(selectedRecordId);
+    //     }  
+    //     // refreshDiagram();
+
+    // }, [selectedNodeId]);
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
@@ -71,56 +116,58 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }
     }, [diagramModel, diagramEngine.getCanvas()]);
 
-    const refreshDiagram = async () => {
-        const components: Type[] = await getComponentModel();
-        if (components) {
+    // const refreshDiagram = async () => {
+    //     const components: Type[] = await getComponentModel();
+    //     if (components) {
+    //         setComponentModel(components);
 
-            //setHasDiagnostics(response.diagnostics?.length > 0);
+    //         //setHasDiagnostics(response.diagnostics?.length > 0);
 
-            // if (components && components.size > 0) {
-            //     const component = [...components][0][1] as any;
-            //     defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
-            // } else if (response.diagnostics?.length && !diagramModel) {
-            //     setUserMessage(ERRONEOUS_MODEL);
-            // } else if (!response.diagnostics?.length) {
-            //     setDiagramModel(undefined);
-            //     setUserMessage(NO_ENTITIES_DETECTED);
-            // }
+    //         // if (components && components.size > 0) {
+    //         //     const component = [...components][0][1] as any;
+    //         //     defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
+    //         // } else if (response.diagnostics?.length && !diagramModel) {
+    //         //     setUserMessage(ERRONEOUS_MODEL);
+    //         // } else if (!response.diagnostics?.length) {
+    //         //     setDiagramModel(undefined);
+    //         //     setUserMessage(NO_ENTITIES_DETECTED);
+    //         // }
 
-            // const workspacePackages = createRenderPackageObject(components.keys());
+    //         // const workspacePackages = createRenderPackageObject(components.keys());
 
-            // let projectComponents: Map<string, ComponentModel>;
-            // if (isVersionBelow(components, 0.4)) {
-            //     projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
-            // } else {
-            //     projectComponents = components as Map<string, ComponentModel>;
-            // }
-            // const workspaceComponents = projectComponents;
-            setFocusedNodeId(undefined);
-            let typeModel;
-            if (selectedNodeId) {
-                //typeModel = generateCompositionModel(components, selectedNodeId);
-            } else {
-                typeModel = entityModeller(components);
-            }
-            if (typeModel) {
-                typeModel.addLayer(new OverlayLayerModel());
-                diagramEngine.setModel(typeModel);
-                setDiagramModel(typeModel);
-                autoDistribute(typeModel);
-            }
-        }
-    }
+    //         // let projectComponents: Map<string, ComponentModel>;
+    //         // if (isVersionBelow(components, 0.4)) {
+    //         //     projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
+    //         // } else {
+    //         //     projectComponents = components as Map<string, ComponentModel>;
+    //         // }
+    //         // const workspaceComponents = projectComponents;
+    //         setFocusedNodeId(undefined);
+    //         let typeModel;
+    //         if (selectedNodeId) {
+    //             //typeModel = generateCompositionModel(components, selectedNodeId);
+    //             typeModel = entityModeller(components);
+    //         } else {
+    //             typeModel = entityModeller(components);
+    //         }
+    //         if (typeModel) {
+    //             typeModel.addLayer(new OverlayLayerModel());
+    //             diagramEngine.setModel(typeModel);
+    //             setDiagramModel(typeModel);
+    //             autoDistribute(typeModel);
+    //         }
+    //     }
+    // }
 
 
-    const autoDistribute = (model: DiagramModel) => {
-        setTimeout(() => {
-            dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-            diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
-            diagramEngine.setModel(model);
-        }, 30);
-    };
+    // const autoDistribute = (model: DiagramModel) => {
+    //     setTimeout(() => {
+    //         dagreEngine.redistribute(diagramEngine.getModel());
+    //         diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+    //         diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
+    //         diagramEngine.setModel(model);
+    //     }, 30);
+    // };
 
     let ctx = {
         selectedNodeId,
@@ -148,20 +195,15 @@ export function TypeDiagram(props: TypeDiagramProps) {
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramEngine}
                                 className={styles.canvas}
-                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
+                                focusedNode={diagramEngine?.getModel()?.getNode(selectedNodeId)}
                             />
                             <DiagramControls
                                 engine={diagramEngine}
-                                refreshDiagram={refreshDiagram}
+                                refreshDiagram={drawDiagram}
                                 showProblemPanel={showProblemPanel}
                             />
                         </> :
-                        userMessage ?
-                            <PromptScreen
-                                userMessage={userMessage}
-                                showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
-                            /> :
-                            <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
+                         <ProgressRing sx={{ color: ThemeColors.PRIMARY }} />
                     }
                 </DiagramContainer>
             </DesignDiagramContext>

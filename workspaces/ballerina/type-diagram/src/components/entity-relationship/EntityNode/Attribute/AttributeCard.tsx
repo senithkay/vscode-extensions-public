@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { Member } from '@wso2-enterprise/ballerina-core';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
-import { CtrlClickGo2Source, DiagramContext } from '../../../common';
+import { CtrlClickGo2Source } from '../../../common';
 import { extractAttributeType } from '../entity-utils';
 
 interface AttributeProps {
@@ -26,7 +26,7 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
-    const { setFocusedNodeId } = useContext(DiagramContext);
+    // const { setFocusedNodeId } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);

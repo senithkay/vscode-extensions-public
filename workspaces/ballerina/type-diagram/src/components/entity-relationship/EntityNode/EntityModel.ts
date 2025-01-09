@@ -27,7 +27,7 @@ export class EntityModel extends SharedNodeModel {
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.BOTTOM));
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.TOP));
 
-        Object.entries(this.entityObject.members).forEach(([attributeName, member]) => {
+        Object.entries(this.entityObject.members).forEach(([attributeName]) => {
             this.addPort(new EntityPortModel(`${entityName}/${attributeName}`, PortModelAlignment.LEFT));
             this.addPort(new EntityPortModel(`${entityName}/${attributeName}`, PortModelAlignment.RIGHT));
         });

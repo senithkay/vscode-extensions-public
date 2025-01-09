@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect } from "react";
-import { VisualizerLocation, ComponentModels, NodePosition } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocation, NodePosition, Type } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { TypeDiagram as TypeDesignDiagram } from "@wso2-enterprise/type-diagram";
 import { RecordEditor } from "../RecordEditor/RecordEditor";
@@ -20,10 +20,10 @@ interface TypeDiagramProps {
 export function TypeDiagram(props: TypeDiagramProps) {
     const { selectedRecordId } = props;
     const { rpcClient } = useRpcContext();
-    const langRpcClient = rpcClient.getLangClientRpcClient();
     const commonRpcClient = rpcClient.getCommonRpcClient();
     const [visualizerLocation, setVisualizerLocation] = React.useState<VisualizerLocation>();
     const [isTypeCreatorOpen, setIsTypeCreatorOpen] = React.useState<boolean>(false);
+    const [typesModel, setTypesModel] = React.useState<Type[]>(undefined);
 
     useEffect(() => {
         if (rpcClient) {
@@ -33,12 +33,17 @@ export function TypeDiagram(props: TypeDiagramProps) {
         }
     }, [rpcClient]);
 
+    useEffect(() => {
+        getComponentModel();
+    }, [visualizerLocation]);
+
 
     const getComponentModel = async () => {
         if (!rpcClient || !visualizerLocation?.metadata?.recordFilePath) {
             return;
         }
         const response = await rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath });
+        setTypesModel(response.types);
         console.log(response);
         // -        rpcClient.getBIDiagramRpcClient().getTypes({ filePath: visualizerLocation?.metadata?.recordFilePath }).then((response: any) => {
         //     -            console.log(response);
@@ -51,7 +56,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
         //     -            });
         //     -        });
         // const response: ComponentModels = await langRpcClient.getPackageComponentModels({ documentUris: [visualizerLocation.metadata.recordFilePath] });
-        return response.types;
+        // return response.types;
     };
 
     const showProblemPanel = async () => {
@@ -72,11 +77,11 @@ export function TypeDiagram(props: TypeDiagramProps) {
         rpcClient.getCommonRpcClient().goToSource({ filePath, position });
 
     };
-
+    // TODO: Add The Header rendering
     return (
         <>
             <TypeDesignDiagram
-                getComponentModel={getComponentModel}
+                typeModel={typesModel}
                 selectedRecordId={selectedRecordId}
                 showProblemPanel={showProblemPanel}
                 addNewType={addNewType}

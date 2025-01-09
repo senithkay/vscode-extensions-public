@@ -17,7 +17,7 @@ import { EntityHeadWidget } from './EntityHead/EntityHead';
 import { AttributeWidget } from './Attribute/AttributeCard';
 import { EntityNode, InclusionPortsContainer } from './styles';
 import { DiagramContext } from '../../common';
-import { Member } from '@wso2-enterprise/ballerina-core';
+// import { Member } from '@wso2-enterprise/ballerina-core';
 
 interface EntityWidgetProps {
     node: EntityModel;
