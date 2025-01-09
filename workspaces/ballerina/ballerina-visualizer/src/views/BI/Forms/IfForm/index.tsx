@@ -28,7 +28,7 @@ import {
     FormExpressionEditorProps
 } from "@wso2-enterprise/ballerina-side-panel";
 import { FormStyles } from "../styles";
-import { convertNodePropertyToFormField } from "../../../../utils/bi";
+import { convertNodePropertyToFormField, removeDuplicateDiagnostics } from "../../../../utils/bi";
 import { cloneDeep, debounce } from "lodash";
 import { RemoveEmptyNodesVisitor, traverseNode } from "@wso2-enterprise/bi-diagram";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
@@ -283,7 +283,8 @@ export function IfForm(props: IfFormProps) {
             }
         });
 
-        handleSetDiagnosticsInfo({ key, diagnostics: response.diagnostics });
+        const uniqueDiagnostics = removeDuplicateDiagnostics(response.diagnostics);
+        handleSetDiagnosticsInfo({ key, diagnostics: uniqueDiagnostics });
     }, 250), [rpcClient, fileName, targetLineRange, node, handleSetDiagnosticsInfo]);
 
     const handleEditorFocus = (currentActive: number) => {
@@ -337,6 +338,20 @@ export function IfForm(props: IfFormProps) {
                     return (
                         <FormStyles.Row key={field.key}>
                             <ExpressionEditor
+                                /* Completion related props */
+                                completions={activeEditor === index ? expressionEditor.completions : []}
+                                triggerCharacters={expressionEditor.triggerCharacters}
+                                retrieveCompletions={expressionEditor.retrieveCompletions}
+                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
+                                /* Helper pane related props */
+                                isLoadingHelperPaneInfo={expressionEditor.isLoadingHelperPaneInfo}
+                                variableInfo={expressionEditor.variableInfo}
+                                configVariableInfo={expressionEditor.configVariableInfo}
+                                functionInfo={expressionEditor.functionInfo}
+                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
+                                getHelperPaneData={expressionEditor.getHelperPaneData}
+                                onFunctionItemSelect={expressionEditor.onFunctionItemSelect}
+                                /* Other props */
                                 ref={exprRef}
                                 control={control}
                                 field={field}
@@ -347,14 +362,6 @@ export function IfForm(props: IfFormProps) {
                                 targetLineRange={targetLineRange}
                                 fileName={fileName}
                                 onRemove={index !== 0 && !branch.label.includes("Else") ? () => removeCondition(index) : undefined}
-                                completions={activeEditor === index ? expressionEditor.completions : []}
-                                triggerCharacters={expressionEditor.triggerCharacters}
-                                retrieveCompletions={expressionEditor.retrieveCompletions}
-                                variableInfo={expressionEditor.variableInfo}
-                                functionInfo={expressionEditor.functionInfo}
-                                libraryBrowserInfo={expressionEditor.libraryBrowserInfo}
-                                getHelperPaneData={expressionEditor.getHelperPaneData}
-                                extractArgsFromFunction={expressionEditor.extractArgsFromFunction}
                                 onCompletionItemSelect={expressionEditor.onCompletionItemSelect}
                                 onCancel={expressionEditor.onCancel}
                                 onBlur={expressionEditor.onBlur}

@@ -192,7 +192,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition);
-        onCompletionSelect && await onCompletionSelect(newTextValue);
+        onCompletionSelect && await onCompletionSelect(newTextValue, item);
         setCursor(textBoxRef, 'textarea', newTextValue, newCursorPosition);
     };
 

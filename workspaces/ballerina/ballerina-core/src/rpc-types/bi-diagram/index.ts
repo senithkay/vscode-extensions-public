@@ -43,6 +43,10 @@ import {
     BIGetEnclosedFunctionRequest,
     BIGetEnclosedFunctionResponse,
     BIDesignModelResponse,
+    UpdateImportsRequest,
+    UpdateImportsResponse,
+    AddFunctionRequest,
+    AddFunctionResponse
 } from "../../interfaces/extended-lang-client";
 import {
     ProjectRequest,
@@ -103,4 +107,6 @@ export interface BIDiagramAPI {
     formDidOpen: (params: FormDidOpenParams) => Promise<void>;
     formDidClose: (params: FormDidCloseParams) => Promise<void>;
     getDesignModel: () => Promise<BIDesignModelResponse>;
+    updateImports: (params: UpdateImportsRequest) => Promise<UpdateImportsResponse>;
+    addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;
 }

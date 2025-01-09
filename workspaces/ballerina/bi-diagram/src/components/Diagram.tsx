@@ -40,6 +40,7 @@ import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
 export interface DiagramProps {
     model: Flow;
     onAddNode?: (parent: FlowNode | Branch, target: LineRange) => void;
+    onAddNodePrompt?: (parent: FlowNode | Branch, target: LineRange, prompt: string) => void;
     onDeleteNode?: (node: FlowNode) => void;
     onAddComment?: (comment: string, target: LineRange) => void;
     onNodeSelect?: (node: FlowNode) => void;
@@ -63,6 +64,7 @@ export function Diagram(props: DiagramProps) {
     const {
         model,
         onAddNode,
+        onAddNodePrompt,
         onDeleteNode,
         onAddComment,
         onNodeSelect,
@@ -199,6 +201,7 @@ export function Diagram(props: DiagramProps) {
         },
         showErrorFlow: showErrorFlow,
         onAddNode: onAddNode,
+        onAddNodePrompt: onAddNodePrompt,
         onDeleteNode: onDeleteNode,
         onAddComment: onAddComment,
         onNodeSelect: onNodeSelect,

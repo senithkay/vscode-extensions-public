@@ -9,7 +9,7 @@
 
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useRef, useState } from 'react';
-import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
 
 type LibraryBrowserProps = {
     isLoading: boolean;
@@ -18,6 +18,7 @@ type LibraryBrowserProps = {
     onBack: () => void;
     onClose: () => void;
     onChange: (value: string) => void;
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
 };
 
 export const LibraryBrowser = ({
@@ -26,7 +27,8 @@ export const LibraryBrowser = ({
     setFilterText,
     onBack,
     onClose,
-    onChange
+    onChange,
+    onFunctionItemSelect
 }: LibraryBrowserProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -43,6 +45,12 @@ export const LibraryBrowser = ({
         setSearchValue(searchText);
     };
 
+    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
+        const response = await onFunctionItemSelect(item);
+        onChange(response);
+        onClose();
+    };
+
     return (
         <HelperPane.LibraryBrowser
             isLoading={isLoading}
@@ -52,32 +60,33 @@ export const LibraryBrowser = ({
         >
             {libraryBrowserInfo?.category.map((category) => (
                 <HelperPane.LibraryBrowserSection
+                    key={category.label}
                     title={category.label}
-                    {...(category.label === 'Current Integration' && {
+                    {...(category.items?.length > 0 && category.subCategory?.length === 0 && {
                         columns: 4
                     })}
                 >
                     {category.items?.map((item) => (
                         <HelperPane.CompletionItem
+                            key={`${category.label}-${item.label}`}
                             label={item.label}
                             type={item.type}
                             getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                            onClick={() => {
-                                onChange(`${item.label}(`);
-                                onClose();
-                            }}
+                            onClick={async () => await handleFunctionItemSelect(item)}
                         />
                     ))}
                     {category.subCategory?.map((subCategory) => (
-                        <HelperPane.LibraryBrowserSubSection title={subCategory.label} columns={4}>
+                        <HelperPane.LibraryBrowserSubSection
+                            key={`${category.label}-${subCategory.label}`}
+                            title={subCategory.label}
+                            columns={4}
+                        >
                             {subCategory.items?.map((item) => (
                                 <HelperPane.CompletionItem
+                                    key={`${category.label}-${subCategory.label}-${item.label}`}
                                     label={item.label}
                                     getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
-                                    onClick={() => {
-                                        onChange(`${item.label}(`);
-                                        onClose();
-                                    }}
+                                    onClick={async () => await handleFunctionItemSelect(item)}
                                 />
                             ))}
                         </HelperPane.LibraryBrowserSubSection>

@@ -14,7 +14,7 @@ import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
 import { LibraryBrowser } from './LibraryBrowser';
 import { VariablesPage } from './VariablesPage';
-import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
 import { HelperPaneVariableInfo } from '../../../Form/types';
 import { HelperPaneData } from '../../../Form/types';
 
@@ -30,6 +30,7 @@ export type HelperPaneProps = {
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
     onSave: (values: any) => void;
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
 };
 
 const HelperPaneEl = ({
@@ -44,6 +45,7 @@ const HelperPaneEl = ({
     currentValue,
     onChange,
     onSave,
+    onFunctionItemSelect
 }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
@@ -90,6 +92,7 @@ const HelperPaneEl = ({
                     setCurrentPage={setCurrentPage}
                     setFunctionFilterText={(filterText) => setFilterText('functions', filterText)}
                     setLibraryFilterText={(filterText) => setFilterText('libraries', filterText)}
+                    onFunctionItemSelect={onFunctionItemSelect}
                     onClose={onClose}
                     onChange={handleChange}
                 />
@@ -120,7 +123,8 @@ export const getHelperPane = (
     setFilterText: (type: string, filterText: string) => void,
     currentValue: string,
     onChange: (value: string, updatedCursorPosition: number) => void,
-    onSave: (values: any) => void
+    onSave: (values: any) => void,
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>
 ) => {
     
     function saveConfigVariables(values: any): void {
@@ -140,6 +144,7 @@ export const getHelperPane = (
             currentValue={currentValue}
             onChange={onChange}
             onSave={saveConfigVariables}
+            onFunctionItemSelect={onFunctionItemSelect}
         />
     );
 };
