@@ -18,6 +18,8 @@ import {
     CDAutomation,
     CDConnection,
     CDListener,
+    CDResourceFunction,
+    CDFunction,
 } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Diagram } from "@wso2-enterprise/component-diagram";
@@ -88,6 +90,17 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
         }
     };
 
+    const handleGoToFunction = (func: CDFunction | CDResourceFunction) => {
+        if (func.location) {
+            goToView(func.location.filePath, {
+                startLine: func.location.startLine.line,
+                startColumn: func.location.startLine.offset,
+                endLine: func.location.endLine.line,
+                endColumn: func.location.endLine.offset,
+            });
+        }
+    };
+
     const handleGoToAutomation = (automation: CDAutomation) => {
         if (automation.location) {
             goToView(automation.location.filePath, {
@@ -151,6 +164,7 @@ export function ComponentDiagram(props: ComponentDiagramProps) {
                     project={project}
                     onListenerSelect={handleGoToListener}
                     onServiceSelect={handleGoToService}
+                    onFunctionSelect={handleGoToFunction}
                     onAutomationSelect={handleGoToAutomation}
                     onConnectionSelect={handleGoToConnection}
                     onDeleteComponent={handleDeleteComponent}
