@@ -11,6 +11,7 @@ import { RightPathContainerButtons } from '../ComponentNavigator';
 import styled from '@emotion/styled';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
+import { PathID } from '../../../../constants';
 
 const ResponseViewItemWrapper = styled.div`
     display: flex;
@@ -46,7 +47,7 @@ export function ResponseViewItem(props: ResponseViewItemProps) {
     };
 
     return (
-        <div onClick={() => onSelectedComponentIDChange(`responses#-component#-${response}`)}>
+        <div onClick={() => onSelectedComponentIDChange(`${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${response}`)}>
             <TreeViewItem id={id} selectedId={selectedComponentID}>
                 <ResponseViewItemWrapper>
                     <Typography

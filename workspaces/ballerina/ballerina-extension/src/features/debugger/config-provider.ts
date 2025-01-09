@@ -146,10 +146,8 @@ async function showInputBox(paramName: string, value: string) {
 }
 
 async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
-    let debuggeePort = config.debuggeePort;
-    if (!debuggeePort) {
-        debuggeePort = await findFreePort();
-    }
+    const debuggeePort = config.debuggeePort ?? await findFreePort();
+    config.debuggeePort = debuggeePort.toString();
 
     const ballerinaHome = ballerinaExtInstance.getBallerinaHome();
     config['ballerina.home'] = ballerinaHome;
@@ -246,11 +244,15 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         }
     }
 
-    config.debuggeePort = debuggeePort.toString();
-
     if (!config.debugServer) {
         const debugServerPort = await findFreePort();
         config.debugServer = debugServerPort.toString();
+    }
+    
+    // Notify debug server that the debug session is started in low-code mode
+    const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
+    if (isWebviewPresent) {
+        config.lowCodeMode = true;
     }
     return config;
 }

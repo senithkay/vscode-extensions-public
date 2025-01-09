@@ -13,6 +13,7 @@ import { PathTreeViewItem } from '../PathTreeViewItem/PathTreeViewItem';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
+import { PathID } from '../../../../constants';
 
 interface PathTreeViewProps {
     id: string;
@@ -42,9 +43,9 @@ export function PathTreeView(props: PathTreeViewProps) {
                 delete updatedPaths[path];
                 handlePathTreeViewChange({ ...openAPI, paths: updatedPaths });
                 if (Object.keys(updatedPaths).length > 0) {
-                    onSelectedComponentIDChange(`paths#-component#-${Object.keys(updatedPaths)[0]}`);
+                    onSelectedComponentIDChange(`${PathID.PARAMETERS_COMPONENTS}${PathID.SEPERATOR}${Object.keys(updatedPaths)[0]}`);
                 } else {
-                    onSelectedComponentIDChange("overview");
+                    onSelectedComponentIDChange(PathID.OVERVIEW);
                 }
             }
         });
@@ -79,7 +80,7 @@ export function PathTreeView(props: PathTreeViewProps) {
             {operations?.map((operation) => {
                 return (
                     <PathTreeViewItem
-                        id={`paths#-component#-${path}#-${operation}`}
+                        id={`${PathID.PATHS_COMPONENTS}${PathID.SEPERATOR}${path}${PathID.SEPERATOR}${operation}`}
                         openAPI={openAPI}
                         path={path}
                         operation={operation}

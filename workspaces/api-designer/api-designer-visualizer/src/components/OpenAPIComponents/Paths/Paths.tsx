@@ -11,6 +11,7 @@ import { PathItem } from '../PathItem/PathItem';
 import { Operation } from "../Operation/Operation";
 import { useContext, useState } from 'react';
 import { APIDesignerContext } from '../../../APIDesignerContext';
+import { PathID } from '../../../constants';
 
 interface PathsProps {
     paths: P;
@@ -38,7 +39,7 @@ export function Paths(props: PathsProps) {
                 return acc;
             }, {} as P);
             onPathsChange(newPaths, path); // Call onPathsChange with the updated paths
-            onSelectedComponentIDChange(`paths#-component#-${path}`);
+            onSelectedComponentIDChange(`${PathID.PATHS_COMPONENTS}${PathID.SEPERATOR}${path}`);
         } else {
             onPathsChange({ ...paths, [path]: pathItem });
         }

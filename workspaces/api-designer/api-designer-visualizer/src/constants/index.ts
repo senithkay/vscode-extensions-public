@@ -155,3 +155,21 @@ export enum Views {
     READ_ONLY = "READ_ONLY",
     EDIT = "EDIT"
 }
+
+export enum PathID {
+    OVERVIEW = "Overview",
+    PATHS = "Paths",
+    SCHEMAS = "Schemas",
+    PARAMETERS = "Parameters",
+    REQUEST_BODY = "RequestBody",
+    RESPONSES = "Responses",
+    PATHS_RESOURCES = "Paths#-Resources",
+    PATHS_COMPONENTS = "Paths#-Components",
+    OVERVIEW_COMPONENT = "Overview#-Component",
+    COMPONENTS_COMPONENTS = "Components#-Components",
+    SCHEMA_COMPONENTS = "Schemas#-Components",
+    PARAMETERS_COMPONENTS = "Parameters#-Components",
+    REQUEST_BODY_COMPONENTS = "RequestBody#-Components",
+    RESPONSE_COMPONENTS = "Responses#-Components",
+    SEPERATOR = "#-",
+}

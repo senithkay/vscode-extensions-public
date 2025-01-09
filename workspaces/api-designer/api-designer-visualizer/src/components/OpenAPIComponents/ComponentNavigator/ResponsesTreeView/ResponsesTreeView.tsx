@@ -11,7 +11,7 @@ import { LeftPathContainer, PathContainer, RightPathContainerButtons } from '../
 import { OpenAPI } from '../../../../Definitions/ServiceDefinitions';
 import { useContext } from 'react';
 import { APIDesignerContext } from '../../../../APIDesignerContext';
-import { Views } from '../../../../constants';
+import { PathID, Views } from '../../../../constants';
 import { useVisualizerContext } from '@wso2-enterprise/api-designer-rpc-client';
 import { ResponseViewItem } from '../ResponsesViewItem/ResponsesViewItem';
 
@@ -41,7 +41,7 @@ export function ResponsesTreeView(props: ResponsesTreeViewProps) {
                     }
                 };
                 onResponseTreeViewChange(updatedOpenAPIDefinition);
-                onSelectedComponentIDChange("overview");
+                onSelectedComponentIDChange("Overview");
             }
         });
     };
@@ -54,8 +54,8 @@ export function ResponsesTreeView(props: ResponsesTreeViewProps) {
         if (openAPI.components.parameters === undefined) {
             openAPI.components.parameters = {};
         }
-        const newResponseName = Object.keys(openAPI.components.parameters).find((key) =>
-            key.toLocaleLowerCase() === "response") ? `Response${Object.keys(openAPI.components.parameters).length + 1}` :
+        const newResponseName = Object.keys(openAPI.components.responses).find((key) =>
+            key.toLowerCase().includes("response")) ? `Response${Object.keys(openAPI.components.responses).length + 1}` :
             "Response";
         openAPI.components.responses = {
             ...openAPI.components.responses,
@@ -71,7 +71,7 @@ export function ResponsesTreeView(props: ResponsesTreeViewProps) {
             }
         };
         onResponseTreeViewChange(openAPI);
-        onSelectedComponentIDChange(`responses#-component#-${newResponseName}`);
+        onSelectedComponentIDChange(`${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${newResponseName}`);
         onCurrentViewChange(Views.EDIT);
     };
 
@@ -80,7 +80,7 @@ export function ResponsesTreeView(props: ResponsesTreeViewProps) {
     return (
         <TreeView
             sx={{ paddingBottom: 2 }}
-            id="Responses#-Components"
+            id={`${PathID.RESPONSE_COMPONENTS}`}
             content={
                 <PathContainer>
                     <LeftPathContainer>
@@ -108,7 +108,7 @@ export function ResponsesTreeView(props: ResponsesTreeViewProps) {
             {responseArray.map((requestBody: string) => {
                 return (
                     <ResponseViewItem
-                        id={`responses#-component#-${requestBody}`}
+                        id={`${PathID.RESPONSE_COMPONENTS}${PathID.SEPERATOR}${requestBody}`}
                         response={requestBody}
                         onDeleteResponse={handleDeleteResponse}
                     />
