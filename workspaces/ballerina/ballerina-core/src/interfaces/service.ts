@@ -56,13 +56,20 @@ export interface FunctionModel {
 
     name: PropertyModel;
     parameters: ParameterModel[];
+    schema?: ConfigProperties;
     returnType: ReturnTypeModel;
 }
 
 
 export interface ReturnTypeModel extends PropertyModel {
-    responses?: [];
+    responses?: StatusCodeResponse[];
     schema?: ConfigProperties;
+}
+export interface StatusCodeResponse extends PropertyModel {
+    statusCode: PropertyModel;
+    body: PropertyModel;
+    name: PropertyModel;
+    createStatusCodeResponse: PropertyModel;
 }
 
 interface MetaData {
@@ -95,15 +102,17 @@ export interface PropertyModel {
     items?: string[];
     choices?: PropertyModel[];
     properties?: ConfigProperties;
+    httpParamType?: "QUERY" | "Header" | "PAYLOAD";
 }
 
 export interface ParameterModel extends PropertyModel {
     kind: "REQUIRED" | "OPTIONAL",
     type: PropertyModel;
     name: PropertyModel;
+    defaultValue?: PropertyModel;
 }
 
 
 export interface ConfigProperties {
-    [key: string]: PropertyModel;
+    [key: string]: PropertyModel | ParameterModel;
 }

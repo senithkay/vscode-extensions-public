@@ -894,7 +894,7 @@ export interface HttpResourceModelResponse {
 }
 export interface ResourceSourceCodeRequest {
     filePath: string;
-    function: FunctionModel;
+    resource: FunctionModel;
     codedata: {
         lineRange: LineRange; // For the entire service
     };

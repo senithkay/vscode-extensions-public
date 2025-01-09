@@ -274,8 +274,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
+                const targetPosition: NodePosition = {
+                    startLine: params.codedata.lineRange.startLine.line,
+                    startColumn: params.codedata.lineRange.startLine.offset
+                }
                 const res: ResourceSourceCodeResponse = await context.langClient.addResourceSourceCode(params);
-                const position = await this.updateSource(res);
+                const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
@@ -294,8 +298,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const projectDir = path.join(StateMachine.context().projectUri);
                 const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
+                const targetPosition: NodePosition = {
+                    startLine: params.codedata.lineRange.startLine.line,
+                    startColumn: params.codedata.lineRange.startLine.offset
+                }
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
-                const position = await this.updateSource(res);
+                const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
                     filePath: targetFile,
                     position: position
@@ -307,7 +315,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[]): Promise<NodePosition> {
+    private async updateSource(params: ListenerSourceCodeResponse, identifiers?: string[], targetPosition?: NodePosition): Promise<NodePosition> {
         const modificationRequests: Record<string, { filePath: string; modifications: STModification[] }> = {};
         let position: NodePosition;
         for (const [key, value] of Object.entries(params.textEdits)) {
@@ -353,9 +361,14 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 })) as SyntaxTree;
 
                 if (parseSuccess) {
-                    identifiers && (syntaxTree as ModulePart).members.forEach(member => {
-                        if (STKindChecker.isServiceDeclaration(member) && identifiers.every(id => id && member.source.includes(id))) {
-                            position = member.position;
+                    (identifiers || targetPosition) && (syntaxTree as ModulePart).members.forEach(member => {
+                        if (STKindChecker.isServiceDeclaration(member)) {
+                            if (identifiers && identifiers.every(id => id && member.source.includes(id))) {
+                                position = member.position;
+                            }
+                            if (targetPosition && member.position.startLine === targetPosition.startLine && member.position.startColumn === targetPosition.startColumn) {
+                                position = member.position;
+                            }
                         }
                     });
                     fs.writeFileSync(request.filePath, source);
@@ -368,9 +381,11 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                         ],
                     });
 
-                    await StateMachine.langClient().resolveMissingDependencies({
-                        documentIdentifier: { uri: fileUriString },
-                    });
+                    if (!targetPosition) {
+                        await StateMachine.langClient().resolveMissingDependencies({
+                            documentIdentifier: { uri: fileUriString },
+                        });
+                    }
                     // // Temp fix: ResolveMissingDependencies does not work uless we call didOpen, This needs to be fixed in the LS
                     // await StateMachine.langClient().didOpen({
                     //     textDocument: { uri: fileUriString, languageId: "ballerina", version: 1, text: source },

@@ -20,6 +20,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ResourceAccordion } from "./components/ResourceAccordion";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
+import { ResourceForm } from "./Forms/ResourceForm";
 
 
 const LoadingContainer = styled.div`
@@ -50,16 +51,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [functionModel, setFunctionModel] = useState<FunctionModel>(undefined);
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
-    const initService = () => {
+    const [isNew, setIsNew] = useState<boolean>(false);
+
+    const fetchService = () => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
         rpcClient.getServiceDesignerRpcClient().getServiceModelFromCode({ filePath, codedata: { lineRange } }).then(res => {
             console.log("Service Model: ", res.service);
             setServiceModel(res.service);
+            setIsSaving(false);
         })
     }
 
     useEffect(() => {
-        initService();
+        fetchService();
     }, [position]);
 
     const handleOpenDiagram = (resource: Resource) => {
@@ -90,38 +94,44 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 documentUri: filePath
             },
         });
-
     };
 
     const handleNewFunction = () => {
         rpcClient.getServiceDesignerRpcClient().getHttpResourceModel({}).then(res => {
             console.log("New Function Model: ", res.resource);
             setFunctionModel(res.resource);
+            setIsNew(true);
         })
     };
 
     const handleNewFunctionClose = () => {
+        setIsNew(false);
         setFunctionModel(undefined);
     };
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
         setIsSaving(true);
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
-        const res = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+        let res = undefined;
+        if (isNew) {
+            res = await rpcClient.getServiceDesignerRpcClient().addResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+        } else {
+            res = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+        }
+        setIsNew(false);
+        handleNewFunctionClose();
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
-                documentUri: filePath,
-                position: position
+                documentUri: res.filePath,
+                position: res.position
             },
         });
-        setIsSaving(false);
     }
 
     const handleExportOAS = () => {
         rpcClient.getServiceDesignerRpcClient().exportOASFile({});
     };
-
 
     return (
         <View>
@@ -133,6 +143,14 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         <Typography variant="h3" sx={{ marginTop: '16px' }}>Loading Service Designer...</Typography>
                     </LoadingContainer>
                 }
+                {isSaving && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
+                        <ProgressRing />
+                        {/* {setTimeout(() => (
+                            <button style={{ marginTop: '20px' }} onClick={() => setIsSaving(false)}>Cancel</button>
+                        ), 10000)} */}
+                    </div>
+                )}
                 {serviceModel &&
                     <>
                         <ViewHeader title={serviceModel.displayAnnotation.label} codicon="globe" onEdit={handleServiceEdit}>
@@ -160,7 +178,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     key={index}
                                     functionModel={functionModel}
                                     goToSource={() => { }}
-                                    onEditResource={() => { }}
+                                    onEditResource={(model) => { setFunctionModel(model) }}
                                     onDeleteResource={() => { }}
                                     onResourceImplement={() => { }}
                                     onResourceClick={() => { }}
@@ -175,8 +193,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                             title={"Function Configuration"}
                             show={!!functionModel}
                             onClose={handleNewFunctionClose}
+                            width={600}
                         >
-                            <FunctionConfigForm functionModel={functionModel} onSubmit={handleFunctionSubmit} onBack={handleNewFunctionClose} />
+                            <ResourceForm model={functionModel} onSave={handleFunctionSubmit} onClose={handleNewFunctionClose} />
                         </PanelContainer>
                     </>
                 }
