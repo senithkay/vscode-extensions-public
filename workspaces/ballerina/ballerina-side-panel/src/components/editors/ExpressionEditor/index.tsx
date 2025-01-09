@@ -265,6 +265,16 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         return await extractArgsFromFunction(value, field.key, cursorPosition);
     };
 
+    const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
+
+    const codeActions = [
+        visualizable && (
+            <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
+                <S.DataMapperBtnTxt>Open In Data Mapper</S.DataMapperBtnTxt>
+            </Button>
+        )
+    ];
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -328,6 +338,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             getHelperPane={handleGetHelperPane}
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
+                            codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>
