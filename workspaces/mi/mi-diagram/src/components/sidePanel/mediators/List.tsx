@@ -28,28 +28,19 @@ interface MediatorProps {
     documentUri: string;
     searchValue?: string;
 }
+
+const INBUILT_MODULES = ["most popular", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
 export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
     const [allMediators, setAllMediators] = React.useState<GetMediatorsResponse>();
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
-    const [connectorIcons, setConnectorIcons] = React.useState<any[]>([]);
     const [localConnectors, setLocalConnectors] = React.useState<any>();
     const [expandedModules, setExpandedModules] = React.useState<any[]>([]);
 
     useEffect(() => {
-        const fetchConnectorIcons = async () => {
-            try {
-                const connectorDataResponse = await rpcClient.getMiDiagramRpcClient().getStoreConnectorJSON();
-                setConnectorIcons(connectorDataResponse.outboundConnectors);
-            } catch (error) {
-                console.error("Failed to fetch connector data:", error);
-            }
-        };
-
         fetchMediators();
         fetchLocalConnectorData();
-        fetchConnectorIcons();
     }, [props.documentUri, props.nodePosition, rpcClient]);
 
     const fetchMediators = async () => {
@@ -58,7 +49,24 @@ export function Mediators(props: MediatorProps) {
                 documentUri: props.documentUri,
                 position: props.nodePosition.start,
             });
-            setAllMediators(mediatorsList);
+
+            const mediatorsWithConnectorIcons: GetMediatorsResponse = {};
+            await Promise.all(Object.entries(mediatorsList).map(async ([key, values]) => {
+                const isConnector = !INBUILT_MODULES.includes(key);
+
+                if (isConnector) {
+                    const iconPath = values[0].iconPath;
+                    const iconPathUri = await rpcClient.getMiDiagramRpcClient().getIconPathUri({ path: iconPath, name: "icon-small" });
+
+                    values.forEach((value) => {
+                        value.iconPath = iconPathUri.uri;
+                    });
+                }
+
+                mediatorsWithConnectorIcons[key] = values;
+            }));
+
+            setAllMediators(mediatorsWithConnectorIcons);
 
             if (expandedModules.length === 0) {
                 initializeExpandedModules(mediatorsList);
@@ -91,7 +99,7 @@ export function Mediators(props: MediatorProps) {
                 connectorName={mediator.tag[0]}
                 operationName={mediator.operationName} />;
 
-            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${FirstCharToUpperCase(mediator.operationName)} Operation`, 
+            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${FirstCharToUpperCase(mediator.operationName)} Operation`,
                 <div style={{ height: 30, width: 30, fontSize: 30 }}>{icon}</div>);
         } else {
             const form =
@@ -107,13 +115,6 @@ export function Mediators(props: MediatorProps) {
                 </div>;
             sidepanelAddPage(sidePanelContext, form, `Add ${mediatorDetails.title}`, getMediatorIconsFromFont(mediator.tag, isMostPopular));
         }
-    }
-
-    function getConnectorIconUrl(connectorName: string) {
-        const connector = connectorIcons.find(c => c.name === connectorName);
-        return connector?.icon_url ?
-            <img src={connector.icon_url} alt="Icon" onError={() => <Icon name="connector" sx={{ color: "#D32F2F" }} />} />
-            : <Icon name="connector" sx={{ color: "#D32F2F" }} />;
     }
 
     const initializeExpandedModules = (mediatorList: GetMediatorsResponse) => {
@@ -185,9 +186,10 @@ export function Mediators(props: MediatorProps) {
                                     title={mediator.title}
                                     description={mediator.description}
                                     icon={
-                                        mediator.iconPath ? getConnectorIconUrl(key) : getMediatorIconsFromFont(mediator.tag, key === "most popular")
+                                        mediator.iconPath ? <img src={mediator.iconPath} alt="Icon" /> : 
+                                        getMediatorIconsFromFont(mediator.tag, key === "most popular")
                                     }
-                                    onClick={() => getMediator(mediator, key === "most popular", getConnectorIconUrl(key))}
+                                    onClick={() => getMediator(mediator, key === "most popular", <img src={mediator.iconPath} alt="Icon" />)}
                                 />
                             ))}
                         </ButtonGroup >
