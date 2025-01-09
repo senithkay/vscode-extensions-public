@@ -31,6 +31,7 @@ import { SequenceWizard } from './views/Forms/SequenceForm';
 import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { TemplateWizard } from './views/Forms/TemplateForm';
 import { DatamapperForm } from './views/Forms/DatamapperForm';
+import { ManageConfigurables } from './views/Overview/ProjectInformation/ManageConfigurables';
 
 const ViewContainer = styled.div`
     
@@ -106,6 +107,9 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     break;
                 case MACHINE_VIEW.ManageDependencies:
                     setViewComponent(<ManageDependencies onClose={props.handleClose} dependencies={machineSate.customProps.dependencies} title={machineSate.customProps.title} />);
+                    break;
+                case MACHINE_VIEW.ManageConfigurables:
+                    setViewComponent(<ManageConfigurables onClose={props.handleClose} configurables={machineSate.customProps.configs} />);
                     break;
                 case MACHINE_VIEW.ProjectInformationForm:
                     setViewComponent(<ProjectInformationForm onClose={props.handleClose} />);

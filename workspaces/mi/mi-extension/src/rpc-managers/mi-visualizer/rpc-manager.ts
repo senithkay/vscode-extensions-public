@@ -153,10 +153,23 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
 
     async updateConfigFileValues(params: UpdateConfigValuesRequest): Promise<boolean> {
         return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.updateConfigFileValues(params.configValues);
+            const projectRoom = StateMachine.context().projectUri!;
+            const configFilePath = [projectRoom, 'src', 'main', 'wso2mi', 'resources', 'conf', 'config.properties'].join(path.sep);
+            const configDir = path.dirname(configFilePath);
+            if (!fs.existsSync(configDir)) {
+                // Create the directory structure for the config file if it doesn't exist
+                fs.mkdirSync(configDir, { recursive: true });
+            }
 
-            await this.updatePom(res.textEdits);
+            // Create config.properties if it doesn't exist
+            if (!fs.existsSync(configFilePath)) {
+                fs.writeFileSync(configFilePath, "");
+            }
+
+            const content = params.configValues.map(configValue => `${configValue.key}:${configValue.value}`).join('\n');
+            fs.writeFileSync(configFilePath, content);
+            navigate();
+
             resolve(true);
         });
     }
