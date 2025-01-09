@@ -158,13 +158,34 @@ export const getFunctionParametersList = (params: Parameter[]) => {
 
 export const getDataMapperParametersList = (params: string[]) => {
     const paramList: FunctionParameters[] = [];
+    const paramNames: string[] = [];
+
     params.forEach(param => {
+        const varName = lowercaseFirstLetter(param);
+        const generatedName = createUniqueName(varName);
+        paramNames.push(generatedName);
+
         paramList.push({
-            type: param.split(" ")[0],
-            name: param.split(" ")[1]
+            type: param,
+            name: generatedName
         });
     })
     return paramList;
+
+    function lowercaseFirstLetter(input: string): string {
+        if (!input) return input;
+        return input.charAt(0).toLowerCase() + input.slice(1);
+    }
+
+    function createUniqueName(name: string): string {
+        let newName = name;
+        let counter = 1;
+        while (paramNames.includes(newName)) {
+            newName = name + counter;
+            counter++;
+        }
+        return newName;
+    }
 }
 
 export function findRegexMatches(input: string): MatchResult[] {
