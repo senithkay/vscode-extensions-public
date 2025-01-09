@@ -35,6 +35,7 @@ export function Mediators(props: MediatorProps) {
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [connectorIcons, setConnectorIcons] = React.useState<any[]>([]);
     const [localConnectors, setLocalConnectors] = React.useState<any>();
+    const [expandedModules, setExpandedModules] = React.useState<any[]>([]);
 
     useEffect(() => {
         const fetchConnectorIcons = async () => {
@@ -58,6 +59,10 @@ export function Mediators(props: MediatorProps) {
                 position: props.nodePosition.start,
             });
             setAllMediators(mediatorsList);
+
+            if (expandedModules.length === 0) {
+                initializeExpandedModules(mediatorsList);
+            }
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllMediators(undefined);
@@ -74,7 +79,7 @@ export function Mediators(props: MediatorProps) {
         }
     };
 
-    const getMediator = async (mediator: Mediator, isMostPopular: boolean) => {
+    const getMediator = async (mediator: Mediator, isMostPopular: boolean, icon?: React.ReactNode) => {
         const mediatorDetails = await rpcClient.getMiDiagramRpcClient().getMediator({
             mediatorType: mediator.tag,
         });
@@ -86,7 +91,8 @@ export function Mediators(props: MediatorProps) {
                 connectorName={mediator.tag[0]}
                 operationName={mediator.operationName} />;
 
-            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${mediator.operationName} operation`);
+            sidepanelAddPage(sidePanelContext, connecterForm, `Add ${FirstCharToUpperCase(mediator.operationName)} Operation`, 
+                <div style={{ height: 30, width: 30, fontSize: 30 }}>{icon}</div>);
         } else {
             const form =
                 <div style={{ padding: '20px' }}>
@@ -110,6 +116,13 @@ export function Mediators(props: MediatorProps) {
             : <Icon name="connector" sx={{ color: "#D32F2F" }} />;
     }
 
+    const initializeExpandedModules = (mediatorList: GetMediatorsResponse) => {
+        if (mediatorList) {
+            const modulesToExpand = Object.keys(mediatorList).filter(key => key !== 'other');
+            setExpandedModules(modulesToExpand);
+        }
+    };
+
     const searchForm = (value: string, search?: boolean) => {
         const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '');
         const searchValue = normalizeString(value || '');
@@ -131,9 +144,11 @@ export function Mediators(props: MediatorProps) {
         }, {});
     };
 
-    const reloadPalette = () => {
+    const reloadPalette = (connectorName: string) => {
         fetchMediators();
         fetchLocalConnectorData();
+        // Enable when connector display names are added from LS
+        // setExpandedModules([connectorName.toLowerCase()]);
     };
 
     const addModule = () => {
@@ -164,7 +179,7 @@ export function Mediators(props: MediatorProps) {
             <>
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key} style={{ marginTop: '15px' }}>
-                        <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={false}>
+                        <ButtonGroup key={key} title={FirstCharToUpperCase(key)} isCollapsed={!expandedModules.includes(key)}>
                             {values.map((mediator: Mediator) => (
                                 <GridButton
                                     title={mediator.title}
@@ -172,7 +187,7 @@ export function Mediators(props: MediatorProps) {
                                     icon={
                                         mediator.iconPath ? getConnectorIconUrl(key) : getMediatorIconsFromFont(mediator.tag, key === "most popular")
                                     }
-                                    onClick={() => getMediator(mediator, key === "most popular")}
+                                    onClick={() => getMediator(mediator, key === "most popular", getConnectorIconUrl(key))}
                                 />
                             ))}
                         </ButtonGroup >
@@ -191,8 +206,7 @@ export function Mediators(props: MediatorProps) {
                     </div>
                 ) : (
                     <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', alignItems: 'center' }}>
-                            <Typography variant="h3" sx={{ margin: '0px' }}>Available Modules</Typography>
+                        <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px', alignItems: 'center' }}>
                             <LinkButton onClick={() => addModule()}>
                                 <Codicon name="plus" />Add Module
                             </LinkButton>
