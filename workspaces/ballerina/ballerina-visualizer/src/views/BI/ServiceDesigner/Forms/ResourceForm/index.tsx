@@ -77,7 +77,7 @@ export function ResourceForm(props: ResourceFormProps) {
 			<SidePanelBody>
 				<ResourcePath method={functionModel.accessor} path={functionModel.name} onChange={onPathChange} />
 				<Divider />
-				<Parameters showPayload={(functionModel.accessor.value && functionModel.accessor.value !== "GET")} parameters={functionModel.parameters} onChange={handleParamChange} schemas={functionModel.schema} />
+				<Parameters showPayload={(functionModel.accessor.value && functionModel.accessor.value.toUpperCase() !== "GET")} parameters={functionModel.parameters} onChange={handleParamChange} schemas={functionModel.schema} />
 				<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
 				<ResourceResponse method={functionModel.accessor.value as HTTP_METHOD} response={functionModel.returnType} onChange={handleResponseChange} />
 				<ActionButtons

@@ -201,7 +201,7 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
             <AccordionHeader onClick={handleResourceImplement}>
                 <MethodSection>
                     <MethodBox color={getColorByMethod(functionModel.accessor?.value || functionModel.kind)}>
-                        {functionModel.accessor?.value || functionModel.kind}
+                        {functionModel.accessor?.value || functionModel.kind.toLowerCase()}
                     </MethodBox>
                     <MethodPath>{functionModel.name.value}</MethodPath>
                 </MethodSection>
