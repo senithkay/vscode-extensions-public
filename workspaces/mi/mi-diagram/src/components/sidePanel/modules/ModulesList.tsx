@@ -56,8 +56,7 @@ export function Modules(props: ModuleProps) {
     const { rpcClient } = useVisualizerContext();
     const { localConnectors } = props;
     const [allModules, setAllModules] = React.useState([] as any);
-    const [filteredModules, setFilteredModules] = React.useState([] as any);
-    const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [filteredModules, setFilteredModules] = React.useState<[]>(undefined);
     const [searchValue, setSearchValue] = React.useState<string>('');
 
     useEffect(() => {
@@ -73,13 +72,11 @@ export function Modules(props: ModuleProps) {
             } else {
                 console.error('No internet connection. Unable to fetch modules.');
                 setAllModules(undefined);
-                setIsLoading(false);
             }
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllModules(undefined);
         }
-        setIsLoading(false);
     };
 
     const debouncedSearchModules = React.useMemo(
@@ -94,7 +91,7 @@ export function Modules(props: ModuleProps) {
                     setFilteredModules(undefined);
                 }
             } else {
-                setFilteredModules([]);
+                setFilteredModules(undefined);
             }
         }, 300),
         []
@@ -109,6 +106,7 @@ export function Modules(props: ModuleProps) {
     }, [searchValue, debouncedSearchModules]);
 
     const handleSearch = (e: string) => {
+        setFilteredModules(undefined);
         setSearchValue(e);
     }
 
@@ -117,6 +115,8 @@ export function Modules(props: ModuleProps) {
 
         sidepanelAddPage(sidePanelContext, downloadPage, FirstCharToUpperCase(module.connectorName), module.iconUrl);
     };
+
+    const isSearching = searchValue && !filteredModules;
 
     const ModuleList = () => {
         let modules: any[];
@@ -185,7 +185,7 @@ export function Modules(props: ModuleProps) {
             />
             {
 
-                isLoading ? (
+                isSearching ? (
                     <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px' }}>
                         <ProgressRing />
                     </div>
