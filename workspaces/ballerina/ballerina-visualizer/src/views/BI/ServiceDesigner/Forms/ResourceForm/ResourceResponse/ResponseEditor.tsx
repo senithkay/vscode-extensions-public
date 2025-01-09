@@ -11,10 +11,10 @@
 import React, { useEffect, useState } from 'react';
 
 import { ActionButtons, AutoComplete, TextField, Codicon, CheckBox, Divider, Typography } from '@wso2-enterprise/ui-toolkit';
-import { EditorContentColumn, EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../styles';
+import { EditorContentColumn, EditorContainer, EditorContent, ParamContainer, ParamDescription } from '../../../styles';
 import { CommonRPCAPI, STModification, StatusCodeResponse, responseCodes } from '@wso2-enterprise/ballerina-core';
-import { getTitleFromResponseCode } from '../utils';
-import { TypeBrowser } from '../TypeBrowser/TypeBrowser';
+import { getTitleFromResponseCode } from '../../../utils';
+import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export interface ParamProps {

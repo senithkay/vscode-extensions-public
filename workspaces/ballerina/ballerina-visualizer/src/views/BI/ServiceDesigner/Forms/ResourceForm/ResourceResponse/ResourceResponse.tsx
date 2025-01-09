@@ -14,10 +14,8 @@ import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
-import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../utils';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
-import { CommonRPCAPI, ConfigProperties, ReturnTypeModel, StatusCodeResponse, STModification } from '@wso2-enterprise/ballerina-core';
-import { ResponseConfig } from '../definitions';
+import { HTTP_METHOD } from '../utils';
+import { ReturnTypeModel, StatusCodeResponse } from '@wso2-enterprise/ballerina-core';
 
 export interface ResourceParamProps {
     method: HTTP_METHOD;

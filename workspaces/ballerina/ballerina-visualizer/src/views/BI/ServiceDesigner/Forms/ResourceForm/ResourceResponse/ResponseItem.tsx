@@ -10,8 +10,7 @@
 import React from "react";
 
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
-import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../styles";
-import { HTTP_METHOD, getDefaultResponse } from "../utils";
+import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../../styles";
 import { StatusCodeResponse } from "@wso2-enterprise/ballerina-core";
 
 interface ParamItemProps {

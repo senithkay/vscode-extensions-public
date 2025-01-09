@@ -14,6 +14,7 @@ import { ActionButtons, Divider, Dropdown, TextField, Typography } from '@wso2-e
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { EditorContainer, EditorContent } from '../../../styles';
 import { TypeBrowser } from '../../../components/TypeBrowser/TypeBrowser';
+import { PARAM_TYPES } from '../../../definitions';
 import { ParameterModel } from '@wso2-enterprise/ballerina-core';
 
 const options = [{ id: "0", value: "QUERY" }, { id: "1", value: "Header" }];
@@ -106,7 +107,7 @@ export function ParamEditor(props: ParamProps) {
                     />
                 )}
             </EditorContent>
-            {param.httpParamType === "QUERY" && (
+            {param.httpParamType === PARAM_TYPES.DEFAULT && (
                 <VSCodeCheckbox checked={param.kind === "REQUIRED"} onChange={handleReqFieldChange} id="is-req-checkbox">
                     Is Required?
                 </VSCodeCheckbox>

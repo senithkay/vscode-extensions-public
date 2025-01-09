@@ -21,6 +21,7 @@ import { ResourceAccordion } from "./components/ResourceAccordion";
 import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
 import { ResourceForm } from "./Forms/ResourceForm";
+import { FunctionForm } from "./Forms/FunctionForm";
 
 
 const LoadingContainer = styled.div`
@@ -62,6 +63,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     const [isNew, setIsNew] = useState<boolean>(false);
     const [showForm, setShowForm] = useState<boolean>(false);
+    const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
 
     const fetchService = () => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
@@ -103,7 +105,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const handleNewFunction = () => {
-
+        setShowFunctionConfigForm(true);
     };
 
     const handleNewFunctionClose = () => {
@@ -117,7 +119,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setShowForm(true);
     };
 
-    const handleFunctionSubmit = async (value: FunctionModel) => {
+    const handleResourceSubmit = async (value: FunctionModel) => {
         setIsSaving(true);
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
         let res = undefined;
@@ -135,6 +137,27 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 position: res.position
             },
         });
+    }
+
+    const handleFunctionSubmit = async (value: FunctionModel) => {
+        // Handle remote function save
+    }
+
+    const handleFunctionConfigSubmit = async (value: ServiceModel) => {
+        setIsSaving(true);
+        const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                documentUri: res.filePath,
+                position: res.position
+            },
+        });
+        setIsSaving(false);
+    }
+
+    const handleFunctionConfigClose = () => {
+        setShowFunctionConfigForm(false);
     }
 
     const handleExportOAS = () => {
@@ -227,10 +250,31 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         onClose={handleNewFunctionClose}
                         width={600}
                     >
-                        <ResourceForm model={functionModel} onSave={handleFunctionSubmit} onClose={handleNewFunctionClose} />
+                        <ResourceForm model={functionModel} onSave={handleResourceSubmit} onClose={handleNewFunctionClose} />
                     </PanelContainer>
                 }
+                {functionModel && functionModel.kind === "REMOTE" &&
+                    <PanelContainer
+                        title={"Function Configuration"}
+                        show={showForm}
+                        onClose={handleNewFunctionClose}
+                        width={600}
+                    >
+                        <FunctionForm model={functionModel} onSave={handleFunctionSubmit} onClose={handleNewFunctionClose} />
+                    </PanelContainer>
+                }
+
+                {serviceModel?.moduleName !== "http" &&
+                    < PanelContainer
+                        title={"Function Configuration"}
+                        show={showFunctionConfigForm}
+                        onClose={handleFunctionConfigClose}
+                    >
+                        <FunctionConfigForm serviceModel={serviceModel} onSubmit={handleFunctionConfigSubmit} onBack={handleFunctionConfigClose} />
+                    </PanelContainer>
+                }
+
             </ServiceContainer>
-        </View>
+        </View >
     );
 }
