@@ -70,6 +70,14 @@
                 "additionalProperties": {
                   "type": "string"
                 }
+              },
+              "vmArgs": {
+                "type": "array",
+                "description": "Arguments to pass to the MI server",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
               }
             }
           }
@@ -79,7 +87,8 @@
             "type": "mi",
             "name": "MI: Run and Debug",
             "request": "launch",
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "vmArgs": []
           }
         ]
       }
@@ -668,7 +677,7 @@
         {
           "command": "MI.build-and-run",
           "group": "navigation@1",
-          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml)",
+          "when": "MI.status == 'projectLoaded' && (isVisualizerActive || resourceLangId == SynapseXml) && (MI.isRunning !== 'true')",
           "title": "Build and Run Project"
         }
       ],
