@@ -323,11 +323,11 @@ export function RegistryResourceForm(props: RegistryWizardProps) {
     };
 
     const resourcesTag: ReactNode = (
-        <div 
+        <div
             style={{
                 display: "flex",
                 flexDirection: "row",
-                backgroundColor: "#cccccc",
+                backgroundColor: colors.vscodeBadgeBackground,
                 padding: "2px",
                 borderRadius: "3px",
                 paddingLeft: "4px",
