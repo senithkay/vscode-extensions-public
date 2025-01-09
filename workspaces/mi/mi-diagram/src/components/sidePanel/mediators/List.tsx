@@ -50,6 +50,7 @@ export function Mediators(props: MediatorProps) {
                 position: props.nodePosition.start,
             });
 
+            // Populate connector icons
             const mediatorsWithConnectorIcons: GetMediatorsResponse = {};
             await Promise.all(Object.entries(mediatorsList).map(async ([key, values]) => {
                 const isConnector = !INBUILT_MODULES.includes(key);
@@ -63,14 +64,19 @@ export function Mediators(props: MediatorProps) {
                     });
                 }
 
-                mediatorsWithConnectorIcons[key] = values;
+                if (key !== "other") {
+                    mediatorsWithConnectorIcons[key] = values;
+                }
             }));
+
+            // Add the other mediators at the end
+            if (mediatorsList["other"]) {
+                mediatorsWithConnectorIcons["other"] = mediatorsList["other"];
+            }
 
             setAllMediators(mediatorsWithConnectorIcons);
 
-            if (expandedModules.length === 0) {
-                initializeExpandedModules(mediatorsList);
-            }
+            initializeExpandedModules(mediatorsList);
         } catch (error) {
             console.error('Error fetching mediators:', error);
             setAllMediators(undefined);
