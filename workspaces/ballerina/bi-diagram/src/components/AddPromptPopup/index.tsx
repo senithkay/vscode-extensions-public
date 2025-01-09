@@ -8,11 +8,11 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { LinePosition } from "../../utils/types";
+import { FlowNode, Branch, LinePosition } from "../../utils/types";
 import { useDiagramContext } from "../DiagramContext";
 import styled from "@emotion/styled";
-import { Colors, NODE_PADDING, POPUP_BOX_HEIGHT, POPUP_BOX_WIDTH } from "../../resources/constants";
-import { PromptTextField } from "@wso2-enterprise/ui-toolkit";
+import { Colors, NODE_PADDING, POPUP_BOX_WIDTH } from "../../resources/constants";
+import { Button, PromptTextField } from "@wso2-enterprise/ui-toolkit";
 
 export namespace PopupStyles {
     export const Container = styled.div`
@@ -44,16 +44,17 @@ export namespace PopupStyles {
     `;
 }
 
-interface AddCommentPopupProps {
+interface AddPromptPopupProps {
+    node: FlowNode | Branch;
     target: LinePosition;
     onClose: () => void;
 }
 
-export function AddCommentPopup(props: AddCommentPopupProps) {
-    const { target, onClose } = props;
-    const { onAddComment } = useDiagramContext();
+export function AddPromptPopup(props: AddPromptPopupProps) {
+    const { node, target, onClose } = props;
+    const { onAddNodePrompt, suggestions } = useDiagramContext();
 
-    const [comment, setComment] = useState("");
+    const [prompt, setPrompt] = useState("");
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,32 +68,47 @@ export function AddCommentPopup(props: AddCommentPopupProps) {
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [comment]);
+    }, [prompt]);
 
-    const handleAddComment = () => {
+    const handleAddPrompt = () => {
         if (!target) {
-            console.error(">>> AddCommentPopup: AddCommentPopup: target not found");
+            console.error(">>> AddPromptPopup: AddPromptPopup: target not found");
             return;
         }
-        onAddComment(comment, { startLine: target, endLine: target });
+        onAddNodePrompt(node, { startLine: target, endLine: target }, prompt);
     };
 
-    const handleOnCommentChange = (value: string) => {
-        setComment(value);
+    const handleOnPromptChange = (value: string) => {
+        setPrompt(value);
     };
 
     return (
         <PopupStyles.Container>
-             <PromptTextField
-                placeholder="Enter a comment here"
-                value={comment}
-                onTextChange={handleOnCommentChange}
-                onEnter={handleAddComment}
+            <PromptTextField
+                placeholder="Enter a prompt to generate next node"
+                value={prompt}
+                onTextChange={handleOnPromptChange}
+                onEnter={handleAddPrompt}
                 sx={{ width: "100%" }}
+                readOnly={suggestions?.fetching}
             />
-            <PopupStyles.InfoText>Press Enter to add a comment. Press Esc to cancel.</PopupStyles.InfoText>
+
+            <PopupStyles.Row>
+                <PopupStyles.InfoText>Press ESC to cancel.</PopupStyles.InfoText>
+                <Button
+                    onClick={handleAddPrompt}
+                    buttonSx={{
+                        height: 18,
+                        marginBottom: 2,
+                    }}
+                    
+                    disabled={suggestions?.fetching}
+                >
+                    Generate
+                </Button>
+            </PopupStyles.Row>
         </PopupStyles.Container>
     );
 }
 
-export default AddCommentPopup;
+export default AddPromptPopup;

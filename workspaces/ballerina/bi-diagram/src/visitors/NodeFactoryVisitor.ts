@@ -10,7 +10,6 @@
 import { NodeLinkModel, NodeLinkModelOptions } from "../components/NodeLink";
 import { ApiCallNodeModel } from "../components/nodes/ApiCallNode";
 import { BaseNodeModel } from "../components/nodes/BaseNode";
-import { CodeBlockNodeModel } from "../components/nodes/CodeBlockNode";
 import { ButtonNodeModel } from "../components/nodes/ButtonNode";
 import { CommentNodeModel } from "../components/nodes/CommentNode";
 import { DraftNodeModel } from "../components/nodes/DraftNode/DraftNodeModel";
@@ -70,13 +69,6 @@ export class NodeFactoryVisitor implements BaseVisitor {
 
     private createEmptyNode(id: string, x: number, y: number, visible = true, showButton = false): EmptyNodeModel {
         const nodeModel = new EmptyNodeModel(id, visible, showButton);
-        nodeModel.setPosition(x, y);
-        this.nodes.push(nodeModel);
-        return nodeModel;
-    }
-
-    private createCodeBlockNode(id: string, x: number, y: number, width: number, height: number): CodeBlockNodeModel {
-        const nodeModel = new CodeBlockNodeModel(id, width, height);
         nodeModel.setPosition(x, y);
         this.nodes.push(nodeModel);
         return nodeModel;
