@@ -279,7 +279,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
 
     const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
 
-    const actionButtons = [
+    const codeActions = [
         visualizable && (
             <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
                 <S.DataMapperBtnTxt>Open In Data Mapper</S.DataMapperBtnTxt>
@@ -350,7 +350,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             getHelperPane={getHelperPaneData && handleGetHelperPane} // TODO: Remove this check when all the forms are refactored to use form generator
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
-                            actionButtons={actionButtons}
+                            codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>

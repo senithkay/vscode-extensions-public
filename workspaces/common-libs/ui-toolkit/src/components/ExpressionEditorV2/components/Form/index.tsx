@@ -32,7 +32,7 @@ namespace Ex {
         }
     `;
 
-    export const ActionButtonsContainer = styled.div`
+    export const CodeActionsContainer = styled.div`
         display: flex;
         gap: 8px;
         align-items: center;
@@ -51,7 +51,7 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, actionButtons, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, codeActions, ...rest } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
     const buttonRef = useRef<HTMLDivElement>(null)
 
@@ -67,20 +67,18 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
 
     return (
         <Ex.Container id={id}>
-            {actionButtons && actionButtons.length > 0 && (
-                <Ex.ActionButtonsContainer>
-                    {actionButtons.map((button, index) => (
+            {codeActions && codeActions.length > 0 && (
+                <Ex.CodeActionsContainer>
+                    {codeActions.map((button, index) => (
                         <React.Fragment key={index}>
                             {button}
                         </React.Fragment>
                     ))}
-                </Ex.ActionButtonsContainer>
+                </Ex.CodeActionsContainer>
             )}
             <Ex.EditorContainer>
                 <Ex.ExpressionBox>
-                    {startAdornment}
                     <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
-                    {endAdornment}
                 </Ex.ExpressionBox>
                 {getExpressionEditorIcon ? getExpressionEditorIcon() : (
                     props.changeHelperPaneState  && (

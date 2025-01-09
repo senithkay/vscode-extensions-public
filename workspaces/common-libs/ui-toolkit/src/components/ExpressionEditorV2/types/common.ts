@@ -140,7 +140,7 @@ type ExpressionEditorBaseProps = {
         args: string[];
         currentArgIndex: number;
     }>;
-    actionButtons?: ReactNode[];
+    codeActions?: ReactNode[];
 };
 
 type DefaultCompletionConditionalProps =
