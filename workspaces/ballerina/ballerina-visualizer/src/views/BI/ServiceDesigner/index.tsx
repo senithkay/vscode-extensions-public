@@ -66,23 +66,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         fetchService();
     }, [position]);
 
-    const handleOpenDiagram = (resource: Resource) => {
-        rpcClient.getVisualizerLocation().then(res => {
-            rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: resource.position, documentUri: res.documentUri } })
-        })
-    }
-
-    const handlServiceSubmit = async (value: ServiceModel) => {
-        setIsSaving(true);
-        const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath: "", service: value });
-        await rpcClient.getVisualizerRpcClient().openView({
-            type: EVENT_TYPE.OPEN_VIEW,
-            location: {
-                documentUri: res.filePath,
-                position: res.position
-            },
-        });
-        setIsSaving(false);
+    const handleOpenDiagram = async (resource: FunctionModel) => {
+        const lineRange: LineRange = resource.codedata.lineRange;
+        const nodePosition: NodePosition = { startLine: lineRange.startLine.line, startColumn: lineRange.startLine.offset, endLine: lineRange.endLine.line, endColumn: lineRange.endLine.offset }
+        await rpcClient.getVisualizerRpcClient().openView({ type: EVENT_TYPE.OPEN_VIEW, location: { position: nodePosition, documentUri: filePath } })
     }
 
     const handleServiceEdit = async () => {
@@ -180,8 +167,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     goToSource={() => { }}
                                     onEditResource={(model) => { setFunctionModel(model) }}
                                     onDeleteResource={() => { }}
-                                    onResourceImplement={() => { }}
-                                    onResourceClick={() => { }}
+                                    onResourceImplement={handleOpenDiagram}
                                 />
                             ))}
                         </FunctionSection>

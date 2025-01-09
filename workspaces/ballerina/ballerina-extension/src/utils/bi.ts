@@ -137,6 +137,10 @@ bi = true
     const typesBalPath = path.join(projectRoot, 'types.bal');
     writeBallerinaFileDidOpen(typesBalPath, EMPTY);
 
+    // Create main.bal file
+    const mainBal = path.join(projectRoot, 'main.bal');
+    writeBallerinaFileDidOpen(mainBal, EMPTY);
+
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);

@@ -8,6 +8,7 @@
  */
 
 import { DisplayAnnotation } from "./ballerina";
+import { LineRange } from "./common";
 
 
 export type ListenerModel = {
@@ -50,6 +51,7 @@ export interface FunctionModel {
     enabled: boolean;
     optional: boolean;
     editable: boolean;
+    codedata?: CodeData;
 
     // accessor will be used by resource functions
     accessor?: PropertyModel;
@@ -84,6 +86,10 @@ interface CodeData {
     description: string;
     groupNo: number;
     groupName: string;
+    lineRange: LineRange;
+    inListenerInit: boolean;
+    isBasePath: boolean;
+    inDisplayAnnotation: boolean;
 }
 
 export interface PropertyModel {

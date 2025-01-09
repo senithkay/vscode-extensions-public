@@ -150,11 +150,10 @@ export interface ResourceAccordionProps {
     onEditResource: (resource: FunctionModel) => void;
     onDeleteResource: (resource: FunctionModel) => void;
     onResourceImplement: (resource: FunctionModel) => void;
-    onResourceClick: (resource: FunctionModel) => void;
 }
 
 export function ResourceAccordion(params: ResourceAccordionProps) {
-    const { functionModel, goToSource, onEditResource, onDeleteResource, onResourceImplement, onResourceClick } = params;
+    const { functionModel, goToSource, onEditResource, onDeleteResource, onResourceImplement } = params;
 
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
@@ -197,15 +196,9 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
         onResourceImplement(functionModel)
     }
 
-    const handleResourceClick = (e: React.SyntheticEvent) => {
-        e.stopPropagation();
-        onResourceClick && onResourceClick(functionModel);
-        toggleAccordion();
-    }
-
     return (
         <AccordionContainer data-testid="service-design-view-resource">
-            <AccordionHeader onClick={handleResourceClick}>
+            <AccordionHeader onClick={handleResourceImplement}>
                 <MethodSection>
                     <MethodBox color={getColorByMethod(functionModel.accessor?.value || functionModel.kind)}>
                         {functionModel.accessor?.value || functionModel.kind}
@@ -214,11 +207,11 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
                 </MethodSection>
                 <ButtonSection>
                     <>
-                        {goToSource! && (
+                        {/* {goToSource! && (
                             <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
                                 <Icon name='design-view' />
                             </VSCodeButton>
-                        )}
+                        )} */}
                         {onEditResource! && (
                             <VSCodeButton appearance="icon" title="Edit FunctionModel" onClick={handleEditResource}>
                                 <Icon name="editIcon" />

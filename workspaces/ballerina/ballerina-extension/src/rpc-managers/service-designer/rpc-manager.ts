@@ -277,7 +277,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
-                }
+                };
                 const res: ResourceSourceCodeResponse = await context.langClient.addResourceSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
@@ -301,7 +301,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 const targetPosition: NodePosition = {
                     startLine: params.codedata.lineRange.startLine.line,
                     startColumn: params.codedata.lineRange.startLine.offset
-                }
+                };
                 const res: ResourceSourceCodeResponse = await context.langClient.updateResourceSourceCode(params);
                 const position = await this.updateSource(res, undefined, targetPosition);
                 const result: SourceUpdateResponse = {
