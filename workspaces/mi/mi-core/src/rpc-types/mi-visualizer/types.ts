@@ -87,7 +87,7 @@ export interface ProjectDetailsResponse {
     buildDetails: BuildDetails;
     dependencies: DependenciesDetails;
     unitTest: UnitTestDetails;
-    configs: PomNodeDetails[];
+    configurables: PomNodeDetails[];
 }
 
 export interface PomNodeDetails {
@@ -101,6 +101,7 @@ export interface PrimaryDetails {
     projectVersion: PomNodeDetails;
     projectDescription: PomNodeDetails;
     runtimeVersion: PomNodeDetails;
+    projectPackaging: PomNodeDetails;
 }
 
 export interface BuildDetails {

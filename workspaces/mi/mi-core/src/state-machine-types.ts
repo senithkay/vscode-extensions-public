@@ -75,6 +75,7 @@ export enum MACHINE_VIEW {
     LoggedOut = "Logged Out",
     UpdateExtension = "Update Extension",
     ManageDependencies = "Manage Dependencies",
+    ManageConfigurables = "Manage Configurables",
     ProjectInformationForm = "Project Information Form",
 }
 

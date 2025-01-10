@@ -20,6 +20,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { xml } from "@codemirror/lang-xml";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { XMLValidator } from "fast-xml-parser";
+import cronValidator from 'cron-expression-validator';
 import path from "path";
 export interface Region {
     label: string;
@@ -145,7 +146,11 @@ export function TaskForm(props: TaskFormProps) {
         }),
         triggerCron: yup.string().when('triggerType', {
             is: 'cron',
-            then: (schema) => schema.required("Trigger cron is required"),
+            then: (schema) => schema
+                .required("Trigger cron is required")
+                .test('validateCron', 'Invalid Quartz Cron expression', value => {
+                    return cronValidator.isValidCronExpression(value);
+                }),
             otherwise: (schema) => schema.notRequired().default(''),
         }),
         format: yup.mixed().oneOf(["soap11", "soap12", "pox", "get"]).default("soap12"),

@@ -204,8 +204,8 @@ import {
     MediatorTryOutRequest,
     MediatorTryOutResponse,
     SavePayloadRequest,
-    GetPayloadRequest,
-    GetPayloadResponse,
+    GetPayloadsRequest,
+    GetPayloadsResponse,
     GetMediatorsRequest,
     GetMediatorsResponse,
     GetMediatorRequest,
@@ -367,7 +367,7 @@ export const tryOutMediator: RequestType<MediatorTryOutRequest, MediatorTryOutRe
 export const shutDownTryoutServer: RequestType<void, boolean> = { method: `${_preFix}/shutDownTryoutServer` };
 export const getMediatorInputOutputSchema: RequestType<MediatorTryOutRequest, MediatorTryOutResponse> = { method: `${_preFix}/getMediatorInputOutputSchema` };
 export const saveInputPayload: RequestType<SavePayloadRequest,boolean> = { method: `${_preFix}/saveInputPayload` };
-export const getInputPayload: RequestType<GetPayloadRequest,GetPayloadResponse> = { method: `${_preFix}/getInputPayload` };
+export const getInputPayloads: RequestType<GetPayloadsRequest,GetPayloadsResponse> = { method: `${_preFix}/getInputPayloads` };
 export const getMediators: RequestType<GetMediatorsRequest, GetMediatorsResponse> = { method: `${_preFix}/getMediators` };
 export const getMediator: RequestType<GetMediatorRequest, GetMediatorResponse> = { method: `${_preFix}/getMediator` };
 export const updateMediator: NotificationType<UpdateMediatorRequest> = { method: `${_preFix}/updateMediator` };

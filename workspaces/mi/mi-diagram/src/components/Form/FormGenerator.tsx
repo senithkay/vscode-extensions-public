@@ -21,12 +21,14 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { CodeTextArea } from './CodeTextArea';
 import { Range } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import ParameterManager from './GigaParamManager/ParameterManager';
+import { StringWithParamManagerComponent } from './StringWithParamManager';
+import { isValueExpression } from './utils';
 
 const Field = styled.div`
     margin-bottom: 12px;
 `;
 
-const cardStyle = {
+export const cardStyle = {
     display: "block",
     margin: "15px 0",
     padding: "0 15px 15px 15px",
@@ -52,7 +54,7 @@ export interface FormGeneratorProps {
     range?: Range;
 }
 
-interface Element {
+export interface Element {
     inputType: any;
     name: string | number;
     displayName: any;
@@ -72,6 +74,11 @@ interface Element {
     configurableType?: string;
     addParamText?: string;
     deriveResponseVariable?: boolean;
+    matchPattern?: string;
+    initialSeparator?: string;
+    secondarySeparator?: string;
+    keyValueSeparator?: string;
+    expressionType?: 'xpath/jsonPath' | 'synapse';
 }
 
 interface ExpressionValueWithSetter {
@@ -161,7 +168,8 @@ export function FormGenerator(props: FormGeneratorProps) {
             return valueObj;
         } else if (['stringOrExpression', 'expression', 'keyOrExpression', 'resourceOrExpression'].includes(inputType) &&
             (!currentValue || typeof currentValue !== 'object' || !('isExpression' in currentValue))) {
-            return { isExpression: inputType === "expression", value: currentValue ?? "" };
+            const isExpression = inputType === "expression" || isValueExpression(currentValue);
+            return { isExpression: isExpression, value: currentValue ?? "" };
         } else if (inputType === 'checkbox') {
             return currentValue ?? false;
         } else {
@@ -201,6 +209,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
+                expressionType={element.expressionType}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -372,6 +381,15 @@ export function FormGenerator(props: FormGeneratorProps) {
                     {...element.inputType.endsWith('OrExpression') && { exprToggleEnabled: true }}
                     openExpressionEditor={(value: ExpressionFieldValue, setValue: any) => handleOpenExprEditor(value, setValue, handleOnCancelExprEditorRef, sidePanelContext)}
                     onCreateButtonClick={onCreateButtonClick}
+                />)
+            }
+            case 'stringWithParamManager': {
+                return (<StringWithParamManagerComponent
+                    element={element}
+                    isRequired={isRequired}
+                    helpTipElement={helpTipElement}
+                    field={field}
+                    errorMsg={errorMsg}
                 />)
             }
             case 'ParamManager': {
@@ -578,8 +596,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                         display: "flex",
                         flexDirection: 'row'
                     }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<')
-                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
+                        {typeof formData.help === 'string' && formData.help.includes('<') ? 
+                            // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
+                            null
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
                         {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024-2025, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,16 +8,16 @@
 */
 
 import React, { useEffect } from 'react';
-import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, CheckBox, Icon, TextArea } from '@wso2-enterprise/ui-toolkit';
+import { Button, ProgressIndicator, Typography, FormGroup, ErrorBanner, TextArea, Dropdown, ProgressRing, Tooltip, Icon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { CodeTextArea } from '../../Form/CodeTextArea';
+import { CodeTextArea } from '../../../Form/CodeTextArea';
 import ReactJson, { InteractionProps } from 'react-json-view';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Header, MediatorProperties, MediatorTryOutInfo, Params } from '@wso2-enterprise/mi-core';
-import { Colors, ERROR_MESSAGES, REACT_JSON_THEME } from '../../../resources/constants';
-import SidePanelContext, { clearSidePanelState } from '../SidePanelContexProvider';
-import { getParamManagerValues } from '../../..';
+import { ERROR_MESSAGES, REACT_JSON_THEME } from '../../../../resources/constants';
+import { getParamManagerValues } from '../../../..';
+import { SetPayloads } from './SetPayloads';
 
 const TryoutContainer = styled.div`
     width: 100%;
@@ -43,12 +43,13 @@ export function TryOutView(props: TryoutProps) {
     const { documentUri, nodeRange } = props;
     const { rpcClient, setIsLoading: setDiagramLoading } = useVisualizerContext();
     const [isLoading, setIsLoading] = React.useState(true);
+    const [isTryOutInputLoading, setIsTryOutInputLoading] = React.useState(true);
     const [isTryOutLoading, setIsTryOutLoading] = React.useState(false);
     const [tryOutError, setTryOutError] = React.useState<string | null>(null);
     const [mediatorInput, setMediatorInput] = React.useState<MediatorTryOutInfo>(undefined);
     const [mediatorOutput, setMediatorOutput] = React.useState<MediatorTryOutInfo>(undefined);
-    const [isDefaultInput, setIsDefaultInput] = React.useState(true);
-    const [inputPayload, setInputPayload] = React.useState('');
+    const [inputPayloads, setInputPayloads] = React.useState([]);
+    const [selectedPayload, setSelectedPayload] = React.useState<any>();
     const [tryoutId, setTryoutId] = React.useState<string>();
 
     // State to manage the expanded/collapsed state of each section
@@ -57,6 +58,7 @@ export function TryOutView(props: TryoutProps) {
         headers: false,
         params: false,
         variables: false,
+        miscellaneous: false,
     });
 
     const [isOutputExpanded, setIsOutputExpanded] = React.useState({
@@ -64,20 +66,25 @@ export function TryOutView(props: TryoutProps) {
         headers: false,
         params: false,
         variables: false,
+        miscellaneous: false,
     });
-
-    const sidePanelContext = React.useContext(SidePanelContext);
 
     useEffect(() => {
         if (!props.isActive) {
             return;
         }
         const fetchMediatorDetails = async () => {
-            await getInputPayload();
-            await getInputData();
+            await getRequestPayloads();
+            setIsLoading(false);
         };
         fetchMediatorDetails();
     }, [props]);
+
+    useEffect(() => {
+        if (selectedPayload) {
+            getInputData();
+        }
+    }, [selectedPayload]);
 
     const getEdits = () => {
         const values = props.getValues();
@@ -89,24 +96,42 @@ export function TryOutView(props: TryoutProps) {
         return values;
     }
 
+    const getRequestPayloads = async () => {
+        try {
+            const { payloads } = await rpcClient.getMiDiagramRpcClient().getInputPayloads({ documentUri });
+            if (!Array.isArray(payloads)) {
+                setInputPayloads([{ name: 'Default', content: JSON.stringify(payloads) }]);
+                setSelectedPayload('Default');
+            } else {
+                setInputPayloads(payloads);
+                setSelectedPayload(payloads?.[0]?.name);
+            }
+        } catch (error) {
+            console.error("Error fetching input payload:", error);
+        }
+    }
+
     const getInputData = async () => {
         try {
-            setIsTryOutLoading(true);
+            setIsTryOutInputLoading(true);
             setTryOutError(null);
             setMediatorInput(undefined);
             setMediatorOutput(undefined);
+            setTryoutId(undefined);
             if (!nodeRange) {
                 setIsLoading(false);
                 return;
             }
 
+            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload)?.content;
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
+                tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload,
-                // mediatorType: props.mediatorType,
+                inputPayload: JSON.stringify(inputPayload),
+                mediatorType: props.mediatorType,
                 edits: []
             });
 
@@ -120,17 +145,7 @@ export function TryOutView(props: TryoutProps) {
         } catch (error) {
             console.error("Error fetching mediator input/output schema:", error);
         } finally {
-            setIsTryOutLoading(false);
-            setIsLoading(false);
-        }
-    }
-
-    const getInputPayload = async () => {
-        try {
-            const { payload } = await rpcClient.getMiDiagramRpcClient().getInputPayload({ documentUri });
-            setInputPayload(payload || '');
-        } catch (error) {
-            console.error("Error fetching input payload:", error);
+            setIsTryOutInputLoading(false);
         }
     }
 
@@ -138,24 +153,24 @@ export function TryOutView(props: TryoutProps) {
         try {
             setIsTryOutLoading(true);
             setTryOutError(null);
+            setMediatorOutput(undefined);
 
+            const inputPayload = inputPayloads.find((payload) => payload.name === selectedPayload)?.content;
             const res = await rpcClient.getMiDiagramRpcClient().tryOutMediator({
                 tryoutId,
                 file: documentUri,
                 line: nodeRange.start.line,
                 column: nodeRange.start.character + 1,
                 isServerLess: false,
-                inputPayload,
+                inputPayload: JSON.stringify(inputPayload),
                 mediatorInfo: mediatorInput
             });
 
             if (res.error) {
-                setMediatorOutput(undefined);
                 setTryOutError(typeof res.error === 'string' ? res.error : ERROR_MESSAGES.ERROR_TRYING_OUT_MEDIATOR);
                 console.error("Error trying out mediator:", res.error);
             } else {
                 setMediatorOutput(res.output);
-                setTryoutId(undefined);
             }
         } catch (error) {
             console.error("Error during try out:", error);
@@ -164,76 +179,82 @@ export function TryOutView(props: TryoutProps) {
         }
     }
 
-    const onSavePayload = async () => {
-        await rpcClient.getMiDiagramRpcClient().saveInputPayload({ payload: inputPayload });
-        clearSidePanelState(sidePanelContext);
-    }
-
     if (isLoading) {
         return (
             <TryoutContainer>
                 <ProgressIndicator />
             </TryoutContainer>
         );
-    } else if ((!mediatorInput || !mediatorInput.properties) && (inputPayload === undefined)) {
+    } else if ((!mediatorInput || !mediatorInput.properties) && (inputPayloads === undefined)) {
         return (
             <TryoutContainer>
                 <ErrorBanner errorMsg={ERROR_MESSAGES.ERROR_LOADING_TRYOUT} />
             </TryoutContainer>
         )
-    } else if (!nodeRange && (inputPayload || inputPayload === '')) {
+    } else if (!nodeRange) {
         return (
-            <TryoutContainer>
-                <Typography
-                    sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
-                    variant="body3">
-                    {`Save the payload to try out the mediators`}
-                </Typography>
-
-                <Typography variant="body3">Payload</Typography>
-                <CodeTextArea name="Payload" rows={30} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
-                <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px' }}>
-                    <Button onClick={() => clearSidePanelState(sidePanelContext)} appearance="secondary">
-                        Cancel
-                    </Button>
-                    <Button onClick={onSavePayload} sx={{ marginRight: "10px" }}>
-                        Save
-                    </Button>
-                </div>
-            </TryoutContainer>
+            <SetPayloads />
         );
     }
 
+    const helpTipElement =
+        (<Tooltip
+            content={"Select a request to try out the mediator. Select start node to add new requests."}
+            position='right'
+        >
+            <Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} />
+        </Tooltip>);
+
+    const Header = (
+        <Typography
+            sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
+            variant="body3">
+            {`Try the request flow up to this mediator`}
+        </Typography>
+    );
+
+    if (inputPayloads.length === 0) {
+        return (
+            <TryoutContainer>
+                {Header}
+                <Typography variant="body2" sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <Icon name="warning" isCodicon /> No requests available to try out the mediator. Select start node to add a request.
+                </Typography>
+            </TryoutContainer>
+        );
+    };
+
     return (
         <TryoutContainer>
-            <Typography
-                sx={{ padding: "10px", marginBottom: "10px", borderBottom: "1px solid var(--vscode-editorWidget-border)" }}
-                variant="body3">
-                {`Try the request flow up to this mediator`}
-            </Typography>
+            {Header}
 
             <Section>
-                <Typography variant="h3">Request</Typography>
-                <CheckBox
-                    label="Use default request payload"
-                    checked={isDefaultInput}
-                    disabled={isTryOutLoading}
-                    onChange={() => setIsDefaultInput(!isDefaultInput)}
+                <Dropdown
+                    id="request"
+                    label="Select a request to try out"
+                    labelAdornment={helpTipElement}
+                    disabled={isTryOutInputLoading || isTryOutLoading}
+                    items={inputPayloads.map((payload) => { return { value: payload.name } })}
+                    value={selectedPayload}
+                    onChange={(e) => {
+                        setSelectedPayload(e.target.value);
+                    }}
                 />
-                {!isDefaultInput &&
-                    <div>
-                        <CodeTextArea label='Custom request payload' rows={5} value={inputPayload} onChange={(e) => setInputPayload(e.target.value)} />
-                    </div>}
 
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h2">Before running the mediator</Typography>
-                    <Button onClick={getInputData} sx={{ marginLeft: "10px", marginTop: "8px" }} tooltip={isTryOutLoading ? 'Running...' : 'Refresh'} appearance="secondary" disabled={isTryOutLoading}>
-                        <Icon name="refresh" isCodicon />
-                    </Button>
-                </div>
+                {isTryOutInputLoading &&
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+                        <ProgressRing />
+                        <Typography variant="body3" sx={{ marginTop: '10px' }}>
+                            Loading data. This may take a while...
+                        </Typography>
+                    </div>
+                }
                 {mediatorInput &&
                     <>
-                        <div style={{ marginTop: "10px" }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="h2">Mediator Input</Typography>
+                        </div>
+                        <div>
                             <MediatorDetails
                                 data={mediatorInput}
                                 setMediatorInfo={setMediatorInput}
@@ -252,7 +273,7 @@ export function TryOutView(props: TryoutProps) {
 
             {tryOutError && <ErrorBanner errorMsg={tryOutError} />}
             {mediatorOutput && mediatorOutput.properties.synapse && <Section>
-                <Typography variant="h2">After running the mediator</Typography>
+                <Typography variant="h2">Mediator Output</Typography>
                 {mediatorOutput && <MediatorDetails
                     data={mediatorOutput}
                     setMediatorInfo={setMediatorOutput}
@@ -266,7 +287,7 @@ export function TryOutView(props: TryoutProps) {
 };
 
 const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isEditable }: { data: MediatorTryOutInfo, setMediatorInfo: React.Dispatch<React.SetStateAction<MediatorTryOutInfo>>, isExpanded: any, setIsExpanded: any, isEditable: boolean }) => {
-    const handleEdit = (type: string, edit: InteractionProps, key?: string) => {
+    const handleEdit = (type: string, edit: any, key?: string) => {
         if (!isEditable) return; // Prevent editing if not editable
         setMediatorInfo((prev) => {
             const updated = { ...prev };
@@ -289,7 +310,14 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
 
     const Payload = ({ payload }: { payload: string }) => (
         <FormGroup title='Payload' isCollapsed={!isExpanded.payload} onToggle={(collapsed) => toggleExpanded('payload', collapsed)}>
-            {isEditable && <CodeTextArea name="Payload" label='Payload' rows={5} value={payload} />}
+            {isEditable &&
+                <CodeTextArea
+                    name="Payload"
+                    label='Payload'
+                    rows={5}
+                    value={payload}
+                    onChange={(e) => handleEdit('payload', { updated_src: e.target.value })}
+                />}
             {!isEditable && <TextArea name="Payload" label='Payload' value={payload} rows={5} readOnly />}
         </FormGroup>
     );
@@ -357,11 +385,14 @@ const MediatorDetails = ({ data, setMediatorInfo, isExpanded, setIsExpanded, isE
 
     return (
         <>
-            <Payload payload={data.payload} />
+            {Payload({ payload: data.payload })}
             <Headers headers={data.headers} />
-            <Params params={data.params} />
             <Variables variables={data.variables} />
-            <Properties properties={data.properties} />
+
+            <FormGroup title='Miscellaneous' isCollapsed={!isExpanded.miscellaneous} onToggle={(collapsed) => toggleExpanded('miscellaneous', collapsed)}>
+                <Properties properties={data.properties} />
+                <Params params={data.params} />
+            </FormGroup>
         </>
     );
 }
