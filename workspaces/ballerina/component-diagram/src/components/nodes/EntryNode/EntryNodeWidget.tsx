@@ -55,6 +55,14 @@ export namespace NodeStyles {
         margin-bottom: -2px;
     `;
 
+    export const FunctionPortWidget = styled(PortWidget)`
+        /* width: 8px;
+        height: 8px;
+        background-color: ${Colors.PRIMARY};
+        border-radius: 50%;
+        margin-left: -5px; */
+    `;
+
     export const StyledText = styled.div`
         font-size: 14px;
     `;
@@ -133,12 +141,11 @@ export namespace NodeStyles {
         justify-content: center;
         align-items: center;
         color: ${Colors.ON_SURFACE};
-        margin-right: -20px;
+        /* margin-right: -20px; */
     `;
 
     export const FunctionBox = styled(NodeStyles.ServiceBox)<NodeStyleProp>`
         height: 40px;
-        width: ${ENTRY_NODE_WIDTH + 20}px;
         padding: 0 12px;
 
         border: ${NODE_BORDER_WIDTH}px solid
@@ -302,7 +309,7 @@ function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: Entr
                     <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>
                 )}
             </NodeStyles.FunctionBox>
-            <NodeStyles.BottomPortWidget port={model.getPort(getEntryNodeFunctionPortName(func))!} engine={engine} />
+            <NodeStyles.FunctionPortWidget port={model.getPort(getEntryNodeFunctionPortName(func))!} engine={engine} />
         </NodeStyles.FunctionBoxWrapper>
     );
 }
