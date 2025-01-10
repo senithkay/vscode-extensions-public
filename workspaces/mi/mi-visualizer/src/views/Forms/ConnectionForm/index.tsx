@@ -569,16 +569,16 @@ export function ConnectionWizard(props: ConnectionStoreProps) {
                                         <Typography variant="body2">Dependencies will be added to the project. Do you want to continue?</Typography>
                                         <FormActions>
                                             <Button
-                                                appearance="primary"
-                                                onClick={() => handleDependencyResponse(true)}
-                                            >
-                                                Yes
-                                            </Button>
-                                            <Button
                                                 appearance="secondary"
                                                 onClick={() => handleDependencyResponse(false)}
                                             >
                                                 No
+                                            </Button>
+                                            <Button
+                                                appearance="primary"
+                                                onClick={() => handleDependencyResponse(true)}
+                                            >
+                                                Yes
                                             </Button>
                                         </FormActions>
                                     </div>

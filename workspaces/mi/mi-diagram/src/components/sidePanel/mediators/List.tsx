@@ -208,7 +208,13 @@ export function Mediators(props: MediatorProps) {
                                     title={mediator.title}
                                     description={mediator.description}
                                     icon={
-                                        mediator.iconPath ? <img src={mediator.iconPath} alt="Icon" /> :
+                                        mediator.iconPath ?
+                                            <img src={mediator.iconPath}
+                                                alt="Icon"
+                                                onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = DEFAULT_ICON
+                                                }} /> :
                                             getMediatorIconsFromFont(mediator.tag, key === "most popular")
                                     }
                                     onClick={() => getMediator(mediator, key === "most popular",
