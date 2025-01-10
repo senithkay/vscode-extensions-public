@@ -180,6 +180,17 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
     }
     entries.push(entryPoints);
 
+    // Listeners
+    const listeners = new ProjectExplorerEntry(
+        "Listeners",
+        vscode.TreeItemCollapsibleState.Expanded,
+        null,
+        'connection',
+        false
+    );
+    listeners.contextValue = "listeners";
+    listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);
+    entries.push(listeners);
 
     // Connections
     const connections = new ProjectExplorerEntry(
@@ -279,7 +290,7 @@ function getComponents(items: ProjectStructureArtifactResponse[], itemType?: DIR
 
         fileEntry.contextValue = contextValueMap[itemType] || comp.icon;
         // Service path is used to identify the service using getBallerniaProject API
-        if(itemType === DIRECTORY_MAP.SERVICES || DIRECTORY_SUB_TYPE.AUTOMATION) {
+        if (itemType === DIRECTORY_MAP.SERVICES || DIRECTORY_SUB_TYPE.AUTOMATION) {
             fileEntry.tooltip = comp.context;
         }
 

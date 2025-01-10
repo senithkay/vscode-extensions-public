@@ -61,7 +61,7 @@ export function AddComponentView() {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.BIServiceForm,
+                    view: MACHINE_VIEW.BIServiceWizard,
                 },
             });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {

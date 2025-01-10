@@ -34,7 +34,7 @@ export interface TriggerNode {
     packageName: string;
     listenerProtocol: string;
     icon: string;
-    properties?: ConfigProperties;
+    properties?: XConfigProperties;
     displayAnnotation?: DisplayAnnotation;
     listener?: XProperty;
     services?: Service[];
@@ -58,16 +58,16 @@ export interface XProperty {
     placeholder: string;
     optional: boolean;
     advanced: boolean;
-    properties?: ConfigProperties;
+    properties?: XConfigProperties;
 }
-export interface ConfigProperties {
+export interface XConfigProperties {
     [key: string]: XProperty;
 }
 
 export interface Service {
     enabled: boolean;
     functions: TriggerFunction[];
-    properties?: ConfigProperties;
+    properties?: XConfigProperties;
 }
 
 export interface TriggerFunction {
