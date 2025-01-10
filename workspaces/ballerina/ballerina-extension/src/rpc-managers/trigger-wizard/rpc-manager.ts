@@ -151,7 +151,7 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 if (!existsSync(targetFile)) {
                     writeFileSync(targetFile, '');
@@ -286,7 +286,7 @@ export class TriggerWizardRpcManager implements TriggerWizardAPI {
             const context = StateMachine.context();
             try {
                 const projectDir = path.join(StateMachine.context().projectUri);
-                const targetFile = path.join(projectDir, `triggers.bal`);
+                const targetFile = path.join(projectDir, `main.bal`);
                 params.filePath = targetFile;
                 if (!existsSync(targetFile)) {
                     writeFileSync(targetFile, '');
