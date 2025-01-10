@@ -78,6 +78,7 @@ export interface Element {
     initialSeparator?: string;
     secondarySeparator?: string;
     keyValueSeparator?: string;
+    expressionType?: 'xpath/jsonPath' | 'synapse';
 }
 
 interface ExpressionValueWithSetter {
@@ -208,6 +209,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                 placeholder={element.placeholder}
                 nodeRange={range}
                 canChange={element.inputType !== 'expression'}
+                expressionType={element.expressionType}
                 errorMsg={errorMsg}
                 openExpressionEditor={(value, setValue) => {
                     setCurrentExpressionValue({ value, setValue });
@@ -594,8 +596,9 @@ export function FormGenerator(props: FormGeneratorProps) {
                         display: "flex",
                         flexDirection: 'row'
                     }}>
-                        {typeof formData.help === 'string' && formData.help.includes('<')
-                            ? <div dangerouslySetInnerHTML={{ __html: formData.help }} />
+                        {typeof formData.help === 'string' && formData.help.includes('<') ? 
+                            // <div dangerouslySetInnerHTML={{ __html: formData.help }} /> Enable when forms are fixed
+                            null
                             : <Typography variant="body3">{formData.help}</Typography>
                         }
                         {formData.doc && <a href={formData.doc}><Icon name="question" isCodicon iconSx={{ fontSize: '18px' }} sx={{ marginLeft: '5px', cursor: 'help' }} /></a>}

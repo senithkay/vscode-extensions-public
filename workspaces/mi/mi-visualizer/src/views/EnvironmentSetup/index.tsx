@@ -203,13 +203,13 @@ export const EnvironmentSetup = () => {
         }
     }
 
-    const getIcon = (complete: boolean, loading: boolean) => {
+    const getIcon = (complete: boolean, loading: boolean, sx?: any) => {
         if (complete) {
-            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: VSCodeColors.PRIMARY }} />;
+            return <Icon name="enable-inverse" iconSx={{ fontSize: "15px", color: VSCodeColors.PRIMARY, ...sx }} />;
         } else if (loading) {
-            return <ProgressRing sx={{ height: "16px", width: "16px" }} color={VSCodeColors.PRIMARY} />;
+            return <ProgressRing sx={{ height: "16px", width: "16px", ...sx }} color={VSCodeColors.PRIMARY} />;
         } else {
-            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px" }} />;
+            return <Icon name="radio-button-unchecked" iconSx={{ fontSize: "16px", ...sx }} />;
         }
     };
 
@@ -228,7 +228,7 @@ export const EnvironmentSetup = () => {
         function renderJavaValid() {
             return (<Row>
                 <IconContainer>
-                    {getIcon(true, false)}
+                    {getIcon(true, false, { cursor: "default" })}
                 </IconContainer>
                 <Column>
                     <StepTitle color={VSCodeColors.PRIMARY}>Java is setup.</StepTitle>
@@ -241,7 +241,7 @@ export const EnvironmentSetup = () => {
             return (<SpaceBetweenRow>
                 <Row>
                     <IconContainer>
-                        {getIcon(true, false)}
+                        {getIcon(true, false, { cursor: "default" })}
                     </IconContainer>
                     <Column>
                         <StepTitle>Java is available</StepTitle>
@@ -259,7 +259,7 @@ export const EnvironmentSetup = () => {
             return (<SpaceBetweenRow>
                 <Row>
                     <IconContainer>
-                        {getIcon(false, false)}
+                        {getIcon(false, false, { cursor: "default" })}
                     </IconContainer>
                     <Column>
                         <StepTitle>Java is not available</StepTitle>
@@ -277,7 +277,7 @@ export const EnvironmentSetup = () => {
     function renderDownloadJava() {
         return (<Row>
             <IconContainer>
-                {getIcon(javaProgress === 100, javaProgress > 0 && javaProgress < 100)}
+                {getIcon(javaProgress === 100, javaProgress > 0 && javaProgress < 100, { cursor: "default" })}
             </IconContainer>
             <Column>
                 <StepTitle>Download Java {javaProgress ? `( ${javaProgress}% )` : ""}</StepTitle>
@@ -301,7 +301,7 @@ export const EnvironmentSetup = () => {
         function renderMIValid() {
             return (<Row>
                 <IconContainer>
-                    {getIcon(true, false)}
+                    {getIcon(true, false, { cursor: "default" })}
                 </IconContainer>
                 <Column>
                     <StepTitle color={VSCodeColors.PRIMARY}>Micro Integrator is setup.</StepTitle>
@@ -314,7 +314,7 @@ export const EnvironmentSetup = () => {
             return (<SpaceBetweenRow>
                 <Row>
                     <IconContainer>
-                        {getIcon(true, false)}
+                        {getIcon(true, false, { cursor: "default" })}
                     </IconContainer>
                     <Column>
                         <StepTitle>Micro Integrator is available</StepTitle>
@@ -332,7 +332,7 @@ export const EnvironmentSetup = () => {
             return (<SpaceBetweenRow>
                 <Row>
                     <IconContainer>
-                        {getIcon(false, false)}
+                        {getIcon(false, false, { cursor: "default" })}
                     </IconContainer>
                     <Column>
                         <StepTitle>Micro Integrator is not available</StepTitle>
@@ -350,7 +350,7 @@ export const EnvironmentSetup = () => {
     function renderDownloadMI() {
         return (<Row>
             <IconContainer>
-                {getIcon(miProgress === 100, miProgress > 0 && miProgress < 100)}
+                {getIcon(miProgress === 100, miProgress > 0 && miProgress < 100, { cursor: "default" })}
             </IconContainer>
             <Column>
                 <StepTitle>Download Micro Integrator {miProgress ? `( ${miProgress}% )` : ""}</StepTitle>

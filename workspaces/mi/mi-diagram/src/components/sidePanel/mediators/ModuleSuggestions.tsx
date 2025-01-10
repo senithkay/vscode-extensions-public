@@ -36,35 +36,35 @@ export const OperationsWrapper = styled.div`
 
 export function ModuleSuggestions(props: ModuleSuggestionProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
-    const { localConnectors } = props;
+    const { localConnectors, searchValue } = props;
     const [filteredModules, setFilteredModules] = React.useState<any[]>([]);
     const [isSearching, setIsSearching] = React.useState<boolean>(false);
 
-    React.useEffect(() => {
-        const debouncedSearchModules = debounce(async () => {
-            if (props.searchValue && navigator.onLine) {
-                setIsSearching(true);
-                const modules = await searchModules();
-                setIsSearching(false);
-                setFilteredModules(modules);
+    const debouncedSearchModules = React.useMemo(
+        () => debounce(async (value: string) => {
+            if (value) {
+                try {
+                    const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', value)}`);
+                    const data = await response.json();
+                    setFilteredModules(data);
+                } catch (e) {
+                    console.error("Error fetching modules", e);
+                    setFilteredModules(undefined);
+                }
             } else {
                 setFilteredModules([]);
             }
-        }, 500);
+        }, 300),
+        []
+    );
 
-        debouncedSearchModules();
-    }, [props.searchValue]);
+    React.useEffect(() => {
+        debouncedSearchModules(searchValue);
 
-    const searchModules = async () => {
-        try {
-            const response = await fetch(`${APIS.CONNECTOR_SEARCH.replace('${searchValue}', props.searchValue)}`);
-            const data = await response.json();
-            
-            return (data);
-        } catch (e) {
-            console.error("Error fetching modules", e);
-        }
-    };
+        return () => {
+            debouncedSearchModules.cancel();
+        };
+    }, [searchValue, debouncedSearchModules]);
 
     const downloadModule = (module: any) => {
         const downloadPage = <DownloadPage module={module} onDownloadSuccess={props.reloadMediatorPalette} />;
@@ -85,7 +85,7 @@ export function ModuleSuggestions(props: ModuleSuggestionProps) {
                 <h4>In Store: </h4>
                 {Object.entries(modules).map(([key, values]: [string, any]) => (
                     localConnectors && localConnectors.some((c: any) =>
-                        (c.name.toLowerCase() === values.connectorName.toLowerCase()) &&
+                        ((c.displayName ? c.displayName === values.connectorName : c.name.toLowerCase() === values.connectorName.toLowerCase())) &&
                         (c.version === values.version.tagName)) ? null : (
                         <div key={key}>
                             <ButtonGroup

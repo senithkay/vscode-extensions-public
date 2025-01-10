@@ -33,6 +33,7 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.CACHE.toLowerCase():
         case MEDIATORS.THROTTLE.toLowerCase():
         case MEDIATORS.STORE.toLowerCase():
+        case MEDIATORS.THROWERROR.toLowerCase():
             color = "#3e97d3";
             break;
 
@@ -94,9 +95,6 @@ export function getMediatorIconsFromFont(mediator: string, isMostPopular?: boole
         case MEDIATORS.ITERATE.toLowerCase():
         case MEDIATORS.AGGREGATE.toLowerCase():
             color = "#e0e0d8";
-            break;
-        case MEDIATORS.THROWERROR.toLowerCase():
-            color = "#fc0303";
             break;
         default:
             color = "#FFB02E";

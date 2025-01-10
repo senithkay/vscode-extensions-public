@@ -431,16 +431,16 @@ export function AddConnection(props: AddConnectionProps) {
                                 )}
                             </div>}
                             <Button
-                                appearance="primary"
-                                onClick={handleSubmit(onAddConnection)}
-                            >
-                                {props.connectionName ? "Update" : "Add"}
-                            </Button>
-                            <Button
                                 appearance="secondary"
                                 onClick={handleOnClose}
                             >
                                 Cancel
+                            </Button>
+                            <Button
+                                appearance="primary"
+                                onClick={handleSubmit(onAddConnection)}
+                            >
+                                {props.connectionName ? "Update" : "Add"}
                             </Button>
                         </FormActions>
                         { connectionErrorMessage && <span style={{ color: 'red' }}>
@@ -460,16 +460,16 @@ export function AddConnection(props: AddConnectionProps) {
                     </ParamManagerContainer>
                     <FormActions>
                         <Button
-                            appearance="primary"
-                            onClick={onAddInitConnection}
-                        >
-                            {props.connectionName ? "Update" : "Add"}
-                        </Button>
-                        <Button
                             appearance="secondary"
                             onClick={handleOnClose}
                         >
                             Cancel
+                        </Button>
+                        <Button
+                            appearance="primary"
+                            onClick={onAddInitConnection}
+                        >
+                            {props.connectionName ? "Update" : "Add"}
                         </Button>
                     </FormActions>
                 </>
