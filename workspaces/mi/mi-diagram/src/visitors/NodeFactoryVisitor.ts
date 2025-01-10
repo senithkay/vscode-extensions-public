@@ -173,7 +173,7 @@ export class NodeFactoryVisitor implements Visitor {
                 diagramNode = new ConditionNodeModel(node, name, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.START_NODE:
-                diagramNode = new StartNodeModel(node, data, this.parents[this.parents.length - 1], this.previousSTNodes);
+                diagramNode = new StartNodeModel(node, data, this.documentUri, this.parents[this.parents.length - 1], this.previousSTNodes);
                 break;
             case NodeTypes.END_NODE:
                 diagramNode = new EndNodeModel(node, this.parents[this.parents.length - 1], this.previousSTNodes);
@@ -318,7 +318,7 @@ export class NodeFactoryVisitor implements Visitor {
                 if (type === NodeTypes.GROUP_NODE) {
                     const endNode = structuredClone(sequence);
                     endNode.viewState.y = startNode.viewState.y + sequence.viewState.h - NODE_DIMENSIONS.END.HEIGHT;
-                    endNode.viewState.x = startNode.viewState.x;
+                    endNode.viewState.x = startNode.viewState.x + (NODE_DIMENSIONS.START.DISABLED.WIDTH / 2) - (NODE_DIMENSIONS.END.WIDTH / 2)- NODE_DIMENSIONS.BORDER;
                     this.createNodeAndLinks({ node: endNode, type: NodeTypes.END_NODE });
                 }
             }
@@ -402,7 +402,7 @@ export class NodeFactoryVisitor implements Visitor {
         this.parents.push(node);
     }
     endVisitInSequence(node: Sequence): void {
-        node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
+        node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.END.WIDTH / 2;
         node.viewState.y += node.viewState.fh;
         this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.pop();
