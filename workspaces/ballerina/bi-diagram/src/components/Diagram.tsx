@@ -36,6 +36,7 @@ import { NODE_WIDTH, NodeTypes } from "../resources/constants";
 import Controls from "./Controls";
 import { CurrentBreakpointsResponse as BreakpointInfo } from "@wso2-enterprise/ballerina-core";
 import { BreakpointVisitor } from "../visitors/BreakpointVisitor";
+import { BaseNodeModel } from "./nodes/BaseNode";
 
 export interface DiagramProps {
     model: Flow;
@@ -153,6 +154,8 @@ export function Diagram(props: DiagramProps) {
         // get all other nodes
         const otherNodes = nodes.filter((node) => node.getType() !== NodeTypes.CODE_BLOCK_NODE);
 
+        const activeBreakpointNode = getActiveBreakpointNode(nodes);
+
         newDiagramModel.addAll(...codeBlockNodes);
         newDiagramModel.addAll(...otherNodes, ...links);
 
@@ -173,7 +176,7 @@ export function Diagram(props: DiagramProps) {
         if (nodes.length < 3 || !hasDiagramZoomAndPosition(model.fileName)) {
             resetDiagramZoomAndPosition(model.fileName);
         }
-        loadDiagramZoomAndPosition(diagramEngine);
+        loadDiagramZoomAndPosition(diagramEngine, activeBreakpointNode);
 
         diagramEngine.repaintCanvas();
         // update the diagram model state
@@ -213,6 +216,18 @@ export function Diagram(props: DiagramProps) {
         suggestions: suggestions,
         projectPath: projectPath,
         readOnly: onAddNode === undefined || onDeleteNode === undefined || onNodeSelect === undefined || readOnly,
+    };
+
+    const getActiveBreakpointNode = (nodes: NodeModel[]): NodeModel => {
+        const node = nodes.find((node) => {
+            const isValidType = node.getType() === NodeTypes.BASE_NODE
+                || node.getType() === NodeTypes.WHILE_NODE
+                || node.getType() === NodeTypes.IF_NODE
+                || node.getType() === NodeTypes.API_CALL_NODE;
+            return isValidType && (node as BaseNodeModel).isActiveBreakpoint();
+        });
+
+        return node;
     };
 
     return (
