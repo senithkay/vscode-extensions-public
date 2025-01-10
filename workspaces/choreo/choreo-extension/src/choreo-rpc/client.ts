@@ -114,15 +114,12 @@ export class RPCClient {
 		return RPCClient._instance;
 	}
 
-	async sendRequest<T>(method: string, params?: any, timeout?: number, isRetry?: boolean): Promise<T> {
+	async sendRequest<T>(method: string, params?: any, timeout = 60000, isRetry?: boolean): Promise<T> {
 		if (!this._conn) {
 			throw new Error("Connection is not initialized");
 		}
 		try {
-			if (timeout) {
-				return await withTimeout(() => this._conn!.sendRequest<T>(method, params), method, timeout);
-			}
-			return await this._conn.sendRequest<T>(method, params);
+			return await withTimeout(() => this._conn!.sendRequest<T>(method, params), method, timeout);
 		} catch (e: any) {
 			// TODO: have a better way to check if connection is closed
 			if ((e.message?.includes("Connection is closed") || e.message?.includes(`Function ${method} timed out`)) && !isRetry) {
