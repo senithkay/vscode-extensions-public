@@ -19,9 +19,11 @@ import { ContextAwareExpressionEditor } from "./ExpressionEditor";
 import { FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 import { ParamManagerEditor } from "../ParamManager/ParamManager";
 import { DropdownEditor } from "./DropdownEditor";
+import { FileSelect } from "./FileSelect";
 import { CheckBoxEditor } from "./CheckBoxEditor";
 import { ArrayEditor } from "./ArrayEditor";
 import { MapEditor } from "./MapEditor";
+import { ChoiceForm } from "./ChoiceForm";
 
 interface FormFieldEditorProps {
     field: FormField;
@@ -58,7 +60,9 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 label = "Add Another";
                 break;
         }
-        return <MultiSelectEditor field={field} label={label} />;
+        return <MultiSelectEditor field={field} label={label} openSubPanel={openSubPanel} />;
+    } else if (field.type === "CHOICE") {
+        return <ChoiceForm field={field} />;
     } else if (field.type === "EXPRESSION_SET") {
         return <ArrayEditor field={field} label={"Add Another Value"} />;
     } else if (field.type === "MAPPING_EXPRESSION_SET") {
@@ -71,6 +75,8 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
     } else if (field.type.toUpperCase() === "ENUM") {
         // Enum is a dropdown field
         return <DropdownEditor field={field} />;
+    } else if (field.type === "FILE_SELECT" && field.editable) {
+        return <FileSelect field={field} />;
     } else if (field.type === "SINGLE_SELECT" && field.editable) {
         // HACK:Single select field is treat as type editor for now
         return <DropdownEditor field={field} />;

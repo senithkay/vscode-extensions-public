@@ -18,6 +18,7 @@ import { Category, Flow, FlowNode, CodeData, ConfigVariable } from "./bi";
 import { ConnectorRequest, ConnectorResponse } from "../rpc-types/connector-wizard/interfaces";
 import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { TriggerFunction, TriggerNode } from "./triggers";
+import { FunctionModel, ListenerModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
 import { IDMModel, Mapping } from "./inline-data-mapper";
 
@@ -884,6 +885,93 @@ export interface TriggerFunctionResponse {
 }
 // <-------- Trigger Related ------->
 
+// <-------- Service Designer Related ------->
+export interface ListenersRequest {
+    filePath: string;
+    moduleName: string;
+    orgName?: string;
+    pkgName?: string;
+    listenerTypeName?: string;
+}
+export interface ListenersResponse {
+    hasListeners: boolean;
+    listeners: string[];
+}
+export interface ListenerModelRequest {
+    moduleName: string;
+    orgName?: string;
+    pkgName?: string;
+    listenerTypeName?: string;
+}
+export interface ListenerModelResponse {
+    listener: ListenerModel;
+}
+
+export interface ListenerSourceCodeRequest {
+    filePath: string;
+    listener: ListenerModel;
+}
+export interface ListenerSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface ServiceModelRequest {
+    filePath: string;
+    moduleName: string;
+    listenerName?: string;
+    orgName?: string;
+    pkgName?: string;
+}
+export interface ServiceModelResponse {
+    service: ServiceModel;
+}
+export interface ServiceSourceCodeRequest {
+    filePath: string;
+    service: ServiceModel;
+}
+export interface ServiceSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+export interface ServiceModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ServiceModelFromCodeResponse {
+    service: ServiceModel;
+}
+export interface ListenerModelFromCodeRequest {
+    filePath: string;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ListenerModelFromCodeResponse {
+    listener: ListenerModel;
+}
+export interface HttpResourceModelRequest {
+}
+export interface HttpResourceModelResponse {
+    resource: FunctionModel;
+}
+export interface FunctionSourceCodeRequest {
+    filePath: string;
+    function: FunctionModel;
+    codedata: {
+        lineRange: LineRange; // For the entire service
+    };
+}
+export interface ResourceSourceCodeResponse {
+    textEdits: {
+        [key: string]: TextEdit[];
+    };
+}
+// <-------- Service Designer Related ------->
+
 // <------------ BI INTERFACES --------->
 
 export interface BaseLangClientInterface {
@@ -918,6 +1006,19 @@ export interface BIInterface extends BaseLangClientInterface {
     getTriggerModelFromCode: (params: TriggerModelFromCodeRequest) => Promise<TriggerModelFromCodeResponse>;
     addTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
     updateTriggerFunction: (params: TriggerFunctionRequest) => Promise<TriggerFunctionResponse>;
+
+    // New Service Designer APIs
+    getListeners: (params: ListenersRequest) => Promise<ListenersResponse>;
+    getListenerModel: (params: ListenerModelRequest) => Promise<ListenerModelResponse>;
+    addListenerSourceCode: (params: ListenerSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getListenerFromSourceCode: (params: ListenerModelFromCodeRequest) => Promise<ListenerModelFromCodeResponse>;
+    getServiceModel: (params: ServiceModelRequest) => Promise<ServiceModelResponse>;
+    addServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
+    getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
+    getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
+    addResourceSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+    addFunctionSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<void>;
     addFunction: (params: AddFunctionRequest) => Promise<AddFunctionResponse>;

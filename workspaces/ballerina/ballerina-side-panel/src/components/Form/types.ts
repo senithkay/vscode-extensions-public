@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics, TextEdit, LinePosition } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
@@ -28,10 +28,12 @@ export type FormField = {
     valueType?: string;
     diagnostics?: DiagnosticMessage[];
     items?: string[];
+    choices?: PropertyModel[];
     paramManagerProps?: ParamConfig;
     valueTypeConstraint: string;
     groupNo?: number;
     groupName?: string;
+    addNewButton?: boolean;
 };
 
 export type ExpressionFormField = {
@@ -80,7 +82,7 @@ type FormCompletionConditionalProps = {
         triggerCharacter?: string,
         onlyVariables?: boolean
     ) => Promise<void>;
-    extractArgsFromFunction: (
+    extractArgsFromFunction?: (
         value: string,
         key: string,
         cursorPosition: number

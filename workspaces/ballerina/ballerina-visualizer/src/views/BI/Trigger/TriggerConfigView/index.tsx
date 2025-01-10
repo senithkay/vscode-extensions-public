@@ -135,7 +135,7 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
         let visibleTypes: CompletionItem[] = types;
         if (!types.length) {
             const context = await rpcClient.getVisualizerLocation();
-            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'triggers.bal');
+            const functionFilePath = Utils.joinPath(URI.file(context.projectUri), 'main.bal');
             const response = await rpcClient.getBIDiagramRpcClient().getVisibleTypes({
                 filePath: functionFilePath.fsPath,
                 position: { line: 0, offset: 0 },
@@ -192,7 +192,6 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                             <FormGroup title="Service Configuration" isCollapsed={false}>
                                 <Form
                                     ref={serviceFieldsRef}
-                                    hideSave={true}
                                     formFields={serviceFields}
                                     onSubmit={handleServiceSubmit}
                                     expressionEditor={
@@ -214,7 +213,6 @@ export function TriggerConfigView(props: TriggerConfigViewProps) {
                             <FormGroup title="Listener Configuration" isCollapsed={false}>
                                 <Form
                                     ref={listenerFieldsRef}
-                                    hideSave={true}
                                     formFields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     expressionEditor={
