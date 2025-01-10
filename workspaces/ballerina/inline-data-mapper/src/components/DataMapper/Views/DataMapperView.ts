@@ -7,25 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export enum SourceNodeType {
-    InputNode,
-    FocusedInputNode,
-    SubMappingNode
-}
+import { IDMModel } from "@wso2-enterprise/ballerina-core";
 
 export interface View {
-    targetFieldFQN: string;
-    sourceFieldFQN: string;
-    sourceNodeType: SourceNodeType;
     label: string;
-    mapFnIndex?: number;
-    subMappingInfo?: SubMappingInfo;
-}
-
-export interface SubMappingInfo {
-    index: number;
-    mappingName: string;
-    mappingType: string;
-    mapFnIndex?: number;
-    focusedOnSubMappingRoot?: boolean;
+    model: IDMModel;
 }

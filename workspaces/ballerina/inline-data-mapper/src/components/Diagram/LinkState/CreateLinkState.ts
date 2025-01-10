@@ -13,7 +13,6 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 
 import { ExpressionLabelModel } from "../Label";
 import { InputOutputPortModel } from '../Port/model/InputOutputPortModel';
-import { IntermediatePortModel } from '../Port/IntermediatePort';
 import { isInputNode, isOutputNode } from '../Actions/utils';
 import { useDMExpressionBarStore } from '../../../store/store';
 import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../utils/constants';

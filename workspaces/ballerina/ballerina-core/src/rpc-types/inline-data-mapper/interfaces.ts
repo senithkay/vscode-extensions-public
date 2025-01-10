@@ -7,8 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { LinePosition } from "../../interfaces/common";
+import { TypeKind } from "../../interfaces/inline-data-mapper";
 
 export interface IDMType {
     category: string;
@@ -19,25 +18,4 @@ export interface IDMType {
     defaultValue?: unknown;
     optional?: boolean;
     fields?: IDMType[];
-}
-
-export enum TypeKind {
-    Record = 'record',
-    Array = 'array',
-    String = 'string',
-    Int = 'int',
-    Float = 'float',
-    Decimal = 'decimal',
-    Boolean = 'boolean',
-    Unknown = 'unknown'
-}
-
-export interface IOTypeRequest {
-    filePath: string;
-    position: LinePosition;
-}
-
-export interface IOTypeResponse {
-    inputTypes: IDMType[];
-    outputType: IDMType | undefined;
 }

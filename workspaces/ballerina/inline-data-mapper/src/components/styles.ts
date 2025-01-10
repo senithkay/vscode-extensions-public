@@ -18,6 +18,16 @@ const typeLabel = {
     verticalAlign: "middle",
 };
 
+const addElementButton = {
+    color: "var(--vscode-inputOption-activeForeground)",
+    display: "flex",
+    justifyContent: "space-between",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "13px",
+    lineHeight: "24px",
+};
+
 const treeLabel = {
     verticalAlign: "middle",
     padding: "5px",
@@ -178,6 +188,16 @@ export const useIONodesStyles = () => ({
         justifyContent: "center",
         color: "var(--button-primary-foreground)",
         opacity: 0.7
+    }),
+    addArrayElementButton: css({
+        "& > vscode-button": {
+            padding: "5px",
+            textTransform: "none",
+            ...addElementButton
+        },
+        "& > vscode-button > *": {
+            margin: "0px 6px"
+        }
     }),
 });
 
