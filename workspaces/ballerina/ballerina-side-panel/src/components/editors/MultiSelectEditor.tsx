@@ -122,7 +122,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         <S.Container>
             <S.LabelContainer>
                 <S.Label>{field.label}</S.Label>
-                {field.addNewButton &&
+                {openSubPanel && field.addNewButton &&
                     <S.AddNewButton
                         appearance='icon'
                         aria-label="add"

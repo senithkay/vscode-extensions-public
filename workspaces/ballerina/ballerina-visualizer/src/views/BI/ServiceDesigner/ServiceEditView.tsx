@@ -118,7 +118,7 @@ export function ServiceEditView(props: ServiceEditViewProps) {
                     <Container>
                         {!saving &&
                             <>
-                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} />
+                                <ServiceConfigForm serviceModel={serviceModel} onSubmit={onSubmit} openListenerForm={undefined} formSubmitText={"Save"} />
                             </>
                         }
                         {saving &&

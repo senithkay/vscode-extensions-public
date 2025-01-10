@@ -65,7 +65,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
             const formField: FormField = {
                 key: key,
                 label: expression?.metadata.label || key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, str => str.toUpperCase()),
-                type: expression.valueType,
+                type: expression.valueType === "EXPRESSION" ? "Default" : expression.valueType,
                 documentation: expression?.metadata.description || "",
                 valueType: expression.valueTypeConstraint,
                 editable: expression.editable,
@@ -80,6 +80,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
             }
             formFields.push(formField);
         }
+        console.log("Dynamic Form Fields:", formFields)
         return formFields;
     }
 
@@ -95,6 +96,7 @@ export function ChoiceForm(props: ChoiceFormProps) {
                     {...register(field.key)}
                     options={field.choices.map((choice, index) => ({ id: index.toString(), value: index, content: choice.metadata.label }))}
                     onChange={(e) => {
+                        console.log("Choice Form Index:", Number(e.target.value))
                         setSelectedOption(Number(e.target.value));
                     }}
                 />

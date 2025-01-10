@@ -93,6 +93,10 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
         onSubmit(response);
     };
 
+    const handleListenerForm = (panel: SubPanel) => {
+        openListenerForm();
+    }
+
     return (
         <Container>
             {serviceModel &&
@@ -111,7 +115,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={serviceFields}
                                     onBack={onBack}
-                                    openSubPanel={(panel: SubPanel) => { openListenerForm(); }}
+                                    openSubPanel={openListenerForm && handleListenerForm}
                                     onSubmit={handleListenerSubmit}
                                     submitText={formSubmitText}
                                 />
