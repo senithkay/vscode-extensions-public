@@ -1332,8 +1332,6 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
-      ajv: ~8.16.0
-      ajv-formats: ~3.0.1
       blueimp-md5: ^2.19.0
       classnames: ^2.2.6
       copyfiles: ^2.4.1
@@ -1373,8 +1371,6 @@ importers:
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
-      ajv: 8.16.0
-      ajv-formats: 3.0.1_ajv@8.16.0
       blueimp-md5: 2.19.0
       classnames: 2.5.1
       lodash: 4.17.21
@@ -9733,6 +9729,17 @@ packages:
 
   /@codemirror/autocomplete/6.15.0:
     resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    dependencies:
+      '@codemirror/language': 6.10.1
+      '@codemirror/state': 6.4.1
+      '@codemirror/view': 6.26.0
+      '@lezer/common': 1.2.1
+    dev: false
+
+  /@codemirror/autocomplete/6.15.0_@codemirror+state@6.4.1:
+    resolution: {integrity: sha512-G2Zm0mXznxz97JhaaOdoEG2cVupn4JjPaS4AcNvZzhOsnnG9YVN68VzfoUw6dYTsIxT6a/cmoFEN47KAWhXaOg==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
     dependencies:
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -28225,7 +28232,7 @@ packages:
     peerDependencies:
       '@codemirror/lint': '>=6.0.0'
     dependencies:
-      '@codemirror/autocomplete': 6.15.0
+      '@codemirror/autocomplete': 6.15.0_@codemirror+state@6.4.1
       '@codemirror/commands': 6.3.3
       '@codemirror/language': 6.10.1
       '@codemirror/lint': 6.5.0

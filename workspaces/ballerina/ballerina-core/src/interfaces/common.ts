@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { FlowNode } from "./bi";
 
 /**
 * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -83,5 +84,8 @@ export interface ConfigurePanelData {
 
 interface InlineDataMapperProps {
     filePath: string;
-    range: Range;
+    flowNode: FlowNode;
+    propertyKey: string;
+    editorKey: string;
+    position: LinePosition;
 }

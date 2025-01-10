@@ -259,7 +259,7 @@ export function LibrariesView(props: LibrariesViewProps) {
         const updateData: ExpressionFormField = {
             value: functionSignature + "(",
             key: editorKey,
-            cursorPosition: position.endLine.offset
+            cursorPosition: { line: position.endLine.line, offset: position.endLine.offset }
         }
         updateFormField(updateData);
     }

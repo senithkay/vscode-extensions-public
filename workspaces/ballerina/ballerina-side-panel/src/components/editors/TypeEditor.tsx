@@ -21,11 +21,13 @@ import { useFormContext } from "../../context";
 import { Controller } from "react-hook-form";
 import {S} from "../editors/ExpressionEditor";
 import { sanitizeType } from "./utils";
+import { debounce } from "lodash";
 
 interface TypeEditorProps {
     field: FormField;
     openRecordEditor: (open: boolean) => void;
     handleOnFieldFocus?: (key: string) => void;
+    handleOnTypeChange?: () => void;
     autoFocus?: boolean;
 }
 
@@ -39,7 +41,7 @@ const getDefaultCompletion = () => (
 );
 
 export function TypeEditor(props: TypeEditorProps) {
-    const { field, openRecordEditor, handleOnFieldFocus, autoFocus } = props;
+    const { field, openRecordEditor, handleOnFieldFocus, handleOnTypeChange, autoFocus } = props;
     const { form, expressionEditor } = useFormContext();
     const { control } = form;
     const {
@@ -95,6 +97,12 @@ export function TypeEditor(props: TypeEditorProps) {
         handleCancel();
     }
 
+    const handleTypeEdit = (value: string) => {
+        handleOnTypeChange();
+    };
+
+    const debouncedTypeEdit = debounce(handleTypeEdit, 300);
+
     return (
         <S.Container>
             <S.HeaderContainer>
@@ -124,6 +132,7 @@ export function TypeEditor(props: TypeEditorProps) {
                             value={value}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+                                debouncedTypeEdit(value);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Retrieve visible types
