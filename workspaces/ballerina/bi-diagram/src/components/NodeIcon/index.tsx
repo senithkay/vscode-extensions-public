@@ -28,6 +28,7 @@ import {
     VarIcon,
 } from "../../resources";
 import { NodeKind } from "../../utils/types";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 interface NodeIconProps {
     type: NodeKind;
@@ -76,6 +77,8 @@ export function NodeIcon(props: NodeIconProps) {
         case "FUNCTION":
         case "FUNCTION_CALL":
             return <FunctionIcon />;
+        case "DATA_MAPPER_CALL":
+            return <Icon name="dataMapper" />;
         
         default:
             return <CodeIcon />;

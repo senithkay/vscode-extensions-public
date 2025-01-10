@@ -176,6 +176,7 @@ export interface FormProps {
     mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
     handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
     visualizableFields?: string[];
+    isDataMapper?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -199,7 +200,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
         resetUpdatedExpressionField,
         mergeFormDataWithFlowNode,
         handleVisualizableFields,
-        visualizableFields
+        visualizableFields,
+        isDataMapper
     } = props;
 
     const {
@@ -366,12 +368,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
-
-    const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
-    const isExistingDataMapper =
-        isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
-    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
-
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
@@ -485,20 +481,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                     />
                                 </S.Row>
                             );
-                        })}
-                    {isExistingDataMapper && (
-                        <S.DataMapperRow>
-                            <S.UseDataMapperButton
-                                appearance="secondary"
-                                onClick={handleSubmit((data) => isDirty
-                                    ? handleOnSave({ ...data, isDataMapperFormUpdate: true })
-                                    : handleOnUseDataMapper()
-                                )}
-                            >
-                                Use Data Mapper
-                            </S.UseDataMapperButton>
-                        </S.DataMapperRow>
-                    )}
+                        })
+                    }
                     {hasAdvanceFields && (
                         <S.Row>
                             Advance Parameters
@@ -547,7 +531,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                 {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        {isNewDataMapper ? (
+                        {isDataMapper ? (
                             <S.PrimaryButton
                                 onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
                             >

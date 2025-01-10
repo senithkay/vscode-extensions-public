@@ -60,6 +60,7 @@ import ListenerView from "./views/BI/Trigger/ListenerView";
 import { ServiceWizard } from "./views/BI/ServiceDesigner/ServiceWizard";
 import { ServiceEditView } from "./views/BI/ServiceDesigner/ServiceEditView";
 import { ListenerEditView } from "./views/BI/ServiceDesigner/ListenerEditView";
+import { DataMapperForm } from "./views/BI/DataMapperForm";
 
 const globalStyles = css`
     *,
@@ -194,6 +195,15 @@ const MainPanel = () => {
                                 applyModifications={applyModifications}
                             />
                         );
+                        break;
+                    case MACHINE_VIEW.BIDataMapperForm:
+                        rpcClient.getVisualizerLocation().then((location) => {
+                            setViewComponent(
+                                <DataMapperForm
+                                    filePath={Utils.joinPath(URI.file(location.projectUri), 'data_mappings.bal').fsPath}
+                                />
+                            );
+                        });
                         break;
                     case MACHINE_VIEW.GraphQLDiagram:
                         setViewComponent(<GraphQLDiagram />);

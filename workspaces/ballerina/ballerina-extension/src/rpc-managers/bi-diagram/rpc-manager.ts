@@ -316,7 +316,7 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                 case DIRECTORY_MAP.AUTOMATION:
                     res = await createBIAutomation(params);
                     break;
-                case DIRECTORY_MAP.FUNCTIONS:
+                case DIRECTORY_MAP.FUNCTIONS || DIRECTORY_MAP.DATA_MAPPERS:
                     res = await createBIFunction(params);
                     break;
                 case DIRECTORY_MAP.TRIGGERS:
