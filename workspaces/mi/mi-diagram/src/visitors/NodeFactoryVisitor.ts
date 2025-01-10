@@ -541,7 +541,7 @@ export class NodeFactoryVisitor implements Visitor {
             const prevNodes = this.nodes.filter((prevNode) => prevNode.getParentStNode() === node);
             const lastStNode = lastNode instanceof StartNodeModel ? lastNode.getStNode() : prevNodes[prevNodes.length - 1].getStNode();
             node.viewState.y = lastStNode.viewState.y + Math.max(lastStNode.viewState.h, lastStNode.viewState.fh || 0) + NODE_GAP.Y;
-            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.START.DISABLED.WIDTH / 2;
+            node.viewState.x += NODE_DIMENSIONS.START.EDITABLE.WIDTH / 2 - NODE_DIMENSIONS.END.WIDTH / 2;
             this.createNodeAndLinks({ node, name: MEDIATORS.SEQUENCE, type: NodeTypes.END_NODE, data: node.range.endTagRange.end });
             this.previousSTNodes = undefined;
         }
@@ -1030,7 +1030,7 @@ export class NodeFactoryVisitor implements Visitor {
         const endnode = structuredClone(node);
         endnode.tag = "end";
         endnode.viewState.y = outputMappings.viewState.y + NODE_DIMENSIONS.DATA_SERVICE.HEIGHT + NODE_GAP.Y;
-        endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.START.DISABLED.WIDTH) / 2;
+        endnode.viewState.x += (NODE_DIMENSIONS.START.EDITABLE.WIDTH - NODE_DIMENSIONS.END.WIDTH) / 2;
         this.currentAddPosition = { position: { line: 1, character: 5 }, trailingSpace: "" };
         this.createNodeAndLinks({ node: endnode, type: NodeTypes.END_NODE, data: StartNodeType.IN_SEQUENCE });
         this.parents.push(endnode);
