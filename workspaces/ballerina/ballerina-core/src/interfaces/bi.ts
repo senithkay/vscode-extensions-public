@@ -262,6 +262,7 @@ export type NodeKind =
     | "FUNCTION_CALL"
     | "ASSIGN"
     | "DATA_MAPPER"
+    | "DATA_MAPPER_CALL"
     | "CONFIG_VARIABLE";
 
 export type OverviewFlow = {

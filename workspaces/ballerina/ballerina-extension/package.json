@@ -512,7 +512,7 @@
                 "command": "kolab.tryit",
                 "title": "Open Try It",
                 "category": "Ballerina",
-                "icon": "$(beaker)"
+                "icon": "$(server)"
             },
             {
                 "command": "kolab.open.ai.panel",
