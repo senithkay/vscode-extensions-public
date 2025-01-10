@@ -93,7 +93,9 @@ export function ChoiceForm(props: ChoiceFormProps) {
                     defaultValue={selectedOption}
                     defaultChecked={true}
                     value={selectedOption}
-                    {...register(field.key)}
+                    {...register(field.key, {
+                        setValueAs: () => selectedOption
+                    })}
                     options={field.choices.map((choice, index) => ({ id: index.toString(), value: index, content: choice.metadata.label }))}
                     onChange={(e) => {
                         console.log("Choice Form Index:", Number(e.target.value))
