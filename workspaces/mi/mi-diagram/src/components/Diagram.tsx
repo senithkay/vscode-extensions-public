@@ -432,13 +432,13 @@ export function Diagram(props: DiagramProps) {
                     {/* controls */}
                     <S.ControlsContainer>
                         <Button appearance="icon" onClick={() => zoom('in')} tooltip="Zoom In" sx={{ marginBottom: '3px' }}>
-                            <Codicon name='plus' iconSx={{ fontSize: '18px' }} />
+                            <Codicon name='plus' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
                         </Button>
                         <Button appearance="icon" onClick={() => zoom('out')} tooltip="Zoom Out" sx={{ marginBottom: '3px' }}>
-                            <Codicon name='dash' iconSx={{ fontSize: '18px' }} />
+                            <Codicon name='dash' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
                         </Button>
                         <Button appearance="icon" onClick={() => zoom('reset')} tooltip="Reset Zoom">
-                            <Codicon name='layout-centered' iconSx={{ fontSize: '18px' }} />
+                            <Codicon name='layout-centered' iconSx={{ fontSize: '18px', width: '18px', height: '18px' }} />
                         </Button>
                     </S.ControlsContainer>
                     {/* Flow */}
