@@ -105,6 +105,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const handleNewFunction = () => {
+        setIsNew(true);
         setShowFunctionConfigForm(true);
     };
 
@@ -117,6 +118,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setFunctionModel(value);
         setIsNew(false);
         setShowForm(true);
+    };
+
+    const handleFunctionDelete = async (model: FunctionModel) => {
+        if (model.kind === "REMOTE") {
+            model.enabled = false;
+            await handleResourceSubmit(model);
+        }
     };
 
     const handleResourceSubmit = async (value: FunctionModel) => {
@@ -140,12 +148,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     }
 
     const handleFunctionSubmit = async (value: FunctionModel) => {
-        // Handle remote function save
-    }
-
-    const handleFunctionConfigSubmit = async (value: ServiceModel) => {
         setIsSaving(true);
-        const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
+        const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
+        let res = undefined;
+        if (isNew) {
+            res = await rpcClient.getServiceDesignerRpcClient().addFunctionSourceCode({ filePath, codedata: { lineRange }, function: value });
+        } else {
+            res = await rpcClient.getServiceDesignerRpcClient().updateResourceSourceCode({ filePath, codedata: { lineRange }, function: value });
+        }
+        setIsNew(false);
+        handleNewFunctionClose();
+        handleFunctionConfigClose();
         await rpcClient.getVisualizerRpcClient().openView({
             type: EVENT_TYPE.OPEN_VIEW,
             location: {
@@ -153,7 +166,19 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 position: res.position
             },
         });
-        setIsSaving(false);
+    }
+
+    const handleFunctionConfigSubmit = async (value: FunctionModel) => {
+        // setIsSaving(true);
+        // const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
+        // await rpcClient.getVisualizerRpcClient().openView({
+        //     type: EVENT_TYPE.OPEN_VIEW,
+        //     location: {
+        //         documentUri: res.filePath,
+        //         position: res.position
+        //     },
+        // });
+        // setIsSaving(false);
     }
 
     const handleFunctionConfigClose = () => {
@@ -237,7 +262,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                 functionModel={functionModel}
                                 goToSource={() => { }}
                                 onEditResource={handleFunctionEdit}
-                                onDeleteResource={() => { }}
+                                onDeleteResource={handleFunctionDelete}
                                 onResourceImplement={handleOpenDiagram}
                             />
                         ))}
@@ -270,7 +295,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         show={showFunctionConfigForm}
                         onClose={handleFunctionConfigClose}
                     >
-                        <FunctionConfigForm serviceModel={serviceModel} onSubmit={handleFunctionConfigSubmit} onBack={handleFunctionConfigClose} />
+                        <FunctionConfigForm serviceModel={serviceModel} onSubmit={handleFunctionSubmit} onBack={handleFunctionConfigClose} />
                     </PanelContainer>
                 }
 

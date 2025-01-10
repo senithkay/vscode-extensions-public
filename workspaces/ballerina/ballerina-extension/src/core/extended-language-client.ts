@@ -140,7 +140,7 @@ import {
     ListenerSourceCodeResponse,
     ListenersRequest,
     ListenersResponse,
-    ResourceSourceCodeRequest,
+    FunctionSourceCodeRequest,
     ResourceSourceCodeResponse,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
@@ -826,11 +826,15 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
         return this.sendRequest<HttpResourceModelResponse>(EXTENDED_APIS.BI_SERVICE_GET_RESOURCE, params);
     }
 
-    async addResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+    async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
         return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_RESOURCE, params);
     }
 
-    async updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+    async addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
+        return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_ADD_FUNCTION, params);
+    }
+
+    async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<ResourceSourceCodeResponse> {
         return this.sendRequest<ResourceSourceCodeResponse>(EXTENDED_APIS.BI_SERVICE_UPDATE_RESOURCE, params);
     }
 

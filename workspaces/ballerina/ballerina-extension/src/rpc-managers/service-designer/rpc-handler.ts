@@ -16,10 +16,11 @@ import {
     ListenerSourceCodeRequest,
     ListenersRequest,
     RecordSTRequest,
-    ResourceSourceCodeRequest,
+    FunctionSourceCodeRequest,
     ServiceModelFromCodeRequest,
     ServiceModelRequest,
     ServiceSourceCodeRequest,
+    addFunctionSourceCode,
     addListenerSourceCode,
     addResourceSourceCode,
     addServiceSourceCode,
@@ -52,6 +53,7 @@ export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(updateServiceSourceCode, (args: ServiceSourceCodeRequest) => rpcManger.updateServiceSourceCode(args));
     messenger.onRequest(getServiceModelFromCode, (args: ServiceModelFromCodeRequest) => rpcManger.getServiceModelFromCode(args));
     messenger.onRequest(getHttpResourceModel, (args: HttpResourceModelRequest) => rpcManger.getHttpResourceModel(args));
-    messenger.onRequest(addResourceSourceCode, (args: ResourceSourceCodeRequest) => rpcManger.addResourceSourceCode(args));
-    messenger.onRequest(updateResourceSourceCode, (args: ResourceSourceCodeRequest) => rpcManger.updateResourceSourceCode(args));
+    messenger.onRequest(addResourceSourceCode, (args: FunctionSourceCodeRequest) => rpcManger.addResourceSourceCode(args));
+    messenger.onRequest(addFunctionSourceCode, (args: FunctionSourceCodeRequest) => rpcManger.addFunctionSourceCode(args));
+    messenger.onRequest(updateResourceSourceCode, (args: FunctionSourceCodeRequest) => rpcManger.updateResourceSourceCode(args));
 }

@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, ResourceSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse } from "../../interfaces/extended-lang-client";
+import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, FunctionSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse } from "../../interfaces/extended-lang-client";
 import {
     ExportOASRequest,
     ExportOASResponse,
@@ -31,5 +31,6 @@ export const addServiceSourceCode: RequestType<ServiceSourceCodeRequest, SourceU
 export const updateServiceSourceCode: RequestType<ServiceSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateServiceSourceCode` };
 export const getServiceModelFromCode: RequestType<ServiceModelFromCodeRequest, ServiceModelFromCodeResponse> = { method: `${_preFix}/getServiceModelFromCode` };
 export const getHttpResourceModel: RequestType<HttpResourceModelRequest, HttpResourceModelResponse> = { method: `${_preFix}/getHttpResourceModel` };
-export const addResourceSourceCode: RequestType<ResourceSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/addResourceSourceCode` };
-export const updateResourceSourceCode: RequestType<ResourceSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateResourceSourceCode` };
+export const addResourceSourceCode: RequestType<FunctionSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/addResourceSourceCode` };
+export const addFunctionSourceCode: RequestType<FunctionSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/addFunctionSourceCode` };
+export const updateResourceSourceCode: RequestType<FunctionSourceCodeRequest, SourceUpdateResponse> = { method: `${_preFix}/updateResourceSourceCode` };

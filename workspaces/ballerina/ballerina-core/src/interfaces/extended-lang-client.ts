@@ -920,7 +920,7 @@ export interface HttpResourceModelRequest {
 export interface HttpResourceModelResponse {
     resource: FunctionModel;
 }
-export interface ResourceSourceCodeRequest {
+export interface FunctionSourceCodeRequest {
     filePath: string;
     function: FunctionModel;
     codedata: {
@@ -978,7 +978,8 @@ export interface BIInterface extends BaseLangClientInterface {
     addServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<ListenerSourceCodeResponse>;
     getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
     getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
-    addResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+    addResourceSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
+    addFunctionSourceCode: (params: FunctionSourceCodeRequest) => Promise<ResourceSourceCodeResponse>;
 
     getDesignModel: (params: BIDesignModelRequest) => Promise<BIDesignModelResponse>;
     updateImports: (params: UpdateImportsRequest) => Promise<void>;

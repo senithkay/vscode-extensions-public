@@ -9,13 +9,13 @@
 
 import React, { useState } from "react";
 import { ActionButtons, Dropdown, SidePanelBody } from "@wso2-enterprise/ui-toolkit";
-import { ServiceModel } from "@wso2-enterprise/ballerina-core";
+import { FunctionModel, ServiceModel } from "@wso2-enterprise/ballerina-core";
 
 import { EditorContentColumn } from "../styles";
 
 interface FunctionConfigFormProps {
     serviceModel: ServiceModel;
-    onSubmit?: (model: ServiceModel) => void;
+    onSubmit?: (model: FunctionModel) => void;
     onBack?: () => void;
 }
 
@@ -31,9 +31,9 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     };
 
     const handleConfigSave = () => {
-        const updatedFunctions = serviceModel.functions.map(func => func.name.value === functionName ? { ...func, enabled: true } : func);
-        const updatedServiceModel = { ...serviceModel, functions: updatedFunctions };
-        onSubmit(updatedServiceModel);
+        const selectedFunction = serviceModel.functions.find(func => func.name.value === functionName);
+        selectedFunction.enabled = true;
+        onSubmit(selectedFunction);
     };
 
     return (

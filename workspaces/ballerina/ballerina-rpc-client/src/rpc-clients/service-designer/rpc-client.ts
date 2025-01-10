@@ -22,7 +22,7 @@ import {
     ListenersResponse,
     RecordSTRequest,
     RecordSTResponse,
-    ResourceSourceCodeRequest,
+    FunctionSourceCodeRequest,
     ServiceDesignerAPI,
     ServiceModelFromCodeRequest,
     ServiceModelFromCodeResponse,
@@ -30,6 +30,7 @@ import {
     ServiceModelResponse,
     ServiceSourceCodeRequest,
     SourceUpdateResponse,
+    addFunctionSourceCode,
     addListenerSourceCode,
     addResourceSourceCode,
     addServiceSourceCode,
@@ -103,11 +104,15 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
         return this._messenger.sendRequest(getHttpResourceModel, HOST_EXTENSION, params);
     }
 
-    addResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return this._messenger.sendRequest(addResourceSourceCode, HOST_EXTENSION, params);
     }
 
-    updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return this._messenger.sendRequest(addFunctionSourceCode, HOST_EXTENSION, params);
+    }
+
+    updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return this._messenger.sendRequest(updateResourceSourceCode, HOST_EXTENSION, params);
     }
 }

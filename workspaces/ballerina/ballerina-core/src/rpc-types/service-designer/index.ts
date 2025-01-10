@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, ResourceSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse } from "../../interfaces/extended-lang-client";
+import { ListenerModelRequest, ListenerModelResponse, ServiceModelRequest, ServiceModelResponse, ServiceModelFromCodeRequest, ServiceModelFromCodeResponse, HttpResourceModelRequest, HttpResourceModelResponse, FunctionSourceCodeRequest, ResourceSourceCodeResponse, ListenerSourceCodeRequest, ListenerSourceCodeResponse, ListenersRequest, ListenersResponse, ServiceSourceCodeResponse, ServiceSourceCodeRequest, ListenerModelFromCodeRequest, ListenerModelFromCodeResponse } from "../../interfaces/extended-lang-client";
 import {
     ExportOASRequest,
     ExportOASResponse,
@@ -29,6 +29,7 @@ export interface ServiceDesignerAPI {
     updateServiceSourceCode: (params: ServiceSourceCodeRequest) => Promise<SourceUpdateResponse>;
     getServiceModelFromCode: (params: ServiceModelFromCodeRequest) => Promise<ServiceModelFromCodeResponse>;
     getHttpResourceModel: (params: HttpResourceModelRequest) => Promise<HttpResourceModelResponse>;
-    addResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<SourceUpdateResponse>;
-    updateResourceSourceCode: (params: ResourceSourceCodeRequest) => Promise<SourceUpdateResponse>;
+    addResourceSourceCode: (params: FunctionSourceCodeRequest) => Promise<SourceUpdateResponse>;
+    addFunctionSourceCode: (params: FunctionSourceCodeRequest) => Promise<SourceUpdateResponse>;
+    updateResourceSourceCode: (params: FunctionSourceCodeRequest) => Promise<SourceUpdateResponse>;
 }

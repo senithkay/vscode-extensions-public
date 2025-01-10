@@ -26,7 +26,7 @@ import {
     ProjectStructureResponse,
     RecordSTRequest,
     RecordSTResponse,
-    ResourceSourceCodeRequest,
+    FunctionSourceCodeRequest,
     ResourceSourceCodeResponse,
     STModification,
     ServiceDesignerAPI,
@@ -267,7 +267,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async addResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async addResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
@@ -291,7 +291,7 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         });
     }
 
-    async updateResourceSourceCode(params: ResourceSourceCodeRequest): Promise<SourceUpdateResponse> {
+    async updateResourceSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
         return new Promise(async (resolve) => {
             const context = StateMachine.context();
             try {
@@ -404,6 +404,30 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
             try {
                 const res: ListenerModelFromCodeResponse = await context.langClient.getListenerFromSourceCode(params);
                 resolve(res);
+            } catch (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    async addFunctionSourceCode(params: FunctionSourceCodeRequest): Promise<SourceUpdateResponse> {
+        return new Promise(async (resolve) => {
+            const context = StateMachine.context();
+            try {
+                const projectDir = path.join(StateMachine.context().projectUri);
+                const targetFile = path.join(projectDir, `main.bal`);
+                params.filePath = targetFile;
+                const targetPosition: NodePosition = {
+                    startLine: params.codedata.lineRange.startLine.line,
+                    startColumn: params.codedata.lineRange.startLine.offset
+                };
+                const res: ResourceSourceCodeResponse = await context.langClient.addFunctionSourceCode(params);
+                const position = await this.updateSource(res, undefined, targetPosition);
+                const result: SourceUpdateResponse = {
+                    filePath: targetFile,
+                    position: position
+                };
+                resolve(result);
             } catch (error) {
                 console.log(error);
             }
