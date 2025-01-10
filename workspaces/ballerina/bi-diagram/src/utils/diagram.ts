@@ -112,10 +112,20 @@ export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
 };
 
 // load diagram zoom level and position from local storage
-export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
+export const loadDiagramZoomAndPosition = (engine: DiagramEngine, node?: NodeModel) => {
     const zoomLevel = JSON.parse(localStorage.getItem("diagram-zoom-level") || "100");
-    const offsetX = JSON.parse(localStorage.getItem("diagram-offset-x") || "0");
-    const offsetY = JSON.parse(localStorage.getItem("diagram-offset-y") || "0");
+
+    let offsetX = JSON.parse(localStorage.getItem("diagram-offset-x") || "0");
+    let offsetY = JSON.parse(localStorage.getItem("diagram-offset-y") || "0");
+
+    if (node) {
+        const nodeBounds = node?.getBoundingBox();
+        if (nodeBounds) {
+            const zoomOffset = zoomLevel / 100;
+            
+            offsetY = window.innerHeight / 2 - (nodeBounds.getTopLeft().y + nodeBounds.getHeight() / 2) * zoomOffset;
+        }
+    }
 
     engine.getModel().setZoomLevel(zoomLevel);
     engine.getModel().setOffset(offsetX, offsetY);
