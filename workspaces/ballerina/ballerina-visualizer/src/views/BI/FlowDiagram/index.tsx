@@ -512,15 +512,12 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             return;
         }
         setShowProgressIndicator(true);
-        const codeData = node.codedata.node === "DATA_MAPPER"
-            ? { ...node.codedata, node: "FUNCTION_CALL" as NodeKind }
-            : node.codedata;
         rpcClient
             .getBIDiagramRpcClient()
             .getNodeTemplate({
                 position: targetRef.current.startLine,
                 filePath: model.fileName,
-                id: codeData,
+                id: node.codedata,
             })
             .then((response) => {
                 nodeTemplateRef.current = response.flowNode;

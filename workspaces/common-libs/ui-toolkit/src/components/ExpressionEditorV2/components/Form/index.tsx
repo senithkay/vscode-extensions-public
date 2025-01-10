@@ -79,10 +79,10 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
             <Ex.EditorContainer>
                 <Ex.ExpressionBox>
                     <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
-                </Ex.ExpressionBox>{getExpressionEditorIcon ? getExpressionEditorIcon() : (
-                props.changeHelperPaneState  && (
-                    <Button ref={buttonRef}appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-
+                </Ex.ExpressionBox>
+                {getExpressionEditorIcon ? getExpressionEditorIcon() : (
+                    props.changeHelperPaneState  && (
+                        <Button ref={buttonRef}appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
                             <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
                         </Button>
                     )
