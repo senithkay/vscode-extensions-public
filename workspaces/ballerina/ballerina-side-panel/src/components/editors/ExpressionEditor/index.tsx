@@ -282,7 +282,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
     const codeActions = [
         visualizable && (
             <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
-                <S.DataMapperBtnTxt>Open In Data Mapper</S.DataMapperBtnTxt>
+                <S.DataMapperBtnTxt>Map Data Inline</S.DataMapperBtnTxt>
             </Button>
         )
     ];
