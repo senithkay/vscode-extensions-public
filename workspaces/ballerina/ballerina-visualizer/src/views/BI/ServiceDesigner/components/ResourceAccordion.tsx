@@ -207,14 +207,9 @@ export function ResourceAccordion(params: ResourceAccordionProps) {
                 </MethodSection>
                 <ButtonSection>
                     <>
-                        {/* {goToSource! && (
-                            <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
-                                <Icon name='design-view' />
-                            </VSCodeButton>
-                        )} */}
                         {onEditResource! && (
                             <VSCodeButton appearance="icon" title="Edit FunctionModel" onClick={handleEditResource}>
-                                <Icon name="editIcon" />
+                                <Icon name="editIcon" sx={{ marginTop: 3.5 }} />
                             </VSCodeButton>
                         )}
                         {onDeleteResource! && (
