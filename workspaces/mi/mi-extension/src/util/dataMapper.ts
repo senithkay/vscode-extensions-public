@@ -277,7 +277,7 @@ function getTypeInfoForUnion(typeNode: Type, sourceFile: SourceFile): DMType {
     
     return {
         kind: TypeKind.Union,
-        typeName: typeNode.getAliasSymbol()?.getName() || 'Union',
+        typeName: typeNode.getAliasSymbol()?.getName(),
         unionTypes,
         optional: typeNode.isNullable()
     };
