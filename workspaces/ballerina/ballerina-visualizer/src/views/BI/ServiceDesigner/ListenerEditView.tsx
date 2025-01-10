@@ -89,7 +89,7 @@ export function ListenerEditView(props: ListenerEditViewProps) {
             console.log("Editing Listener Model: ", res.listener)
             setListenerModel(res.listener);
         })
-    }, []);
+    }, [position]);
 
     const onSubmit = async (value: ListenerModel) => {
         setSaving(true);

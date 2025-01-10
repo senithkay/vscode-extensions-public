@@ -86,7 +86,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                 <>
                     {listenerFields.length > 0 &&
                         <FormContainer>
-                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label} Configuration</Typography>
+                            <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration</Typography>
                             <BodyText>
                                 Provide the necessary configuration details for the {listenerModel.displayAnnotation.label} to complete the
                                 setup.
