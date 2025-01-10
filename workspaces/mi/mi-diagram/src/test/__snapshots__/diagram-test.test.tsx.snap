@@ -632,7 +632,7 @@ exports[`Diagram component renders correctly with valid XML files Diagram work c
           <div
             class="node css-nlpftr"
             data-nodeid="end-2-1"
-            style="top: 570px; left: -32.5px;"
+            style="top: 570px; left: -12px;"
           >
             <div
               class="css-2ttski"
