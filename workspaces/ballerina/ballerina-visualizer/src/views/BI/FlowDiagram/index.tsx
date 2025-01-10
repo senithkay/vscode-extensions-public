@@ -32,7 +32,8 @@ import {
     BIGetFunctionsRequest,
     SubPanel,
     SubPanelView,
-    CurrentBreakpointsResponse as BreakpointInfo
+    CurrentBreakpointsResponse as BreakpointInfo,
+    FUNCTION_TYPE
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -89,6 +90,7 @@ export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
     FUNCTION_LIST = "FUNCTION_LIST",
+    DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
 }
 
 export interface BIFlowDiagramProps {
@@ -278,7 +280,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             });
     };
 
-    const handleSearchFunction = async (searchText: string) => {
+    const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
         const request: BIGetFunctionsRequest = {
             position: {
                 startLine: targetRef.current.startLine,
@@ -300,8 +302,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .getFunctions(request)
             .then((response) => {
                 console.log(">>> Searched List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-                setSidePanelView(SidePanelView.FUNCTION_LIST);
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+                );
+                setSidePanelView(
+                    functionType === FUNCTION_TYPE.REGULAR
+                        ? SidePanelView.FUNCTION_LIST
+                        : SidePanelView.DATA_MAPPER_LIST
+                );
                 setShowSidePanel(true);
             })
             .finally(() => {
@@ -324,8 +332,33 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 })
                 .then((response) => {
                     console.log(">>> List of functions", response);
-                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                    setCategories(
+                        convertFunctionCategoriesToSidePanelCategories(
+                            response.categories as Category[], FUNCTION_TYPE.REGULAR
+                        )
+                    );
                     setSidePanelView(SidePanelView.FUNCTION_LIST);
+                    setShowSidePanel(true);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
+                });
+        } else if (nodeType === "DATA_MAPPER_CALL") {
+            setShowProgressIndicator(true);
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFunctions({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                })
+                .then((response) => {
+                    setCategories(
+                        convertFunctionCategoriesToSidePanelCategories(
+                            response.categories as Category[], FUNCTION_TYPE.EXPRESSION_BODIED
+                        )
+                    );
+                    setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
                     setShowSidePanel(true);
                 })
                 .finally(() => {
@@ -497,7 +530,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST) {
+        if (sidePanelView === SidePanelView.FUNCTION_LIST || sidePanelView === SidePanelView.DATA_MAPPER_LIST) {
             // Reset categories to the initial available nodes
             setCategories(initialCategoriesRef.current);
             setSidePanelView(SidePanelView.NODE_LIST);
@@ -735,10 +768,20 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
-                            onSearchTextChange={handleSearchFunction}
+                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
                             onAddFunction={handleOnAddFunction}
                             onClose={handleOnCloseSidePanel}
                             title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.DATA_MAPPER_LIST && categories?.length > 0 && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Data Mappers"}
                             onBack={handleOnFormBack}
                         />
                     )}
