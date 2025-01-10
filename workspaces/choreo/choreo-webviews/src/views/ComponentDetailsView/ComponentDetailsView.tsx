@@ -233,7 +233,6 @@ export const ComponentDetailsView: FC<ComponentsDetailsWebviewProps> = (props) =
 							<BuildsSection
 								{...props}
 								deploymentTrack={deploymentTrack}
-								envs={envs}
 								buildListQueryData={buildListQueryData}
 								openBuildDetailsPanel={(build) => setBuildDetailsPanel({ open: true, build })}
 							/>

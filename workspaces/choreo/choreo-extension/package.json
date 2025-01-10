@@ -3,7 +3,7 @@
   "displayName": "Choreo",
   "description": "An extension for managing your Choreo projects and components",
   "license": "Apache-2.0",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "cliVersion": "v1.2.82412081830",
   "publisher": "wso2",
   "bugs": {
@@ -48,8 +48,7 @@
         "command": "wso2.choreo.sign.out",
         "title": "Sign Out",
         "category": "Choreo",
-        "icon": "${sign-out}",
-        "enablement": "isLoggedIn"
+        "icon": "${sign-out}"
       },
       {
         "command": "wso2.choreo.create.component",

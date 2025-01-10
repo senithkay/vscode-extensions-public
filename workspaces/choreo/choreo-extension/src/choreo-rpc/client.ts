@@ -73,6 +73,7 @@ import type {
 import { type MessageConnection, Trace, type Tracer } from "vscode-jsonrpc";
 import { handlerError } from "../error-utils";
 import { getLogger } from "../logger/logger";
+import { withTimeout } from "../utils";
 import { StdioConnection } from "./connection";
 
 export class RPCClient {
@@ -83,6 +84,9 @@ export class RPCClient {
 
 	async init() {
 		getLogger().debug("Activating choreo rpc server");
+		if (this._conn) {
+			this._conn.dispose();
+		}
 		const stdioConnection = new StdioConnection();
 		this._conn = stdioConnection.getProtocolConnection();
 		this._conn.trace(Trace.Verbose, new ChoreoTracer());
@@ -110,17 +114,20 @@ export class RPCClient {
 		return RPCClient._instance;
 	}
 
-	async sendRequest<T>(method: string, params?: any, isRetry?: boolean): Promise<T> {
+	async sendRequest<T>(method: string, params?: any, timeout?: number, isRetry?: boolean): Promise<T> {
 		if (!this._conn) {
 			throw new Error("Connection is not initialized");
 		}
 		try {
+			if (timeout) {
+				return await withTimeout(() => this._conn!.sendRequest<T>(method, params), method, timeout);
+			}
 			return await this._conn.sendRequest<T>(method, params);
 		} catch (e: any) {
 			// TODO: have a better way to check if connection is closed
-			if (e.message?.includes("Connection is closed") && !isRetry) {
+			if ((e.message?.includes("Connection is closed") || e.message?.includes(`Function ${method} timed out`)) && !isRetry) {
 				await this.init();
-				return this.sendRequest(method, params, true);
+				return this.sendRequest(method, params, timeout, true);
 			}
 			getLogger().error("Error sending request", e);
 			handlerError(e);
@@ -243,7 +250,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		const response = await this.client.sendRequest<{ loginUrl: string }>("auth/getSignInUrl", { callbackUrl });
+		const response = await this.client.sendRequest<{ loginUrl: string }>("auth/getSignInUrl", { callbackUrl }, 2000);
 		return response.loginUrl;
 	}
 
@@ -262,7 +269,7 @@ export class ChoreoRPCClient implements IChoreoRPCClient {
 		if (!this.client) {
 			throw new Error("RPC client is not initialized");
 		}
-		await this.client.sendRequest("auth/signOut");
+		await this.client.sendRequest("auth/signOut", undefined, 2000);
 	}
 
 	async changeOrgContext(orgId: string): Promise<void> {
