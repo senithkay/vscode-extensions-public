@@ -154,7 +154,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
         }
     }
 
-    const handlServiceSubmit = async (value: ServiceModel) => {
+    const handleServiceSubmit = async (value: ServiceModel) => {
         setSaving(true);
         const res = await rpcClient.getServiceDesignerRpcClient().addServiceSourceCode({ filePath: "", service: value });
         rpcClient.getVisualizerRpcClient().openView({
@@ -208,7 +208,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 1 && !saving &&
                             <>
-                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handlServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Save" : undefined} />
+                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handleServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Save" : undefined} />
                             </>
                         }
                         {step === 1 && saving &&
