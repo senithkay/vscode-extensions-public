@@ -153,7 +153,14 @@ import {
     ListenerModelFromCodeResponse,
     AddFunctionRequest,
     AddFunctionResponse,
-    UpdateImportsRequest
+    UpdateImportsRequest,
+    InlineDataMapperModelRequest,
+    InlineDataMapperSourceRequest,
+    InlineDataMapperSourceResponse,
+    InlineDataMapperModelResponse,
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse,
+    AddArrayElementRequest
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
@@ -227,6 +234,10 @@ enum EXTENDED_APIS {
     BI_GET_ENCLOSED_FUNCTION = 'flowDesignService/getEnclosedFunctionDef',
     BI_EXPRESSION_COMPLETIONS = 'expressionEditor/completion',
     VISIBLE_VARIABLE_TYPES = 'expressionEditor/visibleVariableTypes',
+    DATA_MAPPER_MAPPINGS = 'dataMapper/mappings',
+    DATA_MAPPER_GET_SOURCE = 'dataMapper/getSource',
+    DATA_MAPPER_VISUALIZABLE = 'dataMapper/visualizable',
+    DATA_MAPPER_ADD_ELEMENT = 'dataMapper/addElement',
     VIEW_CONFIG_VARIABLES = 'configEditor/getConfigVariables',
     UPDATE_CONFIG_VARIABLES = 'configEditor/updateConfigVariables',
     RUNNER_DIAGNOSTICS = 'ballerinaRunner/diagnostics',
@@ -520,12 +531,23 @@ export class ExtendedLangClient extends LanguageClient implements ExtendedLangCl
     }
 
     async getVisibleVariableTypes(params: VisibleVariableTypesParams): Promise<VisibleVariableTypes | NOT_SUPPORTED_TYPE> {
-        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES);
-        // if (!isSupported) {
-        //     return Promise.resolve(NOT_SUPPORTED);
-        // }
-        // return this.sendRequest<TypesFromSymbol>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
         return this.sendRequest<VisibleVariableTypes>(EXTENDED_APIS.VISIBLE_VARIABLE_TYPES, params);
+    }
+
+    async getInlineDataMapperMappings(params: InlineDataMapperModelRequest): Promise<InlineDataMapperModelResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperModelResponse>(EXTENDED_APIS.DATA_MAPPER_MAPPINGS, params);
+    }
+
+    async getInlineDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperSourceResponse>(EXTENDED_APIS.DATA_MAPPER_GET_SOURCE, params);
+    }
+
+    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<VisualizableFieldsResponse>(EXTENDED_APIS.DATA_MAPPER_VISUALIZABLE, params);
+    }
+
+    async addArrayElement(params: AddArrayElementRequest): Promise<InlineDataMapperSourceResponse | NOT_SUPPORTED_TYPE> {
+        return this.sendRequest<InlineDataMapperSourceResponse>(EXTENDED_APIS.DATA_MAPPER_ADD_ELEMENT, params);
     }
 
     async getGraphqlModel(params: GraphqlDesignServiceParams): Promise<GraphqlDesignService | NOT_SUPPORTED_TYPE> {

@@ -9,76 +9,56 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    IOTypeRequest,
-    IOTypeResponse,
+    AddArrayElementRequest,
     InlineDataMapperAPI,
-    TypeFromSymbolParams,
-    TypesFromSymbol,
-    VisibleVariableTypes,
-    VisibleVariableTypesParams
+    InlineDataMapperModelRequest,
+    InlineDataMapperModelResponse,
+    InlineDataMapperSourceRequest,
+    InlineDataMapperSourceResponse,
+    VisualizableFieldsRequest,
+    VisualizableFieldsResponse
 } from "@wso2-enterprise/ballerina-core";
-import { URI } from "vscode-uri";
 
 import { StateMachine } from "../../stateMachine";
-import { transformTypeFieldToIDMType } from "../../utils/inline-data-mapper";
 
 export class InlineDataMapperRpcManager implements InlineDataMapperAPI {
-    async getIOTypes(params: IOTypeRequest): Promise<IOTypeResponse> {
+    async getDataMapperModel(params: InlineDataMapperModelRequest): Promise<InlineDataMapperModelResponse> {
         return new Promise(async (resolve) => {
-            const visibleTypesRequest: VisibleVariableTypesParams = {
-                filePath: params.filePath,
-                position: params.position
-            };
-            const visibleTypes = await StateMachine
+            const dataMapperModel = await StateMachine
                 .langClient()
-                .getVisibleVariableTypes(visibleTypesRequest) as VisibleVariableTypes;
+                .getInlineDataMapperMappings(params);
 
-            const inputTypes = [];
-            
-            visibleTypes?.categories?.map((visibleType) => {
-                visibleType.types.map((type) => {
-                    const transformedType = transformTypeFieldToIDMType(type, visibleType.name);
-                    transformedType && inputTypes.push(transformedType);
-                });
-            });
+            resolve(dataMapperModel as InlineDataMapperModelResponse);
+        });
+    }
 
-            console.log("VisibleVariableTypes: ", visibleTypes);
-            console.log("Transformed VisibleVariableTypes: ", inputTypes);
+    async getDataMapperSource(params: InlineDataMapperSourceRequest): Promise<InlineDataMapperSourceResponse> {
+        return new Promise(async (resolve) => {
+            const dataMapperSource = await StateMachine
+                .langClient()
+                .getInlineDataMapperSource(params) as InlineDataMapperSourceResponse;
 
-            const outptutTypeRequest: TypeFromSymbolParams = {
-                documentIdentifier: {
-                    uri: URI.file(params.filePath).toString()
-                },
-                positions: [{ line: params.position.line, offset: params.position.offset }]
-            };
+            resolve(dataMapperSource);
+        });
+    }
 
-            const outputType = await StateMachine.langClient().getTypeFromSymbol(outptutTypeRequest);
+    async getVisualizableFields(params: VisualizableFieldsRequest): Promise<VisualizableFieldsResponse> {
+        return new Promise(async (resolve) => {
+            const fieldIds = await StateMachine
+                .langClient()
+                .getVisualizableFields(params) as VisualizableFieldsResponse;
 
-            // check whether the output type is a TypesFromSymbol or NOT_SUPPORTED_TYPE
-            const isTypesFromSymbol = (outputType as TypesFromSymbol).types ? true : false;
+            resolve(fieldIds);
+        });
+    }
 
-            if (!isTypesFromSymbol) {
-                const response: IOTypeResponse = {
-                    inputTypes,
-                    outputType: undefined
-                };
-                resolve(response);
-                return;
-            }
+    async addNewArrayElement(params: AddArrayElementRequest): Promise<InlineDataMapperSourceResponse> {
+        return new Promise(async (resolve) => {
+            const dataMapperSource = await StateMachine
+                .langClient()
+                .addArrayElement(params) as InlineDataMapperSourceResponse;
 
-            const outputTypeTransformed = transformTypeFieldToIDMType({
-                name: '',
-                type: (outputType as TypesFromSymbol).types[0].type
-            });
-
-            console.log("outputType: ", outputType);
-            console.log("Transformed outputType: ", outputTypeTransformed);
-            
-            const response: IOTypeResponse = {
-                inputTypes,
-                outputType: outputTypeTransformed
-            };
-            resolve(response);
+            resolve(dataMapperSource);
         });
     }
 }

@@ -22,7 +22,7 @@ import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues }
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -167,12 +167,15 @@ export interface FormProps {
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
     expressionEditor?: FormExpressionEditorProps;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
+    handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
+    visualizableFields?: string[];
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -188,12 +191,15 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openRecordEditor,
         openView,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         expressionEditor,
         targetLineRange,
         fileName,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        mergeFormDataWithFlowNode,
+        handleVisualizableFields,
+        visualizableFields
     } = props;
 
     const {
@@ -207,7 +213,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors }
+        formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -240,21 +246,27 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     useEffect(() => {
         if (updatedExpressionField) {
-            const currentValue = getValues(updatedExpressionField.key);
-
-            if (currentValue !== undefined) {
-                let newValue;
-                if (updatedExpressionField?.isConfigured) {
-                    newValue = updatedExpressionField.value;
-                } else {
-                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                    newValue = currentValue.slice(0, cursorPosition) +
-                        updatedExpressionField.value +
-                        currentValue.slice(cursorPosition);
-                }
-
-                setValue(updatedExpressionField.key, newValue);
+            if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+                const { key, value } = updatedExpressionField;
+                // Update the form field value
+                setValue(key, value);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
+                // Update the inline data mapper view
+                handleOpenSubPanel({
+                    view: SubPanelView.INLINE_DATA_MAPPER,
+                    props: {
+                        inlineDataMapper: {
+                            filePath: fileName,
+                            flowNode: undefined,
+                            position: {
+                                line: updatedExpressionField.cursorPosition.line,
+                                offset: updatedExpressionField.cursorPosition.offset,
+                            },
+                            propertyKey: updatedExpressionField.key,
+                            editorKey: updatedExpressionField.key
+                        }
+                    }
+                });
             }
         }
     }, [updatedExpressionField]);
@@ -284,6 +296,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const handleOnFieldFocus = (key: string) => {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
+
         if (isActiveSubPanel && activeFormField !== key) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
@@ -308,6 +322,30 @@ export const Form = forwardRef((props: FormProps, ref) => {
         const otherDiagnostics = diagnosticsInfo?.filter((item) => item.key !== diagnostics.key) || [];
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
     }
+
+    const handleOpenSubPanel = (subPanel: SubPanel) => {
+        let updatedSubPanel = subPanel;
+        if (subPanel.view === SubPanelView.INLINE_DATA_MAPPER) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            const inlineDMProps = {
+                ...subPanel.props.inlineDataMapper,
+                flowNode: flowNode,
+            };
+            updatedSubPanel = {
+                ...subPanel,
+                props: {
+                    ...subPanel.props,
+                    inlineDataMapper: inlineDMProps,
+                },
+            };
+        }
+        openSubPanel(updatedSubPanel);
+    };
+
+    const getVisualiableFields = () => {
+        const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+        handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+    };
 
     const handleGetExpressionDiagnostics = async (
         showDiagnostics: boolean,
@@ -407,14 +445,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
+                                visualizableFields={visualizableFields}
                             />
                         }
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
-                                openSubPanel={openSubPanel}
+                                openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
+                                handleOnTypeChange={getVisualiableFields}
+                                visualizableFields={visualizableFields}
                             />
                         )}
                     </S.CategoryRow>
@@ -436,10 +477,11 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         field={field}
                                         selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
-                                        openSubPanel={openSubPanel}
-                                        isActiveSubPanel={isActiveSubPanel}
+                                        openSubPanel={handleOpenSubPanel}
+                                        subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
+                                        visualizableFields={visualizableFields}
                                     />
                                 </S.Row>
                             );
@@ -448,7 +490,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
                         <S.DataMapperRow>
                             <S.UseDataMapperButton
                                 appearance="secondary"
-                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
+                                onClick={handleSubmit((data) => isDirty
+                                    ? handleOnSave({ ...data, isDataMapperFormUpdate: true })
+                                    : handleOnUseDataMapper()
+                                )}
                             >
                                 Use Data Mapper
                             </S.UseDataMapperButton>
@@ -489,9 +534,10 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             ref={exprRef}
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
-                                            openSubPanel={openSubPanel}
-                                            isActiveSubPanel={isActiveSubPanel}
+                                            openSubPanel={handleOpenSubPanel}
+                                            subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
+                                            visualizableFields={visualizableFields}
                                         />
                                     </S.Row>
                                 );

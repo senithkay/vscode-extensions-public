@@ -20,6 +20,7 @@ import { SqFlow } from "../rpc-types/sequence-diagram/interfaces";
 import { TriggerFunction, TriggerNode } from "./triggers";
 import { FunctionModel, ListenerModel, ServiceModel } from "./service";
 import { CDModel } from "./component-diagram";
+import { IDMModel, Mapping } from "./inline-data-mapper";
 
 export interface DidOpenParams {
     textDocument: TextDocumentItem;
@@ -266,6 +267,43 @@ export interface VisibleType {
 export interface TypeWithIdentifier {
     name: string;
     type: TypeField;
+}
+
+export interface InlineDataMapperModelRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    propertyKey: string;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperSourceRequest extends InlineDataMapperModelRequest {
+    mappings: Mapping[];
+}
+
+export interface VisualizableFieldsRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+}
+
+export interface InlineDataMapperModelResponse {
+    mappingsModel: IDMModel;
+}
+
+export interface InlineDataMapperSourceResponse {
+    source: string;
+}
+
+export interface VisualizableFieldsResponse {
+    visualizableProperties: string[];
+}
+
+export interface AddArrayElementRequest {
+    filePath: string;
+    flowNode: FlowNode;
+    position: LinePosition;
+    propertyKey: string;
+    targetField: string;
 }
 
 export interface GraphqlDesignServiceParams {

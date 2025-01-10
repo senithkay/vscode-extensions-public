@@ -27,6 +27,7 @@ export * from "./interfaces/performance";
 export * from "./interfaces/extended-lang-client";
 export * from "./interfaces/triggers";
 export * from "./interfaces/service";
+export * from "./interfaces/inline-data-mapper";
 
 // ------ LS Utils -------->
 export * from "./ls-utils/WSConnection";

@@ -21,15 +21,27 @@ namespace Ex {
     export const Container = styled.div`
         width: 100%;
         display: flex;
+        flex-direction: column;
         color: ${ThemeColors.ON_SURFACE};
-        align-items: center;
         min-height: 32px;
-        gap: 8px;
+        gap: 4px;
         box-sizing: border-box;
 
         * {
             box-sizing: border-box;
         }
+    `;
+
+    export const CodeActionsContainer = styled.div`
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    `;
+
+    export const EditorContainer = styled.div`
+        display: flex;
+        align-items: center;
+        gap: 8px;
     `;
 
     export const ExpressionBox = styled.div`
@@ -39,7 +51,7 @@ namespace Ex {
 }
 
 export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
-    const { id, getExpressionEditorIcon, onRemove, startAdornment, endAdornment, ...rest } = props;
+    const { id, getExpressionEditorIcon, onRemove, codeActions, ...rest } = props;
     const expressionEditorRef = useRef<FormExpressionEditorRef>(null);
     const buttonRef = useRef<HTMLDivElement>(null)
 
@@ -55,23 +67,32 @@ export const FormExpressionEditorWrapper = forwardRef<FormExpressionEditorRef, F
 
     return (
         <Ex.Container id={id}>
-            <Ex.ExpressionBox>
-                {startAdornment}
-                <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
-                {endAdornment}
-            </Ex.ExpressionBox>
-            {getExpressionEditorIcon ? getExpressionEditorIcon() : (
-                props.changeHelperPaneState && (
-                    <Button ref={buttonRef} appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
-                        <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+            {codeActions && codeActions.length > 0 && (
+                <Ex.CodeActionsContainer>
+                    {codeActions.map((button, index) => (
+                        <React.Fragment key={index}>
+                            {button}
+                        </React.Fragment>
+                    ))}
+                </Ex.CodeActionsContainer>
+            )}
+            <Ex.EditorContainer>
+                <Ex.ExpressionBox>
+                    <ExpressionEditor ref={expressionEditorRef} buttonRef={buttonRef} {...rest} />
+                </Ex.ExpressionBox>
+                {getExpressionEditorIcon ? getExpressionEditorIcon() : (
+                    props.changeHelperPaneState  && (
+                        <Button ref={buttonRef}appearance="icon" onClick={handleHelperPaneToggle} tooltip="Open Helper View">
+                            <Icon name="function-icon" sx={{ color: ThemeColors.PRIMARY }} />
+                        </Button>
+                    )
+                )}
+                {onRemove && (
+                    <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
+                        <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
                     </Button>
-                )
-            )}
-            {onRemove && (
-                <Button appearance="icon" onClick={onRemove} tooltip="Remove Expression">
-                    <Codicon name="trash" sx={{ color: ThemeColors.ERROR }} />
-                </Button>
-            )}
+                )}
+            </Ex.EditorContainer>
         </Ex.Container>
     );
 });

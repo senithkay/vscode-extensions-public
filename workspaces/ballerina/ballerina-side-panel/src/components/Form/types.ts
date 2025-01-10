@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
@@ -39,7 +39,7 @@ export type FormField = {
 export type ExpressionFormField = {
     key: string;
     value: string;
-    cursorPosition: number;
+    cursorPosition: LinePosition;
     isConfigured?: boolean
 };
 

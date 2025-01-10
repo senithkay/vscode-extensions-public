@@ -8,13 +8,12 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { IDMType, TypeKind } from '@wso2-enterprise/ballerina-core';
+import { IOType, Mapping, MappingElement, TypeKind } from '@wso2-enterprise/ballerina-core';
 
 import { IDataMapperContext } from '../../../../utils/DataMapperContext/DataMapperContext';
-import { ArrayElement, DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { MappingMetadata } from '../../Mappings/MappingMetadata';
 import { InputOutputPortModel } from "../../Port";
-import { OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { findMappingByOutput } from '../../utils/common-utils';
 
 export interface DataMapperNodeModelGenerics {
 	PORT: InputOutputPortModel;
@@ -47,7 +46,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	abstract initLinks(): void;
 
 	protected addPortsForInputField(
-		dmType: IDMType,
+		field: IOType,
 		portType: "IN" | "OUT",
 		parentId: string,
 		unsafeParentId: string,
@@ -58,7 +57,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		isOptional?: boolean
 	): number {
 
-		const fieldName = dmType.fieldName;
+		const fieldName = field.variableName;
 
 		const fieldFQN = parentId
 			? `${parentId}${fieldName && isOptional
@@ -72,15 +71,14 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 		const portName = portPrefix ? `${portPrefix}.${unsafeFieldFQN}` : unsafeFieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new InputOutputPortModel(
-			dmType, portName, portType, parentId, undefined,
-			undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden
+			field, portName, portType, undefined, undefined, fieldFQN, unsafeFieldFQN, parent, isCollapsed, hidden
 		);
 
 		this.addPort(fieldPort);
 
 		let numberOfFields = 1;
-		if (dmType.kind === TypeKind.Record) {
-			const fields = dmType?.fields;
+		if (field.kind === TypeKind.Record) {
+			const fields = field?.fields;
 
 			if (fields && !!fields.length) {
 				fields.forEach(subField => {
@@ -95,88 +93,77 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputField(
-		field: DMTypeWithValue,
+		field: IOType,
 		type: "IN" | "OUT",
 		parentId: string,
-		elementIndex?: number,
+		mappings: Mapping[],
 		portPrefix?: string,
 		parent?: InputOutputPortModel,
 		collapsedFields?: string[],
 		hidden?: boolean,
-		isWithinMapFunction?: boolean
+		elementIndex?: number
 	) {
-
-		const fieldName = field.type?.fieldName || '';
+		const fieldName = field?.variableName || '';
 		if (elementIndex !== undefined) {
-			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
+			parentId = `${parentId}.${elementIndex}`
 		}
-		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
+		const fieldFQN = parentId !== '' ? fieldName !== '' ? `${parentId}.${fieldName}` : parentId : fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
+		const mapping = findMappingByOutput(mappings, fieldFQN);
+
 		const fieldPort = new InputOutputPortModel(
-			field.type, portName, type, parentId, elementIndex, field,
-			fieldFQN, fieldFQN, parent, isCollapsed, hidden, false, false, isWithinMapFunction
+			field, portName, type, mapping, elementIndex, field.variableName, field.variableName,
+			parent, isCollapsed, hidden, false, false
 		);
 		this.addPort(fieldPort);
 
-		if (field.type.kind === TypeKind.Record) {
-			const fields = field?.childrenTypes;
+		if (field.kind === TypeKind.Record) {
+			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
-					this.addPortsForOutputField(subField, type, fieldFQN, undefined, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden);
+					this.addPortsForOutputField(
+						subField, type, fieldFQN, mappings, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden
+					);
 				});
 			}
-		} else if (field.type.kind === TypeKind.Array) {
-			const elements: ArrayElement[] = field?.elements;
-			if (elements && !!elements.length) {
-				elements.forEach((element, index) => {
-					this.addPortsForOutputField(element.member, type, fieldFQN, index, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden);
-				});
-			}
+		} else if (field.kind === TypeKind.Array) {
+			const elements: MappingElement[] = mapping?.elements || [];
+
+			elements.forEach((element, index) => {
+				this.addPortsForOutputField(
+					field.member, type, fieldFQN, element.mappings, portPrefix, fieldPort, collapsedFields, isCollapsed || hidden, index
+				);
+			});
 		}
 	}
 
 	protected addPortsForHeader(
-		dmType: IDMType,
+		dmType: IOType,
 		name: string,
 		portType: "IN" | "OUT",
 		portPrefix: string,
+		mappings?: Mapping[],
 		collapsedFields?: string[],
-		field?: DMTypeWithValue,
 		isWithinMapFunction?: boolean,
 	): InputOutputPortModel {
 
 		let portName = name;
+
 		if (portPrefix) {
 			portName = name ? `${portPrefix}.${name}` : portPrefix;
 		}
+		const mapping = mappings && findMappingByOutput(mappings, name);
+	
 		const isCollapsed = collapsedFields && collapsedFields.includes(portName);
 		const headerPort = new InputOutputPortModel(
-			dmType, portName, portType, undefined, undefined,
-			field, name, name, undefined, isCollapsed, false, false, false, isWithinMapFunction
+			dmType, portName, portType, mapping, undefined, name, name, undefined,
+			isCollapsed, false, false, false, isWithinMapFunction
 		);
 
 		this.addPort(headerPort)
 
 		return headerPort;
-	}
-
-	protected addOutputFieldAdderPort(
-		parentId: string,
-		parent?: InputOutputPortModel,
-		collapsedFields?: string[],
-		hidden?: boolean,
-		isWithinMapFunction?: boolean
-	) {
-		const portName = OBJECT_OUTPUT_FIELD_ADDER_TARGET_PORT_PREFIX;
-		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
-		const fieldPort = new InputOutputPortModel(
-			undefined, portName, "IN", parentId, undefined, undefined,
-			undefined, undefined, parent, isCollapsed, hidden, false, false, isWithinMapFunction
-		);
-		this.addPort(fieldPort);
 	}
 
 	protected genMappings(val: Node, parentFields?: Node[]) {
