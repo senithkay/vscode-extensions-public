@@ -109,6 +109,7 @@ export interface PropertyModel {
     items?: string[];
     choices?: PropertyModel[];
     properties?: ConfigProperties;
+    addNewButton?: boolean;
     httpParamType?: "QUERY" | "Header" | "PAYLOAD";
 }
 

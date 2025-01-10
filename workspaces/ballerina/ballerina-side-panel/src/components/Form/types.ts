@@ -33,6 +33,7 @@ export type FormField = {
     valueTypeConstraint: string;
     groupNo?: number;
     groupName?: string;
+    addNewButton?: boolean;
 };
 
 export type ExpressionFormField = {

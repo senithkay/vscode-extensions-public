@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Codicon, FormGroup, Typography, CheckBox, RadioButtonGroup, ProgressRing, Divider, CompletionItem, LinkButton } from "@wso2-enterprise/ui-toolkit";
 import { Form, FormField, FormValues, TypeEditor } from "@wso2-enterprise/ballerina-side-panel";
-import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ServiceModel } from "@wso2-enterprise/ballerina-core";
+import { BallerinaTrigger, ComponentTriggerType, FormDiagnostics, FunctionField, TRIGGER_CHARACTERS, TriggerCharacter, ServiceModel, SubPanel } from "@wso2-enterprise/ballerina-core";
 import { debounce } from "lodash";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI, Utils } from "vscode-uri";
@@ -58,13 +58,14 @@ interface ServiceConfigFormProps {
     openListenerForm?: () => void;
     onBack?: () => void;
     formRef?: React.Ref<unknown>;
+    formSubmitText?: string;
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [serviceFields, setServiceFields] = useState<FormField[]>([]);
-    const { serviceModel, onSubmit, onBack, formRef, openListenerForm } = props;
+    const { serviceModel, onSubmit, onBack, formRef, openListenerForm, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     useEffect(() => {
@@ -103,13 +104,6 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                 Provide the necessary configuration details for the {serviceModel.displayAnnotation.label} to complete the
                                 setup.
                             </BodyText>
-                            {openListenerForm &&
-                                <ListenerBtn>
-                                    <LinkButton onClick={openListenerForm} sx={{ marginBottom: '-30px' }}>
-                                        + New Listener
-                                    </LinkButton>
-                                </ListenerBtn>
-                            }
                             {filePath &&
                                 <FormGeneratorNew
                                     ref={formRef}
@@ -117,8 +111,9 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={serviceFields}
                                     onBack={onBack}
+                                    openSubPanel={(panel: SubPanel) => { openListenerForm(); }}
                                     onSubmit={handleListenerSubmit}
-                                    submitText={formRef && "Next"}
+                                    submitText={formSubmitText}
                                 />
                             }
                         </FormContainer>
@@ -149,7 +144,8 @@ function convertConfig(listener: ServiceModel): FormField[] {
             diagnostics: [],
             items: expression.valueType === "SINGLE_SELECT" ? [""].concat(expression.items) : expression.items || [expression.value],
             choices: expression.choices,
-            placeholder: expression.placeholder
+            placeholder: expression.placeholder,
+            addNewButton: expression.addNewButton
         }
 
         formFields.push(formField);

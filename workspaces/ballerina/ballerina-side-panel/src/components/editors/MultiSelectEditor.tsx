@@ -16,6 +16,7 @@ import { FormField } from "../Form/types";
 import { getValueForDropdown } from "./utils";
 import { useFormContext } from "../../context";
 import { Colors } from "../../resources/constants";
+import { SubPanel, SubPanelView } from "@wso2-enterprise/ballerina-core";
 
 namespace S {
     export const Container = styled.div({
@@ -28,6 +29,7 @@ namespace S {
     export const LabelContainer = styled.div({
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between'
     });
 
     export const Label = styled.label({
@@ -68,10 +70,11 @@ namespace S {
 interface MultiSelectEditorProps {
     field: FormField;
     label: string;
+    openSubPanel?: (subPanel: SubPanel) => void;
 }
 
 export function MultiSelectEditor(props: MultiSelectEditorProps) {
-    const { field, label } = props;
+    const { field, label, openSubPanel } = props;
     const { form } = useFormContext();
     const { register, unregister, setValue, watch } = form;
 
@@ -106,7 +109,7 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         for (let i = indexToDelete + 1; i < dropdownCount; i++) {
             const value = watch(`${field.key}-${i}`);
             unregister(`${field.key}-${i}`);
-            setValue(`${field.key}-${i-1}`, value);
+            setValue(`${field.key}-${i - 1}`, value);
         }
 
         // Update the main field value
@@ -119,13 +122,23 @@ export function MultiSelectEditor(props: MultiSelectEditorProps) {
         <S.Container>
             <S.LabelContainer>
                 <S.Label>{field.label}</S.Label>
+                {field.addNewButton &&
+                    <S.AddNewButton
+                        appearance='icon'
+                        aria-label="add"
+                        onClick={() => openSubPanel({ view: SubPanelView.UNDEFINED })}
+                    >
+                        <Codicon name="add" />
+                        {field.label.slice(0, -1)}
+                    </S.AddNewButton>
+                }
             </S.LabelContainer>
             <S.Description>{field.documentation}</S.Description>
             {[...Array(dropdownCount)].map((_, index) => (
                 <S.DropdownContainer key={`${field.key}-${index}`}>
                     <Dropdown
                         id={`${field.key}-${index}`}
-                        {...register(`${field.key}-${index}`, { 
+                        {...register(`${field.key}-${index}`, {
                             required: !field.optional && index === 0,
                             value: getValueForDropdown(field, index)
                         })}

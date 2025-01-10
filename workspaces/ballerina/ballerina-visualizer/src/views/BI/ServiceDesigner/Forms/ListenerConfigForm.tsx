@@ -47,13 +47,14 @@ interface ListenerConfigFormProps {
     onSubmit?: (data: ListenerModel) => void;
     onBack?: () => void;
     formRef?: React.Ref<unknown>;
+    formSubmitText?: string;
 }
 
 export function ListenerConfigForm(props: ListenerConfigFormProps) {
     const { rpcClient } = useRpcContext();
 
     const [listenerFields, setListenerFields] = useState<FormField[]>([]);
-    const { listenerModel, onSubmit, onBack, formRef } = props;
+    const { listenerModel, onSubmit, onBack, formRef, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
     useEffect(() => {
@@ -98,7 +99,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                                     fields={listenerFields}
                                     onSubmit={handleListenerSubmit}
                                     onBack={onBack}
-                                    submitText={formRef && "Next"}
+                                    submitText={formSubmitText}
                                 />
                             }
                         </FormContainer>

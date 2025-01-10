@@ -49,7 +49,7 @@ export const EditorFactory = React.forwardRef<FormExpressionEditorRef, FormField
                 label = "Add Another";
                 break;
         }
-        return <MultiSelectEditor field={field} label={label} />;
+        return <MultiSelectEditor field={field} label={label} openSubPanel={openSubPanel} />;
     } else if (field.type === "CHOICE") {
         return <ChoiceForm field={field} />;
     } else if (field.type === "EXPRESSION_SET") {

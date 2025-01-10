@@ -197,7 +197,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         {!listeners?.hasListeners && <Stepper alignment='flex-start' steps={defaultSteps} currentStep={step} />}
                         {step === 0 && !saving &&
                             <>
-                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} />
+                                <ListenerConfigForm formRef={listenerConfigForm} listenerModel={listenerModel} onSubmit={handleListenerSubmit} onBack={creatingListener && onBack} formSubmitText={listeners?.hasListeners ? "Save" : undefined} />
                             </>
                         }
                         {step === 0 && saving &&
@@ -208,7 +208,7 @@ export function ServiceWizard(props: ServiceWizardProps) {
                         }
                         {step === 1 && !saving &&
                             <>
-                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handlServiceSubmit} openListenerForm={existing && openListenerForm} />
+                                <ServiceConfigForm formRef={serviceConfigForm} serviceModel={serviceModel} onSubmit={handlServiceSubmit} openListenerForm={existing && openListenerForm} formSubmitText={listeners?.hasListeners ? "Save" : undefined} />
                             </>
                         }
                         {step === 1 && saving &&
