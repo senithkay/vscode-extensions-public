@@ -137,6 +137,10 @@ bi = true
     const typesBalPath = path.join(projectRoot, 'types.bal');
     writeBallerinaFileDidOpen(typesBalPath, EMPTY);
 
+    // Create main.bal file
+    const mainBal = path.join(projectRoot, 'main.bal');
+    writeBallerinaFileDidOpen(mainBal, EMPTY);
+
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);
@@ -237,7 +241,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
 export async function createBITrigger(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `triggers.bal`);
+        const targetFile = path.join(projectDir, `main.bal`);
         if (!fs.existsSync(targetFile)) {
             fs.writeFileSync(targetFile, '');
         }
@@ -272,7 +276,7 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
 export async function createBITriggerListener(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `triggers.bal`);
+        const targetFile = path.join(projectDir, `main.bal`);
         if (!fs.existsSync(targetFile)) {
             fs.writeFileSync(targetFile, '');
         }
