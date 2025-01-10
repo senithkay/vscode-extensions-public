@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagnosticMessage, FormDiagnostics, TextEdit } from "@wso2-enterprise/ballerina-core";
+import { DiagnosticMessage, FormDiagnostics, TextEdit, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
 import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
 
@@ -37,7 +37,7 @@ export type FormField = {
 export type ExpressionFormField = {
     key: string;
     value: string;
-    cursorPosition: number;
+    cursorPosition: LinePosition;
     isConfigured?: boolean
 };
 
@@ -104,7 +104,7 @@ type FormTypeConditionalProps = {
     retrieveVisibleTypes?: never;
 }
 
-type FormHelperPaneConditionalProps = { 
+type FormHelperPaneConditionalProps = {
     isLoadingHelperPaneInfo: boolean;
     variableInfo: HelperPaneData;
     configVariableInfo: HelperPaneData;
@@ -145,7 +145,7 @@ type FormExpressionEditorBaseProps = {
     onSaveConfigurables?: (values: any) => void;
 }
 
-export type FormExpressionEditorProps = 
+export type FormExpressionEditorProps =
     FormCompletionConditionalProps &
     FormTypeConditionalProps &
     FormHelperPaneConditionalProps &

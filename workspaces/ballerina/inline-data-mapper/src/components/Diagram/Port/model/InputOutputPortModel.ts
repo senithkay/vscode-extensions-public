@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { IDMType } from "@wso2-enterprise/ballerina-core";
+import { IOType, Mapping } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperLinkModel } from "../../Link";
-import { DMTypeWithValue } from "../../Mappings/DMTypeWithValue";
 import { IntermediatePortModel } from "../IntermediatePort";
-import { DataMapperNodeModel } from "../../Node/commons/DataMapperNode";
-import { buildInputAccessExpr, createSourceForMapping, modifySourceForMultipleMappings } from "../../utils/modification-utils";
+import { createNewMapping, updateExistingMapping } from "../../utils/modification-utils";
+import { getMappingType } from "../../utils/common-utils";
+import { genArrayElementAccessSuffix, getValueType } from "../../utils/common-utils";
 
 export interface InputOutputPortModelGenerics {
 	PORT: InputOutputPortModel;
@@ -21,10 +21,16 @@ export interface InputOutputPortModelGenerics {
 
 export const INPUT_OUTPUT_PORT = "input-output-port";
 
-enum ValueType {
+export enum ValueType {
 	Default,
 	Empty,
 	NonEmpty
+}
+
+export enum MappingType {
+	ArrayToArray = "array-array",
+	ArrayToSingleton = "array-singleton",
+	Default = undefined // This is for non-array mappings currently
 }
 
 export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOutputPortModelGenerics> {
@@ -32,12 +38,11 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 	public linkedPorts: PortModel[];
 
 	constructor(
-		public field: IDMType,
+		public field: IOType,
 		public portName: string,
 		public portType: "IN" | "OUT",
-		public parentId: string,
+		public value?: Mapping,
 		public index?: number,
-		public typeWithValue?: DMTypeWithValue,
 		public fieldFQN?: string, // Field FQN with optional included, ie. person?.name?.firstName
 		public optionalOmittedFieldFQN?: string, // Field FQN without optional, ie. person.name.firstName
 		public parentModel?: InputOutputPortModel,
@@ -53,46 +58,33 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		});
 		this.linkedPorts = [];
 	}
-
+	
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
 			targetPortChanged: (async () => {
 				const sourcePort = lm.getSourcePort();
 				const targetPort = lm.getTargetPort();
-				// const targetPortHasLinks = Object.values(targetPort.links)
-				// 	?.some(link => (link as DataMapperLinkModel)?.isActualLink);
-				const targetPortHasLinks = false;
+				
+				const mappingType = getMappingType(sourcePort, targetPort);
+				if (mappingType === MappingType.ArrayToArray) {
+					// Source update behavior is determined by the user when connecting arrays.
+					return;
+				}
 
-				const targetNode = targetPort.getNode() as DataMapperNodeModel;
-				const valueType = this.getValueType(lm);
+                const targetPortHasLinks = Object.values(targetPort.links)
+                    ?.some(link => link instanceof DataMapperLinkModel && link.isActualLink);
+                const valueType = getValueType(lm);
 
-				if (valueType === ValueType.Default || (valueType === ValueType.NonEmpty && !targetPortHasLinks)) {
-					const sourceField = sourcePort && sourcePort instanceof InputOutputPortModel && sourcePort.fieldFQN;
-					const sourceInputAccessExpr = buildInputAccessExpr(sourceField);
-					
-					if (targetPort) {
-						const typeWithValue = (targetPort as InputOutputPortModel).typeWithValue;
-						const expr = typeWithValue.value;
-
-						let updatedExpr;
-						// if (Node.isPropertyAssignment(expr)) {
-						// 	updatedExpr = expr.setInitializer(sourceInputAccessExpr);
-						// } else {
-							updatedExpr = expr.replaceWithText(sourceInputAccessExpr);
-						// }
-
-						// await targetNode.context.applyModifications(updatedExpr.getSourceFile().getFullText());
-					}
-				} else if (targetPortHasLinks) {
-					await modifySourceForMultipleMappings(lm);
+				if (targetPortHasLinks || valueType === ValueType.NonEmpty) {
+					await updateExistingMapping(lm);
 				} else {
-					createSourceForMapping(lm);
+					await createNewMapping(lm);
 				}
 			})
 		});
-		// return lm;
-		return undefined;
+
+		return lm;
 	}
 
 	addLink(link: LinkModel<LinkModelGenerics>): void {
@@ -126,23 +118,5 @@ export class InputOutputPortModel extends PortModel<PortModelGenerics & InputOut
 		}
 		return this.portType !== port.portType && !isLinkExists
 				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
-	}
-
-	getValueType(lm: DataMapperLinkModel): ValueType {
-		const { typeWithValue } = lm.getTargetPort() as InputOutputPortModel;
-
-		if (typeWithValue?.value) {
-			let expr = typeWithValue.value;
-	
-			// if (Node.isPropertyAssignment(expr)) {
-			// 	expr = expr.getInitializer();
-			// }
-			const value = expr?.getText();
-			if (value !== undefined) {
-				// return isDefaultValue(typeWithValue.type, value) ? ValueType.Default : ValueType.NonEmpty;
-			}
-		}
-
-		return ValueType.Empty;
 	}
 }

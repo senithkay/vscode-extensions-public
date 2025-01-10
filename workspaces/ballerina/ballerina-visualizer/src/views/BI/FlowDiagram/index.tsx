@@ -107,7 +107,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
-    const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
     const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
@@ -152,7 +151,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
-        setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
@@ -615,7 +613,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleSubPanel = (subPanel: SubPanel) => {
-        setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
     };
 
@@ -628,8 +625,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
                     <InlineDataMapper
-                        filePath={subPanel.props?.inlineDataMapper?.filePath}
-                        range={subPanel.props?.inlineDataMapper?.range}
+                        onClosePanel={handleSubPanel}
+                        updateFormField={updateExpressionField}
+                        {...subPanel.props?.inlineDataMapper}
                     />
                 );
             case SubPanelView.HELPER_PANEL:
@@ -755,7 +753,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             projectPath={projectPath}
                             editForm={showEditForm.current}
                             onSubmit={handleOnFormSubmit}
-                            isActiveSubPanel={showSubPanel}
+                            subPanelView={subPanel.view}
                             openSubPanel={handleSubPanel}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}
