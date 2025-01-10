@@ -48,7 +48,7 @@ import React from "react";
 import { cloneDeep } from "lodash";
 import { COMPLETION_ITEM_KIND, CompletionItem, CompletionItemKind } from "@wso2-enterprise/ui-toolkit";
 
-function convertAvailableNodeToPanelNode(node: AvailableNode, functionType: FUNCTION_TYPE): PanelNode {
+function convertAvailableNodeToPanelNode(node: AvailableNode, functionType?: FUNCTION_TYPE): PanelNode {
     // Check if node should be filtered based on function type
     if (functionType === FUNCTION_TYPE.REGULAR && node.metadata.data?.isDataMappedFunction) {
         return undefined;
@@ -64,7 +64,7 @@ function convertAvailableNodeToPanelNode(node: AvailableNode, functionType: FUNC
         description: node.metadata.description,
         enabled: node.enabled,
         metadata: node,
-        icon: <NodeIcon type={node.codedata.node} />,
+        icon: <NodeIcon type={functionType === FUNCTION_TYPE.EXPRESSION_BODIED ? "DATA_MAPPER_CALL" : node.codedata.node} />,
     };
 }
 

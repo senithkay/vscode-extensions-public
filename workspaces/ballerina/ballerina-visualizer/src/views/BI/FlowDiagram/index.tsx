@@ -343,7 +343,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 .finally(() => {
                     setShowProgressIndicator(false);
                 });
-        } else if (nodeType === "DATA_MAPPER") {
+        } else if (nodeType === "DATA_MAPPER_CALL") {
             setShowProgressIndicator(true);
             rpcClient
                 .getBIDiagramRpcClient()
@@ -353,7 +353,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     queryMap: undefined,
                 })
                 .then((response) => {
-                    console.log(">>> List of data mappers", response);
                     setCategories(
                         convertFunctionCategoriesToSidePanelCategories(
                             response.categories as Category[], FUNCTION_TYPE.EXPRESSION_BODIED
