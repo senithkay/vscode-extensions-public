@@ -117,7 +117,6 @@ export default function HeaderSearchBox() {
     return (
         <SearchBox
             id={`search-${searchOption}`}
-            autoFocus={true}
             icon={filterIcon}
             placeholder={`filter input and output fields`}
             value={searchTerm}
