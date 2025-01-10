@@ -549,11 +549,11 @@
       "projectFolder": "workspaces/ballerina/overview-view",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/ballerina-service-designer",
-      "projectFolder": "workspaces/ballerina/ballerina-service-designer",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-service-designer",
+    //   "projectFolder": "workspaces/ballerina/ballerina-service-designer",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/data-mapper-view",
       "projectFolder": "workspaces/ballerina/data-mapper-view",

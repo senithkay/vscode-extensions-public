@@ -29,7 +29,6 @@
     "@wso2-enterprise/ballerina-low-code-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
     "@wso2-enterprise/ballerina-side-panel": "workspace:*",
-    "@wso2-enterprise/ballerina-service-designer": "workspace:*",
     "@wso2-enterprise/data-mapper-view": "workspace:*",
     "@wso2-enterprise/bi-diagram": "workspace:*",
     "@wso2-enterprise/sequence-diagram": "workspace:*",

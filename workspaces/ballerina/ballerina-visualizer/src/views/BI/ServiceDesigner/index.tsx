@@ -10,7 +10,6 @@
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { Resource, ServiceDesigner as BServiceDesigner } from "@wso2-enterprise/ballerina-service-designer";
 import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, FunctionModel, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
 import { BodyText, ViewWrapper } from "../../styles";
 import { Codicon, Container, Divider, Grid, Icon, ProgressRing, Typography, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
