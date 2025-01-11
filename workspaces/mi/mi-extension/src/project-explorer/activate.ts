@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import * as vscode from 'vscode';
 import { ProjectExplorerEntry, ProjectExplorerEntryProvider } from './project-explorer-provider';
 import { StateMachine, openView } from '../stateMachine';
 import { EVENT_TYPE, MACHINE_VIEW, VisualizerLocation } from '@wso2-enterprise/mi-core';
@@ -18,13 +19,29 @@ import { extension } from '../MIExtensionContext';
 import { ExtendedLanguageClient } from '../lang-client/ExtendedLanguageClient';
 import { APIResource } from '../../../syntax-tree/lib/src';
 import { MiDiagramRpcManager } from '../rpc-managers/mi-diagram/rpc-manager';
+import { RegistryExplorerEntryProvider } from './registry-explorer-provider';
+import { RUNTIME_VERSION_440 } from "../constants";
 import { deleteSwagger } from '../util/swagger';
+import { compareVersions } from '../util/onboardingUtils';
 
 export async function activateProjectExplorer(context: ExtensionContext, lsClient: ExtendedLanguageClient) {
 
 	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context);
 	await projectExplorerDataProvider.refresh(lsClient);
+	let registryExplorerDataProvider;
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
+
+	const projectDetailsRes = await lsClient?.getProjectDetails();
+	const runtimeVersion = projectDetailsRes.primaryDetails.runtimeVersion.value;
+	const isRegistrySupported = compareVersions(runtimeVersion, RUNTIME_VERSION_440) < 0;
+
+	if (isRegistrySupported) {
+		registryExplorerDataProvider = new RegistryExplorerEntryProvider(context);
+		await registryExplorerDataProvider.refresh(lsClient);
+		window.createTreeView('MI.registry-explorer', { treeDataProvider: registryExplorerDataProvider });
+		vscode.commands.executeCommand('setContext', 'MI.registry-explorer.isVisible', true);
+		commands.registerCommand(COMMANDS.REFRESH_REGISTRY_COMMAND, () => { return registryExplorerDataProvider.refresh(lsClient); });
+	}
 
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
 	// commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
@@ -484,6 +501,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 								if (res.status === true) {
 									window.showInformationMessage(res.info);
 									projectExplorerDataProvider.refresh(lsClient);
+									if (isRegistrySupported && registryExplorerDataProvider) {
+										registryExplorerDataProvider.refresh(lsClient);
+									}
 								} else {
 									window.showErrorMessage(res.info);
 								}
@@ -494,6 +514,9 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 			}
 		}
 		projectExplorerDataProvider.refresh(lsClient);
+		if (runtimeVersion !== RUNTIME_VERSION_440 && registryExplorerDataProvider) {
+			registryExplorerDataProvider.refresh(lsClient);
+		}
 	});
 }
 
