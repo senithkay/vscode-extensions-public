@@ -11,7 +11,7 @@ import { DependencyDetails, ProjectDetailsResponse } from "@wso2-enterprise/mi-c
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Button, FormActions, FormGroup, FormView, ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -22,6 +22,7 @@ interface ProjectInformationFormProps {
 export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [projectDetails, setProjectDetails] = useState<ProjectDetailsResponse>();
+    const [runtimeVersions, setRuntimeVersions] = useState<OptionProps[]>([]);
 
     const schema = yup.object({
         "primaryDetails.projectName": yup.string().required("Project Name is required"),
@@ -53,6 +54,9 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             try {
                 const response = await rpcClient?.getMiVisualizerRpcClient().getProjectDetails();
                 setProjectDetails(response);
+                const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
+                const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
+                setRuntimeVersions(supportedMIVersions);
 
                 reset({
                     "primaryDetails.projectName": response.primaryDetails.projectName.value,
@@ -171,10 +175,12 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     errorMsg={errors["primaryDetails.projectVersion"]?.message?.toString()}
                     {...register("primaryDetails.projectVersion")}
                 />
-                <TextField
+                <Dropdown
+                    id='runtimeVersion'
                     label="Runtime Version"
                     required
                     errorMsg={errors["primaryDetails.runtimeVersion"]?.message?.toString()}
+                    items={runtimeVersions}
                     {...register("primaryDetails.runtimeVersion")}
                 />
             </FormGroup>

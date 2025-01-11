@@ -11,8 +11,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Icon, ProgressRing, VSCodeColors, FormGroup, OptionProps, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
-import { DownloadProgressData, EVENT_TYPE, MIDetails, PathResponse } from "@wso2-enterprise/mi-core";
-import { set } from "lodash";
+import { DownloadProgressData, EVENT_TYPE, SetupDetails, PathResponse } from "@wso2-enterprise/mi-core";
 
 const Container = styled.div`
     display: flex;
@@ -100,30 +99,39 @@ const IconContainer = styled.div`
 
 export const EnvironmentSetup = () => {
     const { rpcClient } = useVisualizerContext();
-    const [miDetails, setMiDetails] = useState<MIDetails>({ miVersion: "", javaVersion: "" });
+    const [setupDetails, setMiDetails] = useState<SetupDetails>({
+        isSupportedMIVersion: false, showDownloadButtons: false, javaDetails:
+        {
+            version: "",
+            path: "",
+            status: "not-valid"
+        }, miDetails: {
+            version: "",
+            path: "",
+            status: "not-valid"
+        }
+    });
     const [isPomValid, setIsPomValid] = useState<boolean>(true);
     const [isJavaDownloading, setIsJavaDownloading] = useState(false);
     const [isMIDownloading, setIsMIDownloading] = useState(false);
     const [javaProgress, setJavaProgress] = useState<number>(0);
     const [miProgress, setMiProgress] = useState<number>(0);
     const [error, setError] = useState<string>();
-    const [javaPath, setJavaPath] = useState<PathResponse>({ status: "not-found" });
-    const [miPath, setMiPath] = useState<PathResponse>({ status: "not-found" });
+    const [javaPath, setJavaPath] = useState<PathResponse>({ status: "not-valid" });
+    const [miPath, setMiPath] = useState<PathResponse>({ status: "not-valid" });
     const [supportedMIVersions, setSupportedMIVersions] = useState<OptionProps[]>([]);
     const [selectedRuntimeVersion, setSelectedRuntimeVersion] = useState<string>('');
-    const [javaOrMIAvailable, setJavaOrMIAvailable] = useState<boolean>(false);
+    const [showInlineDownloadButton, setShowInlineDownloadButton] = useState<boolean>(false);
     useEffect(() => {
         const fetchMIVersionAndSetup = async () => {
-            const miDetails = await rpcClient.getMiVisualizerRpcClient().getMIDetailsFromPom();
-            if (miDetails.miVersion && miDetails.javaVersion) {
-                setMiDetails(miDetails);
-                const response = await rpcClient.getMiVisualizerRpcClient().getJavaAndMIPaths();
-                setJavaPath(response.javaPath);
-                setMiPath(response.miPath);
-
-                setJavaOrMIAvailable(response.javaPath?.status !== "not-found" || response.miPath?.status !== "not-found");
+            const setUpDetails = await rpcClient.getMiVisualizerRpcClient().getProjectSetupDetails();
+            if (setUpDetails.isSupportedMIVersion) {
+                setMiDetails(setupDetails);
+                setJavaPath(setupDetails.javaDetails);
+                setMiPath(setupDetails.miDetails);
+                setShowInlineDownloadButton(setupDetails.showDownloadButtons);
             } else {
-                const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersions();
+                const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan('');
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setSupportedMIVersions(supportedMIVersions);
                 setSelectedRuntimeVersion(supportedMIVersions[0].value);
@@ -155,7 +163,7 @@ export const EnvironmentSetup = () => {
             rpcClient.onDownloadProgress((data: DownloadProgressData) => {
                 setJavaProgress(data.percentage);
             });
-            const javaPath = await rpcClient.getMiVisualizerRpcClient().downloadJava(miDetails.miVersion);
+            const javaPath = await rpcClient.getMiVisualizerRpcClient().downloadJava(setupDetails.javaDetails.version);
             await rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ javaPath });
             setJavaPath({ path: javaPath, status: "valid" });
         } catch (err) {
@@ -171,7 +179,7 @@ export const EnvironmentSetup = () => {
             rpcClient.onDownloadProgress((data: DownloadProgressData) => {
                 setMiProgress(data.percentage);
             });
-            const miPath = await rpcClient.getMiVisualizerRpcClient().downloadMI(miDetails.miVersion);
+            const miPath = await rpcClient.getMiVisualizerRpcClient().downloadMI(setupDetails.miDetails.version);
             await rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ miPath });
             setMiPath({ path: miPath, status: "valid" });
         } catch (err) {
@@ -184,10 +192,10 @@ export const EnvironmentSetup = () => {
     const selectMIPath = async () => {
         const selectedMIPath = await rpcClient.getMiVisualizerRpcClient().selectFolder("Select the Micro Integrator runtime path");
         if (selectedMIPath) {
-            const { miPath } = await rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ miPath: selectedMIPath });
-            if (miPath.status !== "not-found") {
+            const { miDetails } = await rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ miPath: selectedMIPath });
+            if (miDetails.status !== "not-valid") {
                 setMiPath(miPath);
-                setJavaOrMIAvailable(true);
+                setShowInlineDownloadButton(true);
             }
         }
     }
@@ -195,10 +203,10 @@ export const EnvironmentSetup = () => {
     const selectJavaHome = async () => {
         const selectedJavaHome = await rpcClient.getMiVisualizerRpcClient().selectFolder("Select the Java Home path");
         if (selectedJavaHome) {
-            const { javaPath } = await rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ javaPath: selectedJavaHome });
-            if (javaPath.status !== "not-found") {
+            const { javaDetails } = await rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ javaPath: selectedJavaHome });
+            if (javaDetails.status !== "not-valid") {
                 setJavaPath(javaPath);
-                setJavaOrMIAvailable(true);
+                setShowInlineDownloadButton(true);
             }
         }
     }
@@ -217,10 +225,9 @@ export const EnvironmentSetup = () => {
         switch (javaPath?.status) {
             case "valid":
                 return renderJavaValid();
-            case "suggest":
             case "mismatch":
                 return renderJavaMismatch();
-            case "not-found":
+            case "not-valid":
                 return renderJavaNotFound();
             default:
                 return null;
@@ -245,13 +252,13 @@ export const EnvironmentSetup = () => {
                     </IconContainer>
                     <Column>
                         <StepTitle>Java is available</StepTitle>
-                        <StepDescription>Note: Available Java ({javaPath.version}) does not match the recommended version: {miDetails.javaVersion}</StepDescription>
+                        <StepDescription>Note: Available Java ({javaPath.version}) does not match the recommended version: {setupDetails.javaDetails.version}</StepDescription>
                         {javaPath && <StepDescription>Current Java Home: {javaPath.path}</StepDescription>}
                     </Column>
                 </Row>
-                {javaOrMIAvailable &&
+                {showInlineDownloadButton &&
                     <Button onClick={handleJavaDownload} disabled={isMIDownloading || isJavaDownloading}>
-                        Download Java {miDetails.javaVersion}
+                        Download Java {setupDetails.javaDetails.version}
                     </Button>}
             </SpaceBetweenRow>);
         }
@@ -266,7 +273,7 @@ export const EnvironmentSetup = () => {
                         <StepDescription>Download the Java runtime required to run MI.</StepDescription>
                     </Column>
                 </Row>
-                {javaOrMIAvailable &&
+                {showInlineDownloadButton &&
                     <Button onClick={handleJavaDownload} disabled={isMIDownloading || isJavaDownloading}>
                         Download Java
                     </Button>}
@@ -290,10 +297,9 @@ export const EnvironmentSetup = () => {
         switch (miPath?.status) {
             case "valid":
                 return renderMIValid();
-            case "suggest":
             case "mismatch":
                 return renderMIMismatch();
-            case "not-found":
+            case "not-valid":
                 return renderMINotFound();
             default:
                 return null;
@@ -318,13 +324,13 @@ export const EnvironmentSetup = () => {
                     </IconContainer>
                     <Column>
                         <StepTitle>Micro Integrator is available</StepTitle>
-                        <StepDescription>Note: Available Micro Integrator ({miPath.version}) does not match the recommended version: {miDetails.miVersion}</StepDescription>
+                        <StepDescription>Note: Available Micro Integrator ({miPath.version}) does not match the recommended version: {setupDetails.miDetails.version}</StepDescription>
                         {miPath && <StepDescription>MI Path: {miPath.path}</StepDescription>}
                     </Column>
                 </Row>
-                {javaOrMIAvailable &&
+                {showInlineDownloadButton &&
                     <Button onClick={handleMIDownload} disabled={isMIDownloading || isJavaDownloading}>
-                        Download MI {miDetails.miVersion}
+                        Download MI {setupDetails.miDetails.version}
                     </Button>}
             </SpaceBetweenRow>);
         }
@@ -339,7 +345,7 @@ export const EnvironmentSetup = () => {
                         <StepDescription>Download the MI runtime required to run MI.</StepDescription>
                     </Column>
                 </Row>
-                {javaOrMIAvailable &&
+                {showInlineDownloadButton &&
                     <Button onClick={handleMIDownload} disabled={isMIDownloading || isJavaDownloading}>
                         Download MI
                     </Button>}
@@ -362,59 +368,59 @@ export const EnvironmentSetup = () => {
     function renderContinue() {
         const javaStatus = javaPath?.status;
         const miStatus = miPath?.status;
-        const isEnable = javaStatus !== "not-found" && miStatus !== "not-found";
+        const isEnable = javaStatus !== "not-valid" && miStatus !== "not-valid";
         const needSetup = javaStatus !== "valid" || miStatus !== "valid";
-        const bothNotFound = javaStatus === "not-found" && miStatus === "not-found";
+        const bothNotFound = javaStatus === "not-valid" && miStatus === "not-valid";
 
         return (
             <>
-                    {isEnable && needSetup &&
-                        <>
-                            <StepDescription>
-                                Project is not properly setup. You can continue anyway. However, the project may not work as expected.
-                            </StepDescription>
-                            <Column>
-                                <Button appearance="secondary"
-                                    disabled={refreshDisabled()} onClick={() => refreshProject()}>
-                                    Continue Anyway
-                                </Button>
-                            </Column>
-                        </>
-                    }
-                    {!needSetup && <>
+                {isEnable && needSetup &&
+                    <>
                         <StepDescription>
-                            Project is properly setup. Click continue to open the project.
+                            Project is not properly setup. You can continue anyway. However, the project may not work as expected.
                         </StepDescription>
                         <Column>
-                            <Button
+                            <Button appearance="secondary"
                                 disabled={refreshDisabled()} onClick={() => refreshProject()}>
-                                Continue
+                                Continue Anyway
                             </Button>
                         </Column>
                     </>
-                    }
-                    {bothNotFound &&
-                        <Column>
-                            <Button onClick={handleDownload} disabled={isMIDownloading || isJavaDownloading}>
-                                Download Java & MI
-                            </Button>
-                        </Column>
-                    }
+                }
+                {!needSetup && <>
+                    <StepDescription>
+                        Project is properly setup. Click continue to open the project.
+                    </StepDescription>
+                    <Column>
+                        <Button
+                            disabled={refreshDisabled()} onClick={() => refreshProject()}>
+                            Continue
+                        </Button>
+                    </Column>
+                </>
+                }
+                {bothNotFound &&
+                    <Column>
+                        <Button onClick={handleDownload} disabled={isMIDownloading || isJavaDownloading}>
+                            Download Java & MI
+                        </Button>
+                    </Column>
+                }
             </>
         );
 
     }
 
     const refreshProject = () => {
-        let isJavaSet = javaPath?.status !== "not-found";
-        let isMISet = miPath?.status !== "not-found";
+        let isJavaSet = javaPath?.status !== "not-valid";
+        let isMISet = miPath?.status !== "not-valid";
 
         if (isJavaSet && isMISet) {
 
-            if (javaPath?.status === "suggest") {
+            if (javaPath?.status !== "not-valid") {
                 rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ javaPath: javaPath.path });
             }
-            if (miPath?.status === "suggest") {
+            if (miPath?.status !== "not-valid") {
                 rpcClient.getMiVisualizerRpcClient().setJavaAndMIPaths({ miPath: miPath.path });
             }
 
@@ -425,14 +431,14 @@ export const EnvironmentSetup = () => {
         }
     }
     const refreshDisabled = () => {
-        return (javaPath?.status === "not-found" || miPath?.status === "not-found") || (isJavaDownloading || isMIDownloading);
+        return (javaPath?.status === "not-valid" || miPath?.status === "not-valid") || (isJavaDownloading || isMIDownloading);
     }
 
     return (
         <Container>
             <TitlePanel>
                 <Headline>Micro Integrator (MI) for VS Code</Headline>
-                <HeadlineSecondary>Micro Integrator version {miDetails.miVersion} is not setup.</HeadlineSecondary>
+                <HeadlineSecondary>Micro Integrator version {setupDetails.miDetails.version} is not setup.</HeadlineSecondary>
             </TitlePanel>
 
             {isPomValid ? (
@@ -452,7 +458,7 @@ export const EnvironmentSetup = () => {
                                         <>
                                             <Row>
                                                 <StepDescription>
-                                                    Java {miDetails.javaVersion} is required. Select Java Home path if you have already installed.
+                                                    Java {setupDetails.javaDetails.version} is required. Select Java Home path if you have already installed.
                                                 </StepDescription>
                                             </Row>
                                             <Row>
@@ -469,7 +475,7 @@ export const EnvironmentSetup = () => {
                                         <>
                                             <Row>
                                                 <StepDescription>
-                                                    Micro Integrator runtime {miDetails.miVersion} is required. Select MI path if you have already installed.
+                                                    Micro Integrator runtime {setupDetails.miDetails.version} is required. Select MI path if you have already installed.
                                                     <br />
                                                     <strong>Note:</strong> All the artifacts in the server will be cleaned in this selected runtime.
                                                 </StepDescription>

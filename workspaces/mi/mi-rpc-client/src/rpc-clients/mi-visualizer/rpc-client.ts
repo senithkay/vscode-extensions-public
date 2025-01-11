@@ -62,13 +62,11 @@ import {
     downloadJava,
     downloadMI,
     selectFolder,
-    MIDetails,
-    JavaAndMIPathResponse,
-    JavaAndMIPathRequest,
-    getJavaAndMIPaths,
+    SetupDetails,
+    SetJavaAndMIPathRequest,
     setJavaAndMIPaths,
-    getSupportedMIVersions,
-    getMIDetailsFromPom,
+    getSupportedMIVersionsHigherThan,
+    getProjectSetupDetails,
     toggleDisplayOverview,
     updateContext,
     getProjectDetails,
@@ -206,22 +204,17 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendRequest(downloadMI, HOST_EXTENSION, params);
     }
 
-    getSupportedMIVersions(): Promise<string[]> {
-        return this._messenger.sendRequest(getSupportedMIVersions, HOST_EXTENSION);
+    getSupportedMIVersionsHigherThan(params: string): Promise<string[]> {
+        return this._messenger.sendRequest(getSupportedMIVersionsHigherThan, HOST_EXTENSION,params);
     }
 
-    getMIDetailsFromPom(): Promise<MIDetails> {
-        return this._messenger.sendRequest(getMIDetailsFromPom, HOST_EXTENSION);
+    getProjectSetupDetails(): Promise<SetupDetails> {
+        return this._messenger.sendRequest(getProjectSetupDetails, HOST_EXTENSION);
     }
     updateRuntimeVersionsInPom(params:string): Promise<boolean> {
         return this._messenger.sendRequest(updateRuntimeVersionsInPom, HOST_EXTENSION, params);
     }
-
-    getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
-        return this._messenger.sendRequest(getJavaAndMIPaths, HOST_EXTENSION);
-    }
-
-    setJavaAndMIPaths(params: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
+    setJavaAndMIPaths(params: SetJavaAndMIPathRequest): Promise<SetupDetails> {
         return this._messenger.sendRequest(setJavaAndMIPaths, HOST_EXTENSION, params);
     }
     

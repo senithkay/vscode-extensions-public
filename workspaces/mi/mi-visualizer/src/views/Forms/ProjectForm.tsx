@@ -79,7 +79,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
         (async () => {
             const currentDir = await rpcClient.getMiDiagramRpcClient().getWorkspaceRoot();
             setValue("directory", currentDir.path);
-            const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersions();
+            const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan('');
             const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
             setSupportedMIVersions(supportedMIVersions);
             setValue("miVersion", supportedVersions[0]); // Set the first supported version as the default, it is the latest version

@@ -398,18 +398,16 @@ export interface ReadmeContentResponse {
 }
 export interface PathResponse {
     path?: string;
-    status: "valid" | "suggest" | "mismatch" | "not-found";
+    status: "valid" | "mismatch" | "not-valid";
     version?: string;
 }
-export interface JavaAndMIPathResponse {
-    javaPath?: PathResponse;
-    miPath?: PathResponse;
-}
-export interface JavaAndMIPathRequest {
+export interface SetJavaAndMIPathRequest {
     javaPath?: string;
     miPath?: string;
 }
-export interface MIDetails {
-    miVersion: string;
-    javaVersion: string;
+export interface SetupDetails {
+    isSupportedMIVersion?: boolean;
+    miDetails: PathResponse;
+    javaDetails: PathResponse;
+    showDownloadButtons?: boolean;
 }

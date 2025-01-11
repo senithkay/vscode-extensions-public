@@ -17,11 +17,10 @@ import {
     GoToSourceRequest,
     HistoryEntry,
     HistoryEntryResponse,
-    JavaAndMIPathRequest,
-    JavaAndMIPathResponse,
     LogRequest,
     MACHINE_VIEW,
-    MIDetails,
+    SetupDetails,
+    SetJavaAndMIPathRequest,
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
@@ -73,7 +72,7 @@ import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
-import { downloadJava, downloadMI, getJavaAndMIPathsFromWorkspace, getMIDetailsFromPom, getSupportedMIVersions, setJavaAndMIPathsInWorkspace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
+import { downloadJava, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setJavaAndMIPathsInWorkspace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -482,15 +481,10 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         const miPath = await downloadMI(miVersion);
         return miPath;
     }
-    async getSupportedMIVersions(): Promise<string[]> {
-        return getSupportedMIVersions();
+    async getSupportedMIVersionsHigherThan(miVersion:string): Promise<string[]> {
+        return getSupportedMIVersionsHigherThan(miVersion);
     }
-
-    async getJavaAndMIPaths(): Promise<JavaAndMIPathResponse> {
-        return await getJavaAndMIPathsFromWorkspace();
-
-    }
-    async setJavaAndMIPaths(request: JavaAndMIPathRequest): Promise<JavaAndMIPathResponse> {
+    async setJavaAndMIPaths(request: SetJavaAndMIPathRequest): Promise<SetupDetails> {
         return await setJavaAndMIPathsInWorkspace(request);
     }
 
@@ -509,8 +503,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
         }
     }
 
-    async getMIDetailsFromPom(): Promise<MIDetails> {
-        return getMIDetailsFromPom();
+    async getProjectSetupDetails(): Promise<SetupDetails> {
+        return getProjectSetupDetails();
     }
     async updateRuntimeVersionsInPom(version: string): Promise<boolean> {
         try {
