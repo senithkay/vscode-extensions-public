@@ -20,7 +20,7 @@ import {
     LogRequest,
     MACHINE_VIEW,
     SetupDetails,
-    SetJavaAndMIPathRequest,
+    SetPathRequest,
     MIVisualizerAPI,
     NotificationRequest,
     NotificationResponse,
@@ -50,6 +50,7 @@ import {
     UpdatePomValuesRequest,
     UpdateConfigValuesRequest,
     ImportOpenAPISpecRequest,
+    PathDetailsResponse,
 } from "@wso2-enterprise/mi-core";
 import * as https from "https";
 import Mustache from "mustache";
@@ -72,7 +73,7 @@ import { copy } from 'fs-extra';
 
 const fs = require('fs');
 import { TextEdit } from "vscode-languageclient";
-import { downloadJava, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setJavaAndMIPathsInWorkspace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
+import { downloadJavaFromMI, downloadMI, getProjectSetupDetails, getSupportedMIVersionsHigherThan, setPathsInWorkSpace, updateRuntimeVersionsInPom } from '../../util/onboardingUtils';
 
 Mustache.escape = escapeXml;
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
@@ -473,8 +474,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             resolve({ success: isSuccess });
         });
     }
-    async downloadJava(miVersion: string): Promise<string> {
-        const javaPath = await downloadJava(miVersion);
+    async downloadJavaFromMI(miVersion: string): Promise<string> {
+        const javaPath = await downloadJavaFromMI(miVersion);
         return javaPath;
     }
     async downloadMI(miVersion: string): Promise<string> {
@@ -484,8 +485,8 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getSupportedMIVersionsHigherThan(miVersion:string): Promise<string[]> {
         return getSupportedMIVersionsHigherThan(miVersion);
     }
-    async setJavaAndMIPaths(request: SetJavaAndMIPathRequest): Promise<SetupDetails> {
-        return await setJavaAndMIPathsInWorkspace(request);
+    async setPathsInWorkSpace(request: SetPathRequest): Promise<PathDetailsResponse> {
+        return await setPathsInWorkSpace(request);
     }
 
     async selectFolder(title: string): Promise<string | undefined> {

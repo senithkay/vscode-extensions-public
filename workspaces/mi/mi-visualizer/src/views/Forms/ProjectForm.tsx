@@ -83,6 +83,8 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
             const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
             setSupportedMIVersions(supportedMIVersions);
             setValue("miVersion", supportedVersions[0]); // Set the first supported version as the default, it is the latest version
+            const response = await rpcClient.getMiDiagramRpcClient().getSubFolderNames({ path: currentDir.path });
+            setDirContent(response.folders);
         })();
     }, []);
 
@@ -180,7 +182,7 @@ export function ProjectWizard({ cancelView }: { cancelView: MACHINE_VIEW }) {
                 <Button
                     appearance="primary"
                     onClick={handleSubmit(handleCreateProject)}
-                    disabled={!isDirty}
+                    disabled={(!isDirty) || Object.keys(errors).length > 0}
                 >
                     Create
                 </Button>

@@ -46,7 +46,7 @@ import {
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
-    downloadJava,
+    downloadJavaFromMI,
     downloadMI,
     getSupportedMIVersionsHigherThan,
     toggleDisplayOverview,
@@ -63,9 +63,9 @@ import {
     ImportOpenAPISpecRequest,
     updateRuntimeVersionsInPom,
     getProjectSetupDetails,
-    setJavaAndMIPaths,
+    setPathsInWorkSpace,
     selectFolder,
-    SetJavaAndMIPathRequest,
+    SetPathRequest,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiVisualizerRpcManager } from "./rpc-manager";
@@ -98,7 +98,7 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(openExternal, (args: OpenExternalRequest) => rpcManger.openExternal(args));
     messenger.onRequest(getReadmeContent, () => rpcManger.getReadmeContent());
     messenger.onNotification(openReadme, () => rpcManger.openReadme());
-    messenger.onRequest(downloadJava, (args: string) => rpcManger.downloadJava(args));
+    messenger.onRequest(downloadJavaFromMI, (args: string) => rpcManger.downloadJavaFromMI(args));
     messenger.onRequest(downloadMI, (args: string) => rpcManger.downloadMI(args));
     messenger.onRequest(getSupportedMIVersionsHigherThan, (args: string) => rpcManger.getSupportedMIVersionsHigherThan(args));
     messenger.onRequest(getProjectDetails, () => rpcManger.getProjectDetails());
@@ -109,6 +109,6 @@ export function registerMiVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(importOpenAPISpec, (args: ImportOpenAPISpecRequest) => rpcManger.importOpenAPISpec(args));
     messenger.onRequest(getProjectSetupDetails, () => rpcManger.getProjectSetupDetails());
     messenger.onRequest(updateRuntimeVersionsInPom, (args: string) => rpcManger.updateRuntimeVersionsInPom(args));
-    messenger.onRequest(setJavaAndMIPaths, (args: SetJavaAndMIPathRequest) => rpcManger.setJavaAndMIPaths(args));
+    messenger.onRequest(setPathsInWorkSpace, (args: SetPathRequest) => rpcManger.setPathsInWorkSpace(args));
     messenger.onRequest(selectFolder, (args: string) => rpcManger.selectFolder(args));
 }

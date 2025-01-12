@@ -59,12 +59,12 @@ import {
     retrieveContext,
     sendSwaggerProxyRequest,
     showNotification,
-    downloadJava,
+    downloadJavaFromMI,
     downloadMI,
     selectFolder,
     SetupDetails,
-    SetJavaAndMIPathRequest,
-    setJavaAndMIPaths,
+    SetPathRequest,
+    setPathsInWorkSpace,
     getSupportedMIVersionsHigherThan,
     getProjectSetupDetails,
     toggleDisplayOverview,
@@ -80,7 +80,8 @@ import {
     UpdateConfigValuesRequest,
     updateConnectorDependencies,
     ImportOpenAPISpecRequest,
-    updateRuntimeVersionsInPom
+    updateRuntimeVersionsInPom,
+    PathDetailsResponse
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -196,8 +197,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
         return this._messenger.sendNotification(openReadme, HOST_EXTENSION);
     }
 
-    downloadJava(params: string): Promise<string> {
-        return this._messenger.sendRequest(downloadJava, HOST_EXTENSION, params);
+    downloadJavaFromMI(params: string): Promise<string> {
+        return this._messenger.sendRequest(downloadJavaFromMI, HOST_EXTENSION, params);
     }
 
     downloadMI(params: string): Promise<string> {
@@ -214,8 +215,8 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
     updateRuntimeVersionsInPom(params:string): Promise<boolean> {
         return this._messenger.sendRequest(updateRuntimeVersionsInPom, HOST_EXTENSION, params);
     }
-    setJavaAndMIPaths(params: SetJavaAndMIPathRequest): Promise<SetupDetails> {
-        return this._messenger.sendRequest(setJavaAndMIPaths, HOST_EXTENSION, params);
+    setPathsInWorkSpace(params: SetPathRequest): Promise<PathDetailsResponse> {
+        return this._messenger.sendRequest(setPathsInWorkSpace, HOST_EXTENSION, params);
     }
     
     selectFolder(params:string): Promise<string|undefined> {

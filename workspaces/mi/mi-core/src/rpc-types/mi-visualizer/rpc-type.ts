@@ -38,7 +38,8 @@ import {
     UpdateConfigValuesRequest,
     ImportOpenAPISpecRequest,
     SetupDetails,
-    SetJavaAndMIPathRequest,
+    SetPathRequest,
+    PathDetailsResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
@@ -72,7 +73,7 @@ export const importOpenAPISpec: RequestType<ImportOpenAPISpecRequest, void> = { 
 export const getReadmeContent: RequestType<void, ReadmeContentResponse> = { method: `${_preFix}/getReadmeContent` };
 export const openReadme: NotificationType<void> = { method: `${_preFix}/openReadme` };
 
-export const downloadJava: RequestType<string, string> = { method: `${_preFix}/downloadJava` };
+export const downloadJavaFromMI: RequestType<string, string> = { method: `${_preFix}/downloadJavaFromMI` };
 export const downloadMI: RequestType<string, string> = { method: `${_preFix}/downloadMI` };
 export const getSupportedMIVersionsHigherThan: RequestType<string, string[]> = { method: `${_preFix}/getSupportedMIVersionsHigherThan` };
 export const getProjectDetails: RequestType<void, ProjectDetailsResponse> = { method: `${_preFix}/getProjectDetails` };
@@ -82,5 +83,5 @@ export const updateConfigFileValues: RequestType<UpdateConfigValuesRequest, bool
 export const updateConnectorDependencies: RequestType<void, string> = { method: `${_preFix}/updateConnectorDependencies` };
 export const getProjectSetupDetails: RequestType<void, SetupDetails> = { method: `${_preFix}/getProjectSetupDetails` };
 export const updateRuntimeVersionsInPom: RequestType<string, boolean> = { method: `${_preFix}/updateRuntimeVersionsInPom` };
-export const setJavaAndMIPaths: RequestType<SetJavaAndMIPathRequest, SetupDetails> = { method: `${_preFix}/setJavaAndMIPaths` };
+export const setPathsInWorkSpace: RequestType<SetPathRequest, PathDetailsResponse> = { method: `${_preFix}/setPathsInWorkSpace` };
 export const selectFolder: RequestType<string, string | undefined> = { method: `${_preFix}/selectFolder` };

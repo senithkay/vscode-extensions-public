@@ -37,7 +37,8 @@ import {
     UpdateConfigValuesRequest,
     ImportOpenAPISpecRequest,
     SetupDetails,
-    SetJavaAndMIPathRequest,
+    SetPathRequest,
+    PathDetailsResponse,
 } from "./types";
 import { GettingStartedData, SampleDownloadRequest } from "./types";
 
@@ -68,7 +69,7 @@ export interface MIVisualizerAPI {
     openExternal: (params: OpenExternalRequest) => Promise<OpenExternalResponse>;
     getReadmeContent: () => Promise<ReadmeContentResponse>;
     openReadme: () => void;
-    downloadJava: (params: string) => Promise<string>;
+    downloadJavaFromMI: (params: string) => Promise<string>;
     downloadMI: (params: string) => Promise<string>;
     getSupportedMIVersionsHigherThan: (param:string) => Promise<string[]>;
     getProjectDetails: () => Promise<ProjectDetailsResponse>;
@@ -79,7 +80,7 @@ export interface MIVisualizerAPI {
     importOpenAPISpec: (params: ImportOpenAPISpecRequest) => Promise<void>;
     getProjectSetupDetails: () => Promise<SetupDetails>;
     updateRuntimeVersionsInPom: (params:string) => Promise<boolean>;
-    setJavaAndMIPaths: (params: SetJavaAndMIPathRequest) => Promise<SetupDetails>;
+    setPathsInWorkSpace: (params: SetPathRequest) => Promise<PathDetailsResponse>;
     selectFolder: (params: string) => Promise<string | undefined>;
 
 }

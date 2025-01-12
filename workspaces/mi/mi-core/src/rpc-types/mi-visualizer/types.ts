@@ -396,18 +396,19 @@ export interface Entrypoint {
 export interface ReadmeContentResponse {
     content: string;
 }
-export interface PathResponse {
+export interface PathDetailsResponse {
     path?: string;
     status: "valid" | "mismatch" | "not-valid";
     version?: string;
 }
-export interface SetJavaAndMIPathRequest {
-    javaPath?: string;
-    miPath?: string;
+export interface SetPathRequest {
+    type: "JAVA" | "MI";
+    path: string;
 }
 export interface SetupDetails {
     isSupportedMIVersion?: boolean;
-    miDetails: PathResponse;
-    javaDetails: PathResponse;
+    miDetails: PathDetailsResponse;
+    javaDetails: PathDetailsResponse;
     showDownloadButtons?: boolean;
+    recommendedVersions?: { miVersion: string, javaVersion: string }
 }

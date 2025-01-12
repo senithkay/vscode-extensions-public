@@ -9,7 +9,7 @@ import { extension } from '../MIExtensionContext';
 import { copyMavenWrapper } from '.';
 import { SELECTED_JAVA_HOME, SELECTED_SERVER_PATH } from '../debugger/constants';
 import { COMMANDS } from '../constants';
-import { PathResponse, SetJavaAndMIPathRequest, SetupDetails } from '@wso2-enterprise/mi-core';
+import { SetPathRequest, PathDetailsResponse, SetupDetails } from '@wso2-enterprise/mi-core';
 
 // Add Latest MI version as the first element in the array
 export const supportedJavaVersionsForMI: { [key: string]: string } = {
@@ -58,8 +58,9 @@ export async function getProjectSetupDetails(): Promise<SetupDetails> {
         return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
     }
     if (isSupportedMIVersion(miVersion)) {
+        const recommendedVersions = { miVersion, javaVersion: supportedJavaVersionsForMI[miVersion] };
         const setupDetails = await getJavaAndMIPathsFromWorkspace(miVersion);
-        return { ...setupDetails, isSupportedMIVersion: true, showDownloadButtons: isDownloadableMIVersion(miVersion) };
+        return { ...setupDetails, isSupportedMIVersion: true, showDownloadButtons: isDownloadableMIVersion(miVersion), recommendedVersions };
     }
 
     return { isSupportedMIVersion: false, javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
@@ -139,7 +140,7 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                     if (selection === downloadOption) {
                         downloadMI(miVersion).then((miPath) => {
                             if (miPath) {
-                                setJavaAndMIPathsInWorkspace({ miPath });
+                                setPathsInWorkSpace({ type: 'MI', path: miPath });
                             }
                         });
                     } else if (selection === changePathOption) {
@@ -147,7 +148,7 @@ async function isMISetup(miVersion: string): Promise<boolean> {
                             if (miPath) {
                                 const validMIPath = verifyMIPath(miPath.fsPath);
                                 if (validMIPath) {
-                                    setJavaAndMIPathsInWorkspace({ miPath: validMIPath });
+                                    setPathsInWorkSpace({ type: 'MI', path: validMIPath });
                                 } else {
                                     vscode.window.showErrorMessage('Invalid Micro Integrator path. Please set a valid Micro Integrator path and run the command again.');
                                 }
@@ -246,9 +247,9 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
             .then((selection) => {
                 if (selection) {
                     if (selection === downloadOption) {
-                        downloadJava(miVersion).then((javaPath) => {
+                        downloadJavaFromMI(miVersion).then((javaPath) => {
                             if (javaPath) {
-                                setJavaAndMIPathsInWorkspace({ javaPath });
+                                setPathsInWorkSpace({ type: 'JAVA', path: javaPath });
                             }
                         });
                     } else if (selection === changePathOption) {
@@ -256,7 +257,7 @@ async function isJavaSetup(miVersion: string): Promise<boolean> {
                             if (javaHome) {
                                 const validJavaHome = verifyJavaHomePath(javaHome.fsPath);
                                 if (validJavaHome) {
-                                    setJavaAndMIPathsInWorkspace({ javaPath: validJavaHome });
+                                    setPathsInWorkSpace({ type: 'JAVA', path: validJavaHome });
                                 } else {
                                     vscode.window.showErrorMessage('Invalid Java Home path. Please set a valid Java Home path and run the command again.');
                                 }
@@ -323,7 +324,7 @@ export function getSupportedMIVersionsHigherThan(version: string): string[] {
     return Object.keys(supportedJavaVersionsForMI);
 }
 
-export async function downloadJava(miVersion: string): Promise<string> {
+export async function downloadJavaFromMI(miVersion: string): Promise<string> {
     interface AdoptiumApiResponse {
         binaries: {
             package: {
@@ -439,6 +440,7 @@ export async function downloadMI(miVersion: string): Promise<string> {
         throw new Error('Failed to download Micro Integrator.');
     }
 }
+
 function isSupportedJavaVersionForLS(version: string): boolean {
     if (!version) {
         return false;
@@ -498,43 +500,42 @@ function isMIInstalledAtPath(miPath: string): boolean {
     const miExecutable = process.platform === 'win32' ? 'micro-integrator.bat' : 'micro-integrator.sh';
     return fs.existsSync(path.join(miPath, 'bin', miExecutable));
 }
-export async function setJavaAndMIPathsInWorkspace(request: SetJavaAndMIPathRequest): Promise<SetupDetails> {
+export async function setPathsInWorkSpace(request: SetPathRequest): Promise<PathDetailsResponse> {
     const projectMIVersion = await getMIVersionFromPom();
 
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    const response: SetupDetails = { javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+    let response: PathDetailsResponse = { status: 'not-valid' };
     if (workspaceFolder && projectMIVersion) {
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
-        if (request.javaPath) {
-            const validJavaHome = verifyJavaHomePath(request.javaPath);
+        if (request.type === 'JAVA') {
+            const validJavaHome = verifyJavaHomePath(request.path);
             if (validJavaHome) {
                 const javaVersion = getJavaVersion(path.join(validJavaHome, 'bin'));
                 if (supportedJavaVersionsForMI[projectMIVersion] === javaVersion) {
-                    response.javaDetails = { status: "valid", path: validJavaHome, version: javaVersion };
+                    response = { status: "valid", path: validJavaHome, version: javaVersion };
                 } else if (javaVersion && isCompatibleJavaVersionForMI(javaVersion, projectMIVersion)) {
-                    response.javaDetails = { status: "mismatch", path: validJavaHome, version: javaVersion! };
+                    response = { status: "mismatch", path: validJavaHome, version: javaVersion! };
                 }
             }
-            if (response.javaDetails.status !== 'not-valid') {
-                if (response.miDetails.status !== 'not-valid') {
-                    config.update(SELECTED_JAVA_HOME, validJavaHome, vscode.ConfigurationTarget.Workspace);
-                    extension.context.globalState.update(SELECTED_JAVA_HOME, validJavaHome);
-                }
+            if (response.status !== 'not-valid') {
+                config.update(SELECTED_JAVA_HOME, validJavaHome, vscode.ConfigurationTarget.Workspace);
+                extension.context.globalState.update(SELECTED_JAVA_HOME, validJavaHome);
+
             } else {
-                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version. Please set a valid Java Home path. '); //TODOk: Should add a link to the documentation
+                vscode.window.showErrorMessage('Invalid Java Home path or Unsupported version. Please set a valid Java Home path. ');
             }
         }
-        if (request.miPath) {
-            const validServerPath = verifyMIPath(request.miPath);
+        else if (request.type === 'MI') {
+            const validServerPath = verifyMIPath(request.path);
             if (validServerPath) {
                 const runtimeVersion = getMIVersion(validServerPath);
                 if (projectMIVersion === runtimeVersion) {
-                    response.miDetails = { status: "valid", path: validServerPath, version: runtimeVersion };
+                    response = { status: "valid", path: validServerPath, version: runtimeVersion };
                 } else if (runtimeVersion && compareVersions(runtimeVersion, projectMIVersion) >= 0) {
-                    response.miDetails = { status: "mismatch", path: validServerPath, version: runtimeVersion! };
+                    response = { status: "mismatch", path: validServerPath, version: runtimeVersion! };
                 }
             }
-            if (response.miDetails.status !== 'not-valid') {
+            if (response.status !== 'not-valid') {
                 config.update(SELECTED_SERVER_PATH, validServerPath, vscode.ConfigurationTarget.Workspace);
                 extension.context.globalState.update(SELECTED_SERVER_PATH, validServerPath);
             } else {
@@ -548,7 +549,10 @@ export async function setJavaAndMIPathsInWorkspace(request: SetJavaAndMIPathRequ
 
 async function getJavaAndMIPathsFromWorkspace(projectMiVersion: string): Promise<SetupDetails> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    const response: SetupDetails = { javaDetails: { status: 'not-valid' }, miDetails: { status: 'not-valid' } };
+    const response: SetupDetails = {
+        javaDetails: { status: 'not-valid', version: supportedJavaVersionsForMI[projectMiVersion] },
+        miDetails: { status: 'not-valid', version: projectMiVersion }
+    };
     if (workspaceFolder && projectMiVersion) {
         const config = vscode.workspace.getConfiguration('MI', workspaceFolder.uri);
 
@@ -640,9 +644,18 @@ function getMIFromCache(miVersion: string): string | undefined {
         }
     }
 }
-function compareVersions(v1: string, v2: string): number {
-    const parts1 = v1.split('.').map(Number);
-    const parts2 = v2.split('.').map(Number);
+export function compareVersions(v1: string, v2: string): number {
+    // Extract only the numeric parts of the version string
+    const getVersionNumbers = (str: string): string => {
+        const match = str.match(/(\d+\.\d+\.\d+)/);
+        return match ? match[0] : '0';
+    };
+
+    const version1 = getVersionNumbers(v1);
+    const version2 = getVersionNumbers(v2);
+
+    const parts1 = version1.split('.').map(part => parseInt(part, 10));
+    const parts2 = version2.split('.').map(part => parseInt(part, 10));
 
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
         const part1 = parts1[i] || 0;
