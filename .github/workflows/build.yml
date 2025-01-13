@@ -250,21 +250,21 @@ jobs:
           timeout 1800 sh e2e-test-runner.sh
 
       - name: Publish e2e test output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: workspaces/ballerina/ballerina-extension/test-resources/output.txt
           name: Ballerina-e2e-test-output-${{ github.run_attempt }}
         if: failure()
 
       - name: Publish e2e test recording
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: workspaces/ballerina/ballerina-extension/test-resources/e2e-test-out.mp4
           name: Ballerina-e2e-test-recording-${{ github.run_attempt }}
         if: failure()
 
       - name: Publish e2e test Screenshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: workspaces/ballerina/ballerina-extension/test-resources/screenshots/
           name: Ballerina-e2e-test-screenshots-${{ github.run_attempt }}
@@ -339,21 +339,21 @@ jobs:
           TEST_BITBUCKET_REPO: vscode-test-mono-repo-prod
 
       - name: Publish e2e test output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: workspaces/choreo/choreo-extension/test-resources/output.txt
           name: Choreo-e2e-test-output-${{ github.run_attempt }}
         if: failure()
 
       - name: Publish e2e test recording
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: workspaces/choreo/choreo-extension/test-resources/e2e-test-out.mp4
           name: Choreo-e2e-test-recording-${{ github.run_attempt }}
         if: failure()
 
       - name: Publish e2e test Screenshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: workspaces/choreo/choreo-extension/test-resources/screenshots/
           name: Choreo-e2e-test-screenshots-${{ github.run_attempt }}
