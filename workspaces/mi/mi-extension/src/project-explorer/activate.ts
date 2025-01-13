@@ -422,6 +422,7 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 							// delete the file and the residing folder
 							const folderPath = path.dirname(fileUri);
 							await deleteDataMapperResources(fileUri);
+							projectExplorerDataProvider.refresh(lsClient);
 							window.showInformationMessage(`${item.label} has been deleted.`);
 						} catch (error) {
 							window.showErrorMessage(`Failed to delete ${item.label}: ${error}`);

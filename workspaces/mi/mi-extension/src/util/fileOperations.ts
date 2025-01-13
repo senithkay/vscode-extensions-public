@@ -569,13 +569,19 @@ export function deleteDataMapperResources(filePath: string): Promise<{ status: b
         const fileName = path.basename(filePath);
         if (projectDir && fileName.endsWith('.ts')) {
             const dmName = fileName.replace('.ts', '');
-            const inputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
-            const outputSchemaRegPath = '/_system/governance/datamapper/' + dmName;
-            const configFileRegpath = '/_system/governance/datamapper/' + dmName;
-            removeEntryFromArtifactXML(projectDir, inputSchemaRegPath, dmName + '_inputSchema.json');
-            removeEntryFromArtifactXML(projectDir, outputSchemaRegPath, dmName + '_outputSchema.json');
-            removeEntryFromArtifactXML(projectDir, configFileRegpath, dmName + '.dmc');
-            workspace.fs.delete(Uri.parse(path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov/datamapper/' + dmName)), { recursive: true, useTrash: true });
+            let artifactXmlSavePath = '';
+            let projectDirPath = '';
+            if (path.normalize(filePath).includes(path.normalize(path.join('resources', 'datamapper')))) {
+                artifactXmlSavePath = '/_system/governance/mi-resources/datamapper/' + dmName
+                projectDirPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'datamapper', dmName);
+            } else {
+                artifactXmlSavePath = '/_system/governance/datamapper/' + dmName;
+                projectDirPath = path.join(projectDir, 'src', 'main', 'wso2mi', 'resources', 'registry', 'gov', 'datamapper', dmName);
+            }
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '_inputSchema.json');
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '_outputSchema.json');
+            removeEntryFromArtifactXML(projectDir, artifactXmlSavePath, dmName + '.dmc');
+            workspace.fs.delete(Uri.parse(projectDirPath), { recursive: true, useTrash: true });
             resolve({ status: true, info: "Datamapper resources removed" });
         }
     });
