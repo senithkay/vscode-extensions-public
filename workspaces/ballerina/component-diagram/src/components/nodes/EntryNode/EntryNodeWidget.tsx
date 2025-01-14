@@ -16,19 +16,19 @@ import { Button, Item, Menu, MenuItem, Popover, ImageWithFallback } from "@wso2-
 import { useDiagramContext } from "../../DiagramContext";
 import { HttpIcon, TaskIcon } from "../../../resources";
 import { MoreVertIcon } from "../../../resources/icons/nodes/MoreVertIcon";
-import { CDAutomation, CDService } from "@wso2-enterprise/ballerina-core";
+import { CDAutomation, CDFunction, CDService, CDResourceFunction } from "@wso2-enterprise/ballerina-core";
+import { getEntryNodeFunctionPortName } from "../../../utils/diagram";
 export namespace NodeStyles {
     export type NodeStyleProp = {
         hovered: boolean;
         inactive?: boolean;
     };
-    export const Node = styled.div<NodeStyleProp>`
+    export const Node = styled.div`
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
         color: ${Colors.ON_SURFACE};
-        cursor: pointer;
     `;
 
     export const Header = styled.div<NodeStyleProp>`
@@ -38,6 +38,7 @@ export namespace NodeStyles {
         align-items: flex-start;
         gap: 6px;
         width: 100%;
+        cursor: pointer;
     `;
 
     export const StyledButton = styled(Button)`
@@ -52,6 +53,14 @@ export namespace NodeStyles {
 
     export const BottomPortWidget = styled(PortWidget)`
         margin-bottom: -2px;
+    `;
+
+    export const FunctionPortWidget = styled(PortWidget)`
+        /* width: 8px;
+        height: 8px;
+        background-color: ${Colors.PRIMARY};
+        border-radius: 50%;
+        margin-left: -5px; */
     `;
 
     export const StyledText = styled.div`
@@ -81,6 +90,11 @@ export namespace NodeStyles {
         opacity: ${(props: NodeStyleProp) => (props.inactive && !props.hovered ? 0.7 : 1)};
     `;
 
+    export const Accessor = styled(StyledText)`
+        text-transform: uppercase;
+        font-family: "GilmerBold";
+    `;
+
     export const Description = styled(StyledText)`
         font-size: 12px;
         max-width: ${ENTRY_NODE_WIDTH - 80}px;
@@ -96,17 +110,48 @@ export namespace NodeStyles {
 
     export const Box = styled.div<NodeStyleProp>`
         display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+
+        border: ${NODE_BORDER_WIDTH}px solid
+            ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
+        border-radius: 8px;
+        background-color: ${Colors.SURFACE_DIM};
+
+        padding: 0 8px 8px 8px;
+    `;
+
+    export const ServiceBox = styled.div`
+        display: flex;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
         gap: 10px;
         width: ${ENTRY_NODE_WIDTH}px;
         height: ${ENTRY_NODE_HEIGHT}px;
+        cursor: pointer;
+    `;
+
+    export const FunctionBoxWrapper = styled.div`
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        color: ${Colors.ON_SURFACE};
+        /* margin-right: -20px; */
+    `;
+
+    export const FunctionBox = styled(NodeStyles.ServiceBox)<NodeStyleProp>`
+        height: 40px;
+        padding: 0 12px;
+
         border: ${NODE_BORDER_WIDTH}px solid
             ${(props: NodeStyleProp) => (props.hovered ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
         border-radius: 8px;
         background-color: ${Colors.SURFACE_DIM};
-        padding: 0 12px;
     `;
 
     export const Hr = styled.hr`
@@ -186,23 +231,36 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
         { id: "delete", label: "Delete", onClick: () => onDeleteComponent(model.node) },
     ];
 
+    const serviceFunctions = [];
+    if ((model.node as CDService).remoteFunctions?.length > 0) {
+        serviceFunctions.push(...(model.node as CDService).remoteFunctions);
+    }
+    if ((model.node as CDService).resourceFunctions?.length > 0) {
+        serviceFunctions.push(...(model.node as CDService).resourceFunctions);
+    }
+
     return (
-        <NodeStyles.Node
-            hovered={isHovered}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={handleOnClick}
-        >
+        <NodeStyles.Node>
             <NodeStyles.TopPortWidget port={model.getPort("in")!} engine={engine} />
             <NodeStyles.Box hovered={isHovered}>
-                <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
-                <NodeStyles.Header hovered={isHovered}>
-                    <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
-                    <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
-                </NodeStyles.Header>
-                <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
-                    <MoreVertIcon />
-                </NodeStyles.MenuButton>
+                <NodeStyles.ServiceBox onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+                    <NodeStyles.Icon>{getNodeIcon()}</NodeStyles.Icon>
+                    <NodeStyles.Header hovered={isHovered} onClick={handleOnClick}>
+                        <NodeStyles.Title hovered={isHovered}>{getNodeTitle()}</NodeStyles.Title>
+                        <NodeStyles.Description>{getNodeDescription()}</NodeStyles.Description>
+                    </NodeStyles.Header>
+                    <NodeStyles.MenuButton appearance="icon" onClick={handleOnMenuClick}>
+                        <MoreVertIcon />
+                    </NodeStyles.MenuButton>
+                </NodeStyles.ServiceBox>
+                {serviceFunctions?.map((serviceFunction) => (
+                    <FunctionBox
+                        key={getEntryNodeFunctionPortName(serviceFunction)}
+                        func={serviceFunction}
+                        model={model}
+                        engine={engine}
+                    />
+                ))}
             </NodeStyles.Box>
             <Popover
                 open={isMenuOpen}
@@ -221,5 +279,37 @@ export function EntryNodeWidget(props: EntryNodeWidgetProps) {
             </Popover>
             <NodeStyles.BottomPortWidget port={model.getPort("out")!} engine={engine} />
         </NodeStyles.Node>
+    );
+}
+
+function FunctionBox(props: { func: CDFunction | CDResourceFunction; model: EntryNodeModel; engine: DiagramEngine }) {
+    const { func, model, engine } = props;
+    const [isHovered, setIsHovered] = useState(false);
+    const { onFunctionSelect } = useDiagramContext();
+
+    const handleOnClick = () => {
+        onFunctionSelect(func);
+    };
+
+    return (
+        <NodeStyles.FunctionBoxWrapper>
+            <NodeStyles.FunctionBox
+                hovered={isHovered}
+                onClick={() => handleOnClick()}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {(func as CDResourceFunction).accessor && (
+                    <NodeStyles.Accessor>{(func as CDResourceFunction).accessor}</NodeStyles.Accessor>
+                )}
+                {(func as CDResourceFunction).path && (
+                    <NodeStyles.Title hovered={isHovered}>/{(func as CDResourceFunction).path}</NodeStyles.Title>
+                )}
+                {(func as CDFunction).name && (
+                    <NodeStyles.Title hovered={isHovered}>{(func as CDFunction).name}</NodeStyles.Title>
+                )}
+            </NodeStyles.FunctionBox>
+            <NodeStyles.FunctionPortWidget port={model.getPort(getEntryNodeFunctionPortName(func))!} engine={engine} />
+        </NodeStyles.FunctionBoxWrapper>
     );
 }

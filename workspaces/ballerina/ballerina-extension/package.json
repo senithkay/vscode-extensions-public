@@ -512,7 +512,7 @@
                 "command": "kolab.tryit",
                 "title": "Open Try It",
                 "category": "Ballerina",
-                "icon": "$(beaker)"
+                "icon": "$(server)"
             },
             {
                 "command": "kolab.open.ai.panel",
@@ -596,6 +596,13 @@
                 "command": "BI.project-explorer.overview",
                 "title": "Show Overview",
                 "icon": "$(distro-design-view)",
+                "group": "navigation",
+                "category": "BI"
+            },
+            {
+                "command": "BI.project-explorer.add-data-mapper",
+                "title": "Add Data Mapper",
+                "icon": "$(add)",
                 "group": "navigation",
                 "category": "BI"
             }

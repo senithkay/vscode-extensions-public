@@ -48,6 +48,10 @@ export function activate(context: BallerinaExtension) {
         openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIComponentView });
     });
 
+    commands.registerCommand(BI_COMMANDS.ADD_DATA_MAPPER, () => {
+        openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.BIDataMapperForm });
+    });
+
     commands.registerCommand(BI_COMMANDS.DELETE_COMPONENT, async (item: any) => {
         console.log(">>> delete component", item);
 
@@ -74,7 +78,7 @@ export function activate(context: BallerinaExtension) {
                     console.error(">>> Error finding connector", { connectionName: item.label });
                 }
             });
-        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION) {
+        } else if (item.contextValue === DIRECTORY_SUB_TYPE.FUNCTION || item.contextValue === DIRECTORY_SUB_TYPE.DATA_MAPPER) {
             await handleComponentDeletion('functions', item.label, item.info);
         } else if (item.contextValue === DIRECTORY_SUB_TYPE.TYPE) {
             await handleComponentDeletion('records', item.label, item.info);

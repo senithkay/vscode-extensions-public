@@ -156,7 +156,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
         const newTextValue = prefix + item.value + suffix;
 
         await handleChange(newTextValue, newCursorPosition);
-        onCompletionSelect && await onCompletionSelect(newTextValue);
+        onCompletionSelect && await onCompletionSelect(newTextValue, item);
         setCursor(inputRef, 'input', newTextValue, newCursorPosition);
     };
 

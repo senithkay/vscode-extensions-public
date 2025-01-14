@@ -85,13 +85,21 @@ export function ComponentListView() {
 
     const { setPopupMessage } = useVisualizerContext();
 
-    const handleClick = async (key: DIRECTORY_MAP) => {
+    const handleClick = async (key: DIRECTORY_MAP, serviceType?: string) => {
         if (key === DIRECTORY_MAP.SERVICES) {
             await rpcClient.getVisualizerRpcClient().openView({
                 type: EVENT_TYPE.OPEN_VIEW,
                 location: {
-                    view: MACHINE_VIEW.BIServiceForm,
+                    view: MACHINE_VIEW.BIServiceWizard,
+                    serviceType: serviceType
                 },
+            });
+        } else if (key === DIRECTORY_MAP.DATA_MAPPERS) {
+            await rpcClient.getVisualizerRpcClient().openView({
+                type: EVENT_TYPE.OPEN_VIEW,
+                location: {
+                    view: MACHINE_VIEW.BIDataMapperForm,
+                }
             });
         } else if (key === DIRECTORY_MAP.CONNECTIONS) {
             await rpcClient.getVisualizerRpcClient().openView({
@@ -170,13 +178,20 @@ export function ComponentListView() {
     };
 
     const handleOnSelect = async (trigger: TriggerNode) => {
-        if (!trigger) {
-            console.error(">>> Error selecting trigger. No codedata found");
-            return;
-        }
-        const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
-        console.log(">>>Trigger by id", response);
-        setTrigger(response.trigger);
+        // if (!trigger) {
+        //     console.error(">>> Error selecting trigger. No codedata found");
+        //     return;
+        // }
+        // const response = await rpcClient.getTriggerWizardRpcClient().getTriggerModel({ id: trigger.id.toString() });
+        // console.log(">>>Trigger by id", response);
+        // setTrigger(response.trigger);
+        await rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIServiceWizard,
+                serviceType: trigger.moduleName
+            },
+        });
     };
 
     const [trigger, setTrigger] = useState<TriggerNode>(undefined);
@@ -225,19 +240,19 @@ export function ComponentListView() {
                                         icon={<Icon name="bi-http-service" />}
                                         title="HTTP Service"
                                         description="Handle web requests and responses."
-                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES)}
+                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "http")}
                                     />
                                     <ButtonCard
                                         icon={<Icon name="bi-graphql" />}
                                         title="GraphQL Service"
                                         description="Flexible and efficient data queries."
-                                        onClick={() => setPopupMessage(true)}
+                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "graphql")}
                                     />
                                     <ButtonCard
                                         icon={<Icon name="bi-grpc" />}
                                         title="gRPC Service"
                                         description="High-performance, cross-platform communication."
-                                        onClick={() => setPopupMessage(true)}
+                                        onClick={() => handleClick(DIRECTORY_MAP.SERVICES, "grpc")}
                                     />
                                 </CardGrid>
                             </PanelViewMore>
@@ -271,7 +286,7 @@ export function ComponentListView() {
                                                 description={`${item.orgName}/${item.moduleName}`}
                                                 icon={getEntryNodeIcon(item)}
                                                 onClick={() => {
-                                                    handleOnSelect(item);
+                                                    handleClick(DIRECTORY_MAP.SERVICES, item.moduleName)
                                                 }}
                                             />
                                         );
@@ -325,6 +340,12 @@ export function ComponentListView() {
                                         title="Connections"
                                         description="Set up external service connections, like databases and APIs."
                                         onClick={() => handleClick(DIRECTORY_MAP.CONNECTIONS)}
+                                    />
+                                    <ButtonCard
+                                        icon={<Icon name="dataMapper" />}
+                                        title="Data Mappers"
+                                        description="Create data mappings for reusable transformations"
+                                        onClick={() => handleClick(DIRECTORY_MAP.DATA_MAPPERS)}
                                     />
                                     <ButtonCard
                                         icon={<Icon name="bi-type" />}

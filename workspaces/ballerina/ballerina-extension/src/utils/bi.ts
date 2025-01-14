@@ -16,6 +16,8 @@ import { applyModifications, modifyFileContent, writeBallerinaFileDidOpen } from
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export const README_FILE = "readme.md";
+export const FUNCTIONS_FILE = "functions.bal";
+export const DATA_MAPPING_FILE = "data_mappings.bal";
 
 export function openBIProject() {
     window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Open BI Project' })
@@ -137,6 +139,10 @@ bi = true
     const typesBalPath = path.join(projectRoot, 'types.bal');
     writeBallerinaFileDidOpen(typesBalPath, EMPTY);
 
+    // Create main.bal file
+    const mainBal = path.join(projectRoot, 'main.bal');
+    writeBallerinaFileDidOpen(mainBal, EMPTY);
+
     // Create datamappings.bal file
     const datamappingsBalPath = path.join(projectRoot, 'data_mappings.bal');
     writeBallerinaFileDidOpen(datamappingsBalPath, EMPTY);
@@ -213,8 +219,10 @@ export async function createBIAutomation(params: ComponentRequest): Promise<Crea
 
 export async function createBIFunction(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
+        const isExpressionBodied = params.functionType.isExpressionBodied;
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `functions.bal`);
+        // Hack to create trasformation function (Use LS API to create the function when available)
+        const targetFile = path.join(projectDir, isExpressionBodied ? DATA_MAPPING_FILE : FUNCTIONS_FILE);
         if (!fs.existsSync(targetFile)) {
             writeBallerinaFileDidOpen(targetFile, '');
         }
@@ -237,7 +245,7 @@ export async function createBIFunction(params: ComponentRequest): Promise<Create
 export async function createBITrigger(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `triggers.bal`);
+        const targetFile = path.join(projectDir, `main.bal`);
         if (!fs.existsSync(targetFile)) {
             fs.writeFileSync(targetFile, '');
         }
@@ -272,7 +280,7 @@ export async function createBITrigger(params: ComponentRequest): Promise<CreateC
 export async function createBITriggerListener(params: ComponentRequest): Promise<CreateComponentResponse> {
     return new Promise(async (resolve) => {
         const projectDir = path.join(StateMachine.context().projectUri);
-        const targetFile = path.join(projectDir, `triggers.bal`);
+        const targetFile = path.join(projectDir, `main.bal`);
         if (!fs.existsSync(targetFile)) {
             fs.writeFileSync(targetFile, '');
         }
@@ -377,11 +385,12 @@ ${funcSignature}
 // <---------- Function Source Generation START-------->
 export async function handleFunctionCreation(targetFile: string, params: ComponentRequest): Promise<SyntaxTreeResponse> {
     const modifications: STModification[] = [];
-    const parametersStr = params.functionType.parameters
+    const { parameters, returnType, name, isExpressionBodied } = params.functionType;
+    const parametersStr = parameters
         .map((item) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ''}`)
         .join(",");
 
-    const returnTypeStr = `returns ${!params.functionType.returnType ? 'error?' : `${params.functionType.returnType}|error?`}`;
+    const returnTypeStr = `returns ${!returnType ? 'error?' : isExpressionBodied ? `${returnType}` : `${returnType}|error?`}`;
 
     const expBody = `{
     do {
@@ -403,13 +412,13 @@ export async function handleFunctionCreation(targetFile: string, params: Compone
     modifications.push(
         createFunctionSignature(
             "",
-            params.functionType.name,
+            name,
             parametersStr,
             returnTypeStr,
             targetPosition,
             false,
-            false,
-            expBody
+            params.functionType.isExpressionBodied,
+            params.functionType.isExpressionBodied ? `{}` : expBody
         )
     );
 

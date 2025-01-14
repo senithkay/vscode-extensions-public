@@ -12,10 +12,10 @@ import { FormField, FormExpressionEditorProps } from '../../Form/types';
 import { Control, Controller, FieldValues, UseFormWatch } from 'react-hook-form';
 import {
     Button,
+    CompletionItem,
     ErrorBanner,
     FormExpressionEditor,
     FormExpressionEditorRef,
-    InputProps,
     RequiredFormInput
 } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
@@ -29,13 +29,15 @@ import {
 import { Colors } from '../../../resources/constants';
 import { sanitizeType } from '../utils';
 import { getHelperPane } from './HelperPane';
+import { debounce } from 'lodash';
 
 type ContextAwareExpressionEditorProps = {
     field: FormField;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     handleOnFieldFocus?: (key: string) => void;
     autoFocus?: boolean;
+    visualizable?: boolean;
 }
 
 type ExpressionEditorProps = ContextAwareExpressionEditorProps & FormExpressionEditorProps & {
@@ -111,16 +113,10 @@ export namespace S {
         color: 'var(--vscode-list-deemphasizedForeground)',
     });
 
-    export const EndAdornment = styled(Button)`
-        & > vscode-button {
-            color: var(--vscode-button-secondaryForeground);
-            font-size: 10px;
-        }
-    `;
-
-    export const EndAdornmentText = styled.p`
+    export const DataMapperBtnTxt = styled.p`
         font-size: 10px;
         margin: 0;
+        color: var(--vscode-button-background);
     `;
 }
 
@@ -156,6 +152,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         extractArgsFromFunction,
         getExpressionEditorDiagnostics,
         getHelperPaneData,
+        onFunctionItemSelect,
         onFocus,
         onBlur,
         onCompletionItemSelect,
@@ -164,12 +161,22 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         onRemove,
         openSubPanel,
         handleOnFieldFocus,
-        onSaveConfigurables
+        onSaveConfigurables,
+        subPanelView,
+        targetLineRange,
+        fileName,
+        visualizable
     } = props as ExpressionEditorProps;
     const [focused, setFocused] = useState<boolean>(false);
+
+    // If Form directly  calls ExpressionEditor without setting targetLineRange and fileName through context
+    const { targetLineRange: contextTargetLineRange, fileName: contextFileName } = useFormContext();
+    const effectiveTargetLineRange = targetLineRange ?? contextTargetLineRange;
+    const effectiveFileName = fileName ?? contextFileName;
+
     const [isHelperPaneOpen, setIsHelperPaneOpen] = useState<boolean>(false);
     /* Define state to retrieve helper pane data */
-    
+
     const exprRef = useRef<FormExpressionEditorRef>(null);
 
     // Use to fetch initial diagnostics
@@ -205,9 +212,9 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         cursorPositionRef.current = undefined;
     };
 
-    const handleCompletionSelect = async (value: string) => {
+    const handleCompletionSelect = async (value: string, item: CompletionItem) => {
         // Trigger actions on completion select
-        await onCompletionItemSelect?.(value);
+        await onCompletionItemSelect?.(value, item.additionalTextEdits);
 
         // Set cursor position
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -221,24 +228,22 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
         });
     };
 
-    const endAdornment: InputProps = {
-        endAdornment: (
-            <S.EndAdornment
-                appearance="icon"
-                tooltip="Create using Data Mapper"
-                onClick={() => handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
-                    // TODO: get filePath and range from getFlowModel API
-                    filePath: "path/to/file",
-                    range: {
-                        start: { line: 0, character: 0 },
-                        end: { line: 0, character: 0 },
-                    }
-                }})}
-                disabled={true} // TODO: enable when file path and range are available
-            >
-                <S.EndAdornmentText>DM</S.EndAdornmentText>
-            </S.EndAdornment>
-        )
+    const handleInlineDataMapperOpen = (isUpdate: boolean) => {
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER && !isUpdate) {
+            openSubPanel({view: SubPanelView.UNDEFINED});
+        } else {
+            handleOpenSubPanel(SubPanelView.INLINE_DATA_MAPPER, { inlineDataMapper: {
+                filePath: effectiveFileName,
+                flowNode: undefined, // This will be updated in the Form component
+                position: {
+                    line: effectiveTargetLineRange.startLine.line,
+                    offset: effectiveTargetLineRange.startLine.offset,
+                },
+                propertyKey: field.key,
+                editorKey: field.key
+            }});
+            handleOnFieldFocus?.(field.key);
+        }
     };
 
     const handleChangeHelperPaneState = (isOpen: boolean) => {
@@ -257,13 +262,30 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
             getHelperPaneData,
             value,
             onChange,
-            onSaveConfigurables
+            onSaveConfigurables,
+            onFunctionItemSelect
         );
     }
+
+    const updateSubPanelData = (value: string) => {
+        if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+            handleInlineDataMapperOpen(true);
+        }
+    };
 
     const handleExtractArgsFromFunction = async (value: string, cursorPosition: number) => {
         return await extractArgsFromFunction(value, field.key, cursorPosition);
     };
+
+    const debouncedUpdateSubPanelData = debounce(updateSubPanelData, 300);
+
+    const codeActions = [
+        visualizable && (
+            <Button appearance="icon" onClick={() => handleInlineDataMapperOpen(false)}>
+                <S.DataMapperBtnTxt>Map Data Inline</S.DataMapperBtnTxt>
+            </Button>
+        )
+    ];
 
     return (
         <S.Container>
@@ -292,6 +314,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             autoFocus={autoFocus}
                             onChange={async (value: string, updatedCursorPosition: number) => {
                                 onChange(value);
+                                debouncedUpdateSubPanelData(value);
                                 cursorPositionRef.current = updatedCursorPosition;
 
                                 // Open the helper pane based on the value
@@ -322,12 +345,12 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, ExpressionEd
                             onSave={onSave}
                             onCancel={onCancel}
                             onRemove={onRemove}
-                            inputProps={endAdornment}
                             isHelperPaneOpen={isHelperPaneOpen}
                             changeHelperPaneState={handleChangeHelperPaneState}
                             getHelperPane={getHelperPaneData && handleGetHelperPane} // TODO: Remove this check when all the forms are refactored to use form generator
                             placeholder={field.placeholder}
                             sx={{ paddingInline: '0' }}
+                            codeActions={codeActions}
                         />
                         {error && <ErrorBanner errorMsg={error.message.toString()} />}
                     </div>

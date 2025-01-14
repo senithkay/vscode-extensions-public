@@ -32,7 +32,8 @@ import {
     BIGetFunctionsRequest,
     SubPanel,
     SubPanelView,
-    CurrentBreakpointsResponse as BreakpointInfo
+    CurrentBreakpointsResponse as BreakpointInfo,
+    FUNCTION_TYPE
 } from "@wso2-enterprise/ballerina-core";
 
 import {
@@ -89,6 +90,7 @@ export enum SidePanelView {
     NODE_LIST = "NODE_LIST",
     FORM = "FORM",
     FUNCTION_LIST = "FUNCTION_LIST",
+    DATA_MAPPER_LIST = "DATA_MAPPER_LIST",
 }
 
 export interface BIFlowDiagramProps {
@@ -107,7 +109,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const [categories, setCategories] = useState<PanelCategory[]>([]);
     const [fetchingAiSuggestions, setFetchingAiSuggestions] = useState(false);
     const [showProgressIndicator, setShowProgressIndicator] = useState(false);
-    const [showSubPanel, setShowSubPanel] = useState(false);
     const [subPanel, setSubPanel] = useState<SubPanel>({ view: SubPanelView.UNDEFINED });
     const [updatedExpressionField, setUpdatedExpressionField] = useState<ExpressionFormField>(undefined);
     const [breakpointInfo, setBreakpointInfo] = useState<BreakpointInfo>();
@@ -152,7 +153,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const handleOnCloseSidePanel = () => {
         setShowSidePanel(false);
         setSidePanelView(SidePanelView.NODE_LIST);
-        setShowSubPanel(false);
         setSubPanel({ view: SubPanelView.UNDEFINED });
         selectedNodeRef.current = undefined;
         nodeTemplateRef.current = undefined;
@@ -253,7 +253,34 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
         fetchNodesAndAISuggestions(parent, target);
     };
 
-    const handleSearchFunction = async (searchText: string) => {
+    const handleOnAddNodePrompt = (parent: FlowNode | Branch, target: LineRange, prompt: string) => {
+        // clear previous click if had
+        if (topNodeRef.current || targetRef.current) {
+            handleOnCloseSidePanel();
+            return;
+        }
+        // handle add new node
+        topNodeRef.current = parent;
+        targetRef.current = target;
+        // save original model
+        originalFlowModel.current = model;
+        // get ai suggestions
+        setFetchingAiSuggestions(true);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getAiSuggestions({ position: target, filePath: model.fileName, prompt })
+            .then((model) => {
+                console.log(">>> flow model with ai suggested nodes", { model, length: model.flowModel.nodes.length });
+                if (model?.flowModel?.nodes?.length > 0) {
+                    setSuggestedModel(model.flowModel);
+                    suggestedText.current = model.suggestion;
+                }
+            }).finally(() => {
+                setFetchingAiSuggestions(false);
+            });
+    };
+
+    const handleSearchFunction = async (searchText: string, functionType: FUNCTION_TYPE) => {
         const request: BIGetFunctionsRequest = {
             position: {
                 startLine: targetRef.current.startLine,
@@ -275,8 +302,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             .getFunctions(request)
             .then((response) => {
                 console.log(">>> Searched List of functions", response);
-                setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
-                setSidePanelView(SidePanelView.FUNCTION_LIST);
+                setCategories(
+                    convertFunctionCategoriesToSidePanelCategories(response.categories as Category[], functionType)
+                );
+                setSidePanelView(
+                    functionType === FUNCTION_TYPE.REGULAR
+                        ? SidePanelView.FUNCTION_LIST
+                        : SidePanelView.DATA_MAPPER_LIST
+                );
                 setShowSidePanel(true);
             })
             .finally(() => {
@@ -299,8 +332,33 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 })
                 .then((response) => {
                     console.log(">>> List of functions", response);
-                    setCategories(convertFunctionCategoriesToSidePanelCategories(response.categories as Category[]));
+                    setCategories(
+                        convertFunctionCategoriesToSidePanelCategories(
+                            response.categories as Category[], FUNCTION_TYPE.REGULAR
+                        )
+                    );
                     setSidePanelView(SidePanelView.FUNCTION_LIST);
+                    setShowSidePanel(true);
+                })
+                .finally(() => {
+                    setShowProgressIndicator(false);
+                });
+        } else if (nodeType === "DATA_MAPPER_CALL") {
+            setShowProgressIndicator(true);
+            rpcClient
+                .getBIDiagramRpcClient()
+                .getFunctions({
+                    position: { startLine: targetRef.current.startLine, endLine: targetRef.current.endLine },
+                    filePath: model.fileName,
+                    queryMap: undefined,
+                })
+                .then((response) => {
+                    setCategories(
+                        convertFunctionCategoriesToSidePanelCategories(
+                            response.categories as Category[], FUNCTION_TYPE.EXPRESSION_BODIED
+                        )
+                    );
+                    setSidePanelView(SidePanelView.DATA_MAPPER_LIST);
                     setShowSidePanel(true);
                 })
                 .finally(() => {
@@ -472,7 +530,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleOnFormBack = () => {
-        if (sidePanelView === SidePanelView.FUNCTION_LIST) {
+        if (sidePanelView === SidePanelView.FUNCTION_LIST || sidePanelView === SidePanelView.DATA_MAPPER_LIST) {
             // Reset categories to the initial available nodes
             setCategories(initialCategoriesRef.current);
             setSidePanelView(SidePanelView.NODE_LIST);
@@ -588,7 +646,6 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     };
 
     const handleSubPanel = (subPanel: SubPanel) => {
-        setShowSubPanel(subPanel.view !== SubPanelView.UNDEFINED);
         setSubPanel(subPanel);
     };
 
@@ -601,8 +658,9 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
             case SubPanelView.INLINE_DATA_MAPPER:
                 return (
                     <InlineDataMapper
-                        filePath={subPanel.props?.inlineDataMapper?.filePath}
-                        range={subPanel.props?.inlineDataMapper?.range}
+                        onClosePanel={handleSubPanel}
+                        updateFormField={updateExpressionField}
+                        {...subPanel.props?.inlineDataMapper}
                     />
                 );
             case SubPanelView.HELPER_PANEL:
@@ -652,7 +710,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                     iconSx={{ fontSize: "16px" }}
                     // onEdit={handleOnFormBack}
                 ></ViewHeader>
-                {showProgressIndicator && model && <ProgressIndicator color={Colors.PRIMARY} />}
+                {(showProgressIndicator || fetchingAiSuggestions) && model && <ProgressIndicator color={Colors.PRIMARY} />}
                 <ViewContent padding>
                     <Container>
                         {!model && (
@@ -664,6 +722,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             <Diagram
                                 model={flowModel}
                                 onAddNode={handleOnAddNode}
+                                onAddNodePrompt={handleOnAddNodePrompt}
                                 onDeleteNode={handleOnDeleteNode}
                                 onAddComment={handleOnAddComment}
                                 onNodeSelect={handleOnEditNode}
@@ -709,10 +768,20 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                         <NodeList
                             categories={categories}
                             onSelect={handleOnSelectNode}
-                            onSearchTextChange={handleSearchFunction}
+                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.REGULAR)}
                             onAddFunction={handleOnAddFunction}
                             onClose={handleOnCloseSidePanel}
                             title={"Functions"}
+                            onBack={handleOnFormBack}
+                        />
+                    )}
+                    {sidePanelView === SidePanelView.DATA_MAPPER_LIST && categories?.length > 0 && (
+                        <NodeList
+                            categories={categories}
+                            onSelect={handleOnSelectNode}
+                            onSearchTextChange={(searchText) => handleSearchFunction(searchText, FUNCTION_TYPE.EXPRESSION_BODIED)}
+                            onClose={handleOnCloseSidePanel}
+                            title={"Data Mappers"}
                             onBack={handleOnFormBack}
                         />
                     )}
@@ -727,7 +796,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                             projectPath={projectPath}
                             editForm={showEditForm.current}
                             onSubmit={handleOnFormSubmit}
-                            isActiveSubPanel={showSubPanel}
+                            subPanelView={subPanel.view}
                             openSubPanel={handleSubPanel}
                             updatedExpressionField={updatedExpressionField}
                             resetUpdatedExpressionField={handleResetUpdatedExpressionField}

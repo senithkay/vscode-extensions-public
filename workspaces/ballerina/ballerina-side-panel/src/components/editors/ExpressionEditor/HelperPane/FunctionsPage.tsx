@@ -9,7 +9,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
 import { LibraryBrowser } from './LibraryBrowser';
 
 type FunctionsPageProps = {
@@ -21,6 +21,7 @@ type FunctionsPageProps = {
     setLibraryFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
+    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
 };
 
 export const FunctionsPage = ({
@@ -31,7 +32,8 @@ export const FunctionsPage = ({
     setFunctionFilterText,
     setLibraryFilterText,
     onClose,
-    onChange
+    onChange,
+    onFunctionItemSelect
 }: FunctionsPageProps) => {
     const firstRender = useRef<boolean>(true);
     const [searchValue, setSearchValue] = useState<string>('');
@@ -49,6 +51,12 @@ export const FunctionsPage = ({
         setSearchValue(searchText);
     };
 
+    const handleFunctionItemSelect = async (item: HelperPaneCompletionItem) => {
+        const insertText = await onFunctionItemSelect(item);
+        onChange(insertText);
+        onClose();
+    };
+
     return (
         <>
             <HelperPane.Header
@@ -61,8 +69,9 @@ export const FunctionsPage = ({
             <HelperPane.Body isLoading={!isLibraryBrowserOpen && isLoading}>
                 {functionInfo?.category.map((category) => (
                     <HelperPane.Section
+                        key={category.label}
                         title={category.label}
-                        {...(category.label === 'Current Integration' && {
+                        {...(category.items?.length > 0 && category.subCategory?.length === 0 && {
                             collapsible: true,
                             defaultCollapsed: true,
                             columns: 2,
@@ -71,14 +80,16 @@ export const FunctionsPage = ({
                     >
                         {category.items?.map((item) => (
                             <HelperPane.CompletionItem
+                                key={`${category.label}-${item.label}`}
                                 label={item.label}
                                 type={item.type}
-                                onClick={() => onChange(`${item.label}(`)}
+                                onClick={async () => await handleFunctionItemSelect(item)}
                                 getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                             />
                         ))}
                         {category.subCategory?.map((subCategory) => (
                             <HelperPane.SubSection
+                                key={`${category.label}-${subCategory.label}`}
                                 title={subCategory.label}
                                 collapsible
                                 defaultCollapsed
@@ -87,8 +98,9 @@ export const FunctionsPage = ({
                             >
                                 {subCategory.items?.map((item) => (
                                     <HelperPane.CompletionItem
+                                        key={`${category.label}-${subCategory.label}-${item.label}`}
                                         label={item.label}
-                                        onClick={() => onChange(`${item.label}(`)}
+                                        onClick={async () => await handleFunctionItemSelect(item)}
                                         getIcon={() => getIcon(COMPLETION_ITEM_KIND.Function)}
                                     />
                                 ))}
@@ -112,6 +124,7 @@ export const FunctionsPage = ({
                     onBack={() => setIsLibraryBrowserOpen(false)}
                     onClose={onClose}
                     onChange={onChange}
+                    onFunctionItemSelect={onFunctionItemSelect}
                 />
             )}
         </>

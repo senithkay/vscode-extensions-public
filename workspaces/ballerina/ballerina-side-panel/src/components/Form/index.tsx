@@ -22,7 +22,7 @@ import { ExpressionFormField, FormExpressionEditorProps, FormField, FormValues }
 import { EditorFactory } from "../editors/EditorFactory";
 import { Colors } from "../../resources/constants";
 import { getValueForDropdown, isDropdownField } from "../editors/utils";
-import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics } from "@wso2-enterprise/ballerina-core";
+import { Diagnostic, LineRange, NodeKind, NodePosition, SubPanel, SubPanelView, FormDiagnostics, FlowNode, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { FormContext, Provider } from "../../context";
 import { formatJSONLikeString } from "./utils";
 
@@ -158,7 +158,7 @@ namespace S {
 export interface FormProps {
     refKey?: string;
     formFields: FormField[];
-    hideSave?: boolean;
+    submitText?: string;
     targetLineRange?: LineRange; // TODO: make them required after connector wizard is fixed
     fileName?: string; // TODO: make them required after connector wizard is fixed
     projectPath?: string;
@@ -167,12 +167,16 @@ export interface FormProps {
     openRecordEditor?: (isOpen: boolean, fields: FormValues) => void;
     openView?: (filePath: string, position: NodePosition) => void;
     openSubPanel?: (subPanel: SubPanel) => void;
-    isActiveSubPanel?: boolean;
+    subPanelView?: SubPanelView;
     onCancelForm?: () => void;
     oneTimeForm?: boolean;
     expressionEditor?: FormExpressionEditorProps;
     updatedExpressionField?: ExpressionFormField;
     resetUpdatedExpressionField?: () => void;
+    mergeFormDataWithFlowNode?: (data: FormValues, targetLineRange: LineRange) => FlowNode;
+    handleVisualizableFields?: (filePath: string, flowNode: FlowNode, position: LinePosition) => void;
+    visualizableFields?: string[];
+    isDataMapper?: boolean;
 }
 
 export const Form = forwardRef((props: FormProps, ref) => {
@@ -181,19 +185,23 @@ export const Form = forwardRef((props: FormProps, ref) => {
         formFields,
         projectPath,
         selectedNode,
+        submitText,
         onSubmit,
         onCancelForm,
         oneTimeForm,
         openRecordEditor,
         openView,
         openSubPanel,
-        isActiveSubPanel,
+        subPanelView,
         expressionEditor,
-        hideSave,
         targetLineRange,
         fileName,
         updatedExpressionField,
-        resetUpdatedExpressionField
+        resetUpdatedExpressionField,
+        mergeFormDataWithFlowNode,
+        handleVisualizableFields,
+        visualizableFields,
+        isDataMapper
     } = props;
 
     const {
@@ -207,7 +215,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setValue,
         setError,
         clearErrors,
-        formState: { isValidating, errors }
+        formState: { isValidating, errors, isDirty }
     } = useForm<FormValues>();
 
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -240,21 +248,27 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     useEffect(() => {
         if (updatedExpressionField) {
-            const currentValue = getValues(updatedExpressionField.key);
-
-            if (currentValue !== undefined) {
-                let newValue;
-                if (updatedExpressionField?.isConfigured) {
-                    newValue = updatedExpressionField.value;
-                } else {
-                    const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart ?? currentValue.length;
-                    newValue = currentValue.slice(0, cursorPosition) +
-                        updatedExpressionField.value +
-                        currentValue.slice(cursorPosition);
-                }
-
-                setValue(updatedExpressionField.key, newValue);
+            if (subPanelView === SubPanelView.INLINE_DATA_MAPPER) {
+                const { key, value } = updatedExpressionField;
+                // Update the form field value
+                setValue(key, value);
                 resetUpdatedExpressionField && resetUpdatedExpressionField();
+                // Update the inline data mapper view
+                handleOpenSubPanel({
+                    view: SubPanelView.INLINE_DATA_MAPPER,
+                    props: {
+                        inlineDataMapper: {
+                            filePath: fileName,
+                            flowNode: undefined,
+                            position: {
+                                line: updatedExpressionField.cursorPosition.line,
+                                offset: updatedExpressionField.cursorPosition.offset,
+                            },
+                            propertyKey: updatedExpressionField.key,
+                            editorKey: updatedExpressionField.key
+                        }
+                    }
+                });
             }
         }
     }, [updatedExpressionField]);
@@ -262,7 +276,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
     console.log(">>> form fields", { formFields, values: getValues() });
 
     const handleOnSave = (data: FormValues) => {
-        console.log(">>> form values xxx refKey", refKey, data);
+        console.log(">>> saved form fields", { data, refKey });
         onSubmit && onSubmit(data, refKey);
     };
 
@@ -284,6 +298,8 @@ export const Form = forwardRef((props: FormProps, ref) => {
     };
 
     const handleOnFieldFocus = (key: string) => {
+        const isActiveSubPanel = subPanelView !== SubPanelView.UNDEFINED;
+
         if (isActiveSubPanel && activeFormField !== key) {
             openSubPanel && openSubPanel({ view: SubPanelView.UNDEFINED });
         }
@@ -309,6 +325,30 @@ export const Form = forwardRef((props: FormProps, ref) => {
         setDiagnosticsInfo([...otherDiagnostics, diagnostics]);
     }
 
+    const handleOpenSubPanel = (subPanel: SubPanel) => {
+        let updatedSubPanel = subPanel;
+        if (subPanel.view === SubPanelView.INLINE_DATA_MAPPER) {
+            const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+            const inlineDMProps = {
+                ...subPanel.props.inlineDataMapper,
+                flowNode: flowNode,
+            };
+            updatedSubPanel = {
+                ...subPanel,
+                props: {
+                    ...subPanel.props,
+                    inlineDataMapper: inlineDMProps,
+                },
+            };
+        }
+        openSubPanel(updatedSubPanel);
+    };
+
+    const getVisualiableFields = () => {
+        const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
+        handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
+    };
+
     const handleGetExpressionDiagnostics = async (
         showDiagnostics: boolean,
         expression: string,
@@ -328,12 +368,6 @@ export const Form = forwardRef((props: FormProps, ref) => {
 
     // has advance fields
     const hasAdvanceFields = formFields.some((field) => field.advanced);
-
-    const isDataMapper = selectedNode && selectedNode === "DATA_MAPPER";
-    const isExistingDataMapper =
-        isDataMapper && !!(formFields.find((field) => field.key === "view")?.value as any)?.fileName;
-    const isNewDataMapper = isDataMapper && !isExistingDataMapper;
-
     const variableField = formFields.find((field) => field.key === "variable");
     const typeField = formFields.find((field) => field.key === "type");
     const dataMapperField = formFields.find((field) => field.label.includes("Data mapper"));
@@ -407,14 +441,17 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 field={variableField}
                                 handleOnFieldFocus={handleOnFieldFocus}
                                 autoFocus={firstEditableFieldIndex === formFields.indexOf(variableField)}
+                                visualizableFields={visualizableFields}
                             />
                         }
                         {typeField && (
                             <EditorFactory
                                 field={typeField}
                                 openRecordEditor={handleOpenRecordEditor}
-                                openSubPanel={openSubPanel}
+                                openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
+                                handleOnTypeChange={getVisualiableFields}
+                                visualizableFields={visualizableFields}
                             />
                         )}
                     </S.CategoryRow>
@@ -436,24 +473,16 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                         field={field}
                                         selectedNode={selectedNode}
                                         openRecordEditor={handleOpenRecordEditor}
-                                        openSubPanel={openSubPanel}
-                                        isActiveSubPanel={isActiveSubPanel}
+                                        openSubPanel={handleOpenSubPanel}
+                                        subPanelView={subPanelView}
                                         handleOnFieldFocus={handleOnFieldFocus}
                                         autoFocus={firstEditableFieldIndex === formFields.indexOf(field)}
+                                        visualizableFields={visualizableFields}
                                     />
                                 </S.Row>
                             );
-                        })}
-                    {isExistingDataMapper && (
-                        <S.DataMapperRow>
-                            <S.UseDataMapperButton
-                                appearance="secondary"
-                                onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
-                            >
-                                Use Data Mapper
-                            </S.UseDataMapperButton>
-                        </S.DataMapperRow>
-                    )}
+                        })
+                    }
                     {hasAdvanceFields && (
                         <S.Row>
                             Advance Parameters
@@ -489,19 +518,20 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                             ref={exprRef}
                                             field={field}
                                             openRecordEditor={handleOpenRecordEditor}
-                                            openSubPanel={openSubPanel}
-                                            isActiveSubPanel={isActiveSubPanel}
+                                            openSubPanel={handleOpenSubPanel}
+                                            subPanelView={subPanelView}
                                             handleOnFieldFocus={handleOnFieldFocus}
+                                            visualizableFields={visualizableFields}
                                         />
                                     </S.Row>
                                 );
                             }
                         })}
                 </S.CategoryRow>
-                {!hideSave && onSubmit && (
+                {onSubmit && (
                     <S.Footer>
                         {onCancelForm && <Button appearance="secondary" onClick={onCancelForm}>  Cancel </Button>}
-                        {isNewDataMapper ? (
+                        {isDataMapper ? (
                             <S.PrimaryButton
                                 onClick={handleSubmit((data) => handleOnSave({ ...data, isDataMapperFormUpdate: true }))}
                             >
@@ -509,7 +539,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                             </S.PrimaryButton>
                         ) : (
                             <S.PrimaryButton onClick={handleSubmit(handleOnSave)} disabled={disableSaveButton}>
-                                Save
+                                {submitText || "Save"}
                             </S.PrimaryButton>
                         )}
                     </S.Footer>

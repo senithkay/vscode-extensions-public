@@ -97,7 +97,7 @@ async function getContext(): Promise<VisualizerLocation> {
             syntaxTree: context.syntaxTree,
             isBI: context.isBI,
             projectUri: context.projectUri,
-            haveServiceType: context.haveServiceType,
+            serviceType: context.serviceType,
             metadata: {
                 haveLS: StateMachine.langClient() && true,
                 recordFilePath: path.join(context.projectUri, "types.bal"),

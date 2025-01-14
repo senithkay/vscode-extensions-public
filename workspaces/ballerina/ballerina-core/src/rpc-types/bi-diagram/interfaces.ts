@@ -47,6 +47,7 @@ export interface ComponentFunctionType {
     parameters: FunctionParameters[],
     returnType?: string;
     cron?: string;
+    isExpressionBodied?: boolean;
 }
 export interface ComponentTriggerType {
     name: string;
@@ -93,7 +94,7 @@ export interface ReadmeContentResponse {
 export interface BIAiSuggestionsRequest {
     position: LineRange;
     filePath: string;
-    isOverview?: boolean;
+    prompt?: string;
 }
 export interface BIAiSuggestionsResponse {
     flowModel: Flow;
