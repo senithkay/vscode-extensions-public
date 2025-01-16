@@ -42,6 +42,7 @@ export type HelperPaneCompletionItemProps = {
 export type HelperPaneCategoryItemProps = {
     label: string;
     onClick: () => void;
+    getIcon?: () => ReactNode;
 };
 
 type CollapsibleConditionalProps = {
