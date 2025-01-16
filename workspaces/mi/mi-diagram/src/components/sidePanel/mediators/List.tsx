@@ -30,7 +30,7 @@ interface MediatorProps {
     clearSearch?: () => void;
 }
 
-const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "transformation", "other"];
+const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
 export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
