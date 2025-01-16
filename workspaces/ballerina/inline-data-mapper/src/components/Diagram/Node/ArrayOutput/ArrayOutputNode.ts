@@ -54,14 +54,13 @@ export class ArrayOutputNode extends DataMapperNodeModel {
             const mappings = this.context.model.mappings;
             this.rootName = this.filteredOutputType?.id;
 
-            const collapsedFields = useDMCollapsedFieldsStore.getState().collapsedFields;
+            const collapsedFields = useDMCollapsedFieldsStore.getState().fields;
             this.typeName = getTypeName(this.filteredOutputType);
 
             this.hasNoMatchingFields = hasNoOutputMatchFound(this.outputType, this.filteredOutputType);
 
             const parentPort = this.addPortsForHeader(
-                this.filteredOutputType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX,
-                mappings, collapsedFields, this.isMapFn
+                this.filteredOutputType, this.rootName, "IN", ARRAY_OUTPUT_TARGET_PORT_PREFIX, mappings, this.isMapFn
             );
 
             if (this.filteredOutputType.kind === TypeKind.Array) {

@@ -72,11 +72,11 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const isWithinArray = fieldIndex !== undefined;
 
     const handleExpand = () => {
-		const collapsedFields = collapsedFieldsStore.collapsedFields;
+		const collapsedFields = collapsedFieldsStore.fields;
         if (!expanded) {
-            collapsedFieldsStore.setCollapsedFields(collapsedFields.filter((element) => element !== fieldFQN));
+            collapsedFieldsStore.setFields(collapsedFields.filter((element) => element !== fieldFQN));
         } else {
-            collapsedFieldsStore.setCollapsedFields([...collapsedFields, fieldFQN]);
+            collapsedFieldsStore.setFields([...collapsedFields, fieldFQN]);
         }
     };
 
