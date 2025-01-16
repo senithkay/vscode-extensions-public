@@ -318,7 +318,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
             // Debug Adapter -> VS Code
             onDidSendMessage: async (message: DebugProtocol.ProtocolMessage) => {
-                console.log("=====onDidSendMessage", message);
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
 
@@ -326,7 +325,6 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
                         if (breakpoints) {
-                            console.log("!=====breakpoints in setBreakpoints tracker", breakpoints);
                             const clientBreakpoints = breakpoints.map(bp => ({
                                 ...bp,
                                 line: bp.line - 1
@@ -352,7 +350,7 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
 
                         // get the current stack trace
                         const hitBreakpoint = msg.body.stackFrames[0];
-                        console.log("!=====hit breakpoint stackTrace in  tracker", hitBreakpoint);
+                        console.log(" >>> active breakpoint stackTrace ", hitBreakpoint);
 
                         const clientBreakpoint = {
                             ...hitBreakpoint,
@@ -462,7 +460,6 @@ async function handleBreakpointVisualization(uri: Uri, clientBreakpoint: DebugPr
         endColumn: res.endLine.offset
     };
     openView(EVENT_TYPE.OPEN_VIEW, newContext);
-    notifyBreakpointChange();
 }
 
 

@@ -11,7 +11,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { cloneDeep } from "lodash";
-import { Icon, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Icon, NavigationWrapperCanvasWidget, Switch, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import {
     clearDiagramZoomAndPosition,
@@ -154,8 +154,6 @@ export function Diagram(props: DiagramProps) {
         // get all other nodes
         const otherNodes = nodes.filter((node) => node.getType() !== NodeTypes.CODE_BLOCK_NODE);
 
-        const activeBreakpointNode = getActiveBreakpointNode(nodes);
-
         newDiagramModel.addAll(...codeBlockNodes);
         newDiagramModel.addAll(...otherNodes, ...links);
 
@@ -176,7 +174,7 @@ export function Diagram(props: DiagramProps) {
         if (nodes.length < 3 || !hasDiagramZoomAndPosition(model.fileName)) {
             resetDiagramZoomAndPosition(model.fileName);
         }
-        loadDiagramZoomAndPosition(diagramEngine, activeBreakpointNode);
+        loadDiagramZoomAndPosition(diagramEngine);
 
         diagramEngine.repaintCanvas();
         // update the diagram model state
@@ -265,7 +263,7 @@ export function Diagram(props: DiagramProps) {
             {diagramEngine && diagramModel && (
                 <DiagramContextProvider value={context}>
                     <DiagramCanvas>
-                        <CanvasWidget engine={diagramEngine} />
+                        <NavigationWrapperCanvasWidget diagramEngine={diagramEngine} focusedNode={getActiveBreakpointNode(diagramModel.getNodes() as NodeModel[])} />
                     </DiagramCanvas>
                 </DiagramContextProvider>
             )}
