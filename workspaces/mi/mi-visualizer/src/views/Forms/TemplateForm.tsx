@@ -200,7 +200,8 @@ export function TemplateWizard(props: TemplateWizardProps) {
             directory: props.path,
             getContentOnly: false,
             ...values,
-            parameters
+            parameters,
+            isEdit: !isNewTemplate
         }
 
         await rpcClient.getMiDiagramRpcClient().createTemplate(createTemplateParams);

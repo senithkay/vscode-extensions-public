@@ -1633,10 +1633,35 @@ ${endpointAttributes}
             };
 
             const xmlData = getTemplateXmlWrapper(getTemplateParams);
-            const sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
+            let sanitizedXmlData = xmlData.replace(/^\s*[\r\n]/gm, '');
 
             if (params.getContentOnly) {
                 resolve({ path: "", content: sanitizedXmlData });
+            } else if (params.isEdit) {
+                if (fs.existsSync(params.directory)) {
+                    const xmlData = fs.readFileSync(params.directory, "utf8");
+                    const sequenceStart = xmlData.indexOf('<sequence');
+                    const sequenceEnd = xmlData.indexOf('</sequence>') + '</sequence>'.length;
+
+                    if (sequenceStart !== -1 && sequenceEnd !== -1) {
+                        const sequenceContent = xmlData.substring(sequenceStart, sequenceEnd);
+                        sanitizedXmlData = sanitizedXmlData.replace(/<sequence.*?<\/sequence>/s, sequenceContent);
+                        await replaceFullContentToFile(params.directory, sanitizedXmlData);
+                        await this.rangeFormat({
+                            uri: params.directory,
+                            range: {
+                                start: { line: 0, character: 0 },
+                                end: { line: sanitizedXmlData.split('\n').length + 1, character: 0 }
+                            }
+                        });
+                        commands.executeCommand(COMMANDS.REFRESH_COMMAND);
+                        resolve({ path: params.directory, content: "" });
+                    } else {
+                        throw new Error("Sequence tags not found in the XML file.");
+                    }
+                } else {
+                    throw new Error(`File not found: ${params.directory}`);
+                }
             } else {
                 const filePath = await this.getFilePath(directory, templateName);
                 await replaceFullContentToFile(filePath, sanitizedXmlData);
