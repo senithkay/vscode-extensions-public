@@ -141,7 +141,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                 .getBIDiagramRpcClient()
                 .getFlowModel()
                 .then((model) => {
-                    if (model.flowModel) {
+                    if (model?.flowModel) {
                         setModel(model.flowModel);
                     }
                 })
