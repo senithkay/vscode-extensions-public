@@ -153,8 +153,8 @@ const CompletionItemContainer = styled.div`
 const CategoryItemContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px;
+    gap: 16px;
+    padding: 16px;
     margin-block: 4px;
     border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 8px;
@@ -434,11 +434,12 @@ const CompletionItem: React.FC<HelperPaneCompletionItemProps> = ({ getIcon, leve
     );
 };
 
-const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, onClick }) => {
+const CategoryItem: React.FC<HelperPaneCategoryItemProps> = ({ label, onClick, getIcon }) => {
     return (
         <CategoryItemContainer onClick={onClick}>
-            <Typography variant="body3">{label}</Typography>
-            <Codicon name="chevron-right" />
+            {getIcon && getIcon()}
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>{label}</Typography>
+            <Codicon sx={{ marginLeft: 'auto' }} name="chevron-right" />
         </CategoryItemContainer>
     );
 };
