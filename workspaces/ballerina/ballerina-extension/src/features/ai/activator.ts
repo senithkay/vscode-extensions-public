@@ -8,11 +8,11 @@
  */
 
 import { BallerinaExtension, ExtendedLangClient } from '../../core';
-
-const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
+import { activateCopilotLoginCommand } from './completions';
 
 export let langClient: ExtendedLangClient;
 
 export function activateAIFeatures(ballerinaExternalInstance: BallerinaExtension) {
     langClient = <ExtendedLangClient>ballerinaExternalInstance.langClient;
+    activateCopilotLoginCommand();
 }

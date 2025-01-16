@@ -352,6 +352,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "kolab.login.copilot",
+                "title": "Authorize Github Copilot",
+                "category": "Ballerina"
+            },
+            {
                 "command": "kolab.project.doc",
                 "title": "Build Documentation",
                 "category": "Ballerina"
