@@ -520,7 +520,9 @@ export interface BISuggestedFlowModelRequest extends BIFlowModelRequest {
 }
 
 export type BIFlowModelResponse = {
-    flowModel: Flow;
+    flowModel?: Flow;
+    errorMsg?: string;
+    stacktrace?: string;
 };
 
 export interface BISourceCodeRequest {
