@@ -303,7 +303,7 @@ export function FormGenerator(props: FormGeneratorProps) {
                         {...field}
                         label={element.displayName}
                         labelAdornment={helpTipElement}
-                        checked={field.value}
+                        checked={typeof field.value === 'boolean' ? field.value  : field.value === 'true' ? true : false }
                     />
                 );
             case 'stringOrExpression':
