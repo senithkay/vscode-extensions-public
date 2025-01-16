@@ -12,8 +12,10 @@ import React from "react";
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../../styles";
 import { StatusCodeResponse } from "@wso2-enterprise/ballerina-core";
+import { getDefaultResponse, HTTP_METHOD } from "../../../utils";
 
 interface ParamItemProps {
+    method: HTTP_METHOD;
     response: StatusCodeResponse;
     readonly: boolean;
     onDelete?: () => void;
@@ -21,7 +23,7 @@ interface ParamItemProps {
 }
 
 export function ResponseItem(props: ParamItemProps) {
-    const { response, readonly, onDelete, onEditClick } = props;
+    const { response, readonly, onDelete, onEditClick, method } = props;
 
     const handleDelete = () => {
         onDelete();
@@ -39,7 +41,7 @@ export function ResponseItem(props: ParamItemProps) {
                     <Icon name="header" />
                 </IconWrapper>
                 <OptionLabel>
-                    {response.statusCode.value}
+                    {response.statusCode.value || getDefaultResponse(method)}
                 </OptionLabel>
             </IconTextWrapper>
             <ContentSection>
