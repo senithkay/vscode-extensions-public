@@ -142,7 +142,9 @@ const ParameterManager = (props: ParameterManagerProps) => {
                 reset={reset}
                 watch={watch} />
 
-            <FormActions>
+            <FormActions sx={{
+                backgroundColor: Colors.SECONDARY_CONTAINER,
+            }}>
                 <Button
                     appearance="secondary"
                     onClick={handleOnCancel}
@@ -170,7 +172,11 @@ const ParameterManager = (props: ParameterManagerProps) => {
                 <>
                     <Row key={index}>
                         <div style={{ backgroundColor: Colors.PRIMARY, padding: '5px', flex: 1 }}>
-                            <Typography>{param[tableKey as keyof Param] ?? (index + 1)}</Typography>
+                            <Typography
+                                sx={{
+                                    color: Colors.ON_PRIMARY
+                                }}
+                            >{param[tableKey as keyof Param] ?? (index + 1)}</Typography>
                         </div>
                         <div style={{ backgroundColor: Colors.SURFACE_CONTAINER, padding: '5px', flex: 2 }}>
                             <Typography>{getFieldValue(param[tableValue as keyof Param])}</Typography>
