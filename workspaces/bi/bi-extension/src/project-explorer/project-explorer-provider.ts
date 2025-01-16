@@ -185,8 +185,8 @@ function getEntriesBI(components: ProjectStructureResponse): ProjectExplorerEntr
         "Listeners",
         vscode.TreeItemCollapsibleState.Expanded,
         null,
-        'connection',
-        false
+        'bell',
+        true
     );
     listeners.contextValue = "listeners";
     listeners.children = getComponents(components.directoryMap[DIRECTORY_MAP.LISTENERS]);

@@ -34,8 +34,7 @@ import {
     PopupMessage,
     MainForm,
     FunctionForm,
-    SetupView,
-    ServiceHttpForm
+    SetupView
 } from "./views/BI";
 import { handleRedo, handleUndo } from "./utils/utils";
 import { FunctionDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
