@@ -122,8 +122,8 @@ export const NODE_DIMENSIONS = {
             HEIGHT: 40,
         },
         DISABLED: {
-            WIDTH: 24,
-            HEIGHT: 24,
+            WIDTH: 65,
+            HEIGHT: 30,
         }
     },
     CONDITION: {
@@ -152,8 +152,8 @@ export const NODE_DIMENSIONS = {
         },
     },
     END: {
-        WIDTH: 23,
-        HEIGHT: 21,
+        WIDTH: 24,
+        HEIGHT: 24,
     },
     PLUS: {
         WIDTH: 24,

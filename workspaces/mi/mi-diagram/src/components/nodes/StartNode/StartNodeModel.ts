@@ -7,11 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
+import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodePortModel } from "../../NodePort/NodePortModel";
-import { getNodeIdFromModel } from "../../../utils/node";
 import { NodeTypes } from "../../../resources/constants";
+import { BaseNodeModel } from "../BaseNodeModel";
+import { getNodeIdFromModel } from "../../../utils/node";
 
 export enum StartNodeType {
     IN_SEQUENCE,
@@ -19,24 +20,12 @@ export enum StartNodeType {
     SUB_SEQUENCE,
     FAULT_SEQUENCE   
 }
-export class StartNodeModel extends NodeModel {
-    readonly stNode: STNode;
-    protected portIn: NodePortModel;
-    protected portOut: NodePortModel;
-    protected parentNode: STNode;
-    protected prevNodes: STNode[];
-    protected nodeType: StartNodeType;
+export class StartNodeModel extends BaseNodeModel {
+    protected startNodeType: StartNodeType;
 
-    constructor(stNode: STNode, nodeType: StartNodeType, parentNode?: STNode, prevNodes: STNode[] = []) {
-        super({
-            id: stNode.viewState?.id || getNodeIdFromModel(stNode, "start"),
-            type: NodeTypes.START_NODE,
-            locked: true,
-        });
-        this.stNode = stNode;
-        this.nodeType = nodeType;
-        this.addInPort("in");
-        this.addOutPort("out");
+    constructor(stNode: STNode, nodeType: StartNodeType, documentUri:string, parentNode?: STNode, prevNodes: STNode[] = []) {
+        super(NodeTypes.START_NODE, "Start", documentUri, stNode, parentNode, prevNodes);
+        this.startNodeType = nodeType;
     }
 
     addPort<T extends NodePortModel>(port: T): T {
@@ -93,7 +82,7 @@ export class StartNodeModel extends NodeModel {
         return this.prevNodes;
     }
 
-    getNodeType(): StartNodeType {
-        return this.nodeType;
+    getStartNodeType(): StartNodeType {
+        return this.startNodeType;
     }
 }
