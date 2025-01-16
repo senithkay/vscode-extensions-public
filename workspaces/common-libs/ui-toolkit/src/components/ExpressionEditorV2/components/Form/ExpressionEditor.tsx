@@ -15,18 +15,19 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION } from '../constants';
+import { ANIMATION, ARROW_HEIGHT } from '../../constants';
 import { CompletionItem } from '../../types/common';
 import { FormExpressionEditorProps, FormExpressionEditorRef } from '../../types/form';
-import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
+import { addClosingBracketIfNeeded, checkCursorInFunction, getArrowPosition, getHelperPanePosition, setCursor } from '../../utils';
 import { Codicon } from '../../../Codicon/Codicon';
 import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator';
 import { AutoResizeTextArea } from '../../../TextArea/TextArea';
 import { FnSignatureEl } from '../Common/FnSignature';
 import { Dropdown } from '../Common';
-import { StyleBase, FnSignatureProps } from '../Common/types';
+import { StyleBase, FnSignatureProps, ArrowProps } from '../Common/types';
 import { Icon } from '../../../Icon/Icon';
 import { Button } from '../../../Button/Button';
 
@@ -54,24 +55,30 @@ const StyledTextArea = styled(AutoResizeTextArea)`
     }
 `;
 
-const DropdownContainer = styled.div<StyleBase>`
+const Arrow = styled.div<ArrowProps>`
     position: absolute;
-    z-index: 10000;
+    height: ${ARROW_HEIGHT}px;
+    width: ${ARROW_HEIGHT}px;
+    background-color: var(--vscode-dropdown-background);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+
+    ${(props: ArrowProps) => props.origin === "left" && `
+        transform: rotate(90deg);
+    `}
+
+    ${(props: ArrowProps) => props.origin === "right" && `
+        transform: rotate(-90deg);
+    `}
+
     ${(props: StyleBase) => props.sx}
 `;
 
-const TransitionContainer = styled.div`
-    position: fixed;
+const DropdownContainer = styled.div<StyleBase>`
+    position: absolute;
+    z-index: 10000;
+    filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
+    ${(props: StyleBase) => props.sx}
 `;
-
-const TransitionWrapper = forwardRef<HTMLDivElement, React.PropsWithChildren<object>>((props, ref) => {
-    return (
-        <TransitionContainer ref={ref}>
-            {props.children}
-        </TransitionContainer>
-    )
-})
-TransitionWrapper.displayName = 'TransitionWrapper';
 
 export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressionEditorProps>((props, ref) => {
     const {
@@ -84,6 +91,7 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
         autoSelectFirstItem,
         getDefaultCompletion,
         isHelperPaneOpen,
+        helperPaneOrigin = 'left',
         changeHelperPaneState,
         getHelperPane,
         actionButtons,
@@ -108,6 +116,8 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
     const helperPaneContainerRef = useRef<HTMLDivElement>(null);
+    const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
+    const [fnSignatureElPosition, setFnSignatureElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const SUGGESTION_REGEX = {
@@ -116,6 +126,39 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
     };
 
     const showCompletions = !isHelperPaneOpen && (showDefaultCompletion || completions?.length > 0);
+
+    const updatePosition = throttle(() => {
+        if (elementRef.current) {
+            const rect = elementRef.current.getBoundingClientRect();
+            setDropdownElPosition({
+                top: rect.top + rect.height,
+                left: rect.left,
+            });
+            setFnSignatureElPosition({
+                top: rect.top - 28,
+                left: rect.left,
+            });
+        }
+    }, 10);
+
+    useEffect(() => {
+        updatePosition();
+
+        // Create ResizeObserver to watch textarea size changes
+        const resizeObserver = new ResizeObserver(updatePosition);
+        if (elementRef.current) {
+            resizeObserver.observe(elementRef.current);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', updatePosition);
+
+        return () => {
+            window.removeEventListener('resize', updatePosition);
+            resizeObserver.disconnect();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [elementRef, showCompletions, isHelperPaneOpen]);
 
     const handleCancel = () => {
         onCancel();
@@ -279,6 +322,20 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 await handleCompletionSelect(item);
             }
         }
+    }
+
+    const getHelperPaneComponent = (): JSX.Element => {
+        const helperPanePosition = getHelperPanePosition(elementRef, helperPaneOrigin);
+        const arrowPosition = getArrowPosition(elementRef, helperPaneOrigin, helperPanePosition);
+        
+        return (
+            <DropdownContainer ref={helperPaneContainerRef} sx={{ ...helperPanePosition }}>
+                <Transition show={isHelperPaneOpen} {...ANIMATION}>
+                    {getHelperPane(value, handleChange)}
+                    {arrowPosition && <Arrow origin={helperPaneOrigin} sx={{ ...arrowPosition }} />}
+                </Transition>
+            </DropdownContainer>
+        )
     }
 
     const handleInputKeyDown = async (e: React.KeyboardEvent) => {
@@ -459,56 +516,58 @@ export const ExpressionEditor = forwardRef<FormExpressionEditorRef, FormExpressi
                 resize='vertical'
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {isFocused && (
-                <DropdownContainer ref={dropdownContainerRef} sx={{ top: "100%" }}>
-                    <Transition as={TransitionWrapper} show={showCompletions} {...ANIMATION}>
-                        <Codicon
-                            id='expression-editor-close'
-                            sx={{
-                                position: 'absolute',
-                                top: '0',
-                                right: '0',
-                                width: '16px',
-                                margin: '-4px',
-                                borderRadius: '50%',
-                                backgroundColor: 'var(--vscode-activityBar-background)',
-                                zIndex: '5',
-                            }}
-                            iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
-                            name="close"
-                            onClick={handleClose}
-                        />
-                        <Dropdown
-                            ref={dropdownRef}
-                            isSavable={!!onSave}
-                            items={completions}
-                            showDefaultCompletion={showDefaultCompletion}
-                            autoSelectFirstItem={autoSelectFirstItem}
-                            getDefaultCompletion={getDefaultCompletion}
-                            onCompletionSelect={handleCompletionSelect}
-                            onDefaultCompletionSelect={onDefaultCompletionSelect}
-                        />
-                    </Transition>
-                </DropdownContainer>
-            )}
-            {isFocused && getHelperPane && (
-                <DropdownContainer ref={helperPaneContainerRef} sx={{ top: "100%" }}>
-                    <Transition as={TransitionWrapper} show={isHelperPaneOpen} {...ANIMATION}>
-                        {getHelperPane(value, handleChange)}
-                    </Transition>
-                </DropdownContainer>
-            )}
-            {isFocused && (
-                <DropdownContainer sx={{ top: "-24px" }}>
-                    <Transition as={TransitionWrapper} show={!!fnSignature} {...ANIMATION}>
-                        <FnSignatureEl
-                            label={fnSignature?.label}
-                            args={fnSignature?.args}
-                            currentArgIndex={fnSignature?.currentArgIndex ?? 0}
-                        />
-                    </Transition>
-                </DropdownContainer>
-            )}
+            {isFocused && 
+                createPortal(
+                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={showCompletions} {...ANIMATION}>
+                            <Codicon
+                                id='expression-editor-close'
+                                sx={{
+                                    position: 'absolute',
+                                    top: '0',
+                                    right: '0',
+                                    width: '16px',
+                                    margin: '-4px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'var(--vscode-activityBar-background)',
+                                    zIndex: '5',
+                                }}
+                                iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
+                                name="close"
+                                onClick={handleClose}
+                            />
+                            <Dropdown
+                                ref={dropdownRef}
+                                isSavable={!!onSave}
+                                items={completions}
+                                showDefaultCompletion={showDefaultCompletion}
+                                autoSelectFirstItem={autoSelectFirstItem}
+                                getDefaultCompletion={getDefaultCompletion}
+                                onCompletionSelect={handleCompletionSelect}
+                                onDefaultCompletionSelect={onDefaultCompletionSelect}
+                            />
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )}
+            {isFocused && getHelperPane &&
+                createPortal(
+                    getHelperPaneComponent(),
+                    document.body
+                )}
+            {isFocused && 
+                createPortal(
+                    <DropdownContainer sx={{ ...fnSignatureElPosition }}>
+                        <Transition show={!!fnSignature} {...ANIMATION}>
+                            <FnSignatureEl
+                                label={fnSignature?.label}
+                                args={fnSignature?.args}
+                                currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                            />
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )}
         </Container>
     );
 });

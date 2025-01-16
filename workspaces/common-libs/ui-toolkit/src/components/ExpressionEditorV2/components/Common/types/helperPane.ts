@@ -9,6 +9,12 @@
  */
 
 import { CSSProperties, PropsWithChildren, ReactNode } from "react";
+import { StyleBase } from "./common";
+import { HelperPaneOrigin } from "../../../types/form";
+
+export type ArrowProps = StyleBase & {
+    origin: HelperPaneOrigin;
+}
 
 export type LibraryBrowserProps = PropsWithChildren<{
     isLoading?: boolean;
