@@ -10,9 +10,9 @@
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, FunctionModel, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, FunctionModel, STModification, TriggerNode, removeStatement, buildProjectStructure, DIRECTORY_MAP, ProjectStructureArtifactResponse, PropertyModel } from "@wso2-enterprise/ballerina-core";
 import { BodyText, ViewWrapper } from "../../styles";
-import { Codicon, Container, Divider, Grid, Icon, ProgressRing, Typography, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
+import { Codicon, Container, Divider, Grid, Icon, LinkButton, ProgressRing, Typography, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { BIHeader } from "../BIHeader";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -21,6 +21,7 @@ import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
 import { ResourceForm } from "./Forms/ResourceForm";
 import { FunctionForm } from "./Forms/FunctionForm";
+import { applyModifications } from "../../../utils/utils";
 
 
 const LoadingContainer = styled.div`
@@ -63,6 +64,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [isNew, setIsNew] = useState<boolean>(false);
     const [showForm, setShowForm] = useState<boolean>(false);
     const [showFunctionConfigForm, setShowFunctionConfigForm] = useState<boolean>(false);
+    const [projectListeners, setProjectListeners] = useState<ProjectStructureArtifactResponse[]>([]);
+
+    useEffect(() => {
+        fetchService();
+    }, [position]);
 
     const fetchService = () => {
         const lineRange: LineRange = { startLine: { line: position.startLine, offset: position.startColumn }, endLine: { line: position.endLine, offset: position.endColumn } };
@@ -71,11 +77,32 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             setServiceModel(res.service);
             setIsSaving(false);
         })
+        getProjectListeners();
     }
 
-    useEffect(() => {
-        fetchService();
-    }, [position]);
+    const getProjectListeners = () => {
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getProjectStructure()
+            .then((res) => {
+                const listeners = res.directoryMap[DIRECTORY_MAP.LISTENERS];
+                if (listeners.length > 0) {
+                    setProjectListeners(listeners);
+                }
+            });
+    }
+
+    const handleOpenListener = (value: string) => {
+        const listenerValue = projectListeners.find(listener => listener.name === value);
+        rpcClient.getVisualizerRpcClient().openView({
+            type: EVENT_TYPE.OPEN_VIEW,
+            location: {
+                view: MACHINE_VIEW.BIListenerConfigView,
+                position: listenerValue.position,
+                documentUri: listenerValue.path
+            }
+        })
+    }
 
     const handleOpenDiagram = async (resource: FunctionModel) => {
         const lineRange: LineRange = resource.codedata.lineRange;
@@ -123,6 +150,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         if (model.kind === "REMOTE") {
             model.enabled = false;
             await handleResourceSubmit(model);
+        } else {
+            console.log("Deleting Resource Model:", model);
+            const targetPosition: NodePosition = {
+                startLine: model.codedata.lineRange.startLine.line,
+                startColumn: model.codedata.lineRange.startLine.offset,
+                endLine: model.codedata.lineRange.endLine.line,
+                endColumn: model.codedata.lineRange.endLine.offset
+            }
+            const deleteAction: STModification = removeStatement(targetPosition);
+            await applyModifications(rpcClient, [deleteAction]);
+            fetchService();
         }
     };
 
@@ -167,19 +205,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         });
     }
 
-    const handleFunctionConfigSubmit = async (value: FunctionModel) => {
-        // setIsSaving(true);
-        // const res = await rpcClient.getServiceDesignerRpcClient().updateServiceSourceCode({ filePath, service: value });
-        // await rpcClient.getVisualizerRpcClient().openView({
-        //     type: EVENT_TYPE.OPEN_VIEW,
-        //     location: {
-        //         documentUri: res.filePath,
-        //         position: res.position
-        //     },
-        // });
-        // setIsSaving(false);
-    }
-
     const handleFunctionConfigClose = () => {
         setShowFunctionConfigForm(false);
     }
@@ -198,6 +223,22 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 return "link";
             default:
                 return "info";
+        }
+    }
+
+    const getAttributeComponent = (component: PropertyModel) => {
+        const label = component.metadata.label.toLowerCase();
+        switch (true) {
+            case label.includes("listener"):
+                return (
+                    component.values?.length > 0 ? component.values.map((item, index) => (
+                        <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} key={index} onClick={() => handleOpenListener(item)}>{item}</LinkButton>
+                    )) : <LinkButton sx={{ fontSize: 12, padding: 8, gap: 4 }} onClick={() => handleOpenListener(component.value)}>{component.value}</LinkButton>
+                )
+            case label.includes("path"):
+                return component.value;
+            default:
+                return component.value;
         }
     }
 
@@ -245,7 +286,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     <InfoSection>
                                         <Icon name={findIcon(serviceModel.properties[key].metadata.label)} isCodicon sx={{ marginRight: '8px' }} />
                                         <Typography key={index} variant="body3">
-                                            {serviceModel.properties[key].metadata.label}: {serviceModel.properties[key].value}
+                                            {serviceModel.properties[key].metadata.label}:
+                                        </Typography>
+                                        <Typography key={index} variant="body3">
+                                            {getAttributeComponent(serviceModel.properties[key])}
                                         </Typography>
                                     </InfoSection>
                                 )
