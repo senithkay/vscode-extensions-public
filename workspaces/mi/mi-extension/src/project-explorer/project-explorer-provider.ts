@@ -174,12 +174,12 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 
 		const parentEntry = new ProjectExplorerEntry(
 			key,
-			isCollapsibleState(artifacts[key].length > 0 || ['Data Integration', 'Common Artifacts', 'Advanced Artifacts', 'Resources'].includes(key)),
+			isCollapsibleState(artifacts[key].length > 0 || ['Other Artifacts', 'Resources'].includes(key)),
 			artifacts[key]
 		);
 
 		let children;
-		if (['APIs', 'Triggers', 'Scheduled Tasks'].includes(key)) {
+		if (['APIs', 'Event Integrations', 'Automations', 'Data Services'].includes(key)) {
 			children = genProjectStructureEntry(artifacts[key]);
 		} else if (key === 'Resources') {
 			children = generateResources(artifacts[key]);
@@ -201,25 +201,21 @@ function getArtifactConfig(key: string) {
 			folderName: 'artifacts/apis',
 			contextValue: 'apis'
 		},
-		'Triggers': {
+		'Event Integrations': {
 			folderName: 'artifacts/inbound-endpoints',
 			contextValue: 'inboundEndpoints'
 		},
-		'Scheduled Tasks': {
+		'Automations': {
 			folderName: 'artifacts/tasks',
 			contextValue: 'tasks'
 		},
-		'Common Artifacts': {
-			folderName: '',
-			contextValue: 'Common Artifacts'
+		'Data Services': {
+			folderName: 'artifacts/data-services',
+			contextValue: 'dataServices'
 		},
-		'Data Integration': {
+		'Other Artifacts': {
 			folderName: '',
-			contextValue: 'Data Integration'
-		},
-		'Advanced Artifacts': {
-			folderName: '',
-			contextValue: 'Advanced Artifacts'
+			contextValue: 'Other Artifacts'
 		},
 		'Resources': {
 			folderName: 'resources',
