@@ -76,7 +76,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     const typeName = getTypeName(field.type);
     const typeKind = field.type.kind;
     const isArray = typeKind === TypeKind.Array;
-    const isInterface = typeKind === TypeKind.Interface;
+    const isInterface = typeKind === TypeKind.Interface || (typeKind === TypeKind.Union && field.type.resolvedUnionType?.kind === TypeKind.Interface);
 
     const fieldId = fieldIndex !== undefined
         ? `${parentId}.${fieldIndex}${fieldName && `.${fieldName}`}`
@@ -119,6 +119,22 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
             setIsLoading(false);
         }
     };
+
+    const handleInitUnionTypeValue = async (resolvedUnionType: DMType) => {
+        setIsLoading(true);
+        try {
+            let initValue = getDefaultValue(resolvedUnionType.kind);
+            if (initValue === "{}" && resolvedUnionType.kind !== TypeKind.Object && resolvedUnionType.typeName) {
+                initValue += ` as ${resolvedUnionType.typeName}`;
+            } else if (initValue === "[]" && resolvedUnionType.kind === TypeKind.Array && resolvedUnionType.typeName) {
+                initValue += ` as ${resolvedUnionType.typeName}[]`;
+            }
+            const fnBody = context.functionST.getBody() as Block;
+            await createSourceForUserInput(field, objectLiteralExpr, initValue, fnBody, context.applyModifications);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const handleEditValue = () => {
         if (portIn)
@@ -195,7 +211,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
-    const label = !isArray && (
+    const label = (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
@@ -250,9 +266,24 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
         </span>
     );
 
-    const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue || hasDefaultValue
-        ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+    const initAsUnionTypeMenuItems: ValueConfigMenuItem[] =  field.type.unionTypes?.map((unionType)=>{
+        return {
+            title: `Initialize as ${unionType.typeName || unionType.kind}`,
+            onClick: () => handleInitUnionTypeValue(unionType)
+        }
+    });
+
+    const addOrEditValueMenuItem: ValueConfigMenuItem[] = hasValue || hasDefaultValue ?
+        [{
+            title: ValueConfigOption.EditValue,
+            onClick: handleEditValue
+        }] :
+        field.type.kind === TypeKind.Union ?
+            initAsUnionTypeMenuItems :
+            [{
+                title: ValueConfigOption.InitializeWithValue,
+                onClick: handleAddValue
+            }];
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
@@ -275,7 +306,7 @@ export function ObjectOutputFieldWidget(props: ObjectOutputFieldWidgetProps) {
     };
 
     const valConfigMenuItems = [
-        !isWithinArray && addOrEditValueMenuItem,
+        ...(!isWithinArray && addOrEditValueMenuItem),
         (hasValue || hasDefaultValue || isWithinArray) && deleteValueMenuItem,
         !isWithinArray && modifyFieldOptionalityMenuItem,
         !isWithinArray && isInterface && makeChildFieldsOptionalMenuItem,

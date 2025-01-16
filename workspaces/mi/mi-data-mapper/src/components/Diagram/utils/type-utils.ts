@@ -145,6 +145,8 @@ export function getEnrichedDMType(
         } else {
             addArrayElements(type, parentType, dmTypeWithValue, childrenTypes);
         }
+    } else if (type.kind === TypeKind.Union && nextNode) {
+        resolveUnionType(type, childrenTypes, nextNode, dmTypeWithValue);
     }
 
     return dmTypeWithValue;
@@ -255,7 +257,10 @@ function getValueNodeAndNextNodeForParentType(
         } else {
             return [node, node];
         }
-    } else {
+    } else if (node && Node.isAsExpression(node)) {
+        return [node, node.getExpression()];
+    }
+    else {
         return [node, undefined];
     }
     return [undefined, undefined];
@@ -315,5 +320,19 @@ function addArrayElements(
             elementNode: undefined
         });
         dmTypeWithValue.elements = members;
+    }
+}
+
+function resolveUnionType(
+    type: DMType,
+    childrenTypes: DMTypeWithValue[] | undefined,
+    nextNode: Node | undefined,
+    dmTypeWithValue: DMTypeWithValue
+) {
+    type.resolvedUnionType = type.unionTypes.find(unionType => {
+        return unionType.typeName === nextNode.getType().getSymbol()?.getName();
+    });
+    if (type.resolvedUnionType){
+        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode, dmTypeWithValue);
     }
 }
