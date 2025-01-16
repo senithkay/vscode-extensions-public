@@ -94,7 +94,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     };
 
     const handleListenerForm = (panel: SubPanel) => {
-        openListenerForm();
+        openListenerForm && openListenerForm();
     }
 
     return (
@@ -115,7 +115,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                                     targetLineRange={{ startLine: { line: 0, offset: 0 }, endLine: { line: 0, offset: 0 } }}
                                     fields={serviceFields}
                                     onBack={onBack}
-                                    openSubPanel={openListenerForm && handleListenerForm}
+                                    openSubPanel={handleListenerForm}
                                     onSubmit={handleListenerSubmit}
                                     submitText={formSubmitText}
                                 />
@@ -142,7 +142,7 @@ function convertConfig(listener: ServiceModel): FormField[] {
             valueType: expression.valueTypeConstraint,
             editable: true,
             optional: expression.optional,
-            value: expression.valueType === "MULTIPLE_SELECT" ? [expression.value] : expression.value,
+            value: expression.valueType === "MULTIPLE_SELECT" ? (expression.value ? [expression.value] : [expression.items[0]]) : expression.value,
             valueTypeConstraint: expression.valueTypeConstraint,
             advanced: expression.advanced,
             diagnostics: [],

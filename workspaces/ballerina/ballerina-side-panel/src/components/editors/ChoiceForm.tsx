@@ -43,7 +43,7 @@ const FormSection = styled.div`
 export function ChoiceForm(props: ChoiceFormProps) {
     const { field } = props;
     const { form } = useFormContext();
-    const { register, control } = form;
+    const { register } = form;
 
     const [selectedOption, setSelectedOption] = useState<number>(0);
 
@@ -88,13 +88,16 @@ export function ChoiceForm(props: ChoiceFormProps) {
         <Form>
             <ChoiceSection>
                 <RadioButtonGroup
-                    id="options"
+                    id="choice-options"
                     label={field.documentation}
                     defaultValue={selectedOption}
                     defaultChecked={true}
                     value={selectedOption}
                     {...register(field.key, {
-                        setValueAs: () => selectedOption
+                        setValueAs: () => {
+                            console.log("Setting choice value as:", selectedOption);
+                            return selectedOption;
+                        }
                     })}
                     options={field.choices.map((choice, index) => ({ id: index.toString(), value: index, content: choice.metadata.label }))}
                     onChange={(e) => {

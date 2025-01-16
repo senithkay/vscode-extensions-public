@@ -13,7 +13,7 @@ import { ActionButtons, Divider, SidePanelBody, Typography, ProgressIndicator } 
 import { ResourcePath } from './ResourcePath/ResourcePath';
 import { ResourceResponse } from './ResourceResponse/ResourceResponse';
 import styled from '@emotion/styled';
-import { HTTP_METHOD } from './utils';
+import { HTTP_METHOD } from '../../utils';
 import { FunctionModel, ParameterModel, PropertyModel, ReturnTypeModel } from '@wso2-enterprise/ballerina-core';
 import { Parameters } from './Parameters/Parameters';
 

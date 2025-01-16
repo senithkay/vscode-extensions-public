@@ -61,7 +61,7 @@ export function ResourcePath(props: ResourcePathProps) {
 	const { method, path, onChange } = props;
 
 	const handleMethodChange = (value: string) => {
-		onChange({ ...method, value }, path);
+		onChange({ ...method, value: value.toLowerCase() }, path);
 	};
 
 	const handlePathChange = (value: string) => {
