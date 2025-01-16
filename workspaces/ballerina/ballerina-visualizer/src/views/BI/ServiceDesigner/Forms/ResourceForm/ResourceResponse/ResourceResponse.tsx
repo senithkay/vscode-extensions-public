@@ -14,7 +14,7 @@ import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
-import { HTTP_METHOD } from '../utils';
+import { HTTP_METHOD } from '../../../utils';
 import { ReturnTypeModel, StatusCodeResponse } from '@wso2-enterprise/ballerina-core';
 
 export interface ResourceParamProps {
@@ -83,6 +83,7 @@ export function ResourceResponse(props: ResourceParamProps) {
             {response.responses.map((response: StatusCodeResponse, index) => (
                 <ResponseItem
                     key={index}
+                    method={method}
                     response={response}
                     readonly={editingSegmentId !== -1 || readonly}
                     onDelete={() => onDelete(index)}

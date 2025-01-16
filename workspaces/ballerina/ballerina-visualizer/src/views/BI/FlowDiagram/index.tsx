@@ -136,13 +136,14 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
     const getFlowModel = () => {
         setShowProgressIndicator(true);
         rpcClient.getBIDiagramRpcClient().getBreakpointInfo().then((response) => {
-            console.log(">>> Breakpoint info in flowModel", response);
             setBreakpointInfo(response);
             rpcClient
                 .getBIDiagramRpcClient()
                 .getFlowModel()
                 .then((model) => {
-                    setModel(model.flowModel);
+                    if (model?.flowModel) {
+                        setModel(model.flowModel);
+                    }
                 })
                 .finally(() => {
                     setShowProgressIndicator(false);
