@@ -237,8 +237,8 @@
         "when": "MI.isRunning== 'true'"
       },
       {
-        "command": "MI.project-explorer.add",
-        "title": "Add Construct",
+        "command": "MI.project-explorer.add.artifact",
+        "title": "Add Artifact",
         "icon": "$(add)",
         "category": "MI"
       },
@@ -622,10 +622,6 @@
           "when": "false"
         },
         {
-          "command": "MI.project-explorer.add",
-          "when": "false"
-        },
-        {
           "command": "MI.registry-explorer.refresh",
           "when": "view == MI.registry-explorer && projectOpened",
           "group": "navigation"
@@ -643,7 +639,7 @@
           "group": "navigation"
         },
         {
-          "command": "MI.project-explorer.add",
+          "command": "MI.project-explorer.add.artifact",
           "when": "view == MI.project-explorer && projectOpened",
           "group": "navigation"
         },

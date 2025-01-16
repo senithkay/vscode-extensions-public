@@ -165,6 +165,8 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 	projectRoot.children = projectRoot.children ?? [];
 
 	for (const key in artifacts) {
+		if (!artifacts[key] || artifacts[key].length === 0) continue;
+
 		const artifactConfig = getArtifactConfig(key);
 		const folderPath = artifactConfig.folderName ?
 			path.join(project.uri.fsPath, 'src', 'main', 'wso2mi', ...artifactConfig.folderName.split("/")) :
@@ -191,6 +193,7 @@ function generateTreeDataOfArtifacts(project: vscode.WorkspaceFolder, data: Proj
 		parentEntry.contextValue = artifactConfig.contextValue;
 		parentEntry.id = `${project.name}/${artifactConfig.contextValue}`;
 
+		if (!children || children.length === 0) continue;
 		projectRoot.children.push(parentEntry);
 	}
 }
@@ -328,7 +331,7 @@ function generateArtifacts(
 	const result: ProjectExplorerEntry[] = [];
 
 	for (const key in data) {
-		if (key === 'path') continue;
+		if (key === 'path' || !data[key] || data[key].length === 0) continue;
 
 		const artifactPath = generateArtifactsPath(project.uri.fsPath, key);
 		data[key].path = artifactPath;

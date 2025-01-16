@@ -27,16 +27,20 @@ export async function activateProjectExplorer(context: ExtensionContext, lsClien
 	const projectTree = window.createTreeView('MI.project-explorer', { treeDataProvider: projectExplorerDataProvider });
 
 	commands.registerCommand(COMMANDS.REFRESH_COMMAND, () => { return projectExplorerDataProvider.refresh(lsClient); });
-	commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
-		window.showQuickPick([
-			{ label: 'New Project', description: 'Create new project' }
-		], {
-			placeHolder: 'Select the construct to add'
-		}).then(selection => {
-			if (selection?.label === 'New Project') {
-				commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
-			}
-		});
+	// commands.registerCommand(COMMANDS.ADD_COMMAND, () => {
+	// 	window.showQuickPick([
+	// 		{ label: 'New Project', description: 'Create new project' }
+	// 	], {
+	// 		placeHolder: 'Select the construct to add'
+	// 	}).then(selection => {
+	// 		if (selection?.label === 'New Project') {
+	// 			commands.executeCommand(COMMANDS.CREATE_PROJECT_COMMAND);
+	// 		}
+	// 	});
+	// });
+	commands.registerCommand(COMMANDS.ADD_ARTIFACT_COMMAND, () => {
+		openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.ADD_ARTIFACT });
+		console.log('Add Artifact');
 	});
 	commands.registerCommand(COMMANDS.ADD_TO_REGISTRY_COMMAND, () => {
         const projectUri = StateMachine.context().projectUri;
