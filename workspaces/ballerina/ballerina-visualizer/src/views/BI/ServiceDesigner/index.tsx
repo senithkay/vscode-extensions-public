@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, FunctionModel, STModification, TriggerNode } from "@wso2-enterprise/ballerina-core";
+import { EVENT_TYPE, LineRange, MACHINE_VIEW, ServiceModel, FunctionModel, STModification, TriggerNode, removeStatement } from "@wso2-enterprise/ballerina-core";
 import { BodyText, ViewWrapper } from "../../styles";
 import { Codicon, Container, Divider, Grid, Icon, ProgressRing, Typography, View, ViewContent, ViewHeader } from "@wso2-enterprise/ui-toolkit";
 import { BIHeader } from "../BIHeader";
@@ -21,6 +21,7 @@ import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
 import { FunctionConfigForm } from "./Forms/FunctionConfigForm";
 import { ResourceForm } from "./Forms/ResourceForm";
 import { FunctionForm } from "./Forms/FunctionForm";
+import { applyModifications } from "../../../utils/utils";
 
 
 const LoadingContainer = styled.div`
@@ -123,6 +124,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         if (model.kind === "REMOTE") {
             model.enabled = false;
             await handleResourceSubmit(model);
+        } else {
+            console.log("Deleting Resource Model:", model);
+            const targetPosition: NodePosition = {
+                startLine: model.codedata.lineRange.startLine.line,
+                startColumn: model.codedata.lineRange.startLine.offset,
+                endLine: model.codedata.lineRange.endLine.line,
+                endColumn: model.codedata.lineRange.endLine.offset
+            }
+            const deleteAction: STModification = removeStatement(targetPosition);
+            await applyModifications(rpcClient, [deleteAction]);
+            fetchService();
         }
     };
 
