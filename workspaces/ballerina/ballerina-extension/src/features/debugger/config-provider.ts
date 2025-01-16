@@ -251,7 +251,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
     
     // Notify debug server that the debug session is started in low-code mode
     const isWebviewPresent = VisualizerWebview.currentPanel !== undefined;
-    if (isWebviewPresent) {
+    if (isWebviewPresent && StateMachine.context().isBI) {
         config.lowCodeMode = true;
     }
     return config;
@@ -320,8 +320,12 @@ class BallerinaDebugAdapterTrackerFactory implements DebugAdapterTrackerFactory 
             onDidSendMessage: async (message: DebugProtocol.ProtocolMessage) => {
                 if (message.type === "response") {
                     const msg = <DebugProtocol.Response>message;
-
-                    if (msg.command === "setBreakpoints") {
+                    if ((msg.command === "launch" || msg.command == "restart") && StateMachine.context().isBI) {
+                        // Trigger Try-It view after debug launch
+                        waitForBallerinaService(workspace.workspaceFolders![0].uri.fsPath).then((port) => {
+                            commands.executeCommand(PALETTE_COMMANDS.TRY_IT, false);
+                        });
+                    } else if (msg.command === "setBreakpoints") {
                         const breakpoints = msg.body.breakpoints;
                         // convert debug points to client breakpoints
                         if (breakpoints) {
