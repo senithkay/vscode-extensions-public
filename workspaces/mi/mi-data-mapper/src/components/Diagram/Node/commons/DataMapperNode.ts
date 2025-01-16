@@ -135,6 +135,14 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
 				});
 			}
+		} else if (field.type.kind === TypeKind.Union && field.type.resolvedUnionType?.kind === TypeKind.Interface) {
+			const fields = field?.childrenTypes;
+			if (fields && !!fields.length) {
+				fields.forEach((subField) => {
+					this.addPortsForOutputField(subField, type, fieldFQN, undefined, portPrefix,
+						fieldPort, isCollapsedField, isCollapsed ? true : hidden);
+				});
+			}
 		} else if (field.type.kind === TypeKind.Array) {
 			const elements: ArrayElement[] = field?.elements;
 			if (elements && !!elements.length && elements[0].elementNode) {

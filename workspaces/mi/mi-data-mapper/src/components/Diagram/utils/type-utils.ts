@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ArrayLiteralExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
+import { ArrayLiteralExpression, AsExpression, Block, FunctionDeclaration, Node, ObjectLiteralExpression, PropertyAssignment, VariableDeclaration } from "ts-morph"
 import { DMType, TypeKind } from "@wso2-enterprise/mi-core";
 
 import { ArrayElement, DMTypeWithValue } from "../Mappings/DMTypeWithValue";
@@ -332,7 +332,8 @@ function resolveUnionType(
     type.resolvedUnionType = type.unionTypes.find(unionType => {
         return unionType.typeName === nextNode.getType().getSymbol()?.getName();
     });
+
     if (type.resolvedUnionType){
-        addChildrenTypes(type.resolvedUnionType, childrenTypes, nextNode, dmTypeWithValue);
+        addChildrenTypes(type.resolvedUnionType, childrenTypes, (nextNode as AsExpression).getExpression(), dmTypeWithValue);
     }
 }

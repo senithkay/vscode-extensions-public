@@ -148,6 +148,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel, rhsValue
 				} else if (Node.isArrayLiteralExpression(valueExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
 					objectLitExpr = getNextObjectLitExpr(valueExpr);
+				} else if (Node.isAsExpression(valueExpr)) {
+					const expr = valueExpr.getExpression();
+					if (Node.isObjectLiteralExpression(expr)) {
+						objectLitExpr = expr;
+					} else if (Node.isArrayLiteralExpression(expr)
+						&& fieldIndexes !== undefined && !!fieldIndexes.length) {
+						objectLitExpr = getNextObjectLitExpr(expr);
+					}
 				}
 
 				if (i === fieldNames.length - 1) {
