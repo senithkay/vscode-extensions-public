@@ -8,10 +8,9 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Codicon, COMPLETION_ITEM_KIND, getIcon, HelperPane, TextField } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, COMPLETION_ITEM_KIND, Dropdown, getIcon, HelperPane, TextField } from '@wso2-enterprise/ui-toolkit';
 import { HelperPaneVariableInfo } from '../../../Form/types';
 import styled from '@emotion/styled';
-import { Colors } from '../../../../resources/constants';
 
 type ConfigurablePageProps = {
     isLoading: boolean;
@@ -24,13 +23,18 @@ type ConfigurablePageProps = {
 };
 
 namespace S {
+    export const FormSection = styled.div`
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    `;
+    
     export const ButtonPanel = styled.div`
         display: flex;
         margin-top: 20px;
         margin-left: auto;
         gap: 16px;
     `;
-
 }
 
 export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setFilterText, onClose, onChange, onSave }: ConfigurablePageProps) => {
@@ -38,6 +42,7 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
     const [searchValue, setSearchValue] = useState<string>('');
     const [isFormVisible, setIsFormVisible] = useState<boolean>(false);
     const [confName, setConfName] = useState<string>('');
+    const [confType, setConfType] = useState<string>('');
     const [confValue, setConfValue] = useState<string>('');
 
     useEffect(() => {
@@ -52,10 +57,17 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
         setSearchValue(searchText);
     };
 
-    const handleSave = () => {
+    const clearForm = () => {
+        setIsFormVisible(false);
+        setConfName('');
+        setConfType('');
+        setConfValue('');
+    }
 
+    const handleSave = () => {
         const confData = {
             confName: confName,
+            confType: confType,
             confValue: confValue
         }
 
@@ -69,6 +81,10 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
             });
     };
 
+    const isConfigDataValid = () => {
+        return confName.length > 0 && confType.length > 0 && confValue.length > 0;
+    }
+
     return (
         <>
             <HelperPane.Header
@@ -79,7 +95,7 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                {!isFormVisible ?
+                {!isFormVisible ?(
                     <>
                         {variableInfo?.category.map((category) => (
                             <React.Fragment key={category.label}>
@@ -95,37 +111,41 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
                             </React.Fragment>
                         ))}
                     </>
-                    :
-
+                ) : (
                     <HelperPane.Section title="Create New Configurable Variable">
-                        <TextField
-                            label="Variable Name"
-                            placeholder="Enter a name for the variable"
-                            value={confName}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfName(e.currentTarget.value)}
-                            sx={{ marginBottom: '20px' }}
-                        />
-                        <TextField
-                            label="Value"
-                            placeholder="Enter a value for the variable"
-                            value={confValue}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfValue(e.currentTarget.value)}
-                        />
+                        <S.FormSection>
+                            <TextField
+                                label="Name"
+                                placeholder="Enter a name for the variable"
+                                value={confName}
+                                onChange={(e) => setConfName(e.target.value)}
+                            />
+                            {/* TODO: Update the component to a TypeSelector when the API is provided */}
+                            <TextField
+                                label="Type"
+                                placeholder="Enter a type for the variable"
+                                value={confType}
+                                onChange={(e) => setConfType(e.target.value)}
+                            />
+                            <TextField
+                                label="Value"
+                                placeholder="Enter a value for the variable"
+                                value={confValue}
+                                onChange={(e) => setConfValue(e.target.value)}
+                            />
+                        </S.FormSection>
                         <S.ButtonPanel>
-                            <Button appearance='secondary' onClick={() => setIsFormVisible(false)}>
+                            <Button appearance='secondary' onClick={clearForm}>
                                 Cancel
                             </Button>
-                            <Button appearance='primary' onClick={handleSave}>
+                            <Button appearance='primary' onClick={handleSave} disabled={!isConfigDataValid()}>
                                 Save
                             </Button>
                         </S.ButtonPanel>
                     </HelperPane.Section>
-                }
-
+                )}
             </HelperPane.Body>
-
-            {
-                !isFormVisible &&
+            {!isFormVisible && (
                 <HelperPane.Footer>
                     <HelperPane.IconButton
                         title="Create New Configurable Variable"
@@ -133,9 +153,7 @@ export const ConfigurablePage = ({ isLoading, variableInfo, setCurrentPage, setF
                         onClick={() => setIsFormVisible(true)}
                     />
                 </HelperPane.Footer>
-
-            }
-
+            )}
         </>
     );
 };

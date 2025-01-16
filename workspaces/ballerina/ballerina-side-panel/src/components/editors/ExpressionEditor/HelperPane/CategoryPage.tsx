@@ -9,6 +9,7 @@
 
 import React from 'react';
 import { HelperPane } from '@wso2-enterprise/ui-toolkit';
+import { CodeIcon } from '../../../../resources';
 
 type CategoryPageProps = {
     setCurrentPage: (page: number) => void;
@@ -20,9 +21,21 @@ export const CategoryPage = ({ setCurrentPage, onClose }: CategoryPageProps) => 
         <>
             <HelperPane.Header title="Select Category" onClose={onClose} />
             <HelperPane.Body isLoading={false}>
-                <HelperPane.CategoryItem label="Variables" onClick={() => setCurrentPage(1)} />
-                <HelperPane.CategoryItem label="Functions" onClick={() => setCurrentPage(2)} />
-                <HelperPane.CategoryItem label="Configurables" onClick={() => setCurrentPage(3)} />
+                <HelperPane.CategoryItem
+                    label="Variables"
+                    onClick={() => setCurrentPage(1)}
+                    getIcon={CodeIcon}
+                    />
+                <HelperPane.CategoryItem
+                    label="Functions"
+                    onClick={() => setCurrentPage(2)}
+                    getIcon={CodeIcon}
+                />
+                <HelperPane.CategoryItem
+                    label="Configurables"
+                    onClick={() => setCurrentPage(3)}
+                    getIcon={CodeIcon}
+                />
             </HelperPane.Body>
         </>
     );
