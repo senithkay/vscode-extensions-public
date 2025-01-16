@@ -30,6 +30,7 @@ import Typography from '../../../../Typography/Typography';
 import { Overlay } from '../../../../Commons/Overlay';
 import ProgressRing from '../../../../ProgressRing/ProgressRing';
 import { HelperPanePanelProvider, useHelperPanePanelContext } from './context';
+import { HELPER_PANE_HEIGHT, HELPER_PANE_WIDTH } from '../../../constants';
 
 const PanelViewContainer = styled.div`
     height: 100%;
@@ -241,13 +242,12 @@ const HeaderContainerWithSearch = styled.div`
 const DropdownBody = styled.div<{ sx?: CSSProperties }>`
     display: flex;
     flex-direction: column;
-    width: 350px;
-    height: 300px;
+    width: ${HELPER_PANE_WIDTH}px;
+    height: ${HELPER_PANE_HEIGHT}px;
     padding: 8px;
     border-radius: 2px;
     color: var(--input-foreground);
     background-color: var(--vscode-dropdown-background);
-    box-shadow: 0 3px 8px rgb(0 0 0 / 0.2);
     ${({ sx }: { sx?: CSSProperties }) => sx}
 `;
 
@@ -528,7 +528,7 @@ const Header: React.FC<HelperPaneHeaderProps> = ({ title, onBack, onClose, searc
                             {onBack ? (
                                 <Typography variant="caption">{title}</Typography>
                             ) : (
-                                <Typography variant="body1">{title}</Typography>
+                                <Typography variant="h3" sx={{ margin: 0 }}>{title}</Typography>
                             )}
                         </TitleContainer>
                         {onClose && <Codicon name="close" onClick={onClose} />}

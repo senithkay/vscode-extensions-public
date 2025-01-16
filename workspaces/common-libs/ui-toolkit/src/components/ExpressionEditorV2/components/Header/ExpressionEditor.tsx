@@ -17,7 +17,7 @@ import React, {
 } from 'react';
 import styled from '@emotion/styled';
 import { Transition } from '@headlessui/react';
-import { ANIMATION } from '../constants';
+import { ANIMATION } from '../../constants';
 import { CompletionItem } from '../../types/common';
 import { HeaderExpressionEditorProps, HeaderExpressionEditorRef } from '../../types/header';
 import { addClosingBracketIfNeeded, checkCursorInFunction, setCursor } from '../../utils';
@@ -26,6 +26,7 @@ import { ProgressIndicator } from '../../../ProgressIndicator/ProgressIndicator'
 import { TextField } from '../../../TextField/TextField';
 import { Dropdown, FnSignatureEl } from '../Common';
 import { StyleBase, FnSignatureProps } from '../Common/types';
+import { createPortal } from 'react-dom';
 
 /* Styled components */
 const Container = styled.div`
@@ -46,19 +47,6 @@ const DropdownContainer = styled.div<StyleBase>`
     z-index: 10000;
     ${(props: StyleBase) => props.sx}
 `;
-
-const TransitionContainer = styled.div`
-    position: fixed;
-`;
-
-const TransitionWrapper = forwardRef<HTMLDivElement, React.PropsWithChildren<object>>((props, ref) => {
-    return (
-        <TransitionContainer ref={ref}>
-            {props.children}
-        </TransitionContainer>
-    )
-})
-TransitionWrapper.displayName = 'TransitionWrapper';
 
 export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpressionEditorProps>((props, ref) => {
     const {
@@ -88,6 +76,7 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
+    const [dropdownElPosition, setDropdownElPosition] = useState<{ top: number; left: number }>();
     const [fnSignature, setFnSignature] = useState<FnSignatureProps | undefined>();
     const SUGGESTION_REGEX = {
         prefix: /((?:\w|')*)$/,
@@ -96,6 +85,25 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
 
     const showCompletions = showDefaultCompletion || completions?.length > 0 || !!fnSignature;
     const isFocused = document.activeElement === inputRef.current;
+
+    const updatePosition = throttle(() => {
+        if (elementRef.current) {
+            const rect = elementRef.current.getBoundingClientRect();
+            setDropdownElPosition({
+                top: rect.top + rect.height,
+                left: rect.left,
+            });
+        }
+    }, 100);
+
+    useEffect(() => {
+        updatePosition();
+        window.addEventListener('resize', updatePosition);
+        return () => {
+            window.removeEventListener('resize', updatePosition);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [elementRef, showCompletions]);
 
     const handleCancel = () => {
         onCancel();
@@ -371,43 +379,45 @@ export const ExpressionEditor = forwardRef<HeaderExpressionEditorRef, HeaderExpr
                 disabled={disabled || isSavingExpression}
             />
             {isSavingExpression && <ProgressIndicator barWidth={6} sx={{ top: "100%" }} />}
-            {isFocused && (
-                <DropdownContainer ref={dropdownContainerRef} sx={{ top: "100%" }}>
-                    <Transition as={TransitionWrapper} show={showCompletions} {...ANIMATION}>
-                        <Codicon
-                            id='expression-editor-close'
-                            sx={{
-                                position: 'absolute',
-                                top: '0',
-                                right: '0',
-                                width: '16px',
-                                margin: '-4px',
-                                borderRadius: '50%',
-                                backgroundColor: 'var(--vscode-activityBar-background)',
-                                zIndex: '5',
-                            }}
-                            iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
-                            name="close"
-                            onClick={handleClose}
-                        />
-                        <Dropdown
-                            ref={dropdownRef}
-                            isSavable={!!onSave}
-                            items={completions}
-                            showDefaultCompletion={showDefaultCompletion}
-                            autoSelectFirstItem={autoSelectFirstItem}
-                            getDefaultCompletion={getDefaultCompletion}
-                            onCompletionSelect={handleCompletionSelect}
-                            onDefaultCompletionSelect={onDefaultCompletionSelect}
-                        />
-                        <FnSignatureEl
-                            label={fnSignature?.label}
-                            args={fnSignature?.args}
-                            currentArgIndex={fnSignature?.currentArgIndex ?? 0}
-                        />
-                    </Transition>
-                </DropdownContainer>
-            )}
+            {isFocused && 
+                createPortal(
+                    <DropdownContainer ref={dropdownContainerRef} sx={{ ...dropdownElPosition }}>
+                        <Transition show={showCompletions} {...ANIMATION}>
+                            <Codicon
+                                id='expression-editor-close'
+                                sx={{
+                                    position: 'absolute',
+                                    top: '0',
+                                    right: '0',
+                                    width: '16px',
+                                    margin: '-4px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'var(--vscode-activityBar-background)',
+                                    zIndex: '5',
+                                }}
+                                iconSx={{ color: 'var(--vscode-activityBar-foreground)' }}
+                                name="close"
+                                onClick={handleClose}
+                            />
+                            <Dropdown
+                                ref={dropdownRef}
+                                isSavable={!!onSave}
+                                items={completions}
+                                showDefaultCompletion={showDefaultCompletion}
+                                autoSelectFirstItem={autoSelectFirstItem}
+                                getDefaultCompletion={getDefaultCompletion}
+                                onCompletionSelect={handleCompletionSelect}
+                                onDefaultCompletionSelect={onDefaultCompletionSelect}
+                            />
+                            <FnSignatureEl
+                                label={fnSignature?.label}
+                                args={fnSignature?.args}
+                                currentArgIndex={fnSignature?.currentArgIndex ?? 0}
+                            />
+                        </Transition>
+                    </DropdownContainer>,
+                    document.body
+                )}
         </Container>
     );
 });
