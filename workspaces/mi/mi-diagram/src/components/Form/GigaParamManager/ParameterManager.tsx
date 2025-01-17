@@ -178,7 +178,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
                                 }}
                             >{param[tableKey as keyof Param] ?? (index + 1)}</Typography>
                         </div>
-                        <div style={{ backgroundColor: Colors.SURFACE_CONTAINER, padding: '5px', flex: 2 }}>
+                        <div style={{ backgroundColor: Colors.SURFACE_CONTAINER, padding: '5px', flex: 2, overflow: 'hidden' }}>
                             <Typography>{getFieldValue(param[tableValue as keyof Param])}</Typography>
                         </div>
 
