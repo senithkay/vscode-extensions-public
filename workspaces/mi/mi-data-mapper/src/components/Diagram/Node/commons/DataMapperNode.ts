@@ -264,7 +264,10 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					foundMappings = [...foundMappings, ...this.genMappings(field, [...currentFields, val])];
 				});
 			} else if (Node.isPropertyAssignment(val) && val.getInitializer()) {
-				const initializer = val.getInitializer();
+				let initializer = val.getInitializer();
+				if (Node.isAsExpression(initializer)) {
+					initializer = initializer.getExpression();
+				}
 				const isObjectLiteralExpr = Node.isObjectLiteralExpression(initializer);
 				const isArrayLiteralExpr = Node.isArrayLiteralExpression(initializer);
 				if (isObjectLiteralExpr || isArrayLiteralExpr) {

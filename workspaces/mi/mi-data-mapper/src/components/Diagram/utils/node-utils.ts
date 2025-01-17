@@ -154,7 +154,8 @@ export function isDataImportNode(node: BaseModel) {
 
 export function isObjectOrArrayLiteralExpression(node: Node): boolean {
     return Node.isObjectLiteralExpression(node)
-        || Node.isArrayLiteralExpression(node);
+        || Node.isArrayLiteralExpression(node)
+        || (Node.isAsExpression(node) && isObjectOrArrayLiteralExpression(node.getExpression()));
 }
 
 export function hasFields(type: DMType): boolean {
