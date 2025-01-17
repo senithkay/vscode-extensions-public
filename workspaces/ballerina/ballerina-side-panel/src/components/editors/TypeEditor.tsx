@@ -64,7 +64,9 @@ export function TypeEditor(props: TypeEditorProps) {
         // Trigger actions on focus
         await onFocus?.();
         await retrieveVisibleTypes(value, value.length);
-        setShowDefaultCompletion(true);
+        if (openRecordEditor) {
+            setShowDefaultCompletion(true);
+        }
         handleOnFieldFocus?.(field.key);
     };
 
