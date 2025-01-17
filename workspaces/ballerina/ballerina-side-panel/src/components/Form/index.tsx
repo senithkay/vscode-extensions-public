@@ -344,6 +344,12 @@ export const Form = forwardRef((props: FormProps, ref) => {
         openSubPanel(updatedSubPanel);
     };
 
+    const handleOnTypeChange = () => {
+        if (mergeFormDataWithFlowNode) {
+            getVisualiableFields();
+        }
+    };
+
     const getVisualiableFields = () => {
         const flowNode = mergeFormDataWithFlowNode(getValues(), targetLineRange);
         handleVisualizableFields && handleVisualizableFields(fileName, flowNode, targetLineRange.startLine);
@@ -450,7 +456,7 @@ export const Form = forwardRef((props: FormProps, ref) => {
                                 openRecordEditor={handleOpenRecordEditor}
                                 openSubPanel={handleOpenSubPanel}
                                 handleOnFieldFocus={handleOnFieldFocus}
-                                handleOnTypeChange={getVisualiableFields}
+                                handleOnTypeChange={handleOnTypeChange}
                                 visualizableFields={visualizableFields}
                             />
                         )}
