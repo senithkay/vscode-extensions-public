@@ -68,6 +68,9 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     const { serviceModel, onSubmit, onBack, formRef, openListenerForm, formSubmitText = "Next" } = props;
     const [filePath, setFilePath] = useState<string>('');
 
+    const createTitle = `Provide the necessary configuration details for the ${serviceModel.displayAnnotation.label} to complete the setup.`;
+    const editTitle = `Update the configuration details for the ${serviceModel.displayAnnotation.label} as needed.`
+
     useEffect(() => {
         serviceModel && setServiceFields(convertConfig(serviceModel));
         rpcClient.getVisualizerLocation().then(res => { setFilePath(Utils.joinPath(URI.file(res.projectUri), 'main.bal').fsPath) });
@@ -105,8 +108,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                         <FormContainer>
                             <Typography variant="h2" sx={{ marginTop: '16px' }}>{serviceModel.displayAnnotation.label} Configuration</Typography>
                             <BodyText>
-                                Provide the necessary configuration details for the {serviceModel.displayAnnotation.label} to complete the
-                                setup.
+                                {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText>
                             {filePath &&
                                 <FormGeneratorNew

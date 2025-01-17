@@ -72,6 +72,9 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
         onSubmit(response);
     };
 
+    const createTitle = `Provide the necessary configuration details for the ${listenerModel.displayAnnotation.label} to complete the setup.`;
+    const editTitle = `Update the configuration details for the ${listenerModel.displayAnnotation.label} as needed.`
+
     return (
         <Container>
 
@@ -88,8 +91,7 @@ export function ListenerConfigForm(props: ListenerConfigFormProps) {
                         <FormContainer>
                             <Typography variant="h2" sx={{ marginTop: '16px' }}>{listenerModel.displayAnnotation.label.charAt(0).toUpperCase() + listenerModel.displayAnnotation.label.slice(1)} Configuration</Typography>
                             <BodyText>
-                                Provide the necessary configuration details for the {listenerModel.displayAnnotation.label} to complete the
-                                setup.
+                                {formSubmitText === "Save" ? editTitle : createTitle}
                             </BodyText>
                             {filePath &&
                                 <FormGeneratorNew
