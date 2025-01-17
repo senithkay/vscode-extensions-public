@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
 */
 
-import { Button, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, FormActions, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import SidePanelContext, { clearSidePanelState } from "../../SidePanelContexProvider";
@@ -117,13 +117,13 @@ export function SetPayloads(props: SetPayloadsProps) {
                 setParameters={setRequests}
             />
 
-            <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
+            <FormActions>
                 <Button onClick={closeSidePanel} appearance="secondary">
                     Cancel
                 </Button>
                 <Button onClick={onSavePayload} sx={{ marginRight: "10px" }}>
                     Save
                 </Button>
-            </div>
+            </FormActions>
         </TryoutContainer>);
 };
