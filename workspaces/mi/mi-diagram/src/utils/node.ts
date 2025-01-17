@@ -98,6 +98,9 @@ export function getNodeDescription(stNode: any): string {
 
             return isSequnceReference ? onComplete.sequenceAttribute.split(".")[0] : undefined;
         }
+        case (MEDIATORS.VARIABLE.toLowerCase()): {
+            return stNode.name;
+        }
         default:
             return;
     }

@@ -32,6 +32,7 @@ import { RegistryResourceForm } from './views/Forms/RegistryResourceForm';
 import { TemplateWizard } from './views/Forms/TemplateForm';
 import { DatamapperForm } from './views/Forms/DatamapperForm';
 import { ManageConfigurables } from './views/Overview/ProjectInformation/ManageConfigurables';
+import { MessageStoreWizard } from './views/Forms/MessageStoreForm';
 
 const ViewContainer = styled.div`
     
@@ -126,6 +127,10 @@ const PopupPanel = (props: { formState: PopupMachineStateValue, handleClose?: ()
                     break;
                 case MACHINE_VIEW.DatamapperForm:
                     setViewComponent(<DatamapperForm path={machineSate.documentUri} handlePopupClose={props.handleClose} isPopup={true} />);
+                    break;
+                case MACHINE_VIEW.MessageStoreForm:
+                    const dir = [machineSate.projectUri, "src", "main", "wso2mi", "artifacts", "messageStores"].join(machineSate.pathSeparator);
+                    setViewComponent(<MessageStoreWizard onClose={props.handleClose} path={dir} isPopup={true} />);
                     break;
                 default:
                     setViewComponent(null);

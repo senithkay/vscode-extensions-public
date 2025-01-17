@@ -90,7 +90,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ children, sx }) => {
             zIndex: 1,
             backgroundColor: 'var(--background)',
             padding: '10px 0px',
-            ...sx
+            ...sx,
         }}>
             {children}
         </div>

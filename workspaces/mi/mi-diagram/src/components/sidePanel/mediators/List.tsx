@@ -30,7 +30,7 @@ interface MediatorProps {
     clearSearch?: () => void;
 }
 
-const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "transformation", "other"];
+const INBUILT_MODULES = ["favourites", "generic", "flow control", "database", "extension", "security", "transformation", "other"];
 export function Mediators(props: MediatorProps) {
     const sidePanelContext = React.useContext(SidePanelContext);
     const { rpcClient } = useVisualizerContext();
@@ -152,7 +152,6 @@ export function Mediators(props: MediatorProps) {
         return Object.keys(allMediators).reduce((acc: any, key: string) => {
             const filtered = (allMediators as any)[key].items.filter((mediator: { title: string; operationName: string }) => {
                 if (search) {
-                    if (key === "favourites") return null;
                     return normalizeString(mediator.operationName).includes(searchValue) || normalizeString(mediator.title).includes(searchValue);
                 } else {
                     return normalizeString(mediator.operationName) === searchValue;
