@@ -11,7 +11,7 @@ import { DependencyDetails, ProjectDetailsResponse } from "@wso2-enterprise/mi-c
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { useEffect, useState } from "react";
 
-import { Button, Dropdown, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
+import { Button, Dropdown, ErrorBanner, FormActions, FormGroup, FormView, OptionProps, ProgressIndicator, TextField } from "@wso2-enterprise/ui-toolkit";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
     const { rpcClient } = useVisualizerContext();
     const [projectDetails, setProjectDetails] = useState<ProjectDetailsResponse>();
     const [runtimeVersions, setRuntimeVersions] = useState<OptionProps[]>([]);
+    const [initialRuntimeVersion, setInitialRuntimeVersion] = useState<string>("");
 
     const schema = yup.object({
         "primaryDetails.projectName": yup.string().required("Project Name is required"),
@@ -44,16 +45,20 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
         handleSubmit,
         reset,
         getValues,
+        watch,
     } = useForm({
         resolver: yupResolver(schema),
         mode: "onChange"
     });
 
+    const currentRuntimeVersion = watch("primaryDetails.runtimeVersion");
+    const isRuntimeVersionChanged = currentRuntimeVersion && currentRuntimeVersion !== initialRuntimeVersion;
     useEffect(() => {
         async function fetchData() {
             try {
                 const response = await rpcClient?.getMiVisualizerRpcClient().getProjectDetails();
                 setProjectDetails(response);
+                setInitialRuntimeVersion(response.primaryDetails.runtimeVersion.value);
                 const supportedVersions = await rpcClient.getMiVisualizerRpcClient().getSupportedMIVersionsHigherThan(response.primaryDetails.runtimeVersion.value);
                 const supportedMIVersions = supportedVersions.map((version: string) => ({ value: version, content: version }));
                 setRuntimeVersions(supportedMIVersions);
@@ -141,8 +146,11 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
             await updatePomValuesForSection("primaryDetails");
             await updatePomValuesForSection("dockerDetails");
             await updatePomValuesForSection("unitTest");
-
-            props.onClose();
+            if (isRuntimeVersionChanged) {
+                await rpcClient.getMiVisualizerRpcClient().reloadWindow();
+            } else {
+                props.onClose();
+            }
         } catch (error) {
             console.error("Error updating project details:", error);
         }
@@ -175,14 +183,19 @@ export function ProjectInformationForm(props: ProjectInformationFormProps) {
                     errorMsg={errors["primaryDetails.projectVersion"]?.message?.toString()}
                     {...register("primaryDetails.projectVersion")}
                 />
-                <Dropdown
-                    id='runtimeVersion'
-                    label="Runtime Version"
-                    required
-                    errorMsg={errors["primaryDetails.runtimeVersion"]?.message?.toString()}
-                    items={runtimeVersions}
-                    {...register("primaryDetails.runtimeVersion")}
-                />
+                <div>
+                    <Dropdown
+                        id='runtimeVersion'
+                        label="Runtime Version"
+                        required
+                        errorMsg={errors["primaryDetails.runtimeVersion"]?.message?.toString()}
+                        items={runtimeVersions}
+                        {...register("primaryDetails.runtimeVersion")}
+                    />
+                    {isRuntimeVersionChanged && (
+                        <ErrorBanner errorMsg={"Extension will restart when submitting"} />
+                    )}
+                </div>
             </FormGroup>
 
             <FormGroup title="Build Details" isCollapsed={false}>
