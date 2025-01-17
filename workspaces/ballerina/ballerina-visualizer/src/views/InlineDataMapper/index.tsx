@@ -124,7 +124,7 @@ export function InlineDataMapper(props: InlineDataMapperProps) {
             {model && (
                 <DataMapperView 
                     model={model || initialModel}
-                    onClose={onClose}
+                    onClose={onClose} 
                     applyModifications={updateExpression}
                     addArrayElement={addArrayElement}
                 />
