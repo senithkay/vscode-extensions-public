@@ -513,25 +513,6 @@ function generateArtifacts(
 				parentEntry.contextValue = 'templates';
 				break;
 			}
-			case 'Data Services': {
-				parentEntry.children = data[key].map((entry: any) => {
-					const explorerEntry = new ProjectExplorerEntry(
-						entry.name.replace(".xml", ""),
-						isCollapsibleState(false),
-						entry,
-						"data-service"
-					);
-					explorerEntry.contextValue = 'data-service';
-					explorerEntry.command = {
-						title: "Show Data Service",
-						command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
-						arguments: [vscode.Uri.file(entry.path)]
-					};
-					return explorerEntry;
-				});
-				parentEntry.contextValue = 'dataServices';
-				break;
-			}
 			case 'Data Sources': {
 				parentEntry.children = data[key].map((entry: any) => {
 					const explorerEntry = new ProjectExplorerEntry(
@@ -817,6 +798,19 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 				"title": "Show Inbound Endpoint",
 				"command": COMMANDS.SHOW_INBOUND_ENDPOINT,
 				"arguments": [vscode.Uri.file(entry.path), undefined, false]
+			};
+		} else if (entry.type === 'DATA_SERVICE') {
+			explorerEntry = new ProjectExplorerEntry(
+				entry.name.replace(".xml", ""),
+				isCollapsibleState(false),
+				entry,
+				"data-service"
+			);
+			explorerEntry.contextValue = 'data-service';
+			explorerEntry.command = {
+				title: "Show Data Service",
+				command: COMMANDS.OPEN_DSS_SERVICE_DESIGNER,
+				arguments: [vscode.Uri.file(entry.path)]
 			};
 		}
 		else {

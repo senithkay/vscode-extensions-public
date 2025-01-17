@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "workspaces/mi/mi-component-diagram"
+		},
+		{
+			"path": ".github"
 		}
 	]
 }
