@@ -142,7 +142,7 @@ const ParameterManager = (props: ParameterManagerProps) => {
                 reset={reset}
                 watch={watch} />
 
-            <FormActions>
+            <FormActions sx={{ backgroundColor: Colors.SECONDARY_CONTAINER }}>
                 <Button
                     appearance="secondary"
                     onClick={handleOnCancel}
@@ -169,10 +169,28 @@ const ParameterManager = (props: ParameterManagerProps) => {
             {parameters?.map((param: Param, index: number) => (
                 <>
                     <Row key={index}>
-                        <div style={{ backgroundColor: Colors.PRIMARY, padding: '5px', flex: 1 }}>
+                        <div 
+                            style={{ 
+                                backgroundColor: Colors.EDITOR_SELECTION_BACKGROUND, 
+                                borderTopLeftRadius: 4, 
+                                borderBottomLeftRadius: 4, 
+                                padding: '5px', 
+                                height: !param[tableKey as keyof Param] && 15, 
+                                flex: 1
+                            }}
+                        >
                             <Typography>{param[tableKey as keyof Param] ?? (index + 1)}</Typography>
                         </div>
-                        <div style={{ backgroundColor: Colors.SURFACE_CONTAINER, padding: '5px', flex: 2 }}>
+                        <div 
+                            style={{
+                                backgroundColor: Colors.SURFACE_CONTAINER,
+                                borderTopRightRadius: (readonly || isAdding || isUpdate) && 4,
+                                borderBottomRightRadius: (readonly || isAdding || isUpdate) && 4,
+                                padding: '5px',
+                                height: !getFieldValue(param[tableValue as keyof Param]) && 15,
+                                flex: 2
+                            }}
+                        >
                             <Typography>{getFieldValue(param[tableValue as keyof Param])}</Typography>
                         </div>
 

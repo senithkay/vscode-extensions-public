@@ -76,9 +76,10 @@ export const FormView: React.FC<FormViewProps> = ({ title, children, onClose, hi
 
 interface FormActionsProps {
     children?: React.ReactNode;
+    sx?: any;
 }
 
-export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
+export const FormActions: React.FC<FormActionsProps> = ({ children, sx }) => {
     return (
         <div className="form-actions" style={{
             display: 'flex',
@@ -89,6 +90,7 @@ export const FormActions: React.FC<FormActionsProps> = ({ children }) => {
             zIndex: 1,
             backgroundColor: 'var(--background)',
             padding: '10px 0px',
+            ...sx
         }}>
             {children}
         </div>
