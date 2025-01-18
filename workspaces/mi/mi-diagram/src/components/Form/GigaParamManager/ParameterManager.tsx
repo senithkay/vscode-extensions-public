@@ -171,14 +171,33 @@ const ParameterManager = (props: ParameterManagerProps) => {
             {parameters?.map((param: Param, index: number) => (
                 <>
                     <Row key={index}>
-                        <div style={{ backgroundColor: Colors.PRIMARY, padding: '5px', flex: 1 }}>
+                        <div 
+                            style={{ 
+                                backgroundColor: Colors.PRIMARY,
+                                padding: '5px',
+                                flex: 1,
+                                borderTopLeftRadius: 4, 
+                                borderBottomLeftRadius: 4, 
+                                height: !param[tableKey as keyof Param] && 15, 
+                            }}
+                        >
                             <Typography
                                 sx={{
                                     color: Colors.ON_PRIMARY
                                 }}
                             >{param[tableKey as keyof Param] ?? (index + 1)}</Typography>
                         </div>
-                        <div style={{ backgroundColor: Colors.SURFACE_CONTAINER, padding: '5px', flex: 2, overflow: 'hidden' }}>
+                        <div 
+                            style={{ 
+                                backgroundColor: Colors.SURFACE_CONTAINER, 
+                                padding: '5px', 
+                                flex: 2, 
+                                overflow: 'hidden',
+                                borderTopRightRadius: 4,
+                                borderBottomRightRadius: 4,
+                                height: !getFieldValue(param[tableValue as keyof Param]) && 15,
+                            }}
+                        >
                             <Typography>{getFieldValue(param[tableValue as keyof Param])}</Typography>
                         </div>
 
