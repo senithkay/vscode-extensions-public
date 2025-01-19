@@ -21,7 +21,8 @@ import {
     LibraryBrowserProps,
     PanelsProps,
     PanelTabProps,
-    PanelViewProps
+    PanelViewProps,
+    StyleBase
 } from '../types';
 import { Codicon } from '../../../../Codicon/Codicon';
 import { Divider } from '../../../../Divider/Divider';
@@ -202,13 +203,15 @@ const ProgressRingContainer = styled.div`
     height: 100%;
 `;
 
-const BodyContainer = styled.div`
+const BodyContainer = styled.div<StyleBase>`
     width: 100%;
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
     padding-inline: 8px;
     overflow-y: auto;
+
+    ${({ sx }: StyleBase) => sx}
 `;
 
 const SearchBoxContainer = styled.div`
@@ -502,9 +505,9 @@ const Section: React.FC<HelperPaneSectionProps> = ({
     );
 };
 
-const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true }) => {
+const Body: React.FC<HelperPaneBodyProps> = ({ children, isLoading = true, className, sx }) => {
     return (
-        <BodyContainer>
+        <BodyContainer className={className} sx={sx}>
             {isLoading ? (
                 <ProgressRingContainer>
                     <ProgressRing />
