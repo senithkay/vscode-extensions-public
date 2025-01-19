@@ -7,34 +7,45 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
+import { css } from '@emotion/css';
+import { NodeIcon } from '@wso2-enterprise/bi-diagram';
 import { HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { CodeIcon } from '../../../../resources';
+import { FunctionIcon, VarIcon } from './icons';
+import { ConfigIcon } from './icons/ConfigIcon';
 
 type CategoryPageProps = {
     setCurrentPage: (page: number) => void;
     onClose: () => void;
 };
 
+const bodyStyles = css({
+    "& svg": {
+        height: "20px",
+        width: "20px",
+        fill: "var(--vscode-foreground)",
+        stroke: "var(--vscode-foreground)",
+    }
+});
+
 export const CategoryPage = ({ setCurrentPage, onClose }: CategoryPageProps) => {
     return (
         <>
             <HelperPane.Header title="Select Category" onClose={onClose} />
-            <HelperPane.Body isLoading={false}>
+            <HelperPane.Body className={bodyStyles} isLoading={false}>
                 <HelperPane.CategoryItem
                     label="Variables"
                     onClick={() => setCurrentPage(1)}
-                    getIcon={CodeIcon}
-                    />
+                    getIcon={() => <VarIcon />}
+                />
                 <HelperPane.CategoryItem
                     label="Functions"
                     onClick={() => setCurrentPage(2)}
-                    getIcon={CodeIcon}
+                    getIcon={() => <FunctionIcon />}
                 />
                 <HelperPane.CategoryItem
                     label="Configurables"
                     onClick={() => setCurrentPage(3)}
-                    getIcon={CodeIcon}
+                    getIcon={() => <ConfigIcon />}
                 />
             </HelperPane.Body>
         </>

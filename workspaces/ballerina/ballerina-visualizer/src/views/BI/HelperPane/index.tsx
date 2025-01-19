@@ -7,45 +7,30 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import { RefObject, useState } from 'react';
 import { FormExpressionEditorRef, HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { CategoryPage } from './CategoryPage';
 import { ConfigurablePage } from './ConfigurablePage';
 import { FunctionsPage } from './FunctionsPage';
-import { LibraryBrowser } from './LibraryBrowser';
 import { VariablesPage } from './VariablesPage';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
-import { HelperPaneVariableInfo } from '../../../Form/types';
-import { HelperPaneData } from '../../../Form/types';
+import { LineRange } from '@wso2-enterprise/ballerina-core';
 
 export type HelperPaneProps = {
-    exprRef: React.RefObject<FormExpressionEditorRef>;
-    isLoadingHelperPaneInfo: boolean;
-    variableInfo: HelperPaneData;
-    configVariableInfo: HelperPaneData;
-    functionInfo: HelperPaneData;
-    libraryBrowserInfo: HelperPaneData;
+    fileName: string;
+    targetLineRange: LineRange;
+    exprRef: RefObject<FormExpressionEditorRef>;
     onClose: () => void;
-    setFilterText: (type: string, filterText: string) => void;
     currentValue: string;
     onChange: (value: string, updatedCursorPosition: number) => void;
-    onSave: (values: any) => void;
-    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>;
 };
 
 const HelperPaneEl = ({
+    fileName,
+    targetLineRange,
     exprRef,
-    isLoadingHelperPaneInfo,
-    variableInfo,
-    configVariableInfo,
-    functionInfo,
-    libraryBrowserInfo,
     onClose,
-    setFilterText,
     currentValue,
-    onChange,
-    onSave,
-    onFunctionItemSelect
+    onChange
 }: HelperPaneProps) => {
     const [currentPage, setCurrentPage] = useState<number>(0);
 
@@ -64,87 +49,62 @@ const HelperPaneEl = ({
         onClose();
     };
 
-    function addConfigVariables(values: any): Promise<void> {
-        return new Promise((resolve) => {
-            onSave(values);
-            resolve();
-        });
-    }
-
     return (
         <HelperPane>
             {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
             {currentPage === 1 && (
                 <VariablesPage
-                    isLoading={isLoadingHelperPaneInfo}
-                    variableInfo={variableInfo as HelperPaneVariableInfo}
+                    fileName={fileName}
+                    targetLineRange={targetLineRange}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('variables', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
                 />
             )}
             {currentPage === 2 && (
                 <FunctionsPage
-                    isLoading={isLoadingHelperPaneInfo}
-                    functionInfo={functionInfo as HelperPaneFunctionInfo}
-                    libraryBrowserInfo={libraryBrowserInfo as HelperPaneFunctionInfo}
+                    fileName={fileName}
+                    targetLineRange={targetLineRange}
                     setCurrentPage={setCurrentPage}
-                    setFunctionFilterText={(filterText) => setFilterText('functions', filterText)}
-                    setLibraryFilterText={(filterText) => setFilterText('libraries', filterText)}
-                    onFunctionItemSelect={onFunctionItemSelect}
                     onClose={onClose}
                     onChange={handleChange}
-                />
-            )}
+                    />
+                )}
             {currentPage === 3 && (
                 <ConfigurablePage
-                    isLoading={isLoadingHelperPaneInfo}
-                    variableInfo={configVariableInfo as HelperPaneVariableInfo}
+                    fileName={fileName}
+                    targetLineRange={targetLineRange}
                     setCurrentPage={setCurrentPage}
-                    setFilterText={(filterText) => setFilterText('configurable', filterText)}
                     onClose={onClose}
                     onChange={handleChange}
-                    onSave={addConfigVariables}
                 />
             )} 
         </HelperPane>
     );
 };
 
-export const getHelperPane = (
-    exprRef: React.RefObject<FormExpressionEditorRef>,
-    isLoadingHelperPaneInfo: boolean,
-    variableInfo: HelperPaneData,
-    configVariableInfo: HelperPaneData,
-    functionInfo: HelperPaneData,
-    libraryBrowserInfo: HelperPaneData,
-    onClose: () => void,
-    setFilterText: (type: string, filterText: string) => void,
-    currentValue: string,
-    onChange: (value: string, updatedCursorPosition: number) => void,
-    onSave: (values: any) => void,
-    onFunctionItemSelect: (item: HelperPaneCompletionItem) => Promise<string>
-) => {
-    
-    function saveConfigVariables(values: any): void {
-        onSave(values);
-    }
+/**
+ * Function to render the helper pane for the expression editor
+ * 
+ * @param fileName File name of the expression editor
+ * @param targetLineRange Modified line range of the expression editor
+ * @param exprRef Ref object of the expression editor
+ * @param onClose Function to close the helper pane
+ * @param currentValue Current value of the expression editor
+ * @param onChange Function to handle changes in the expression editor
+ * @returns JSX.Element Helper pane element
+ */
+export const getHelperPane = (props: HelperPaneProps) => {
+    const { fileName, targetLineRange, exprRef, onClose, currentValue, onChange } = props;
 
     return (
         <HelperPaneEl
+            fileName={fileName}
+            targetLineRange={targetLineRange}
             exprRef={exprRef}
-            isLoadingHelperPaneInfo={isLoadingHelperPaneInfo}
-            variableInfo={variableInfo}
-            configVariableInfo={configVariableInfo}
-            libraryBrowserInfo={libraryBrowserInfo}
-            functionInfo={functionInfo}
             onClose={onClose}
-            setFilterText={setFilterText}
             currentValue={currentValue}
             onChange={onChange}
-            onSave={saveConfigVariables}
-            onFunctionItemSelect={onFunctionItemSelect}
         />
     );
 };

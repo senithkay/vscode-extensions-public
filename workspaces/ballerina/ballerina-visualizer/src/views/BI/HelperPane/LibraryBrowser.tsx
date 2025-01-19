@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { useEffect, useRef, useState } from 'react';
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import React, { useEffect, useRef, useState } from 'react';
-import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '../../../Form/types';
+import { HelperPaneCompletionItem, HelperPaneFunctionInfo } from '@wso2-enterprise/ballerina-side-panel';
 
 type LibraryBrowserProps = {
     isLoading: boolean;

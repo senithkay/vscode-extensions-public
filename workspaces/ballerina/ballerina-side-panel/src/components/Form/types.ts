@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { RefObject } from "react";
 import { DiagnosticMessage, FormDiagnostics, TextEdit, PropertyModel, LinePosition } from "@wso2-enterprise/ballerina-core";
 import { ParamConfig } from "../ParamManager/ParamManager";
-import { CompletionItem } from "@wso2-enterprise/ui-toolkit";
+import { CompletionItem, FormExpressionEditorRef } from "@wso2-enterprise/ui-toolkit";
 
 export type FormValues = {
     [key: string]: any;
@@ -107,21 +108,14 @@ type FormTypeConditionalProps = {
 }
 
 type FormHelperPaneConditionalProps = {
-    isLoadingHelperPaneInfo: boolean;
-    variableInfo: HelperPaneData;
-    configVariableInfo: HelperPaneData;
-    functionInfo: HelperPaneData;
-    libraryBrowserInfo: HelperPaneData;
-    getHelperPaneData?: (type: string, filterText: string) => void;
-    onFunctionItemSelect?: (item: HelperPaneCompletionItem) => Promise<string>;
+    getHelperPane: (
+        exprRef: RefObject<FormExpressionEditorRef>,
+        value: string,
+        onChange: (value: string, updatedCursorPosition: number) => void,
+        changeHelperPaneState: (isOpen: boolean) => void,
+    ) => JSX.Element;
 } | {
-    isLoadingHelperPaneInfo?: never;
-    variableInfo?: never;
-    configVariableInfo?: never;
-    functionInfo?: never;
-    libraryBrowserInfo?: never;
-    getHelperPaneData?: never;
-    onFunctionItemSelect?: never;
+    getHelperPane?: never;
 }
 
 type FormExpressionEditorBaseProps = {

@@ -7,40 +7,60 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from '@wso2-enterprise/ui-toolkit';
-import { HelperPaneVariableInfo } from '../../../Form/types';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { LineRange } from "@wso2-enterprise/ballerina-core";
+import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
+import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
+import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../utils/bi";
 
 type VariablesPageProps = {
-    isLoading: boolean;
-    variableInfo: HelperPaneVariableInfo;
+    fileName: string;
+    targetLineRange: LineRange;
     setCurrentPage: (page: number) => void;
-    setFilterText: (filterText: string) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
 
-export const VariablesPage = ({
-    isLoading,
-    variableInfo,
-    setCurrentPage,
-    setFilterText,
-    onClose,
-    onChange
-}: VariablesPageProps) => {
+export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClose, onChange }: VariablesPageProps) => {
+    const { rpcClient } = useRpcContext();
     const firstRender = useRef<boolean>(true);
-    const [searchValue, setSearchValue] = useState<string>('');
+    const [searchValue, setSearchValue] = useState<string>("");
+    const [variableInfo, setVariableInfo] = useState<HelperPaneVariableInfo | undefined>(undefined);
+    const [filteredVariableInfo, setFilteredVariableInfo] = useState<HelperPaneVariableInfo | undefined>(undefined);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const getVariableInfo = useCallback(() => {
+        setIsLoading(true);
+        rpcClient
+            .getBIDiagramRpcClient()
+            .getVisibleVariableTypes({
+                filePath: fileName,
+                position: {
+                    line: targetLineRange.startLine.line,
+                    offset: targetLineRange.startLine.offset,
+                },
+            })
+            .then((response) => {
+                if (response.categories?.length) {
+                    const convertedHelperPaneVariable = convertToHelperPaneVariable(response.categories);
+                    setVariableInfo(convertedHelperPaneVariable);
+                    setFilteredVariableInfo(convertedHelperPaneVariable);
+                }
+            })
+            .then(() => setIsLoading(false));
+    }, [rpcClient, fileName, targetLineRange]);
 
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
-            setFilterText('');
+            getVariableInfo();
         }
     }, []);
 
     const handleSearch = (searchText: string) => {
-        setFilterText(searchText);
         setSearchValue(searchText);
+        setFilteredVariableInfo(filterHelperPaneVariables(variableInfo, searchText));
     };
 
     return (
@@ -53,7 +73,7 @@ export const VariablesPage = ({
                 onSearch={handleSearch}
             />
             <HelperPane.Body isLoading={isLoading}>
-                {variableInfo?.category.map((category, index) => (
+                {filteredVariableInfo?.category.map((category, index) => (
                     <HelperPane.Section title={category.label} key={index}>
                         {category.items.map((item, index) => (
                             <HelperPane.CompletionItem
