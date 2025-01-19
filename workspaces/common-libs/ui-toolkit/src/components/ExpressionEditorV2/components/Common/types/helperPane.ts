@@ -81,7 +81,7 @@ type SearchBoxConditionalProps = {
 
 export type HelperPaneBodyProps = PropsWithChildren<{
     isLoading?: boolean;
-}>;
+} & StyleBase>;
 
 export type HelperPaneHeaderProps = SearchBoxConditionalProps & {
     title?: string;
