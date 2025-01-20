@@ -8,13 +8,13 @@
  */
 
 import { css } from '@emotion/css';
-import { NodeIcon } from '@wso2-enterprise/bi-diagram';
 import { HelperPane } from '@wso2-enterprise/ui-toolkit';
 import { FunctionIcon, VarIcon } from './icons';
 import { ConfigIcon } from './icons/ConfigIcon';
+import { HELPER_PANE_PAGE, HelperPanePageType } from '.';
 
 type CategoryPageProps = {
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: HelperPanePageType) => void;
     onClose: () => void;
 };
 
@@ -34,17 +34,17 @@ export const CategoryPage = ({ setCurrentPage, onClose }: CategoryPageProps) => 
             <HelperPane.Body className={bodyStyles} isLoading={false}>
                 <HelperPane.CategoryItem
                     label="Variables"
-                    onClick={() => setCurrentPage(1)}
+                    onClick={() => setCurrentPage(HELPER_PANE_PAGE.VARIABLES)}
                     getIcon={() => <VarIcon />}
                 />
                 <HelperPane.CategoryItem
                     label="Functions"
-                    onClick={() => setCurrentPage(2)}
+                    onClick={() => setCurrentPage(HELPER_PANE_PAGE.FUNCTIONS)}
                     getIcon={() => <FunctionIcon />}
                 />
                 <HelperPane.CategoryItem
                     label="Configurables"
-                    onClick={() => setCurrentPage(3)}
+                    onClick={() => setCurrentPage(HELPER_PANE_PAGE.CONFIGURABLE)}
                     getIcon={() => <ConfigIcon />}
                 />
             </HelperPane.Body>

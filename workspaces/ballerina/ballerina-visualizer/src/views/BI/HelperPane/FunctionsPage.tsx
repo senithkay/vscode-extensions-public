@@ -15,11 +15,12 @@ import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { LineRange, FunctionKind } from "@wso2-enterprise/ballerina-core";
 import { convertToHelperPaneFunction, extractFunctionInsertText } from "../../../utils/bi";
 import { debounce } from "lodash";
+import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
 
 type FunctionsPageProps = {
     fileName: string;
     targetLineRange: LineRange;
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: HelperPanePageType) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
@@ -111,7 +112,7 @@ export const FunctionsPage = ({ fileName, targetLineRange, setCurrentPage, onClo
         <>
             <HelperPane.Header
                 title="Functions"
-                onBack={() => setCurrentPage(0)}
+                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleFunctionSearch}

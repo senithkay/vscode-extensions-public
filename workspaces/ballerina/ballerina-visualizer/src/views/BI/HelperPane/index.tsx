@@ -24,6 +24,15 @@ export type HelperPaneProps = {
     onChange: (value: string, updatedCursorPosition: number) => void;
 };
 
+export const HELPER_PANE_PAGE = {
+    CATEGORY: "CATEGORY",
+    VARIABLES: "VARIABLES",
+    FUNCTIONS: "FUNCTIONS",
+    CONFIGURABLE: "CONFIGURABLE"
+} as const;
+
+export type HelperPanePageType = typeof HELPER_PANE_PAGE[keyof typeof HELPER_PANE_PAGE];
+
 const HelperPaneEl = ({
     fileName,
     targetLineRange,
@@ -32,7 +41,7 @@ const HelperPaneEl = ({
     currentValue,
     onChange
 }: HelperPaneProps) => {
-    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<HelperPanePageType>(HELPER_PANE_PAGE.CATEGORY);
 
     const handleChange = (value: string) => {
         const cursorPosition = exprRef.current?.shadowRoot?.querySelector('textarea')?.selectionStart;
@@ -51,8 +60,10 @@ const HelperPaneEl = ({
 
     return (
         <HelperPane>
-            {currentPage === 0 && <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />}
-            {currentPage === 1 && (
+            {currentPage === HELPER_PANE_PAGE.CATEGORY && (
+                <CategoryPage setCurrentPage={setCurrentPage} onClose={onClose} />
+            )}
+            {currentPage === HELPER_PANE_PAGE.VARIABLES && (
                 <VariablesPage
                     fileName={fileName}
                     targetLineRange={targetLineRange}
@@ -61,7 +72,7 @@ const HelperPaneEl = ({
                     onChange={handleChange}
                 />
             )}
-            {currentPage === 2 && (
+            {currentPage === HELPER_PANE_PAGE.FUNCTIONS && (
                 <FunctionsPage
                     fileName={fileName}
                     targetLineRange={targetLineRange}
@@ -70,7 +81,7 @@ const HelperPaneEl = ({
                     onChange={handleChange}
                     />
                 )}
-            {currentPage === 3 && (
+            {currentPage === HELPER_PANE_PAGE.CONFIGURABLE && (
                 <ConfigurablePage
                     fileName={fileName}
                     targetLineRange={targetLineRange}

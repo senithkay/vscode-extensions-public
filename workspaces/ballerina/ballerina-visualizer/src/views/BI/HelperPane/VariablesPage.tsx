@@ -13,11 +13,12 @@ import { HelperPaneVariableInfo } from "@wso2-enterprise/ballerina-side-panel";
 import { COMPLETION_ITEM_KIND, getIcon, HelperPane } from "@wso2-enterprise/ui-toolkit";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneVariable, filterHelperPaneVariables } from "../../../utils/bi";
+import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
 
 type VariablesPageProps = {
     fileName: string;
     targetLineRange: LineRange;
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: HelperPanePageType) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
@@ -67,7 +68,7 @@ export const VariablesPage = ({ fileName, targetLineRange, setCurrentPage, onClo
         <>
             <HelperPane.Header
                 title="Variables"
-                onBack={() => setCurrentPage(0)}
+                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}

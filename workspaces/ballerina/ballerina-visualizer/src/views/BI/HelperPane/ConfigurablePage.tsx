@@ -15,11 +15,12 @@ import { LineRange, ConfigVariable } from "@wso2-enterprise/ballerina-core";
 import { useRpcContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { convertToHelperPaneConfigurableVariable, filterHelperPaneVariables } from "../../../utils/bi";
 import { URI, Utils } from "vscode-uri";
+import { HELPER_PANE_PAGE, HelperPanePageType } from ".";
 
 type ConfigurablePageProps = {
     fileName: string;
     targetLineRange: LineRange;
-    setCurrentPage: (page: number) => void;
+    setCurrentPage: (page: HelperPanePageType) => void;
     onClose: () => void;
     onChange: (value: string) => void;
 };
@@ -195,7 +196,7 @@ export const ConfigurablePage = ({
         handleSaveConfigurables(confData as any)
             .then(() => {
                 setIsFormVisible(false);
-                setCurrentPage(3);
+                setCurrentPage(HELPER_PANE_PAGE.CONFIGURABLE);
             })
             .catch((error) => {
                 console.error("Failed to save variable:", error);
@@ -210,7 +211,7 @@ export const ConfigurablePage = ({
         <>
             <HelperPane.Header
                 title="Configurables"
-                onBack={() => setCurrentPage(0)}
+                onBack={() => setCurrentPage(HELPER_PANE_PAGE.CATEGORY)}
                 onClose={onClose}
                 searchValue={searchValue}
                 onSearch={handleSearch}
