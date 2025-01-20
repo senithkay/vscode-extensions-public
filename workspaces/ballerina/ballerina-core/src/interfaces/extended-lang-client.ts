@@ -856,7 +856,8 @@ export interface GetTypeRequest {
 
 export interface UpdateTypeRequest {
     filePath: string;
-    type: string;
+    description: string;
+    type: Type;
 }
 
 export interface GetTypesResponse {

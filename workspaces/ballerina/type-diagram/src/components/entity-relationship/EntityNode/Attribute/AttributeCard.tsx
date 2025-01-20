@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, {useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { Member } from '@wso2-enterprise/ballerina-core';
 import { EntityModel } from '../EntityModel';

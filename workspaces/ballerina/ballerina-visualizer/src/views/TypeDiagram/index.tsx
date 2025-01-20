@@ -15,7 +15,8 @@ import { RecordEditor } from "../RecordEditor/RecordEditor";
 import { Button, Codicon, ProgressRing, ThemeColors, View, ViewContent } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources/constants";
-
+import { PanelContainer } from "@wso2-enterprise/ballerina-side-panel";
+import { TypeEditor } from "@wso2-enterprise/type-editor";
 const HeaderContainer = styled.div`
     align-items: center;
     color: ${ThemeColors.ON_SURFACE};
@@ -106,6 +107,7 @@ export function TypeDiagram(props: TypeDiagramProps) {
 
     const onTypeEditorClosed = () => {
         setEditingTypeId(undefined);
+        setIsTypeCreatorOpen(false);
     }
 
     const Header = () => (
@@ -120,6 +122,32 @@ export function TypeDiagram(props: TypeDiagramProps) {
             </Button>
         </HeaderContainer>
     );
+
+    const findSelectedType = (typeId: string) => {
+        if (!typeId) {
+            return {
+                name: "MyType",
+                editable: true,
+                metadata: {
+                    label: "",
+                    description: ""
+                },
+                codedata: {
+                    lineRange: null,
+                    kind: ""
+                },
+                properties: {},
+                members: {},
+                includes: []
+            };
+        }
+        return typesModel.find((type: Type) => type.name === typeId);
+    }
+
+    const onTypeChange = async (type: Type) => {
+        const response = await rpcClient.getBIDiagramRpcClient().updateType({ filePath: visualizerLocation?.metadata?.recordFilePath, type, description: "" });
+        console.log(response);
+    }
 
     return (
         <>
@@ -139,13 +167,12 @@ export function TypeDiagram(props: TypeDiagramProps) {
                     )}
                 </ViewContent>
             </View>
-            <RecordEditor
-                isRecordEditorOpen={!!editingTypeId}
-                onClose={onTypeEditorClosed}
-                rpcClient={rpcClient}
-                width="400px"
-                recordId={editingTypeId}
-            />
+            {/* Panel for editing and creating types */}
+            {(editingTypeId || isTypeCreatorOpen) && (
+                <PanelContainer title={editingTypeId ? `Edit Type` : "New Type"} show={true} onClose={onTypeEditorClosed}>
+                    <TypeEditor type={findSelectedType(editingTypeId)} newType={editingTypeId ? false : true} rpcClient={rpcClient} onTypeChange={onTypeChange} />
+                </PanelContainer>
+            )}
         </>
     );
 }

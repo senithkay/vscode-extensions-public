@@ -29,7 +29,7 @@ export interface RecordEditorProps {
     width?: string;
     onClose: () => void;
     updateFields?: (fields: FormField[]) => void;
-    recordId?: string;
+    typeId?: string;
 }
 
 export function RecordEditor(props: RecordEditorProps) {
@@ -97,6 +97,7 @@ export function RecordEditor(props: RecordEditorProps) {
             setRecordPath(vl.metadata?.recordFilePath);
         });
     }, []);
+
     return (
         <Drawer
             isOpen={isRecordEditorOpen}

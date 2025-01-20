@@ -1094,11 +1094,11 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
                         resolve(undefined);
                     });
                 }
-            );
+                );
         });
     }
 
-    
+
     async getTypes(params: GetTypesRequest): Promise<GetTypesResponse> {
         const projectUri = StateMachine.context().projectUri;
         const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
@@ -1116,8 +1116,19 @@ export class BiDiagramRpcManager implements BIDiagramAPI {
     }
 
     async updateType(params: UpdateTypeRequest): Promise<UpdateTypeResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        const projectUri = StateMachine.context().projectUri;
+        const ballerinaFiles = await getBallerinaFiles(Uri.file(projectUri).fsPath);
+
+        return new Promise((resolve, reject) => {
+            StateMachine.langClient()
+                .updateType({ filePath: params.filePath, type: params.type, description: "" })
+                .then((types) => {
+                    resolve(types);
+                }).catch((error) => {
+                    console.log(">>> error fetching types from ls", error);
+                    reject(error);
+                });
+        });
     }
 
     async getType(params: GetTypeRequest): Promise<GetTypeResponse> {
