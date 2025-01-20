@@ -293,6 +293,7 @@ export function BIFlowDiagram(props: BIFlowDiagramProps) {
                       q: searchText,
                       limit: 12,
                       offset: 0,
+                      includeAvailableFunctions: "true"
                   }
                 : undefined,
         };
