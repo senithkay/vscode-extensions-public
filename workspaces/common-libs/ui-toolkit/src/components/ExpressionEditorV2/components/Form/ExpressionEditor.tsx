@@ -75,7 +75,7 @@ const Arrow = styled.div<ArrowProps>`
 
 const DropdownContainer = styled.div<StyleBase>`
     position: absolute;
-    z-index: 10000;
+    z-index: 2001;
     filter: drop-shadow(0 3px 8px rgb(0 0 0 / 0.2));
     ${(props: StyleBase) => props.sx}
 `;
